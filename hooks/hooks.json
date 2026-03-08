@@ -1,0 +1,48 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "You are a task classifier for the Anti-Vibe Coding methodology. Classify the user's message into exactly ONE category:\n\n- QUICK_FIX: Simple typo, one-line change, obvious bug fix\n- BUG_FIX: Bug that requires investigation, multiple files, or understanding context\n- NEW_FEATURE: New functionality, new component, new endpoint\n- ARCHITECTURE: Structural decisions, technology choices, database schema, auth patterns\n- QUESTION: User is asking for information, not requesting implementation\n\nAlso determine if the user shows UNCERTAINTY (phrases like 'not sure', 'what's the best way', 'how should I', 'don't know if', 'qual a melhor forma', 'como deveria', 'não sei se').\n\nRespond with EXACTLY this format (no other text):\n[ANTI_VIBE_CLASSIFICATION: <CATEGORY>] [NEEDS_CONSULTANT: <true/false>]\n\nUser message to classify:\n$ARGUMENTS"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "You are a TDD Gate for the Anti-Vibe Coding methodology. Your job is to verify that tests are written BEFORE production code.\n\nAnalyze the file being written/edited. ALLOW the operation if ANY of these are true:\n1. The file is a test file (*.test.*, *.spec.*, __tests__/*)\n2. The file is a config file (*.config.*, *.json, *.yaml, *.yml, *.toml, .env*)\n3. The file is documentation (*.md, *.txt, *.mdx)\n4. The file is a type definition (*.d.ts, types.ts, types/*.ts)\n5. The file is in the current context of a QUICK_FIX classification\n6. The file is a migration or schema file\n7. The file is a hook, skill, agent, or plugin configuration\n\nBLOCK the operation if:\n- The file is production code (.ts, .tsx, .js, .jsx) AND no corresponding test file has been written/edited in this conversation yet\n\nIf BLOCKING, respond with:\n[TDD_GATE: BLOCKED] Escreva os testes primeiro. O Anti-Vibe Coding exige TDD: Red (testes falhando) → Green (código mínimo) → Refactor.\n\nIf ALLOWING, respond with:\n[TDD_GATE: ALLOWED]\n\nFile being modified: $ARGUMENTS"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "You are a post-response analyzer for the Anti-Vibe Coding methodology. Analyze the conversation that just ended and detect TWO things:\n\n1. CORRECTION: Did the user correct the AI? Look for:\n   - User saying the AI was wrong, made a mistake, hallucinated\n   - User providing the correct answer after AI gave wrong one\n   - User saying 'no, that's not right', 'actually...', 'you should have...'\n   - User reverting or significantly modifying AI-generated code\n\n2. FEATURE_COMPLETED: Was a feature/task completed? Look for:\n   - All tests passing after implementation\n   - User confirming the task is done\n   - A complete Red-Green-Refactor cycle finishing\n   - User saying 'done', 'looks good', 'ship it', 'commit'\n\nRespond with EXACTLY one of these (no other text):\n- [CORRECTION_DETECTED] Consider adding this as a lesson: /anti-vibe-coding:lessons-learned add\n- [FEATURE_COMPLETED] Consider documenting and running audits: /anti-vibe-coding:anti-vibe-review, security-auditor agent, code-smell-detector agent\n- [NO_ACTION]\n\nConversation context: $ARGUMENTS"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '[ANTI_VIBE_CODING_ACTIVE v2.0] Princípios ativos: Humano=Navegador, IA=Piloto. TDD obrigatório. Disciplina > Velocidade. 90 conhecimentos sênior ativos (segurança, SOLID, system design, qualidade). Use /anti-vibe-coding:consultant para Fase Zero.'"
+          }
+        ]
+      }
+    ]
+  }
+}
