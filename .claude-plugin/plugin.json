@@ -1,0 +1,21 @@
+{
+  "name": "anti-vibe-coding",
+  "version": "2.0.0",
+  "description": "Plugin de desenvolvimento disciplinado com conhecimentos de programador sênior. Automatiza TDD, segurança, design patterns, SOLID, system design e qualidade de código usando hooks, skills, agents e rules.",
+  "author": {
+    "name": "Luiz Felipe"
+  },
+  "license": "MIT",
+  "keywords": [
+    "tdd",
+    "anti-vibe-coding",
+    "discipline",
+    "code-quality",
+    "xp",
+    "security",
+    "solid",
+    "system-design",
+    "senior",
+    "design-patterns"
+  ]
+}
