@@ -1,12 +1,22 @@
 {
   "hooks": {
-    "UserPromptSubmit": [
+    "SessionStart": [
       {
-        "matcher": "",
         "hooks": [
           {
-            "type": "prompt",
-            "prompt": "You are a task classifier for the Anti-Vibe Coding methodology. Classify the user's message into exactly ONE category:\n\n- QUICK_FIX: Simple typo, one-line change, obvious bug fix\n- BUG_FIX: Bug that requires investigation, multiple files, or understanding context\n- NEW_FEATURE: New functionality, new component, new endpoint\n- ARCHITECTURE: Structural decisions, technology choices, database schema, auth patterns\n- QUESTION: User is asking for information, not requesting implementation\n\nAlso determine if the user shows UNCERTAINTY (phrases like 'not sure', 'what's the best way', 'how should I', 'don't know if', 'qual a melhor forma', 'como deveria', 'não sei se').\n\nRespond with EXACTLY this format (no other text):\n[ANTI_VIBE_CLASSIFICATION: <CATEGORY>] [NEEDS_CONSULTANT: <true/false>]\n\nUser message to classify:\n$ARGUMENTS"
+            "type": "command",
+            "command": "printf '[ANTI_VIBE_CODING v4.0 - SKILL ADVISOR ATIVO]\\n\\nINSTRUCAO PERMANENTE para esta sessao:\\nPara QUALQUER pedido de implementacao (nao perguntas simples), voce DEVE:\\n1. Identificar o dominio da tarefa\\n2. Recomendar a skill apropriada com comando exato\\n3. Perguntar ao usuario se deseja invocar a skill antes de prosseguir\\n\\nSkills disponiveis:\\n- /anti-vibe-coding:consultant - Fase Zero: decisoes complexas, incerteza, multiplos dominios\\n- /anti-vibe-coding:react-patterns - React/Next.js: hooks, state, data fetching, performance\\n- /anti-vibe-coding:security - Seguranca: auth, crypto, JWT, CORS, XSS\\n- /anti-vibe-coding:system-design - System Design: cache, scaling, CAP, replicacao\\n- /anti-vibe-coding:api-design - API: endpoints, N+1, DTOs, idempotencia, webhooks\\n- /anti-vibe-coding:architecture - Arquitetura: SOLID, patterns, monolito vs micro\\n- /anti-vibe-coding:design-patterns - Qualidade: code smells, error handling, refactoring\\n- /anti-vibe-coding:tdd-workflow - TDD: implementacao test-first\\n- /anti-vibe-coding:lessons-learned - Registrar licoes de erros\\n- /anti-vibe-coding:decision-registry - Registrar decisoes arquiteturais\\n- /anti-vibe-coding:anti-vibe-review - Review pos-implementacao\\n- /anti-vibe-coding:enhance-prompt - Otimizar prompts de execucao automatizada\\n\\nComportamento ao detectar skill relevante:\\n- SEMPRE pergunte ao usuario antes de invocar: Deseja que eu invoque /skill-name?\\n- Se o usuario disser sim, invoque com a tool Skill\\n- Se o usuario disser nao ou prosseguir, continue sem invocar\\n\\nQuando NAO sugerir skill:\\n- Perguntas explicativas (o que e, como funciona, por que)\\n- Fixes triviais (typo, rename, formatacao)\\n- Leitura/exploracao de codigo\\n- Usuario ja invocou uma skill (/)\\n- Usuario disse: prosseguir, sem skill, skip\\n'"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"try{require(process.env.CLAUDE_PLUGIN_ROOT+'/hooks/user-prompt-gate.cjs')}catch(e){process.exit(0)}\"",
+            "timeout": 10
           }
         ]
       }
@@ -16,30 +26,20 @@
         "matcher": "Write|Edit",
         "hooks": [
           {
-            "type": "prompt",
-            "prompt": "You are a TDD Gate for the Anti-Vibe Coding methodology. Your job is to verify that tests are written BEFORE production code.\n\nAnalyze the file being written/edited. ALLOW the operation if ANY of these are true:\n1. The file is a test file (*.test.*, *.spec.*, __tests__/*)\n2. The file is a config file (*.config.*, *.json, *.yaml, *.yml, *.toml, .env*)\n3. The file is documentation (*.md, *.txt, *.mdx)\n4. The file is a type definition (*.d.ts, types.ts, types/*.ts)\n5. The file is in the current context of a QUICK_FIX classification\n6. The file is a migration or schema file\n7. The file is a hook, skill, agent, or plugin configuration\n\nBLOCK the operation if:\n- The file is production code (.ts, .tsx, .js, .jsx) AND no corresponding test file has been written/edited in this conversation yet\n\nIf BLOCKING, respond with:\n[TDD_GATE: BLOCKED] Escreva os testes primeiro. O Anti-Vibe Coding exige TDD: Red (testes falhando) → Green (código mínimo) → Refactor.\n\nIf ALLOWING, respond with:\n[TDD_GATE: ALLOWED]\n\nFile being modified: $ARGUMENTS"
+            "type": "command",
+            "command": "node -e \"try{require(process.env.CLAUDE_PLUGIN_ROOT+'/hooks/tdd-gate.cjs')}catch(e){process.exit(0)}\"",
+            "timeout": 10
           }
         ]
       }
     ],
     "Stop": [
       {
-        "matcher": "",
         "hooks": [
           {
             "type": "prompt",
-            "prompt": "You are a post-response analyzer for the Anti-Vibe Coding methodology. Analyze the conversation that just ended and detect TWO things:\n\n1. CORRECTION: Did the user correct the AI? Look for:\n   - User saying the AI was wrong, made a mistake, hallucinated\n   - User providing the correct answer after AI gave wrong one\n   - User saying 'no, that's not right', 'actually...', 'you should have...'\n   - User reverting or significantly modifying AI-generated code\n\n2. FEATURE_COMPLETED: Was a feature/task completed? Look for:\n   - All tests passing after implementation\n   - User confirming the task is done\n   - A complete Red-Green-Refactor cycle finishing\n   - User saying 'done', 'looks good', 'ship it', 'commit'\n\nRespond with EXACTLY one of these (no other text):\n- [CORRECTION_DETECTED] Consider adding this as a lesson: /anti-vibe-coding:lessons-learned add\n- [FEATURE_COMPLETED] Consider documenting and running audits: /anti-vibe-coding:anti-vibe-review, security-auditor agent, code-smell-detector agent\n- [NO_ACTION]\n\nConversation context: $ARGUMENTS"
-          }
-        ]
-      }
-    ],
-    "SessionStart": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "echo '[ANTI_VIBE_CODING_ACTIVE v2.0] Princípios ativos: Humano=Navegador, IA=Piloto. TDD obrigatório. Disciplina > Velocidade. 90 conhecimentos sênior ativos (segurança, SOLID, system design, qualidade). Use /anti-vibe-coding:consultant para Fase Zero.'"
+            "prompt": "You are a post-response analyzer for Anti-Vibe Coding v4.0. Analyze the conversation and detect what happened. Respond with ONLY valid JSON, no markdown, no extra text.\n\nDetection rules:\n1. CORRECTION: User explicitly said the AI was wrong, corrected a mistake, pointed out an error, or reverted AI-generated code. Signs: 'isso esta errado', 'nao era isso', 'reverta', 'you broke', 'that is wrong', 'undo', user manually fixed code the AI wrote.\n2. FEATURE_COMPLETED: Implementation is done AND tests are passing. Signs: user said 'done', 'pronto', 'ship it', 'commit', 'finalizado', test suite passed, user confirmed completion.\n3. NOTHING: Normal conversation, question answered, work still in progress, debugging ongoing, planning phase.\n\nRespond with exactly one of:\n\nIf NOTHING (most common case):\n{\"ok\": true}\n\nIf CORRECTION detected:\n{\"ok\": false, \"reason\": \"[CORRECTION_DETECTED] Uma correcao foi detectada. Considere registrar como licao aprendida com /anti-vibe-coding:lessons-learned para evitar o mesmo erro no futuro.\"}\n\nIf FEATURE_COMPLETED detected:\n{\"ok\": false, \"reason\": \"[FEATURE_COMPLETED] Implementacao concluida! Recomendacoes pos-implementacao:\\n- OBRIGATORIO: Execute os agentes security-auditor e code-smell-detector\\n- OPCIONAL: solid-auditor, react-auditor, api-auditor, database-analyzer, infrastructure-auditor\\n- DOCUMENTACAO: Crie subagente documentation-writer\\n- REVISAO: Use /anti-vibe-coding:anti-vibe-review para review completo\"}\n\nBe conservative: when in doubt, return {\"ok\": true}. Only flag corrections and completions when you are confident.\n\n$ARGUMENTS",
+            "timeout": 15
           }
         ]
       }
