@@ -53,6 +53,39 @@ Estas regras carregam automaticamente ao editar arquivos que lidam com autentica
 - Usuarios com permissoes minimas necessarias
 - Cada servico com credenciais proprias (nao compartilhadas)
 
+## Autorizacao
+
+- RBAC/ABAC centralizado em middleware (NUNCA checks de role espalhados em handlers)
+- Pattern correto: `app.use('/admin', requireRole('admin'))` em vez de `if (user.role === 'admin')` em cada handler
+- IDOR (Insecure Direct Object Reference): SEMPRE filtre queries pelo usuario autenticado
+  - ERRADO: `db.findById(req.params.id)`
+  - CORRETO: `db.findOne({ id: req.params.id, userId: req.user.id })`
+- Principio do menor privilegio: roles devem ter permissoes minimas necessarias
+- NUNCA aceite `role` ou `isAdmin` via request body (escalacao de privilegios)
+- Endpoints que modificam permissoes devem exigir role superior (admin nao pode promover a super-admin)
+
+## Seguranca de API
+
+- Rate limiting em 3 niveis:
+  - **Endpoint**: limites especificos para endpoints criticos (login, signup, reset-password)
+  - **Usuario/IP**: limite global por usuario autenticado ou IP
+  - **Global**: limite total do sistema para prevenir DDoS
+- CSRF: tokens + cookies com `SameSite=Strict` (ou `Lax` como minimo)
+- NUNCA confie apenas em SameSite — use tokens CSRF como segunda camada
+- CORS: NUNCA `origin: '*'` em APIs com autenticacao. Liste origens permitidas explicitamente
+- WAF (Web Application Firewall): recomendado em producao para protecao adicional (Cloudflare, AWS WAF)
+- Headers de seguranca: `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Content-Security-Policy`
+
+## Metodos de Autenticacao
+
+- SPAs: SEMPRE OAuth2 com PKCE (`response_type=code` + `code_challenge`)
+- NUNCA implicit flow (`response_type=token`) — token exposto na URL
+- Refresh tokens: SEMPRE em httpOnly cookies (NUNCA localStorage ou sessionStorage)
+- Access tokens: curta duracao (15min), refresh tokens: longa duracao (7-30 dias) com rotacao
+- Logout: DEVE invalidar sessao/token no servidor (blacklist ou rotacao)
+- NUNCA logout apenas no client (remover cookie/localStorage nao invalida o token)
+- Session fixation: regenerar session ID apos login bem-sucedido
+
 ## Anti-Patterns de Seguranca
 
 - Encriptar senhas com AES (ponto unico de falha)
@@ -60,3 +93,10 @@ Estas regras carregam automaticamente ao editar arquivos que lidam com autentica
 - Confiar em validacao apenas no front-end
 - Ignorar OWASP Top 10
 - Desabilitar Secure Boot ou TPM
+- Checks de role dentro de handlers (nao centralizado)
+- `findById` sem filtro de usuario (IDOR)
+- Refresh token em localStorage (XSS = roubo de sessao)
+- JWT sem expiracao (token eterno)
+- Logout que apenas remove token do client
+- CORS com `origin: '*'` em APIs autenticadas
+- Rate limiting ausente em endpoints de autenticacao
