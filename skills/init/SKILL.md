@@ -1,6 +1,6 @@
 ---
 name: init
-description: "Inicializa o Anti-Vibe Coding num projeto. Se já existir CLAUDE.md, faz merge inteligente preservando informações do projeto e adicionando a filosofia Anti-Vibe. Sempre pede aprovação antes de aplicar."
+description: "This skill should be used when the user asks to 'initialize anti-vibe', 'setup anti-vibe coding', 'add anti-vibe to project', 'configure anti-vibe', or wants to onboard a project into the Anti-Vibe Coding methodology. Handles first-time setup with intelligent CLAUDE.md merge, rules deployment, and decisions registry initialization."
 user-invocable: true
 disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Write, Edit, AskUserQuestion
@@ -9,131 +9,258 @@ argument-hint: "[project path (default: current directory)]"
 
 # Init — Setup Anti-Vibe Coding no Projeto
 
-Inicialize o Anti-Vibe Coding no projeto atual. Este skill detecta o estado do projeto e adapta o setup.
+Inicializar o Anti-Vibe Coding no projeto atual. Detectar o estado do projeto e adaptar o setup.
 
-## Fluxo de Execução
+## Fluxo de Execucao
 
 ### Passo 1 — Detectar Estado do Projeto
 
-Verifique a existência destes arquivos no projeto:
+Verificar a existencia destes arquivos no projeto:
 - `CLAUDE.md` na raiz
 - `.claude/rules/` com rules existentes
 - `.claude/decisions.md`
 
 ### Passo 2 — Setup do CLAUDE.md
 
-#### Cenário A: Projeto SEM CLAUDE.md
+#### Cenario A: Projeto SEM CLAUDE.md
 
-1. Leia o template Anti-Vibe em `${CLAUDE_PLUGIN_ROOT}/CLAUDE.md`
-2. Apresente ao usuário o conteúdo que será criado
-3. Pergunte: "Este CLAUDE.md será criado na raiz do projeto. Aprovar?"
-4. Se aprovado, crie o arquivo
+1. Ler o template Anti-Vibe em `${CLAUDE_PLUGIN_ROOT}/CLAUDE.md`
+2. Apresentar ao usuario o conteudo que sera criado
+3. Perguntar: "Este CLAUDE.md sera criado na raiz do projeto. Aprovar?"
+4. Se aprovado, criar o arquivo
 
-#### Cenário B: Projeto COM CLAUDE.md existente (MERGE)
+#### Cenario B: Projeto COM CLAUDE.md existente (MERGE)
 
-Este é o cenário mais importante. Siga EXATAMENTE:
+Cenario mais importante. Seguir EXATAMENTE:
 
-1. **Leia** o CLAUDE.md existente do projeto (o "original")
-2. **Leia** o template Anti-Vibe em `${CLAUDE_PLUGIN_ROOT}/CLAUDE.md` (o "template")
-3. **Analise** o original e identifique:
-   - Seções específicas do projeto (stack, configs, variáveis de ambiente, regras de negócio, etc.)
-   - Padrões já definidos que podem conflitar com o Anti-Vibe
-   - Informações que DEVEM ser preservadas
-4. **Faça o merge** seguindo estas regras de prioridade:
+1. **Ler** o CLAUDE.md existente do projeto (o "original")
+2. **Ler** o template Anti-Vibe em `${CLAUDE_PLUGIN_ROOT}/CLAUDE.md` (o "template")
+3. **Analisar** o original e identificar:
+   - Secoes especificas do projeto (stack, configs, variaveis de ambiente, regras de negocio)
+   - Padroes ja definidos que podem conflitar com o Anti-Vibe
+   - Informacoes que DEVEM ser preservadas
+4. **Fazer o merge** seguindo as regras de prioridade abaixo
 
 #### Regras de Merge
 
-| Situação | Ação |
+| Situacao | Acao |
 |----------|------|
-| Seção existe SÓ no original | **PRESERVAR** integralmente |
-| Seção existe SÓ no template Anti-Vibe | **ADICIONAR** ao resultado |
-| Seção existe em AMBOS sem conflito | **COMBINAR** (original + Anti-Vibe) |
-| Seção existe em AMBOS COM conflito | **PRESERVAR o original**, adicionar nota do Anti-Vibe como complemento |
-| Informações do projeto (stack, env vars, configs) | **SEMPRE preservar** do original |
+| Secao existe SO no original | **PRESERVAR** integralmente |
+| Secao existe SO no template Anti-Vibe | **ADICIONAR** ao resultado |
+| Secao existe em AMBOS sem conflito | **COMBINAR** (original + Anti-Vibe) |
+| Secao existe em AMBOS COM conflito | **PRESERVAR o original**, adicionar nota do Anti-Vibe como complemento |
+| Informacoes do projeto (stack, env vars, configs) | **SEMPRE preservar** do original |
 | Filosofia Anti-Vibe Coding | **SEMPRE adicionar** no topo |
-| Workflow de desenvolvimento | **Adicionar** se não existir workflow equivalente |
+| Workflow de desenvolvimento | **Adicionar** se nao existir workflow equivalente |
 | Tabelas de skills/commands do Anti-Vibe | **SEMPRE adicionar** ao final |
 
-#### Estrutura do Merge (ordem das seções)
+#### Estrutura do Merge (ordem das secoes)
 
 ```
 1. Filosofia Anti-Vibe Coding (do template — SEMPRE no topo)
-2. Instruções Gerais (merge: original + template)
-3. [Seções específicas do projeto original — TODAS preservadas na ordem original]
-4. Padrões Core (do template, se o original não tiver equivalente)
-5. Workflow de Desenvolvimento (do template, se o original não tiver equivalente)
+2. Instrucoes Gerais (merge: original + template)
+3. [Secoes especificas do projeto original — TODAS preservadas na ordem original]
+4. Padroes Core (do template, se o original nao tiver equivalente)
+5. Workflow de Desenvolvimento (do template, se o original nao tiver equivalente)
 6. Modo Consultor (do template — resumo com link para skill)
-7. Modelo de Permissões (merge: original + template)
-8. Auto-Correção e Aprendizado (do template)
+7. Modelo de Permissoes (merge: original + template)
+8. Auto-Correcao e Aprendizado (do template)
 9. Anti-Patterns (merge: original + template)
-10. [Mais seções específicas do original, se houver]
+10. [Mais secoes especificas do original, se houver]
 11. Plugin Anti-Vibe Coding (tabelas de skills/agents — SEMPRE ao final)
 12. Git Workflow (merge: original + template)
-13. Lições Aprendidas (do template, se não existir)
-14. Decisões Arquiteturais (do template, se não existir)
+13. Licoes Aprendidas (do template, se nao existir)
+14. Decisoes Arquiteturais (do template, se nao existir)
 ```
 
-5. **Apresente o resultado** ao usuário mostrando:
+5. **Apresentar o resultado** mostrando:
    - O CLAUDE.md mesclado completo
-   - Um resumo das mudanças:
-     - Seções adicionadas do Anti-Vibe
-     - Seções preservadas do original
-     - Seções mescladas (indicando o que veio de cada lado)
+   - Um resumo das mudancas:
+     - Secoes adicionadas do Anti-Vibe
+     - Secoes preservadas do original
+     - Secoes mescladas (indicando o que veio de cada lado)
      - Conflitos resolvidos (e como foram resolvidos)
 
-6. **Peça aprovação** usando AskUserQuestion:
-   - Opção 1: "Aprovar e aplicar"
-   - Opção 2: "Ver diff detalhado" (mostra antes/depois lado a lado)
-   - Opção 3: "Ajustar antes de aplicar" (permite o usuário dar feedback para modificar)
+6. **Pedir aprovacao** usando AskUserQuestion:
+   - Opcao 1: "Aprovar e aplicar"
+   - Opcao 2: "Ver diff detalhado" (mostra antes/depois lado a lado)
+   - Opcao 3: "Ajustar antes de aplicar" (permite feedback para modificar)
 
-7. Se o usuário escolher "Ajustar", aplique as modificações pedidas e apresente novamente
+7. Se "Ajustar", aplicar as modificacoes pedidas e apresentar novamente
 
-8. Se aprovado, **crie backup** do original como `CLAUDE.md.backup` e aplique o merge
+8. Se aprovado, **criar backup** do original como `CLAUDE.md.backup` e aplicar o merge
+
+### Passo 2.5 — Extração de Conhecimento do Projeto
+
+Este passo extrai conhecimento valioso de arquivos existentes no projeto (além do CLAUDE.md) e o popula nas estruturas do plugin.
+
+#### 1. Detectar arquivos de conhecimento
+
+Buscar pelos seguintes padrões no projeto:
+- `progress.txt`, `PROGRESS.md`, `progress.md`
+- `.claude/memory/*.md` (arquivos de memória de sessões anteriores)
+- `notes.md`, `NOTES.md`, `gotchas.md`, `GOTCHAS.md`
+- `lessons.md`, `lessons-learned.md`
+- Qualquer `*.md` dentro de `.claude/` que NÃO seja `CLAUDE.md`, `decisions.md` ou `rules/`
+
+Se nenhum arquivo for encontrado além do CLAUDE.md: pular este passo.
+
+#### 2. Analisar e filtrar cada arquivo
+
+Para cada arquivo encontrado, ler o conteúdo e aplicar o **Filtro de Qualidade Sênior**:
+
+Uma entrada SO qualifica se atender PELO MENOS 2 destes critérios:
+
+| Critério | Descrição |
+|----------|-----------|
+| **Não é deduzível** | A IA não conseguiria inferir apenas lendo a documentação da stack |
+| **É específica do projeto** | Aplica-se ao contexto, stack ou regras de negócio deste projeto |
+| **Custo alto se repetido** | Se repetido, causa retrabalho, bug em produção, perda de dados |
+| **Contra-intuitiva** | Vai contra o que a IA faria por padrão |
+
+**DESCARTAR automaticamente:**
+- Erros de sintaxe ou typos
+- Bugs que os testes já cobrem
+- Coisas que a documentação oficial já explica
+- Padrões genéricos de clean code
+- Qualquer coisa que a IA acertaria na segunda tentativa sem instrução
+
+#### 3. Classificar as entradas extraídas
+
+Cada entrada qualificada deve ser classificada em:
+
+**→ Lição Aprendida** (vai para seção "Lições Aprendidas" do CLAUDE.md):
+- Padrões de erro recorrentes deste projeto
+- Comportamentos inesperados de integrações usadas
+- Armadilhas específicas da stack/contexto do projeto
+
+**→ Decisão Arquitetural** (vai para `.claude/decisions.md`):
+- Escolhas de tecnologia feitas e por quê
+- Trade-offs já avaliados
+- Decisões de design que afetam múltiplos módulos
+
+**→ Regra de Projeto** (vai para seção de padrões no CLAUDE.md):
+- Convenções específicas deste projeto
+- Restrições de negócio que impactam o código
+
+#### 4. Apresentar ao usuário
+
+Mostrar um resumo organizado por arquivo analisado:
+
+```
+## Conhecimento Extraído
+
+### progress.txt (47 entradas analisadas)
+- 3 qualificadas → Lições Aprendidas
+- 1 qualificada → Decisão Arquitetural
+- 43 descartadas (banais/duplicadas)
+
+### .claude/memory/session-notes.md (12 entradas analisadas)
+- 2 qualificadas → Lições Aprendidas
+- 9 descartadas
+
+### Preview das entradas que serão adicionadas:
+
+**Lições Aprendidas:**
+1. [Integração] ... [preview da lição]
+2. [Armadilha] ... [preview da lição]
+...
+
+**Decisões Arquiteturais:**
+1. [Nome da decisão] ...
+...
+```
+
+Usar AskUserQuestion com:
+- Opção 1: "Aplicar tudo"
+- Opção 2: "Revisar entrada por entrada" (mostrar cada uma e pedir aprovação individual)
+- Opção 3: "Pular extração"
+- Opção 4: "Aplicar tudo e arquivar arquivo fonte" (extrai + move original para `.claude/archive/`)
+
+#### 5. Aplicar o conhecimento aprovado
+
+**Lições Aprendidas:** Adicionar na seção `## Lições Aprendidas` do CLAUDE.md mesclado, usando o formato:
+```
+### [Categoria] Título conciso da lição
+**Regra:** [Uma frase imperativa, direta]
+**Contexto:** [Por que essa regra existe — máximo 2 linhas]
+```
+
+Categorias válidas: `[Arquitetura]`, `[Integração]`, `[Performance]`, `[Negócio]`, `[Deploy]`, `[Armadilha]`
+
+Limite: máximo 15 entradas. Se exceder, priorizar pelas que atendem mais critérios do filtro sênior.
+
+**Decisões Arquiteturais:** Adicionar em `.claude/decisions.md` usando o formato:
+```
+### [Nome da Decisão]: [Opção Escolhida]
+**Data:** [data extraída do arquivo ou hoje]
+**Alternativas consideradas:** [extrair do contexto, se disponível]
+**Justificativa:** [extrair do contexto]
+**Risco conhecido:** [extrair do contexto, ou "Não documentado"]
+**Reversibilidade:** Reversível / Irreversível
+```
+
+#### 6. Arquivar arquivo fonte (se Opção 4 escolhida)
+
+Para cada arquivo de origem processado:
+1. Criar diretório `.claude/archive/` se não existir
+2. Mover o arquivo para `.claude/archive/<nome-do-arquivo>` (ex: `progress.txt` → `.claude/archive/progress.txt`)
+3. Se já existir arquivo com mesmo nome no archive, adicionar timestamp: `.claude/archive/progress.txt.2026-03-09`
+4. Informar ao usuário: "Arquivado: `progress.txt` → `.claude/archive/progress.txt`"
+
+**Não arquivar automaticamente:** arquivos dentro de `.claude/` (como `memory/*.md`) — apenas arquivos na raiz ou fora do `.claude/`.
+
+#### Regras Importantes
+
+- **NUNCA** criar lições genéricas que se aplicariam a qualquer projeto
+- **NUNCA** duplicar o que já está no CLAUDE.md mesclado
+- Se um arquivo de origem for muito grande (>500 linhas), processar em blocos e ser mais seletivo
+- Manter rastreabilidade: comentar de qual arquivo cada lição foi extraída (em comentário HTML)
 
 ### Passo 3 — Setup das Rules
 
-1. Verifique se `.claude/rules/` existe
+1. Verificar se `.claude/rules/` existe
 2. Para cada rule do Anti-Vibe (typescript, testing, api):
-   - Se a rule NÃO existe no projeto: copie do template
-   - Se a rule JÁ existe: apresente as diferenças e pergunte se quer mesclar
-3. Copie as rules aprovadas
+   - Se a rule NAO existe no projeto: copiar do template
+   - Se a rule JA existe: apresentar as diferencas e perguntar se quer mesclar
+3. Copiar as rules aprovadas
 
-As rules do template estão em: `${CLAUDE_PLUGIN_ROOT}/rules/`
+As rules do template estao em: `${CLAUDE_PLUGIN_ROOT}/rules/`
 
 ### Passo 4 — Setup do Decisions Registry
 
-1. Se `.claude/decisions.md` não existe, crie com template vazio
-2. Se já existe, não toque
+1. Se `.claude/decisions.md` nao existe, criar com template vazio
+2. Se ja existe, nao tocar
 
 ### Passo 5 — Resumo Final
 
-Apresente um resumo do que foi feito:
+Apresentar um resumo do que foi feito:
 
 ```
-## Anti-Vibe Coding — Setup Concluído
+## Anti-Vibe Coding — Setup Concluido
 
 ### Arquivos criados/modificados:
-- [✅/🔀/⏭️] CLAUDE.md — [criado/mesclado/já existia]
-- [✅/⏭️] .claude/rules/typescript-standards.md
-- [✅/⏭️] .claude/rules/testing-standards.md
-- [✅/⏭️] .claude/rules/api-standards.md
-- [✅/⏭️] .claude/decisions.md
+- [criado/mesclado/ja existia] CLAUDE.md
+- [criado/ja existia] .claude/rules/typescript-standards.md
+- [criado/ja existia] .claude/rules/testing-standards.md
+- [criado/ja existia] .claude/rules/api-standards.md
+- [criado/ja existia] .claude/decisions.md
 
-### Próximos passos:
-1. Revise o CLAUDE.md mesclado
-2. Inicie uma nova sessão para os hooks ativarem
-3. Use `/anti-vibe-coding:consultant` para sua próxima feature
+### Proximos passos:
+1. Revisar o CLAUDE.md mesclado
+2. Iniciar uma nova sessao para os hooks ativarem
+3. Usar `/anti-vibe-coding:consultant` para a proxima feature
 ```
 
 ## Regras Importantes
 
-- **NUNCA sobrescreva** informações do projeto sem aprovação
-- **NUNCA remova** seções existentes do CLAUDE.md original
-- **SEMPRE** crie backup antes de modificar
-- **SEMPRE** mostre ao usuário o que será alterado antes de alterar
-- O merge deve ser **aditivo** — o Anti-Vibe Coding complementa, não substitui
-- Se não tiver certeza sobre um conflito, **pergunte ao usuário**
+- **NUNCA sobrescrever** informacoes do projeto sem aprovacao
+- **NUNCA remover** secoes existentes do CLAUDE.md original
+- **SEMPRE** criar backup antes de modificar
+- **SEMPRE** mostrar ao usuario o que sera alterado antes de alterar
+- O merge deve ser **aditivo** — o Anti-Vibe Coding complementa, nao substitui
+- Se nao tiver certeza sobre um conflito, **perguntar ao usuario**
 
-## Diretório do projeto
+## Diretorio do projeto
 
 $ARGUMENTS

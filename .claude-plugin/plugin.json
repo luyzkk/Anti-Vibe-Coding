@@ -1,7 +1,7 @@
 {
   "name": "anti-vibe-coding",
-  "version": "2.0.0",
-  "description": "Plugin de desenvolvimento disciplinado com conhecimentos de programador sênior. Automatiza TDD, segurança, design patterns, SOLID, system design e qualidade de código usando hooks, skills, agents e rules.",
+  "version": "4.0.0",
+  "description": "Plugin de desenvolvimento disciplinado com conhecimentos de programador sênior. Automatiza TDD, segurança, autorização, design patterns, SOLID, system design, infraestrutura, API protocols e qualidade de código usando hooks, skills, agents e rules.",
   "author": {
     "name": "Luiz Felipe"
   },
@@ -16,6 +16,15 @@
     "solid",
     "system-design",
     "senior",
-    "design-patterns"
+    "design-patterns",
+    "infrastructure",
+    "graphql",
+    "grpc",
+    "authorization",
+    "load-balancer",
+    "cdn",
+    "serverless",
+    "oauth2",
+    "dependency-injection"
   ]
 }
