@@ -115,7 +115,7 @@ NUNCA execute sem confirmação explícita:
 
 ## Conhecimento Sênior (Princípios Always-On)
 
-Princípios extraídos de 33 documentos técnicos. Detalhes completos nas skills dedicadas.
+Princípios extraídos de 60+ documentos técnicos. Detalhes completos nas skills dedicadas.
 
 ### Segurança (Obrigatório)
 - Senhas: bcrypt/Argon2 (NUNCA MD5/SHA1, NUNCA encriptar senhas)
@@ -125,6 +125,9 @@ Princípios extraídos de 33 documentos técnicos. Detalhes completos nas skills
 - Comparações sensíveis: constant-time (`crypto.timingSafeEqual`)
 - Regex: evitar quantificadores nesteados (ReDoS)
 - Webhooks: SEMPRE validar HMAC signature
+- Authorization: RBAC padrão, middleware centralizado, IDOR prevention
+- Auth Methods: PKCE para SPAs, httpOnly cookies para refresh tokens, NUNCA localStorage
+- API Security: Rate limiting 3 níveis, CSRF tokens, WAF, CORS restritivo
 > Detalhes: `/anti-vibe-coding:security`
 
 ### Qualidade de Código
@@ -146,6 +149,9 @@ Princípios extraídos de 33 documentos técnicos. Detalhes completos nas skills
 - **Idempotência**: obrigatória para financeiro (UUID por request)
 - **DTOs**: input (sem ID), output (sem senha). Validação SEMPRE no back-end
 - **REST vs GraphQL**: REST padrão; GraphQL para times distribuídos
+- **API Protocols**: HTTP/REST 90%, WebSocket real-time, gRPC server-to-server, AMQP filas
+- **GraphQL**: depth limits obrigatórios, DataLoader para N+1, input types para mutations
+- **REST**: nouns não verbs, pagination SEMPRE, status codes semânticos, versionamento /api/v1/
 - Monolito primeiro. Microserviços só com problema comprovado
 > Detalhes: `/anti-vibe-coding:api-design`
 
@@ -156,6 +162,14 @@ Princípios extraídos de 33 documentos técnicos. Detalhes completos nas skills
 - React: NUNCA useEffect para estado derivado, use TanStack Query para fetch
 - Race conditions: Node.js NÃO é imune (Cluster, async, horizontal scaling)
 > Detalhes: `/anti-vibe-coding:react-patterns`
+
+### Infraestrutura
+- **Load Balancer**: 7 algoritmos (Round Robin, Least Connections, Consistent Hashing...)
+- **CDN**: Edge servers + Anycast routing, TTL por tipo de conteúdo, cache busting
+- **Serverless vs Serverfull**: Lambda para webhooks/eventos, VPS/EC2 para carga constante
+- **Cold Start**: Node.js/Python mais rápidos, Provisioned Concurrency quando necessário
+- **Deploy**: PM2, Docker, health checks, zero-downtime
+> Detalhes: `/anti-vibe-coding:infrastructure`
 
 ### Design & SOLID
 - **SRP**: cada classe com 1 responsabilidade (7/10 importância)
@@ -186,6 +200,7 @@ Princípios extraídos de 33 documentos técnicos. Detalhes completos nas skills
 | API Design | `/anti-vibe-coding:api-design` | N+1, Idempotência, DTOs, Webhooks |
 | Design Patterns | `/anti-vibe-coding:design-patterns` | Code Smells, Result Pattern, Logging |
 | React Patterns | `/anti-vibe-coding:react-patterns` | useEffect, Data Fetching, Memoization |
+| Infrastructure | `/anti-vibe-coding:infrastructure` | DNS, hosting, deploy, CDN, serverless |
 
 ### Agents Disponíveis
 
@@ -200,6 +215,7 @@ Princípios extraídos de 33 documentos técnicos. Detalhes completos nas skills
 | solid-auditor | Verifica princípios SOLID e design patterns |
 | code-smell-detector | Detecta 9 code smells com sugestões |
 | react-auditor | Auditoria de componentes React (useEffect, memoization) |
+| infrastructure-auditor | Auditoria de infra (DNS, deploy, Docker, health checks) |
 
 ---
 

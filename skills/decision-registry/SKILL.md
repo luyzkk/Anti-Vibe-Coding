@@ -1,15 +1,15 @@
 ---
 name: decision-registry
-description: "Registro de decisoes arquiteturais do projeto. Use para registrar, consultar ou listar decisoes. Armazena em .claude/decisions.md com historico completo de alternativas e justificativas."
+description: "This skill should be used when the user asks to 'register a decision', 'log an architectural choice', 'add ADR', 'list decisions', 'query past decisions', or wants to track Architecture Decision Records (ADRs) for the project. Manages the project's decision history with alternatives and justifications."
 user-invocable: true
-disable-model-invocation: true
+disable-model-invocation: false
 allowed-tools: Read, Grep, Glob, Write, Edit
 argument-hint: "add|list|query [decision or search term]"
 ---
 
 # Registro de Decisoes Arquiteturais — Anti-Vibe Coding
 
-Gerencie o registro de decisoes do projeto, mantendo consistencia entre sessoes.
+Gerenciar o registro de decisoes do projeto, mantendo consistencia entre sessoes.
 
 ## Comandos
 
@@ -40,19 +40,19 @@ As decisoes sao armazenadas em `.claude/decisions.md` na raiz do projeto.
 ## Fluxo de Trabalho
 
 ### Ao adicionar (`add`):
-1. Leia `.claude/decisions.md` (crie se nao existir)
-2. Verifique se a decisao ja foi registrada
-3. Adicione no formato correto com data de hoje
-4. Informe o desenvolvedor que a decisao foi registrada
+1. Ler `.claude/decisions.md` (criar se nao existir)
+2. Verificar se a decisao ja foi registrada
+3. Adicionar no formato correto com data de hoje
+4. Informar o desenvolvedor que a decisao foi registrada
 
 ### Ao listar (`list`):
-1. Leia `.claude/decisions.md`
-2. Liste todas as decisoes em formato de tabela resumida:
+1. Ler `.claude/decisions.md`
+2. Listar todas as decisoes em formato de tabela resumida:
    | Data | Decisao | Escolha | Reversivel? |
 
 ### Ao consultar (`query`):
-1. Busque no `.claude/decisions.md` por termo
-2. Mostre a decisao completa com justificativa
+1. Buscar no `.claude/decisions.md` por termo
+2. Mostrar a decisao completa com justificativa
 
 ## Acao solicitada
 
