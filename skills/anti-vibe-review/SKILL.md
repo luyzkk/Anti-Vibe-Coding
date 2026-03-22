@@ -13,8 +13,17 @@ argument-hint: "[module or directory to review]"
 
 Auditor de qualidade rigoroso. Executar uma revisao completa do codigo recem-implementado seguindo os principios Anti-Vibe Coding.
 
-## Checklist de Revisao
+<instructions>
+## Como Executar
 
+1. Identificar os arquivos alterados (via `git diff` ou argumento do usuario)
+2. Ler cada arquivo e verificar contra o checklist abaixo
+3. Classificar cada problema encontrado por severidade (CRITICO / ALTO / MEDIO / BAIXO)
+4. Gerar relatorio no formato especificado
+5. Sugerir skills relevantes para cada problema encontrado
+</instructions>
+
+<checklist>
 ### 1. TDD Compliance
 - [ ] Testes existem para toda funcionalidade nova?
 - [ ] Testes foram escritos ANTES do codigo de producao? (verificar timestamps git se possivel)
@@ -71,10 +80,9 @@ Auditor de qualidade rigoroso. Executar uma revisao completa do codigo recem-imp
 - [ ] Sem cadeias de useEffect (efeito domino)?
 - [ ] useMemo/useCallback apenas com medicao previa (Profiler)?
 - [ ] Server state separado de client state?
+</checklist>
 
-## Formato do Relatorio
-
-```
+<report-template>
 ## Relatorio Anti-Vibe Review
 
 **Modulo revisado:** [nome]
@@ -82,15 +90,22 @@ Auditor de qualidade rigoroso. Executar uma revisao completa do codigo recem-imp
 **Veredicto:** APROVADO / REPROVADO / APROVADO COM RESSALVAS
 
 ### Problemas Encontrados
-[Lista de problemas com severidade: CRITICO / ALTO / MEDIO / BAIXO]
+
+| Severidade | Categoria | Descricao | Arquivo:Linha | Recomendacao |
+|------------|-----------|-----------|---------------|--------------|
+| CRITICO | | | | |
+| ALTO | | | | |
+| MEDIO | | | | |
+| BAIXO | | | | |
 
 ### Pontos Positivos
 [O que esta bem feito]
 
 ### Recomendacoes
 [Sugestoes de melhoria com referencia a skill relevante]
-```
+</report-template>
 
+<context>
 ## Estrategia de Revisao Eficiente (Staged/Unstaged)
 
 Para comparar codigo antes e depois da revisao sem perder o trabalho original:
@@ -99,6 +114,7 @@ Para comparar codigo antes e depois da revisao sem perder o trabalho original:
 3. Solicitar que as melhorias sejam aplicadas como **unstaged** (sem `git add`)
 4. Comparar com `git diff` — staged = codigo original, unstaged = codigo revisado
 5. Aceitar ou rejeitar cada melhoria individualmente com `git add -p`
+</context>
 
 ## Modulo a revisar
 

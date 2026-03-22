@@ -157,18 +157,21 @@ RECOMENDADO:
 ## Passo 3 — Protocolo de Execucao
 
 ```
-1. Anunciar ao dev:
+1. Anunciar ao dev os dominios detectados e as skills recomendadas:
    "Esta feature toca os dominios: [lista].
-    Vou consultar os especialistas em: [lista de skills em ordem]."
+    As skills recomendadas sao: [lista em ordem].
+    Deseja que eu consulte cada uma antes de codar? (voce decide quais)"
 
-2. Para cada skill obrigatoria:
-   a. Invocar a skill com o contexto completo da feature
-   b. Extrair as decisoes tecnicas relevantes
-   c. Classificar cada decisao como REVERSIVEL ou IRREVERSIVEL
+2. Para cada skill obrigatoria (somente com aprovacao do dev):
+   a. Perguntar: "Deseja consultar /skill-name para [area de risco]?"
+   b. Se aprovado: invocar a skill com o contexto da feature
+   c. Extrair as decisoes tecnicas relevantes
+   d. Classificar cada decisao como REVERSIVEL ou IRREVERSIVEL
 
 3. Para cada skill recomendada:
    a. Avaliar se o escopo da feature justifica
-   b. Invocar se houver risco real na area
+   b. Sugerir: "Esta area tem risco de [X]. Deseja consultar /skill-name?"
+   c. Invocar apenas se o dev aprovar
 
 4. Consolidar em um Relatorio de Decisoes:
    - Decisoes IRREVERSIVEIS primeiro (precisam de mais atencao)
@@ -187,8 +190,8 @@ RECOMENDADO:
 
 Quando o desenvolvedor aprovar todas as decisoes:
 
-1. Invocar `/anti-vibe-coding:decision-registry add` para cada decisao aprovada
-2. Invocar `/anti-vibe-coding:tdd-workflow [feature]` para iniciar a implementacao
+1. Sugerir (nao executar automaticamente): "Deseja registrar estas decisoes com /anti-vibe-coding:decision-registry? (recomendado para decisoes irreversiveis)"
+2. Sugerir (nao executar automaticamente): "Deseja iniciar a implementacao com /anti-vibe-coding:tdd-workflow [feature]?"
 
 ---
 

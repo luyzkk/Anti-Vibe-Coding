@@ -21,9 +21,17 @@ const BYPASS_KEYWORDS = [
   'continue without', 'skip skill', 'no skill',
 ];
 
+const LEARN_PATTERNS = [
+  /^(o que [eé]|what is|what are|qual [eé])/i,
+  /(como funciona|how does|how do|how is)/i,
+  /(me explic|explain|explique|ensina|teach me|quero entender|quero aprender|nao entendi|nao sei o que)/i,
+  /(pra que serve|what.*for|what.*used for|para que serve)/i,
+  /(como.*funciona|como.*trabalha|how.*work)/i,
+];
+
 const SILENT_PATTERNS = [
-  // Questions / explanations
-  /^(o que|what|por que|why|como funciona|how does|explain|explique|entenda|entender|qual [eé]|what is|what are|how to|when to|where is|quem|who)/i,
+  // Questions / explanations (now handled by LEARN_PATTERNS detection below)
+  /^(entenda|entender|where is|quem|who)/i,
   // Debugging / investigation
   /(find the bug|what is wrong|why is this failing|encontr[ae] o bug|por que est[aá] falhando|debug|investigate|investig[ue]|what happened|o que aconteceu)/i,
   // Trivial fixes
@@ -223,6 +231,21 @@ const DOMAINS = [
     ].join('|'), 'i'),
   },
   {
+    name: 'Database',
+    skill: '/anti-vibe-coding:api-design',
+    label: 'Banco de dados / queries detectado — verifique N+1, indices e performance',
+    pattern: new RegExp([
+      'migration\\b', 'migra[çc][aã]o de banco', 'database migration', 'schema migration',
+      '\\bindice\\b', '\\bindex\\b', '\\bindices\\b', '\\bindexes\\b', 'adicionar.*index', 'criar.*index',
+      'query.*lent', 'slow query', 'otimizar.*query', 'optimize.*query', 'query.*performance',
+      'eager load', 'lazy load.*banco', 'prisma.*include', 'prisma.*select', 'drizzle.*query',
+      'criar.*tabela', 'nova.*tabela', 'create table', 'alter table', 'drop table',
+      'foreign key', 'chave estrangeira', 'relacionamento.*banco',
+      'transaction.*banco', 'banco.*transaction', 'rollback',
+      'supabase.*query', 'query.*supabase',
+    ].join('|'), 'i'),
+  },
+  {
     name: 'TDD',
     skill: '/anti-vibe-coding:tdd-workflow',
     label: 'TDD workflow detectado',
@@ -235,6 +258,10 @@ const DOMAINS = [
       'iniciar com teste', 'start with test',
       'criar teste antes', 'create test before',
       'test before code', 'teste antes do c[oó]digo',
+      'adicionar testes', 'add tests', 'criar testes', 'create tests',
+      'cobertura de teste', 'test coverage', 'escrever testes',
+      'teste unit[aá]rio', 'unit test', 'teste de integra[çc][aã]o', 'integration test',
+      'teste e2e', 'e2e test', 'end[- ]to[- ]end test',
     ].join('|'), 'i'),
   },
   {
@@ -279,8 +306,14 @@ function processPrompt(prompt) {
   // STEP 2: Anti-deadlock — user already invoking a skill or command
   if (/\/anti-vibe-coding:/i.test(text) || /^\/.+/.test(text.trim())) return null;
 
-  // STEP 3: Silent patterns — never intercept
-  if (SILENT_PATTERNS.some(re => re.test(text))) return null;
+  // STEP 3: Silent patterns — skip if no implementation intent detected alongside
+  const hasImplementation = IMPLEMENTATION_PATTERNS.some(re => re.test(text));
+  if (!hasImplementation && SILENT_PATTERNS.some(re => re.test(text))) return null;
+
+  // STEP 3.5: Learning intent — suggest /learn skill
+  if (!hasImplementation && LEARN_PATTERNS.some(re => re.test(text))) {
+    return '[SKILL_ADVISOR] Intencao de aprendizado detectada. Sugira ao usuario a skill /anti-vibe-coding:learn para uma explicacao adaptativa ao seu nivel. Pergunte se deseja invocar.';
+  }
 
   // STEP 4: Domain classification — find ALL matching domains
   const matches = [];

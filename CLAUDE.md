@@ -12,9 +12,9 @@ Você opera sob os princípios do Extreme Programming (XP):
 - **Disciplina > Velocidade.** Código correto e testado, não código rápido e descartável
 
 Regras invioláveis:
-- NUNCA pratique "Vibe Coding" — gerar código massivo sem arquitetura prévia
-- NUNCA entregue sistema inteiro em uma única resposta. Fatie e valide passo a passo
-- NUNCA gere código de produção e testes ao mesmo tempo. Testes vêm primeiro, sempre
+- NUNCA pratique "Vibe Coding" — código sem arquitetura prévia gera retrabalho exponencial
+- NUNCA entregue sistema inteiro em uma única resposta — contexto se polui e erros passam despercebidos
+- NUNCA gere código de produção e testes ao mesmo tempo — testes escritos depois tendem a validar a implementação, não o comportamento esperado
 - Se o humano pedir funcionalidade sem mencionar testes, avise-o e crie os testes primeiro
 
 ---
@@ -46,7 +46,7 @@ Regras invioláveis:
 - Sem comentários desnecessários — converta em nomes descritivos
 
 ### TypeScript
-- Strict mode, NUNCA `any`, quase nunca `as`
+- Strict mode. Use `unknown` e narrow com type guards (`any` desativa toda type-safety e esconde bugs silenciosos). Quase nunca `as`
 - SEMPRE named exports
 - Prefira `type` sobre `interface`
 - Prefira `await/async` sobre `.then()`
@@ -59,7 +59,7 @@ Regras invioláveis:
 
 Siga EXATAMENTE esta sequência ao construir funcionalidades:
 
-1. **Investigação** — Releia CLAUDE.md, entenda contexto, pergunte se algo não estiver claro
+1. **Investigação** — Releia CLAUDE.md e `senior-principles.md`, entenda contexto, pergunte se algo não estiver claro
 2. **Fundação** — Infraestrutura, configs, dependências
 3. **TDD Red** — Escreva APENAS testes. Devem falhar. Sem código de produção
 4. **TDD Green** — Código mínimo para testes passarem. Nada mais
@@ -98,7 +98,7 @@ NUNCA execute sem confirmação explícita:
 
 - Após ser corrigido, considere registrar como lição: `/anti-vibe-coding:lessons-learned add`
 - Se entrar em loop de erro (3+ tentativas), **PARE** e peça ao dev para assumir
-- NUNCA mude padrões arquiteturais sem consultar este arquivo e questionar o dev
+- NUNCA mude padrões arquiteturais sem consultar este arquivo e questionar o dev — decisões arquiteturais são irreversíveis e afetam todo o projeto
 
 ---
 
@@ -113,73 +113,12 @@ NUNCA execute sem confirmação explícita:
 
 ---
 
-## Conhecimento Sênior (Princípios Always-On)
+## Conhecimento Sênior
 
-Princípios extraídos de 60+ documentos técnicos. Detalhes completos nas skills dedicadas.
+Princípios always-on extraídos de 60+ documentos técnicos.
+Resumo completo em `senior-principles.md`. Detalhes nas skills dedicadas.
 
-### Segurança (Obrigatório)
-- Senhas: bcrypt/Argon2 (NUNCA MD5/SHA1, NUNCA encriptar senhas)
-- IDs públicos: UUIDs (NUNCA sequenciais sem auth)
-- Secrets: .env + .gitignore (NUNCA hardcoded)
-- Inputs: sanitizar TUDO (ORM, não SQL raw)
-- Comparações sensíveis: constant-time (`crypto.timingSafeEqual`)
-- Regex: evitar quantificadores nesteados (ReDoS)
-- Webhooks: SEMPRE validar HMAC signature
-- Authorization: RBAC padrão, middleware centralizado, IDOR prevention
-- Auth Methods: PKCE para SPAs, httpOnly cookies para refresh tokens, NUNCA localStorage
-- API Security: Rate limiting 3 níveis, CSRF tokens, WAF, CORS restritivo
-> Detalhes: `/anti-vibe-coding:security`
-
-### Qualidade de Código
-- **9 Code Smells**: funções longas, God Objects, DRY 3+, condicionais gigantes, números mágicos, Feature Envy, grupos de dados, comentários inúteis, tipos primitivos
-- Erros: Result Pattern `(error, value)` > try/catch genérico
-- Logs: Wide Events (1 evento rico/request), NUNCA console.log em prod
-- Tipos: criar tipos de domínio (Email, Money) com validação na construção
-> Detalhes: `/anti-vibe-coding:design-patterns`
-
-### Arquitetura de Dados
-- **CAP**: financeiro → CP (consistência), feed social → AP (disponibilidade)
-- **Cache**: cache-aside + TTL + invalidação. Hit rate >= 85%
-- **N+1**: NUNCA lazy loading em loops. Eager load explícito
-- **BD**: comece relacional (PostgreSQL). NoSQL só com problema comprovado
-- **Escalar**: otimize queries → replicação → sharding (último recurso)
-> Detalhes: `/anti-vibe-coding:system-design`
-
-### API Design
-- **Idempotência**: obrigatória para financeiro (UUID por request)
-- **DTOs**: input (sem ID), output (sem senha). Validação SEMPRE no back-end
-- **REST vs GraphQL**: REST padrão; GraphQL para times distribuídos
-- **API Protocols**: HTTP/REST 90%, WebSocket real-time, gRPC server-to-server, AMQP filas
-- **GraphQL**: depth limits obrigatórios, DataLoader para N+1, input types para mutations
-- **REST**: nouns não verbs, pagination SEMPRE, status codes semânticos, versionamento /api/v1/
-- Monolito primeiro. Microserviços só com problema comprovado
-> Detalhes: `/anti-vibe-coding:api-design`
-
-### JavaScript/TypeScript
-- `const` > `let` >> NUNCA `var`
-- `Promise.all` para operações independentes (não await sequencial)
-- Closures: extrair mínimo necessário, WeakMap para caches
-- React: NUNCA useEffect para estado derivado, use TanStack Query para fetch
-- Race conditions: Node.js NÃO é imune (Cluster, async, horizontal scaling)
-> Detalhes: `/anti-vibe-coding:react-patterns`
-
-### Infraestrutura
-- **Load Balancer**: 7 algoritmos (Round Robin, Least Connections, Consistent Hashing...)
-- **CDN**: Edge servers + Anycast routing, TTL por tipo de conteúdo, cache busting
-- **Serverless vs Serverfull**: Lambda para webhooks/eventos, VPS/EC2 para carga constante
-- **Cold Start**: Node.js/Python mais rápidos, Provisioned Concurrency quando necessário
-- **Deploy**: PM2, Docker, health checks, zero-downtime
-> Detalhes: `/anti-vibe-coding:infrastructure`
-
-### Design & SOLID
-- **SRP**: cada classe com 1 responsabilidade (7/10 importância)
-- **LSP**: subtipos SEMPRE substituem tipos pai (10/10 — inviolável)
-- **Lei de Demeter**: não navegue profundo (`order.customer.address.zip` → `order.shippingZip()`)
-- **Tell-Don't-Ask**: `account.withdraw(amount)` > `if balance > amount: debit`
-- **Composição > Herança**: protocolos/interfaces > hierarquias profundas
-> Detalhes: `/anti-vibe-coding:architecture`
-
-> **Rules automáticas** detectam violações silenciosamente ao editar arquivos. Veja `.claude/rules/`.
+> **Rules automáticas** detectam violações ao editar arquivos. Veja `.claude/rules/`.
 
 ---
 
@@ -201,6 +140,7 @@ Princípios extraídos de 60+ documentos técnicos. Detalhes completos nas skill
 | Design Patterns | `/anti-vibe-coding:design-patterns` | Code Smells, Result Pattern, Logging |
 | React Patterns | `/anti-vibe-coding:react-patterns` | useEffect, Data Fetching, Memoization |
 | Infrastructure | `/anti-vibe-coding:infrastructure` | DNS, hosting, deploy, CDN, serverless |
+| Aprendizado | `/anti-vibe-coding:learn` | Explicações adaptativas (básico/intermediário/avançado) |
 
 ### Agents Disponíveis
 
