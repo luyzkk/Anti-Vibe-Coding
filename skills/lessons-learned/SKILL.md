@@ -69,6 +69,7 @@ Uma licao SO deve ser registrada se atender a PELO MENOS 2 destes criterios:
 3. Aplicar o filtro de qualidade (>=2 criterios)
 4. Se passar, adicionar no formato correto
 5. Se nao passar, explicar por que nao qualifica
+6. **Avaliar promocao a senior-principles:** perguntar ao usuario se a licao atende aos 4 criterios de promocao (ver abaixo). Se o usuario confirmar, adicionar ao `senior-principles.md` na secao apropriada
 
 ### Ao revisar (`review`):
 1. Listar todas as licoes com numeracao
@@ -78,6 +79,29 @@ Uma licao SO deve ser registrada se atender a PELO MENOS 2 destes criterios:
 1. Identificar licoes obsoletas ou ja absorvidas
 2. Sugerir remocao com justificativa
 3. Esperar aprovacao do desenvolvedor antes de remover
+
+## Promocao a Senior Principles
+
+Apos registrar uma licao aprovada, avaliar se ela merece ser promovida ao `senior-principles.md`. Perguntar ao usuario:
+
+> "Esta licao parece [universal/nao-obvia/etc]. Ela atende os criterios para ir ao senior-principles.md?"
+
+### Criterios de promocao (TODOS devem ser atendidos):
+
+| Criterio | Pergunta-chave |
+|----------|---------------|
+| **Universal** | Aplica em qualquer projeto, nao so neste? |
+| **Nao-obvia** | Um junior erraria isso sem saber? |
+| **Provada por falha** | Foi aprendida por um erro real, nao teoria? |
+| **Prevencao de dano** | O erro causa bug silencioso, vulnerabilidade ou perda de dados? |
+
+Se falhar em qualquer um, a licao fica apenas nas lessons do projeto.
+
+### Ao promover:
+1. Identificar a secao correta no `senior-principles.md` (Seguranca, Qualidade, API Design, etc.)
+2. Adicionar no formato existente: regra concisa + justificativa apos o travessao
+3. Se nenhuma secao existente se aplica, criar uma nova secao
+4. Confirmar com o usuario o texto final antes de salvar
 
 ## Acao solicitada
 

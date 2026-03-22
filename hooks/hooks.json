@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "printf '[ANTI_VIBE_CODING v4.0 - SKILL ADVISOR ATIVO]\\n\\nINSTRUCAO PERMANENTE para esta sessao:\\nPara QUALQUER pedido de implementacao (nao perguntas simples), voce DEVE:\\n1. Identificar o dominio da tarefa\\n2. Recomendar a skill apropriada com comando exato\\n3. Perguntar ao usuario se deseja invocar a skill antes de prosseguir\\n\\nSkills disponiveis:\\n- /anti-vibe-coding:consultant - Fase Zero: decisoes complexas, incerteza, multiplos dominios\\n- /anti-vibe-coding:react-patterns - React/Next.js: hooks, state, data fetching, performance\\n- /anti-vibe-coding:security - Seguranca: auth, crypto, JWT, CORS, XSS\\n- /anti-vibe-coding:system-design - System Design: cache, scaling, CAP, replicacao\\n- /anti-vibe-coding:api-design - API: endpoints, N+1, DTOs, idempotencia, webhooks\\n- /anti-vibe-coding:architecture - Arquitetura: SOLID, patterns, monolito vs micro\\n- /anti-vibe-coding:design-patterns - Qualidade: code smells, error handling, refactoring\\n- /anti-vibe-coding:tdd-workflow - TDD: implementacao test-first\\n- /anti-vibe-coding:lessons-learned - Registrar licoes de erros\\n- /anti-vibe-coding:decision-registry - Registrar decisoes arquiteturais\\n- /anti-vibe-coding:anti-vibe-review - Review pos-implementacao\\n- /anti-vibe-coding:enhance-prompt - Otimizar prompts de execucao automatizada\\n\\nComportamento ao detectar skill relevante:\\n- SEMPRE pergunte ao usuario antes de invocar: Deseja que eu invoque /skill-name?\\n- Se o usuario disser sim, invoque com a tool Skill\\n- Se o usuario disser nao ou prosseguir, continue sem invocar\\n\\nQuando NAO sugerir skill:\\n- Perguntas explicativas (o que e, como funciona, por que)\\n- Fixes triviais (typo, rename, formatacao)\\n- Leitura/exploracao de codigo\\n- Usuario ja invocou uma skill (/)\\n- Usuario disse: prosseguir, sem skill, skip\\n'"
+            "command": "printf '[ANTI_VIBE_CODING v4.0 - SKILL ADVISOR ATIVO]\\n\\nINSTRUCAO PERMANENTE para esta sessao:\\nPara QUALQUER pedido de implementacao (nao perguntas simples), voce DEVE:\\n1. Identificar o dominio da tarefa\\n2. Recomendar a skill apropriada com comando exato\\n3. Perguntar ao usuario se deseja invocar a skill antes de prosseguir\\n\\nSkills disponiveis:\\n- /anti-vibe-coding:consultant - Fase Zero: decisoes complexas, incerteza, multiplos dominios\\n- /anti-vibe-coding:react-patterns - React/Next.js: hooks, state, data fetching, performance\\n- /anti-vibe-coding:security - Seguranca: auth, crypto, JWT, CORS, XSS\\n- /anti-vibe-coding:system-design - System Design: cache, scaling, CAP, replicacao\\n- /anti-vibe-coding:api-design - API: endpoints, N+1, DTOs, idempotencia, webhooks\\n- /anti-vibe-coding:architecture - Arquitetura: SOLID, patterns, monolito vs micro\\n- /anti-vibe-coding:design-patterns - Qualidade: code smells, error handling, refactoring\\n- /anti-vibe-coding:tdd-workflow - TDD: implementacao test-first\\n- /anti-vibe-coding:lessons-learned - Registrar licoes de erros\\n- /anti-vibe-coding:decision-registry - Registrar decisoes arquiteturais\\n- /anti-vibe-coding:anti-vibe-review - Review pos-implementacao\\n- /anti-vibe-coding:enhance-prompt - Otimizar prompts de execucao automatizada\\n- /anti-vibe-coding:learn - Aprendizado adaptativo: entender conceitos antes ou depois de codar\\n\\nComportamento ao detectar skill relevante:\\n- SEMPRE pergunte ao usuario antes de invocar: Deseja que eu invoque /skill-name?\\n- Se o usuario disser sim, invoque com a tool Skill\\n- Se o usuario disser nao ou prosseguir, continue sem invocar\\n\\nQuando NAO sugerir skill:\\n- Perguntas explicativas (o que e, como funciona, por que)\\n- Fixes triviais (typo, rename, formatacao)\\n- Leitura/exploracao de codigo\\n- Usuario ja invocou uma skill (/)\\n- Usuario disse: prosseguir, sem skill, skip\\n'"
           }
         ]
       }
@@ -31,6 +31,28 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const input=process.env.CLAUDE_TOOL_INPUT||'';if(!input.includes('git commit')){process.exit(0)}const{execSync}=require('child_process');try{execSync('bun run test',{timeout:60000,stdio:'pipe'});execSync('bun run lint',{timeout:30000,stdio:'pipe'})}catch(e){process.stderr.write('[PRE-COMMIT] Testes ou lint falharam. Corrija antes de commitar: '+e.message.slice(0,200));process.exit(2)}\"",
+            "timeout": 90
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const f=process.env.CLAUDE_FILE_PATH||'';const ext=['.ts','.tsx','.js','.jsx','.json','.css'];if(!ext.some(e=>f.endsWith(e))){process.exit(0)}const{execSync}=require('child_process');try{execSync('bunx biome check --write '+JSON.stringify(f),{timeout:10000,stdio:'pipe'})}catch(e){process.exit(0)}\"",
+            "timeout": 15
+          }
+        ]
       }
     ],
     "Stop": [
@@ -38,7 +60,7 @@
         "hooks": [
           {
             "type": "prompt",
-            "prompt": "You are a post-response analyzer for Anti-Vibe Coding v4.0. Analyze the conversation and detect what happened. Respond with ONLY valid JSON, no markdown, no extra text.\n\nDetection rules:\n1. CORRECTION: User explicitly said the AI was wrong, corrected a mistake, pointed out an error, or reverted AI-generated code. Signs: 'isso esta errado', 'nao era isso', 'reverta', 'you broke', 'that is wrong', 'undo', user manually fixed code the AI wrote.\n2. FEATURE_COMPLETED: Implementation is done AND tests are passing. Signs: user said 'done', 'pronto', 'ship it', 'commit', 'finalizado', test suite passed, user confirmed completion.\n3. NOTHING: Normal conversation, question answered, work still in progress, debugging ongoing, planning phase.\n\nRespond with exactly one of:\n\nIf NOTHING (most common case):\n{\"ok\": true}\n\nIf CORRECTION detected:\n{\"ok\": false, \"reason\": \"[CORRECTION_DETECTED] Uma correcao foi detectada. Considere registrar como licao aprendida com /anti-vibe-coding:lessons-learned para evitar o mesmo erro no futuro.\"}\n\nIf FEATURE_COMPLETED detected:\n{\"ok\": false, \"reason\": \"[FEATURE_COMPLETED] Implementacao concluida! Recomendacoes pos-implementacao:\\n- OBRIGATORIO: Execute os agentes security-auditor e code-smell-detector\\n- OPCIONAL: solid-auditor, react-auditor, api-auditor, database-analyzer, infrastructure-auditor\\n- DOCUMENTACAO: Crie subagente documentation-writer\\n- REVISAO: Use /anti-vibe-coding:anti-vibe-review para review completo\"}\n\nBe conservative: when in doubt, return {\"ok\": true}. Only flag corrections and completions when you are confident.\n\n$ARGUMENTS",
+            "prompt": "You are a post-response analyzer for Anti-Vibe Coding v4.0. Analyze the conversation and detect what happened. Respond with ONLY valid JSON, no markdown, no extra text.\n\nDetection rules:\n1. CORRECTION: User explicitly said the AI was wrong, corrected a mistake, pointed out an error, or reverted AI-generated code. Signs: 'isso esta errado', 'nao era isso', 'reverta', 'you broke', 'that is wrong', 'undo', user manually fixed code the AI wrote.\n2. FEATURE_COMPLETED: Implementation is done AND tests are passing. Signs: user said 'done', 'pronto', 'ship it', 'commit', 'finalizado', test suite passed, user confirmed completion.\n3. NOTHING: Normal conversation, question answered, work still in progress, debugging ongoing, planning phase.\n\nRespond with exactly one of:\n\nIf NOTHING (most common case):\n{\"decision\": \"yes\"}\n\nIf CORRECTION detected:\n{\"decision\": \"no\", \"reasoning\": \"[CORRECTION_DETECTED] Uma correcao foi detectada. Considere registrar como licao aprendida com /anti-vibe-coding:lessons-learned para evitar o mesmo erro no futuro.\"}\n\nIf FEATURE_COMPLETED detected:\n{\"decision\": \"no\", \"reasoning\": \"[FEATURE_COMPLETED] Implementacao concluida! Apresente ao dev as opcoes abaixo e PERGUNTE quais deseja executar (nao execute automaticamente):\\n- RECOMENDADO: Rodar agente security-auditor e code-smell-detector?\\n- OPCIONAL: solid-auditor, react-auditor, api-auditor, database-analyzer, infrastructure-auditor?\\n- DOCUMENTACAO: Criar subagente documentation-writer?\\n- REVISAO: Invocar /anti-vibe-coding:anti-vibe-review?\"}\n\nBe conservative: when in doubt, return {\"decision\": \"yes\"}. Only flag corrections and completions when you are confident.\n\n$ARGUMENTS",
             "timeout": 15
           }
         ]

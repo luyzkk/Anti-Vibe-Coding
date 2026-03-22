@@ -97,6 +97,7 @@ function processInput() {
     block(
       `TDD GATE: Nenhum teste encontrado para "${basename}". ` +
       `Crie o arquivo de teste primeiro (Red phase). ` +
+      `Sugestao: use /anti-vibe-coding:tdd-workflow para estruturar os testes antes de codar. ` +
       `Anti-Vibe Coding: Red -> Green -> Refactor.`
     );
   } catch {
