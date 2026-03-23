@@ -285,12 +285,63 @@ Para cada arquivo de origem processado:
 
 As rules do template estao em: `${CLAUDE_PLUGIN_ROOT}/rules/`
 
-### Passo 4 — Setup do Decisions Registry
+### Passo 4 — Setup dos Hooks
+
+**IMPORTANTE:** Os arquivos `.cjs` dos hooks ficam NO PLUGIN CACHE, não são copiados para o projeto. Apenas o `hooks.json` vai para `.claude/hooks/hooks.json` do projeto.
+
+1. Verificar se `.claude/hooks/hooks.json` existe no projeto
+2. Se NÃO existe: copiar do plugin
+3. Se JÁ existe: **MERGE inteligente**
+
+#### Merge de hooks.json
+
+O merge deve combinar hooks do plugin COM hooks customizados do projeto:
+
+**Regras de merge:**
+- Cada evento (SessionStart, UserPromptSubmit, PreToolUse, etc.) pode ter múltiplos hooks
+- Hooks do plugin devem ser ADICIONADOS aos hooks existentes, não substituídos
+- Ordem de execução: hooks customizados PRIMEIRO, depois hooks do plugin
+- Exceção: version-check deve vir ANTES de outros hooks no SessionStart
+
+**Algoritmo de merge:**
+
+```javascript
+const pluginHooks = JSON.parse(fs.readFileSync(pluginHooksPath, 'utf8'));
+const projectHooks = JSON.parse(fs.readFileSync(projectHooksPath, 'utf8'));
+
+const merged = { hooks: {} };
+
+// Para cada evento (SessionStart, UserPromptSubmit, etc.)
+for (const eventName of Object.keys(pluginHooks.hooks)) {
+  const pluginEventHooks = pluginHooks.hooks[eventName];
+  const projectEventHooks = projectHooks.hooks[eventName] || [];
+
+  // Combinar: projeto primeiro, depois plugin
+  merged.hooks[eventName] = [
+    ...projectEventHooks,
+    ...pluginEventHooks
+  ];
+}
+
+// Adicionar eventos que existem só no projeto
+for (const eventName of Object.keys(projectHooks.hooks)) {
+  if (!merged.hooks[eventName]) {
+    merged.hooks[eventName] = projectHooks.hooks[eventName];
+  }
+}
+```
+
+**Importante:**
+- NUNCA copiar arquivos `.cjs` para o projeto
+- Hooks do plugin são executados via `process.env.CLAUDE_PLUGIN_ROOT`
+- Hooks do projeto são executados via path relativo (ex: `node .claude/hooks/meu-hook.cjs`)
+
+### Passo 5 — Setup do Decisions Registry
 
 1. Se `.claude/decisions.md` nao existe, criar com template vazio
 2. Se ja existe, nao tocar
 
-### Passo 5 — Criar Manifest Local
+### Passo 6 — Criar Manifest Local
 
 Após todas as instalações/merges, criar `.claude/.anti-vibe-manifest.json` para rastrear versões.
 
@@ -341,7 +392,7 @@ fs.writeFileSync(manifestPath, JSON.stringify(localManifest, null, 2), 'utf8');
 
 **IMPORTANTE:** O manifest registra o checksum do arquivo APÓS merge/modificação, não o checksum original do plugin.
 
-### Passo 6 — Resumo Final
+### Passo 7 — Resumo Final
 
 Apresentar um resumo do que foi feito:
 

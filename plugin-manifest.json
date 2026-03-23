@@ -1,6 +1,6 @@
 {
   "version": "4.0.0",
-  "generatedAt": "2026-03-23T20:13:15.854Z",
+  "generatedAt": "2026-03-23T21:40:12.246Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "files": {
     "CLAUDE.md": {
@@ -197,7 +197,7 @@
     },
     "skills/init/skill.md": {
       "version": "4.0.0",
-      "checksum": "299ba8736dd285713d49a7ff250bc56b29434b19d557332fa06aa77798a3b607",
+      "checksum": "e3fd49d9d1f2ad85702aac7673e33721dd8cfd89a7ac9d5a3375102231ebe6ea",
       "lastModified": "2026-03-23",
       "updateStrategy": "replace"
     },
