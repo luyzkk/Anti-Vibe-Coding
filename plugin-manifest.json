@@ -1,11 +1,11 @@
 {
   "version": "4.0.0",
-  "generatedAt": "2026-03-23T19:49:06.019Z",
+  "generatedAt": "2026-03-23T20:13:15.854Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "files": {
     "CLAUDE.md": {
       "version": "4.0.0",
-      "checksum": "6590c0ebfcebe97e068238dd917e873c8a1af3878f96efaca6cd06637a969552",
+      "checksum": "909a6ef8c883bb8e8043d6d5796728546cf7efc827543dd9589e3eae4c4acfc7",
       "lastModified": "2026-03-23",
       "updateStrategy": "merge"
     },
@@ -65,8 +65,8 @@
     },
     "hooks/hooks.json": {
       "version": "4.0.0",
-      "checksum": "552044e5351bd9bc1a2be202e9786846c7325e07ba1abd5df03eac5737f01fc0",
-      "lastModified": "2026-03-22",
+      "checksum": "91a5da0baac766bfdcd460fdb0fdcafffdae3ec2546b9480b98b9491792d8d73",
+      "lastModified": "2026-03-23",
       "updateStrategy": "replace"
     },
     "hooks/tdd-gate.cjs": {
@@ -79,6 +79,12 @@
       "version": "4.0.0",
       "checksum": "457ca89a9f2fcaf1cc7dafe47efbc3230a7bf81c5c47a8805f7dfddc432c2300",
       "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "hooks/version-check.cjs": {
+      "version": "4.0.0",
+      "checksum": "23c3230c589c751c196fd726dc1510933795e647ca1e0c7f68671a3a59e4fb30",
+      "lastModified": "2026-03-23",
       "updateStrategy": "replace"
     },
     "agents/api-auditor.md": {
@@ -191,7 +197,7 @@
     },
     "skills/init/skill.md": {
       "version": "4.0.0",
-      "checksum": "253a68b1bdb007d3917f7bef8bcfb84a8eec27f68019624665ad3c3dd27c1ade",
+      "checksum": "299ba8736dd285713d49a7ff250bc56b29434b19d557332fa06aa77798a3b607",
       "lastModified": "2026-03-23",
       "updateStrategy": "replace"
     },
@@ -217,6 +223,12 @@
       "version": "4.0.0",
       "checksum": "cbbf0ff2209f57a4dc363250ad8794074d83a9f4ceacc84ef4a24268d9384fb5",
       "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "skills/sync/skill.md": {
+      "version": "4.0.0",
+      "checksum": "449ced9c33501ba3bba5fbee006c650558abda54de1f36a72ca231d5d77d9170",
+      "lastModified": "2026-03-23",
       "updateStrategy": "replace"
     },
     "skills/system-design/skill.md": {
