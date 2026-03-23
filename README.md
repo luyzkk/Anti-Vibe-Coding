@@ -132,12 +132,19 @@ Isso mostra:
 O plugin rastreia automaticamente a versão de todos os arquivos instalados usando checksums SHA-256.
 
 **Arquivos rastreados:**
-- `CLAUDE.md`
+- `CLAUDE.md` (merge inteligente)
 - `senior-principles.md`
-- `.claude/rules/*.md` (8 rules)
+- `.claude/rules/*.md` (8 rules, merge inteligente)
 - `.claude/agents/*.md` (10 agents)
-- `.claude/hooks/*.cjs` (2 hooks)
+- `.claude/hooks/hooks.json` (merge inteligente - ver nota abaixo)
 - Skills instaladas
+
+**IMPORTANTE - Hooks:**
+- Hooks `.cjs` do plugin ficam no cache global (`$CLAUDE_PLUGIN_ROOT/hooks/`)
+- Apenas `hooks.json` é copiado para o projeto
+- Se você tem hooks customizados, eles são preservados via merge inteligente
+- Hooks customizados do projeto executam PRIMEIRO, hooks do plugin DEPOIS
+- Arquivos `.cjs` do plugin NUNCA são copiados para `.claude/hooks/`
 
 **Manifest local:** `.claude/.anti-vibe-manifest.json`
 
