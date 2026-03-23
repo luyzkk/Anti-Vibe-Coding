@@ -77,14 +77,87 @@ Mensagem do usuário
 
 ## Setup do Projeto-Alvo
 
-Após instalar o plugin, configure seu projeto:
+### Instalação Inicial
 
-1. Copie o `CLAUDE.md` otimizado para a raiz do projeto
-2. Crie `.claude/rules/` com as rules templates:
-   - `typescript-standards.md` (carrega ao editar .ts/.tsx)
-   - `testing-standards.md` (carrega ao editar .test.*)
-   - `api-standards.md` (carrega ao editar api/*)
-3. Crie `.claude/decisions.md` (vazio, será preenchido pelo plugin)
+Execute no projeto que deseja configurar:
+
+```bash
+/anti-vibe-coding:init
+```
+
+Isso irá:
+1. Fazer merge inteligente do `CLAUDE.md` (preserva suas configurações)
+2. Instalar `.claude/rules/` (TypeScript, Testing, API, Security, etc.)
+3. Criar `.claude/decisions.md`
+4. Criar `.claude/.anti-vibe-manifest.json` (rastreamento de versões)
+5. Copiar `senior-principles.md` (60+ princípios técnicos)
+
+### Atualizações Incrementais
+
+Quando o plugin for atualizado, execute novamente:
+
+```bash
+/anti-vibe-coding:init
+```
+
+O sistema detecta automaticamente que você já tem o plugin instalado e:
+- Mostra quais arquivos estão desatualizados
+- Detecta se você modificou algum arquivo
+- Aplica merge inteligente (preserva suas modificações)
+- Cria backup automático em `.claude/backups/`
+
+**Estratégias de atualização:**
+- **CLAUDE.md**: Merge (preserva + adiciona novos princípios)
+- **Rules**: Merge (preserva customizações + adiciona novas)
+- **Hooks/Agents**: Replace (lógica do plugin)
+- **senior-principles.md**: Replace (documentação oficial)
+- **decisions.md**: Never (é seu)
+
+### Verificar Status
+
+Para ver o status da sua instalação:
+
+```bash
+/anti-vibe-coding:update
+```
+
+Isso mostra:
+- Versão instalada vs versão do plugin
+- Arquivos desatualizados
+- Arquivos modificados por você
+- Preview das mudanças
+
+## Versionamento
+
+O plugin rastreia automaticamente a versão de todos os arquivos instalados usando checksums SHA-256.
+
+**Arquivos rastreados:**
+- `CLAUDE.md`
+- `senior-principles.md`
+- `.claude/rules/*.md` (8 rules)
+- `.claude/agents/*.md` (10 agents)
+- `.claude/hooks/*.cjs` (2 hooks)
+- Skills instaladas
+
+**Manifest local:** `.claude/.anti-vibe-manifest.json`
+
+Exemplo:
+```json
+{
+  "pluginVersion": "4.0.0",
+  "installedAt": "2026-03-23T10:30:00Z",
+  "files": {
+    "CLAUDE.md": {
+      "sourceVersion": "4.0.0",
+      "installedChecksum": "ff1b3e...",
+      "lastUpdated": "2026-03-22",
+      "userModified": false
+    }
+  }
+}
+```
+
+**Backups:** Tudo vai para `.claude/backups/YYYY-MM-DD/` antes de ser modificado.
 
 ## Custo
 
