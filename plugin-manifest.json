@@ -1,0 +1,241 @@
+{
+  "version": "4.0.0",
+  "generatedAt": "2026-03-23T19:49:06.019Z",
+  "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
+  "files": {
+    "CLAUDE.md": {
+      "version": "4.0.0",
+      "checksum": "6590c0ebfcebe97e068238dd917e873c8a1af3878f96efaca6cd06637a969552",
+      "lastModified": "2026-03-23",
+      "updateStrategy": "merge"
+    },
+    "senior-principles.md": {
+      "version": "4.0.0",
+      "checksum": "3f780395aa9827c1f251f9f27b8af398c7c3736f229b9110c703b1a5fb071d45",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "rules/api-standards.md": {
+      "version": "4.0.0",
+      "checksum": "8b4269ab2e2fe63818cab4debb5af9a7747ed1c51a1a2db1c84e60b2261d0021",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "merge"
+    },
+    "rules/code-quality.md": {
+      "version": "4.0.0",
+      "checksum": "5623ecb6eab2d18c5c2514926f8012df7fab144b51816cb0cebd2210ac9f6d04",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "merge"
+    },
+    "rules/database-patterns.md": {
+      "version": "4.0.0",
+      "checksum": "701f3cbc186b2008d6a5ad9776e7f4ed985e68f1c548b874e1c4827081a4cedf",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "merge"
+    },
+    "rules/infrastructure-patterns.md": {
+      "version": "4.0.0",
+      "checksum": "e87d0e1fc140264770efd761e4974d0e23276a25e0b165315ef9d089da3e73e6",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "merge"
+    },
+    "rules/security-patterns.md": {
+      "version": "4.0.0",
+      "checksum": "ab58af497a987747ed6a34d15b3ae6f3a2b6038d3606a3ffe12eb9491030fd09",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "merge"
+    },
+    "rules/solid-patterns.md": {
+      "version": "4.0.0",
+      "checksum": "dd155d0725f227f5445c983216a501beadeb7b0e4ee6e32d80c34a9746bc5ba8",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "merge"
+    },
+    "rules/testing-standards.md": {
+      "version": "4.0.0",
+      "checksum": "d5e0ff9b9e9a0d9b2aa3328fb331c15bada7a11ccbf46d01cf1a70f57791e417",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "merge"
+    },
+    "rules/typescript-standards.md": {
+      "version": "4.0.0",
+      "checksum": "f7af0e50c43039173a37e5b41584188f6e257765e4ae1c9def6a37dcbede223f",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "merge"
+    },
+    "hooks/hooks.json": {
+      "version": "4.0.0",
+      "checksum": "552044e5351bd9bc1a2be202e9786846c7325e07ba1abd5df03eac5737f01fc0",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "hooks/tdd-gate.cjs": {
+      "version": "4.0.0",
+      "checksum": "6e4c24293443cb8cffe1d9870446f4171401e3321f0e75658eb3ab9660199d71",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "hooks/user-prompt-gate.cjs": {
+      "version": "4.0.0",
+      "checksum": "457ca89a9f2fcaf1cc7dafe47efbc3230a7bf81c5c47a8805f7dfddc432c2300",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "agents/api-auditor.md": {
+      "version": "4.0.0",
+      "checksum": "ac19de78937b019d020dd8e2a648c4085d5a120f2341a5c7c8a5f301c2210d0c",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "agents/code-smell-detector.md": {
+      "version": "4.0.0",
+      "checksum": "74a4396bf4a86e4fe39ee85206c5251d955b0b9bc55e624f7005dd7f46696151",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "agents/database-analyzer.md": {
+      "version": "4.0.0",
+      "checksum": "e1b6007ab6dcd5997487ac1c937644794bb6e128d007bc8caa9cceb30e091961",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "agents/documentation-writer.md": {
+      "version": "4.0.0",
+      "checksum": "1776add8a4c268dc763f7346feac1acf3041b7be9ee7cea8bfffcb2e391a9111",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "agents/infrastructure-auditor.md": {
+      "version": "4.0.0",
+      "checksum": "e7512cdc93b3a9ab44e710f226bf3a7d77ed1a79784b8b58e5c8a29c5c5e4ddc",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "agents/lesson-evaluator.md": {
+      "version": "4.0.0",
+      "checksum": "1c08c891602ba391d2ef71cd11c535bb20a35bcb46720c9760fef8cee7b33877",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "agents/react-auditor.md": {
+      "version": "4.0.0",
+      "checksum": "55e3e99eed2817af57336b53bbc43bc089af46144b1ae935717ae169ee8ff229",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "agents/security-auditor.md": {
+      "version": "4.0.0",
+      "checksum": "bc26a2efab122d1eb620770527a8d17d5ec0b4ff511d7382ebf6f62b85191c30",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "agents/solid-auditor.md": {
+      "version": "4.0.0",
+      "checksum": "aa3239515c8383030a437cff7990d81386b293e841ac5e5e63ed703b8c3d343c",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "agents/tdd-verifier.md": {
+      "version": "4.0.0",
+      "checksum": "b6e6e9d37b89343c627c9f27a96ddaf144664e21d199370dfa7e368fb2ae9539",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "skills/anti-vibe-review/skill.md": {
+      "version": "4.0.0",
+      "checksum": "1093c7e5c2ef780eff2114611057e63dd0972277ccb47be891266048e7924a7d",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "skills/api-design/skill.md": {
+      "version": "4.0.0",
+      "checksum": "c586ae02d1db471276a28b8bc398eca70816faa6a60b77d88a4247dfb33cf940",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "skills/architecture/skill.md": {
+      "version": "4.0.0",
+      "checksum": "d089f3d9a8d4b63edab9a50ff5bc4e02159cbcf01213cba62296b5e44bea0cc2",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "skills/consultant/skill.md": {
+      "version": "4.0.0",
+      "checksum": "a398b04e9302367216c2435628ff44c19880509db08a7d443cda7d229ee5e90f",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "skills/decision-registry/skill.md": {
+      "version": "4.0.0",
+      "checksum": "18fd8b9e7bea749ce3b5058241597fae8e41b5a5e71bf1e89e84fc94d4a0eff0",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "skills/design-patterns/skill.md": {
+      "version": "4.0.0",
+      "checksum": "45304d30612016394740370b0995eff3131d91f321447f17ca1ece521c89fc28",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "skills/enhance-prompt/skill.md": {
+      "version": "4.0.0",
+      "checksum": "1a7845ee488cd90bbd203c2759fd9bed2bf9f88df5a72de843cc489eaad515b7",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "skills/infrastructure/skill.md": {
+      "version": "4.0.0",
+      "checksum": "1017dd69224cd3ff5afd8f67ec818ee240cb44db23727c4f6920a70d88ea6c45",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "skills/init/skill.md": {
+      "version": "4.0.0",
+      "checksum": "253a68b1bdb007d3917f7bef8bcfb84a8eec27f68019624665ad3c3dd27c1ade",
+      "lastModified": "2026-03-23",
+      "updateStrategy": "replace"
+    },
+    "skills/learn/skill.md": {
+      "version": "4.0.0",
+      "checksum": "0f9dfc7981076789a428a4a710f5717f2b8ab3d0e3f0c07f899ee90a31b01be8",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "skills/lessons-learned/skill.md": {
+      "version": "4.0.0",
+      "checksum": "4c6115c706ffee65f4454ac2b2e18ccb633b81865aab04d7904928088aeaf889",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "skills/react-patterns/skill.md": {
+      "version": "4.0.0",
+      "checksum": "b952d8416aa6edeebced71124ce56ad575a9950ff3c35a099a1145f2abddba35",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "skills/security/skill.md": {
+      "version": "4.0.0",
+      "checksum": "cbbf0ff2209f57a4dc363250ad8794074d83a9f4ceacc84ef4a24268d9384fb5",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "skills/system-design/skill.md": {
+      "version": "4.0.0",
+      "checksum": "d87de08d38b2ee7519df534b326ffc0dd72122527d4b433be97f15e9eefb2c9a",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "skills/tdd-workflow/skill.md": {
+      "version": "4.0.0",
+      "checksum": "c517033aa74aa6b65d9214ee2861f02abf218e00c31e19b3107ddd0ecaba4586",
+      "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "skills/update/skill.md": {
+      "version": "4.0.0",
+      "checksum": "ffccb821a64d0295ba9bc13139da7ab168c6df04e29d1a80446a4fcf327bbc61",
+      "lastModified": "2026-03-23",
+      "updateStrategy": "replace"
+    }
+  }
+}

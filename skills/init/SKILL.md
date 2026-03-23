@@ -13,6 +13,35 @@ Inicializar o Anti-Vibe Coding no projeto atual. Detectar o estado do projeto e 
 
 ## Fluxo de Execucao
 
+### Passo 0 — Detectar Instalação Existente
+
+**ANTES de qualquer coisa**, verificar se existe `.claude/.anti-vibe-manifest.json`:
+
+```javascript
+const manifestPath = path.join(projectRoot, '.claude', '.anti-vibe-manifest.json');
+const hasManifest = fs.existsSync(manifestPath);
+```
+
+#### Se manifest EXISTE → Modo Atualização
+
+O projeto já tem Anti-Vibe Coding instalado. Executar lógica de **atualização incremental**:
+
+1. Ler manifest local e plugin-manifest
+2. Detectar arquivos desatualizados (consultar `skills/lib/manifest-utils.md`)
+3. Apresentar atualizações disponíveis ao usuário
+4. Perguntar: "Deseja atualizar agora? [1] Sim [2] Não [3] Ver detalhes"
+5. Se "Sim", aplicar atualizações seguindo as estratégias (merge/replace)
+6. Atualizar manifest local
+7. Fim da execução (não seguir para Passo 1)
+
+**Ver lógica completa de update em:** `skills/update/skill.md`
+
+#### Se manifest NÃO existe → Modo Instalação
+
+Primeira instalação. Seguir para Passo 1 normalmente.
+
+---
+
 ### Passo 1 — Detectar Estado do Projeto
 
 Verificar a existencia destes arquivos no projeto:
@@ -232,7 +261,58 @@ As rules do template estao em: `${CLAUDE_PLUGIN_ROOT}/rules/`
 1. Se `.claude/decisions.md` nao existe, criar com template vazio
 2. Se ja existe, nao tocar
 
-### Passo 5 — Resumo Final
+### Passo 5 — Criar Manifest Local
+
+Após todas as instalações/merges, criar `.claude/.anti-vibe-manifest.json` para rastrear versões.
+
+**Implementação:**
+
+```javascript
+const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
+
+// Ler plugin-manifest.json
+const pluginManifestPath = path.join(process.env.CLAUDE_PLUGIN_ROOT, 'plugin-manifest.json');
+const pluginManifest = JSON.parse(fs.readFileSync(pluginManifestPath, 'utf8'));
+
+// Criar estrutura do manifest local
+const localManifest = {
+  pluginVersion: pluginManifest.version,
+  installedAt: new Date().toISOString(),
+  files: {}
+};
+
+// Para cada arquivo instalado/mesclado nesta sessão:
+installedFiles.forEach(file => {
+  const filePath = path.join(projectRoot, file);
+  const content = fs.readFileSync(filePath, 'utf8');
+  const checksum = crypto.createHash('sha256').update(content).digest('hex');
+
+  localManifest.files[file] = {
+    sourceVersion: pluginManifest.files[file].version,
+    installedChecksum: checksum,
+    lastUpdated: new Date().toISOString().split('T')[0],
+    userModified: false
+  };
+});
+
+// Salvar
+const manifestPath = path.join(projectRoot, '.claude', '.anti-vibe-manifest.json');
+fs.writeFileSync(manifestPath, JSON.stringify(localManifest, null, 2), 'utf8');
+```
+
+**Arquivos rastreados:**
+- CLAUDE.md
+- senior-principles.md
+- Todas as rules instaladas
+- Todas as skills (se copiadas)
+- Hooks (se instalados)
+- Agents (se copiados)
+
+**IMPORTANTE:** O manifest registra o checksum do arquivo APÓS merge/modificação, não o checksum original do plugin.
+
+### Passo 6 — Resumo Final
 
 Apresentar um resumo do que foi feito:
 
@@ -241,15 +321,18 @@ Apresentar um resumo do que foi feito:
 
 ### Arquivos criados/modificados:
 - [criado/mesclado/ja existia] CLAUDE.md
+- [criado] senior-principles.md
 - [criado/ja existia] .claude/rules/typescript-standards.md
 - [criado/ja existia] .claude/rules/testing-standards.md
 - [criado/ja existia] .claude/rules/api-standards.md
 - [criado/ja existia] .claude/decisions.md
+- [criado] .claude/.anti-vibe-manifest.json (rastreamento de versões)
 
 ### Proximos passos:
 1. Revisar o CLAUDE.md mesclado
 2. Iniciar uma nova sessao para os hooks ativarem
 3. Usar `/anti-vibe-coding:consultant` para a proxima feature
+4. Para atualizar o plugin no futuro: rodar `/anti-vibe-coding:init` novamente
 ```
 
 ## Regras Importantes

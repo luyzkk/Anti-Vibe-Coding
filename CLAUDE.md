@@ -122,12 +122,44 @@ Resumo completo em `senior-principles.md`. Detalhes nas skills dedicadas.
 
 ---
 
+## Versionamento e Atualizações
+
+O plugin usa **versionamento automático** para manter seu projeto sincronizado.
+
+### Como Funciona
+
+1. **Na instalação inicial:** `/anti-vibe-coding:init` cria `.claude/.anti-vibe-manifest.json`
+2. **Em atualizações:** Roda `/anti-vibe-coding:init` novamente e ele detecta mudanças
+3. **Rastreamento:** Todos os arquivos (CLAUDE.md, rules, agents, hooks) têm checksums
+
+### Estratégias de Atualização
+
+| Arquivo | Estratégia | Comportamento |
+|---------|------------|---------------|
+| CLAUDE.md | **Merge** | Preserva modificações + adiciona novos princípios |
+| senior-principles.md | **Replace** | Substitui (é documentação oficial) |
+| rules/*.md | **Merge** | Preserva rules customizadas + adiciona novas |
+| hooks/*.cjs | **Replace** | Substitui (lógica crítica) |
+| agents/*.md | **Replace** | Substitui (prompts oficiais) |
+| decisions.md | **Never** | Nunca toca (é do projeto) |
+
+### Comandos
+
+- `/anti-vibe-coding:init` — Instalar ou atualizar
+- `/anti-vibe-coding:update` — Forçar verificação de updates
+
+**Backup automático:** Tudo vai para `.claude/backups/YYYY-MM-DD/` antes de modificar.
+
+---
+
 ## Plugin Anti-Vibe Coding
 
 ### Skills Disponíveis
 
 | Skill | Comando | Propósito |
 |-------|---------|-----------|
+| Init | `/anti-vibe-coding:init` | Setup inicial e atualização do plugin |
+| Update | `/anti-vibe-coding:update` | Detecta e aplica atualizações incrementais |
 | Consultor | `/anti-vibe-coding:consultant` | Fase Zero — ensina antes de codar |
 | TDD Workflow | `/anti-vibe-coding:tdd-workflow` | Workflow de 7 passos |
 | Lições | `/anti-vibe-coding:lessons-learned` | Gestão de lições sênior |
