@@ -131,6 +131,7 @@ O plugin usa **versionamento automático** para manter seu projeto sincronizado.
 1. **Na instalação inicial:** `/anti-vibe-coding:init` cria `.claude/.anti-vibe-manifest.json`
 2. **Em atualizações:** Roda `/anti-vibe-coding:init` novamente e ele detecta mudanças
 3. **Rastreamento:** Todos os arquivos (CLAUDE.md, rules, agents, hooks) têm checksums
+4. **Invalidação de cache:** Hook automático ao abrir projeto + comando `/anti-vibe-coding:sync`
 
 ### Estratégias de Atualização
 
@@ -146,7 +147,12 @@ O plugin usa **versionamento automático** para manter seu projeto sincronizado.
 ### Comandos
 
 - `/anti-vibe-coding:init` — Instalar ou atualizar
-- `/anti-vibe-coding:update` — Forçar verificação de updates
+- `/anti-vibe-coding:update` — Verificar status de atualizações
+- `/anti-vibe-coding:sync` — Invalidar cache e mostrar versões
+
+**Invalidação de cache:**
+- Hook automático detecta plugin atualizado ao abrir projeto
+- Mostra aviso: "⚠️ Plugin atualizado! Rodar /init"
 
 **Backup automático:** Tudo vai para `.claude/backups/YYYY-MM-DD/` antes de modificar.
 
@@ -160,6 +166,7 @@ O plugin usa **versionamento automático** para manter seu projeto sincronizado.
 |-------|---------|-----------|
 | Init | `/anti-vibe-coding:init` | Setup inicial e atualização do plugin |
 | Update | `/anti-vibe-coding:update` | Detecta e aplica atualizações incrementais |
+| Sync | `/anti-vibe-coding:sync` | Invalida cache e mostra status de versão |
 | Consultor | `/anti-vibe-coding:consultant` | Fase Zero — ensina antes de codar |
 | TDD Workflow | `/anti-vibe-coding:tdd-workflow` | Workflow de 7 passos |
 | Lições | `/anti-vibe-coding:lessons-learned` | Gestão de lições sênior |

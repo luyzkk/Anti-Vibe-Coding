@@ -13,28 +13,57 @@ Inicializar o Anti-Vibe Coding no projeto atual. Detectar o estado do projeto e 
 
 ## Fluxo de Execucao
 
-### Passo 0 — Detectar Instalação Existente
+### Passo 0 — Detectar Instalação Existente e Invalidar Cache
 
 **ANTES de qualquer coisa**, verificar se existe `.claude/.anti-vibe-manifest.json`:
 
 ```javascript
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
+
 const manifestPath = path.join(projectRoot, '.claude', '.anti-vibe-manifest.json');
 const hasManifest = fs.existsSync(manifestPath);
+
+// Ler versão do plugin global
+const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT;
+const pluginManifestPath = path.join(pluginRoot, 'plugin-manifest.json');
+const pluginManifest = JSON.parse(fs.readFileSync(pluginManifestPath, 'utf8'));
+const pluginVersion = pluginManifest.version;
 ```
+
+#### Invalidação de Cache
+
+**IMPORTANTE:** O Claude Code pode cachear a versão anterior do plugin mesmo após atualização global.
+
+Para invalidar o cache, **sempre** mostrar a versão do plugin no início:
+
+```
+## Anti-Vibe Coding — Inicialização
+
+Plugin versão: v{pluginVersion} (global)
+{hasManifest ? `Versão instalada: v{localVersion}` : 'Primeira instalação'}
+```
+
+Isso força o Claude Code a recarregar o plugin atual.
 
 #### Se manifest EXISTE → Modo Atualização
 
 O projeto já tem Anti-Vibe Coding instalado. Executar lógica de **atualização incremental**:
 
-1. Ler manifest local e plugin-manifest
-2. Detectar arquivos desatualizados (consultar `skills/lib/manifest-utils.md`)
-3. Apresentar atualizações disponíveis ao usuário
-4. Perguntar: "Deseja atualizar agora? [1] Sim [2] Não [3] Ver detalhes"
-5. Se "Sim", aplicar atualizações seguindo as estratégias (merge/replace)
-6. Atualizar manifest local
-7. Fim da execução (não seguir para Passo 1)
+1. **Comparar versões** do plugin global vs manifest local
+2. **Se versões diferentes:**
+   - Avisar: "⚠️ Detectado plugin atualizado! Versão local será sincronizada."
+   - Invalidar cache (mostrar versão)
+3. Ler manifest local e plugin-manifest
+4. Detectar arquivos desatualizados (consultar `skills/lib/manifest-utils.md`)
+5. Apresentar atualizações disponíveis ao usuário
+6. Perguntar: "Deseja atualizar agora? [1] Sim [2] Não [3] Ver detalhes"
+7. Se "Sim", aplicar atualizações seguindo as estratégias (merge/replace)
+8. Atualizar manifest local com **versão do plugin global atual**
+9. Fim da execução (não seguir para Passo 1)
 
-**Ver lógica completa de update em:** `skills/update/skill.md`
+**Ver lógica completa de update em:** `skills/update/SKILL.md`
 
 #### Se manifest NÃO existe → Modo Instalação
 
