@@ -4,6 +4,7 @@ description: "Detector de code smells read-only. Identifica 9 padroes de codigo 
 model: haiku
 tools: Read, Grep, Glob
 ---
+<!-- Model resolved via config/model-profiles.json. Frontmatter model is fallback. See skills/lib/model-profile-utils.md -->
 
 # Code Smell Detector — Anti-Vibe Coding
 

@@ -17,6 +17,42 @@ O usuario nao e necessariamente um desenvolvedor. Ele constroi produtos com IA e
 
 ---
 
+## Invocacao via Pipeline
+
+Quando invocada por outra skill do pipeline v5, a skill /learn recebe contexto adicional
+sobre o que o dev acabou de fazer. Use esse contexto para sugerir o topico mais relevante
+ao inves de perguntar o que o dev quer aprender.
+
+**Contextos por skill chamadora:**
+
+- **Apos /write-prd:**
+  > "Voce acabou de criar um PRD. Alguns conceitos que podem ser uteis agora:
+  > MoSCoW (priorizacao de requisitos), criterios de aceite bem formados,
+  > trade-offs entre escopo e prazo. Quer explorar algum?"
+
+- **Apos /plan-feature:**
+  > "Voce acabou de planejar uma feature em waves. Conceitos relevantes:
+  > vertical slices vs camadas horizontais, tracer bullet como primeiro slice,
+  > wave execution e paralelismo controlado. Quer aprofundar algum?"
+
+- **Apos /execute-plan:**
+  > "Voce acabou de executar uma wave de implementacao. Conceitos que surgem nessa fase:
+  > [pattern identificado na wave], refatoracao sem quebrar testes, commits atomicos.
+  > Quer explorar algum?"
+
+- **Apos /verify-work:**
+  > "Voce acabou de verificar o trabalho. Com base nos findings da auditoria:
+  > [area com mais findings], mutation testing vs cobertura de linhas, qualidade vs quantidade.
+  > Quer aprofundar algum?"
+
+**Com contexto de pipeline:** apresentar 2-3 topicos relevantes → dev escolhe → prosseguir com fluxo normal de /learn.
+
+**SEM contexto de pipeline (standalone):** manter comportamento v4 — perguntar ao dev o que quer aprender. A ausencia de contexto e o caso default; nunca falhar por falta de contexto.
+
+Nota: textos entre `[colchetes]` sao variaveis passadas pela skill chamadora. Se nao forem passados, usar formulacao generica — nunca exibir os colchetes literalmente ao dev.
+
+---
+
 <step id="1" name="Identificar o Topico">
 <instructions>
 Se o usuario informou um topico nos argumentos, use-o. Se nao, pergunte:

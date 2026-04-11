@@ -1,0 +1,28 @@
+{
+  "test_quality_audit": true,
+  "mutation_testing": false,
+  "coverage_threshold_business": 50,
+  "coverage_threshold_infra": 0,
+  "detect_hallucinated_references": true,
+  "max_debug_retries": 3,
+  "parallel_auditors": true,
+  "max_report_lines": 50,
+  "auditors": {
+    "tdd": true,
+    "security": true,
+    "code_quality": true,
+    "domain_specific": true,
+    "test_quality": true
+  },
+  "model_profiles": {
+    "debug_agent": "default",
+    "tdd_verifier": "default",
+    "security_auditor": "default",
+    "code_smell_detector": "default",
+    "api_auditor": "default",
+    "react_auditor": "default",
+    "database_analyzer": "default",
+    "infrastructure_auditor": "default",
+    "solid_auditor": "default"
+  }
+}

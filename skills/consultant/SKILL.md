@@ -1,6 +1,6 @@
 ---
 name: consultant
-description: "This skill should be used when the user shows uncertainty ('how should I implement this?', 'what is the best approach?', 'which pattern should I use?'), asks for trade-off analysis, faces irreversible technical decisions (database schema, auth patterns, critical lib choices, infrastructure decisions, hosting choices), or requests architecture consultation before coding. Activates Phase Zero — teach before code."
+description: "Phase Zero consultation for uncertain decisions, trade-off analysis, and irreversible choices. Use when facing database schema design, auth pattern selection, critical library choices, infrastructure decisions, or when the user asks 'how should I implement', 'best approach', 'which pattern'. Teaches before coding — presents options with pros/cons instead of jumping to implementation."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob, WebSearch
@@ -27,6 +27,36 @@ Fluxo normal. O dev define, a execucao segue o TDD workflow.
 
 ### Modo 3: Revisor (depois da execucao)
 Explicar o que foi feito e POR QUE em linguagem simples. Se o dev nao entendeu, explicar de outra forma.
+
+---
+
+## Deteccao de Ambiguidade → Sugestao de /grill-me
+
+Ao receber uma descricao de feature, avaliar o nivel de ambiguidade ANTES de prosseguir com a consulta arquitetural.
+
+**Sinais de ambiguidade excessiva (3 ou mais presentes):**
+- Requisitos funcionais vagos: "algo tipo", "talvez", "nao sei exatamente"
+- Multiplos stakeholders com criterios nao alinhados
+- Integracao com sistemas externos nao especificados
+- Casos de erro/edge cases nao mencionados
+- Escopo que pode crescer 2x ou mais com uma pergunta simples
+- Dev responde perguntas de esclarecimento com "depende"
+
+**Se 3+ sinais detectados:**
+Antes de propor qualquer solucao arquitetural, dizer:
+
+> "Detecto muita ambiguidade nessa descricao. Tentar decidir a arquitetura agora pode gerar
+> retrabalho significativo. Recomendo uma entrevista profunda antes.
+>
+> Quer que eu invoque /grill-me para clarificar os requisitos antes de continuarmos
+> com a consulta arquitetural?"
+
+- Se SIM → sugerir: `/anti-vibe-coding:grill-me`
+- Se NAO → prosseguir normalmente, documentando ambiguidades como riscos no output final
+
+**Regra inviolavel:** NUNCA invocar /grill-me automaticamente. Sempre perguntar primeiro.
+
+---
 
 ## Passo 1 — Classificar a Feature
 
@@ -192,6 +222,52 @@ Quando o desenvolvedor aprovar todas as decisoes:
 
 1. Sugerir (nao executar automaticamente): "Deseja registrar estas decisoes com /anti-vibe-coding:decision-registry? (recomendado para decisoes irreversiveis)"
 2. Sugerir (nao executar automaticamente): "Deseja iniciar a implementacao com /anti-vibe-coding:tdd-workflow [feature]?"
+
+---
+
+## Pipeline Awareness — Proximos Passos
+
+Ao final de qualquer consulta, sugerir o proximo passo do pipeline com base no resultado:
+
+**Se a consulta resultou em decisao arquitetural clara:**
+
+> "Decisao registrada. Proximo passo recomendado:
+> - `/write-prd` — se e uma feature nova e voce quer uma spec antes de implementar
+> - `/plan-feature` — se ja tem PRD e quer planejar a implementacao em waves
+> - `/design-twice` — se quer comparar essa abordagem com uma alternativa antes de decidir"
+
+**Se ainda ha incertezas apos a consulta:**
+
+> "Ainda ha incertezas nao resolvidas. Recomendo:
+> - `/grill-me` — para clarificar as ambiguidades restantes com uma entrevista profunda
+> - `/design-twice` — para explorar alternativas e ver qual resolve melhor as incertezas"
+
+A sugestao e INFORMATIVA — o dev decide se quer seguir ou nao.
+
+---
+
+## Auto-Registro de Decisoes
+
+Ao final de qualquer consulta que resulte em uma decisao tomada, registrar automaticamente
+no arquivo `decisions.md` na raiz do projeto (criar se nao existir).
+
+**Criterio para registrar:** a consulta chegou a uma recomendacao clara e o dev aceitou (ou nao refutou explicitamente). NAO registrar se dev recusar ou se a consulta terminou em incerteza.
+
+**Formato de registro:**
+
+```
+## [YYYY-MM-DD] [titulo curto da decisao]
+
+**Decisao:** [o que foi decidido em 1-2 frases]
+**Contexto:** [por que essa decisao foi necessaria]
+**Alternativas consideradas:**
+- [alternativa 1]: [por que descartada]
+- [alternativa 2]: [por que descartada]
+**Razao:** [por que essa opcao foi escolhida]
+**Consequencias:** [o que essa decisao implica no futuro]
+```
+
+Titulo especifico: "Usar PostgreSQL para dados transacionais" (bom) vs "Decisao de banco" (ruim).
 
 ---
 

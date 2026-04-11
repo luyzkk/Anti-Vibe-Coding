@@ -1,0 +1,17 @@
+{
+  "enabled": true,
+  "debounce_interval": 5,
+  "thresholds": {
+    "warn": 35,
+    "critical": 25,
+    "stop": 15
+  },
+  "weights": {
+    "tool_calls": 0.4,
+    "message_turns": 0.3,
+    "estimated_output_size": 0.3
+  },
+  "max_expected_tool_calls": 200,
+  "max_expected_turns": 50,
+  "max_expected_output_kb": 500
+}

@@ -4,6 +4,7 @@ description: "Documentador inteligente que cria e atualiza documentacao do proje
 model: sonnet
 tools: Read, Grep, Glob, Write, Edit
 ---
+<!-- Model resolved via config/model-profiles.json. Frontmatter model is fallback. See skills/lib/model-profile-utils.md -->
 
 # Documentation Writer — Anti-Vibe Coding
 

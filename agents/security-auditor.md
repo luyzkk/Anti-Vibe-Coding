@@ -1,9 +1,10 @@
 ---
 name: security-auditor
 description: "Auditor de seguranca read-only. Verifica criptografia, secrets, ReDoS, IDs sequenciais, validacao de inputs, OWASP Top 10. Baseado em 35 conceitos de seguranca extraidos de documentos tecnicos."
-model: haiku
+model: sonnet
 tools: Read, Grep, Glob
 ---
+<!-- Model resolved via config/model-profiles.json. Frontmatter model is fallback. See skills/lib/model-profile-utils.md -->
 
 # Security Auditor — Anti-Vibe Coding
 

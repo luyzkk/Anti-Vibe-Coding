@@ -1,0 +1,60 @@
+{
+  "profiles": {
+    "quality": {
+      "description": "Maximum quality. Higher cost. Use for critical features.",
+      "agents": {
+        "security-auditor": "opus",
+        "solid-auditor": "opus",
+        "api-auditor": "opus",
+        "database-analyzer": "sonnet",
+        "plan-executor": "opus",
+        "plan-verifier": "sonnet",
+        "design-explorer": "sonnet",
+        "react-auditor": "sonnet",
+        "code-smell-detector": "sonnet",
+        "tdd-verifier": "sonnet",
+        "infrastructure-auditor": "sonnet",
+        "lesson-evaluator": "haiku",
+        "documentation-writer": "sonnet"
+      }
+    },
+    "balanced": {
+      "description": "Good balance of quality and cost. Default.",
+      "agents": {
+        "security-auditor": "sonnet",
+        "solid-auditor": "sonnet",
+        "api-auditor": "sonnet",
+        "database-analyzer": "sonnet",
+        "plan-executor": "sonnet",
+        "plan-verifier": "haiku",
+        "design-explorer": "sonnet",
+        "react-auditor": "haiku",
+        "code-smell-detector": "haiku",
+        "tdd-verifier": "sonnet",
+        "infrastructure-auditor": "sonnet",
+        "lesson-evaluator": "haiku",
+        "documentation-writer": "haiku"
+      }
+    },
+    "budget": {
+      "description": "Minimize cost. Use for non-critical work.",
+      "agents": {
+        "security-auditor": "sonnet",
+        "solid-auditor": "haiku",
+        "api-auditor": "haiku",
+        "database-analyzer": "haiku",
+        "plan-executor": "sonnet",
+        "plan-verifier": "haiku",
+        "design-explorer": "haiku",
+        "react-auditor": "haiku",
+        "code-smell-detector": "haiku",
+        "tdd-verifier": "haiku",
+        "infrastructure-auditor": "haiku",
+        "lesson-evaluator": "haiku",
+        "documentation-writer": "haiku"
+      }
+    }
+  },
+  "default": "balanced",
+  "overrides": {}
+}

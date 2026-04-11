@@ -1,12 +1,12 @@
 {
-  "version": "4.0.0",
-  "generatedAt": "2026-03-23T21:40:12.246Z",
+  "version": "5.1.0",
+  "generatedAt": "2026-04-11T00:00:00.000Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "files": {
     "CLAUDE.md": {
       "version": "4.0.0",
-      "checksum": "909a6ef8c883bb8e8043d6d5796728546cf7efc827543dd9589e3eae4c4acfc7",
-      "lastModified": "2026-03-23",
+      "checksum": "4b07bcb7be964fa7ed453a6eaa3e91c2f5f3f0c89c25596e4ae357a7805c5ea9",
+      "lastModified": "2026-04-08",
       "updateStrategy": "merge"
     },
     "senior-principles.md": {
@@ -64,15 +64,15 @@
       "updateStrategy": "merge"
     },
     "hooks/hooks.json": {
-      "version": "4.0.0",
-      "checksum": "91a5da0baac766bfdcd460fdb0fdcafffdae3ec2546b9480b98b9491792d8d73",
-      "lastModified": "2026-03-23",
+      "version": "5.0.0",
+      "checksum": "2836f348c8b6f9f9bc53c5160a09ef3ec1e43aecfb47652e08591a7dc37a3215",
+      "lastModified": "2026-04-09",
       "updateStrategy": "replace"
     },
     "hooks/tdd-gate.cjs": {
-      "version": "4.0.0",
-      "checksum": "6e4c24293443cb8cffe1d9870446f4171401e3321f0e75658eb3ab9660199d71",
-      "lastModified": "2026-03-22",
+      "version": "5.0.0",
+      "checksum": "a2f1603ea37790882056fe7ae8425684c31ff2a174285ce42f6be45f08115db8",
+      "lastModified": "2026-04-08",
       "updateStrategy": "replace"
     },
     "hooks/user-prompt-gate.cjs": {
@@ -89,62 +89,80 @@
     },
     "agents/api-auditor.md": {
       "version": "4.0.0",
-      "checksum": "ac19de78937b019d020dd8e2a648c4085d5a120f2341a5c7c8a5f301c2210d0c",
-      "lastModified": "2026-03-22",
+      "checksum": "293512f89d7af707204831c91106023b843151f518981123b8283c912ad49714",
+      "lastModified": "2026-04-08",
       "updateStrategy": "replace"
     },
     "agents/code-smell-detector.md": {
       "version": "4.0.0",
-      "checksum": "74a4396bf4a86e4fe39ee85206c5251d955b0b9bc55e624f7005dd7f46696151",
-      "lastModified": "2026-03-22",
+      "checksum": "ab6c57298555a28db7a1809920b194997d094fe8d3b95f3d1dd5338bd2c0e984",
+      "lastModified": "2026-04-08",
       "updateStrategy": "replace"
     },
     "agents/database-analyzer.md": {
       "version": "4.0.0",
-      "checksum": "e1b6007ab6dcd5997487ac1c937644794bb6e128d007bc8caa9cceb30e091961",
-      "lastModified": "2026-03-22",
+      "checksum": "08f1d4b973da449f93ec59d0b35bec4d9499d209f5d58fd2608ee3bb264633db",
+      "lastModified": "2026-04-08",
       "updateStrategy": "replace"
     },
     "agents/documentation-writer.md": {
       "version": "4.0.0",
-      "checksum": "1776add8a4c268dc763f7346feac1acf3041b7be9ee7cea8bfffcb2e391a9111",
-      "lastModified": "2026-03-22",
+      "checksum": "35722cdf41448660d49eb7b3bdda4aa59f4bbed7ab8e2781b2595671ed43e893",
+      "lastModified": "2026-04-08",
       "updateStrategy": "replace"
     },
     "agents/infrastructure-auditor.md": {
       "version": "4.0.0",
-      "checksum": "e7512cdc93b3a9ab44e710f226bf3a7d77ed1a79784b8b58e5c8a29c5c5e4ddc",
-      "lastModified": "2026-03-22",
+      "checksum": "da5d3a1ee59e70fcb027bc0aa52d7fcacc861014ece7e54be3af3b267e7f51eb",
+      "lastModified": "2026-04-08",
       "updateStrategy": "replace"
     },
     "agents/lesson-evaluator.md": {
       "version": "4.0.0",
-      "checksum": "1c08c891602ba391d2ef71cd11c535bb20a35bcb46720c9760fef8cee7b33877",
-      "lastModified": "2026-03-22",
+      "checksum": "9ed26373a75609632faa2fd374ffbffcfeaf439297c9b37fd15199e535da085a",
+      "lastModified": "2026-04-08",
       "updateStrategy": "replace"
     },
     "agents/react-auditor.md": {
       "version": "4.0.0",
-      "checksum": "55e3e99eed2817af57336b53bbc43bc089af46144b1ae935717ae169ee8ff229",
-      "lastModified": "2026-03-22",
+      "checksum": "60a87d103682b2600b9c87f4d7c253e3bcae7f60aded3474be97e1d0e3fa8e4f",
+      "lastModified": "2026-04-08",
       "updateStrategy": "replace"
     },
     "agents/security-auditor.md": {
       "version": "4.0.0",
-      "checksum": "bc26a2efab122d1eb620770527a8d17d5ec0b4ff511d7382ebf6f62b85191c30",
-      "lastModified": "2026-03-22",
+      "checksum": "8612238f56d2f1cf5de43b53c6f274736000e7af7e538b41ddbe831615e2e623",
+      "lastModified": "2026-04-08",
       "updateStrategy": "replace"
     },
     "agents/solid-auditor.md": {
       "version": "4.0.0",
-      "checksum": "aa3239515c8383030a437cff7990d81386b293e841ac5e5e63ed703b8c3d343c",
-      "lastModified": "2026-03-22",
+      "checksum": "b941daf2b61d293cf219bf562e62a90fc4b74c566014bad76df7252611f35095",
+      "lastModified": "2026-04-08",
       "updateStrategy": "replace"
     },
     "agents/tdd-verifier.md": {
       "version": "4.0.0",
-      "checksum": "b6e6e9d37b89343c627c9f27a96ddaf144664e21d199370dfa7e368fb2ae9539",
-      "lastModified": "2026-03-22",
+      "checksum": "bc08eb452e4b9d5e634acaf214b78a82d399fe07edd77038008621fcf54a872a",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "replace"
+    },
+    "agents/plan-executor.md": {
+      "version": "5.0.0",
+      "checksum": "e9e9b376f9f90448dc9b02c7d8b95f6c6b95713a8ca8a8bff15c68fc2446a446",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "replace"
+    },
+    "agents/plan-verifier.md": {
+      "version": "5.0.0",
+      "checksum": "e788735af5da21a4c37b8d8886f85c0980ade30dccc3c38d822c680776f2dbbd",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "replace"
+    },
+    "agents/design-explorer.md": {
+      "version": "5.0.0",
+      "checksum": "55a196c74cb3fd49e3cbb52c774ec3bc59525ceb31c4796ce4a66b97476860d0",
+      "lastModified": "2026-04-08",
       "updateStrategy": "replace"
     },
     "skills/anti-vibe-review/skill.md": {
@@ -243,10 +261,226 @@
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
+    "skills/tdd-workflow/references/deep-modules.md": {
+      "version": "5.0.0",
+      "checksum": "4ccb609bc1ff66aa9f736b9690c85c68713d5184a969415e47a4a4e9d75bb59c",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "replace"
+    },
+    "skills/grill-me/skill.md": {
+      "version": "5.0.0",
+      "checksum": "89e4de9eb4db5d9e40870dd8a034831d9a0f16b3a98fbbada300e28c984d806e",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "replace"
+    },
+    "skills/design-twice/skill.md": {
+      "version": "5.0.0",
+      "checksum": "fce4286197626a80bd660f4373a88476a492a4f33b98f09beaf58efe29032135",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "replace"
+    },
+    "skills/plan-feature/skill.md": {
+      "version": "5.0.0",
+      "checksum": "d5010edf9b04a4395c9f5e6fec6a5474a63dc23f0066070537bb024c0f8aedbc",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "replace"
+    },
+    "skills/plan-feature/templates/plan-template.md": {
+      "version": "5.0.0",
+      "checksum": "a4a33e7fdf384599280b95eba02627887c3e909c16f4df8c8f2753c1dc6ced2c",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "replace"
+    },
+    "skills/write-prd/skill.md": {
+      "version": "5.0.0",
+      "checksum": "4ad81d640b49315bd26ad6d9db4f9ccc3fcd0bee46d7baf81e99db5f5972675c",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "replace"
+    },
+    "skills/write-prd/templates/prd-template.md": {
+      "version": "5.0.0",
+      "checksum": "1de14eaf1a1ca0fffbd943e69e3d1f77f499cfb710d8eb891d9d244d4f2c0331",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "replace"
+    },
     "skills/update/skill.md": {
       "version": "4.0.0",
       "checksum": "ffccb821a64d0295ba9bc13139da7ab168c6df04e29d1a80446a4fcf327bbc61",
       "lastModified": "2026-03-23",
+      "updateStrategy": "replace"
+    },
+    "config/model-profiles.json": {
+      "version": "5.0.0",
+      "checksum": "a80296206a96ad44c4b20e3436918fe2d488fc5033a2a51f6538de64980edca0",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "merge"
+    },
+    "config/tdd-gate.json": {
+      "version": "5.0.0",
+      "checksum": "6d70c87aee04b2a21b16768b6be2d578c90839139b5513939441b088c7928362",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "merge"
+    },
+    "skills/lib/model-profile-utils.md": {
+      "version": "5.0.0",
+      "checksum": "83fab7b26a509bd41f6a92a80ddfaaf9e4bf810da80107ec7f7fd81e420af81e",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "replace"
+    },
+    "templates/STATE.md": {
+      "version": "5.0.0",
+      "checksum": "149526338ba8786ac24e793275c4858c9cdb4fedab071b6ccd077e1765a548b1",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "replace"
+    },
+    "templates/SUMMARY.md": {
+      "version": "5.0.0",
+      "checksum": "4e5d58b7c0ed9ab3370dd11e6d694fc3bf1a7fd85d1547c0558a5bd9c6776b9d",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "replace"
+    },
+    "skills/lib/state-utils.md": {
+      "version": "5.0.0",
+      "checksum": "d78385ddf8b40062fbb5e4e2d185d08edd2394671721d515133a89c7d3eff502",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "replace"
+    },
+    "skills/execute-plan/skill.md": {
+      "version": "5.0.0",
+      "checksum": "dc6a1762f2b58cbd36c18c5478725e046232c261fe132001aea9f9591bdfb523",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "replace"
+    },
+    "skills/execute-plan/references/wave-execution.md": {
+      "version": "5.0.0",
+      "checksum": "0e4b625a1412e5a1d85f2b39a3e767085255c4b7fa538f4498b02d1f7ed0e5c5",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "replace"
+    },
+    "skills/verify-work/skill.md": {
+      "version": "5.0.0",
+      "checksum": "fc68fbcb9fc7eb60f765c5df4dac984684230a1654aee5cd430340b39996862a",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "replace"
+    },
+    "config/verify-work.json": {
+      "version": "5.0.0",
+      "checksum": "441b70dd4a6093d8a51801a88d01a3c28d25317254b1bcab019241ede59aa1c2",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "merge"
+    },
+    "skills/tdd-workflow/skill.md": {
+      "version": "5.0.0",
+      "checksum": "ba604541477d6b54571d2b3197ec51fd43df1d0303491a89e8ceb86e76a001af",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "merge"
+    },
+    "skills/tdd-workflow/references/ia-tdd-workflow.md": {
+      "version": "5.0.0",
+      "checksum": "783d73a9fc66d87541d8d969d571cd9cd28bab7998d76b9d7ac855558a3f4446",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "replace"
+    },
+    "skills/tdd-workflow/references/test-pyramid-ai.md": {
+      "version": "5.0.0",
+      "checksum": "16b96bca84df49d9524069995bb727fcd07ac64c687ceccdcbfefd09288f067c",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "replace"
+    },
+    "skills/consultant/skill.md": {
+      "version": "5.0.0",
+      "checksum": "dd8e9d697ff2b76a3550cfa756caaebdce1400707e703f045fd2113ca2eeef32",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "merge"
+    },
+    "skills/anti-vibe-review/skill.md": {
+      "version": "5.0.0",
+      "checksum": "57c05b397748ceb875fb8b9b1f303ebf3f64cf0bf4cef7687272909e52f1d801",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "merge"
+    },
+    "skills/learn/skill.md": {
+      "version": "5.0.0",
+      "checksum": "6c3685ca6563993c431c94c7e24a7ec4771a4f697b38b7d6fe97f0cba0066ce2",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "merge"
+    },
+    "skills/grill-me/skill.md": {
+      "version": "5.0.0",
+      "checksum": "67ace31a17227259c27c870b145983854192bd647a577a984c8e4509fd21804e",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "merge"
+    },
+    "skills/write-prd/skill.md": {
+      "version": "5.0.0",
+      "checksum": "fa216c6054242202dc2181e63bf1ece8cf36d390ac0868de18c12545da6d14bb",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "merge"
+    },
+    "skills/plan-feature/skill.md": {
+      "version": "5.0.0",
+      "checksum": "eb4691298a5e003ff0872685e472af248fcd01c3d89cd96e875e4ae2737285d8",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "merge"
+    },
+    "skills/execute-plan/skill.md": {
+      "version": "5.0.0",
+      "checksum": "a8eb41d4c2f00790730550228774a098a489ba1e3b7c3f7bc62c4f06096329ae",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "merge"
+    },
+    "skills/verify-work/skill.md": {
+      "version": "5.0.0",
+      "checksum": "8193555dd5e73e67609623cb5e17c31f3c0ab33834dbaed1e0102c45a0a140ce",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "merge"
+    },
+    "CLAUDE.md": {
+      "version": "5.0.0",
+      "checksum": "dff9edd4b01f4bd4621f5e700cb63796f756a244029116584ba492e22a8d8d9b",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "merge"
+    },
+    "skills/qa-visual/skill.md": {
+      "version": "5.0.0",
+      "checksum": "0d150caaeb20e8a5874d4af63590f82b9fba67d21a66c35f9160b1de9a3ba8fd",
+      "lastModified": "2026-04-09",
+      "updateStrategy": "replace"
+    },
+    "config/qa-visual.json": {
+      "version": "5.0.0",
+      "checksum": "11fe6e00b12260725ae58fe78b06c55fb2de53c1df2a9c5aeb9f4fdbc5edb838",
+      "lastModified": "2026-04-09",
+      "updateStrategy": "merge"
+    },
+    "rules/verify-premises.md": {
+      "version": "5.1.0",
+      "checksum": "5755486b2a744f9fdd2a700e9f4ed115312aa85a0ba4f9bec05b57bee7a08014",
+      "lastModified": "2026-04-11",
+      "updateStrategy": "merge"
+    },
+    "rules/surgical-changes.md": {
+      "version": "5.1.0",
+      "checksum": "b2bb4e30bca0ec5b03f42d893f4823e7f0fdd61815eddfc5c78c362abbd6218d",
+      "lastModified": "2026-04-11",
+      "updateStrategy": "merge"
+    },
+    "rules/simplicity-guard.md": {
+      "version": "5.1.0",
+      "checksum": "4c66bb219d74402196bfda6498f40a00161bf3a453ccb48d44d7c4f9e3d5e76a",
+      "lastModified": "2026-04-11",
+      "updateStrategy": "merge"
+    },
+    "skills/quick-plan/skill.md": {
+      "version": "5.1.0",
+      "checksum": "a1489844bdaa9a2ea3acc372b6c0b81f1d75f4da30e694b69272eb09f09366da",
+      "lastModified": "2026-04-11",
+      "updateStrategy": "replace"
+    },
+    "skills/lib/llm-anti-patterns.md": {
+      "version": "5.1.0",
+      "checksum": "d35c383059a25c9a43bcc21ca04f8b96286f0dbe1f0ff7bcaacda55e58262a12",
+      "lastModified": "2026-04-11",
       "updateStrategy": "replace"
     }
   }

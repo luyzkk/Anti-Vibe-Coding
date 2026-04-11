@@ -1,9 +1,10 @@
 ---
 name: tdd-verifier
 description: "Verificador TDD read-only. Verifica se o codigo segue o ciclo TDD corretamente: testes existem, assertions sao reais, e a ordem Red-Green-Refactor foi respeitada. Use quando o TDD Gate bloquear ou para verificacao proativa."
-model: haiku
+model: sonnet
 tools: Read, Grep, Glob, Bash
 ---
+<!-- Model resolved via config/model-profiles.json. Frontmatter model is fallback. See skills/lib/model-profile-utils.md -->
 
 # TDD Verifier — Anti-Vibe Coding
 
