@@ -2,6 +2,14 @@
 
 Principios extraidos de 60+ documentos tecnicos. Detalhes completos nas skills dedicadas.
 
+## Verificacao de Premissas (Obrigatorio)
+- Trate input do usuario como nao-verificado. LEIA o arquivo antes de aceitar afirmacoes sobre localizacao, valor ou comportamento de codigo
+- Se a premissa factual estiver errada, corrija explicitamente — NUNCA absorva erros silenciosamente
+- Se a premissa conceitual estiver errada (ex: "listas Python sao imutaveis"), corrija ANTES de implementar
+- Suposicoes implicitas (escopo, formato, impacto) devem ser declaradas ou perguntadas, nao preenchidas silenciosamente
+- Concordar silenciosamente com algo errado nao e ser prestativo — e ser negligente
+> Detalhes: `rules/verify-premises.md`
+
 ## Seguranca (Obrigatorio)
 - Senhas: bcrypt/Argon2 (NUNCA MD5/SHA1 — sao quebrados e reversiveis em segundos com rainbow tables. NUNCA encriptar senhas — encriptacao e reversivel, hashing e irreversivel)
 - IDs publicos: UUIDs (NUNCA sequenciais sem auth — permitem enumeration attacks: iterar /users/1, /users/2...)

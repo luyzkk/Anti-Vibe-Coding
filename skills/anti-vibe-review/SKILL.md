@@ -13,6 +13,27 @@ argument-hint: "[module or directory to review]"
 
 Auditor de qualidade rigoroso. Executar uma revisao completa do codigo recem-implementado seguindo os principios Anti-Vibe Coding.
 
+## Modos de Invocacao
+
+Esta skill pode ser invocada de duas formas:
+
+- **Diretamente pelo dev:** `/anti-vibe-coding:anti-vibe-review`
+  Executa o review completo com todos os auditores
+
+- **Automaticamente pelo `/verify-work`:** como parte do audit pipeline pos-execucao
+  Neste caso, recebe contexto adicional sobre o que foi implementado e foca nos
+  auditores mais relevantes para o tipo de mudanca
+
+O comportamento e identico em ambos os casos — a diferenca e o contexto disponivel.
+
+## Resolucao de Modelo via Model Profiles
+
+Antes de spawnar agentes auditores (se aplicavel):
+1. Verificar se `config/model-profiles.json` existe no plugin
+2. Se SIM: ler o perfil ativo e resolver o modelo para o tipo de agente (auditor)
+3. Se NAO (arquivo ausente ou perfil nao encontrado): usar comportamento padrao (haiku como fallback)
+4. Passar o modelo resolvido via parametro `model` no Agent tool quando spawnar
+
 <instructions>
 ## Como Executar
 
@@ -49,6 +70,11 @@ Auditor de qualidade rigoroso. Executar uma revisao completa do codigo recem-imp
 - [ ] Sem acoplamento desnecessario entre modulos?
 - [ ] Lei de Demeter respeitada (sem cadeias de `.` navegando objetos)?
 - [ ] Tell-Don't-Ask (objetos executam propria logica, nao expoe estado)?
+- [ ] **Deep Modules:** A interface do modulo e simples relativamente a sua implementacao?
+  - Sinal de modulo raso (shallow): interface quase tao complexa quanto implementacao (muitos metodos publicos, muitos parametros expostos)
+  - Sinal de modulo profundo (deep): interface pequena, implementacao rica
+  - Se modulo raso detectado → warning com sugestao de encapsulamento
+  - Referencia: `skills/tdd-workflow/references/deep-modules.md`
 
 ### 4. Error Handling
 - [ ] Erros fornecem feedback ao usuario?

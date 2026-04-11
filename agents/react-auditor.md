@@ -4,6 +4,7 @@ description: "Auditor React read-only. Verifica useEffect desnecessarios, data f
 model: haiku
 tools: Read, Grep, Glob
 ---
+<!-- Model resolved via config/model-profiles.json. Frontmatter model is fallback. See skills/lib/model-profile-utils.md -->
 
 # React Auditor — Anti-Vibe Coding
 

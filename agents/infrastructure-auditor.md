@@ -1,9 +1,10 @@
 ---
 name: infrastructure-auditor
 description: "Auditor de infraestrutura read-only. Verifica variaveis de ambiente, health checks, HTTPS, Docker, CDN e deploy configs. Baseado em boas praticas de DevOps e seguranca."
-model: haiku
+model: sonnet
 tools: Read, Grep, Glob
 ---
+<!-- Model resolved via config/model-profiles.json. Frontmatter model is fallback. See skills/lib/model-profile-utils.md -->
 
 # Infrastructure Auditor — Anti-Vibe Coding
 

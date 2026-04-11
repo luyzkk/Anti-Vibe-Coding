@@ -1,9 +1,10 @@
 ---
 name: solid-auditor
 description: "Auditor de principios SOLID e design patterns read-only. Verifica SRP, LSP, Lei de Demeter, Tell-Don't-Ask, acoplamento e composicao. Baseado em conceitos de arquitetura e design."
-model: haiku
+model: sonnet
 tools: Read, Grep, Glob
 ---
+<!-- Model resolved via config/model-profiles.json. Frontmatter model is fallback. See skills/lib/model-profile-utils.md -->
 
 # SOLID Auditor — Anti-Vibe Coding
 

@@ -17,6 +17,12 @@ Regras invioláveis:
 - NUNCA gere código de produção e testes ao mesmo tempo — testes escritos depois tendem a validar a implementação, não o comportamento esperado
 - Se o humano pedir funcionalidade sem mencionar testes, avise-o e crie os testes primeiro
 
+Anti-Sycophancy:
+- Quando um pedido tem forma mais simples que o especificado, apresente a alternativa
+- Quando uma premissa do usuário parece incorreta, verifique e corrija antes de implementar
+- Quando uma abstração parece prematura (uso único), diga
+- Concordar silenciosamente com algo errado não é ser prestativo — é ser negligente
+
 ---
 
 ## Instruções Gerais
@@ -160,6 +166,36 @@ O plugin usa **versionamento automático** para manter seu projeto sincronizado.
 
 ## Plugin Anti-Vibe Coding
 
+### Pipeline v5.0
+
+Fluxo opcional conectando skills em sequencia:
+```
+grill-me → write-prd → plan-feature → execute-plan → verify-work
+```
+Cada skill funciona standalone. O pipeline é atalho, não obrigação.
+
+Artefatos de Pipeline:
+- Artefatos em `.planning/` (CONTEXT, PRD, PLAN, STATE, SUMMARY) são **temporários**
+- Após `/verify-work`, o código é a fonte de verdade — artefatos servem para rastrear processo
+- Não crie documentos para explicar outros documentos — se precisa de resumo, adicione seção no doc original
+- Se um artefato existe APENAS para explicar ou resumir outro, delete e corrija o original
+
+Entradas alternativas:
+- `/grill-me` → pode alimentar `/write-prd` ou ser standalone
+- `/design-twice` → pode alimentar `/plan-feature` ou ser standalone
+- `/consultant` → continua existindo para consultas sem pipeline
+- `/tdd-workflow` → continua existindo para implementação direta
+- `/learn` → pode ser invocado a qualquer momento
+
+### IA-TDD (v5.0)
+
+3 níveis adaptativos detectados automaticamente:
+- **Guiado** (dev sem testes) — IA propõe 1 teste por vez com explicação
+- **Assistido** (dev com edge cases) — IA gera 1-3 testes, context isolation RED/GREEN
+- **Direto** (dev escreve testes) — IA apenas implementa
+
+AI Judge sugerido para features com 3+ slices ou áreas críticas (auth, financeiro).
+
 ### Skills Disponíveis
 
 | Skill | Comando | Propósito |
@@ -168,7 +204,7 @@ O plugin usa **versionamento automático** para manter seu projeto sincronizado.
 | Update | `/anti-vibe-coding:update` | Detecta e aplica atualizações incrementais |
 | Sync | `/anti-vibe-coding:sync` | Invalida cache e mostra status de versão |
 | Consultor | `/anti-vibe-coding:consultant` | Fase Zero — ensina antes de codar |
-| TDD Workflow | `/anti-vibe-coding:tdd-workflow` | Workflow de 7 passos |
+| TDD Workflow | `/anti-vibe-coding:tdd-workflow` | Workflow adaptativo com IA-TDD (v5) |
 | Lições | `/anti-vibe-coding:lessons-learned` | Gestão de lições sênior |
 | Decisões | `/anti-vibe-coding:decision-registry` | Registro de decisões |
 | Revisão | `/anti-vibe-coding:anti-vibe-review` | Auditoria pós-implementação |
@@ -179,7 +215,13 @@ O plugin usa **versionamento automático** para manter seu projeto sincronizado.
 | Design Patterns | `/anti-vibe-coding:design-patterns` | Code Smells, Result Pattern, Logging |
 | React Patterns | `/anti-vibe-coding:react-patterns` | useEffect, Data Fetching, Memoization |
 | Infrastructure | `/anti-vibe-coding:infrastructure` | DNS, hosting, deploy, CDN, serverless |
-| Aprendizado | `/anti-vibe-coding:learn` | Explicações adaptativas (básico/intermediário/avançado) |
+| Aprendizado | `/anti-vibe-coding:learn` | Explicações adaptativas + contexto de pipeline |
+| **Grill Me** | `/anti-vibe-coding:grill-me` | **[v5] Entrevista implacável pré-implementação** |
+| **Design Twice** | `/anti-vibe-coding:design-twice` | **[v5] Exploração paralela de soluções divergentes** |
+| **Write PRD** | `/anti-vibe-coding:write-prd` | **[v5] Especificação interativa de features** |
+| **Plan Feature** | `/anti-vibe-coding:plan-feature` | **[v5] Plano com vertical slices e waves** |
+| **Execute Plan** | `/anti-vibe-coding:execute-plan` | **[v5] Execução wave-based com subagentes isolados** |
+| **Verify Work** | `/anti-vibe-coding:verify-work` | **[v5] Verificação pós-execução com auditoria completa** |
 
 ### Agents Disponíveis
 
@@ -195,6 +237,38 @@ O plugin usa **versionamento automático** para manter seu projeto sincronizado.
 | code-smell-detector | Detecta 9 code smells com sugestões |
 | react-auditor | Auditoria de componentes React (useEffect, memoization) |
 | infrastructure-auditor | Auditoria de infra (DNS, deploy, Docker, health checks) |
+| **plan-executor** | **[v5] Executa tasks individuais com TDD obrigatório** |
+| **plan-verifier** | **[v5] Verifica output de tasks (read-only, JSON output)** |
+| **design-explorer** | **[v5] Proposta arquitetural com restrição específica** |
+
+---
+
+## Model Profiles
+
+O plugin suporta perfis de modelo que otimizam custo vs qualidade por agente.
+
+### Perfis Disponíveis
+
+| Perfil | Descrição | Uso recomendado |
+|--------|-----------|-----------------|
+| quality | Opus para auditores críticos, Sonnet para o resto | Features críticas, releases, auditorias de segurança |
+| balanced | Sonnet para auditores críticos, Haiku para o resto | Desenvolvimento diário (default) |
+| budget | Sonnet apenas para segurança e execução, Haiku para o resto | Trabalho não-crítico, protótipos |
+
+### Como configurar
+
+Editar `config/model-profiles.json`:
+- Trocar perfil ativo: alterar campo `"default"` para `"quality"`, `"balanced"` ou `"budget"`
+- Customizar por agente: editar modelo de um agente específico dentro do perfil
+
+### Como funciona
+
+1. Skills leem `config/model-profiles.json` ao invocar agentes
+2. Resolvem o modelo do agente baseado no perfil ativo
+3. Passam o modelo via parâmetro `model` do Agent tool
+4. Se config não existir, usa modelo do frontmatter do agente (backward compat)
+
+Detalhes técnicos em `skills/lib/model-profile-utils.md`.
 
 ---
 

@@ -19,6 +19,7 @@ const BYPASS_KEYWORDS = [
   'prosseguir', 'sem skill', 'já consultei', 'ja consultei',
   'skip', 'pode implementar', 'implementar direto', 'sem fase zero',
   'continue without', 'skip skill', 'no skill',
+  'sem pipeline', 'skip planning',
 ];
 
 const LEARN_PATTERNS = [
@@ -283,6 +284,78 @@ const DOMAINS = [
       'quebra de contrato', 'breaking change',
     ].join('|'), 'i'),
   },
+  {
+    name: 'PRD/Specification',
+    skill: '/anti-vibe-coding:write-prd',
+    label: 'PRD / especificacao detectada',
+    pattern: new RegExp([
+      '\\bprd\\b', 'product requirements', 'requisitos', 'especifica[çc][aã]o',
+      'especificar', '\\bspec\\b',
+      'escrever prd', 'criar prd', 'write prd', 'feature spec',
+      'moscow', 'must have', 'should have', 'criterio.* aceite',
+      'criterio.* aceit',
+    ].join('|'), 'i'),
+  },
+  {
+    name: 'Planning',
+    skill: '/anti-vibe-coding:plan-feature',
+    label: 'Planejamento de feature detectado',
+    pattern: new RegExp([
+      'planejar feature', 'plan feature', 'vertical slice', 'tracer bullet',
+      'wave.* execu', 'decompo[rs]', 'fatia vertical',
+      'plan.* implement', 'break.*down.*task', 'dividir.*tasks',
+      'plano de execu', 'execution plan',
+    ].join('|'), 'i'),
+  },
+  {
+    name: 'Execution',
+    skill: '/anti-vibe-coding:execute-plan',
+    label: 'Execucao de plano detectada',
+    pattern: new RegExp([
+      'executar plano', 'execute plan', 'rodar wave', 'run wave',
+      'continuar execu', 'retomar', 'resume plan',
+      'wave [0-9]', 'pr[oó]xima wave', 'next wave',
+    ].join('|'), 'i'),
+  },
+  {
+    name: 'Verification',
+    skill: '/anti-vibe-coding:verify-work',
+    label: 'Verificacao pos-implementacao detectada',
+    pattern: new RegExp([
+      'verify work', 'audit.*code', 'revisar implementa',
+      'mutation test', 'test quality', 'qualidade.*test',
+      'pos.*implementa', 'post.*implement',
+      'verificar implementa', 'verificar qualidade',
+    ].join('|'), 'i'),
+  },
+  {
+    name: 'Deep Interview',
+    skill: '/anti-vibe-coding:grill-me',
+    label: 'Entrevista pre-implementacao detectada',
+    pattern: new RegExp([
+      'grill me', 'grill-me',
+      'ambiguidade', 'ambiguity', 'decis[oõ]es impl[ií]citas', 'implicit decision',
+      'esclarecer requisito', 'clarificar requisito',
+      'todas.*decis[oõ]es', 'all.*decision',
+      'antes de implementar', 'antes de come[çc]ar',
+      'before implement', 'before start',
+      'entrevistar.*requisito', 'interview.*requirement',
+    ].join('|'), 'i'),
+  },
+  {
+    name: 'Design Exploration',
+    skill: '/anti-vibe-coding:design-twice',
+    label: 'Exploracao de design detectada',
+    pattern: new RegExp([
+      'design twice', 'design-twice',
+      'comparar.*solu[çc][oõ]es', 'compare.*solution',
+      '\\balternativas\\b', '\\balternatives\\b',
+      '3.*propostas', 'propostas.*paralel', 'parallel.*proposal',
+      'divergente', 'divergent',
+      'explorar.*arquitetura', 'explore.*architecture',
+      'trade.*off.*compara', 'compare.*trade.*off',
+    ].join('|'), 'i'),
+  },
 ];
 
 // Detects implementation requests that didn't match any specific domain
@@ -326,18 +399,26 @@ function processPrompt(prompt) {
   // STEP 5: Build recommendation based on matches
   if (matches.length === 1) {
     const d = matches[0];
+    if (hasImplementation) {
+      return `[SKILL_ADVISOR] ${d.label}. Para esta task, recomende ao usuario:\n  - /anti-vibe-coding:quick-plan para planejamento leve (3-7 passos inline)\n  - ${d.skill} para consultoria no dominio\n  - Pipeline completo (/grill-me → /plan-feature) se a complexidade for maior que o esperado\nPergunte qual prefere antes de prosseguir.`;
+    }
     return `[SKILL_ADVISOR] ${d.label}. Recomende ao usuario a skill ${d.skill} e pergunte se deseja invocar antes de implementar.`;
   }
 
   if (matches.length >= 2) {
     const names = matches.map(d => d.name).join(', ');
     const skills = matches.map(d => `  - ${d.skill} (${d.name})`).join('\n');
+    const PIPELINE_DOMAINS = ['PRD/Specification', 'Planning', 'Execution', 'Verification', 'Deep Interview', 'Design Exploration'];
+    const pipelineMatches = matches.filter(d => PIPELINE_DOMAINS.includes(d.name));
+    if (pipelineMatches.length >= 2) {
+      return `[SKILL_ADVISOR] Multiplos dominios do pipeline detectados: ${names}. Recomende /anti-vibe-coding:grill-me como ponto de entrada para esclarecer requisitos antes de planejar. Dominios envolvidos:\n${skills}`;
+    }
     return `[SKILL_ADVISOR] Multiplos dominios detectados: ${names}. Recomende /anti-vibe-coding:consultant (Fase Zero) para avaliar a abordagem antes de implementar. Dominios envolvidos:\n${skills}`;
   }
 
   // STEP 6: Implementation fallback — looks like implementation but no domain matched
   if (IMPLEMENTATION_PATTERNS.some(re => re.test(text))) {
-    return '[SKILL_ADVISOR] Pedido de implementacao detectado. Avalie qual skill e mais relevante para esta tarefa e pergunte ao usuario se deseja consultar antes de prosseguir.';
+    return '[SKILL_ADVISOR] Pedido de implementacao detectado. Recomende /anti-vibe-coding:quick-plan para planejamento leve ou avalie qual skill de dominio e mais relevante. Pergunte ao usuario antes de prosseguir.';
   }
 
   // STEP 7: No match — let SessionStart instruction handle it

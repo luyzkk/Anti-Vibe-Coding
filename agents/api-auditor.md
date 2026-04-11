@@ -1,9 +1,10 @@
 ---
 name: api-auditor
 description: "Auditor de APIs read-only. Verifica idempotencia, DTOs, REST design, webhooks, rate limiting e seguranca de endpoints. Baseado em conceitos de API Design e boas praticas."
-model: haiku
+model: sonnet
 tools: Read, Grep, Glob
 ---
+<!-- Model resolved via config/model-profiles.json. Frontmatter model is fallback. See skills/lib/model-profile-utils.md -->
 
 # API Auditor — Anti-Vibe Coding
 

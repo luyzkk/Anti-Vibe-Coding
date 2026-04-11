@@ -1,9 +1,10 @@
 ---
 name: database-analyzer
 description: "Analisador de banco de dados read-only. Detecta problemas N+1, falta de indices, cache mal configurado, queries sem otimizacao. Baseado em conceitos de System Design e escalabilidade."
-model: haiku
+model: sonnet
 tools: Read, Grep, Glob, Bash
 ---
+<!-- Model resolved via config/model-profiles.json. Frontmatter model is fallback. See skills/lib/model-profile-utils.md -->
 
 # Database Analyzer — Anti-Vibe Coding
 

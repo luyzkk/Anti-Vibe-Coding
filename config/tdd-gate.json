@@ -1,0 +1,14 @@
+{
+  "mode": "regex",
+  "suggest_ai_judge_threshold": 3,
+  "max_tests_per_cycle": 1,
+  "immutable_test_patterns": [
+    "*.test.*",
+    "*.spec.*",
+    "*.e2e.*"
+  ],
+  "approach": "outside-in",
+  "block_test_modification_in_green": true,
+  "require_assertion_failure": true,
+  "judge_model": "haiku"
+}

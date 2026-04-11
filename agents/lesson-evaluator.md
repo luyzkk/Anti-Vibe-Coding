@@ -4,6 +4,7 @@ description: "Avaliador de licoes read-only. Analisa se uma correcao do usuario 
 model: haiku
 tools: Read, Grep, Glob
 ---
+<!-- Model resolved via config/model-profiles.json. Frontmatter model is fallback. See skills/lib/model-profile-utils.md -->
 
 # Lesson Evaluator — Anti-Vibe Coding
 

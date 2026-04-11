@@ -1,6 +1,6 @@
 ---
 name: security
-description: "This skill should be used when the user asks about 'security', 'cryptography', 'hashing passwords', 'bcrypt vs argon2', '2FA', 'TOTP', 'HMAC validation', 'webhook security', 'ReDoS', 'email validation', 'CORS', 'SQL injection', 'timing attacks', 'RBAC', 'ABAC', 'ACL', 'authorization', 'OAuth2', 'PKCE', 'refresh token', 'session management', 'SSO', 'SAML', 'OpenID Connect', 'rate limiting', 'WAF', 'CSRF', 'DDoS', 'API security', or needs a security audit. Provides expert consultation on application security, cryptography, authentication, authorization, API security, and secure coding practices."
+description: "Expert security consultation covering OWASP Top 10, authentication (OAuth2, PKCE, JWT, session management), authorization (RBAC, ABAC, RLS), cryptography (bcrypt, argon2, HMAC), API security (rate limiting, CORS, CSRF, WAF), and Supabase/BaaS hardening. Use when implementing auth flows, handling secrets, validating webhooks, preventing injection attacks, or auditing security posture."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob, WebSearch
@@ -278,6 +278,65 @@ grep -rn "csrf\|csrfToken\|_csrf" --include="*.ts"
 
 ---
 
+## 8. Seguranca Supabase / BaaS / VibeCoding
+
+> Referencia Supabase: `references/supabase-security.md`
+> Referencia VibeCoding: `references/vibecoding-security.md`
+
+<constraints>
+- **RLS obrigatorio em TODAS as tabelas** — sem RLS, qualquer pessoa com a anon key acessa tudo
+- **Anon key SEMPRE exposta no frontend** — por design do Supabase. A protecao e o RLS, nao ocultar a chave
+- **`USING (true)` para `anon` = vulnerabilidade critica** — permite dump completo sem autenticacao
+- **BaaS: banco e a unica linha de defesa** — nao ha backend intermediario validando requisicoes
+- **Edge Functions NAO validam JWT por padrao** — adicionar verificacao de Authorization header explicitamente
+- **RPCs sensiveis: REVOKE para `anon` + GRANT para `authenticated`**
+- **IA nao conhece modelo de autorizacao** — sempre especificar no prompt quem acessa o que e auditar RLS geradas
+- **Race Conditions financeiras: IA nao implementa locks atomicos** — exigir `SELECT ... FOR UPDATE` e transacoes ACID
+- **IA hardcoda secrets ao falhar no deploy** — revisar diffs antes de commitar, nunca aceitar fixes cegos
+- **IA nao cruza dominios logicos** — compras vs. afiliados vs. reembolsos devem ser linkados explicitamente no prompt
+- **TDD com testes de seguranca e a defesa mais eficaz comprovada** — gerar testes ANTES da implementacao (zero vulns no pentest real)
+</constraints>
+
+<context>
+**Modelo de ameaca VibeCoding:**
+- Atacante abre app no browser, busca `eyJ` no bundle JS → encontra anon key + URL do Supabase
+- Service Worker (`sw.js`) expoe mapa completo de rotas (equivalente a Swagger)
+- Com anon key + URL + rotas: curl direto no PostgREST sem autenticacao
+- Se RLS ausente: dump de todas as tabelas com dados pessoais, financeiros, etc.
+
+**Politica owner-based (padrao seguro):**
+```sql
+-- Usuario so acessa seus proprios dados
+CREATE POLICY "owner_select" ON table_name
+  FOR SELECT TO authenticated
+  USING (auth.uid() = user_id);
+```
+
+**Auditoria rapida:**
+```sql
+-- Tabelas sem RLS (deve retornar 0 linhas)
+SELECT tablename FROM pg_tables
+WHERE schemaname = 'public' AND rowsecurity = false;
+
+-- Politicas abertas para anonimos (inspecionar cada uma)
+SELECT tablename, policyname, qual FROM pg_policies
+WHERE roles @> ARRAY['anon'] AND (qual = 'true' OR with_check = 'true');
+```
+</context>
+
+<verification>
+```bash
+# Testar exposicao real com anon key
+curl "https://[project].supabase.co/rest/v1/[tabela_sensivel]?select=*&limit=1" \
+  -H "apikey: [ANON_KEY]" \
+  -H "Authorization: Bearer [ANON_KEY]"
+# Esperado: 401 ou []
+# Se retornar dados: VULNERABILIDADE CRITICA
+```
+</verification>
+
+---
+
 ## Checklist de Seguranca Minima
 
 Checklist obrigatoria para auditar qualquer projeto em producao.
@@ -323,6 +382,15 @@ Checklist obrigatoria para auditar qualquer projeto em producao.
 - [ ] VPN obrigatoria para acesso remoto
 - [ ] SSH com Ed25519 (nao RSA 2048/DSA)
 - [ ] TLS com Forward Secrecy (ECDHE)
+
+### Supabase / BaaS (quando aplicavel)
+- [ ] RLS habilitado em TODAS as tabelas publicas
+- [ ] Nenhuma politica com `USING (true)` para role `anon` em tabelas sensiveis
+- [ ] Politicas owner-based: `auth.uid() = user_id` para dados de usuario
+- [ ] Edge Functions validam Authorization header explicitamente
+- [ ] RPCs sensiveis com REVOKE para `anon` + GRANT apenas para `authenticated`
+- [ ] Auditoria via `pg_policies`: nenhuma politica aberta para `anon` involuntariamente
+- [ ] Teste com anon key confirma que tabelas sensiveis retornam 401 ou `[]`
 </checklist>
 
 ---
