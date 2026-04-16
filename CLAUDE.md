@@ -175,10 +175,25 @@ grill-me → write-prd → plan-feature → execute-plan → verify-work
 Cada skill funciona standalone. O pipeline é atalho, não obrigação.
 
 Artefatos de Pipeline:
-- Artefatos em `.planning/` (CONTEXT, PRD, PLAN, STATE, SUMMARY) são **temporários**
+- Artefatos em `.planning/` (CONTEXT, PRD, PLAN, STATE, SUMMARY, plano{NN}/) são **temporários**
 - Após `/verify-work`, o código é a fonte de verdade — artefatos servem para rastrear processo
 - Não crie documentos para explicar outros documentos — se precisa de resumo, adicione seção no doc original
 - Se um artefato existe APENAS para explicar ou resumir outro, delete e corrija o original
+
+Estrutura hierárquica (v2):
+```
+.planning/
+├── PLAN-{feature}.md         ← Overview (grafo entre planos)
+├── STATE-{feature}.md        ← Tracking global por plano
+├── plano01/
+│   ├── README.md             ← Overview do plano + dependências
+│   ├── MEMORY.md             ← Memória viva (bugs, decisões, gotchas)
+│   └── fase-01-{nome}.md    ← Tasks detalhadas com snippets e checklist
+├── plano02/ ...
+└── SUMMARY-{feature}.md      ← Gerado ao concluir todos os planos
+```
+- Planos são gerados sob demanda (um por vez, em contexto isolado)
+- MEMORY.md é preenchida DURANTE execução e destilada ao final via /lessons-learned
 
 Entradas alternativas:
 - `/grill-me` → pode alimentar `/write-prd` ou ser standalone
@@ -219,8 +234,8 @@ AI Judge sugerido para features com 3+ slices ou áreas críticas (auth, finance
 | **Grill Me** | `/anti-vibe-coding:grill-me` | **[v5] Entrevista implacável pré-implementação** |
 | **Design Twice** | `/anti-vibe-coding:design-twice` | **[v5] Exploração paralela de soluções divergentes** |
 | **Write PRD** | `/anti-vibe-coding:write-prd` | **[v5] Especificação interativa de features** |
-| **Plan Feature** | `/anti-vibe-coding:plan-feature` | **[v5] Plano com vertical slices e waves** |
-| **Execute Plan** | `/anti-vibe-coding:execute-plan` | **[v5] Execução wave-based com subagentes isolados** |
+| **Plan Feature** | `/anti-vibe-coding:plan-feature` | **[v5.1] Plano hierárquico com análise semântica de complexidade** |
+| **Execute Plan** | `/anti-vibe-coding:execute-plan` | **[v5.1] Execução por planos com memória e transição interativa** |
 | **Verify Work** | `/anti-vibe-coding:verify-work` | **[v5] Verificação pós-execução com auditoria completa** |
 
 ### Agents Disponíveis
