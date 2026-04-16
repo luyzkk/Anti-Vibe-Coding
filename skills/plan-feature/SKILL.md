@@ -1,20 +1,41 @@
 ---
 name: plan-feature
-description: "Converts PRD into executable plan with vertical slices, tracer bullets, and parallel execution waves. Explores codebase, decomposes into end-to-end slices with acceptance criteria, and generates PLAN.md. Use when breaking down features into tasks, planning implementation order, or preparing for wave-based execution."
+description: "Converts PRD into executable hierarchical plan. Analyzes complexity like a senior engineer, decomposes into multiple plans with detailed phases, generates folder structure with memory per plan. Uses isolated subagents for each plan creation."
 user-invocable: true
 disable-model-invocation: false
-allowed-tools: Read, Grep, Glob, Write, AskUserQuestion
+allowed-tools: Read, Grep, Glob, Write, Agent, AskUserQuestion
 argument-hint: "[caminho do PRD ou nome da feature]"
 ---
 
-# Plan Feature — Planejamento de Execucao
+# Plan Feature — Planejamento Hierarquico de Execucao
 
-Skill de planejamento. Converte PRD em plano executavel com vertical slices organizados em waves.
+Skill de planejamento. Converte PRD em plano executavel com estrutura hierarquica:
+PRD → Planos → Fases (tasks detalhadas por plano).
 
 Diferenca das outras skills:
 - **write-prd**: gera DOCUMENTO de especificacao (o que construir)
-- **plan-feature**: gera PLANO de execucao (como construir, em que ordem)
-- **execute-plan**: executa o plano task por task com subagentes
+- **plan-feature**: gera PLANOS de execucao (como construir, em que ordem)
+- **execute-plan**: executa os planos fase por fase com subagentes isolados
+
+Estrutura gerada:
+```
+.planning/
+├── PLAN-{feature}.md              ← Overview (grafo entre planos, resumo)
+├── STATE-{feature}.md             ← Tracking global (plano ativo, progresso)
+│
+├── plano01/
+│   ├── README.md                  ← Overview do plano (dependencias, sizing)
+│   ├── MEMORY.md                  ← Memoria viva (bugs, learnings, decisoes)
+│   ├── fase-01-{nome}.md          ← Task detalhada (snippets, checklist)
+│   └── fase-02-{nome}.md
+│
+├── plano02/
+│   ├── README.md
+│   ├── MEMORY.md
+│   └── fase-01-{nome}.md
+│
+└── ...
+```
 
 ---
 
@@ -155,84 +176,141 @@ Regras:
 
 ---
 
-## Step 4 — Agrupar Slices em Waves
+## Step 4 — Analise de Complexidade (Julgamento Senior)
+
+Este e o passo critico. A decisao de quantos planos e quantas fases NAO usa thresholds arbitrarios.
+A LLM deve analisar como um engenheiro senior faria:
+
+### Principios de Decomposicao Senior
 
 ```
-Waves agrupam slices por DEPENDENCIA:
+1. RESPONSABILIDADE UNICA POR TASK
+   Se nao cabe em uma frase, e grande demais.
+   "Criar migration de notifications com RLS" = 1 task.
+   "Criar todas as migrations" = multiplas tasks.
 
-Wave 1: slices que nao dependem de nada (rodam em paralelo)
-  - SEMPRE contem o Tracer Bullet como Slice 1.1
+2. COMMIT ATOMICO
+   Cada task = um commit revertivel.
+   Teste mental: "se precisar de git revert, o revert faz sentido sozinho?"
 
-Wave 2: slices que dependem de algo da Wave 1
+3. TESTAVEL ISOLADAMENTE
+   Cada task tem criterio de verificacao que roda sem depender das tasks seguintes.
 
-Wave N: slices que dependem de Wave N-1
+4. TIME-BOXED
+   Completavel em uma sessao (30min-2h).
+   Se parece "trabalho de um dia", precisa de split.
 
-Regras:
-- Dentro de uma wave, TODOS os slices sao independentes entre si
-- Se 2 slices tem dependencia mutua, devem estar em waves sequenciais
-- Se ha mais de 5 waves, a feature pode ser grande demais — sugerir split
+5. RISCO PROPORCIONAL A GRANULARIDADE
+   Areas incertas (integracao externa, auth, migration complexa) → tasks menores.
+   Areas conhecidas (CRUD padrao, componente similar) → tasks maiores.
 
-Anti-pattern: dependencia escondida
-- "Criar componente" (Wave 1) e "Usar componente" (Wave 1)
-- Esses devem estar em waves diferentes OU no mesmo slice
+6. VERTICAL, NAO HORIZONTAL
+   Uma task toca todas as camadas para UM comportamento.
+   Nao "criar todos os tipos" — mas "criar tipo + migration + query para entidade X".
+```
+
+### Sinais Semanticos de Complexidade
+
+Analisar o PRD buscando estes sinais (NAO contar KBs ou linhas):
+
+```
+SINAIS DE COMPLEXIDADE ALTA (multiplos planos):
+- Multiplas entidades com relacionamentos (joins, FK, RLS policies)
+- Integracoes externas (APIs terceiras, webhooks, sync)
+- Multiplos roles/permissoes afetados
+- Migrations + API + UI + testes E2E na mesma feature
+- Dependencias entre requisitos Must Have (um bloqueia outro)
+- Dominio de negocio complexo (regras condicionais, estados, transicoes)
+- Preocupacoes de seguranca (auth, crypto, rate limiting)
+
+SINAIS DE COMPLEXIDADE BAIXA (plano unico):
+- CRUD simples de uma entidade
+- Feature isolada sem dependencias externas
+- Extensao de algo que ja existe (adicionar campo, novo filtro)
+- UI pura sem backend novo
+```
+
+### Decisao de Estrutura
+
+```
+Apos decompor os slices (Step 3), analisar:
+
+1. Quantas camadas distintas sao cruzadas?
+   (migration, types, queries, API, componentes, paginas, testes)
+
+2. Quantas entidades independentes existem?
+   (cada entidade com seu proprio ciclo de vida)
+
+3. Existem dependencias seriais entre grupos de slices?
+   (grupo A precisa estar pronto antes de grupo B comecar)
+
+4. Existe divisao natural em "dominios" ou "fases"?
+   (fundacao → core → UI → polish)
+
+A QUANTIDADE DE PLANOS E EMERGENTE desses fatores.
+Nao e pre-determinada. O modelo analisa e decide.
+
+Se a feature se resolve em 1 plano com 3-5 fases: otimo.
+Se precisa de 5 planos com 4-8 fases cada: otimo tambem.
+O numero e consequencia do julgamento, nao meta.
 ```
 
 ---
 
-## Step 5 — Detalhar Cada Task
+## Step 5 — Agrupar Slices em Planos
+
+### Criterios de Agrupamento
 
 ```
-Para cada task dentro de cada slice:
+Cada PLANO agrupa slices que:
+1. Compartilham o mesmo dominio/camada principal
+2. Tem dependencias internas entre si
+3. Formam uma "unidade coerente" de entrega
 
-Files: caminhos EXATOS dos arquivos afetados
-  - Baseado na exploracao do Step 2
+Exemplos de agrupamento natural:
+- Plano 1 "Fundacao": types, migrations, seed data, configs
+- Plano 2 "API Core": queries, services, endpoints, testes de integracao
+- Plano 3 "Componentes": componentes shared, hooks, utils de UI
+- Plano 4 "Paginas": montagem de paginas, rotas, layouts
+- Plano 5 "Polish": error handling, loading states, a11y, E2E
+```
 
-Action: Create | Modify | Delete
+### Cada Plano tem Fases
 
-Acceptance: criterio de aceite VERIFICAVEL por maquina ou humano
-  - Escrever ANTES de detalhar a implementacao (forca pensamento declarativo)
-  - Preferir criterios verificaveis por maquina:
-    - "bun run test -- --grep 'validates email'" (teste especifico passa)
-    - "curl localhost:3000/api/users retorna 200" (endpoint responde)
-    - "bun run typecheck retorna 0 erros" (tipo compila)
-  - Quando necessario, criterio verificavel por humano:
-    - "Pagina /settings exibe toggle de dark mode" (visual)
-    - "Formulario mostra mensagem de erro ao submeter vazio" (UX)
+```
+Dentro de cada plano, as fases seguem a mesma logica senior:
 
-Complexity: S (< 30min) | M (30min-2h) | L (2h+)
-  - Se L, considerar subdividir
+1. Cada fase = 1 vertical slice ou grupo coeso de tasks
+2. Cada fase e completavel em 30min-2h (time-boxed)
+3. Cada fase tem criterio de verificacao claro
+4. Fases dentro do plano podem ter dependencias entre si
+5. A ordem das fases reflete a ordem natural de construcao
 
-Depends on (opcional): "Task N.M.K" — apenas dependencias diretas
-
-Regras:
-- Tasks dentro de um slice: ordem TDD (teste → implementacao → UI)
-- Acceptance da 1a task do tracer bullet DEVE ser "Teste falha (Red)"
-- Acceptance da ultima task do tracer bullet DEVE ser "Teste E2E passa (Green)"
-- Acceptance vago invalida a task — "funciona" NAO e criterio aceitavel
+Uma fase DEVE conter:
+- Descricao clara do que entrega
+- Arquivos exatos afetados (caminhos reais do codebase)
+- Codigo de referencia (snippets, tipos, SQL) quando aplicavel
+- Gotchas conhecidos do PRD/CONTEXT
+- Checklist de verificacao
+- Sizing estimado (0.5h / 1h / 1.5h / 2h)
 ```
 
 ---
 
-## Step 6 — Gerar PLAN.md
+## Step 6 — Gerar PLAN Overview
 
 ```
-1. Ler template de templates/plan-template.md
-2. Preencher com dados reais dos Steps anteriores:
-   - Header: nome, link ao PRD, totais, data
-   - Waves com slices e tasks
-   - Summary: tabela calculada por wave
-   - Dependencies Graph: grafo ASCII das dependencias
-   - Risks: do Step 2 + decomposicao
-
-3. Calcular complexidade total (= complexidade do slice mais complexo)
-
-4. Validar consistencia:
-   - Toda task em "Depends on" existe no plano
-   - Arquivos em "Files" coerentes com exploracao do Step 2
-   - Nenhuma wave tem dependencia interna entre slices
-   - Tracer bullet e o primeiro slice da Wave 1
-
-5. Se detectar inconsistencia: corrigir automaticamente e avisar
+1. Ler template de templates/plan-overview-template.md
+2. Preencher com dados reais:
+   - Header: nome da feature, link ao PRD, totais, data
+   - Lista de planos com descricao e sizing
+   - Grafo ASCII de dependencias entre planos
+   - Riscos identificados no Step 2 + decomposicao
+3. Validar consistencia:
+   - Todo plano referenciado existe na lista
+   - Dependencias entre planos sao aciclicas
+   - Nenhum plano isolado sem conexao (exceto se genuinamente independente)
+4. NÃO gerar os planos detalhados ainda — apenas o overview
 ```
 
 ---
@@ -240,72 +318,121 @@ Regras:
 ## Step 7 — Apresentar ao Dev
 
 ```
-1. Resumo PRIMEIRO (antes do plano completo):
-   "{N} tasks em {M} waves
-   Tracer Bullet: {descricao do slice 1.1}
-   Complexidade estimada: {S/M/L}
-   Riscos identificados: {quantidade}"
+1. Resumo PRIMEIRO (antes de qualquer arquivo):
+   "Analisei o PRD e identifiquei {N} planos:
 
-2. Destacar o Tracer Bullet:
-   - Mostrar o slice completo com todas as tasks
-   - "Este e o primeiro slice — prova a arquitetura end-to-end."
+   Plano 1: {nome} ({M} fases, ~{X}h)
+     {descricao de 1 linha do que entrega}
 
-3. Mostrar o plano completo (PLAN.md gerado)
+   Plano 2: {nome} ({M} fases, ~{X}h)
+     {descricao de 1 linha do que entrega}
 
-4. AskUserQuestion com 4 opcoes:
-   - "Aprovar plano como esta"
+   ...
+
+   Tracer Bullet: {descricao do slice mais fino, no Plano 1}
+   Riscos: {quantidade}"
+
+2. Mostrar grafo de dependencias entre planos:
+   "Plano 1 → Plano 2 → Plano 4
+                    ↘
+   Plano 3 ──────→ Plano 4"
+
+3. AskUserQuestion com opcoes:
+   - "Aprovar estrutura e criar Plano 1"
    - "Ajustar (diga o que mudar)"
    - "Refazer decomposicao"
+   - "Quero plano unico (flat) mesmo"
    - "Cancelar"
 
-5. Se ajustar: aplicar mudancas especificas, mostrar diff, nova aprovacao
+4. Se ajustar: aplicar mudancas, mostrar diff, nova aprovacao
    - Maximo 3 iteracoes — se nao convergir, sugerir /grill-me
+
+5. Se "plano unico": gerar PLAN.md flat com todas as tasks (fallback para formato antigo)
+   - Usar templates/plan-template.md (backward compat)
 
 6. Se refazer: voltar ao Step 3 (manter Steps 1-2 intactos)
 ```
 
 ---
 
-## Step 8 — Salvar Plano Aprovado
+## Step 8 — Salvar Overview e Criar Estrutura
 
 ```
-1. Nome: PLAN-{feature-name-kebab-case}.md
-   - Ex: .planning/PLAN-sistema-de-notificacoes.md
-2. Se .planning/ nao existir: criar
-3. Se ja existir PLAN com mesmo nome: perguntar "Substituir ou criar versao (v2)?"
-4. Salvar com Write
-5. Confirmar: "Plano salvo em .planning/PLAN-{name}.md"
+1. Criar .planning/ se nao existir
+2. Salvar PLAN-{feature-name-kebab-case}.md (overview)
+   - Se ja existir: perguntar "Substituir ou criar versao (v2)?"
+3. Criar STATE-{feature-name}.md (tracking global) usando templates/state-template.md
+4. Confirmar: "Overview salvo. Pronto para criar o Plano 1."
 ```
 
 ---
 
-## Step 9 — Criar STATE.md Inicial
+## Step 9 — Gerar Planos Detalhados (Progressivo, Isolado)
 
-Criar `.planning/STATE-{feature-name}.md` (mesmo kebab-case do PLAN.md):
+Este e o passo chave. Cada plano e gerado em contexto isolado (subagente)
+e SOMENTE quando o dev pedir.
 
-```markdown
-# State: {Feature Name}
+### Geracao sob demanda
 
-**Plan:** .planning/PLAN-{feature-name}.md
-**Phase:** planned
-**Current Wave:** 0
-**Tasks Done:** 0/{total}
-**Last Updated:** {date}
+```
+O orchestrador NUNCA gera todos os planos de uma vez.
+Fluxo:
 
-## Progress
+1. "Criar tasks do Plano 1?"
+   [Dev: "sim"]
 
-| Wave | Slice | Task | Status |
-|------|-------|------|--------|
-| 1    | 1.1   | 1.1.1 | pending |
-| 1    | 1.1   | 1.1.2 | pending |
-| ... | ...   | ...   | ...     |
+2. Spawn subagente isolado com:
+   RECEBE:
+   - PRD completo
+   - Contexto de codebase (Step 2)
+   - PLAN overview (saber o escopo total)
+   - Descricao do plano a detalhar (do overview)
+   - Templates: plan-readme-template.md + fase-template.md + memory-template.md
 
-## Log
-- {date}: Plano criado via /plan-feature
+   NAO RECEBE:
+   - Detalhes de outros planos (isolamento)
+   - Conversas anteriores
+
+   GERA:
+   - .planning/plano{NN}/README.md (overview do plano)
+   - .planning/plano{NN}/MEMORY.md (template vazio)
+   - .planning/plano{NN}/fase-01-{nome}.md
+   - .planning/plano{NN}/fase-02-{nome}.md
+   - ...
+
+3. Subagente retorna resumo do que gerou
+
+4. Orchestrador mostra ao dev:
+   "Plano 1 criado com {N} fases:
+    fase-01: {nome} (~{tempo})
+    fase-02: {nome} (~{tempo})
+    ...
+    Quer criar o Plano 2?"
+
+5. Se dev aprovar: repete para proximo plano
+   O subagente do Plano 2 RECEBE tambem:
+   - README do Plano 1 (saber o que ja foi planejado)
+   - NAO recebe as fases detalhadas do Plano 1
+
+6. Repetir ate todos os planos criados ou dev parar
 ```
 
-Fases possiveis: `planned` | `in-progress` | `wave-N` | `completed` | `paused`
-Status por task: `pending` | `in-progress` | `done` | `blocked` | `skipped`
+### Regras do subagente de planejamento
+
+```
+1. Cada fase deve ser auto-contida e executavel em 30min-2h
+2. Incluir code snippets de referencia quando a task nao e trivial:
+   - Tipos TypeScript que serao criados
+   - SQL de migrations com comentarios
+   - Imports e exports esperados
+   - Exemplos de chamadas de API
+3. Incluir gotchas do PRD/CONTEXT inline na fase relevante
+4. Checklist de verificacao com itens especificos (nao genericos)
+5. Numerar fases sequencialmente: fase-01, fase-02, etc.
+6. Nome da fase deve ser descritivo: fase-01-tipos-migration.md, fase-02-queries-filtros.md
+7. Cada fase indica dependencias: "Depende de: fase-01" ou "Independente"
+8. Marcar fases com "visual: true" se modificam UI (sinaliza /qa-visual)
+```
 
 ---
 
@@ -318,7 +445,7 @@ Oferecer ao dev (NAO forcar):
 Se sim, explicar brevemente:
 - **Vertical Slices:** cada slice atravessa todas as camadas (test → service → API → UI). Feedback rapido, deploys incrementais.
 - **Tracer Bullet:** o slice mais fino que prova a arquitetura end-to-end. Do livro "The Pragmatic Programmer".
-- **Waves:** agrupamento por dependencia. Dentro de uma wave, execucao e paralela.
+- **Planos hierarquicos:** decomposicao natural por dominio, permitindo contextos isolados e execucao incremental.
 
 Para aprofundar: sugerir `/anti-vibe-coding:learn "vertical slices"` ou `/anti-vibe-coding:learn "tracer bullet"`
 
@@ -328,9 +455,9 @@ Para aprofundar: sugerir `/anti-vibe-coding:learn "vertical slices"` ou `/anti-v
 
 | Cenario | Sugestao |
 |---------|----------|
-| /execute-plan existe | "Quer prosseguir para /execute-plan?" |
-| /execute-plan nao existe | "Comece pelo Tracer Bullet (Slice 1.1). Cada task tem Files, Action e Verify para guiar." |
-| Dev quer revisar | "O plano e editavel diretamente em .planning/PLAN-{name}.md. Regenere com /plan-feature se a feature mudar." |
+| Planos criados, /execute-plan existe | "Quer prosseguir para /execute-plan? Ele vai executar plano por plano." |
+| Dev quer criar mais planos | "Criar Plano {N+1}?" |
+| Dev quer revisar plano especifico | "Os planos sao editaveis em .planning/plano{NN}/. Regenere com /plan-feature se a feature mudar." |
 | Dev quer voltar ao PRD | "Quer ajustar o PRD antes de executar? Rode /write-prd para editar." |
 
 ---
@@ -338,46 +465,51 @@ Para aprofundar: sugerir `/anti-vibe-coding:learn "vertical slices"` ou `/anti-v
 ## Pipeline Integration
 
 ### 0. Importar PRD (se disponivel)
-Antes de iniciar o planejamento, verificar se `.planning/PRD.md` existe:
+Antes de iniciar o planejamento, verificar se `.planning/PRD.md` ou `.planning/PRD-*.md` existe:
 
 - **Se existir:** Importar automaticamente. Dizer ao dev:
-  > "Encontrei `.planning/PRD.md` do `/write-prd`. Vou usar este PRD como base para o plano de execucao."
-  Usar os requisitos e escopo do PRD para guiar a criacao dos vertical slices e waves.
+  > "Encontrei `.planning/PRD-{name}.md` do `/write-prd`. Vou usar este PRD como base."
+  Usar os requisitos e escopo do PRD para guiar a decomposicao.
 
 - **Se NAO existir:** Prosseguir com o fluxo normal — perguntar ao dev o que planejar.
 
-### 1. Salvar Plano e Criar STATE.md Inicial
-Ao finalizar o plano aprovado:
-1. Salvar plano em `.planning/PLAN.md`
-2. Criar `.planning/STATE.md` com `phase: planejado` e todas as tasks como `pending`
+### 1. Importar CONTEXT (se disponivel)
+Se `.planning/CONTEXT-*.md` existir (do /grill-me):
+- Importar decisoes indexadas (D1, D2...)
+- Usar como restricoes na decomposicao
+- Referenciar decisoes nas fases: "Conforme D3: usar Supabase RLS"
 
-### 2. Sugerir Proximo Passo
+### 2. Salvar Plano e Criar STATE.md
+Ao finalizar o overview:
+1. Salvar overview em `.planning/PLAN-{feature}.md`
+2. Criar `.planning/STATE-{feature}.md` com tracking por plano
+3. Planos detalhados criados sob demanda (Step 9)
 
-> "Plano salvo em `.planning/PLAN.md`. STATE.md criado.
->
-> Quer prosseguir para `/execute-plan`? Ele vai executar as waves com subagentes isolados."
+### 3. Sugerir Proximo Passo
 
-### 3. Learn Point (opcional)
-
-> "Quer entender vertical slices, tracer bullet ou como waves organizam a execucao paralela? Posso aprofundar via `/learn`."
+> "Overview salvo. Quer criar as tasks do Plano 1?
+> Apos criar, pode executar com `/execute-plan`."
 
 ### Escape Hatches
 - Esta skill funciona standalone: o pipeline e opcional
 - Se PRD.md existir mas o dev quiser ignorar: confirmar antes de descartar
 - Dev pode voltar ao PRD: "quero ajustar o PRD antes de planejar"
-- O plano e editavel diretamente em `.planning/PLAN.md`
+- Dev pode forcar plano flat: "quero tudo em um arquivo so"
+- Os planos sao editaveis diretamente nos arquivos .md
 
 ---
 
 ## Regras
 
-1. O plano e o contrato — /execute-plan segue EXATAMENTE o que esta no plano
+1. O plano e o contrato — /execute-plan segue EXATAMENTE o que esta nos planos
 2. Se o plano estiver errado, corrigir o PLANO (nao improvisar durante execucao)
 3. Tracer bullet pode parecer "pouco" mas e o slice mais importante
-4. Waves devem ser genuinamente paralelas — sem dependencias escondidas
-5. Cada task deve ser verificavel — "Verify" vago invalida a task
-6. Se uma feature gera mais de 5 waves, sugerir split em sub-features
-7. NUNCA gerar plano sem aprovacao do dev (Step 7 e obrigatorio)
-8. NUNCA salvar plano se dev cancelar a aprovacao
-9. STATE.md e a fonte de verdade para progresso — /execute-plan atualiza, dev pode editar
-10. O plano e um documento vivo — pode ser regenerado se a feature mudar
+4. A quantidade de planos e fases e decidida por analise semantica, NUNCA por thresholds fixos
+5. Cada plano e gerado em contexto isolado (subagente) para evitar poluicao
+6. Planos sao gerados sob demanda — NUNCA gerar todos de uma vez
+7. Cada fase deve ser time-boxed (30min-2h) e ter checklist de verificacao
+8. NUNCA gerar overview sem aprovacao do dev (Step 7 e obrigatorio)
+9. NUNCA salvar plano se dev cancelar a aprovacao
+10. STATE.md e a fonte de verdade para progresso — /execute-plan atualiza, dev pode editar
+11. Cada plano tem sua propria MEMORY.md — preenchida durante execucao
+12. A decisao de quantos planos depende do julgamento senior da LLM, nao de regras fixas
