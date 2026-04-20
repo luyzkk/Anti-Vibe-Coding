@@ -131,23 +131,39 @@ dentro de PASTA_ATIVA. Nunca na raiz de `.planning/`.
 2. Prosseguir para Step 2
 ```
 
-### Caminho B: Buscar em pasta datada
+### Caminho B: Buscar em .planning/ (nova estrutura — pastas datadas)
 
 ```
 1. Se nao forneceu caminho:
-   - Glob: ".planning/*/PRD.md"
-   - Filtrar: manter apenas pastas cujo nome bate com padrao YYYY-MM-DD-* (ex: 2026-04-20-slug)
-     Ignorar: _archive/, pastas sem prefixo de data (ex: plano01/ solto, _archive/)
-   - Se 1 match: ler diretamente, confirmar:
-     "Encontrei PRD em `.planning/{pasta}/PRD.md`. Vou planejar com base nele."
-     PASTA_ATIVA = ".planning/{pasta}/"
-   - Se mais de 1: listar pastas com data+slug e perguntar qual usar
-     (descoberta multi-PRD completa eh Plano 03 — aqui basta listar as opcoes)
-   - Se ZERO pastas datadas mas existir PRD-*.md solto na raiz de .planning/:
-     NAO migrar — informar: "Nao encontrei PRD em pasta datada. Existe estrutura legacy em
-     `.planning/`? A migracao sera oferecida no Plano 02." → seguir Caminho C
-   - IMPORTANTE: PASTA_ATIVA deve ser fixada como caminho ABSOLUTO (necessario para subagentes)
-2. Prosseguir para Step 2
+   a. Enumerar pastas datadas em `.planning/` (mesmo algoritmo do execute-plan Step 1a)
+      - Glob `.planning/YYYY-MM-DD-*/`
+      - Excluir `_archive/`
+      - Para cada pasta, ler `STATE.md` e extrair `Phase`
+        (STATE.md usa "**Phase:**" bold — buscar com regex, nao grep literal)
+      - Default filtrar: `planned` + `in-progress` + `paused`
+      - Flag `--all`: incluir `completed`
+      - Pasta sem STATE.md: tratar como status `planned`
+   b. Se 1 PRD apos filtro:
+      - Ler `{pasta}/PRD.md` diretamente
+      - Confirmar: "Encontrei {nome}. Vou planejar com base no PRD.md dentro."
+      - PASTA_ATIVA = "{pasta}/" (caminho ABSOLUTO — necessario para subagentes)
+   c. Se 2+ PRDs apos filtro:
+      - Listar como no execute-plan:
+        [1] 2026-04-20-sistema-notificacoes (in-progress)
+        [2] 2026-04-21-auth-refactor (planned)
+        Para qual vou criar/ajustar planos?
+      - Dev escolhe, le `{escolhida}/PRD.md`
+      - PASTA_ATIVA = pasta escolhida (caminho ABSOLUTO)
+   d. Se lista vazia:
+      - Se `--all` foi usado: "Nenhum PRD em .planning/." → Caminho C
+      - Se default: "Nenhum PRD ativo (planned/in-progress/paused). Rode /plan-feature --all para ver todos."
+      - Oferecer Caminho C (PRD nao existe)
+   e. Se ZERO pastas datadas (independente de filtro):
+      - Verificar se ha PRD-*.md solto na raiz de .planning/ → legacy, nao migrar aqui
+      - Oferecer Caminho C
+2. Prosseguir para Step 2 operando DENTRO da pasta escolhida
+   (todos os outputs vao para `{pasta}/PLAN.md`, `{pasta}/STATE.md`,
+    `{pasta}/planoNN/` — conforme Step 8)
 ```
 
 ### Caminho C: PRD nao existe

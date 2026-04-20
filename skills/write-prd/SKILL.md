@@ -172,12 +172,60 @@ Fluxo de ajuste:
    - `date` = YYYY-MM-DD atual
    - `folder` = `.planning/{date}-{slug}/`
 3. Se `{folder}` ja existir:
-   - Informar ao dev: "Pasta ja existe. Tratamento de v2 sera feito no Plano 03."
-   - Encerrar sem sobrescrever.
+   - Prosseguir para o bloco de colisao abaixo
 4. Se NAO existir:
    - Criar `{folder}`
    - Escrever `{folder}/PRD.md` com Write (arquivo nu, sem prefixo)
 5. Informar: "PRD salvo em `{folder}/PRD.md`. Voce pode editar diretamente se precisar ajustar."
+
+### Colisao de pasta mesmo-dia mesmo-slug (RF9 / CA-10)
+
+```
+Apos calcular `.planning/YYYY-MM-DD-{slug}/`, antes de criar:
+
+1. Verificar se a pasta ja existe:
+   - Se NAO existe: criar pasta + salvar PRD.md nu (fluxo normal)
+   - Se existe: prosseguir para 2
+
+2. Ler `{pasta}/PRD.md` existente (se houver), extrair:
+   - Status (Draft / Approved / Completed)
+   - Titulo
+
+3. Apresentar ao dev com AskUserQuestion:
+
+   "Ja existe uma pasta para esta feature hoje: {pasta}
+    PRD atual: {titulo} (status: {status})
+
+    O que deseja?
+    [1] Atualizar PRD existente (sobrescreve PRD.md; CONTEXT/PLAN/STATE/planoNN inalterados)
+    [2] Criar v2 (nova pasta com sufixo)
+    [3] Cancelar"
+
+4. Acao conforme resposta:
+
+   OPCAO 1 — ATUALIZAR:
+     - AVISAR explicitamente:
+       "ATENCAO: Apenas PRD.md sera sobrescrito.
+        CONTEXT.md, PLAN.md, STATE.md e planoNN/ permanecerao com conteudo antigo.
+        Se o PRD mudou substancialmente, considere opcao [2] v2.
+        Confirma?"
+     - Se dev confirma: sobrescrever `{pasta}/PRD.md` apenas
+     - Se dev cancela: voltar ao prompt do passo 3
+
+   OPCAO 2 — CRIAR V2:
+     - Calcular proximo sufixo disponivel:
+       - Se `{pasta}-v2/` nao existe: usar `-v2`
+       - Se existe: tentar `-v3`, `-v4`, ate v99
+       - Se v99 ocupado: "Mais de 99 versoes no mesmo dia — revise o slug manualmente"
+     - Criar `.planning/YYYY-MM-DD-{slug}-v2/` (ou -vN)
+     - Salvar PRD.md nu la dentro
+     - Informar: "PRD salvo em {nova-pasta}/PRD.md"
+     - Pasta v2 nao recebe CONTEXT.md automaticamente (v2 eh reformulacao; dev roda /grill-me se precisar)
+
+   OPCAO 3 — CANCELAR:
+     - Nao criar nada
+     - "PRD nao foi salvo. Ajuste o slug com /write-prd {novo-nome} se quiser pasta diferente."
+```
 
 ### 5.5 — Mover CONTEXT do /grill-me para dentro da pasta
 
@@ -214,8 +262,6 @@ PRD salvo em `.planning/{date}-{slug}/PRD.md`
 CONTEXT movido de `.planning/CONTEXT-{slug}.md` para `.planning/{date}-{slug}/CONTEXT.md`
 ```
 Se sem CONTEXT: omitir a segunda linha.
-
-<!-- path legacy (PRD-*.md solto + pergunta "atualizar ou v2?") — Plano 02 trata migracao -->
 
 ---
 
