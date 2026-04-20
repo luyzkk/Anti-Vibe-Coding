@@ -27,19 +27,17 @@ Suporta dois formatos:
 ### 1a. Localizar plano
 
 ```
-Se caminho fornecido (/execute-plan "path/to/PLAN.md"):
-  - Ler com Read
-  - Prosseguir para 1b
+Se caminho fornecido:
+  - /execute-plan ".planning/YYYY-MM-DD-slug/" → PASTA_ATIVA = essa pasta
+  - /execute-plan ".planning/YYYY-MM-DD-slug/PLAN.md" → PASTA_ATIVA = diretorio pai
+  - Ler `{PASTA_ATIVA}/PLAN.md`
+  - Se PLAN.md nao existir: "PLAN.md nao encontrado em `{PASTA_ATIVA}`. Rode /plan-feature primeiro."
 
 Se nao forneceu caminho:
-  - Glob: ".planning/PLAN-*.md"
-  - Se 1 arquivo: ler diretamente
-  - Se mais de 1: listar e perguntar qual executar
-
-Se nao encontrou:
-  - "Nao encontrei nenhum PLAN.md em .planning/."
-  - Oferecer: "Quer criar um com /plan-feature?"
-  - Encerrar
+  - Glob: ".planning/*/PLAN.md" filtrando padrao de pasta `YYYY-MM-DD-*` e IGNORANDO `_archive/`
+  - Se 1 match: PASTA_ATIVA = diretorio desse PLAN.md. Confirmar: "Encontrei PLAN em `{PASTA_ATIVA}/PLAN.md`. Vou executar."
+  - Se mais de 1: listar pastas com status resumido (ler STATE.md de cada, apresentar Phase). Descoberta completa (filtros, listas organizadas) eh Plano 03 fase-01 — aqui basta listar e pedir escolha minimal.
+  - Se 0: "Nao encontrei nenhum PLAN.md em `.planning/YYYY-MM-DD-*/`. Quer criar com /plan-feature?"
 ```
 
 ### 1b. Detectar formato
@@ -47,14 +45,17 @@ Se nao encontrou:
 ```
 Ler o PLAN.md encontrado e verificar:
 
-HIERARQUICO (v2) — detectado se:
-  - Contem secao "## Planos" com tabela de planos numerados
-  - Glob ".planning/plano*/" encontra pastas
+HIERARQUICO (v2 — NOVA ESTRUTURA):
+  - PASTA_ATIVA contem `PLAN.md`
+  - Glob `{PASTA_ATIVA}/plano*/` encontra pastas
   - Cada pasta tem README.md + fase-*.md
 
-FLAT (v1) — detectado se:
-  - Contem "## Wave" com slices e tasks
-  - Nao existem pastas plano*/
+FLAT (v1 — backward compat):
+  - PLAN.md contem "## Wave" com slices/tasks
+  - Nao existem subpastas `plano*/`
+  - IMPORTANTE: o fluxo FLAT pode vir de pasta datada (se `plan-feature` fallback gerou plano unico)
+    OU de legacy (PLAN.md solto na raiz). Deteccao de legacy eh Plano 02 — aqui apenas seguir
+    fluxo flat se detectado dentro de PASTA_ATIVA.
 
 Se hierarquico: prosseguir para Step 2 (hierarquico)
 Se flat: prosseguir para Step 2-FLAT (backward compat — fluxo original)
@@ -64,7 +65,7 @@ Se flat: prosseguir para Step 2-FLAT (backward compat — fluxo original)
 
 ## Step 2 — Ler Estado Global (Hierarquico)
 
-Nome esperado: `.planning/STATE-{feature-name}.md`
+Nome esperado: `{PASTA_ATIVA}/STATE.md` (nu, sem prefixo, LOCAL a pasta)
 
 ### Se STATE.md existe:
 
@@ -88,7 +89,7 @@ Fase "planned" ou "in-progress":
 ### Se STATE.md nao existe:
 
 ```
-Criar a partir do PLAN overview:
+Criar a partir do PLAN overview em `{PASTA_ATIVA}/STATE.md`:
   - Listar todos os planos com status "pending"
   - phase: planned
   - current_plan: 01
@@ -101,7 +102,7 @@ Criar a partir do PLAN overview:
 ```markdown
 # State: {Feature Name}
 
-**Plan:** .planning/PLAN-{feature}.md
+**Plan:** ./PLAN.md
 **Phase:** {planned | in-progress | paused | completed}
 **Current Plan:** {NN}/{total}
 **Last Updated:** {date}
@@ -131,8 +132,8 @@ Tasks done: {X}/{Y} ({Z}%)
 
 ```
 1. Identificar plano ativo do STATE.md (Current Plan: NN)
-2. Ler .planning/plano{NN}/README.md
-3. Listar fases: Glob ".planning/plano{NN}/fase-*.md"
+2. Ler `{PASTA_ATIVA}/plano{NN}/README.md`
+3. Listar fases: Glob `{PASTA_ATIVA}/plano{NN}/fase-*.md`
 4. Identificar proxima fase pendente
 ```
 
@@ -199,18 +200,21 @@ Para cada fase a executar:
 
 Spawn do agent plan-executor com contexto:
   RECEBE:
-  - Arquivo da fase completo (fase-NN-nome.md)
-  - README.md do plano (overview e gotchas)
-  - "Notas para Planos Seguintes" dos planos anteriores (se existirem)
-  - Estado atual (STATE.md — apenas progresso, nao logs)
-  - Padrao de codigo existente (1-2 arquivos de referencia do codebase)
+  - PASTA_ATIVA (caminho absoluto — contexto obrigatorio)
+  - Arquivo da fase: `{PASTA_ATIVA}/plano{NN}/fase-MM-nome.md` (completo)
+  - README do plano: `{PASTA_ATIVA}/plano{NN}/README.md`
+  - "Notas para Planos Seguintes" de `{PASTA_ATIVA}/plano{01..NN-1}/MEMORY.md`
+  - Estado atual: relevant-only do `{PASTA_ATIVA}/STATE.md` (progresso, nao logs completos)
+  - Padrao de codigo existente (1-2 arquivos de referencia do codebase do projeto — nao do .planning/)
   - Instrucao: "Execute APENAS esta fase. Siga TDD. Commit atomico por passo."
   - Instrucao: "Reporte: decisoes tomadas, bugs encontrados, desvios do plano."
+  - Instrucao: "Commits e edits de codigo vao para o repositorio DO PROJETO, nao dentro de PASTA_ATIVA.
+    PASTA_ATIVA eh apenas para artefatos de planejamento (MEMORY.md, STATE.md updates)."
 
   NAO RECEBE:
   - PRD completo (o subagente ve apenas a fase)
   - Outras fases do plano
-  - MEMORY.md completa de planos anteriores
+  - MEMORY.md completa de planos anteriores (so "Notas para Planos Seguintes")
   - Contexto de conversas anteriores
 
 Aguardar conclusao antes de atualizar estado.
@@ -253,12 +257,12 @@ Apos cada subagente completar:
    - Gotchas descobertos (GT-*)
    - Desvios do plano (DEV-*)
 
-3. Atualizar STATE.md:
+3. Atualizar `{PASTA_ATIVA}/STATE.md`:
    - Mudar status da fase
    - Incrementar progresso
    - Registrar evento no Log
 
-4. Atualizar MEMORY.md do plano ativo:
+4. Atualizar `{PASTA_ATIVA}/plano{NN}/MEMORY.md` do plano ativo:
    - Append decisoes em "Decisoes de Implementacao"
    - Append bugs em "Bugs Descobertos"
    - Append gotchas em "Gotchas"
@@ -413,7 +417,7 @@ Quando todos os planos estao como "completed":
 ### 7a. Gerar SUMMARY.md
 
 ```
-Gerar .planning/SUMMARY-{feature-name}.md:
+Gerar `{PASTA_ATIVA}/SUMMARY.md` (nu, sem prefixo):
 
 # Summary: {Feature Name}
 
@@ -486,11 +490,17 @@ Sugerir:
 Para planos flat (PLAN.md unico com waves/tasks), manter o fluxo original:
 
 ```
+Step 2-FLAT assume PASTA_ATIVA ja identificada no Step 1.
+Todos os caminhos (STATE.md, logs) vivem dentro de PASTA_ATIVA.
+Se detectar PLAN.md SOLTO na raiz de `.planning/` (sem pasta datada),
+isso eh legacy puro — Plano 02 cuida da migracao. Nesta fase, apenas
+avisar: "PLAN.md solto detectado. Migracao sera oferecida em versao futura."
+
 O fluxo flat funciona exatamente como a versao anterior:
-- Le waves e tasks do PLAN.md
+- Le waves e tasks do `{PASTA_ATIVA}/PLAN.md`
 - Executa wave por wave com subagentes
 - TDD com isolamento RED/GREEN
-- STATE.md com tracking por task
+- STATE.md com tracking por task — vive em `{PASTA_ATIVA}/STATE.md`
 - Sem MEMORY.md por plano (nao ha planos separados)
 
 Referencia: ver references/wave-execution.md para conceitos de waves.
@@ -544,9 +554,9 @@ Step 6-FLAT: SUMMARY ao completar
 
 ### Ao Concluir Todos os Planos
 
-1. **Salvar SUMMARY.md** com consolidado de todas as memorias
+1. **Salvar `{PASTA_ATIVA}/SUMMARY.md`** com consolidado de todas as memorias
 2. **Destilacao de memoria** — oferecer salvar licoes uteis
-3. **Atualizar STATE.md** — phase: completed
+3. **Atualizar `{PASTA_ATIVA}/STATE.md`** — phase: completed
 4. **Sugerir /verify-work** para auditoria pos-implementacao
 
 ### Learn Point (opcional)
@@ -554,9 +564,9 @@ Step 6-FLAT: SUMMARY ao completar
 > "Quer entender context isolation RED/GREEN, execucao hierarquica ou memoria por plano? Posso aprofundar via `/learn`."
 
 ### Escape Hatches
-- Dev pode pausar entre planos (estado salvo)
+- Dev pode pausar entre planos (estado salvo em `{PASTA_ATIVA}/STATE.md`)
 - Dev pode pular plano inteiro (dependentes ficam pending)
-- Dev pode abortar a qualquer momento (estado e memoria salvos)
+- Dev pode abortar a qualquer momento (estado e memoria salvos dentro de PASTA_ATIVA)
 - Dev pode trocar de contexto entre planos (recomendado para features grandes)
 
 ---
