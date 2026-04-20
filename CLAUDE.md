@@ -315,7 +315,17 @@ Detalhes técnicos em `skills/lib/model-profile-utils.md`.
 
 ## Lições Aprendidas
 
-_Nenhuma entrada ainda. Use `/anti-vibe-coding:lessons-learned add` para registrar._
+### [Plugin Development] Instrucoes executaveis em SKILL.md pertencem a blocos de codigo
+**Regra:** Qualquer instrucao que o modelo deve EXECUTAR (logica, condicional, pseudocodigo) deve estar dentro de blocos de codigo (triple backticks). Texto fora dos blocos eh tratado como prosa decorativa e pode ser ignorado.
+**Contexto:** Descoberto ao editar `write-prd/SKILL.md` — instrucoes fora de blocos eram puladas silenciosamente pelo modelo durante execucao. NOTAs para humanos ficam fora; logica executavel fica dentro.
+
+### [Bash] `mv dir/` no bash faz merge silencioso, nao falha se destino existe
+**Regra:** `mv pasta_origem/ pasta_destino/` em bash copia o conteudo para DENTRO de `pasta_destino/` se ela ja existir (em vez de renomear). Para renomear atomicamente, verificar existencia antes ou usar linguagem com `fs.rename` semantico.
+**Contexto:** Descoberto durante implementacao da migracao de `.planning/` legacy. O algoritmo de migracao usa `fs.rename` (atomic) exatamente por isso — `mv` poderia criar estrutura aninhada inesperada em caso de colisao.
+
+### [Subagentes] Agentes paralelos com git add simultaneo agrupam commits de fases distintas
+**Regra:** Quando dois subagentes rodam em paralelo e ambos fazem `git add` no mesmo repositorio, o commit do segundo agente pode incluir mudancas staged pelo primeiro. Sempre verificar `git diff --staged` antes de commitar para confirmar atomicidade.
+**Contexto:** Ocorreu em Plano 03 (fases 01+02 bundladas em 036315a) e Plano 04 (fases 01+03 bundladas em c8d5520). Se atomicidade de commits por fase for critica, usar `git stash` ou staging explicito por arquivo.
 
 ## Decisões Arquiteturais
 
