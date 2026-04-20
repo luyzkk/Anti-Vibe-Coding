@@ -578,3 +578,4 @@ Step 6-FLAT: SUMMARY ao completar
 - `agents/plan-executor.md` — Agent que executa tasks/fases individuais
 - `agents/plan-verifier.md` — Agent que verifica output (read-only)
 - `lib/legacy-detector.md` — Algoritmo de deteccao de estrutura legacy (consumido pelo Step 0)
+- `lib/legacy-migrator.md` — Algoritmo de migracao atomica STAGE/MOVE/CONFIRM/ROLLBACK (consumido pelo Step 0)
