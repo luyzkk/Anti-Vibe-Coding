@@ -327,6 +327,10 @@ Detalhes técnicos em `skills/lib/model-profile-utils.md`.
 **Regra:** Quando dois subagentes rodam em paralelo e ambos fazem `git add` no mesmo repositorio, o commit do segundo agente pode incluir mudancas staged pelo primeiro. Sempre verificar `git diff --staged` antes de commitar para confirmar atomicidade.
 **Contexto:** Ocorreu em Plano 03 (fases 01+02 bundladas em 036315a) e Plano 04 (fases 01+03 bundladas em c8d5520). Se atomicidade de commits por fase for critica, usar `git stash` ou staging explicito por arquivo.
 
+### [Armadilha] Skills existentes podem ser omitidas silenciosamente ao publicar nova versao do plugin
+**Regra:** Antes de commitar uma nova versao do plugin, listar todas as skills da versao anterior e confirmar que cada uma esta presente — upgrades nao herdam automaticamente o que existia antes.
+**Contexto:** Na atualizacao v4.0→v5.1.0, `qa-visual` foi omitido sem erro ou warning. A skill desapareceu de todos os projetos que fizeram `/init` com a nova versao. Nenhum mecanismo detectou a regressao.
+
 ## Decisões Arquiteturais
 
 Registradas em `.claude/decisions.md`. Use `/anti-vibe-coding:decision-registry list` para consultar.
