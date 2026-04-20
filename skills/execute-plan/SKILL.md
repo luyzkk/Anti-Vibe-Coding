@@ -215,6 +215,51 @@ Tasks done: {X}/{Y} ({Z}%)
 
 ---
 
+## Step 2.5 — Verificar Requires
+
+```
+1. Ler `{PASTA_ATIVA}/PRD.md`
+2. Extrair frontmatter (mesmo parser de plan-feature):
+   - Se conteudo comeca com `---\n`:
+     - Extrair bloco entre primeiro `---` e segundo `---`
+     - Procurar linha `requires:`
+     - Se encontrada:
+       - Se valor comeca com `[`: split por virgula, trim, remover `[` e `]`, lista
+       - Se valor e string simples (nao vazia): lista com 1 elemento
+       - Se `[]` ou vazio: lista vazia
+     - Se nao encontrada ou bloco ausente: requires = []
+   - Se `requires` vazio: pular este step inteiramente
+3. Para cada dependencia em `requires`:
+   a. Resolver para pasta:
+      - Se valor e pasta exata (`2026-04-20-auth`): usar diretamente
+      - Se e slug (`auth`): glob `.planning/????-??-??-*-auth/` (sufixo exato)
+                            + `.planning/_archive/????-??-??-*-auth/`
+      - Se nao encontrou: status = "nao encontrado"
+      - Se mais de 1 pasta: status = "ambiguo" (listar pastas)
+   b. Se resolveu para exatamente 1 pasta:
+      - Ler `STATE.md` da pasta
+      - Extrair campo `**Phase:**` com regex (nao grep literal)
+      - Se Phase == "completed": dependencia OK — nao aparece no aviso
+4. Montar lista de dependencias com problema (nao-completed, nao-encontradas, ambiguas)
+5. Se lista de problemas vazia: pular — ir para Step 3
+6. Se ha dependencias com problema, montar aviso:
+
+   "AVISO: Dependencias nao concluidas:
+     - {slug}: {status} (em {pasta})
+     - {slug}: nao encontrado
+     - {slug}: ambiguo (pastas: X, Y)
+
+   Este PRD declara `requires:` em seu frontmatter. Prosseguir mesmo assim?"
+
+7. AskUserQuestion:
+   - "Prosseguir (aceito o risco)"
+   - "Cancelar e resolver dependencias primeiro"
+8. Se cancelar: exibir "Execucao cancelada. Conclua as dependencias e rode /execute-plan novamente." e encerrar.
+9. Se prosseguir: registrar no Log do STATE.md: "Aviso de requires aceito pelo dev em {data}"
+```
+
+---
+
 ## Step 3 — Ler Plano Ativo e Consultar Memoria
 
 ### 3a. Carregar plano
