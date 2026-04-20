@@ -85,23 +85,51 @@ Nota sobre CA-12 (projeto em execucao nao interrompido):
 
 ## Step 1 — Detectar Formato e Ler Plano
 
-### 1a. Localizar plano
+### 1a. Localizar plano (nova estrutura — pastas datadas)
 
 ```
-Se caminho fornecido:
-  - /execute-plan ".planning/YYYY-MM-DD-slug/" → PASTA_ATIVA = essa pasta
-  - /execute-plan ".planning/YYYY-MM-DD-slug/PLAN.md" → PASTA_ATIVA = diretorio pai
-  - Ler `{PASTA_ATIVA}/PLAN.md`
-  - Se PLAN.md nao existir: "PLAN.md nao encontrado em `{PASTA_ATIVA}`. Rode /plan-feature primeiro."
+Se caminho fornecido (/execute-plan "path/to/PASTA/" ou ".../PLAN.md"):
+  - Resolver para pasta datada `.planning/YYYY-MM-DD-{slug}/`
+  - Ler `STATE.md` de dentro da pasta
+  - Prosseguir para 1b
 
-Se nao forneceu caminho:
-  - Glob: ".planning/*/PLAN.md" filtrando padrao de pasta `YYYY-MM-DD-*` e IGNORANDO `_archive/`
-  - Se 1 match: PASTA_ATIVA = diretorio desse PLAN.md. Confirmar: "Encontrei PLAN em `{PASTA_ATIVA}/PLAN.md`. Vou executar."
-  - Se mais de 1: listar pastas com status resumido (ler STATE.md de cada, apresentar Phase). Descoberta completa (filtros, listas organizadas) eh Plano 03 fase-01 — aqui basta listar e pedir escolha minimal.
-  - Se 0: "Nao encontrei nenhum PLAN.md em `.planning/YYYY-MM-DD-*/`. Quer criar com /plan-feature?"
+Se NAO forneceu caminho:
+  1. Enumerar pastas datadas em `.planning/` (Glob `.planning/YYYY-MM-DD-*/`)
+     - EXCLUIR `.planning/_archive/` e seu conteudo
+     - Para cada pasta, ler `STATE.md` local e extrair `Phase` + `Current Plan`
+       (STATE.md usa "**Phase:**" bold — buscar com regex, nao grep literal)
+  2. Aplicar filtro default: mostrar apenas `planned` + `in-progress` + `paused`
+     - Flag `--all` incluida no argumento: mostrar tambem `completed`
+  3. Apresentar lista ao dev:
+
+     Encontrei 3 PRDs ativos em .planning/:
+       [1] 2026-04-20-sistema-notificacoes  (in-progress — Plano 2/4)
+       [2] 2026-04-21-auth-refactor         (planned)
+       [3] 2026-04-15-billing               (paused — Plano 3/5)
+     Qual executar? (--all para ver completed tambem)
+
+  4. Se dev escolher um: usar aquela pasta como raiz, ler `STATE.md` dela
+  5. Se lista vazia apos filtro:
+     - Se `--all` foi usado: "Nenhum PRD em .planning/." + oferecer /plan-feature
+     - Se default: "Nenhum PRD ativo (planned/in-progress/paused). Rode /execute-plan --all para ver todos."
+  6. Se apenas 1 PRD ativo apos filtro: pedir confirmacao
+     "Encontrei 1 PRD ativo: {nome} ({status}). Executar?"
+
+Se apos enumeracao NAO houver nenhuma pasta datada:
+  - Verificar se ha artefatos legacy (`PRD-*.md` solto, `plano*/` solto)
+    → detectLegacy() via Step 0
+  - Senao: "Nao encontrei nenhum PRD em .planning/. Quer criar um com /write-prd?"
+  - Encerrar
+
+Nota sobre flag --all:
+  - Se `--all` vier com caminho explicito: ignorar a flag (caminho tem precedencia)
+  - Se `--all` vier sozinho: listar tambem status `completed`
 ```
 
 ### 1b. Detectar formato
+
+Opera DENTRO da pasta escolhida no Step 1a (PASTA_ATIVA ja definida).
+O `PLAN.md` e lido como `{PASTA_ATIVA}/PLAN.md`.
 
 ```
 Ler o PLAN.md encontrado e verificar:
