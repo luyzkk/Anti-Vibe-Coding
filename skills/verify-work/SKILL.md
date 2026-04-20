@@ -396,8 +396,37 @@ Apos verificacao completa, se a pasta do PRD for detectada (`.planning/YYYY-MM-D
      b. Verificar que `.planning/_archive/{basename}` NAO existe
         - Se existe: "destino ja existe — conflito, investigar manualmente". Abortar.
      c. GERAR MEMORY CONSOLIDADO antes do mv:
-        - Chamar logica de geracao de MEMORY.md consolidado (ver fase-04 do Plano 03)
-        - Se falhar: avisar dev + perguntar se quer arquivar mesmo sem MEMORY consolidado
+
+        Gerar MEMORY.md consolidado no nivel do PRD (antes do mv):
+
+```
+gerarMEMORYConsolidado(pasta):
+  1. Ler todas as planoNN/MEMORY.md da pasta
+     (Glob "{pasta}/plano*/MEMORY.md")
+  2. Para cada plano:
+     - Se MEMORY.md nao existir: marcar como ausente (nao falhar — G13)
+     - Extrair secoes: Decisoes, Gotchas, Bugs, Desvios, Metricas
+  3. Filtrar com heuristicas (mitigacao R4):
+     - Gotchas: incluir se menciona stack/framework/tooling OU tem palavras
+       como "qualquer feature", "comum", "evitar", "padrao"
+     - Decisoes: incluir se referenciada em "Notas para Planos Seguintes"
+       de algum plano OU menciona outro plano explicitamente
+     - Bugs: incluir se gerou retries > 0 OU envolveu mais de uma fase
+     - Desvios: incluir todos (sao poucos e sempre relevantes)
+  4. Ler template: skills/plan-feature/templates/memory-prd-template.md
+  5. Preencher placeholders com dados agregados
+  6. Se planos ausentes: adicionar nota no final do consolidado
+     "<!-- Nota: planos NN sem MEMORY.md registrado -->"
+  7. Gerar secao "Candidatas a Licao": gotchas generalizaveis + decisoes cross-plano
+  8. Escrever em {pasta}/MEMORY.md (nivel do PRD — sobrescreve se existir)
+
+Se falha (template nao encontrado, erro de leitura):
+  - NAO bloquear arquivamento automaticamente
+  - Perguntar: "Falha ao gerar MEMORY consolidado: {erro}.
+    Arquivar mesmo assim (sem consolidado)? [sim/nao]"
+  - Se sim: prosseguir mv sem consolidado
+  - Se nao: abortar arquivamento
+```
      d. Executar mv:
         mv .planning/{basename} .planning/_archive/{basename}
         (Windows: mover pasta completa com bash mv ou PowerShell Move-Item)
@@ -416,8 +445,6 @@ Apos verificacao completa, se a pasta do PRD for detectada (`.planning/YYYY-MM-D
      - Abortar sem estado parcial (mv e atomico para mesmo filesystem)
      - Mensagem clara sobre o erro
 ```
-
-> **Nota (fase-04):** A logica detalhada de geracao do MEMORY.md consolidado (passo 4c) sera implementada na fase-04 do Plano 03. A estrutura do fluxo acima esta correta e o ponto de chamada ja esta definido — a fase-04 apenas preenchera o conteudo dessa etapa.
 
 ### Escape Hatches
 - Esta skill e o encerramento do pipeline mas funciona standalone
