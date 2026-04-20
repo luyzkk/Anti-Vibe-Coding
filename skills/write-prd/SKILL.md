@@ -163,20 +163,21 @@ Fluxo de ajuste:
 
 ## Step 5 — Salvar PRD
 
-```
-1. Criar diretorio .planning/ no projeto do dev se nao existir
-2. Gerar nome: .planning/PRD-{feature-name-em-kebab-case}.md
-   Ex: .planning/PRD-sistema-notificacoes-push.md
-3. Salvar com Write tool
-4. Informar: "PRD salvo em .planning/PRD-{name}.md"
-5. Informar: "Voce pode editar diretamente se precisar ajustar algo depois."
+1. Criar diretorio `.planning/` se nao existir
+2. Derivar:
+   - `slug` = kebab-case do nome da feature
+   - `date` = YYYY-MM-DD atual
+   - `folder` = `.planning/{date}-{slug}/`
+3. Se `{folder}` ja existir:
+   - Informar ao dev: "Pasta ja existe. Tratamento de v2 sera feito no Plano 03."
+   - Encerrar sem sobrescrever.
+4. Se NAO existir:
+   - Criar `{folder}`
+   - Escrever `{folder}/PRD.md` com Write (arquivo nu, sem prefixo)
+5. Informar: "PRD salvo em `{folder}/PRD.md`. Voce pode editar diretamente se precisar ajustar."
+6. NOTA: o CONTEXT.md do /grill-me (se existir em `.planning/CONTEXT-{slug}.md`) sera movido para dentro da pasta em versao futura (fase-04 do Plano 01).
 
-Se ja existir PRD em .planning/:
-1. Ler o PRD existente
-2. Perguntar: "Ja existe um PRD para {feature}. Quer atualizar/refinar ou criar um novo?"
-3. Se atualizar: carregar como base e aplicar como refinamento
-4. Se novo: criar com nome diferente (PRD-{feature}-v2.md)
-```
+<!-- path legacy (PRD-*.md solto + pergunta "atualizar ou v2?") — Plano 02 trata migracao -->
 
 ---
 
@@ -214,7 +215,7 @@ Se recusar, seguir para Step 7 sem insistir.
 | PRD simples (poucos requisitos, stack clara) | "Quer prosseguir para /plan-feature?" |
 | PRD complexo (decisoes tecnicas em aberto) | "Quer usar /design-twice para explorar abordagens?" |
 | PRD com incertezas (secoes [A DEFINIR]) | "Quer usar /grill-me para resolver ambiguidades?" |
-| Dev quer parar | "Ok. PRD salvo em .planning/PRD-{name}.md. Retome com /plan-feature quando quiser." |
+| Dev quer parar | "Ok. PRD salvo em `.planning/{date}-{slug}/PRD.md`. Retome com /plan-feature quando quiser." |
 
 ---
 
@@ -230,13 +231,13 @@ Antes de iniciar o PRD, verificar se `.planning/CONTEXT.md` existe:
 - **Se NAO existir:** Prosseguir com o fluxo normal de coleta de informacoes.
 
 ### 1. Salvar PRD
-Ao finalizar o PRD gerado e aprovado pelo dev, salvar em `.planning/PRD.md`.
+Ao finalizar o PRD gerado e aprovado pelo dev, salvar em `.planning/{YYYY-MM-DD-{slug}}/PRD.md`.
 
 ### 2. Sugerir Proximo Passo
 
-> "PRD salvo em `.planning/PRD.md`.
+> "PRD salvo em `.planning/{date}-{slug}/PRD.md`.
 >
-> Quer prosseguir para `/plan-feature`? Ele vai quebrar este PRD em vertical slices e waves de execucao."
+> Quer prosseguir para `/plan-feature`? Ele vai quebrar este PRD em planos e fases de execucao."
 
 Se o dev disser NAO: encerrar normalmente. O PRD.md continua disponivel.
 
