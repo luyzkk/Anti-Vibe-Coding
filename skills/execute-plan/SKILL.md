@@ -22,6 +22,67 @@ Suporta dois formatos:
 
 ---
 
+## Step 0 — Deteccao de Legacy
+
+Roda antes de qualquer outra coisa. Se `.planning/` tem artefatos soltos pre-refatoracao
+(`PRD-*.md`, `PLAN-*.md`, `STATE-*.md`, `planoNN/` solto), oferece migrar para pasta datada.
+
+Algoritmo: `lib/legacy-detector.md`.
+Migracao: `lib/legacy-migrator.md`.
+
+### Fluxo
+
+```
+1. Se `.planning/` nao existe: skip — ir para Step 1.
+2. Executar `detectLegacy(".planning/")` conforme `lib/legacy-detector.md`.
+3. Se `legacy == false`: skip — ir para Step 1.
+4. Se `legacy == true`:
+   a. Apresentar ao dev:
+      "Detectei estrutura legacy em .planning/:
+         Sinais: {signals.join(', ')}
+         Artefatos:
+           - {cada artifact.path}
+         Slug inferido: {suggestedSlug ou 'nenhum — dev fornece'}"
+   b. Se detectou apenas PLAN.md/STATE.md flat (sinal C sem A nem B):
+      - Nota: o detector retorna legacy=false se so C presente (conforme lib/legacy-detector.md).
+        Portanto esse caso nao chega aqui — PLAN.md flat puro nao eh legacy pelo algoritmo.
+        Execute-plan Step 1b detecta o flat normalmente e vai para Step 2-FLAT.
+   c. Se `suggestedSlug` for null (ambiguous):
+      - AskUserQuestion: "Qual slug usar para a pasta destino? (kebab-case, ex: auth)"
+      - Validar regex `^[a-z0-9][a-z0-9-]*$`; re-perguntar 1x em caso de invalido
+   d. Computar `targetFolderName = "{YYYY-MM-DD}-{slug}"` (data atual UTC)
+   e. Se pasta destino ja existir: oferecer `{targetFolderName}-v2` ou cancelar.
+      Mensagem: "A pasta {targetFolderName} ja existe. Possiveis causas:
+        - Outra sessao ja migrou
+        - execute-plan rodou 2x hoje para o mesmo slug
+        Opcoes: criar como {targetFolderName}-v2 / cancelar"
+   f. AskUserQuestion:
+      - "Sim, migrar agora e executar dentro da pasta"
+      - "Nao — executar legacy em modo v1 a partir de .planning/ raiz (nao migra)"
+      - "Cancelar execute-plan"
+   g. Se "Sim":
+      - Chamar `migrateLegacy(detectorResult, targetFolderName)` conforme `lib/legacy-migrator.md`
+      - Se `status == "success"`: continuar Step 1 dentro da pasta migrada
+      - Se `rolled_back`/`aborted`: reportar erro, perguntar se prosseguir em modo legacy v1 ou cancelar
+   h. Se "Nao — legacy v1":
+      - Modo legacy v1 ativado para esta invocacao
+      - Ir para Step 1 com convencao ANTIGA: buscar `.planning/PLAN-*.md`, `.planning/STATE-*.md`,
+        `.planning/plano*/` soltos — o Step 2-FLAT opera sobre eles
+      - Nota: na proxima invocacao, Step 0 vai perguntar de novo (nao ha estado entre sessoes)
+   i. Se "Cancelar": encerrar sem tocar em nada
+
+Regras:
+- Step 0 roda apenas 1 vez por invocacao
+- Se migracao falhou: dev decide prosseguir legacy v1 ou cancelar
+- "Nao (legacy v1)" vale SO para esta invocacao
+
+Nota sobre CA-12 (projeto em execucao nao interrompido):
+  Se STATE.md legacy tinha `phase: in-progress`, a migracao o move INTACTO (byte-a-byte).
+  Apos migrar, Step 1 le STATE.md da nova pasta, ve mesmo `Current Plan` e retoma de onde parou.
+```
+
+---
+
 ## Step 1 — Detectar Formato e Ler Plano
 
 ### 1a. Localizar plano
@@ -486,6 +547,18 @@ Sugerir:
 ---
 
 ## Step 2-FLAT — Backward Compat (Formato v1)
+
+### Contexto de operacao pos-refatoracao
+
+O Step 2-FLAT pode operar em 2 modos dependendo do que aconteceu no Step 0:
+
+1. **Modo migrado (padrao):** PLAN.md flat vive em `.planning/YYYY-MM-DD-{slug}/PLAN.md`.
+   STATE.md ao lado. Step 2-FLAT le de la. (PASTA_ATIVA ja foi resolvida no Step 1.)
+
+2. **Modo legacy v1 (opt-in via Step 0 "Nao"):** Dev escolheu nao migrar. PLAN.md flat
+   esta em `.planning/PLAN-{feature}.md` solto. Step 2-FLAT le de la.
+
+O conteudo interno (waves/tasks) eh IDENTICO nos 2 modos — so o path eh diferente.
 
 Para planos flat (PLAN.md unico com waves/tasks), manter o fluxo original:
 
