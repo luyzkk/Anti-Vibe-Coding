@@ -17,47 +17,73 @@ Diferenca das outras skills:
 - **plan-feature**: gera PLANOS de execucao (como construir, em que ordem)
 - **execute-plan**: executa os planos fase por fase com subagentes isolados
 
-Estrutura gerada:
+Estrutura gerada (dentro da pasta datada do PRD):
+
 ```
 .planning/
-├── PLAN-{feature}.md              ← Overview (grafo entre planos, resumo)
-├── STATE-{feature}.md             ← Tracking global (plano ativo, progresso)
-│
-├── plano01/
-│   ├── README.md                  ← Overview do plano (dependencias, sizing)
-│   ├── MEMORY.md                  ← Memoria viva (bugs, learnings, decisoes)
-│   ├── fase-01-{nome}.md          ← Task detalhada (snippets, checklist)
-│   └── fase-02-{nome}.md
-│
-├── plano02/
-│   ├── README.md
-│   ├── MEMORY.md
-│   └── fase-01-{nome}.md
-│
-└── ...
+└── 2026-04-20-{feature-slug}/        ← criada pelo /write-prd
+    ├── PRD.md                        ← ja existe
+    ├── PLAN.md                       ← gerado aqui (overview)
+    ├── STATE.md                      ← gerado aqui (tracking global)
+    │
+    ├── plano01/
+    │   ├── README.md                 ← overview do plano
+    │   ├── MEMORY.md                 ← memoria viva (bugs, learnings)
+    │   ├── fase-01-{nome}.md         ← task detalhada
+    │   └── fase-02-{nome}.md
+    │
+    └── plano02/ ...
 ```
 
 ---
 
 ## Step 1 — Ler PRD
 
+NOTA: Apos identificar o PRD, a skill fixa a PASTA_ATIVA = diretorio que contem `PRD.md`.
+TODOS os artefatos gerados por esta skill (PLAN.md, STATE.md, planoNN/) sao escritos
+dentro de PASTA_ATIVA. Nunca na raiz de `.planning/`.
+
 ### Caminho A: Caminho fornecido como argumento
 
 ```
-1. Se o dev passou caminho (/plan-feature "path/to/PRD.md"):
+1. Se o dev passou caminho, aceita DOIS formatos:
+
+   a) Caminho de ARQUIVO: /plan-feature ".planning/2026-04-20-slug/PRD.md"
+      - Validar que o arquivo existe
+      - PASTA_ATIVA = diretorio pai do arquivo (ex: ".planning/2026-04-20-slug/")
+      - Salvaguarda: se o caminho contem "_archive/", RECUSAR com:
+        "Este PRD esta arquivado. Mova para fora de `_archive/` se quiser re-planejar."
+
+   b) Caminho de PASTA: /plan-feature ".planning/2026-04-20-slug/"
+      - PASTA_ATIVA = a propria pasta informada
+      - Verificar existencia de "{PASTA_ATIVA}/PRD.md"
+      - Se nao existir: "Nao encontrei PRD.md em {PASTA_ATIVA}. Quer criar com /write-prd?"
+      - Salvaguarda: se a pasta esta dentro de "_archive/", RECUSAR com a mesma mensagem acima
+
+   Apos identificar o arquivo PRD.md:
    - Ler com Read
    - Validar que contem estrutura de PRD (titulo, requisitos, criterios)
    - Se nao for PRD valido: "Este arquivo nao parece ser um PRD. Quer criar com /write-prd?"
+
 2. Prosseguir para Step 2
 ```
 
-### Caminho B: Buscar em .planning/
+### Caminho B: Buscar em pasta datada
 
 ```
 1. Se nao forneceu caminho:
-   - Glob: ".planning/PRD-*.md"
-   - Se 1 arquivo: ler diretamente, confirmar: "Encontrei PRD-{name}.md. Vou planejar com base nele."
-   - Se mais de 1: listar e perguntar qual usar
+   - Glob: ".planning/*/PRD.md"
+   - Filtrar: manter apenas pastas cujo nome bate com padrao YYYY-MM-DD-* (ex: 2026-04-20-slug)
+     Ignorar: _archive/, pastas sem prefixo de data (ex: plano01/ solto, _archive/)
+   - Se 1 match: ler diretamente, confirmar:
+     "Encontrei PRD em `.planning/{pasta}/PRD.md`. Vou planejar com base nele."
+     PASTA_ATIVA = ".planning/{pasta}/"
+   - Se mais de 1: listar pastas com data+slug e perguntar qual usar
+     (descoberta multi-PRD completa eh Plano 03 — aqui basta listar as opcoes)
+   - Se ZERO pastas datadas mas existir PRD-*.md solto na raiz de .planning/:
+     NAO migrar — informar: "Nao encontrei PRD em pasta datada. Existe estrutura legacy em
+     `.planning/`? A migracao sera oferecida no Plano 02." → seguir Caminho C
+   - IMPORTANTE: PASTA_ATIVA deve ser fixada como caminho ABSOLUTO (necessario para subagentes)
 2. Prosseguir para Step 2
 ```
 
@@ -358,11 +384,13 @@ Uma fase DEVE conter:
 ## Step 8 — Salvar Overview e Criar Estrutura
 
 ```
-1. Criar .planning/ se nao existir
-2. Salvar PLAN-{feature-name-kebab-case}.md (overview)
-   - Se ja existir: perguntar "Substituir ou criar versao (v2)?"
-3. Criar STATE-{feature-name}.md (tracking global) usando templates/state-template.md
-4. Confirmar: "Overview salvo. Pronto para criar o Plano 1."
+1. PASTA_ATIVA ja definida no Step 1 (ex: ".planning/2026-04-20-sistema-notificacoes/")
+2. Salvar overview em "{PASTA_ATIVA}/PLAN.md" (nu, sem prefixo)
+   - Se ja existir: perguntar "Substituir ou cancelar?"
+   (nota: colisao de v2 nao se aplica aqui — ja estamos DENTRO da pasta do PRD)
+3. Criar "{PASTA_ATIVA}/STATE.md" (tracking global LOCAL a este PRD) usando templates/state-template.md
+   - STATE.md nu, sem prefixo
+4. Confirmar: "Overview salvo em `{PASTA_ATIVA}/PLAN.md`. STATE em `{PASTA_ATIVA}/STATE.md`. Pronto para criar o Plano 1."
 ```
 
 ---
@@ -383,21 +411,25 @@ Fluxo:
 
 2. Spawn subagente isolado com:
    RECEBE:
-   - PRD completo
+   - Caminho de PASTA_ATIVA: {caminho absoluto}  ← OBRIGATORIO, sempre absoluto
+   - Todos os outputs DEVEM ser escritos em "{PASTA_ATIVA}/plano{NN}/..."
+   - Se escrever fora de PASTA_ATIVA, a fase eh invalida
+   - PRD completo (lido de "{PASTA_ATIVA}/PRD.md")
    - Contexto de codebase (Step 2)
-   - PLAN overview (saber o escopo total)
+   - PLAN overview (de "{PASTA_ATIVA}/PLAN.md")
    - Descricao do plano a detalhar (do overview)
    - Templates: plan-readme-template.md + fase-template.md + memory-template.md
+     (caminhos do plugin — inalterados)
 
    NAO RECEBE:
    - Detalhes de outros planos (isolamento)
    - Conversas anteriores
 
-   GERA:
-   - .planning/plano{NN}/README.md (overview do plano)
-   - .planning/plano{NN}/MEMORY.md (template vazio)
-   - .planning/plano{NN}/fase-01-{nome}.md
-   - .planning/plano{NN}/fase-02-{nome}.md
+   GERA (dentro de PASTA_ATIVA):
+   - "{PASTA_ATIVA}/plano{NN}/README.md" (overview do plano)
+   - "{PASTA_ATIVA}/plano{NN}/MEMORY.md" (template vazio)
+   - "{PASTA_ATIVA}/plano{NN}/fase-01-{nome}.md"
+   - "{PASTA_ATIVA}/plano{NN}/fase-02-{nome}.md"
    - ...
 
 3. Subagente retorna resumo do que gerou
@@ -411,7 +443,7 @@ Fluxo:
 
 5. Se dev aprovar: repete para proximo plano
    O subagente do Plano 2 RECEBE tambem:
-   - README do Plano 1 (saber o que ja foi planejado)
+   - README do Plano 1 ("{PASTA_ATIVA}/plano01/README.md")
    - NAO recebe as fases detalhadas do Plano 1
 
 6. Repetir ate todos os planos criados ou dev parar
@@ -465,13 +497,14 @@ Para aprofundar: sugerir `/anti-vibe-coding:learn "vertical slices"` ou `/anti-v
 ## Pipeline Integration
 
 ### 0. Importar PRD (se disponivel)
-Antes de iniciar o planejamento, verificar se `.planning/PRD.md` ou `.planning/PRD-*.md` existe:
+Antes de iniciar o planejamento, executar o Step 1 para localizar o PRD:
 
-- **Se existir:** Importar automaticamente. Dizer ao dev:
-  > "Encontrei `.planning/PRD-{name}.md` do `/write-prd`. Vou usar este PRD como base."
+- **Se encontrar PRD em pasta datada (`.planning/YYYY-MM-DD-{slug}/PRD.md`):** Importar automaticamente. Dizer ao dev:
+  > "Encontrei PRD em `.planning/{pasta}/PRD.md` do `/write-prd`. Vou usar este PRD como base."
+  Fixar PASTA_ATIVA = diretorio que contem o PRD.md (caminho absoluto).
   Usar os requisitos e escopo do PRD para guiar a decomposicao.
 
-- **Se NAO existir:** Prosseguir com o fluxo normal — perguntar ao dev o que planejar.
+- **Se NAO encontrar:** Prosseguir com o fluxo normal — perguntar ao dev o que planejar (Caminho C).
 
 ### 1. Importar CONTEXT (se disponivel)
 Se `.planning/CONTEXT-*.md` existir (do /grill-me):
@@ -480,10 +513,10 @@ Se `.planning/CONTEXT-*.md` existir (do /grill-me):
 - Referenciar decisoes nas fases: "Conforme D3: usar Supabase RLS"
 
 ### 2. Salvar Plano e Criar STATE.md
-Ao finalizar o overview:
-1. Salvar overview em `.planning/PLAN-{feature}.md`
-2. Criar `.planning/STATE-{feature}.md` com tracking por plano
-3. Planos detalhados criados sob demanda (Step 9)
+Ao finalizar o overview (via Step 8):
+1. Salvar overview em `{PASTA_ATIVA}/PLAN.md` (nu, sem prefixo)
+2. Criar `{PASTA_ATIVA}/STATE.md` com tracking por plano (nu, sem prefixo)
+3. Planos detalhados criados sob demanda em `{PASTA_ATIVA}/plano{NN}/` (Step 9)
 
 ### 3. Sugerir Proximo Passo
 
