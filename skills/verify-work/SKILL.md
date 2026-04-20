@@ -355,18 +355,69 @@ Antes de iniciar a verificacao, verificar se `.planning/SUMMARY.md` existe:
 
 > "Quer entender algum finding da verificacao ou como um dos auditores funciona? Posso aprofundar via `/learn`."
 
-### Cleanup de Artefatos
+### Cleanup de Artefatos — Arquivamento do PRD
 
-Apos verificacao completa, sugerir ao dev:
+```
+Apos verificacao completa, se a pasta do PRD for detectada (`.planning/YYYY-MM-DD-{slug}/`):
 
-> "Os artefatos em `.planning/` (CONTEXT, PRD, PLAN, STATE, SUMMARY) serviram para rastrear o processo. O codigo agora e a fonte de verdade.
->
-> Opcoes:
-> - Arquivar em `.planning/archive/{date}/` (preserva historico)
-> - Manter como esta (para referencia futura)
-> - Remover artefatos (o codigo e os commits contam a historia)"
+1. Detectar pasta ativa do PRD:
+   - Se argumento passado com caminho `.planning/...`: extrair pasta
+   - Senao: Glob `.planning/YYYY-MM-DD-*/` excluindo `_archive/`
+     - Filtrar por Phase=completed no STATE.md de cada uma
+     - Se 1 pasta completada: usar ela
+     - Se 2+: AskUserQuestion "Qual pasta deseja arquivar?"
+   - Se nenhuma: fallback para sugestao generica (arquivar/manter/remover)
 
-NAO deletar automaticamente — sempre perguntar. O dev decide.
+2. Se pasta encontrada, verificar se pode arquivar:
+   - Ler `{pasta}/STATE.md`
+   - Extrair tabela "Progress por Plano" e verificar status de cada plano
+     (STATE.md usa "**Phase:**" bold — buscar com regex, nao grep literal "phase:")
+   - Status terminais aceitos: `completed`, `skipped`
+   - Status NAO terminais (bloqueiam): `pending`, `in-progress`, `paused`, `blocked`
+   - Verificar tambem Phase global (deve ser `completed`)
+
+   Se NAO pode arquivar:
+     "Auditoria concluida, mas a pasta {pasta} tem planos nao terminais: {motivo}.
+      Nao vou oferecer arquivamento — verifique se algum plano ficou inacabado.
+      Voce pode arquivar manualmente depois com: mv {pasta} .planning/_archive/"
+     Encerrar sem tocar em nada.
+
+3. Se pode arquivar: apresentar oferta ao dev via AskUserQuestion:
+   "Auditoria concluida. Todos os planos estao em estado terminal (completed/skipped).
+    Deseja arquivar a pasta em .planning/_archive/?
+    [1] Sim, arquivar ({pasta} → .planning/_archive/{basename})
+    [2] Nao, manter em .planning/ (pode arquivar depois manualmente)
+    [3] Ver o STATE.md da pasta antes de decidir"
+
+4. Acao conforme resposta:
+
+   OPCAO 1 — ARQUIVAR:
+     a. Criar `.planning/_archive/` se nao existir
+     b. Verificar que `.planning/_archive/{basename}` NAO existe
+        - Se existe: "destino ja existe — conflito, investigar manualmente". Abortar.
+     c. GERAR MEMORY CONSOLIDADO antes do mv:
+        - Chamar logica de geracao de MEMORY.md consolidado (ver fase-04 do Plano 03)
+        - Se falhar: avisar dev + perguntar se quer arquivar mesmo sem MEMORY consolidado
+     d. Executar mv:
+        mv .planning/{basename} .planning/_archive/{basename}
+        (Windows: mover pasta completa com bash mv ou PowerShell Move-Item)
+     e. Confirmar: ler `.planning/_archive/{basename}/PRD.md` para verificar
+     f. Informar: "Pasta arquivada em .planning/_archive/{basename}/"
+
+   OPCAO 2 — MANTER:
+     - Nao fazer nada, nao consolidar memoria
+     - "OK, pasta mantida. Use /verify-work novamente ou mova manualmente quando quiser."
+
+   OPCAO 3 — VER STATE:
+     - Mostrar conteudo de `{pasta}/STATE.md` inline
+     - Voltar ao prompt do passo 3
+
+   Se mv falhar (permissao, filesystem diferente, etc.):
+     - Abortar sem estado parcial (mv e atomico para mesmo filesystem)
+     - Mensagem clara sobre o erro
+```
+
+> **Nota (fase-04):** A logica detalhada de geracao do MEMORY.md consolidado (passo 4c) sera implementada na fase-04 do Plano 03. A estrutura do fluxo acima esta correta e o ponto de chamada ja esta definido — a fase-04 apenas preenchera o conteudo dessa etapa.
 
 ### Escape Hatches
 - Esta skill e o encerramento do pipeline mas funciona standalone
