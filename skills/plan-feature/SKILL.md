@@ -189,6 +189,68 @@ dentro de PASTA_ATIVA. Nunca na raiz de `.planning/`.
 
 ---
 
+## Step 1.5 — Detectar Ciclos em Requires
+
+```
+1. Glob `.planning/YYYY-MM-DD-*/` (APENAS pastas ativas — NAO incluir `.planning/_archive/`)
+   - Se vazio ou apenas o PRD atual: pular este step silenciosamente
+2. Para cada pasta encontrada:
+   a. Ler `PRD.md` dentro dela
+   b. Parsear frontmatter (mesmo parser do Step 1: buscar `---\n...\nrequires:...\n---`)
+   c. Extrair `requires:` normalizado como lista
+   d. Para cada item em requires:
+      - Se e pasta exata (`YYYY-MM-DD-slug`): usar diretamente
+      - Se e slug (`auth`): buscar pasta que termina em `-auth` em `.planning/YYYY-MM-DD-*/`
+      - Se nao encontrado ou ambiguo: ignorar silenciosamente (fase-01 ja reporta dangling)
+   e. Registrar no grafo: `{nome_pasta: [dep1, dep2, ...]}`
+3. Incluir o PRD atual no grafo:
+   - Se esta em pasta `YYYY-MM-DD-*`: usar nome da pasta
+   - Se nao (PRD sendo criado, sem pasta ainda): usar chave `__current__`
+4. Executar DFS com 3 cores:
+
+   cores = {pasta: "branco" para cada pasta no grafo}
+   ciclos_encontrados = []
+
+   para cada pasta em grafo onde cores[pasta] == "branco":
+     dfs(pasta, caminho=[])
+
+   def dfs(no, caminho):
+     cores[no] = "cinza"
+     caminho.append(no)
+     para cada dep em grafo[no]:
+       se dep nao esta em cores: ignorar (referencia externa nao resolvida)
+       se cores[dep] == "cinza":
+         idx = caminho.index(dep)
+         ciclo = caminho[idx:] + [dep]
+         ciclos_encontrados.append(ciclo)
+       senao se cores[dep] == "branco":
+         dfs(dep, caminho)
+     caminho.pop()
+     cores[no] = "preto"
+
+5. Apos DFS:
+   - Se ciclos_encontrados esta vazio: prosseguir para Step 2 silenciosamente
+   - Para cada ciclo encontrado:
+     - caminho_visual = " -> ".join(ciclo)
+     - Mostrar:
+       "AVISO: Ciclo em `requires:` detectado:
+          {caminho_visual}
+       Isto pode causar comportamento circular na verificacao de dependencias.
+       Voce pode ter contexto que justifica (ex: milestone composto).
+       Nao vou bloquear — apenas sinalizo."
+   - NAO usar AskUserQuestion aqui (aviso informativo, nao pergunta)
+   - Prosseguir automaticamente para Step 2
+```
+
+Gotchas:
+- **Auto-referencia:** `A requires: [A]` — DFS entra em A (cinza), visita A novamente (cinza) → ciclo `[A, A]`. Tratar igual.
+- **Ciclo indireto:** `A → B → C → A` — coberto naturalmente pelas 3 cores.
+- **`_archive/` ignorado:** Pastas arquivadas nao entram no grafo.
+- **PRD legacy sem frontmatter:** Parser retorna `requires = []`, entra no grafo com lista vazia — DFS nao detecta ciclo.
+- **Dangling (referencia nao resolvida):** Ignorar silenciosamente (fase-01 ja reporta).
+
+---
+
 ## Step 2 — Explorar Codebase
 
 **Prioridade: ler CLAUDE.md do projeto primeiro** (fonte de verdade para stack e padroes).
