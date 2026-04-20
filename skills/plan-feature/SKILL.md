@@ -37,6 +37,69 @@ Estrutura gerada (dentro da pasta datada do PRD):
 
 ---
 
+## Step 0 — Deteccao de Legacy
+
+Roda ANTES de qualquer outra coisa. Se projeto tem estrutura pre-refatoracao
+(`PRD-*.md` ou `planoNN/` soltos em `.planning/`), esta skill nao consegue operar sem antes
+migrar — ou sem explicitamente ignorar.
+
+Algoritmo referenciado: `lib/legacy-detector.md`.
+Migracao referenciada: `lib/legacy-migrator.md`.
+
+### Fluxo
+
+```
+1. Se `.planning/` nao existe: skip Step 0, ir direto para Step 1 (projeto greenfield).
+2. Executar `detectLegacy(".planning/")` conforme `lib/legacy-detector.md`.
+3. Se `legacy == false`: skip — ir para Step 1.
+4. Se `legacy == true`:
+   a. Apresentar ao dev:
+      "Detectei estrutura legacy em .planning/:
+         Sinais: {signals.join(', ')}
+         Artefatos:
+           - {cada artifact.path}
+         Slug inferido: {suggestedSlug ou 'nenhum — preciso que voce forneca'}
+      "
+   b. Se `suggestedSlug` for null (ambiguous):
+      - Perguntar ao dev (AskUserQuestion): "Qual slug usar para a pasta destino?
+        Formato: kebab-case, ex: auth, sistema-notificacoes"
+      - Validar resposta contra regex `^[a-z0-9][a-z0-9-]*$`
+      - Se invalido: re-perguntar 1x; se continuar invalido: oferecer cancelar
+   c. Computar nome da pasta: `targetFolderName = "{YYYY-MM-DD}-{slug}"`
+      - Data: data atual no formato YYYY-MM-DD
+   d. Se `.planning/{targetFolderName}/` ja existir: avisar colisao e oferecer
+      `{targetFolderName}-v2` ou cancelar.
+      Mensagem: "A pasta {targetFolderName} ja existe. Possiveis causas:
+        - Outra sessao ja migrou esta feature
+        - Voce rodou plan-feature 2x hoje para a mesma feature
+        Opcoes: criar como {targetFolderName}-v2 / cancelar"
+   e. AskUserQuestion: "Migrar estes {N} artefatos para .planning/{targetFolderName}/?"
+      Opcoes:
+        - "Sim, migrar agora"
+        - "Nao — prosseguir com plan-feature em modo greenfield (legacy fica intocado)"
+        - "Cancelar plan-feature"
+   f. Se "Sim":
+      - Chamar `migrateLegacy(detectorResult, targetFolderName)` conforme `lib/legacy-migrator.md`
+      - Se retorno status == "success":
+        - Confirmar: "Migrado com sucesso. {N} artefatos em .planning/{targetFolderName}/"
+        - Continuar Step 1 com a pasta migrada como contexto ativo
+      - Se retorno status == "rolled_back" ou "aborted":
+        - Reportar erro claramente
+        - Perguntar: "prosseguir em modo greenfield ou cancelar?"
+   g. Se "Nao":
+      - Confirmar: "Prosseguindo em modo greenfield. Legacy em .planning/ nao foi tocado."
+      - Ir para Step 1 (que vai criar nova pasta datada para a nova feature)
+   h. Se "Cancelar":
+      - Encerrar skill sem tocar em nada
+
+Regras:
+- Step 0 roda apenas 1 vez por invocacao
+- Se migracao falhou (rolled_back): NAO insistir automaticamente — deixar dev corrigir
+- Slug fornecido pelo dev vale apenas para a sessao atual
+```
+
+---
+
 ## Step 1 — Ler PRD
 
 NOTA: Apos identificar o PRD, a skill fixa a PASTA_ATIVA = diretorio que contem `PRD.md`.
@@ -496,7 +559,11 @@ Para aprofundar: sugerir `/anti-vibe-coding:learn "vertical slices"` ou `/anti-v
 
 ## Pipeline Integration
 
-### 0. Importar PRD (se disponivel)
+### 0. Deteccao de Legacy (ver Step 0 acima)
+Se detectar PRD/plano soltos na raiz de .planning/, oferece migrar antes de qualquer outro
+fluxo. Ver `lib/legacy-detector.md` e `lib/legacy-migrator.md`.
+
+### 1. Importar PRD (se disponivel)
 Antes de iniciar o planejamento, executar o Step 1 para localizar o PRD:
 
 - **Se encontrar PRD em pasta datada (`.planning/YYYY-MM-DD-{slug}/PRD.md`):** Importar automaticamente. Dizer ao dev:
