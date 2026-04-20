@@ -1,9 +1,16 @@
+---
+slug: {feature-kebab}
+date: {YYYY-MM-DD}
+status: draft
+# requires: []   # OPCIONAL — lista de slugs de outros PRDs dependencia (Plano 04)
+---
+
 # PRD: {Feature Name}
 
 **Status:** Draft
 **Author:** {dev} + AI
 **Date:** {YYYY-MM-DD}
-**Context:** {caminho do CONTEXT.md se importado do /grill-me, ou "Mini-entrevista"}
+**Context:** ./CONTEXT.md
 
 ---
 
