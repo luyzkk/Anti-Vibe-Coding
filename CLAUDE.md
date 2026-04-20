@@ -175,25 +175,44 @@ grill-me → write-prd → plan-feature → execute-plan → verify-work
 Cada skill funciona standalone. O pipeline é atalho, não obrigação.
 
 Artefatos de Pipeline:
-- Artefatos em `.planning/` (CONTEXT, PRD, PLAN, STATE, SUMMARY, plano{NN}/) são **temporários**
-- Após `/verify-work`, o código é a fonte de verdade — artefatos servem para rastrear processo
-- Não crie documentos para explicar outros documentos — se precisa de resumo, adicione seção no doc original
+- Cada PRD vive em pasta datada `.planning/YYYY-MM-DD-{slug}/` com artefatos nus (CONTEXT, PRD, PLAN, STATE, SUMMARY, MEMORY, plano{NN}/) — veja "Estrutura hierarquica (v2)" abaixo
+- Artefatos sao **temporarios** — apos `/verify-work` o codigo eh a fonte de verdade
+- Ao concluir: `/verify-work` oferece arquivar a pasta em `.planning/_archive/` e gera `MEMORY.md` consolidado do PRD
+- Nao crie documentos para explicar outros documentos — se precisa de resumo, adicione secao no doc original
 - Se um artefato existe APENAS para explicar ou resumir outro, delete e corrija o original
+- Paralelismo por design: multiplos PRDs coexistem em pastas datadas independentes (sem lock global)
 
-Estrutura hierárquica (v2):
+Estrutura hierarquica (v2 — pasta datada por PRD):
 ```
 .planning/
-├── PLAN-{feature}.md         ← Overview (grafo entre planos)
-├── STATE-{feature}.md        ← Tracking global por plano
-├── plano01/
-│   ├── README.md             ← Overview do plano + dependências
-│   ├── MEMORY.md             ← Memória viva (bugs, decisões, gotchas)
-│   └── fase-01-{nome}.md    ← Tasks detalhadas com snippets e checklist
-├── plano02/ ...
-└── SUMMARY-{feature}.md      ← Gerado ao concluir todos os planos
+├── CONTEXT-{slug}.md                  ← gerado pelo /grill-me (antes da pasta existir)
+├── 2026-04-20-sistema-notificacoes/   ← pasta datada do PRD
+│   ├── CONTEXT.md                     ← movido pelo /write-prd ao criar a pasta
+│   ├── PRD.md                         ← arquivos NUS (a pasta ja da contexto)
+│   ├── PLAN.md                        ← overview (grafo entre planos)
+│   ├── STATE.md                       ← tracking global por plano
+│   ├── SUMMARY.md                     ← gerado ao concluir todos os planos
+│   ├── MEMORY.md                      ← consolidado do PRD (gerado ao arquivar)
+│   ├── plano01/
+│   │   ├── README.md                  ← overview do plano + dependencias
+│   │   ├── MEMORY.md                  ← memoria viva (bugs, decisoes, gotchas) — por plano
+│   │   ├── fase-01-{nome}.md          ← tasks detalhadas com snippets e checklist
+│   │   └── fase-02-{nome}.md
+│   └── plano02/ ...
+├── 2026-04-25-outra-feature/
+│   └── ...
+└── _archive/
+    └── 2026-01-10-auth/               ← PRDs concluidos arquivados (via /verify-work)
 ```
-- Planos são gerados sob demanda (um por vez, em contexto isolado)
-- MEMORY.md é preenchida DURANTE execução e destilada ao final via /lessons-learned
+- Cada PRD vive em sua propria pasta `YYYY-MM-DD-{slug}/` — multiplos PRDs coexistem sem colisao
+- Arquivos dentro da pasta sao NUS (`PRD.md`, nao `PRD-{slug}.md`) — a pasta ja da contexto
+- Planos sao gerados sob demanda (um por vez, em contexto isolado)
+- `planoNN/MEMORY.md` eh preenchida DURANTE execucao, por plano (isolamento de subagentes)
+- `MEMORY.md` no nivel do PRD eh consolidado (agregado das memorias dos planos) — gerado AO ARQUIVAR
+- Licoes generalizaveis sao promovidas para `CLAUDE.md` do projeto via `/lessons-learned`
+- Paralelismo sem lock: duas sessoes Claude podem trabalhar em PRDs diferentes simultaneamente
+- Descoberta: `/execute-plan` e `/plan-feature` sem argumento listam PRDs ativos (filtro default: planned + in-progress + paused; `--all` inclui completed)
+- Legacy: `PRD-*.md` ou `planoNN/` soltos da versao anterior sao detectados e migracao eh oferecida on-detect (sem comando separado)
 
 Entradas alternativas:
 - `/grill-me` → pode alimentar `/write-prd` ou ser standalone
