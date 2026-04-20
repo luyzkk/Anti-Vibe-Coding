@@ -2,7 +2,12 @@
 slug: {feature-kebab}
 date: {YYYY-MM-DD}
 status: draft
-# requires: []   # OPCIONAL — lista de slugs de outros PRDs dependencia (Plano 04)
+# Metadados opcionais do PRD (formato YAML).
+# `requires:` lista PRDs que devem estar completos antes deste.
+# Aceita string unica (`requires: auth`) ou array (`requires: [auth, billing]`).
+# Pode referenciar slug curto (`auth`) ou pasta completa (`2026-04-20-auth`).
+# Se ausente ou vazio, nenhuma verificacao eh feita.
+requires: []
 ---
 
 # PRD: {Feature Name}

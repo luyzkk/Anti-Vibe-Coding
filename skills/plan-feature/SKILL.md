@@ -127,6 +127,17 @@ dentro de PASTA_ATIVA. Nunca na raiz de `.planning/`.
    - Ler com Read
    - Validar que contem estrutura de PRD (titulo, requisitos, criterios)
    - Se nao for PRD valido: "Este arquivo nao parece ser um PRD. Quer criar com /write-prd?"
+   - Extrair frontmatter (se presente):
+     1. Se conteudo comeca com `---\n`:
+        - Extrair bloco entre primeiro `---` e segundo `---`
+        - Procurar linha `requires:`
+        - Se encontrada:
+          - Se valor comeca com `[`: split por virgula, trim, remover `[` e `]`, lista
+          - Se valor e string simples (nao vazia): lista com 1 elemento
+          - Se `[]` ou vazio: lista vazia
+        - Se nao encontrada ou bloco ausente: requires = []
+     2. Armazenar: `prd_requires = [...]`
+     3. Prosseguir normalmente para o proximo step
 
 2. Prosseguir para Step 2
 ```
