@@ -31,6 +31,9 @@ Diferenca das outras skills:
    - Informar: "Importei contexto do /grill-me. Vou usar essas decisoes como base."
    - Perguntar: "Algo mudou desde o Grill Me? Quer ajustar algo antes de gerar o PRD?"
 3. Prosseguir para Step 2
+   NOTA: Ao final (Step 5.5), o arquivo CONTEXT-{slug}.md sera movido para dentro da pasta
+   do PRD como CONTEXT.md (sem prefixo). A referencia "Context:" no PRD.md apontara
+   para "./CONTEXT.md" (caminho relativo valido apos o mv).
 ```
 
 ### Caminho B: Mini-Entrevista (sem CONTEXT.md)
@@ -175,7 +178,42 @@ Fluxo de ajuste:
    - Criar `{folder}`
    - Escrever `{folder}/PRD.md` com Write (arquivo nu, sem prefixo)
 5. Informar: "PRD salvo em `{folder}/PRD.md`. Voce pode editar diretamente se precisar ajustar."
-6. NOTA: o CONTEXT.md do /grill-me (se existir em `.planning/CONTEXT-{slug}.md`) sera movido para dentro da pasta em versao futura (fase-04 do Plano 01).
+
+### 5.5 — Mover CONTEXT do /grill-me para dentro da pasta
+
+So executa se a pasta e o PRD.md foram criados com sucesso no passo acima.
+
+```
+1. Glob `.planning/CONTEXT-*.md` na raiz de `.planning/` (nao subpastas)
+2. Se 0 matches: nao fazer nada (dev nao usou /grill-me — prosseguir)
+3. Se 1+ matches, para cada CONTEXT encontrado:
+   a. Extrair slug-do-grill do nome do arquivo: CONTEXT-{slug-do-grill}.md
+   b. Comparar com {slug} da pasta recem-criada
+   c. Se slug-do-grill == slug-da-pasta:
+      - mv .planning/CONTEXT-{slug}.md → .planning/{folder}/CONTEXT.md
+      - Informar: "CONTEXT.md do /grill-me movido para dentro da pasta."
+      - Se a referencia "Context:" no PRD.md aponta para caminho absoluto, substituir por "./CONTEXT.md"
+   d. Se slug-do-grill != slug-da-pasta (colisao R2):
+      - AskUserQuestion:
+        "Encontrei `.planning/CONTEXT-{slug-do-grill}.md` mas a pasta do PRD e `{folder}`.
+         Este CONTEXT e do mesmo PRD ou de outro?
+         [a] Este CONTEXT e deste PRD — renomear e mover para `{folder}/CONTEXT.md`
+         [b] Este CONTEXT e de OUTRO PRD — deixar em paz
+         [c] Nao sei — deixar em paz"
+      - Se [a]: mv e renomear; substituir referencia "Context:" no PRD.md para "./CONTEXT.md"
+        Informar: "CONTEXT renomeado e movido: .planning/CONTEXT-{slug-do-grill}.md → {folder}/CONTEXT.md"
+      - Se [b] ou [c]: nao mover, prosseguir
+4. Se 2+ matches com MESMO slug da pasta: pegar o mais recente por mtime e perguntar sobre os outros
+5. Se mv falhar (permissao, etc): logar o erro mas NAO derrubar a skill
+   Informar: "Nao consegui mover CONTEXT-{slug}.md: {motivo}. PRD salvo normalmente — mova manualmente se necessario."
+```
+
+Auditoria de output ao final do Step 5:
+```
+PRD salvo em `.planning/{date}-{slug}/PRD.md`
+CONTEXT movido de `.planning/CONTEXT-{slug}.md` para `.planning/{date}-{slug}/CONTEXT.md`
+```
+Se sem CONTEXT: omitir a segunda linha.
 
 <!-- path legacy (PRD-*.md solto + pergunta "atualizar ou v2?") — Plano 02 trata migracao -->
 
@@ -222,11 +260,14 @@ Se recusar, seguir para Step 7 sem insistir.
 ## Pipeline Integration
 
 ### 0. Importar Contexto (se disponivel)
-Antes de iniciar o PRD, verificar se `.planning/CONTEXT.md` existe:
+Antes de iniciar o PRD, verificar se `.planning/CONTEXT-*.md` existe na raiz de `.planning/`:
 
 - **Se existir:** Importar automaticamente. Dizer ao dev:
-  > "Encontrei `.planning/CONTEXT.md` do `/grill-me`. Vou usar este contexto para gerar o PRD."
+  > "Encontrei `.planning/CONTEXT-{slug}.md` do `/grill-me`. Vou usar este contexto para gerar o PRD."
   Usar os campos de CONTEXT.md para pre-preencher: requisitos funcionais, nao-funcionais, restricoes, trade-offs e riscos.
+  Ao final (Step 5.5), este arquivo sera MOVIDO para dentro da pasta do PRD como `CONTEXT.md`
+  (sem prefixo). A partir dai, a raiz de `.planning/` nao tera mais arquivos `CONTEXT-*` soltos.
+  Se o slug do CONTEXT nao bater com o slug final da pasta: perguntar ao dev (mitigacao R2).
 
 - **Se NAO existir:** Prosseguir com o fluxo normal de coleta de informacoes.
 
