@@ -1,0 +1,10 @@
+{
+  "default_breakpoints": ["mobile", "desktop"],
+  "mobile_width": 375,
+  "mobile_height": 812,
+  "desktop_width": 1280,
+  "desktop_height": 800,
+  "check_accessibility": true,
+  "check_console_errors": true,
+  "check_network_requests": true
+}
