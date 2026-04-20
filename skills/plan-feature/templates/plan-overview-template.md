@@ -1,6 +1,6 @@
 # Plan: {Feature Name}
 
-**PRD:** {caminho do PRD usado como base}
+**PRD:** ./PRD.md
 **Planos:** {N} planos, {M} fases total
 **Created:** {YYYY-MM-DD}
 
