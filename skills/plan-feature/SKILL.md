@@ -546,3 +546,9 @@ Ao finalizar o overview (via Step 8):
 10. STATE.md e a fonte de verdade para progresso — /execute-plan atualiza, dev pode editar
 11. Cada plano tem sua propria MEMORY.md — preenchida durante execucao
 12. A decisao de quantos planos depende do julgamento senior da LLM, nao de regras fixas
+
+---
+
+## Referencias
+
+- `lib/legacy-detector.md` — Algoritmo de deteccao de estrutura legacy (consumido pelo Step 0)

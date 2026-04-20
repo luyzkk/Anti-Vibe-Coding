@@ -577,3 +577,4 @@ Step 6-FLAT: SUMMARY ao completar
 - `skills/plan-feature/templates/memory-template.md` — Template de memoria por plano
 - `agents/plan-executor.md` — Agent que executa tasks/fases individuais
 - `agents/plan-verifier.md` — Agent que verifica output (read-only)
+- `lib/legacy-detector.md` — Algoritmo de deteccao de estrutura legacy (consumido pelo Step 0)
