@@ -66,3 +66,56 @@ describe('ModuleName', () => {
 - Getters/setters triviais
 - Código de terceiros (frameworks, libs)
 - UI estática sem lógica
+
+## Coverage Thresholds (D7)
+
+Valores hardcoded baseados em evidência empírica de 274 commits reais (Fabio Akita).
+Não são configuráveis — eliminar bikeshedding sobre números.
+
+### Thresholds Obrigatórios
+
+| Escopo | Métrica | Mínimo |
+|--------|---------|--------|
+| Business logic (services, models, domain) | Line coverage | ≥95% |
+| Global (todo o projeto, incluindo integrações mockadas) | Line coverage | ≥80% |
+| Global | Branch coverage | ≥70% |
+
+**Business logic** = qualquer módulo em `services/`, `models/`, `domain/`, `use-cases/`, ou equivalente no projeto.
+
+### Ratio Teste/Código (referência, não enforçado)
+
+1.2x–1.5x linhas de teste por linha de código de produção.
+Abaixo de 1.0x: testes insuficientes ou superficiais.
+Acima de 2.0x: possível over-testing de implementação (rever o que está sendo testado).
+
+### Como Verificar
+
+```bash
+# Vitest
+bunx vitest run --coverage
+
+# Jest
+bunx jest --coverage
+
+# Verificar se thresholds estão configurados no vitest.config.ts / jest.config.ts:
+# coverage: { thresholds: { lines: 80, branches: 70 } }
+```
+
+### Configurar em vitest.config.ts
+
+```ts
+export default defineConfig({
+  test: {
+    coverage: {
+      provider: 'v8',
+      thresholds: {
+        lines: 80,
+        branches: 70,
+        // Business logic: configurar por glob se necessário
+      },
+    },
+  },
+})
+```
+
+**Nota:** Os 95% de business logic não são enforçados automaticamente pelo runner padrão — são uma meta que o TDD workflow deve perseguir ao escrever testes para services/models/domain.
