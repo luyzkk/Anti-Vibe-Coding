@@ -25,6 +25,8 @@ NUNCA gere código de produção e testes ao mesmo tempo.
 
 ## Estrutura
 
+**TypeScript** (jest / vitest):
+
 ```typescript
 describe('ModuleName', () => {
   describe('functionName', () => {
@@ -44,6 +46,35 @@ describe('ModuleName', () => {
     })
   })
 })
+```
+
+**Python** (pytest):
+
+```python
+class TestFunctionName:
+    def returns_expected_value_when_given_valid_input(self):
+        result = function_name(create_valid_input())
+        assert result == expected_value
+
+    def raises_validation_error_when_input_is_invalid(self):
+        with pytest.raises(ValidationError):
+            function_name(invalid_input)
+```
+
+**Ruby** (rspec):
+
+```ruby
+RSpec.describe ModuleName do
+  describe '#function_name' do
+    it 'returns expected value when given valid input' do
+      expect(function_name(valid_input)).to eq(expected_value)
+    end
+
+    it 'raises ValidationError when input is invalid' do
+      expect { function_name(invalid_input) }.to raise_error(ValidationError)
+    end
+  end
+end
 ```
 
 ## Mocking
@@ -66,6 +97,14 @@ describe('ModuleName', () => {
 - Getters/setters triviais
 - Código de terceiros (frameworks, libs)
 - UI estática sem lógica
+
+## Comandos por Linguagem
+
+| Linguagem | Rodar testes | Watch mode |
+|-----------|-------------|------------|
+| TypeScript/JS | `bun run test` (vitest) ou `jest` | `vitest --watch` |
+| Python | `pytest` | `pytest-watch` ou `ptw` |
+| Ruby | `rspec` | `guard-rspec` |
 
 ## Coverage Thresholds (D7)
 
