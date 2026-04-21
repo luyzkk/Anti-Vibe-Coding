@@ -1,6 +1,6 @@
 {
-  "version": "5.1.0",
-  "generatedAt": "2026-04-11T00:00:00.000Z",
+  "version": "5.2.0",
+  "generatedAt": "2026-04-21T00:00:00.000Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "files": {
     "CLAUDE.md": {
@@ -481,6 +481,36 @@
       "version": "5.1.0",
       "checksum": "d35c383059a25c9a43bcc21ca04f8b96286f0dbe1f0ff7bcaacda55e58262a12",
       "lastModified": "2026-04-11",
+      "updateStrategy": "replace"
+    },
+    "skills/iterate/SKILL.md": {
+      "version": "5.2.0",
+      "checksum": "",
+      "lastModified": "2026-04-21",
+      "updateStrategy": "replace"
+    },
+    "skills/incident-response/SKILL.md": {
+      "version": "5.2.0",
+      "checksum": "",
+      "lastModified": "2026-04-21",
+      "updateStrategy": "replace"
+    },
+    "skills/defensive-patterns/SKILL.md": {
+      "version": "5.2.0",
+      "checksum": "",
+      "lastModified": "2026-04-21",
+      "updateStrategy": "replace"
+    },
+    "skills/centralize-config/SKILL.md": {
+      "version": "5.2.0",
+      "checksum": "",
+      "lastModified": "2026-04-21",
+      "updateStrategy": "replace"
+    },
+    "skills/pair-programming-with-agent/SKILL.md": {
+      "version": "5.2.0",
+      "checksum": "",
+      "lastModified": "2026-04-21",
       "updateStrategy": "replace"
     }
   }
