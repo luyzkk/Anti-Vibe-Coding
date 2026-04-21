@@ -49,7 +49,10 @@ Anti-Sycophancy:
 ### Código
 - SEMPRE use early return
 - Prefira hash-lists sobre switch-case
-- Sem comentários desnecessários — converta em nomes descritivos
+- **WHY comments:** sempre permitidos — proveniência, decisão, workaround, bug ref, constraint externa
+- **WHAT comments:** proibidos — comentário óbvio do que o código já diz (`// incrementa i` acima de `i++`)
+- Nunca remova WHY comments ao refatorar — eles carregam intenção que o código não captura
+- Funções públicas exportadas: docstring com intenção + 1 exemplo de uso
 
 ### TypeScript
 - Strict mode. Use `unknown` e narrow com type guards (`any` desativa toda type-safety e esconde bugs silenciosos). Quase nunca `as`
