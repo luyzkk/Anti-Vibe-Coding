@@ -55,3 +55,23 @@ Registro de erros, bugs e armadilhas descobertos durante o desenvolvimento do pl
 
 **Commit de Fix:**
 <!-- Adicionar hash do commit quando commitado -->
+
+---
+
+## Lições — Anti-Vibe Coding v5.2 (2026-04-21)
+
+### [Armadilha] grep -c retorna exit 1 quando count é zero
+**Regra:** Em scripts que usam `grep -c`, tratar exit code 1 + output "0" como resultado válido — não como falha do script.
+**Contexto:** `grep -c` retorna exit 1 quando o padrão não é encontrado (count=0). Verificações de `$?` causam falso positivo de erro em código que funciona corretamente.
+
+### [Arquitetura] anti-vibe-coding/ é repositório git independente dentro do repo pai
+**Regra:** Executar `git add/commit` de dentro de `anti-vibe-coding/` — nunca do diretório pai.
+**Contexto:** Parece subdiretório mas tem próprio `.git/`. Commits feitos no repo pai não registram mudanças no plugin; o histórico fica separado por design.
+
+### [Armadilha] Blocos de código aninhados em SKILL.md precisam de quadruple backticks
+**Regra:** Usar ```` ````markdown ```` como fence externo em seções de SKILL.md que contêm triple backticks internos.
+**Contexto:** Triple backticks quebram o parser quando aninhados. Rules/*.md diretos não precisam — o problema ocorre apenas em SKILL.md com templates de código dentro de fences.
+
+### [Arquitetura] Padrão de entrada de hooks .cjs difere por tipo de evento
+**Regra:** PostToolUse usa `process.nextTick(run)`; PreToolUse usa `process.stdin.on('end', run)`. Inverter causa hook silencioso que nunca executa.
+**Contexto:** Claude Code passa contexto via stdin apenas para PreToolUse. PostToolUse recebe via env vars e deve iniciar via nextTick para não bloquear o processo.
