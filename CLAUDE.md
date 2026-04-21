@@ -169,13 +169,15 @@ O plugin usa **versionamento automático** para manter seu projeto sincronizado.
 
 ## Plugin Anti-Vibe Coding
 
-### Pipeline v5.0
+### Pipeline v5.2
 
 Fluxo opcional conectando skills em sequencia:
 ```
 grill-me → write-prd → plan-feature → execute-plan → verify-work
 ```
 Cada skill funciona standalone. O pipeline é atalho, não obrigação.
+
+Ciclo pós-deploy (v5.2): `verify-work → iterate` — regression fixes e hardening em produção.
 
 Artefatos de Pipeline:
 - Cada PRD vive em pasta datada `.planning/YYYY-MM-DD-{slug}/` com artefatos nus (CONTEXT, PRD, PLAN, STATE, SUMMARY, MEMORY, plano{NN}/) — veja "Estrutura hierarquica (v2)" abaixo
@@ -259,6 +261,11 @@ AI Judge sugerido para features com 3+ slices ou áreas críticas (auth, finance
 | **Plan Feature** | `/anti-vibe-coding:plan-feature` | **[v5.1] Plano hierárquico com análise semântica de complexidade** |
 | **Execute Plan** | `/anti-vibe-coding:execute-plan` | **[v5.1] Execução por planos com memória e transição interativa** |
 | **Verify Work** | `/anti-vibe-coding:verify-work` | **[v5] Verificação pós-execução com auditoria completa** |
+| **Iterate** | `/anti-vibe-coding:iterate` | **[v5.2] Ciclo pós-deploy: incident response + hardening** |
+| **Incident Response** | `/anti-vibe-coding:incident-response` | **[v5.2] Investigação aprofundada de incidentes** |
+| **Defensive Patterns** | `/anti-vibe-coding:defensive-patterns` | **[v5.2] Menu de hardening defensivo por categoria** |
+| **Centralize Config** | `/anti-vibe-coding:centralize-config` | **[v5.2] Centralizar config e env vars espalhadas** |
+| **Pair Programming** | `/anti-vibe-coding:pair-programming-with-agent` | **[v5.2] Sessão estruturada de pair programming com IA** |
 
 ### Agents Disponíveis
 
