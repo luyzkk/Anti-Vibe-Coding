@@ -58,6 +58,7 @@ Antes de spawnar agentes auditores (se aplicavel):
 - [ ] Named exports (sem default exports desnecessarios)?
 - [ ] Early return em vez de if-else aninhado?
 - [ ] Nomes concretos e descritivos (sem `data`, `item`, `list`)?
+- [ ] Nomes grepáveis — rode `grep <nome> src/` e verifique se retorna <5 hits não relacionados. Se >10 hits, o nome é genérico demais e dificulta refatoração segura.
 - [ ] Sem magic strings ou magic numbers (usar constantes nomeadas)?
 - [ ] Sem abstracoes prematuras (helpers usados uma vez)?
 - [ ] Tipos de dominio para valores criticos (Email, CPF, Money nao sao strings)?
