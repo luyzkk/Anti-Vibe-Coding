@@ -119,7 +119,26 @@ Acima de 40%: provável excesso de WHAT comments.
 - Usar Pino ou Node Streams (assincronos) em producao
 - NUNCA console.log de dados sensiveis
 
-## JavaScript/TypeScript
+### Logging por Linguagem
+
+**TypeScript/JavaScript** — Pino (JSON estruturado, assincrono):
+```ts
+logger.info({ request_id, user_id, status, latency_ms }, 'request completed')
+```
+
+**Python** — structlog (JSON estruturado):
+```python
+log.info("request_completed", request_id=rid, user_id=uid, status=200, latency_ms=42)
+```
+
+**Ruby** — semantic_logger (JSON estruturado):
+```ruby
+logger.info "request_completed", request_id: rid, user_id: uid, status: 200, latency_ms: 42
+```
+
+## Por Linguagem
+
+### JavaScript/TypeScript
 
 - `const` > `let` >> NUNCA `var`
 - `Promise.all` para operacoes independentes (nao await sequencial)
@@ -127,6 +146,37 @@ Acima de 40%: provável excesso de WHAT comments.
 - Closures: extrair minimo necessario, WeakMap para caches
 - Remover timers/listeners quando nao mais necessarios (cleanup)
 - Map/Filter/Reduce > for-loops quando mais expressivo
+- Formatador: prettier (JS/TS), biome como alternativa
+- Tipos explicitos: TypeScript strict mode, sem `any`
+
+### Python
+
+- Imutabilidade: prefira tuples sobre listas quando nao vai mudar
+- List comprehensions > map/filter quando mais legivel
+- `with` para recursos (arquivos, conexoes) — garante cleanup
+- Type hints obrigatorios: `def process(user_id: int) -> Result`
+- Formatador: black (zero configuracao)
+
+```python
+# Correto
+result = [transform(x) for x in items if x.is_valid()]
+
+# Errado
+result = list(map(lambda x: transform(x), filter(lambda x: x.is_valid(), items)))
+```
+
+### Ruby
+
+- Prefira `map`, `select`, `reduce` sobre loops imperativos
+- `freeze` constantes: `TIMEOUT = 30.freeze`
+- Type hints via RBS quando aplicavel (Ruby 3+)
+- Formatador: rubocop
+- Evite `method_missing` — dificulta grep e debugabilidade
+
+```ruby
+# Correto
+valid_users = users.select(&:active?).map { |u| UserPresenter.new(u) }
+```
 
 ## Anti-Patterns
 
