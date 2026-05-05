@@ -1,0 +1,14 @@
+{
+  "version": "5.3.0",
+  "generatedAt": "2026-05-04T12:00:00.000Z",
+  "description": "Fixture with architectureDetectorEnabled=false (CA-04: v5.2 behavior preserved)",
+  "files": {},
+  "architectureDetectorEnabled": false,
+  "architectureProfile": {
+    "profile": "vertical-slice",
+    "confidence": 90,
+    "detectedAt": "2026-05-04T12:00:00.000Z",
+    "signals": ["flag is disabled — profile should be ignored"],
+    "schemaVersion": 1
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "version": "5.3.0",
+  "generatedAt": "2026-05-04T12:00:00.000Z",
+  "description": "Fixture with invalid architectureProfile (unknown profile name — schema validation fails)",
+  "files": {},
+  "architectureDetectorEnabled": true,
+  "architectureProfile": {
+    "profile": "not-a-real-profile",
+    "confidence": 50,
+    "detectedAt": "2026-05-04T12:00:00.000Z",
+    "signals": ["invalid profile name"],
+    "schemaVersion": 1
+  }
+}

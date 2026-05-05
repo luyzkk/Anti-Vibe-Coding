@@ -1,0 +1,14 @@
+{
+  "version": "5.3.0",
+  "generatedAt": "2026-05-04T12:00:00.000Z",
+  "description": "Fixture for unknown-mixed profile",
+  "files": {},
+  "architectureDetectorEnabled": true,
+  "architectureProfile": {
+    "profile": "unknown-mixed",
+    "confidence": 40,
+    "detectedAt": "2026-05-04T12:00:00.000Z",
+    "signals": ["no dominant pattern detected", "mixed folder conventions"],
+    "schemaVersion": 1
+  }
+}

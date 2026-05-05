@@ -1,0 +1,7 @@
+{
+  "version": "5.3.0",
+  "generatedAt": "2026-05-04T12:00:00.000Z",
+  "description": "Fixture with flag enabled but no architectureProfile (CA-10: pre-v5.3 manifest)",
+  "files": {},
+  "architectureDetectorEnabled": true
+}

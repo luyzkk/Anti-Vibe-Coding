@@ -1,0 +1,14 @@
+{
+  "version": "5.3.0",
+  "generatedAt": "2026-05-04T12:00:00.000Z",
+  "description": "Fixture for clean-architecture-ritual profile",
+  "files": {},
+  "architectureDetectorEnabled": true,
+  "architectureProfile": {
+    "profile": "clean-architecture-ritual",
+    "confidence": 92,
+    "detectedAt": "2026-05-04T12:00:00.000Z",
+    "signals": ["src/domain/ exists", "src/application/ exists", "src/infrastructure/ exists"],
+    "schemaVersion": 1
+  }
+}
