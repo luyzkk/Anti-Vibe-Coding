@@ -1,0 +1,14 @@
+{
+  "version": "5.3.0",
+  "generatedAt": "2026-05-04T00:00:00.000Z",
+  "description": "Tracer bullet fixture for integration testing",
+  "files": {},
+  "architectureDetectorEnabled": true,
+  "architectureProfile": {
+    "profile": "vertical-slice",
+    "confidence": 100,
+    "detectedAt": "2026-05-04T00:00:00Z",
+    "signals": ["mock:tracer-bullet"],
+    "schemaVersion": 1
+  }
+}
