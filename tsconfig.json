@@ -15,5 +15,13 @@
     "types": ["bun-types"]
   },
   "include": ["**/*.ts"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "skills/lib/architecture-detector/__fixtures__/projects/clean-arch",
+    "skills/lib/architecture-detector/__fixtures__/projects/mvc-flat",
+    "skills/lib/architecture-detector/__fixtures__/projects/vertical-slice",
+    "skills/lib/architecture-detector/__fixtures__/projects/nextjs",
+    "skills/lib/architecture-detector/__fixtures__/projects/unknown"
+  ]
 }
