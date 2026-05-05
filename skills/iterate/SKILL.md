@@ -7,6 +7,31 @@ allowed-tools: Read, Glob, Grep, Bash, AskUserQuestion
 argument-hint: "incident|harden [descricao]"
 ---
 
+```typescript
+// === Telemetria passiva (Plano 03 fase-03) — nao remover sem registrar em MEMORY.md ===
+// G5: telemetria SEMPRE ativa, ignora architectureDetectorEnabled
+// G7: skill name canonico fixo
+
+import { writeTelemetryStart, writeTelemetryEnd } from '../../lib/telemetry-utils'
+import type { TelemetryStart, TelemetryEnd } from '../../lib/telemetry-types'
+
+const __telemetry_skillName = 'iterate'
+const __telemetry_fasePipeline = 'iterate'
+const __telemetry_startTimestamp = new Date().toISOString()
+const __telemetry_startMs = Date.now()
+
+const __telemetry_startEntry: TelemetryStart = {
+  evento: 'start',
+  skill_invocada: __telemetry_skillName,
+  timestamp_inicio: __telemetry_startTimestamp,
+  profile_arquitetura: 'disabled',
+  fase_pipeline: __telemetry_fasePipeline,
+}
+
+writeTelemetryStart(__telemetry_startEntry)
+// === Fim do bloco de inicio ===
+```
+
 # Iterate — Ciclo Pós-Deploy
 
 Skill standalone para o ciclo de melhoria contínua em produção.
@@ -212,4 +237,25 @@ Para config espalhada em múltiplos arquivos:
 4. Máximo 3 tentativas de fix — após isso, passar controle ao dev
 5. Hardening é por categoria — não tente fazer tudo de uma vez
 6. Esta skill não modifica arquivos de teste do projeto sem aprovação explícita
+```
+
+```typescript
+// === Telemetria passiva (Plano 03 fase-03) — registra fim ===
+
+const __telemetry_endEntry: TelemetryEnd = {
+  evento: 'end',
+  skill_invocada: __telemetry_skillName,
+  timestamp_inicio: __telemetry_startTimestamp,
+  timestamp_fim: new Date().toISOString(),
+  duracao_ms: Date.now() - __telemetry_startMs,
+  profile_arquitetura: 'disabled',
+  fase_pipeline: __telemetry_fasePipeline,
+  tokens_aproximados_consumidos: 0,
+  arquivos_lidos: 0,
+  arquivos_modificados: 0,
+  sucesso: true,
+}
+
+writeTelemetryEnd(__telemetry_endEntry)
+// === Fim do bloco de fim ===
 ```

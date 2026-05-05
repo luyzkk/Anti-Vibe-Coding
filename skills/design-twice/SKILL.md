@@ -7,6 +7,31 @@ allowed-tools: Read, Grep, Glob, Agent, Write
 argument-hint: "[descricao do problema ou feature a explorar]"
 ---
 
+```typescript
+// === Telemetria passiva (Plano 03 fase-03) — nao remover sem registrar em MEMORY.md ===
+// G5: telemetria SEMPRE ativa, ignora architectureDetectorEnabled
+// G7: skill name canonico fixo
+
+import { writeTelemetryStart, writeTelemetryEnd } from '../../lib/telemetry-utils'
+import type { TelemetryStart, TelemetryEnd } from '../../lib/telemetry-types'
+
+const __telemetry_skillName = 'design-twice'
+const __telemetry_fasePipeline = 'design-twice'
+const __telemetry_startTimestamp = new Date().toISOString()
+const __telemetry_startMs = Date.now()
+
+const __telemetry_startEntry: TelemetryStart = {
+  evento: 'start',
+  skill_invocada: __telemetry_skillName,
+  timestamp_inicio: __telemetry_startTimestamp,
+  profile_arquitetura: 'disabled',
+  fase_pipeline: __telemetry_fasePipeline,
+}
+
+writeTelemetryStart(__telemetry_startEntry)
+// === Fim do bloco de inicio ===
+```
+
 # Design Twice — Propostas Arquiteturais Divergentes
 
 Skill de exploracao arquitetural. Gera multiplas propostas genuinamente diferentes em paralelo antes de convergir em uma decisao. Baseada no principio "Design It Twice" de John Ousterhout.
@@ -336,3 +361,24 @@ Baseado no contexto:
 10. Decisao sempre registrada em decisions.md com prefixo DT-
 11. Learn point sempre oferecido ao final
 12. Proximo passo sempre sugerido ao final
+
+```typescript
+// === Telemetria passiva (Plano 03 fase-03) — registra fim ===
+
+const __telemetry_endEntry: TelemetryEnd = {
+  evento: 'end',
+  skill_invocada: __telemetry_skillName,
+  timestamp_inicio: __telemetry_startTimestamp,
+  timestamp_fim: new Date().toISOString(),
+  duracao_ms: Date.now() - __telemetry_startMs,
+  profile_arquitetura: 'disabled',
+  fase_pipeline: __telemetry_fasePipeline,
+  tokens_aproximados_consumidos: 0,
+  arquivos_lidos: 0,
+  arquivos_modificados: 0,
+  sucesso: true,
+}
+
+writeTelemetryEnd(__telemetry_endEntry)
+// === Fim do bloco de fim ===
+```
