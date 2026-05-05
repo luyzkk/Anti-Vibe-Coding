@@ -10,6 +10,15 @@ status: draft
 requires: []
 ---
 
+<!--
+Princípio universal #5 — Comment Provenance.
+Todo comentário inline em código gerado durante este PRD/plan deve ter linhagem:
+quem decidiu (autor + papel), quando (YYYY-MM-DD), por que (link para decisão ou
+seção do PRD).
+Exemplo: `// 2026-05-04 (Luiz/dev): default 30s — alinhado com timeout do upstream X`
+NÃO aplicar em código de runtime do plugin (helpers TS já têm JSDoc, suficiente).
+-->
+
 # PRD: {Feature Name}
 
 **Status:** Draft
@@ -37,7 +46,18 @@ requires: []
 
 ## Solucao
 
-{Abordagem escolhida para resolver o problema}
+### Outcomes (declarativo — o QUE, não o COMO)
+
+Liste os resultados observáveis que esta feature entrega. Use linguagem de resultado:
+"o usuário consegue X", "o sistema garante Y", "Z é mensurável via W".
+NÃO inclua passos de implementação aqui.
+
+- {outcome 1}
+- {outcome 2}
+
+### Mecanismo (algorítmico — o COMO)
+
+{Apenas após os outcomes estarem listados. Descrever fluxos, algoritmos, integrações.}
 {Se veio do /design-twice: "Baseado na Proposta {letra} — {filosofia}"}
 {Alinhamento com stack e padroes existentes do projeto}
 
