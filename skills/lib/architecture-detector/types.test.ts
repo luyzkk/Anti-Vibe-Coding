@@ -1,5 +1,13 @@
 import { describe, expect, test } from "bun:test";
-import type { Profile, SrcTreeNode, FolderSignal, FolderClassification } from "./types";
+import type {
+  Profile,
+  SrcTreeNode,
+  FolderSignal,
+  FolderClassification,
+  ImportSignal,
+  ImportSampling,
+  DetectionResult,
+} from "./types";
 
 describe("types", () => {
   test("Profile union covers exactly 5 canonical profiles", () => {
@@ -45,5 +53,38 @@ describe("types", () => {
     };
     expect(classification.profile).toBe("clean-architecture-ritual");
     expect(classification.alternativeProfiles).toHaveLength(2);
+  });
+
+  test("ImportSignal accepts null matchedProfile for no-match entries", () => {
+    const signal: ImportSignal = {
+      filePath: "src/utils/helper.ts",
+      pattern: "no-match",
+      matchedProfile: null,
+    };
+    expect(signal.matchedProfile).toBeNull();
+    expect(signal.pattern).toBe("no-match");
+  });
+
+  test("ImportSampling profileVotes is a partial record", () => {
+    const sampling: ImportSampling = {
+      filesSampled: 5,
+      signals: [],
+      profileVotes: { "clean-architecture-ritual": 3, "mvc-flat": 1 },
+    };
+    expect(sampling.filesSampled).toBe(5);
+    expect(sampling.profileVotes["clean-architecture-ritual"]).toBe(3);
+  });
+
+  test("DetectionResult has confidence in 0..100 and detectedAt as string", () => {
+    const result: DetectionResult = {
+      profile: "nextjs-app-router",
+      confidence: 85,
+      detectedAt: new Date().toISOString(),
+      signals: { folderSignals: [], importSignals: [] },
+      alternativeProfiles: [],
+    };
+    expect(result.confidence).toBeGreaterThanOrEqual(0);
+    expect(result.confidence).toBeLessThanOrEqual(100);
+    expect(typeof result.detectedAt).toBe("string");
   });
 });
