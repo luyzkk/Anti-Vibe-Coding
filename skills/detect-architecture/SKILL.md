@@ -22,6 +22,7 @@ Classifica o projeto atual em 1 dos 5 perfis arquiteturais usando heurística de
 ```typescript
 import { readSrcTree } from '../lib/architecture-detector/read-src-tree'
 import { detectArchitecture } from '../lib/architecture-detector/detect-architecture'
+import { writeArchitectureProfile } from '../lib/architecture-detector/write-architecture-profile'
 import { readFileSync } from 'node:fs'
 
 const cwd = process.cwd()
@@ -67,7 +68,9 @@ if (result.confidence >= CONFIDENCE_THRESHOLD) {
     `Perfil detectado: ${result.profile} (${result.confidence}% de confiança)\n` +
     `Detectado em: ${root}`
   )
-  // Persistência delegada para writeArchitectureProfile(result, cwd) — implementada na fase-04
+  writeArchitectureProfile(result, cwd)
+  console.log('Manifest atualizado: .claude/.anti-vibe-manifest.json')
+  console.log('Markdown gerado:     .claude/architecture-profile.md')
 } else {
   // CA-02: confiança baixa — confirmar com usuário via AskUserQuestion (ver abaixo)
 }
@@ -133,14 +136,18 @@ const finalConfidence = userChoice === `Confirmar: ${result.profile}`
   : 100
 
 const confirmedResult = { ...result, profile: finalProfile, confidence: finalConfidence }
-// Persistência delegada para writeArchitectureProfile(confirmedResult, cwd) — fase-04
+writeArchitectureProfile(confirmedResult, cwd)
+console.log('Manifest atualizado: .claude/.anti-vibe-manifest.json')
+console.log('Markdown gerado:     .claude/architecture-profile.md')
 ```
 
 ## Persistência
 
-Delegada para fase-04 (`writeArchitectureProfile(result, cwd)`). Esta skill termina retornando
-o `DetectionResult` final — com o perfil confirmado pelo usuário ou detectado automaticamente
-quando `confidence >= 80%`.
+`writeArchitectureProfile(result, cwd)` grava:
+- `.claude/.anti-vibe-manifest.json` — campo `architectureProfile` preservando outros campos
+- `.claude/architecture-profile.md` — markdown legível gerado por `renderArchitectureProfileMarkdown`
+
+Idempotente: rodar duas vezes com o mesmo resultado produz arquivos idênticos (G4).
 
 ## Perfis Suportados (Onda 1)
 
