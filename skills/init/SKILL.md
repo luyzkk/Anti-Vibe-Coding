@@ -623,3 +623,20 @@ Rails.logger.info({ event: 'invoice.charged', invoice_id:, customer_id:, amount_
 ## Diretorio do projeto
 
 $ARGUMENTS
+
+## Apos init concluir
+
+Apresentar ao usuario UMA mensagem (nao executar):
+
+```
+Plugin v5.3 inicializado.
+
+Sugestao: rode `/anti-vibe-coding:detect-architecture` para classificar este projeto
+em 1 dos 5 perfis arquiteturais e ativar o Modo Dual nas skills estruturantes.
+
+Voce pode rodar agora ou depois — a flag `architectureDetectorEnabled` controla
+quando o Modo Dual fica ativo (default: false).
+```
+
+NAO invocar `/anti-vibe-coding:detect-architecture` automaticamente (respeita
+`feedback_suggest_dont_execute.md` — IA sugere, usuario decide).

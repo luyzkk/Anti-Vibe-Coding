@@ -1,6 +1,7 @@
 import { describe, test, expect } from "bun:test"
 import * as path from "node:path"
 import * as fs from "node:fs"
+import * as os from "node:os"
 import { parseJsonlContent } from "../lib/parse-jsonl"
 import { pairStartEnd } from "../lib/pair-events"
 import { aggregateBySkill, aggregateByProfile, aggregateByPhase, abandonRate } from "../lib/aggregate"
@@ -206,5 +207,81 @@ describe("formatReport (CA-08)", () => {
       abandonRate: 0,
     })
     expect(report).toMatch(/nenhum conteudo de codigo foi lido/i)
+  })
+
+  test("--ascii inclui bloco ASCII no output (RF12)", () => {
+    const report = formatReport({
+      projectPath: "/tmp/test",
+      totalRawLines: 4,
+      malformedCount: 0,
+      validPairs: 2,
+      orphanedStarts: 0,
+      orphanedEnds: 0,
+      bySkill: new Map([
+        ["plan-feature", { count: 2, avgDurationMs: 100, avgTokensEstimados: 500, successRate: 1 }],
+      ]),
+      byProfile: new Map([["vertical-slice", { count: 2 }]]),
+      byPhase: new Map([["plan-feature", { count: 2, avgDurationMs: 100 }]]),
+      abandonRate: 0,
+    }, { ascii: true })
+    expect(report).toContain("Distribuicao de uso por skill (ASCII)")
+    expect(report).toContain("plan-feature")
+    expect(report).toContain("\u2588")
+  })
+
+  test("formatReport sem opts (compat) nao inclui bloco ASCII", () => {
+    const report = formatReport({
+      projectPath: "/tmp/test",
+      totalRawLines: 2,
+      malformedCount: 0,
+      validPairs: 1,
+      orphanedStarts: 0,
+      orphanedEnds: 0,
+      bySkill: new Map(),
+      byProfile: new Map(),
+      byPhase: new Map(),
+      abandonRate: 0,
+    })
+    expect(report).not.toContain("Distribuicao de uso por skill (ASCII)")
+  })
+})
+
+describe("--set override (RF14)", () => {
+  test("rejeita perfil invalido com exit code 1 e stderr contendo 'perfil invalido'", async () => {
+    const scriptPath = path.join(import.meta.dir, "../../scripts/analyze-metrics.ts")
+    const proc = Bun.spawn(["bun", "run", scriptPath, "--set", "foo"], {
+      cwd: os.tmpdir(),
+      stdout: "pipe",
+      stderr: "pipe",
+    })
+    const exitCode = await proc.exited
+    const stderr = await new Response(proc.stderr).text()
+    expect(exitCode).toBe(1)
+    expect(stderr.toLowerCase()).toContain("perfil invalido")
+  })
+
+  test("aceita perfil valido, grava manifest com architectureProfile e sai com exit 0", async () => {
+    const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), "avc-set-test-"))
+    try {
+      const scriptPath = path.join(import.meta.dir, "../../scripts/analyze-metrics.ts")
+      const proc = Bun.spawn(["bun", "run", scriptPath, "--set", "vertical-slice"], {
+        cwd: tmpdir,
+        stdout: "pipe",
+        stderr: "pipe",
+      })
+      const exitCode = await proc.exited
+      expect(exitCode).toBe(0)
+
+      const manifestPath = path.join(tmpdir, ".claude", ".anti-vibe-manifest.json")
+      expect(fs.existsSync(manifestPath)).toBe(true)
+      const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8")) as Record<string, unknown>
+      const archProfile = manifest["architectureProfile"] as Record<string, unknown> | undefined
+      expect(archProfile).toBeDefined()
+      expect(archProfile!["profile"]).toBe("vertical-slice")
+      const signals = archProfile!["signals"] as string[]
+      expect(signals.some((s: string) => s.includes("manual override"))).toBe(true)
+    } finally {
+      fs.rmSync(tmpdir, { recursive: true, force: true })
+    }
   })
 })
