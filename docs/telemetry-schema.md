@@ -91,3 +91,34 @@ Par com falha (`sucesso = false`):
 
 Ver `anti-vibe-coding/skills/lib/telemetry-types.ts` para os tipos `TelemetryStart`, `TelemetryEnd` e `TelemetryEntry`.
 Ver `anti-vibe-coding/skills/lib/telemetry-schema.ts` para `parseTelemetryEntry`, `isTelemetryStart` e `isTelemetryEnd`.
+
+---
+
+## Rotação Mensal
+
+Os arquivos JSONL rotacionam automaticamente por mês. O path é computado **na escrita** (Plano 03 G3) com `new Date().toISOString().slice(0, 7)`, ou seja, `YYYY-MM`.
+
+- Janeiro 2026 → `.claude/metrics/2026-01.jsonl`
+- Maio 2026 → `.claude/metrics/2026-05.jsonl`
+- Dezembro 2026 → `.claude/metrics/2026-12.jsonl`
+- Janeiro 2027 → `.claude/metrics/2027-01.jsonl`
+
+**Limitação aceita:** uma skill que rodou 30 segundos antes da virada do mês pode escrever a linha `start` em `2026-05.jsonl` e a linha `end` em `2026-06.jsonl`. Comportamento é raro, intencional e tratado pelo script de análise (Plano 05).
+
+---
+
+## Comportamento em Falha (CA-09)
+
+Telemetria nunca derruba a skill que a chama. Em caso de erro de I/O (path inválido, permissão negada, disco cheio):
+
+1. O erro é capturado pelo `try/catch` interno de `appendJsonlLine`.
+2. Uma mensagem é escrita em `stderr` com prefixo `[telemetry-warn]`.
+3. A skill caller continua execução normal.
+
+Para o consumidor (script de análise — Plano 05): a ausência de uma linha esperada não é considerada erro do schema, é gracefully ignorado.
+
+---
+
+## Linha `start` Órfã
+
+Se uma skill crashar entre o `writeTelemetryStart` e o `writeTelemetryEnd` (sem try/catch ao redor da lógica), a linha `end` correspondente NÃO será escrita. O script de análise (Plano 05) trata starts órfãos como "skill abandonada" — categoria útil para detectar instabilidade.

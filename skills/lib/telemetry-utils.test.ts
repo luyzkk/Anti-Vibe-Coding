@@ -2,6 +2,7 @@ import { describe, expect, test, beforeEach, afterEach } from 'bun:test'
 import { mkdtempSync, readFileSync, existsSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import type { TelemetryStart, TelemetryEnd } from './telemetry-types'
 import {
   appendJsonlLine,
   computeMonthlyPath,
@@ -220,6 +221,175 @@ describe('D13 cobertura completa (fase-02 + fase-03)', () => {
     const sortedExpected = [...ALL_TEN].sort()
     const sortedActual = [...INSTRUMENTED_SKILLS].sort()
     expect(sortedActual).toEqual(sortedExpected)
+  })
+})
+
+// === Fase 04 — Rotacao Mensal, CA-09 Regression, Skill Erro ===
+
+describe('rotacao mensal (fase-04)', () => {
+  test('computeMonthlyPath returns different paths for different months', () => {
+    const may = computeMonthlyPath(new Date('2026-05-15T10:00:00Z'))
+    const june = computeMonthlyPath(new Date('2026-06-15T10:00:00Z'))
+    expect(may).not.toBe(june)
+    expect(may).toMatch(/2026-05\.jsonl$/)
+    expect(june).toMatch(/2026-06\.jsonl$/)
+  })
+
+  test('computeMonthlyPath handles year transition (Dec to Jan)', () => {
+    const dec = computeMonthlyPath(new Date('2026-12-31T23:59:00Z'))
+    const jan = computeMonthlyPath(new Date('2027-01-01T00:01:00Z'))
+    expect(dec).toMatch(/2026-12\.jsonl$/)
+    expect(jan).toMatch(/2027-01\.jsonl$/)
+  })
+
+  test('computeMonthlyPath recomputes on each call — same month returns same path (G3 — nao cacheado)', () => {
+    const path1 = computeMonthlyPath()
+    const path2 = computeMonthlyPath()
+    expect(path1).toBe(path2)
+  })
+
+  test('separate months produce separate JSONL files in same metrics dir', () => {
+    const tmp = mkdtempSync(join(tmpdir(), 'rotation-'))
+    try {
+      const mayPath = join(tmp, '2026-05.jsonl')
+      const junePath = join(tmp, '2026-06.jsonl')
+
+      appendJsonlLine(mayPath, 'may-line\n')
+      appendJsonlLine(junePath, 'june-line\n')
+
+      expect(readFileSync(mayPath, 'utf-8')).toBe('may-line\n')
+      expect(readFileSync(junePath, 'utf-8')).toBe('june-line\n')
+    } finally {
+      rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('CA-09 regression — falha silenciosa de I/O (fase-04)', () => {
+  test('appendJsonlLine swallows error from null-char path and emits [telemetry-warn]', () => {
+    const errors: string[] = []
+    const original = console.error
+    console.error = (...args: unknown[]) => { errors.push(args.join(' ')) }
+
+    try {
+      expect(() => appendJsonlLine('\0/invalid.jsonl', 'x\n')).not.toThrow()
+      expect(errors.some(e => e.includes('[telemetry-warn]'))).toBe(true)
+    } finally {
+      console.error = original
+    }
+  })
+
+  test('computeMonthlyPath with invalid baseDir produces path that appendJsonlLine handles silently', () => {
+    const errors: string[] = []
+    const original = console.error
+    console.error = (...args: unknown[]) => { errors.push(args.join(' ')) }
+
+    try {
+      const badPath = computeMonthlyPath(new Date(), '\0/no-where')
+      expect(() => appendJsonlLine(badPath, serializeEntry(FIXTURE_START))).not.toThrow()
+      expect(errors.some(e => e.includes('[telemetry-warn]'))).toBe(true)
+    } finally {
+      console.error = original
+    }
+  })
+
+  test('skill simulation: start+end pair with invalid path produces 0 written lines and 0 throws', () => {
+    const errors: string[] = []
+    const original = console.error
+    console.error = (...args: unknown[]) => { errors.push(args.join(' ')) }
+
+    try {
+      const badPath = computeMonthlyPath(new Date(), '\0/totally-invalid')
+      expect(() => appendJsonlLine(badPath, serializeEntry(FIXTURE_START))).not.toThrow()
+      expect(() => appendJsonlLine(badPath, serializeEntry(FIXTURE_END_SUCCESS))).not.toThrow()
+      expect(errors.filter(e => e.includes('[telemetry-warn]')).length).toBeGreaterThanOrEqual(2)
+    } finally {
+      console.error = original
+    }
+  })
+})
+
+describe('skill com erro em meio a execucao (fase-04 / CA-03)', () => {
+  test('end entry com sucesso=false e error_message preservados em JSONL', () => {
+    const tmp = mkdtempSync(join(tmpdir(), 'skill-error-'))
+    const originalCwd = process.cwd()
+    process.chdir(tmp)
+
+    try {
+      const startedAt = Date.now()
+      const startEntry: TelemetryStart = {
+        evento: 'start',
+        skill_invocada: 'plan-feature',
+        timestamp_inicio: new Date(startedAt).toISOString(),
+        profile_arquitetura: 'disabled',
+        fase_pipeline: 'plan-feature',
+      }
+      writeTelemetryStart(startEntry)
+
+      const endEntry: TelemetryEnd = {
+        evento: 'end',
+        skill_invocada: 'plan-feature',
+        timestamp_inicio: startEntry.timestamp_inicio,
+        timestamp_fim: new Date().toISOString(),
+        duracao_ms: 50,
+        profile_arquitetura: 'disabled',
+        fase_pipeline: 'plan-feature',
+        tokens_aproximados_consumidos: 0,
+        arquivos_lidos: 1,
+        arquivos_modificados: 0,
+        sucesso: true,
+      }
+
+      try {
+        throw new Error('boom — simulacao de erro de skill')
+      } catch (err) {
+        endEntry.sucesso = false
+        endEntry.error_message = err instanceof Error ? err.message : String(err)
+      } finally {
+        writeTelemetryEnd(endEntry)
+      }
+
+      const jsonlPath = join(tmp, '.claude', 'metrics', `${new Date().toISOString().slice(0, 7)}.jsonl`)
+      const lines = readFileSync(jsonlPath, 'utf-8').split('\n').filter(Boolean)
+      expect(lines).toHaveLength(2)
+
+      const parsedEnd = parseTelemetryEntry(JSON.parse(lines[1] ?? '{}'))
+      if (parsedEnd.evento !== 'end') throw new Error('expected end')
+      expect(parsedEnd.sucesso).toBe(false)
+      expect(parsedEnd.error_message).toBe('boom — simulacao de erro de skill')
+    } finally {
+      process.chdir(originalCwd)
+      rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
+  test('start orfao (G9): skill crash sem chamar writeTelemetryEnd produz so linha start', () => {
+    const tmp = mkdtempSync(join(tmpdir(), 'orphan-start-'))
+    const originalCwd = process.cwd()
+    process.chdir(tmp)
+
+    try {
+      writeTelemetryStart({
+        evento: 'start',
+        skill_invocada: 'design-twice',
+        timestamp_inicio: new Date().toISOString(),
+        profile_arquitetura: 'disabled',
+        fase_pipeline: 'design-twice',
+      })
+
+      // Simulacao: skill crashou aqui sem catch, writeTelemetryEnd nunca chamado.
+
+      const jsonlPath = join(tmp, '.claude', 'metrics', `${new Date().toISOString().slice(0, 7)}.jsonl`)
+      const lines = readFileSync(jsonlPath, 'utf-8').split('\n').filter(Boolean)
+      expect(lines).toHaveLength(1)
+
+      const parsed = parseTelemetryEntry(JSON.parse(lines[0] ?? '{}'))
+      expect(parsed.evento).toBe('start')
+      // Plano 05 detecta isso como "abandonada"
+    } finally {
+      process.chdir(originalCwd)
+      rmSync(tmp, { recursive: true, force: true })
+    }
   })
 })
 
