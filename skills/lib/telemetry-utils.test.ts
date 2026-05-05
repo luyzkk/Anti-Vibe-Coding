@@ -163,3 +163,70 @@ describe('inferFasePipeline', () => {
 })
 
 }) // end describe('telemetry-utils')
+
+// === Smoke tests fase-02 (Plano 03) ===
+describe('pipeline-core skills (fase-02 smoke)', () => {
+  const PIPELINE_CORE = ['grill-me', 'write-prd', 'plan-feature', 'execute-plan', 'verify-work'] as const
+
+  test('each pipeline-core SKILL.md contains writeTelemetryStart and writeTelemetryEnd calls', () => {
+    for (const skill of PIPELINE_CORE) {
+      const skillPath = join('skills', skill, 'SKILL.md')
+      expect(existsSync(skillPath)).toBe(true)
+      const content = readFileSync(skillPath, 'utf-8')
+      expect(content).toContain('writeTelemetryStart')
+      expect(content).toContain('writeTelemetryEnd')
+      // DI-01: .or nao e API valida do bun:test — usar OR booleano
+      const hasInvocada = content.includes(`skill_invocada: '${skill}'`)
+      const hasName = content.includes(`skillName = '${skill}'`)
+      expect(hasInvocada || hasName).toBe(true)
+    }
+  })
+
+  test('each pipeline-core SKILL.md imports from telemetry-utils', () => {
+    for (const skill of PIPELINE_CORE) {
+      const skillPath = join('skills', skill, 'SKILL.md')
+      const content = readFileSync(skillPath, 'utf-8')
+      expect(content).toMatch(/from ['"]\.\.\/\.\.\/lib\/telemetry-utils['"]/)
+    }
+  })
+
+  test('runtime smoke: invoking start+end blocks produces 2 valid lines (manual integration)', () => {
+    const tmp = mkdtempSync(join(tmpdir(), 'pipeline-core-smoke-'))
+    const originalCwd = process.cwd()
+    process.chdir(tmp)
+
+    try {
+      const { writeTelemetryStart: wStart, writeTelemetryEnd: wEnd } = require('./telemetry-utils')
+
+      const startedAt = Date.now()
+      wStart({
+        evento: 'start',
+        skill_invocada: 'plan-feature',
+        timestamp_inicio: new Date(startedAt).toISOString(),
+        profile_arquitetura: 'disabled',
+        fase_pipeline: 'plan-feature',
+      })
+
+      wEnd({
+        evento: 'end',
+        skill_invocada: 'plan-feature',
+        timestamp_inicio: new Date(startedAt).toISOString(),
+        timestamp_fim: new Date(startedAt + 100).toISOString(),
+        duracao_ms: 100,
+        profile_arquitetura: 'disabled',
+        fase_pipeline: 'plan-feature',
+        tokens_aproximados_consumidos: 0,
+        arquivos_lidos: 0,
+        arquivos_modificados: 0,
+        sucesso: true,
+      })
+
+      const expected = join(tmp, '.claude', 'metrics', `${new Date().toISOString().slice(0, 7)}.jsonl`)
+      const lines = readFileSync(expected, 'utf-8').split('\n').filter(Boolean)
+      expect(lines).toHaveLength(2)
+    } finally {
+      process.chdir(originalCwd)
+      rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+})
