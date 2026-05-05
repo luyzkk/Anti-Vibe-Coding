@@ -1,0 +1,14 @@
+{
+  "version": "5.3.0",
+  "generatedAt": "2026-05-04T12:00:00.000Z",
+  "description": "Fixture for vertical-slice profile",
+  "files": {},
+  "architectureDetectorEnabled": true,
+  "architectureProfile": {
+    "profile": "vertical-slice",
+    "confidence": 88,
+    "detectedAt": "2026-05-04T12:00:00.000Z",
+    "signals": ["src/features/ has 4 subfolders with pattern <name>/", "cross-feature imports = 0%"],
+    "schemaVersion": 1
+  }
+}
