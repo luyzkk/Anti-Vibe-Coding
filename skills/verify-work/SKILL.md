@@ -32,6 +32,30 @@ writeTelemetryStart(__telemetry_startEntry)
 // === Fim do bloco de inicio ===
 ```
 
+```typescript
+// === Perfil arquitetural (Plano 04 fase-05) — leitura UMA vez ===
+// Gera secao de aderencia descritiva no relatorio do verify-work.
+// G1: UMA leitura, UMA resolucao, zero branching profundo.
+// G2: readArchitectureProfile() retorna null se flag=false → checks = [] → section omitida (CA-04).
+// G7: checks sao perguntas descritivas, nao comandos prescritivos.
+
+import { readArchitectureProfile, getRecommendationForProfile } from '../lib/read-architecture-profile'
+import { ADHERENCE_CHECKS, ADHERENCE_CHECKS_V52, renderAdherenceSection } from './lib/adherence-checks'
+
+const __profile = readArchitectureProfile()
+
+const __adherenceCheck = getRecommendationForProfile(
+  __profile?.profile ?? null,
+  ADHERENCE_CHECKS,
+  ADHERENCE_CHECKS_V52,
+)
+
+const __adherenceSection = renderAdherenceSection(__adherenceCheck)
+// Inject ${__adherenceSection} into the report between "Anti-vibe Review" and "Test Quality Audit".
+// Section is empty string when flag=false (CA-04 — v5.2 behavior preserved).
+// === Fim do bloco de perfil ===
+```
+
 # Verify Work — Verificacao Pos-Execucao
 
 Skill de verificacao ativa. Roda testes, lint, auditoria multi-agente paralela e test quality audit. Debug automatico quando algo falha.
