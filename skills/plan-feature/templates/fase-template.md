@@ -1,3 +1,12 @@
+<!--
+Princípio universal #5 — Comment Provenance.
+Todo comentário inline em código gerado durante este plano deve ter linhagem:
+quem decidiu (autor + papel), quando (YYYY-MM-DD), por que (link para decisão ou
+seção do PRD).
+Exemplo: `// 2026-05-04 (Luiz/dev): default 30s — alinhado com timeout do upstream X`
+NÃO aplicar em código de runtime do plugin (helpers TS já têm JSDoc, suficiente).
+-->
+
 # Fase {NN}: {Nome Descritivo}
 
 **Plano:** {NN} — {nome do plano}
@@ -29,7 +38,7 @@
 {Descricao do que fazer. Se nao trivial, incluir snippet de referencia:}
 
 ```typescript
-// Exemplo: tipo a ser criado
+// 2026-05-04 (Luiz/dev): status default 'pending' — alinhado com PRD seção "Estados"
 export type NotificationStatus = 'pending' | 'sent' | 'failed'
 
 export type Notification = {

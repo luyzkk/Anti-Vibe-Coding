@@ -305,6 +305,13 @@ Se o dev disser NAO: encerrar normalmente. O CONTEXT.md continua disponivel para
 9. Sempre oferecer learn point ao final.
 10. Sempre sugerir proximo passo ao final.
 
+---
+
+## Expansão opcional — 10 Questions Test (princípio universal #1)
+
+Se o feature for de complexidade alta E o questionário acima ainda deixou ambiguidade,
+expanda para o 10 Questions Test (definido em `consultant/SKILL.md`) antes de fechar o CONTEXT.md.
+
 ```typescript
 // === Telemetria passiva (Plano 03 fase-02) — registra fim ===
 // CA-03: end emitido SEMPRE

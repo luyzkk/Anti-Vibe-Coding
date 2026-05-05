@@ -519,6 +519,31 @@ Se falha (template nao encontrado, erro de leitura):
 7. Se nenhum agent estiver disponivel (plano 11 nao implementado), degradar para anti-vibe-review
 8. Config e lida uma vez no inicio — nao reler em cada step
 
+---
+
+## Fase Final — Fresh-context Review (princípio universal #9)
+
+Após todas as outras fases (anti-vibe-review, test quality audit, aderência ao perfil),
+spawn um subagente NOVO com contexto limpo. O subagente recebe APENAS:
+
+- O PRD (PRD.md)
+- O plano (PLAN.md + READMEs dos planos)
+- Os arquivos finais alterados (lista via git diff)
+
+NÃO compartilhe com o subagente:
+
+- O histórico desta sessão de execução
+- Tentativas que foram revertidas
+- Decisões emergentes que mudaram durante execução
+
+Pergunte ao subagente:
+
+1. "O código entregue cobre os outcomes declarados no PRD?"
+2. "Há alguma divergência entre o plano e o entregue que precisa ser sinalizada?"
+3. "Há algum sinal de over-engineering que só fica visível com olhos frescos?"
+
+Inclua a resposta do subagente na seção "Fresh-context Review" do relatório final.
+
 ```typescript
 // === Telemetria passiva (Plano 03 fase-02) — registra fim ===
 // CA-03: end emitido SEMPRE
