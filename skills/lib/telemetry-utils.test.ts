@@ -164,6 +164,65 @@ describe('inferFasePipeline', () => {
 
 }) // end describe('telemetry-utils')
 
+// === Smoke tests fase-03 (Plano 03) — consultivas ===
+describe('consultivas skills (fase-03 smoke)', () => {
+  const CONSULTIVAS = ['iterate', 'consultant', 'architecture', 'design-twice', 'quick-plan'] as const
+
+  test('each consultiva SKILL.md contains writeTelemetryStart and writeTelemetryEnd calls', () => {
+    for (const skill of CONSULTIVAS) {
+      const skillPath = join('skills', skill, 'SKILL.md')
+      expect(existsSync(skillPath)).toBe(true)
+      const content = readFileSync(skillPath, 'utf-8')
+      expect(content).toContain('writeTelemetryStart')
+      expect(content).toContain('writeTelemetryEnd')
+    }
+  })
+
+  test('each consultiva SKILL.md imports from telemetry-utils', () => {
+    for (const skill of CONSULTIVAS) {
+      const skillPath = join('skills', skill, 'SKILL.md')
+      const content = readFileSync(skillPath, 'utf-8')
+      expect(content).toMatch(/from ['"]\.\.\/\.\.\/lib\/telemetry-utils['"]/)
+    }
+  })
+
+  test('architecture skill preserves Tracer Bullet code from Plano 01 fase-06', () => {
+    const archPath = join('skills', 'architecture', 'SKILL.md')
+    const content = readFileSync(archPath, 'utf-8')
+    // Tracer Bullet do Plano 01 fase-06 declara leitura de architectureProfile
+    expect(content).toContain('architectureProfile')
+    // E o bloco de telemetria desta fase tambem esta presente
+    expect(content).toContain('writeTelemetryStart')
+  })
+})
+
+describe('D13 cobertura completa (fase-02 + fase-03)', () => {
+  const ALL_TEN = [
+    'grill-me', 'write-prd', 'plan-feature', 'execute-plan', 'verify-work',
+    'iterate', 'consultant', 'architecture', 'design-twice', 'quick-plan',
+  ] as const
+
+  test('all 10 instrumented skills have telemetry blocks (D13 / RF4)', () => {
+    for (const skill of ALL_TEN) {
+      const skillPath = join('skills', skill, 'SKILL.md')
+      const content = readFileSync(skillPath, 'utf-8')
+      // DI-01: .or nao e API valida do bun:test — usar OR booleano
+      const hasInvocada = content.includes(`skill_invocada: '${skill}'`)
+      const hasName = content.includes(`skillName = '${skill}'`)
+      expect(hasInvocada || hasName).toBe(true)
+    }
+  })
+
+  test('exactly 10 skills are instrumented (no more, no less — G7)', () => {
+    const { INSTRUMENTED_SKILLS } = require('./telemetry-utils')
+    expect(INSTRUMENTED_SKILLS).toHaveLength(10)
+
+    const sortedExpected = [...ALL_TEN].sort()
+    const sortedActual = [...INSTRUMENTED_SKILLS].sort()
+    expect(sortedActual).toEqual(sortedExpected)
+  })
+})
+
 // === Smoke tests fase-02 (Plano 03) ===
 describe('pipeline-core skills (fase-02 smoke)', () => {
   const PIPELINE_CORE = ['grill-me', 'write-prd', 'plan-feature', 'execute-plan', 'verify-work'] as const

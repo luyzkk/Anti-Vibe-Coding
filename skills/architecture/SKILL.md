@@ -7,6 +7,31 @@ allowed-tools: Read, Grep, Glob, WebSearch
 argument-hint: "[architecture decision or pattern to analyze]"
 ---
 
+```typescript
+// === Telemetria passiva (Plano 03 fase-03) — nao remover sem registrar em MEMORY.md ===
+// G5: telemetria SEMPRE ativa, ignora architectureDetectorEnabled
+// G7: skill name canonico fixo
+
+import { writeTelemetryStart, writeTelemetryEnd } from '../../lib/telemetry-utils'
+import type { TelemetryStart, TelemetryEnd } from '../../lib/telemetry-types'
+
+const __telemetry_skillName = 'architecture'
+const __telemetry_fasePipeline = 'architecture'
+const __telemetry_startTimestamp = new Date().toISOString()
+const __telemetry_startMs = Date.now()
+
+const __telemetry_startEntry: TelemetryStart = {
+  evento: 'start',
+  skill_invocada: __telemetry_skillName,
+  timestamp_inicio: __telemetry_startTimestamp,
+  profile_arquitetura: 'disabled',
+  fase_pipeline: __telemetry_fasePipeline,
+}
+
+writeTelemetryStart(__telemetry_startEntry)
+// === Fim do bloco de inicio ===
+```
+
 <!-- profile-aware-preface:start -->
 Before producing recommendations, read `.anti-vibe-manifest.json` from the project root. If
 `architectureDetectorEnabled === true` AND `architectureProfile` is present and valid,
@@ -338,3 +363,24 @@ Documentar a decisao no formato:
 3. **Trade-offs explicitos** — toda decisao tem custos, deixar claros
 4. **Boring technology primeiro** — provar que a solucao simples nao funciona antes de adotar complexidade
 5. **Ensinar o raciocinio** — mais importante que a resposta e o processo de chegar nela
+
+```typescript
+// === Telemetria passiva (Plano 03 fase-03) — registra fim ===
+
+const __telemetry_endEntry: TelemetryEnd = {
+  evento: 'end',
+  skill_invocada: __telemetry_skillName,
+  timestamp_inicio: __telemetry_startTimestamp,
+  timestamp_fim: new Date().toISOString(),
+  duracao_ms: Date.now() - __telemetry_startMs,
+  profile_arquitetura: 'disabled',
+  fase_pipeline: __telemetry_fasePipeline,
+  tokens_aproximados_consumidos: 0,
+  arquivos_lidos: 0,
+  arquivos_modificados: 0,
+  sucesso: true,
+}
+
+writeTelemetryEnd(__telemetry_endEntry)
+// === Fim do bloco de fim ===
+```
