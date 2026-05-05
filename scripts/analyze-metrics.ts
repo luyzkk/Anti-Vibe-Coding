@@ -4,6 +4,8 @@ import { parseJsonlContent } from "./lib/parse-jsonl"
 import { pairStartEnd } from "./lib/pair-events"
 import { aggregateBySkill, aggregateByProfile, aggregateByPhase, abandonRate } from "./lib/aggregate"
 import { formatReport, type ReportInput } from "./lib/format-report"
+import { writeArchitectureProfile } from "../skills/lib/architecture-detector/write-architecture-profile"
+import type { ArchitectureProfileName } from "../skills/lib/manifest-types"
 
 type CliArgs = {
   projects: string[]
@@ -11,6 +13,14 @@ type CliArgs = {
   ascii: boolean
   setProfile: string | null
 }
+
+const VALID_PROFILES: readonly ArchitectureProfileName[] = [
+  "clean-architecture-ritual",
+  "mvc-flat",
+  "vertical-slice",
+  "nextjs-app-router",
+  "unknown-mixed",
+]
 
 function parseArgs(argv: readonly string[]): CliArgs {
   const args: CliArgs = { projects: [], month: null, ascii: false, setProfile: null }
@@ -30,6 +40,40 @@ function parseArgs(argv: readonly string[]): CliArgs {
     }
   }
   return args
+}
+
+/**
+ * Handles `--set <profile>` — validates and writes architecture profile to manifest.
+ * Uses a synthetic FolderSignal to embed "manual override" text in signals array.
+ * Exits the process (never returns).
+ */
+function handleSetProfile(value: string, projectRoot: string): never {
+  if (!VALID_PROFILES.includes(value as ArchitectureProfileName)) {
+    process.stderr.write(`[analyze-error] perfil invalido: '${value}'\n`)
+    process.stderr.write(`Perfis validos: ${VALID_PROFILES.join(", ")}\n`)
+    process.exit(1)
+  }
+
+  // Synthetic DetectionResult for a manual override.
+  // FolderSignal with matched=true embeds "manual override" text via toArchitectureProfile.
+  writeArchitectureProfile(
+    {
+      profile: value as ArchitectureProfileName,
+      confidence: 100,
+      detectedAt: new Date().toISOString(),
+      signals: {
+        folderSignals: [
+          { pattern: "manual override via analyze-metrics --set", matched: true, weight: 0 },
+        ],
+        importSignals: [],
+      },
+      alternativeProfiles: [],
+    },
+    projectRoot,
+  )
+
+  process.stdout.write(`[analyze-info] profile sobrescrito para '${value}' em ${projectRoot}\n`)
+  process.exit(0)
 }
 
 function findMetricsFiles(projectRoot: string, monthFilter: string | null): string[] {
@@ -80,10 +124,8 @@ function analyzeProject(projectPath: string, monthFilter: string | null): Report
 function main(): void {
   const args = parseArgs(process.argv.slice(2))
 
-  // --set is implemented in fase-02 (profile override). Stub here:
   if (args.setProfile !== null) {
-    process.stderr.write("[analyze-info] --set sera implementado em fase-02 (Plano 05).\n")
-    process.exit(0)
+    handleSetProfile(args.setProfile, process.cwd())
   }
 
   const projects = args.projects.length > 0 ? args.projects : [process.cwd()]
@@ -100,7 +142,7 @@ function main(): void {
 
   // G5: per-project reports before aggregate
   for (const r of reports) {
-    process.stdout.write(formatReport(r) + "\n\n")
+    process.stdout.write(formatReport(r, { ascii: args.ascii }) + "\n\n")
   }
 
   if (reports.length > 1) {

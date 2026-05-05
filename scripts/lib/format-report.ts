@@ -1,4 +1,5 @@
 import type { AggregateBySkill, AggregateByProfile, AggregateByPhase } from "./aggregate"
+import { renderAsciiBars } from "./ascii-chart"
 
 export type ReportInput = {
   projectPath: string
@@ -13,8 +14,10 @@ export type ReportInput = {
   abandonRate: number
 }
 
+export type FormatOptions = { ascii: boolean }
+
 /** Formats analysis report as human-readable text for stdout. Not JSON (G9). */
-export function formatReport(input: ReportInput): string {
+export function formatReport(input: ReportInput, opts: FormatOptions = { ascii: false }): string {
   const lines: string[] = []
   lines.push(`=== analyze-metrics — ${input.projectPath} ===`)
   lines.push("")
@@ -53,5 +56,16 @@ export function formatReport(input: ReportInput): string {
   lines.push("  - Tokens sao ESTIMADOS pelo agente, nao medidos em tempo real (G3).")
   lines.push("  - Pares validos = entries com 'start' E 'end' no mesmo dia natural (G4).")
   lines.push("  - Privacy-first: nenhum conteudo de codigo foi lido (D7).")
+
+  if (opts.ascii) {
+    lines.push("")
+    lines.push("Distribuicao de uso por skill (ASCII):")
+    const data = Array.from(input.bySkill.entries()).map(([skill, v]) => ({
+      label: skill,
+      value: v.count,
+    }))
+    lines.push(renderAsciiBars(data))
+  }
+
   return lines.join("\n")
 }
