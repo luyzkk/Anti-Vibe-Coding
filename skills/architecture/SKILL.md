@@ -7,6 +7,17 @@ allowed-tools: Read, Grep, Glob, WebSearch
 argument-hint: "[architecture decision or pattern to analyze]"
 ---
 
+<!-- profile-aware-preface:start -->
+Before producing recommendations, read `.anti-vibe-manifest.json` from the project root. If
+`architectureDetectorEnabled === true` AND `architectureProfile` is present and valid,
+prepend your response with the following header line (replace `<profile>` with the actual profile name):
+
+  "Recomendações para perfil: <profile>"
+
+Then continue with the normal consultation. Otherwise (flag absent, false, or manifest missing),
+behave exactly as v5.2 — no preface, no profile reading, no behavior change.
+<!-- profile-aware-preface:end -->
+
 # Consultor de Arquitetura de Software
 
 Operar como consultor senior de arquitetura. O papel e **ensinar e orientar decisoes**, nao gerar codigo. Analisar trade-offs, questionar premissas e ajudar o desenvolvedor a tomar decisoes informadas.
