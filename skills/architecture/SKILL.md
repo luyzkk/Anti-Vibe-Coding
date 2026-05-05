@@ -33,14 +33,52 @@ writeTelemetryStart(__telemetry_startEntry)
 ```
 
 <!-- profile-aware-preface:start -->
-Before producing recommendations, read `.anti-vibe-manifest.json` from the project root. If
-`architectureDetectorEnabled === true` AND `architectureProfile` is present and valid,
-prepend your response with the following header line (replace `<profile>` with the actual profile name):
+```typescript
+// === Modo Dual (Plano 04 fase-02) — leitura UMA vez + lookup table ===
+// G1: sem branching profundo; G2: flag off preserva v5.2; G4: Greenfield so em src/ vazia
+// Lê architectureProfile do manifest via readArchitectureProfile() — retorna null se flag off (CA-04)
 
-  "Recomendações para perfil: <profile>"
+import { readdirSync } from 'node:fs'
+import { join } from 'node:path'
+import { readArchitectureProfile, getRecommendationForProfile } from '../../lib/read-architecture-profile'
+import {
+  ARCHITECTURE_RECOMMENDATIONS,
+  DEFAULT_RECOMMENDATION_V52,
+  GREENFIELD_RECOMMENDATION,
+  isGreenfield,
+} from './lib/architecture-recommendations'
 
-Then continue with the normal consultation. Otherwise (flag absent, false, or manifest missing),
-behave exactly as v5.2 — no preface, no profile reading, no behavior change.
+// 1. UMA leitura do perfil
+const profile = readArchitectureProfile()
+
+// 2. Contagem de arquivos de src/ (Greenfield trigger — CA-06)
+let srcFileCount = 0
+try {
+  srcFileCount = (readdirSync(join(process.cwd(), 'src'), { recursive: true }) as string[])
+    .filter((f) => /\.(ts|tsx)$/.test(f)).length
+} catch {
+  srcFileCount = 0 // src/ ausente conta como Greenfield candidate
+}
+
+// 3. UMA resolução com lookup
+const recommendation = isGreenfield(profile?.profile ?? null, srcFileCount)
+  ? GREENFIELD_RECOMMENDATION
+  : getRecommendationForProfile(profile?.profile ?? null, ARCHITECTURE_RECOMMENDATIONS, DEFAULT_RECOMMENDATION_V52)
+
+// 4. Preparar preface
+// Quando profile detectado: prepend "Recomendações para perfil: <profile>"
+// Quando Greenfield: prepend headline do GREENFIELD_RECOMMENDATION
+// Quando flag off / null: sem preface, comportamento v5.2 intacto (CA-04)
+const profileName = profile?.profile ?? null
+```
+
+Ao produzir recomendações, use `recommendation.headline`, `recommendation.rationale`,
+`recommendation.patterns` e `recommendation.caveats` como insumos textuais adaptativos.
+
+Se `profileName` for não-nulo, inicie sua resposta com:
+  "Recomendações para perfil: <profileName>"
+
+Se `profileName` for nulo (flag off ou manifest ausente), comportamento v5.2 intacto — sem preface.
 <!-- profile-aware-preface:end -->
 
 # Consultor de Arquitetura de Software
