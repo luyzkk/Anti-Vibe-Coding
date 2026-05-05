@@ -7,6 +7,31 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Agent, AskUserQuestion
 argument-hint: "[caminho do PLAN.md ou nome da feature] [--plano N] [--fase N]"
 ---
 
+```typescript
+// === Telemetria passiva (Plano 03 fase-02) — nao remover sem registrar em MEMORY.md ===
+// G5: telemetria SEMPRE ativa, ignora architectureDetectorEnabled
+// G7: skill name canonico fixo
+
+import { writeTelemetryStart, writeTelemetryEnd } from '../../lib/telemetry-utils'
+import type { TelemetryStart, TelemetryEnd } from '../../lib/telemetry-types'
+
+const __telemetry_skillName = 'execute-plan'
+const __telemetry_fasePipeline = 'execute-plan'
+const __telemetry_startTimestamp = new Date().toISOString()
+const __telemetry_startMs = Date.now()
+
+const __telemetry_startEntry: TelemetryStart = {
+  evento: 'start',
+  skill_invocada: __telemetry_skillName,
+  timestamp_inicio: __telemetry_startTimestamp,
+  profile_arquitetura: 'disabled',
+  fase_pipeline: __telemetry_fasePipeline,
+}
+
+writeTelemetryStart(__telemetry_startEntry)
+// === Fim do bloco de inicio ===
+```
+
 # Execute Plan — Execucao Hierarquica com Memoria
 
 Skill de execucao. Navega planos hierarquicos (gerados por /plan-feature), executa fase por fase com subagentes isolados, aplica TDD obrigatorio, e mantém memoria viva por plano.
@@ -725,3 +750,26 @@ Step 6-FLAT: SUMMARY ao completar
 - `agents/plan-verifier.md` — Agent que verifica output (read-only)
 - `lib/legacy-detector.md` — Algoritmo de deteccao de estrutura legacy (consumido pelo Step 0)
 - `lib/legacy-migrator.md` — Algoritmo de migracao atomica STAGE/MOVE/CONFIRM/ROLLBACK (consumido pelo Step 0)
+
+```typescript
+// === Telemetria passiva (Plano 03 fase-02) — registra fim ===
+// CA-03: end emitido SEMPRE
+// Limitacao conhecida: sucesso=true hardcoded (skill declarativa sem try/catch — ver MEMORY.md G9)
+
+const __telemetry_endEntry: TelemetryEnd = {
+  evento: 'end',
+  skill_invocada: __telemetry_skillName,
+  timestamp_inicio: __telemetry_startTimestamp,
+  timestamp_fim: new Date().toISOString(),
+  duracao_ms: Date.now() - __telemetry_startMs,
+  profile_arquitetura: 'disabled',
+  fase_pipeline: __telemetry_fasePipeline,
+  tokens_aproximados_consumidos: 0,
+  arquivos_lidos: 0,
+  arquivos_modificados: 0,
+  sucesso: true,
+}
+
+writeTelemetryEnd(__telemetry_endEntry)
+// === Fim do bloco de fim ===
+```

@@ -7,6 +7,31 @@ allowed-tools: Read, Grep, Glob, AskUserQuestion
 argument-hint: "[descricao da feature a ser grelhada]"
 ---
 
+```typescript
+// === Telemetria passiva (Plano 03 fase-02) — nao remover sem registrar em MEMORY.md ===
+// G5: telemetria SEMPRE ativa, ignora architectureDetectorEnabled
+// G7: skill name canonico fixo
+
+import { writeTelemetryStart, writeTelemetryEnd } from '../../lib/telemetry-utils'
+import type { TelemetryStart, TelemetryEnd } from '../../lib/telemetry-types'
+
+const __telemetry_skillName = 'grill-me'
+const __telemetry_fasePipeline = 'grill-me'
+const __telemetry_startTimestamp = new Date().toISOString()
+const __telemetry_startMs = Date.now()
+
+const __telemetry_startEntry: TelemetryStart = {
+  evento: 'start',
+  skill_invocada: __telemetry_skillName,
+  timestamp_inicio: __telemetry_startTimestamp,
+  profile_arquitetura: 'disabled',
+  fase_pipeline: __telemetry_fasePipeline,
+}
+
+writeTelemetryStart(__telemetry_startEntry)
+// === Fim do bloco de inicio ===
+```
+
 # Grill Me — Entrevista Pre-Implementacao
 
 Skill ativa. Modo: entrevistador implacavel. Nao aceita ambiguidade. Nao gera codigo. Nunca.
@@ -62,7 +87,7 @@ Categorias de decisoes a investigar:
 |-----------|-----------------|
 | ESCOPO | O que esta IN e OUT? Quais casos de uso NAO serão cobertos na v1? |
 | DADOS | Que entidades? Campos obrigatorios/opcionais? Relacoes? Validacoes? |
-| UX | Fluxo do usuario passo a passo? Mensagens de erro? Estado de loading? |
+| UX | Fluxo por ator (passos, copy, modais, toasts, notificacoes entre atores)? |
 | EDGE CASES | O que acontece quando X falha? Concorrencia? Idempotencia? |
 | PERFORMANCE | Volume esperado? Cache necessario? Limites de paginacao? |
 | SEGURANCA | Quem acessa? Autorizacao por papel ou por recurso? Rate limiting? |
@@ -88,6 +113,10 @@ Para cada "nao sei" do dev:
 - "Historico de mudancas (audit log) e necessario?"
 
 ### UX — Fluxo do usuario e feedback
+- "Para cada ator que usa a feature, descreva o fluxo completo passo a passo: o que ele ve, o que clica, o que acontece em cada etapa?"
+- "Que copy aparece ao usuario? Mensagens de confirmacao, avisos educativos, toasts de sucesso e erro?"
+- "Se houver modais: quantos? O que cada um mostra e quais acoes oferece ao usuario?"
+- "Quando um ator age, que notificacao o outro ator recebe — e qual seria o texto dessa notificacao?"
 - "Qual a mensagem de erro quando [X] falha?"
 - "Loading state: skeleton, spinner ou placeholder?"
 - "Fluxo otimista (atualiza UI antes do server) ou pessimista?"
@@ -275,3 +304,26 @@ Se o dev disser NAO: encerrar normalmente. O CONTEXT.md continua disponivel para
 8. Intensidade proporcional a complexidade da feature.
 9. Sempre oferecer learn point ao final.
 10. Sempre sugerir proximo passo ao final.
+
+```typescript
+// === Telemetria passiva (Plano 03 fase-02) — registra fim ===
+// CA-03: end emitido SEMPRE
+// Limitacao conhecida: sucesso=true hardcoded (skill declarativa sem try/catch — ver MEMORY.md G9)
+
+const __telemetry_endEntry: TelemetryEnd = {
+  evento: 'end',
+  skill_invocada: __telemetry_skillName,
+  timestamp_inicio: __telemetry_startTimestamp,
+  timestamp_fim: new Date().toISOString(),
+  duracao_ms: Date.now() - __telemetry_startMs,
+  profile_arquitetura: 'disabled',
+  fase_pipeline: __telemetry_fasePipeline,
+  tokens_aproximados_consumidos: 0,
+  arquivos_lidos: 0,
+  arquivos_modificados: 0,
+  sucesso: true,
+}
+
+writeTelemetryEnd(__telemetry_endEntry)
+// === Fim do bloco de fim ===
+```

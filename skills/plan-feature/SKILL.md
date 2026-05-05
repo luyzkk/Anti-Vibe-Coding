@@ -7,6 +7,31 @@ allowed-tools: Read, Grep, Glob, Write, Agent, AskUserQuestion
 argument-hint: "[caminho do PRD ou nome da feature]"
 ---
 
+```typescript
+// === Telemetria passiva (Plano 03 fase-02) — nao remover sem registrar em MEMORY.md ===
+// G5: telemetria SEMPRE ativa, ignora architectureDetectorEnabled
+// G7: skill name canonico fixo
+
+import { writeTelemetryStart, writeTelemetryEnd } from '../../lib/telemetry-utils'
+import type { TelemetryStart, TelemetryEnd } from '../../lib/telemetry-types'
+
+const __telemetry_skillName = 'plan-feature'
+const __telemetry_fasePipeline = 'plan-feature'
+const __telemetry_startTimestamp = new Date().toISOString()
+const __telemetry_startMs = Date.now()
+
+const __telemetry_startEntry: TelemetryStart = {
+  evento: 'start',
+  skill_invocada: __telemetry_skillName,
+  timestamp_inicio: __telemetry_startTimestamp,
+  profile_arquitetura: 'disabled',
+  fase_pipeline: __telemetry_fasePipeline,
+}
+
+writeTelemetryStart(__telemetry_startEntry)
+// === Fim do bloco de inicio ===
+```
+
 # Plan Feature — Planejamento Hierarquico de Execucao
 
 Skill de planejamento. Converte PRD em plano executavel com estrutura hierarquica:
@@ -709,3 +734,26 @@ Ao finalizar o overview (via Step 8):
 
 - `lib/legacy-detector.md` — Algoritmo de deteccao de estrutura legacy (consumido pelo Step 0)
 - `lib/legacy-migrator.md` — Algoritmo de migracao atomica STAGE/MOVE/CONFIRM/ROLLBACK (consumido pelo Step 0)
+
+```typescript
+// === Telemetria passiva (Plano 03 fase-02) — registra fim ===
+// CA-03: end emitido SEMPRE
+// Limitacao conhecida: sucesso=true hardcoded (skill declarativa sem try/catch — ver MEMORY.md G9)
+
+const __telemetry_endEntry: TelemetryEnd = {
+  evento: 'end',
+  skill_invocada: __telemetry_skillName,
+  timestamp_inicio: __telemetry_startTimestamp,
+  timestamp_fim: new Date().toISOString(),
+  duracao_ms: Date.now() - __telemetry_startMs,
+  profile_arquitetura: 'disabled',
+  fase_pipeline: __telemetry_fasePipeline,
+  tokens_aproximados_consumidos: 0,
+  arquivos_lidos: 0,
+  arquivos_modificados: 0,
+  sucesso: true,
+}
+
+writeTelemetryEnd(__telemetry_endEntry)
+// === Fim do bloco de fim ===
+```
