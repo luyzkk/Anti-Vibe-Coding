@@ -32,6 +32,30 @@ writeTelemetryStart(__telemetry_startEntry)
 // === Fim do bloco de inicio ===
 ```
 
+```typescript
+// === Perfil arquitetural (Plano 04 fase-04) ===
+// G1: UMA leitura + UMA resolucao via lookup. Sem branching profundo.
+// G2 / CA-04: profile null (flag off ou manifest ausente) → snippet vazio → template preserva v5.2
+
+import { readArchitectureProfile, getRecommendationForProfile } from '../lib/read-architecture-profile'
+import { STRUCTURE_SNIPPETS, STRUCTURE_SNIPPET_V52 } from './lib/structure-snippets'
+
+// 1. UMA leitura
+const __prd_profile = readArchitectureProfile()
+
+// 2. UMA resolucao via lookup
+const __prd_structureSnippet = getRecommendationForProfile(
+  __prd_profile?.profile ?? null,
+  STRUCTURE_SNIPPETS,
+  STRUCTURE_SNIPPET_V52,
+)
+
+// 3. Injecao no template durante Step 3
+// Ao gerar o PRD: substituir '{- structure-snippet -}' por __prd_structureSnippet
+// Se __prd_structureSnippet === '', remover o marcador sem deixar linha em branco extra
+// === Fim do bloco de perfil ===
+```
+
 # Write PRD — Especificacao de Feature
 
 Skill de especificacao. Gera PRD (Product Requirements Document) estruturado a partir de contexto coletado via entrevista ou importado do /grill-me.

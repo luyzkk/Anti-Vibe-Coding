@@ -41,6 +41,34 @@ requires: []
 {Se veio do /design-twice: "Baseado na Proposta {letra} — {filosofia}"}
 {Alinhamento com stack e padroes existentes do projeto}
 
+{- structure-snippet -}
+
+---
+
+## Fluxos UX por Ator
+
+<!-- Pular se a feature for backend-only (API, migration, cron).
+     Para features com UI: fluxo numerado por ator, copy das mensagens,
+     modais, toasts e notificacoes para outros atores. -->
+
+### {Ator Principal — ex: Aluno}
+
+1. {o que o ator ve e faz no passo 1}
+2. {passo 2}
+3. → Caminho A: {se X acontece — descrever}
+3. → Caminho B: {se Y acontece — descrever}
+
+**Copy relevante:**
+- Confirmacao: _"{texto da mensagem}"_
+- Aviso/Educativo: _"{texto}"_
+- Erro: _"{mensagem de erro exibida}"_
+
+**Notifica {outro ator}:** _"{texto da notificacao}"_ quando {evento}
+
+### {Ator 2 — ex: Professor | Admin}
+
+1. ...
+
 ---
 
 ## Requisitos Funcionais
