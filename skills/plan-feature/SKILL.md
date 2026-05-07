@@ -17,48 +17,164 @@ Diferenca das outras skills:
 - **plan-feature**: gera PLANOS de execucao (como construir, em que ordem)
 - **execute-plan**: executa os planos fase por fase com subagentes isolados
 
-Estrutura gerada:
+Estrutura gerada (dentro da pasta datada do PRD):
+
 ```
 .planning/
-├── PLAN-{feature}.md              ← Overview (grafo entre planos, resumo)
-├── STATE-{feature}.md             ← Tracking global (plano ativo, progresso)
-│
-├── plano01/
-│   ├── README.md                  ← Overview do plano (dependencias, sizing)
-│   ├── MEMORY.md                  ← Memoria viva (bugs, learnings, decisoes)
-│   ├── fase-01-{nome}.md          ← Task detalhada (snippets, checklist)
-│   └── fase-02-{nome}.md
-│
-├── plano02/
-│   ├── README.md
-│   ├── MEMORY.md
-│   └── fase-01-{nome}.md
-│
-└── ...
+└── 2026-04-20-{feature-slug}/        ← criada pelo /write-prd
+    ├── PRD.md                        ← ja existe
+    ├── PLAN.md                       ← gerado aqui (overview)
+    ├── STATE.md                      ← gerado aqui (tracking global)
+    │
+    ├── plano01/
+    │   ├── README.md                 ← overview do plano
+    │   ├── MEMORY.md                 ← memoria viva (bugs, learnings)
+    │   ├── fase-01-{nome}.md         ← task detalhada
+    │   └── fase-02-{nome}.md
+    │
+    └── plano02/ ...
+```
+
+---
+
+## Step 0 — Deteccao de Legacy
+
+Roda ANTES de qualquer outra coisa. Se projeto tem estrutura pre-refatoracao
+(`PRD-*.md` ou `planoNN/` soltos em `.planning/`), esta skill nao consegue operar sem antes
+migrar — ou sem explicitamente ignorar.
+
+Algoritmo referenciado: `lib/legacy-detector.md`.
+Migracao referenciada: `lib/legacy-migrator.md`.
+
+### Fluxo
+
+```
+1. Se `.planning/` nao existe: skip Step 0, ir direto para Step 1 (projeto greenfield).
+2. Executar `detectLegacy(".planning/")` conforme `lib/legacy-detector.md`.
+3. Se `legacy == false`: skip — ir para Step 1.
+4. Se `legacy == true`:
+   a. Apresentar ao dev:
+      "Detectei estrutura legacy em .planning/:
+         Sinais: {signals.join(', ')}
+         Artefatos:
+           - {cada artifact.path}
+         Slug inferido: {suggestedSlug ou 'nenhum — preciso que voce forneca'}
+      "
+   b. Se `suggestedSlug` for null (ambiguous):
+      - Perguntar ao dev (AskUserQuestion): "Qual slug usar para a pasta destino?
+        Formato: kebab-case, ex: auth, sistema-notificacoes"
+      - Validar resposta contra regex `^[a-z0-9][a-z0-9-]*$`
+      - Se invalido: re-perguntar 1x; se continuar invalido: oferecer cancelar
+   c. Computar nome da pasta: `targetFolderName = "{YYYY-MM-DD}-{slug}"`
+      - Data: data atual no formato YYYY-MM-DD
+   d. Se `.planning/{targetFolderName}/` ja existir: avisar colisao e oferecer
+      `{targetFolderName}-v2` ou cancelar.
+      Mensagem: "A pasta {targetFolderName} ja existe. Possiveis causas:
+        - Outra sessao ja migrou esta feature
+        - Voce rodou plan-feature 2x hoje para a mesma feature
+        Opcoes: criar como {targetFolderName}-v2 / cancelar"
+   e. AskUserQuestion: "Migrar estes {N} artefatos para .planning/{targetFolderName}/?"
+      Opcoes:
+        - "Sim, migrar agora"
+        - "Nao — prosseguir com plan-feature em modo greenfield (legacy fica intocado)"
+        - "Cancelar plan-feature"
+   f. Se "Sim":
+      - Chamar `migrateLegacy(detectorResult, targetFolderName)` conforme `lib/legacy-migrator.md`
+      - Se retorno status == "success":
+        - Confirmar: "Migrado com sucesso. {N} artefatos em .planning/{targetFolderName}/"
+        - Continuar Step 1 com a pasta migrada como contexto ativo
+      - Se retorno status == "rolled_back" ou "aborted":
+        - Reportar erro claramente
+        - Perguntar: "prosseguir em modo greenfield ou cancelar?"
+   g. Se "Nao":
+      - Confirmar: "Prosseguindo em modo greenfield. Legacy em .planning/ nao foi tocado."
+      - Ir para Step 1 (que vai criar nova pasta datada para a nova feature)
+   h. Se "Cancelar":
+      - Encerrar skill sem tocar em nada
+
+Regras:
+- Step 0 roda apenas 1 vez por invocacao
+- Se migracao falhou (rolled_back): NAO insistir automaticamente — deixar dev corrigir
+- Slug fornecido pelo dev vale apenas para a sessao atual
 ```
 
 ---
 
 ## Step 1 — Ler PRD
 
+NOTA: Apos identificar o PRD, a skill fixa a PASTA_ATIVA = diretorio que contem `PRD.md`.
+TODOS os artefatos gerados por esta skill (PLAN.md, STATE.md, planoNN/) sao escritos
+dentro de PASTA_ATIVA. Nunca na raiz de `.planning/`.
+
 ### Caminho A: Caminho fornecido como argumento
 
 ```
-1. Se o dev passou caminho (/plan-feature "path/to/PRD.md"):
+1. Se o dev passou caminho, aceita DOIS formatos:
+
+   a) Caminho de ARQUIVO: /plan-feature ".planning/2026-04-20-slug/PRD.md"
+      - Validar que o arquivo existe
+      - PASTA_ATIVA = diretorio pai do arquivo (ex: ".planning/2026-04-20-slug/")
+      - Salvaguarda: se o caminho contem "_archive/", RECUSAR com:
+        "Este PRD esta arquivado. Mova para fora de `_archive/` se quiser re-planejar."
+
+   b) Caminho de PASTA: /plan-feature ".planning/2026-04-20-slug/"
+      - PASTA_ATIVA = a propria pasta informada
+      - Verificar existencia de "{PASTA_ATIVA}/PRD.md"
+      - Se nao existir: "Nao encontrei PRD.md em {PASTA_ATIVA}. Quer criar com /write-prd?"
+      - Salvaguarda: se a pasta esta dentro de "_archive/", RECUSAR com a mesma mensagem acima
+
+   Apos identificar o arquivo PRD.md:
    - Ler com Read
    - Validar que contem estrutura de PRD (titulo, requisitos, criterios)
    - Se nao for PRD valido: "Este arquivo nao parece ser um PRD. Quer criar com /write-prd?"
+   - Extrair frontmatter (se presente):
+     1. Se conteudo comeca com `---\n`:
+        - Extrair bloco entre primeiro `---` e segundo `---`
+        - Procurar linha `requires:`
+        - Se encontrada:
+          - Se valor comeca com `[`: split por virgula, trim, remover `[` e `]`, lista
+          - Se valor e string simples (nao vazia): lista com 1 elemento
+          - Se `[]` ou vazio: lista vazia
+        - Se nao encontrada ou bloco ausente: requires = []
+     2. Armazenar: `prd_requires = [...]`
+     3. Prosseguir normalmente para o proximo step
+
 2. Prosseguir para Step 2
 ```
 
-### Caminho B: Buscar em .planning/
+### Caminho B: Buscar em .planning/ (nova estrutura — pastas datadas)
 
 ```
 1. Se nao forneceu caminho:
-   - Glob: ".planning/PRD-*.md"
-   - Se 1 arquivo: ler diretamente, confirmar: "Encontrei PRD-{name}.md. Vou planejar com base nele."
-   - Se mais de 1: listar e perguntar qual usar
-2. Prosseguir para Step 2
+   a. Enumerar pastas datadas em `.planning/` (mesmo algoritmo do execute-plan Step 1a)
+      - Glob `.planning/YYYY-MM-DD-*/`
+      - Excluir `_archive/`
+      - Para cada pasta, ler `STATE.md` e extrair `Phase`
+        (STATE.md usa "**Phase:**" bold — buscar com regex, nao grep literal)
+      - Default filtrar: `planned` + `in-progress` + `paused`
+      - Flag `--all`: incluir `completed`
+      - Pasta sem STATE.md: tratar como status `planned`
+   b. Se 1 PRD apos filtro:
+      - Ler `{pasta}/PRD.md` diretamente
+      - Confirmar: "Encontrei {nome}. Vou planejar com base no PRD.md dentro."
+      - PASTA_ATIVA = "{pasta}/" (caminho ABSOLUTO — necessario para subagentes)
+   c. Se 2+ PRDs apos filtro:
+      - Listar como no execute-plan:
+        [1] 2026-04-20-sistema-notificacoes (in-progress)
+        [2] 2026-04-21-auth-refactor (planned)
+        Para qual vou criar/ajustar planos?
+      - Dev escolhe, le `{escolhida}/PRD.md`
+      - PASTA_ATIVA = pasta escolhida (caminho ABSOLUTO)
+   d. Se lista vazia:
+      - Se `--all` foi usado: "Nenhum PRD em .planning/." → Caminho C
+      - Se default: "Nenhum PRD ativo (planned/in-progress/paused). Rode /plan-feature --all para ver todos."
+      - Oferecer Caminho C (PRD nao existe)
+   e. Se ZERO pastas datadas (independente de filtro):
+      - Verificar se ha PRD-*.md solto na raiz de .planning/ → legacy, nao migrar aqui
+      - Oferecer Caminho C
+2. Prosseguir para Step 2 operando DENTRO da pasta escolhida
+   (todos os outputs vao para `{pasta}/PLAN.md`, `{pasta}/STATE.md`,
+    `{pasta}/planoNN/` — conforme Step 8)
 ```
 
 ### Caminho C: PRD nao existe
@@ -70,6 +186,68 @@ Estrutura gerada:
    - Avisar: "Vou planejar com base nessa descricao, mas um PRD completo daria mais precisao."
 4. Prosseguir (ou encerrar se dev quiser criar PRD primeiro)
 ```
+
+---
+
+## Step 1.5 — Detectar Ciclos em Requires
+
+```
+1. Glob `.planning/YYYY-MM-DD-*/` (APENAS pastas ativas — NAO incluir `.planning/_archive/`)
+   - Se vazio ou apenas o PRD atual: pular este step silenciosamente
+2. Para cada pasta encontrada:
+   a. Ler `PRD.md` dentro dela
+   b. Parsear frontmatter (mesmo parser do Step 1: buscar `---\n...\nrequires:...\n---`)
+   c. Extrair `requires:` normalizado como lista
+   d. Para cada item em requires:
+      - Se e pasta exata (`YYYY-MM-DD-slug`): usar diretamente
+      - Se e slug (`auth`): buscar pasta que termina em `-auth` em `.planning/YYYY-MM-DD-*/`
+      - Se nao encontrado ou ambiguo: ignorar silenciosamente (fase-01 ja reporta dangling)
+   e. Registrar no grafo: `{nome_pasta: [dep1, dep2, ...]}`
+3. Incluir o PRD atual no grafo:
+   - Se esta em pasta `YYYY-MM-DD-*`: usar nome da pasta
+   - Se nao (PRD sendo criado, sem pasta ainda): usar chave `__current__`
+4. Executar DFS com 3 cores:
+
+   cores = {pasta: "branco" para cada pasta no grafo}
+   ciclos_encontrados = []
+
+   para cada pasta em grafo onde cores[pasta] == "branco":
+     dfs(pasta, caminho=[])
+
+   def dfs(no, caminho):
+     cores[no] = "cinza"
+     caminho.append(no)
+     para cada dep em grafo[no]:
+       se dep nao esta em cores: ignorar (referencia externa nao resolvida)
+       se cores[dep] == "cinza":
+         idx = caminho.index(dep)
+         ciclo = caminho[idx:] + [dep]
+         ciclos_encontrados.append(ciclo)
+       senao se cores[dep] == "branco":
+         dfs(dep, caminho)
+     caminho.pop()
+     cores[no] = "preto"
+
+5. Apos DFS:
+   - Se ciclos_encontrados esta vazio: prosseguir para Step 2 silenciosamente
+   - Para cada ciclo encontrado:
+     - caminho_visual = " -> ".join(ciclo)
+     - Mostrar:
+       "AVISO: Ciclo em `requires:` detectado:
+          {caminho_visual}
+       Isto pode causar comportamento circular na verificacao de dependencias.
+       Voce pode ter contexto que justifica (ex: milestone composto).
+       Nao vou bloquear — apenas sinalizo."
+   - NAO usar AskUserQuestion aqui (aviso informativo, nao pergunta)
+   - Prosseguir automaticamente para Step 2
+```
+
+Gotchas:
+- **Auto-referencia:** `A requires: [A]` — DFS entra em A (cinza), visita A novamente (cinza) → ciclo `[A, A]`. Tratar igual.
+- **Ciclo indireto:** `A → B → C → A` — coberto naturalmente pelas 3 cores.
+- **`_archive/` ignorado:** Pastas arquivadas nao entram no grafo.
+- **PRD legacy sem frontmatter:** Parser retorna `requires = []`, entra no grafo com lista vazia — DFS nao detecta ciclo.
+- **Dangling (referencia nao resolvida):** Ignorar silenciosamente (fase-01 ja reporta).
 
 ---
 
@@ -358,11 +536,13 @@ Uma fase DEVE conter:
 ## Step 8 — Salvar Overview e Criar Estrutura
 
 ```
-1. Criar .planning/ se nao existir
-2. Salvar PLAN-{feature-name-kebab-case}.md (overview)
-   - Se ja existir: perguntar "Substituir ou criar versao (v2)?"
-3. Criar STATE-{feature-name}.md (tracking global) usando templates/state-template.md
-4. Confirmar: "Overview salvo. Pronto para criar o Plano 1."
+1. PASTA_ATIVA ja definida no Step 1 (ex: ".planning/2026-04-20-sistema-notificacoes/")
+2. Salvar overview em "{PASTA_ATIVA}/PLAN.md" (nu, sem prefixo)
+   - Se ja existir: perguntar "Substituir ou cancelar?"
+   (nota: colisao de v2 nao se aplica aqui — ja estamos DENTRO da pasta do PRD)
+3. Criar "{PASTA_ATIVA}/STATE.md" (tracking global LOCAL a este PRD) usando templates/state-template.md
+   - STATE.md nu, sem prefixo
+4. Confirmar: "Overview salvo em `{PASTA_ATIVA}/PLAN.md`. STATE em `{PASTA_ATIVA}/STATE.md`. Pronto para criar o Plano 1."
 ```
 
 ---
@@ -383,21 +563,25 @@ Fluxo:
 
 2. Spawn subagente isolado com:
    RECEBE:
-   - PRD completo
+   - Caminho de PASTA_ATIVA: {caminho absoluto}  ← OBRIGATORIO, sempre absoluto
+   - Todos os outputs DEVEM ser escritos em "{PASTA_ATIVA}/plano{NN}/..."
+   - Se escrever fora de PASTA_ATIVA, a fase eh invalida
+   - PRD completo (lido de "{PASTA_ATIVA}/PRD.md")
    - Contexto de codebase (Step 2)
-   - PLAN overview (saber o escopo total)
+   - PLAN overview (de "{PASTA_ATIVA}/PLAN.md")
    - Descricao do plano a detalhar (do overview)
    - Templates: plan-readme-template.md + fase-template.md + memory-template.md
+     (caminhos do plugin — inalterados)
 
    NAO RECEBE:
    - Detalhes de outros planos (isolamento)
    - Conversas anteriores
 
-   GERA:
-   - .planning/plano{NN}/README.md (overview do plano)
-   - .planning/plano{NN}/MEMORY.md (template vazio)
-   - .planning/plano{NN}/fase-01-{nome}.md
-   - .planning/plano{NN}/fase-02-{nome}.md
+   GERA (dentro de PASTA_ATIVA):
+   - "{PASTA_ATIVA}/plano{NN}/README.md" (overview do plano)
+   - "{PASTA_ATIVA}/plano{NN}/MEMORY.md" (template vazio)
+   - "{PASTA_ATIVA}/plano{NN}/fase-01-{nome}.md"
+   - "{PASTA_ATIVA}/plano{NN}/fase-02-{nome}.md"
    - ...
 
 3. Subagente retorna resumo do que gerou
@@ -411,7 +595,7 @@ Fluxo:
 
 5. Se dev aprovar: repete para proximo plano
    O subagente do Plano 2 RECEBE tambem:
-   - README do Plano 1 (saber o que ja foi planejado)
+   - README do Plano 1 ("{PASTA_ATIVA}/plano01/README.md")
    - NAO recebe as fases detalhadas do Plano 1
 
 6. Repetir ate todos os planos criados ou dev parar
@@ -464,14 +648,19 @@ Para aprofundar: sugerir `/anti-vibe-coding:learn "vertical slices"` ou `/anti-v
 
 ## Pipeline Integration
 
-### 0. Importar PRD (se disponivel)
-Antes de iniciar o planejamento, verificar se `.planning/PRD.md` ou `.planning/PRD-*.md` existe:
+### 0. Deteccao de Legacy (ver Step 0 acima)
+Se detectar PRD/plano soltos na raiz de .planning/, oferece migrar antes de qualquer outro
+fluxo. Ver `lib/legacy-detector.md` e `lib/legacy-migrator.md`.
 
-- **Se existir:** Importar automaticamente. Dizer ao dev:
-  > "Encontrei `.planning/PRD-{name}.md` do `/write-prd`. Vou usar este PRD como base."
+### 1. Importar PRD (se disponivel)
+Antes de iniciar o planejamento, executar o Step 1 para localizar o PRD:
+
+- **Se encontrar PRD em pasta datada (`.planning/YYYY-MM-DD-{slug}/PRD.md`):** Importar automaticamente. Dizer ao dev:
+  > "Encontrei PRD em `.planning/{pasta}/PRD.md` do `/write-prd`. Vou usar este PRD como base."
+  Fixar PASTA_ATIVA = diretorio que contem o PRD.md (caminho absoluto).
   Usar os requisitos e escopo do PRD para guiar a decomposicao.
 
-- **Se NAO existir:** Prosseguir com o fluxo normal — perguntar ao dev o que planejar.
+- **Se NAO encontrar:** Prosseguir com o fluxo normal — perguntar ao dev o que planejar (Caminho C).
 
 ### 1. Importar CONTEXT (se disponivel)
 Se `.planning/CONTEXT-*.md` existir (do /grill-me):
@@ -480,10 +669,10 @@ Se `.planning/CONTEXT-*.md` existir (do /grill-me):
 - Referenciar decisoes nas fases: "Conforme D3: usar Supabase RLS"
 
 ### 2. Salvar Plano e Criar STATE.md
-Ao finalizar o overview:
-1. Salvar overview em `.planning/PLAN-{feature}.md`
-2. Criar `.planning/STATE-{feature}.md` com tracking por plano
-3. Planos detalhados criados sob demanda (Step 9)
+Ao finalizar o overview (via Step 8):
+1. Salvar overview em `{PASTA_ATIVA}/PLAN.md` (nu, sem prefixo)
+2. Criar `{PASTA_ATIVA}/STATE.md` com tracking por plano (nu, sem prefixo)
+3. Planos detalhados criados sob demanda em `{PASTA_ATIVA}/plano{NN}/` (Step 9)
 
 ### 3. Sugerir Proximo Passo
 
@@ -513,3 +702,10 @@ Ao finalizar o overview:
 10. STATE.md e a fonte de verdade para progresso — /execute-plan atualiza, dev pode editar
 11. Cada plano tem sua propria MEMORY.md — preenchida durante execucao
 12. A decisao de quantos planos depende do julgamento senior da LLM, nao de regras fixas
+
+---
+
+## Referencias
+
+- `lib/legacy-detector.md` — Algoritmo de deteccao de estrutura legacy (consumido pelo Step 0)
+- `lib/legacy-migrator.md` — Algoritmo de migracao atomica STAGE/MOVE/CONFIRM/ROLLBACK (consumido pelo Step 0)

@@ -4,10 +4,11 @@ Estas regras carregam automaticamente ao editar arquivos `.ts`, `.tsx`, `.js` e 
 
 ## 9 Code Smells (Detectar e Corrigir)
 
-### 1. Funcoes Longas (> 100 linhas)
+### 1. Funcoes Longas (> 40 linhas)
 - Extrair em funcoes menores com nomes descritivos
 - Cada funcao com UMA responsabilidade clara
 - Se precisou de comentario para explicar bloco, extraia em funcao
+- Arquivo com >500 linhas é sinal de split — identifique responsabilidades distintas
 
 ### 2. God Objects
 - Classe com multiplas responsabilidades → composicao + servicos separados
@@ -39,15 +40,66 @@ Estas regras carregam automaticamente ao editar arquivos `.ts`, `.tsx`, `.js` e 
 - Ex: `createUser(name, email, age)` → `createUser(userData: UserInput)`
 - Facilita adicao de novos campos
 
-### 8. Comentarios Inuteis
-- Codigo autoexplicativo via nomenclatura
-- Comentarios explicam PORQUÊ, nunca COMO
-- Se precisa comentario → renomear variavel/funcao
+### 8. Comentarios Inuteis (WHAT comments)
+- WHAT comments são proibidos: `// incrementa i` acima de `i++` — o código já diz isso
+- Código autoexplicativo via nomenclatura elimina WHAT comments
+- Se um bloco precisa de comentário WHAT → extraia em função com nome descritivo
+- NUNCA remova WHY comments ao refatorar — eles carregam intenção que o código não captura
 
 ### 9. Tipos Primitivos vs Tipos de Dominio
 - Email como string → `class Email { constructor(v) { validate(v) } }`
 - Dinheiro como number → `class Money { currency, amount }`
 - Validacao na ENTRADA, tipo no SISTEMA, conversao na SAIDA
+
+## Política de Comentários (D3)
+
+### WHY comments — sempre permitidos e preservados
+
+Comentários que capturam contexto que o código não pode expressar:
+
+- **Proveniência:** `// workaround para bug do Safari 16.4 — https://bugs.webkit.org/123`
+- **Decisão arquitetural:** `// não usamos cache aqui por causa de invalidação eventual`
+- **Constraint externa:** `// limite da API: max 100 items por request`
+- **Bug ref:** `// FIXME: remover após migração de schema em v2.3`
+- **Intenção não óbvia:** `// ordenamos antes de deduplicar para preservar o primeiro occurrence`
+
+Regra: **NUNCA remova WHY comments ao refatorar.** Eles são contexto de primeira classe para o próximo agente ou dev.
+
+### WHAT comments — proibidos
+
+Comentários que apenas descrevem o que o código já diz:
+
+```ts
+// Ruim — redundante:
+// incrementa contador
+i++
+
+// Ruim — código autoexplicativo não precisa de legenda:
+// retorna null se usuário não encontrado
+return user ?? null
+```
+
+Se um bloco precisa de WHAT comment para ser compreendido → extraia em função com nome descritivo.
+
+### Docstrings em funções públicas
+
+Funções públicas (exportadas, de API pública) devem ter docstring com:
+1. Uma linha de intenção (o que ela garante, não como)
+2. Um exemplo de uso
+
+```ts
+/**
+ * Normaliza email para comparação case-insensitive.
+ * Exemplo: normalizeEmail("User@EXAMPLE.com") → "user@example.com"
+ */
+export function normalizeEmail(raw: string): string { ... }
+```
+
+### Ratio de Referência (não enforçado)
+
+Evidência empírica de 274 commits reais (Akita): ratio saudável de comentários é 15–25% do código.
+Abaixo de 10%: provável ausência de WHY comments importantes.
+Acima de 40%: provável excesso de WHAT comments.
 
 ## Tratamento de Erros
 
@@ -67,7 +119,26 @@ Estas regras carregam automaticamente ao editar arquivos `.ts`, `.tsx`, `.js` e 
 - Usar Pino ou Node Streams (assincronos) em producao
 - NUNCA console.log de dados sensiveis
 
-## JavaScript/TypeScript
+### Logging por Linguagem
+
+**TypeScript/JavaScript** — Pino (JSON estruturado, assincrono):
+```ts
+logger.info({ request_id, user_id, status, latency_ms }, 'request completed')
+```
+
+**Python** — structlog (JSON estruturado):
+```python
+log.info("request_completed", request_id=rid, user_id=uid, status=200, latency_ms=42)
+```
+
+**Ruby** — semantic_logger (JSON estruturado):
+```ruby
+logger.info "request_completed", request_id: rid, user_id: uid, status: 200, latency_ms: 42
+```
+
+## Por Linguagem
+
+### JavaScript/TypeScript
 
 - `const` > `let` >> NUNCA `var`
 - `Promise.all` para operacoes independentes (nao await sequencial)
@@ -75,6 +146,37 @@ Estas regras carregam automaticamente ao editar arquivos `.ts`, `.tsx`, `.js` e 
 - Closures: extrair minimo necessario, WeakMap para caches
 - Remover timers/listeners quando nao mais necessarios (cleanup)
 - Map/Filter/Reduce > for-loops quando mais expressivo
+- Formatador: prettier (JS/TS), biome como alternativa
+- Tipos explicitos: TypeScript strict mode, sem `any`
+
+### Python
+
+- Imutabilidade: prefira tuples sobre listas quando nao vai mudar
+- List comprehensions > map/filter quando mais legivel
+- `with` para recursos (arquivos, conexoes) — garante cleanup
+- Type hints obrigatorios: `def process(user_id: int) -> Result`
+- Formatador: black (zero configuracao)
+
+```python
+# Correto
+result = [transform(x) for x in items if x.is_valid()]
+
+# Errado
+result = list(map(lambda x: transform(x), filter(lambda x: x.is_valid(), items)))
+```
+
+### Ruby
+
+- Prefira `map`, `select`, `reduce` sobre loops imperativos
+- `freeze` constantes: `TIMEOUT = 30.freeze`
+- Type hints via RBS quando aplicavel (Ruby 3+)
+- Formatador: rubocop
+- Evite `method_missing` — dificulta grep e debugabilidade
+
+```ruby
+# Correto
+valid_users = users.select(&:active?).map { |u| UserPresenter.new(u) }
+```
 
 ## Anti-Patterns
 

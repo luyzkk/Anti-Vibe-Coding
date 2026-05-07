@@ -49,7 +49,10 @@ Anti-Sycophancy:
 ### Código
 - SEMPRE use early return
 - Prefira hash-lists sobre switch-case
-- Sem comentários desnecessários — converta em nomes descritivos
+- **WHY comments:** sempre permitidos — proveniência, decisão, workaround, bug ref, constraint externa
+- **WHAT comments:** proibidos — comentário óbvio do que o código já diz (`// incrementa i` acima de `i++`)
+- Nunca remova WHY comments ao refatorar — eles carregam intenção que o código não captura
+- Funções públicas exportadas: docstring com intenção + 1 exemplo de uso
 
 ### TypeScript
 - Strict mode. Use `unknown` e narrow com type guards (`any` desativa toda type-safety e esconde bugs silenciosos). Quase nunca `as`
@@ -166,7 +169,7 @@ O plugin usa **versionamento automático** para manter seu projeto sincronizado.
 
 ## Plugin Anti-Vibe Coding
 
-### Pipeline v5.0
+### Pipeline v5.2
 
 Fluxo opcional conectando skills em sequencia:
 ```
@@ -174,26 +177,47 @@ grill-me → write-prd → plan-feature → execute-plan → verify-work
 ```
 Cada skill funciona standalone. O pipeline é atalho, não obrigação.
 
-Artefatos de Pipeline:
-- Artefatos em `.planning/` (CONTEXT, PRD, PLAN, STATE, SUMMARY, plano{NN}/) são **temporários**
-- Após `/verify-work`, o código é a fonte de verdade — artefatos servem para rastrear processo
-- Não crie documentos para explicar outros documentos — se precisa de resumo, adicione seção no doc original
-- Se um artefato existe APENAS para explicar ou resumir outro, delete e corrija o original
+Ciclo pós-deploy (v5.2): `verify-work → iterate` — regression fixes e hardening em produção.
 
-Estrutura hierárquica (v2):
+Artefatos de Pipeline:
+- Cada PRD vive em pasta datada `.planning/YYYY-MM-DD-{slug}/` com artefatos nus (CONTEXT, PRD, PLAN, STATE, SUMMARY, MEMORY, plano{NN}/) — veja "Estrutura hierarquica (v2)" abaixo
+- Artefatos sao **temporarios** — apos `/verify-work` o codigo eh a fonte de verdade
+- Ao concluir: `/verify-work` oferece arquivar a pasta em `.planning/_archive/` e gera `MEMORY.md` consolidado do PRD
+- Nao crie documentos para explicar outros documentos — se precisa de resumo, adicione secao no doc original
+- Se um artefato existe APENAS para explicar ou resumir outro, delete e corrija o original
+- Paralelismo por design: multiplos PRDs coexistem em pastas datadas independentes (sem lock global)
+
+Estrutura hierarquica (v2 — pasta datada por PRD):
 ```
 .planning/
-├── PLAN-{feature}.md         ← Overview (grafo entre planos)
-├── STATE-{feature}.md        ← Tracking global por plano
-├── plano01/
-│   ├── README.md             ← Overview do plano + dependências
-│   ├── MEMORY.md             ← Memória viva (bugs, decisões, gotchas)
-│   └── fase-01-{nome}.md    ← Tasks detalhadas com snippets e checklist
-├── plano02/ ...
-└── SUMMARY-{feature}.md      ← Gerado ao concluir todos os planos
+├── CONTEXT-{slug}.md                  ← gerado pelo /grill-me (antes da pasta existir)
+├── 2026-04-20-sistema-notificacoes/   ← pasta datada do PRD
+│   ├── CONTEXT.md                     ← movido pelo /write-prd ao criar a pasta
+│   ├── PRD.md                         ← arquivos NUS (a pasta ja da contexto)
+│   ├── PLAN.md                        ← overview (grafo entre planos)
+│   ├── STATE.md                       ← tracking global por plano
+│   ├── SUMMARY.md                     ← gerado ao concluir todos os planos
+│   ├── MEMORY.md                      ← consolidado do PRD (gerado ao arquivar)
+│   ├── plano01/
+│   │   ├── README.md                  ← overview do plano + dependencias
+│   │   ├── MEMORY.md                  ← memoria viva (bugs, decisoes, gotchas) — por plano
+│   │   ├── fase-01-{nome}.md          ← tasks detalhadas com snippets e checklist
+│   │   └── fase-02-{nome}.md
+│   └── plano02/ ...
+├── 2026-04-25-outra-feature/
+│   └── ...
+└── _archive/
+    └── 2026-01-10-auth/               ← PRDs concluidos arquivados (via /verify-work)
 ```
-- Planos são gerados sob demanda (um por vez, em contexto isolado)
-- MEMORY.md é preenchida DURANTE execução e destilada ao final via /lessons-learned
+- Cada PRD vive em sua propria pasta `YYYY-MM-DD-{slug}/` — multiplos PRDs coexistem sem colisao
+- Arquivos dentro da pasta sao NUS (`PRD.md`, nao `PRD-{slug}.md`) — a pasta ja da contexto
+- Planos sao gerados sob demanda (um por vez, em contexto isolado)
+- `planoNN/MEMORY.md` eh preenchida DURANTE execucao, por plano (isolamento de subagentes)
+- `MEMORY.md` no nivel do PRD eh consolidado (agregado das memorias dos planos) — gerado AO ARQUIVAR
+- Licoes generalizaveis sao promovidas para `CLAUDE.md` do projeto via `/lessons-learned`
+- Paralelismo sem lock: duas sessoes Claude podem trabalhar em PRDs diferentes simultaneamente
+- Descoberta: `/execute-plan` e `/plan-feature` sem argumento listam PRDs ativos (filtro default: planned + in-progress + paused; `--all` inclui completed)
+- Legacy: `PRD-*.md` ou `planoNN/` soltos da versao anterior sao detectados e migracao eh oferecida on-detect (sem comando separado)
 
 Entradas alternativas:
 - `/grill-me` → pode alimentar `/write-prd` ou ser standalone
@@ -237,6 +261,11 @@ AI Judge sugerido para features com 3+ slices ou áreas críticas (auth, finance
 | **Plan Feature** | `/anti-vibe-coding:plan-feature` | **[v5.1] Plano hierárquico com análise semântica de complexidade** |
 | **Execute Plan** | `/anti-vibe-coding:execute-plan` | **[v5.1] Execução por planos com memória e transição interativa** |
 | **Verify Work** | `/anti-vibe-coding:verify-work` | **[v5] Verificação pós-execução com auditoria completa** |
+| **Iterate** | `/anti-vibe-coding:iterate` | **[v5.2] Ciclo pós-deploy: incident response + hardening** |
+| **Incident Response** | `/anti-vibe-coding:incident-response` | **[v5.2] Investigação aprofundada de incidentes** |
+| **Defensive Patterns** | `/anti-vibe-coding:defensive-patterns` | **[v5.2] Menu de hardening defensivo por categoria** |
+| **Centralize Config** | `/anti-vibe-coding:centralize-config` | **[v5.2] Centralizar config e env vars espalhadas** |
+| **Pair Programming** | `/anti-vibe-coding:pair-programming-with-agent` | **[v5.2] Sessão estruturada de pair programming com IA** |
 
 ### Agents Disponíveis
 
@@ -296,7 +325,21 @@ Detalhes técnicos em `skills/lib/model-profile-utils.md`.
 
 ## Lições Aprendidas
 
-_Nenhuma entrada ainda. Use `/anti-vibe-coding:lessons-learned add` para registrar._
+### [Plugin Development] Instrucoes executaveis em SKILL.md pertencem a blocos de codigo
+**Regra:** Qualquer instrucao que o modelo deve EXECUTAR (logica, condicional, pseudocodigo) deve estar dentro de blocos de codigo (triple backticks). Texto fora dos blocos eh tratado como prosa decorativa e pode ser ignorado.
+**Contexto:** Descoberto ao editar `write-prd/SKILL.md` — instrucoes fora de blocos eram puladas silenciosamente pelo modelo durante execucao. NOTAs para humanos ficam fora; logica executavel fica dentro.
+
+### [Bash] `mv dir/` no bash faz merge silencioso, nao falha se destino existe
+**Regra:** `mv pasta_origem/ pasta_destino/` em bash copia o conteudo para DENTRO de `pasta_destino/` se ela ja existir (em vez de renomear). Para renomear atomicamente, verificar existencia antes ou usar linguagem com `fs.rename` semantico.
+**Contexto:** Descoberto durante implementacao da migracao de `.planning/` legacy. O algoritmo de migracao usa `fs.rename` (atomic) exatamente por isso — `mv` poderia criar estrutura aninhada inesperada em caso de colisao.
+
+### [Subagentes] Agentes paralelos com git add simultaneo agrupam commits de fases distintas
+**Regra:** Quando dois subagentes rodam em paralelo e ambos fazem `git add` no mesmo repositorio, o commit do segundo agente pode incluir mudancas staged pelo primeiro. Sempre verificar `git diff --staged` antes de commitar para confirmar atomicidade.
+**Contexto:** Ocorreu em Plano 03 (fases 01+02 bundladas em 036315a) e Plano 04 (fases 01+03 bundladas em c8d5520). Se atomicidade de commits por fase for critica, usar `git stash` ou staging explicito por arquivo.
+
+### [Armadilha] Skills existentes podem ser omitidas silenciosamente ao publicar nova versao do plugin
+**Regra:** Antes de commitar uma nova versao do plugin, listar todas as skills da versao anterior e confirmar que cada uma esta presente — upgrades nao herdam automaticamente o que existia antes.
+**Contexto:** Na atualizacao v4.0→v5.1.0, `qa-visual` foi omitido sem erro ou warning. A skill desapareceu de todos os projetos que fizeram `/init` com a nova versao. Nenhum mecanismo detectou a regressao.
 
 ## Decisões Arquiteturais
 

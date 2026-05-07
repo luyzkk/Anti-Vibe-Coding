@@ -1,9 +1,21 @@
+---
+slug: {feature-kebab}
+date: {YYYY-MM-DD}
+status: draft
+# Metadados opcionais do PRD (formato YAML).
+# `requires:` lista PRDs que devem estar completos antes deste.
+# Aceita string unica (`requires: auth`) ou array (`requires: [auth, billing]`).
+# Pode referenciar slug curto (`auth`) ou pasta completa (`2026-04-20-auth`).
+# Se ausente ou vazio, nenhuma verificacao eh feita.
+requires: []
+---
+
 # PRD: {Feature Name}
 
 **Status:** Draft
 **Author:** {dev} + AI
 **Date:** {YYYY-MM-DD}
-**Context:** {caminho do CONTEXT.md se importado do /grill-me, ou "Mini-entrevista"}
+**Context:** ./CONTEXT.md
 
 ---
 

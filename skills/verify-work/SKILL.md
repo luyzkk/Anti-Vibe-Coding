@@ -347,26 +347,110 @@ Antes de iniciar a verificacao, verificar se `.planning/SUMMARY.md` existe:
 > - `/commit` para commit atomico
 > - `/push` para push
 > - `/open-pr` para abrir PR no GitHub"
+>
+> Proximo passo opcional: esta feature esta em producao ou prestes a ir?
+> - `/anti-vibe-coding:iterate harden` — checklist defensivo (rate limit, timeouts, fallbacks)
 
 **Se issues encontrados:**
-> "Encontrei [N] issues. Quer que eu corrija antes de prosseguir com o commit/PR?"
+> "Encontrei [N] issues. Quer que eu corrija antes de prosseguir com o commit/PR?
+>
+> Se os issues incluem bugs confirmados em producao:
+> - `/anti-vibe-coding:iterate` — regression test + fix guiado"
 
 ### Learn Point (opcional)
 
 > "Quer entender algum finding da verificacao ou como um dos auditores funciona? Posso aprofundar via `/learn`."
 
-### Cleanup de Artefatos
+### Cleanup de Artefatos — Arquivamento do PRD
 
-Apos verificacao completa, sugerir ao dev:
+```
+Apos verificacao completa, se a pasta do PRD for detectada (`.planning/YYYY-MM-DD-{slug}/`):
 
-> "Os artefatos em `.planning/` (CONTEXT, PRD, PLAN, STATE, SUMMARY) serviram para rastrear o processo. O codigo agora e a fonte de verdade.
->
-> Opcoes:
-> - Arquivar em `.planning/archive/{date}/` (preserva historico)
-> - Manter como esta (para referencia futura)
-> - Remover artefatos (o codigo e os commits contam a historia)"
+1. Detectar pasta ativa do PRD:
+   - Se argumento passado com caminho `.planning/...`: extrair pasta
+   - Senao: Glob `.planning/YYYY-MM-DD-*/` excluindo `_archive/`
+     - Filtrar por Phase=completed no STATE.md de cada uma
+     - Se 1 pasta completada: usar ela
+     - Se 2+: AskUserQuestion "Qual pasta deseja arquivar?"
+   - Se nenhuma: fallback para sugestao generica (arquivar/manter/remover)
 
-NAO deletar automaticamente — sempre perguntar. O dev decide.
+2. Se pasta encontrada, verificar se pode arquivar:
+   - Ler `{pasta}/STATE.md`
+   - Extrair tabela "Progress por Plano" e verificar status de cada plano
+     (STATE.md usa "**Phase:**" bold — buscar com regex, nao grep literal "phase:")
+   - Status terminais aceitos: `completed`, `skipped`
+   - Status NAO terminais (bloqueiam): `pending`, `in-progress`, `paused`, `blocked`
+   - Verificar tambem Phase global (deve ser `completed`)
+
+   Se NAO pode arquivar:
+     "Auditoria concluida, mas a pasta {pasta} tem planos nao terminais: {motivo}.
+      Nao vou oferecer arquivamento — verifique se algum plano ficou inacabado.
+      Voce pode arquivar manualmente depois com: mv {pasta} .planning/_archive/"
+     Encerrar sem tocar em nada.
+
+3. Se pode arquivar: apresentar oferta ao dev via AskUserQuestion:
+   "Auditoria concluida. Todos os planos estao em estado terminal (completed/skipped).
+    Deseja arquivar a pasta em .planning/_archive/?
+    [1] Sim, arquivar ({pasta} → .planning/_archive/{basename})
+    [2] Nao, manter em .planning/ (pode arquivar depois manualmente)
+    [3] Ver o STATE.md da pasta antes de decidir"
+
+4. Acao conforme resposta:
+
+   OPCAO 1 — ARQUIVAR:
+     a. Criar `.planning/_archive/` se nao existir
+     b. Verificar que `.planning/_archive/{basename}` NAO existe
+        - Se existe: "destino ja existe — conflito, investigar manualmente". Abortar.
+     c. GERAR MEMORY CONSOLIDADO antes do mv:
+
+        Gerar MEMORY.md consolidado no nivel do PRD (antes do mv):
+
+```
+gerarMEMORYConsolidado(pasta):
+  1. Ler todas as planoNN/MEMORY.md da pasta
+     (Glob "{pasta}/plano*/MEMORY.md")
+  2. Para cada plano:
+     - Se MEMORY.md nao existir: marcar como ausente (nao falhar — G13)
+     - Extrair secoes: Decisoes, Gotchas, Bugs, Desvios, Metricas
+  3. Filtrar com heuristicas (mitigacao R4):
+     - Gotchas: incluir se menciona stack/framework/tooling OU tem palavras
+       como "qualquer feature", "comum", "evitar", "padrao"
+     - Decisoes: incluir se referenciada em "Notas para Planos Seguintes"
+       de algum plano OU menciona outro plano explicitamente
+     - Bugs: incluir se gerou retries > 0 OU envolveu mais de uma fase
+     - Desvios: incluir todos (sao poucos e sempre relevantes)
+  4. Ler template: skills/plan-feature/templates/memory-prd-template.md
+  5. Preencher placeholders com dados agregados
+  6. Se planos ausentes: adicionar nota no final do consolidado
+     "<!-- Nota: planos NN sem MEMORY.md registrado -->"
+  7. Gerar secao "Candidatas a Licao": gotchas generalizaveis + decisoes cross-plano
+  8. Escrever em {pasta}/MEMORY.md (nivel do PRD — sobrescreve se existir)
+
+Se falha (template nao encontrado, erro de leitura):
+  - NAO bloquear arquivamento automaticamente
+  - Perguntar: "Falha ao gerar MEMORY consolidado: {erro}.
+    Arquivar mesmo assim (sem consolidado)? [sim/nao]"
+  - Se sim: prosseguir mv sem consolidado
+  - Se nao: abortar arquivamento
+```
+     d. Executar mv:
+        mv .planning/{basename} .planning/_archive/{basename}
+        (Windows: mover pasta completa com bash mv ou PowerShell Move-Item)
+     e. Confirmar: ler `.planning/_archive/{basename}/PRD.md` para verificar
+     f. Informar: "Pasta arquivada em .planning/_archive/{basename}/"
+
+   OPCAO 2 — MANTER:
+     - Nao fazer nada, nao consolidar memoria
+     - "OK, pasta mantida. Use /verify-work novamente ou mova manualmente quando quiser."
+
+   OPCAO 3 — VER STATE:
+     - Mostrar conteudo de `{pasta}/STATE.md` inline
+     - Voltar ao prompt do passo 3
+
+   Se mv falhar (permissao, filesystem diferente, etc.):
+     - Abortar sem estado parcial (mv e atomico para mesmo filesystem)
+     - Mensagem clara sobre o erro
+```
 
 ### Escape Hatches
 - Esta skill e o encerramento do pipeline mas funciona standalone

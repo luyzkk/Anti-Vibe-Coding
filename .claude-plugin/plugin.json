@@ -1,7 +1,7 @@
 {
   "name": "anti-vibe-coding",
-  "version": "5.1.0",
-  "description": "Plugin de desenvolvimento disciplinado com conhecimentos de programador sênior. Automatiza TDD, segurança, autorização, design patterns, SOLID, system design, infraestrutura, API protocols e qualidade de código usando hooks, skills, agents e rules. v5.0: Pipeline grill-me→write-prd→plan-feature→execute-plan→verify-work, IA-TDD adaptativo, Model Profiles e Context Monitor.",
+  "version": "5.2.0",
+  "description": "Plugin de desenvolvimento disciplinado com conhecimentos de programador sênior. Automatiza TDD, segurança, autorização, design patterns, SOLID, system design, infraestrutura, API protocols e qualidade de código usando hooks, skills, agents e rules. v5.2: Pipeline grill-me→write-prd→plan-feature→execute-plan→verify-work, IA-TDD adaptativo, Model Profiles e Context Monitor.",
   "author": {
     "name": "Luiz Felipe"
   },

@@ -112,6 +112,8 @@ Cenario mais importante. Seguir EXATAMENTE:
 | Workflow de desenvolvimento | **Adicionar** se nao existir workflow equivalente |
 | Tabelas de skills/commands do Anti-Vibe | **SEMPRE adicionar** ao final |
 
+> **Conteúdo das seções Akita a adicionar:** Ver seção `## Template Akita` ao final deste skill.
+
 #### Estrutura do Merge (ordem das secoes)
 
 ```
@@ -423,6 +425,200 @@ Apresentar um resumo do que foi feito:
 - **SEMPRE** mostrar ao usuario o que sera alterado antes de alterar
 - O merge deve ser **aditivo** — o Anti-Vibe Coding complementa, nao substitui
 - Se nao tiver certeza sobre um conflito, **perguntar ao usuario**
+
+---
+
+## Template Akita — Conteúdo das Seções a Adicionar
+
+As seções abaixo compõem o bloco Akita que deve ser ADICIONADO ao CLAUDE.md do projeto durante o merge (Passo 2). Seguir as regras de merge: se seção equivalente já existe, COMBINAR; se não existe, ADICIONAR integralmente.
+
+Posição na estrutura do merge: após `## Padrões Core` e antes de `## Workflow de Desenvolvimento`.
+
+---
+
+### Seção: Code Style for Agents
+
+````markdown
+## Code Style for Agents
+
+Convenções obrigatórias para código gerado por IA:
+
+- **Nomes grepáveis:** use nomes específicos ao domínio. NUNCA: `data`, `handler`, `process`, `item`, `info`, `result`, `value`, `temp`, `obj`
+- **Funções ≤ 40 linhas:** se ultrapassar, extraia função com nome descritivo
+- **Arquivos ≤ 500 linhas:** se ultrapassar, divida em módulos com responsabilidade única
+- **SRP obrigatório:** uma função, uma responsabilidade. Side effects explícitos e isolados
+- **Tipos explícitos:** sem `any`. Use `unknown` + type guard quando o tipo é incerto
+
+```typescript
+// TS/JS
+// ERRADO
+async function process(data: any) { ... }
+
+// CERTO
+async function chargeSubscriptionRenewal(invoice: InvoicePayload): Promise<ChargeResult> { ... }
+```
+
+```python
+# Python
+# ERRADO
+def handle(data):
+    ...
+
+# CERTO
+def send_overdue_payment_reminder(invoice: Invoice) -> NotificationResult:
+    ...
+```
+
+```ruby
+# Ruby
+# ERRADO
+def process(data)
+  ...
+end
+
+# CERTO
+def expire_unpaid_subscription(subscription:)
+  ...
+end
+```
+````
+
+---
+
+### Seção: Comments
+
+````markdown
+## Comments
+
+**Escreva o WHY. Nunca o WHAT.**
+
+**Comente quando:**
+- Proveniência externa: `# via Stripe docs §3.2 — idempotency key obrigatório aqui`
+- Decisão não óbvia: `# usar created_at em vez de updated_at — updated_at muda em reindexações`
+- Workaround documentado: `# workaround: SDK retorna 200 em falha silenciosa (issue #4821)`
+- Referência a bug: `# bug #1234: race condition se chamar sem lock`
+- Constraint externo: `# limite da API: máx 100 itens por batch`
+- Docstrings em funções públicas: sempre — parâmetros, retorno, exceções esperadas
+
+**NUNCA comente:**
+- O que o código já diz: `i += 1  # incrementa i`
+- Nomes redundantes: `# calcula total` acima de `calculateTotal()`
+- Código comentado (morto): delete, o git guarda o histórico
+
+**Em refactor por IA:** não podar comentários do tipo WHY. Se um comentário explicar uma decisão ou workaround, ele sobrevive à refatoração mesmo que o código ao redor mude.
+````
+
+---
+
+### Seção: Tests
+
+````markdown
+## Tests
+
+Seguir **F.I.R.S.T:**
+- **Fast:** testes unitários em < 50ms cada
+- **Independent:** sem dependência de ordem ou estado compartilhado entre testes
+- **Repeatable:** mesmo resultado em qualquer ambiente (sem clock real, sem rede real)
+- **Self-validating:** passa ou falha — sem interpretação manual
+- **Timely:** escrito ANTES do código de produção (TDD)
+
+**Cobertura mínima:**
+- Lógica de negócio: ≥ 95%
+- Global: ≥ 80%
+- Branch (condicionais): ≥ 70%
+
+**Testes headless:** sem UI real, sem rede real, sem banco real. Use mocks/fakes para dependências externas.
+
+**Nomes de teste:** verbo descritivo, sem "should". Ex: `returns 401 when token expired`, `charges invoice on first retry`.
+````
+
+---
+
+### Seção: Dependencies
+
+````markdown
+## Dependencies
+
+**Injeção de dependência via constructor/parameter — nunca instanciar internamente.**
+
+```typescript
+// ERRADO — acoplamento direto, impossível de testar
+class InvoiceService {
+  private stripe = new Stripe(process.env.STRIPE_KEY!)
+}
+
+// CERTO — DI via constructor
+class InvoiceService {
+  constructor(private readonly stripe: StripeClient) {}
+}
+```
+
+```python
+# Python — DI via parâmetro
+# ERRADO
+class InvoiceService:
+    def __init__(self):
+        self.stripe = Stripe(os.environ['STRIPE_KEY'])
+
+# CERTO
+class InvoiceService:
+    def __init__(self, stripe: StripeClient):
+        self.stripe = stripe
+```
+
+```ruby
+# Ruby — DI via keyword argument
+# ERRADO
+class InvoiceService
+  def initialize
+    @stripe = Stripe::Client.new(ENV['STRIPE_KEY'])
+  end
+end
+
+# CERTO
+class InvoiceService
+  def initialize(stripe:)
+    @stripe = stripe
+  end
+end
+```
+
+Serviços externos (banco, APIs, filas) são sempre injetados — nunca instanciados dentro de classes de negócio.
+````
+
+---
+
+### Seção: Logging
+
+````markdown
+## Logging
+
+**JSON estruturado para debug/observabilidade; plain text apenas para CLI output.**
+
+```typescript
+// Debug/observabilidade — JSON estruturado
+logger.info({ event: 'invoice.charged', invoiceId, customerId, amountCents, attempt })
+logger.error({ event: 'stripe.charge.failed', invoiceId, error: err.message, code: err.code })
+
+// CLI output — plain text legível
+console.log(`Charged ${invoiceCount} invoices in ${elapsedMs}ms`)
+```
+
+```python
+# Python — structlog ou logging com extra
+import structlog
+log = structlog.get_logger()
+log.info("invoice.charged", invoice_id=invoice_id, customer_id=customer_id, amount_cents=amount_cents)
+```
+
+```ruby
+# Ruby — structured hash
+Rails.logger.info({ event: 'invoice.charged', invoice_id:, customer_id:, amount_cents: }.to_json)
+```
+
+**Campos obrigatórios em eventos de negócio:** `event` (nome do evento), entidade principal (id), resultado.  
+**Nunca logar:** senhas, tokens, PII sem mascaramento, stack traces completas em produção.
+````
 
 ## Diretorio do projeto
 
