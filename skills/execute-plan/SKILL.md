@@ -22,39 +22,129 @@ Suporta dois formatos:
 
 ---
 
-## Step 1 — Detectar Formato e Ler Plano
+## Step 0 — Deteccao de Legacy
 
-### 1a. Localizar plano
+Roda antes de qualquer outra coisa. Se `.planning/` tem artefatos soltos pre-refatoracao
+(`PRD-*.md`, `PLAN-*.md`, `STATE-*.md`, `planoNN/` solto), oferece migrar para pasta datada.
+
+Algoritmo: `lib/legacy-detector.md`.
+Migracao: `lib/legacy-migrator.md`.
+
+### Fluxo
 
 ```
-Se caminho fornecido (/execute-plan "path/to/PLAN.md"):
-  - Ler com Read
+1. Se `.planning/` nao existe: skip — ir para Step 1.
+2. Executar `detectLegacy(".planning/")` conforme `lib/legacy-detector.md`.
+3. Se `legacy == false`: skip — ir para Step 1.
+4. Se `legacy == true`:
+   a. Apresentar ao dev:
+      "Detectei estrutura legacy em .planning/:
+         Sinais: {signals.join(', ')}
+         Artefatos:
+           - {cada artifact.path}
+         Slug inferido: {suggestedSlug ou 'nenhum — dev fornece'}"
+   b. Se detectou apenas PLAN.md/STATE.md flat (sinal C sem A nem B):
+      - Nota: o detector retorna legacy=false se so C presente (conforme lib/legacy-detector.md).
+        Portanto esse caso nao chega aqui — PLAN.md flat puro nao eh legacy pelo algoritmo.
+        Execute-plan Step 1b detecta o flat normalmente e vai para Step 2-FLAT.
+   c. Se `suggestedSlug` for null (ambiguous):
+      - AskUserQuestion: "Qual slug usar para a pasta destino? (kebab-case, ex: auth)"
+      - Validar regex `^[a-z0-9][a-z0-9-]*$`; re-perguntar 1x em caso de invalido
+   d. Computar `targetFolderName = "{YYYY-MM-DD}-{slug}"` (data atual UTC)
+   e. Se pasta destino ja existir: oferecer `{targetFolderName}-v2` ou cancelar.
+      Mensagem: "A pasta {targetFolderName} ja existe. Possiveis causas:
+        - Outra sessao ja migrou
+        - execute-plan rodou 2x hoje para o mesmo slug
+        Opcoes: criar como {targetFolderName}-v2 / cancelar"
+   f. AskUserQuestion:
+      - "Sim, migrar agora e executar dentro da pasta"
+      - "Nao — executar legacy em modo v1 a partir de .planning/ raiz (nao migra)"
+      - "Cancelar execute-plan"
+   g. Se "Sim":
+      - Chamar `migrateLegacy(detectorResult, targetFolderName)` conforme `lib/legacy-migrator.md`
+      - Se `status == "success"`: continuar Step 1 dentro da pasta migrada
+      - Se `rolled_back`/`aborted`: reportar erro, perguntar se prosseguir em modo legacy v1 ou cancelar
+   h. Se "Nao — legacy v1":
+      - Modo legacy v1 ativado para esta invocacao
+      - Ir para Step 1 com convencao ANTIGA: buscar `.planning/PLAN-*.md`, `.planning/STATE-*.md`,
+        `.planning/plano*/` soltos — o Step 2-FLAT opera sobre eles
+      - Nota: na proxima invocacao, Step 0 vai perguntar de novo (nao ha estado entre sessoes)
+   i. Se "Cancelar": encerrar sem tocar em nada
+
+Regras:
+- Step 0 roda apenas 1 vez por invocacao
+- Se migracao falhou: dev decide prosseguir legacy v1 ou cancelar
+- "Nao (legacy v1)" vale SO para esta invocacao
+
+Nota sobre CA-12 (projeto em execucao nao interrompido):
+  Se STATE.md legacy tinha `phase: in-progress`, a migracao o move INTACTO (byte-a-byte).
+  Apos migrar, Step 1 le STATE.md da nova pasta, ve mesmo `Current Plan` e retoma de onde parou.
+```
+
+---
+
+## Step 1 — Detectar Formato e Ler Plano
+
+### 1a. Localizar plano (nova estrutura — pastas datadas)
+
+```
+Se caminho fornecido (/execute-plan "path/to/PASTA/" ou ".../PLAN.md"):
+  - Resolver para pasta datada `.planning/YYYY-MM-DD-{slug}/`
+  - Ler `STATE.md` de dentro da pasta
   - Prosseguir para 1b
 
-Se nao forneceu caminho:
-  - Glob: ".planning/PLAN-*.md"
-  - Se 1 arquivo: ler diretamente
-  - Se mais de 1: listar e perguntar qual executar
+Se NAO forneceu caminho:
+  1. Enumerar pastas datadas em `.planning/` (Glob `.planning/YYYY-MM-DD-*/`)
+     - EXCLUIR `.planning/_archive/` e seu conteudo
+     - Para cada pasta, ler `STATE.md` local e extrair `Phase` + `Current Plan`
+       (STATE.md usa "**Phase:**" bold — buscar com regex, nao grep literal)
+  2. Aplicar filtro default: mostrar apenas `planned` + `in-progress` + `paused`
+     - Flag `--all` incluida no argumento: mostrar tambem `completed`
+  3. Apresentar lista ao dev:
 
-Se nao encontrou:
-  - "Nao encontrei nenhum PLAN.md em .planning/."
-  - Oferecer: "Quer criar um com /plan-feature?"
+     Encontrei 3 PRDs ativos em .planning/:
+       [1] 2026-04-20-sistema-notificacoes  (in-progress — Plano 2/4)
+       [2] 2026-04-21-auth-refactor         (planned)
+       [3] 2026-04-15-billing               (paused — Plano 3/5)
+     Qual executar? (--all para ver completed tambem)
+
+  4. Se dev escolher um: usar aquela pasta como raiz, ler `STATE.md` dela
+  5. Se lista vazia apos filtro:
+     - Se `--all` foi usado: "Nenhum PRD em .planning/." + oferecer /plan-feature
+     - Se default: "Nenhum PRD ativo (planned/in-progress/paused). Rode /execute-plan --all para ver todos."
+  6. Se apenas 1 PRD ativo apos filtro: pedir confirmacao
+     "Encontrei 1 PRD ativo: {nome} ({status}). Executar?"
+
+Se apos enumeracao NAO houver nenhuma pasta datada:
+  - Verificar se ha artefatos legacy (`PRD-*.md` solto, `plano*/` solto)
+    → detectLegacy() via Step 0
+  - Senao: "Nao encontrei nenhum PRD em .planning/. Quer criar um com /write-prd?"
   - Encerrar
+
+Nota sobre flag --all:
+  - Se `--all` vier com caminho explicito: ignorar a flag (caminho tem precedencia)
+  - Se `--all` vier sozinho: listar tambem status `completed`
 ```
 
 ### 1b. Detectar formato
 
+Opera DENTRO da pasta escolhida no Step 1a (PASTA_ATIVA ja definida).
+O `PLAN.md` e lido como `{PASTA_ATIVA}/PLAN.md`.
+
 ```
 Ler o PLAN.md encontrado e verificar:
 
-HIERARQUICO (v2) — detectado se:
-  - Contem secao "## Planos" com tabela de planos numerados
-  - Glob ".planning/plano*/" encontra pastas
+HIERARQUICO (v2 — NOVA ESTRUTURA):
+  - PASTA_ATIVA contem `PLAN.md`
+  - Glob `{PASTA_ATIVA}/plano*/` encontra pastas
   - Cada pasta tem README.md + fase-*.md
 
-FLAT (v1) — detectado se:
-  - Contem "## Wave" com slices e tasks
-  - Nao existem pastas plano*/
+FLAT (v1 — backward compat):
+  - PLAN.md contem "## Wave" com slices/tasks
+  - Nao existem subpastas `plano*/`
+  - IMPORTANTE: o fluxo FLAT pode vir de pasta datada (se `plan-feature` fallback gerou plano unico)
+    OU de legacy (PLAN.md solto na raiz). Deteccao de legacy eh Plano 02 — aqui apenas seguir
+    fluxo flat se detectado dentro de PASTA_ATIVA.
 
 Se hierarquico: prosseguir para Step 2 (hierarquico)
 Se flat: prosseguir para Step 2-FLAT (backward compat — fluxo original)
@@ -64,7 +154,7 @@ Se flat: prosseguir para Step 2-FLAT (backward compat — fluxo original)
 
 ## Step 2 — Ler Estado Global (Hierarquico)
 
-Nome esperado: `.planning/STATE-{feature-name}.md`
+Nome esperado: `{PASTA_ATIVA}/STATE.md` (nu, sem prefixo, LOCAL a pasta)
 
 ### Se STATE.md existe:
 
@@ -88,7 +178,7 @@ Fase "planned" ou "in-progress":
 ### Se STATE.md nao existe:
 
 ```
-Criar a partir do PLAN overview:
+Criar a partir do PLAN overview em `{PASTA_ATIVA}/STATE.md`:
   - Listar todos os planos com status "pending"
   - phase: planned
   - current_plan: 01
@@ -101,7 +191,7 @@ Criar a partir do PLAN overview:
 ```markdown
 # State: {Feature Name}
 
-**Plan:** .planning/PLAN-{feature}.md
+**Plan:** ./PLAN.md
 **Phase:** {planned | in-progress | paused | completed}
 **Current Plan:** {NN}/{total}
 **Last Updated:** {date}
@@ -125,14 +215,59 @@ Tasks done: {X}/{Y} ({Z}%)
 
 ---
 
+## Step 2.5 — Verificar Requires
+
+```
+1. Ler `{PASTA_ATIVA}/PRD.md`
+2. Extrair frontmatter (mesmo parser de plan-feature):
+   - Se conteudo comeca com `---\n`:
+     - Extrair bloco entre primeiro `---` e segundo `---`
+     - Procurar linha `requires:`
+     - Se encontrada:
+       - Se valor comeca com `[`: split por virgula, trim, remover `[` e `]`, lista
+       - Se valor e string simples (nao vazia): lista com 1 elemento
+       - Se `[]` ou vazio: lista vazia
+     - Se nao encontrada ou bloco ausente: requires = []
+   - Se `requires` vazio: pular este step inteiramente
+3. Para cada dependencia em `requires`:
+   a. Resolver para pasta:
+      - Se valor e pasta exata (`2026-04-20-auth`): usar diretamente
+      - Se e slug (`auth`): glob `.planning/????-??-??-*-auth/` (sufixo exato)
+                            + `.planning/_archive/????-??-??-*-auth/`
+      - Se nao encontrou: status = "nao encontrado"
+      - Se mais de 1 pasta: status = "ambiguo" (listar pastas)
+   b. Se resolveu para exatamente 1 pasta:
+      - Ler `STATE.md` da pasta
+      - Extrair campo `**Phase:**` com regex (nao grep literal)
+      - Se Phase == "completed": dependencia OK — nao aparece no aviso
+4. Montar lista de dependencias com problema (nao-completed, nao-encontradas, ambiguas)
+5. Se lista de problemas vazia: pular — ir para Step 3
+6. Se ha dependencias com problema, montar aviso:
+
+   "AVISO: Dependencias nao concluidas:
+     - {slug}: {status} (em {pasta})
+     - {slug}: nao encontrado
+     - {slug}: ambiguo (pastas: X, Y)
+
+   Este PRD declara `requires:` em seu frontmatter. Prosseguir mesmo assim?"
+
+7. AskUserQuestion:
+   - "Prosseguir (aceito o risco)"
+   - "Cancelar e resolver dependencias primeiro"
+8. Se cancelar: exibir "Execucao cancelada. Conclua as dependencias e rode /execute-plan novamente." e encerrar.
+9. Se prosseguir: registrar no Log do STATE.md: "Aviso de requires aceito pelo dev em {data}"
+```
+
+---
+
 ## Step 3 — Ler Plano Ativo e Consultar Memoria
 
 ### 3a. Carregar plano
 
 ```
 1. Identificar plano ativo do STATE.md (Current Plan: NN)
-2. Ler .planning/plano{NN}/README.md
-3. Listar fases: Glob ".planning/plano{NN}/fase-*.md"
+2. Ler `{PASTA_ATIVA}/plano{NN}/README.md`
+3. Listar fases: Glob `{PASTA_ATIVA}/plano{NN}/fase-*.md`
 4. Identificar proxima fase pendente
 ```
 
@@ -199,18 +334,21 @@ Para cada fase a executar:
 
 Spawn do agent plan-executor com contexto:
   RECEBE:
-  - Arquivo da fase completo (fase-NN-nome.md)
-  - README.md do plano (overview e gotchas)
-  - "Notas para Planos Seguintes" dos planos anteriores (se existirem)
-  - Estado atual (STATE.md — apenas progresso, nao logs)
-  - Padrao de codigo existente (1-2 arquivos de referencia do codebase)
+  - PASTA_ATIVA (caminho absoluto — contexto obrigatorio)
+  - Arquivo da fase: `{PASTA_ATIVA}/plano{NN}/fase-MM-nome.md` (completo)
+  - README do plano: `{PASTA_ATIVA}/plano{NN}/README.md`
+  - "Notas para Planos Seguintes" de `{PASTA_ATIVA}/plano{01..NN-1}/MEMORY.md`
+  - Estado atual: relevant-only do `{PASTA_ATIVA}/STATE.md` (progresso, nao logs completos)
+  - Padrao de codigo existente (1-2 arquivos de referencia do codebase do projeto — nao do .planning/)
   - Instrucao: "Execute APENAS esta fase. Siga TDD. Commit atomico por passo."
   - Instrucao: "Reporte: decisoes tomadas, bugs encontrados, desvios do plano."
+  - Instrucao: "Commits e edits de codigo vao para o repositorio DO PROJETO, nao dentro de PASTA_ATIVA.
+    PASTA_ATIVA eh apenas para artefatos de planejamento (MEMORY.md, STATE.md updates)."
 
   NAO RECEBE:
   - PRD completo (o subagente ve apenas a fase)
   - Outras fases do plano
-  - MEMORY.md completa de planos anteriores
+  - MEMORY.md completa de planos anteriores (so "Notas para Planos Seguintes")
   - Contexto de conversas anteriores
 
 Aguardar conclusao antes de atualizar estado.
@@ -253,12 +391,12 @@ Apos cada subagente completar:
    - Gotchas descobertos (GT-*)
    - Desvios do plano (DEV-*)
 
-3. Atualizar STATE.md:
+3. Atualizar `{PASTA_ATIVA}/STATE.md`:
    - Mudar status da fase
    - Incrementar progresso
    - Registrar evento no Log
 
-4. Atualizar MEMORY.md do plano ativo:
+4. Atualizar `{PASTA_ATIVA}/plano{NN}/MEMORY.md` do plano ativo:
    - Append decisoes em "Decisoes de Implementacao"
    - Append bugs em "Bugs Descobertos"
    - Append gotchas em "Gotchas"
@@ -413,7 +551,7 @@ Quando todos os planos estao como "completed":
 ### 7a. Gerar SUMMARY.md
 
 ```
-Gerar .planning/SUMMARY-{feature-name}.md:
+Gerar `{PASTA_ATIVA}/SUMMARY.md` (nu, sem prefixo):
 
 # Summary: {Feature Name}
 
@@ -483,14 +621,32 @@ Sugerir:
 
 ## Step 2-FLAT — Backward Compat (Formato v1)
 
+### Contexto de operacao pos-refatoracao
+
+O Step 2-FLAT pode operar em 2 modos dependendo do que aconteceu no Step 0:
+
+1. **Modo migrado (padrao):** PLAN.md flat vive em `.planning/YYYY-MM-DD-{slug}/PLAN.md`.
+   STATE.md ao lado. Step 2-FLAT le de la. (PASTA_ATIVA ja foi resolvida no Step 1.)
+
+2. **Modo legacy v1 (opt-in via Step 0 "Nao"):** Dev escolheu nao migrar. PLAN.md flat
+   esta em `.planning/PLAN-{feature}.md` solto. Step 2-FLAT le de la.
+
+O conteudo interno (waves/tasks) eh IDENTICO nos 2 modos — so o path eh diferente.
+
 Para planos flat (PLAN.md unico com waves/tasks), manter o fluxo original:
 
 ```
+Step 2-FLAT assume PASTA_ATIVA ja identificada no Step 1.
+Todos os caminhos (STATE.md, logs) vivem dentro de PASTA_ATIVA.
+Se detectar PLAN.md SOLTO na raiz de `.planning/` (sem pasta datada),
+isso eh legacy puro — Plano 02 cuida da migracao. Nesta fase, apenas
+avisar: "PLAN.md solto detectado. Migracao sera oferecida em versao futura."
+
 O fluxo flat funciona exatamente como a versao anterior:
-- Le waves e tasks do PLAN.md
+- Le waves e tasks do `{PASTA_ATIVA}/PLAN.md`
 - Executa wave por wave com subagentes
 - TDD com isolamento RED/GREEN
-- STATE.md com tracking por task
+- STATE.md com tracking por task — vive em `{PASTA_ATIVA}/STATE.md`
 - Sem MEMORY.md por plano (nao ha planos separados)
 
 Referencia: ver references/wave-execution.md para conceitos de waves.
@@ -544,9 +700,9 @@ Step 6-FLAT: SUMMARY ao completar
 
 ### Ao Concluir Todos os Planos
 
-1. **Salvar SUMMARY.md** com consolidado de todas as memorias
+1. **Salvar `{PASTA_ATIVA}/SUMMARY.md`** com consolidado de todas as memorias
 2. **Destilacao de memoria** — oferecer salvar licoes uteis
-3. **Atualizar STATE.md** — phase: completed
+3. **Atualizar `{PASTA_ATIVA}/STATE.md`** — phase: completed
 4. **Sugerir /verify-work** para auditoria pos-implementacao
 
 ### Learn Point (opcional)
@@ -554,9 +710,9 @@ Step 6-FLAT: SUMMARY ao completar
 > "Quer entender context isolation RED/GREEN, execucao hierarquica ou memoria por plano? Posso aprofundar via `/learn`."
 
 ### Escape Hatches
-- Dev pode pausar entre planos (estado salvo)
+- Dev pode pausar entre planos (estado salvo em `{PASTA_ATIVA}/STATE.md`)
 - Dev pode pular plano inteiro (dependentes ficam pending)
-- Dev pode abortar a qualquer momento (estado e memoria salvos)
+- Dev pode abortar a qualquer momento (estado e memoria salvos dentro de PASTA_ATIVA)
 - Dev pode trocar de contexto entre planos (recomendado para features grandes)
 
 ---
@@ -567,3 +723,5 @@ Step 6-FLAT: SUMMARY ao completar
 - `skills/plan-feature/templates/memory-template.md` — Template de memoria por plano
 - `agents/plan-executor.md` — Agent que executa tasks/fases individuais
 - `agents/plan-verifier.md` — Agent que verifica output (read-only)
+- `lib/legacy-detector.md` — Algoritmo de deteccao de estrutura legacy (consumido pelo Step 0)
+- `lib/legacy-migrator.md` — Algoritmo de migracao atomica STAGE/MOVE/CONFIRM/ROLLBACK (consumido pelo Step 0)

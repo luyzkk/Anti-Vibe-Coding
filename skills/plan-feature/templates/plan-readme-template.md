@@ -1,6 +1,6 @@
 # Plano {NN}: {Nome do Plano}
 
-**Feature:** {nome da feature (link ao PLAN overview)}
+**Feature:** {nome da feature} ([PLAN overview](../PLAN.md))
 **Fases:** {N}
 **Sizing total:** ~{X}h
 **Depende de:** {Plano NN ou "Nenhum (primeiro plano)"}

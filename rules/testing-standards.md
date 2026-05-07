@@ -25,6 +25,8 @@ NUNCA gere código de produção e testes ao mesmo tempo.
 
 ## Estrutura
 
+**TypeScript** (jest / vitest):
+
 ```typescript
 describe('ModuleName', () => {
   describe('functionName', () => {
@@ -44,6 +46,35 @@ describe('ModuleName', () => {
     })
   })
 })
+```
+
+**Python** (pytest):
+
+```python
+class TestFunctionName:
+    def returns_expected_value_when_given_valid_input(self):
+        result = function_name(create_valid_input())
+        assert result == expected_value
+
+    def raises_validation_error_when_input_is_invalid(self):
+        with pytest.raises(ValidationError):
+            function_name(invalid_input)
+```
+
+**Ruby** (rspec):
+
+```ruby
+RSpec.describe ModuleName do
+  describe '#function_name' do
+    it 'returns expected value when given valid input' do
+      expect(function_name(valid_input)).to eq(expected_value)
+    end
+
+    it 'raises ValidationError when input is invalid' do
+      expect { function_name(invalid_input) }.to raise_error(ValidationError)
+    end
+  end
+end
 ```
 
 ## Mocking
@@ -66,3 +97,64 @@ describe('ModuleName', () => {
 - Getters/setters triviais
 - Código de terceiros (frameworks, libs)
 - UI estática sem lógica
+
+## Comandos por Linguagem
+
+| Linguagem | Rodar testes | Watch mode |
+|-----------|-------------|------------|
+| TypeScript/JS | `bun run test` (vitest) ou `jest` | `vitest --watch` |
+| Python | `pytest` | `pytest-watch` ou `ptw` |
+| Ruby | `rspec` | `guard-rspec` |
+
+## Coverage Thresholds (D7)
+
+Valores hardcoded baseados em evidência empírica de 274 commits reais (Fabio Akita).
+Não são configuráveis — eliminar bikeshedding sobre números.
+
+### Thresholds Obrigatórios
+
+| Escopo | Métrica | Mínimo |
+|--------|---------|--------|
+| Business logic (services, models, domain) | Line coverage | ≥95% |
+| Global (todo o projeto, incluindo integrações mockadas) | Line coverage | ≥80% |
+| Global | Branch coverage | ≥70% |
+
+**Business logic** = qualquer módulo em `services/`, `models/`, `domain/`, `use-cases/`, ou equivalente no projeto.
+
+### Ratio Teste/Código (referência, não enforçado)
+
+1.2x–1.5x linhas de teste por linha de código de produção.
+Abaixo de 1.0x: testes insuficientes ou superficiais.
+Acima de 2.0x: possível over-testing de implementação (rever o que está sendo testado).
+
+### Como Verificar
+
+```bash
+# Vitest
+bunx vitest run --coverage
+
+# Jest
+bunx jest --coverage
+
+# Verificar se thresholds estão configurados no vitest.config.ts / jest.config.ts:
+# coverage: { thresholds: { lines: 80, branches: 70 } }
+```
+
+### Configurar em vitest.config.ts
+
+```ts
+export default defineConfig({
+  test: {
+    coverage: {
+      provider: 'v8',
+      thresholds: {
+        lines: 80,
+        branches: 70,
+        // Business logic: configurar por glob se necessário
+      },
+    },
+  },
+})
+```
+
+**Nota:** Os 95% de business logic não são enforçados automaticamente pelo runner padrão — são uma meta que o TDD workflow deve perseguir ao escrever testes para services/models/domain.

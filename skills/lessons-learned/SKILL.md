@@ -67,8 +67,42 @@ Uma licao SO deve ser registrada se atender a PELO MENOS 2 destes criterios:
 1. Ler o arquivo de licoes do projeto (`.claude/lessons.md` ou secao no CLAUDE.md)
 2. Verificar se a licao ja existe ou e coberta por outra
 3. Aplicar o filtro de qualidade (>=2 criterios)
-4. Se passar, adicionar no formato correto
-5. Se nao passar, explicar por que nao qualifica
+4. Se passar, formatar a licao no formato correto:
+
+   ```
+   ### [Categoria] Titulo conciso da licao
+   **Regra:** [Uma frase imperativa, direta]
+   **Contexto:** [Por que essa regra existe — maximo 2 linhas]
+   ```
+
+4b. Inferir origem do PRD mais recente em `_archive/`:
+
+   1. Glob `.planning/_archive/YYYY-MM-DD-*/` — buscar pastas cujo nome comeca com data no formato `YYYY-MM-DD-`
+   2. Se resultado vazio ou `.planning/_archive/` nao existe:
+      - NAO adicionar linha de origem (comportamento preservado)
+      - Prosseguir ao Passo 5
+   3. Se encontrou pastas:
+      - Ordenar descendente por nome (ordenacao lexicografica = cronologica para formato `YYYY-MM-DD`)
+      - Pegar a primeira (mais recente)
+      - Construir linha: `**Origem:** .planning/_archive/{nome-da-pasta}/SUMMARY.md`
+   4. Injetar a linha como TERCEIRA linha do bloco da licao, apos `**Contexto:**`:
+
+      ```
+      ### [Categoria] Titulo conciso da licao
+      **Regra:** ...
+      **Contexto:** ...
+      **Origem:** .planning/_archive/2026-04-20-auth/SUMMARY.md
+      ```
+
+   5. Prosseguir ao Passo 5 com a licao ja formatada com a linha de origem
+
+   Notas:
+   - **Ordenacao:** `YYYY-MM-DD-slug` ordena cronologicamente em ordem alfabetica — nao precisa parsear data
+   - **SUMMARY.md ausente na pasta:** ainda assim incluir a linha — link quebrado e preferivel a falha silenciosa (auditabilidade)
+   - **Posicao da linha:** APOS `**Contexto:**`, NUNCA antes de `**Regra:**` — ordem obrigatoria: Regra → Contexto → Origem
+   - **Mesmo dia (sufixo -v2):** pegar qualquer uma (sort estavel) — nao e critico
+
+5. Se nao passar no filtro de qualidade, explicar por que nao qualifica
 6. **Avaliar promocao a senior-principles:** perguntar ao usuario se a licao atende aos 4 criterios de promocao (ver abaixo). Se o usuario confirmar, adicionar ao `senior-principles.md` na secao apropriada
 
 ### Ao revisar (`review`):

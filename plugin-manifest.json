@@ -1,11 +1,11 @@
 {
-  "version": "5.1.0",
-  "generatedAt": "2026-04-11T00:00:00.000Z",
+  "version": "5.2.0",
+  "generatedAt": "2026-04-21T00:00:00.000Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "files": {
     "CLAUDE.md": {
-      "version": "4.0.0",
-      "checksum": "4b07bcb7be964fa7ed453a6eaa3e91c2f5f3f0c89c25596e4ae357a7805c5ea9",
+      "version": "5.0.0",
+      "checksum": "dff9edd4b01f4bd4621f5e700cb63796f756a244029116584ba492e22a8d8d9b",
       "lastModified": "2026-04-08",
       "updateStrategy": "merge"
     },
@@ -166,10 +166,10 @@
       "updateStrategy": "replace"
     },
     "skills/anti-vibe-review/skill.md": {
-      "version": "4.0.0",
-      "checksum": "1093c7e5c2ef780eff2114611057e63dd0972277ccb47be891266048e7924a7d",
-      "lastModified": "2026-03-22",
-      "updateStrategy": "replace"
+      "version": "5.0.0",
+      "checksum": "57c05b397748ceb875fb8b9b1f303ebf3f64cf0bf4cef7687272909e52f1d801",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "merge"
     },
     "skills/api-design/skill.md": {
       "version": "4.0.0",
@@ -184,10 +184,10 @@
       "updateStrategy": "replace"
     },
     "skills/consultant/skill.md": {
-      "version": "4.0.0",
-      "checksum": "a398b04e9302367216c2435628ff44c19880509db08a7d443cda7d229ee5e90f",
-      "lastModified": "2026-03-22",
-      "updateStrategy": "replace"
+      "version": "5.0.0",
+      "checksum": "dd8e9d697ff2b76a3550cfa756caaebdce1400707e703f045fd2113ca2eeef32",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "merge"
     },
     "skills/decision-registry/skill.md": {
       "version": "4.0.0",
@@ -220,10 +220,10 @@
       "updateStrategy": "replace"
     },
     "skills/learn/skill.md": {
-      "version": "4.0.0",
-      "checksum": "0f9dfc7981076789a428a4a710f5717f2b8ab3d0e3f0c07f899ee90a31b01be8",
-      "lastModified": "2026-03-22",
-      "updateStrategy": "replace"
+      "version": "5.0.0",
+      "checksum": "6c3685ca6563993c431c94c7e24a7ec4771a4f697b38b7d6fe97f0cba0066ce2",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "merge"
     },
     "skills/lessons-learned/skill.md": {
       "version": "4.0.0",
@@ -256,10 +256,10 @@
       "updateStrategy": "replace"
     },
     "skills/tdd-workflow/skill.md": {
-      "version": "4.0.0",
-      "checksum": "c517033aa74aa6b65d9214ee2861f02abf218e00c31e19b3107ddd0ecaba4586",
-      "lastModified": "2026-03-22",
-      "updateStrategy": "replace"
+      "version": "5.0.0",
+      "checksum": "ba604541477d6b54571d2b3197ec51fd43df1d0303491a89e8ceb86e76a001af",
+      "lastModified": "2026-04-08",
+      "updateStrategy": "merge"
     },
     "skills/tdd-workflow/references/deep-modules.md": {
       "version": "5.0.0",
@@ -269,9 +269,9 @@
     },
     "skills/grill-me/skill.md": {
       "version": "5.0.0",
-      "checksum": "89e4de9eb4db5d9e40870dd8a034831d9a0f16b3a98fbbada300e28c984d806e",
+      "checksum": "67ace31a17227259c27c870b145983854192bd647a577a984c8e4509fd21804e",
       "lastModified": "2026-04-08",
-      "updateStrategy": "replace"
+      "updateStrategy": "merge"
     },
     "skills/design-twice/skill.md": {
       "version": "5.0.0",
@@ -281,9 +281,9 @@
     },
     "skills/plan-feature/skill.md": {
       "version": "5.0.0",
-      "checksum": "d5010edf9b04a4395c9f5e6fec6a5474a63dc23f0066070537bb024c0f8aedbc",
+      "checksum": "eb4691298a5e003ff0872685e472af248fcd01c3d89cd96e875e4ae2737285d8",
       "lastModified": "2026-04-08",
-      "updateStrategy": "replace"
+      "updateStrategy": "merge"
     },
     "skills/plan-feature/templates/plan-template.md": {
       "version": "5.0.0",
@@ -293,9 +293,9 @@
     },
     "skills/write-prd/skill.md": {
       "version": "5.0.0",
-      "checksum": "4ad81d640b49315bd26ad6d9db4f9ccc3fcd0bee46d7baf81e99db5f5972675c",
+      "checksum": "fa216c6054242202dc2181e63bf1ece8cf36d390ac0868de18c12545da6d14bb",
       "lastModified": "2026-04-08",
-      "updateStrategy": "replace"
+      "updateStrategy": "merge"
     },
     "skills/write-prd/templates/prd-template.md": {
       "version": "5.0.0",
@@ -347,9 +347,9 @@
     },
     "skills/execute-plan/skill.md": {
       "version": "5.0.0",
-      "checksum": "dc6a1762f2b58cbd36c18c5478725e046232c261fe132001aea9f9591bdfb523",
+      "checksum": "a8eb41d4c2f00790730550228774a098a489ba1e3b7c3f7bc62c4f06096329ae",
       "lastModified": "2026-04-08",
-      "updateStrategy": "replace"
+      "updateStrategy": "merge"
     },
     "skills/execute-plan/references/wave-execution.md": {
       "version": "5.0.0",
@@ -359,19 +359,13 @@
     },
     "skills/verify-work/skill.md": {
       "version": "5.0.0",
-      "checksum": "fc68fbcb9fc7eb60f765c5df4dac984684230a1654aee5cd430340b39996862a",
+      "checksum": "8193555dd5e73e67609623cb5e17c31f3c0ab33834dbaed1e0102c45a0a140ce",
       "lastModified": "2026-04-08",
-      "updateStrategy": "replace"
+      "updateStrategy": "merge"
     },
     "config/verify-work.json": {
       "version": "5.0.0",
       "checksum": "441b70dd4a6093d8a51801a88d01a3c28d25317254b1bcab019241ede59aa1c2",
-      "lastModified": "2026-04-08",
-      "updateStrategy": "merge"
-    },
-    "skills/tdd-workflow/skill.md": {
-      "version": "5.0.0",
-      "checksum": "ba604541477d6b54571d2b3197ec51fd43df1d0303491a89e8ceb86e76a001af",
       "lastModified": "2026-04-08",
       "updateStrategy": "merge"
     },
@@ -386,60 +380,6 @@
       "checksum": "16b96bca84df49d9524069995bb727fcd07ac64c687ceccdcbfefd09288f067c",
       "lastModified": "2026-04-08",
       "updateStrategy": "replace"
-    },
-    "skills/consultant/skill.md": {
-      "version": "5.0.0",
-      "checksum": "dd8e9d697ff2b76a3550cfa756caaebdce1400707e703f045fd2113ca2eeef32",
-      "lastModified": "2026-04-08",
-      "updateStrategy": "merge"
-    },
-    "skills/anti-vibe-review/skill.md": {
-      "version": "5.0.0",
-      "checksum": "57c05b397748ceb875fb8b9b1f303ebf3f64cf0bf4cef7687272909e52f1d801",
-      "lastModified": "2026-04-08",
-      "updateStrategy": "merge"
-    },
-    "skills/learn/skill.md": {
-      "version": "5.0.0",
-      "checksum": "6c3685ca6563993c431c94c7e24a7ec4771a4f697b38b7d6fe97f0cba0066ce2",
-      "lastModified": "2026-04-08",
-      "updateStrategy": "merge"
-    },
-    "skills/grill-me/skill.md": {
-      "version": "5.0.0",
-      "checksum": "67ace31a17227259c27c870b145983854192bd647a577a984c8e4509fd21804e",
-      "lastModified": "2026-04-08",
-      "updateStrategy": "merge"
-    },
-    "skills/write-prd/skill.md": {
-      "version": "5.0.0",
-      "checksum": "fa216c6054242202dc2181e63bf1ece8cf36d390ac0868de18c12545da6d14bb",
-      "lastModified": "2026-04-08",
-      "updateStrategy": "merge"
-    },
-    "skills/plan-feature/skill.md": {
-      "version": "5.0.0",
-      "checksum": "eb4691298a5e003ff0872685e472af248fcd01c3d89cd96e875e4ae2737285d8",
-      "lastModified": "2026-04-08",
-      "updateStrategy": "merge"
-    },
-    "skills/execute-plan/skill.md": {
-      "version": "5.0.0",
-      "checksum": "a8eb41d4c2f00790730550228774a098a489ba1e3b7c3f7bc62c4f06096329ae",
-      "lastModified": "2026-04-08",
-      "updateStrategy": "merge"
-    },
-    "skills/verify-work/skill.md": {
-      "version": "5.0.0",
-      "checksum": "8193555dd5e73e67609623cb5e17c31f3c0ab33834dbaed1e0102c45a0a140ce",
-      "lastModified": "2026-04-08",
-      "updateStrategy": "merge"
-    },
-    "CLAUDE.md": {
-      "version": "5.0.0",
-      "checksum": "dff9edd4b01f4bd4621f5e700cb63796f756a244029116584ba492e22a8d8d9b",
-      "lastModified": "2026-04-08",
-      "updateStrategy": "merge"
     },
     "skills/qa-visual/skill.md": {
       "version": "5.0.0",
@@ -481,6 +421,36 @@
       "version": "5.1.0",
       "checksum": "d35c383059a25c9a43bcc21ca04f8b96286f0dbe1f0ff7bcaacda55e58262a12",
       "lastModified": "2026-04-11",
+      "updateStrategy": "replace"
+    },
+    "skills/iterate/SKILL.md": {
+      "version": "5.2.0",
+      "checksum": "20f40bf77112d5b40c25fbf385cc0bf63239ea755e8ffd28f4a177baaf805ab6",
+      "lastModified": "2026-04-21",
+      "updateStrategy": "replace"
+    },
+    "skills/incident-response/SKILL.md": {
+      "version": "5.2.0",
+      "checksum": "cebc03f6fb3978d90e3dffd71ace37ec0f889441f76c55dc010fd19504307d99",
+      "lastModified": "2026-04-21",
+      "updateStrategy": "replace"
+    },
+    "skills/defensive-patterns/SKILL.md": {
+      "version": "5.2.0",
+      "checksum": "045667af452066055b6c6efa5492b9112fb8936a107b84f7b735a61f53646291",
+      "lastModified": "2026-04-21",
+      "updateStrategy": "replace"
+    },
+    "skills/centralize-config/SKILL.md": {
+      "version": "5.2.0",
+      "checksum": "0d6370dc027cf6c04443005484308b7c7446a8b4cead8b5bd7e27e18065eb846",
+      "lastModified": "2026-04-21",
+      "updateStrategy": "replace"
+    },
+    "skills/pair-programming-with-agent/SKILL.md": {
+      "version": "5.2.0",
+      "checksum": "b206c15bae09869655cc2b0d00aa287fd87e558a58e2b73d2608286e2c6ddc1b",
+      "lastModified": "2026-04-21",
       "updateStrategy": "replace"
     }
   }

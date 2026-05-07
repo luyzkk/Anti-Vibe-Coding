@@ -54,6 +54,7 @@ Principios extraidos de 60+ documentos tecnicos. Detalhes completos nas skills d
 - Closures: extrair minimo necessario, WeakMap para caches
 - React: NUNCA useEffect para estado derivado — calcule na renderizacao, useEffect causa re-renders extras desnecessarios
 - Race conditions: Node.js NAO e imune (Cluster, async, horizontal scaling)
+- `grep -c` retorna exit 1 quando count=0 — tratar saida "0" + exit 1 como resultado valido, nao como erro de script
 > Detalhes: `/anti-vibe-coding:react-patterns`
 
 ## Infraestrutura
