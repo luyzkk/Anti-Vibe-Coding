@@ -54,6 +54,18 @@ As decisoes sao armazenadas em `.claude/decisions.md` na raiz do projeto.
 1. Buscar no `.claude/decisions.md` por termo
 2. Mostrar a decisao completa com justificativa
 
+## Fluxo (v6)
+
+```
+1. Resolve layout via lib/path-resolver-v6.ts
+2. Se layout === 'v6':
+     a. lib/adr-writer.ts conta ADR-*.md em docs/design-docs/ para next_id
+     b. Cria ADR-NNNN-{slug}.md com frontmatter (id, title, status: active, created)
+     c. Secoes: Context, Decision, Alternatives, Consequences
+3. Se layout === 'v5' ou 'cru':
+     - Appenda em decisions.md raiz (formato legado)
+```
+
 ## Acao solicitada
 
 $ARGUMENTS
