@@ -79,6 +79,16 @@
     ],
     "PostToolUse": [
       {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"try{const h=require(process.env.CLAUDE_PLUGIN_ROOT+'/hooks/state-md-hook.cjs');const input=JSON.parse(process.env.CLAUDE_HOOK_INPUT||'{}');h.handle(input).then(r=>{if(r&&r.error)process.stderr.write('[state-md-hook] '+r.error)}).catch(()=>{})}catch(e){}\"",
+            "timeout": 15
+          }
+        ]
+      },
+      {
         "matcher": "Write|Edit",
         "hooks": [
           {
