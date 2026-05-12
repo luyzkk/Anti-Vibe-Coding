@@ -20,4 +20,17 @@ Review open plans at the start of each work session. Archive stale plans (no pro
 
 ---
 
-Replace this scaffold with project-specific content.
+## Validators
+
+This project ships with two validation scripts wired to CI:
+
+- `bun run harness:validate` — checks structural requirements: 25 required files, AGENTS.md must stay at 40 lines or fewer, AGENTS.md must link to ARCHITECTURE.md / docs/QUALITY_SCORE.md / docs/PRODUCT_SENSE.md, all markdown links must resolve, no orphaned plans in `docs/exec-plans/active/`.
+- `bun run compound:check` — checks each note in `docs/compound/` has YAML frontmatter (`title`, `category`, `tags`, `created`) plus the three required H2 sections (`## Problem`, `## Solution`, `## Prevention`).
+
+Exit codes:
+
+- `0` — all checks passed; stdout reports counts.
+- `1` — at least one rule failed; stderr lists each failure with rule name + file + message.
+- `2` — script usage error (invalid argv).
+
+Combined run: `bun run harness:all`. Run before committing.
