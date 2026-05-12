@@ -69,6 +69,39 @@ Suporta dois formatos:
 
 ---
 
+## Discovery (v6)
+
+<!-- 2026-05-12 (Luiz/dev): Plano 05 fase-05 — adiciona caminho v6 usando exec-plans/active/ -->
+
+```
+1. Resolve project layout (skills/lib/path-resolver-v6.ts → resolvePaths)
+2. Se layout === 'v6':
+     a. Listar planos em docs/exec-plans/active/ via listActivePlans (skills/lib/exec-plan-mover.ts)
+     b. Apresentar ao usuario para escolher qual executar
+     c. Ler plano escolhido via readExecPlan (skills/lib/exec-plan-reader.ts)
+     d. Continuar para Step 4 (execucao das fases)
+3. Se layout === 'v5' ou 'cru' (legado): usar fluxo .planning/{date-slug}/ descrito no Step 0 abaixo (mantido para D10)
+```
+
+## Completion Flow
+
+<!-- 2026-05-12 (Luiz/dev): Plano 05 fase-05 — fluxo de movimentacao quando plano fica completo -->
+
+```
+1. Apos cada fase executada: pedir confirmacao do usuario para marcar Exit Criteria
+2. Chamar isComplete(plan) via exec-plan-reader.ts para checar se todos os criterios estao marcados
+3. Quando isComplete(plan) === true:
+     a. Mover arquivo via moveToCompleted(projectRoot, planPath) de skills/lib/exec-plan-mover.ts
+        — atualiza frontmatter (status: completed, adiciona completedAt: YYYY-MM-DD)
+        — move de docs/exec-plans/active/ para docs/exec-plans/completed/
+     b. Disparar telemetria: exec_plan.completed { slug, mode, duration_ms }
+     c. Sugerir /iterate (que disparara o Compound Decision Gate — fase-06)
+4. Idempotencia: se crash entre writeFile e unlink, arquivo pode existir em ambos os dirs.
+   Proxima invocacao detecta status: completed em active/ e ignora (nao re-executa).
+```
+
+---
+
 ## Step 0 — Deteccao de Legacy
 
 Roda antes de qualquer outra coisa. Se `.planning/` tem artefatos soltos pre-refatoracao
