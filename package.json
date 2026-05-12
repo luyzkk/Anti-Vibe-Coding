@@ -12,7 +12,7 @@
     "state:regenerate": "bun run skills/lib/state-md-generator.ts $PWD"
   },
   "devDependencies": {
-    "@types/bun": "latest",
+    "@types/bun": "^1.1.0",
     "@types/js-yaml": "^4.0.9",
     "typescript": "^5.4.0"
   },

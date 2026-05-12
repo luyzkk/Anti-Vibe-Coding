@@ -1,10 +1,20 @@
 name: Harness Validation
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# TODO(v6.0.x): pin actions/checkout and oven-sh/setup-bun to commit SHAs.
+# Floating tags @v4/@v1 are supply-chain risk; verify SHAs against upstream
+# release pages before pinning. Consider Dependabot with `pinning: digest`.
 
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v1
