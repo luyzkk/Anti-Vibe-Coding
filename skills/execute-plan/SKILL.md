@@ -563,6 +563,44 @@ Apos cada fase concluir:
 
 ---
 
+## Captura Out-of-Scope (CA-33, D4 filosofia)
+
+Durante execucao de uma fase, monitore arquivos lidos/editados. Se detectar trabalho **fora do campo `Scope`** do frontmatter do plano em curso, NAO tente corrigir — proponha adicao a `TODO.md`.
+
+### Heuristica de deteccao (G5, 07-A4)
+
+```
+1. Ler campo `Scope` do frontmatter do plano (template D18 — array de glob patterns).
+2. Para cada Edit/Write/Read de arquivo em tool call, comparar contra patterns:
+   - Se path bate → in-scope, continuar.
+   - Se path NAO bate → potencial out-of-scope.
+3. Se detectar bug/typo em arquivo in-scope mas fora do foco da fase atual, tambem eh candidato.
+```
+
+### Fluxo de captura
+
+```typescript
+// Pseudocodigo — executar via importacao direta do helper
+import { captureToTodoMd } from '../lib/execute-plan-todo-capture'
+
+// 1. Detectar candidato out-of-scope
+// 2. Perguntar ao usuario UMA vez:
+//    "Item fora do scope detectado: {descricao}. Adicionar a TODO.md? [s/N]"
+// 3. Default N (D4 — sugestivo, nao bloqueante)
+// 4. Se 's': chamar captureToTodoMd(todoMdPath, { projectRoot, absolutePath, lineNumber, featureName, description })
+// 5. Se 'n': continuar fluxo normal
+```
+
+### Fallback quando `Scope` ausente (07-A4)
+
+```
+Se o plano nao tem campo `Scope` parseavel:
+- NAO oferecer captura automatica.
+- Log: "Plano sem campo Scope estruturado — captura out-of-scope desativada para esta sessao."
+```
+
+---
+
 ## Step 6 — Transicao entre Planos
 
 ### 6a. Ao completar todas as fases de um plano
