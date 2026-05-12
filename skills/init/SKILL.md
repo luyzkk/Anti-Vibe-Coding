@@ -39,6 +39,36 @@ If exit code 1 → prompt user with three options: **Migrate / Dry-run / Skip (t
 
 ---
 
+### Step migrate.1: Backup before any mutation (Plano 03 fase-02 — R2, R14, M8)
+
+<!-- GATING: execute este step ANTES de qualquer helper de migracao (fase-03/04/05).
+     Se retornar erro (lock / disco cheio / permissao negada), ABORTAR a migracao inteira.
+     Lock orfao (>5min): deletar manualmente e re-rodar. -->
+
+```javascript
+// DI-01: import direto em vez de bun -e (GT-04 — bun -e com paths absolutos quebra no Windows).
+const { detectV5Legacy } = await import('./lib/detect-v5-legacy.ts')
+const { backupPlanning } = await import('./lib/backup-planning.ts')
+
+const state = await detectV5Legacy(process.cwd())
+const result = await backupPlanning(process.cwd(), { state })
+
+if (result.status === 'created') {
+  console.log('Backup ' + result.filesCopied + ' files → ' + result.backupPath)
+}
+if (result.status === 'already-exists') {
+  console.log('Backup already present at ' + result.backupPath + ' — proceeding (idempotent).')
+}
+// dry-run: status === 'dry-run' — count logged, nothing written to disk.
+```
+
+**Gate:** if this step exits non-zero (lock present / disk full / permission denied),
+**abort the migration**. Migration helpers (fases 03/04/05) must not run.
+
+After successful migration, suggest user adds `.planning.v5-backup/` to `.gitignore`.
+
+---
+
 ### Step 1 (v6.0.0): Scaffold full harness tree
 
 Run via bun:
