@@ -13,6 +13,32 @@ Inicializar o Anti-Vibe Coding no projeto atual. Detectar o estado do projeto e 
 
 ## Fluxo de Execucao
 
+### Step 0.5: Detect legacy v5.x layout (Plano 03 — D9, D15)
+
+<!-- read-only: detectV5Legacy nao muta disco. Qualquer mutacao fica para fase-02 (backup-idempotente). -->
+
+```javascript
+// DI-06: import direto em vez de bun -e (GT-04 — bun -e com paths absolutos quebra no Windows).
+const { detectV5Legacy } = await import('./lib/detect-v5-legacy.ts')
+
+const state = await detectV5Legacy(process.cwd())
+if (state.alreadyMigrated && state.isLegacy) {
+  console.log('Project has both v5 artifacts AND docs/exec-plans/ — partial migration?')
+  console.log('Run `/init migrate --resume` or remove residuals manually.')
+  process.exit(2)
+}
+if (state.isLegacy) {
+  console.log('Detected v5.x artifacts:', state.artifacts.join(', '))
+  console.log('Run `/init migrate` (or `--dry-run` to preview).')
+  process.exit(1)  // signal: needs migration
+}
+console.log('Greenfield project — proceeding with scaffold.')
+```
+
+If exit code 1 → prompt user with three options: **Migrate / Dry-run / Skip (treat as new)**.
+
+---
+
 ### Step 1 (v6.0.0): Scaffold full harness tree
 
 Run via bun:
