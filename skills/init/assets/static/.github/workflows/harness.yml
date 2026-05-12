@@ -1,5 +1,8 @@
 # 2026-05-11 (Luiz/dev): adaptado do harness do Andre — D13 troca npm por bun.
 # PRD CA-12 exige referencia a `bun run harness:validate`.
+# 2026-05-12 (Luiz/dev): Plano 04 fase-05 adiciona step compound:check (CA-29, M5+M6).
+# Steps separados (nao harness:all) para que falha apareca nominalmente no UI do GitHub.
+# Exit codes: 0 = clean; 1 = regra falhou; 2 = uso invalido do script.
 name: Harness Guardrails
 
 on:
@@ -7,6 +10,7 @@ on:
   push:
     branches:
       - main
+      - master
 
 jobs:
   validate:
@@ -18,4 +22,19 @@ jobs:
           bun-version: latest
       - run: bun install --frozen-lockfile
         if: hashFiles('bun.lockb') != ''
-      - run: bun run harness:validate
+
+      - name: Validate harness structure
+        # Plano 04 fase-03 (full): 25 required files, AGENTS.md <= 40 lines, orphan plans, broken links.
+        # Exit 1 if structural issue; exit 0 if clean.
+        run: |
+          echo "::group::harness:validate"
+          time bun run harness:validate
+          echo "::endgroup::"
+
+      - name: Validate compound notes
+        # Plano 04 fase-02: frontmatter (title/category/tags/created) + sections (Problem/Solution/Prevention).
+        # Exit 1 if any compound note invalid; exit 0 if all valid (or none present).
+        run: |
+          echo "::group::compound:check"
+          time bun run compound:check
+          echo "::endgroup::"
