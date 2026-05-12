@@ -2,6 +2,42 @@
 
 Registro de erros, bugs e armadilhas descobertos durante o desenvolvimento do plugin.
 
+## 2026-05-12: Blocos de código em prompts não executam (BUG-02 — DEFERRED)
+
+**Sintoma:**
+- Plano 03 (Telemetria Passiva) entregou suite com 224 testes verdes e 10/10 skills "instrumentadas" com blocos TypeScript chamando `writeTelemetryStart`/`End` no topo e fim de cada `SKILL.md`
+- 7 dias de uso real do plugin geraram 0 pares de telemetria em `.claude/metrics/YYYY-MM.jsonl`
+- O diretório `metrics/` sequer foi criado
+
+**Causa Raiz:**
+1. `SKILL.md` é **prompt markdown** consumido pelo agente Claude, não runtime executável
+2. Os blocos TypeScript dentro de skill files são lidos como instrução descritiva — o agente não compila nem invoca o código literalmente
+3. Para o writer rodar, é necessário um **gatilho externo**: hook `PostToolUse`/`Stop` ou wrapper que invoque o writer via Bun com payload do `CLAUDE_HOOK_CONTEXT`
+4. Nenhum desses gatilhos existe em [hooks/hooks.json](hooks/hooks.json) — hooks atuais são `SessionStart`, `UserPromptSubmit`, `PreToolUse` (TDD gate)
+
+**Impacto:**
+- CA-11 (≥50 pares válidos via dogfooding) deferred para Onda 2
+- 14 dias de janela de dogfooding em Carreirarte → 0 dados úteis
+- Suite de testes verdes mascarou o problema: writer testado em isolamento Bun passa; integração nunca foi testada end-to-end
+
+**Lição generalizável:**
+
+> **Testes em isolamento não validam integração.** Se uma função vai ser chamada por um agente LLM consumindo prompts, testar a função diretamente (via runtime) prova apenas que a função funciona — não que o agente a chama. Para validar instrumentação em ambiente LLM-driven, é obrigatório:
+>
+> 1. **Smoke test end-to-end real:** invocar a skill em ambiente vivo e verificar o efeito colateral (arquivo escrito, log emitido, etc.) — não confiar apenas em testes textuais ou de função isolada
+> 2. **Gatilho explícito:** se a função precisa rodar durante uso de skill, configurar hook (`PreToolUse`/`PostToolUse`/`Stop`) ou wrapper que efetivamente dispare o código — blocos de exemplo em SKILL.md não são executados
+> 3. **Dogfooding antes de declarar pronto:** rodar a skill instrumentada uma vez e confirmar o output esperado ANTES de marcar a fase como done. Day-0 baseline (CA-11) era exatamente esse smoke test — quando deu 0 linhas, deveria ter levantado bandeira imediatamente, não 7 dias depois.
+
+**Fix Planejado (Onda 2):**
+- Par `PreToolUse` + `PostToolUse` em `hooks.json` com `matcher: "Skill"`
+- Correlação por `tool_use_id`; estado intermediário em `.claude/metrics/.pending-starts.json`
+- Regression test que invoca uma skill real e confere que `metrics/YYYY-MM.jsonl` ganha 2 linhas
+- Custo estimado: 4-6h + testes
+
+**Detalhes:** [docs/baseline-v53-onda1.md](docs/baseline-v53-onda1.md) e [.planning/2026-05-04-v53-plugin-adaptativo/plano05/MEMORY.md](../.planning/2026-05-04-v53-plugin-adaptativo/plano05/MEMORY.md) (BUG-02).
+
+---
+
 ## 2026-03-23: hooks.json overwrite bug (CORRIGIDO)
 
 **Sintoma:**
