@@ -3,7 +3,7 @@
 Todas as mudanças notáveis do plugin Anti-Vibe Coding serão documentadas aqui.
 
 
-## [6.0.0] - 2026-XX-XX
+## [6.0.0] - 2026-05-12
 
 > **Major release — Harness Engineering + Compound Engineering Fusion**
 > First release where every project gets institutional documentation

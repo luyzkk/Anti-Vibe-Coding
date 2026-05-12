@@ -1,5 +1,5 @@
 #!/bin/bash
-# 2026-XX-XX (Luiz/dev): atualizado para v6.0.0 — adicionados paths AGENTS.md, ARCHITECTURE.md, scripts/, .github/, tests/fixtures/
+# 2026-05-12 (Luiz/dev): atualizado para v6.0.0 — adicionados paths AGENTS.md, ARCHITECTURE.md, scripts/, .github/, tests/fixtures/
 # Idempotente: rodar 2x produz mesmo resultado.
 # POSIX-compatible: testado em Git Bash Windows + macOS + Linux.
 
@@ -31,7 +31,7 @@ fi
 echo "Copiando arquivos..."
 
 # --- Funcao auxiliar: copia diretorio se origem existe ---
-# 2026-XX-XX (Luiz/dev): cp -r em vez de rsync - rsync nao garantido em Git Bash Windows nativo
+# 2026-05-12 (Luiz/dev): cp -r em vez de rsync - rsync nao garantido em Git Bash Windows nativo
 copy_dir_if_exists() {
   local src="$1"
   local dst="$2"
@@ -66,8 +66,8 @@ copy_dir_if_exists "$PLUGIN_DEV/config"  "$PLUGIN_GLOBAL/config"  "config/"
 copy_dir_if_exists "$PLUGIN_DEV/templates" "$PLUGIN_GLOBAL/templates" "templates/"
 
 # --- Diretorios novos em v6 ---
-# 2026-XX-XX: docs/ do plugin eh dog-food (D20), NAO eh distribuivel - NAO copiado (decisao 09-A3)
-# 2026-XX-XX: scripts/ tem validators TS+bun que o usuario pode rodar contra o proprio cache se quiser auditar
+# 2026-05-12: docs/ do plugin eh dog-food (D20), NAO eh distribuivel - NAO copiado (decisao 09-A3)
+# 2026-05-12: scripts/ tem validators TS+bun que o usuario pode rodar contra o proprio cache se quiser auditar
 copy_dir_if_exists "$PLUGIN_DEV/scripts" "$PLUGIN_GLOBAL/scripts" "scripts/"
 copy_dir_if_exists "$PLUGIN_DEV/.github" "$PLUGIN_GLOBAL/.github" ".github/"
 copy_dir_if_exists "$PLUGIN_DEV/tests/fixtures" "$PLUGIN_GLOBAL/tests/fixtures" "tests/fixtures/"
