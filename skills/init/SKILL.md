@@ -113,6 +113,40 @@ These files are installed unconditionally (D14). Projects not using GitHub may d
 
 ---
 
+### Step 6 (v6.0.0, optional): Delivery Loop opt-in (D12)
+
+Ask user:
+> "Do you use Linear and want to enable the Delivery Loop convention?  [y/N]"
+
+Default: **N** (skip).
+
+If yes:
+
+```bash
+bun run -e "
+import path from 'node:path'
+import { injectOptionalSection } from './lib/inject-optional-section.ts'
+import { promises as fs } from 'node:fs'
+
+const snippet = await fs.readFile(
+  path.join(import.meta.dir, 'assets/snippets/delivery-loop.md'),
+  'utf8',
+)
+
+const result = await injectOptionalSection({
+  filePath: path.join(process.cwd(), 'AGENTS.md'),
+  marker: '<!-- INIT:DELIVERY_LOOP_SLOT -->',
+  body: snippet,
+})
+
+console.log('Delivery Loop injection:', result.status)
+"
+```
+
+If `result.status === 'marker-missing'`, log a warning — AGENTS.md was hand-edited or template version mismatch.
+
+---
+
 ### Passo 0 — Detectar Instalação Existente e Invalidar Cache
 
 **ANTES de qualquer coisa**, verificar se existe `.claude/.anti-vibe-manifest.json`:
