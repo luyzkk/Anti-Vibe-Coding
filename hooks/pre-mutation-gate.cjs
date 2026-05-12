@@ -129,6 +129,9 @@ async function processInput() {
 }
 
 async function runGate(prompt, projectRoot) {
+  // 2026-05-11 (Luiz/dev): fase-08 — disable em ambiente de teste (GT-12 / CA-17)
+  if (process.env.ANTI_VIBE_DISABLE_HOOKS === '1') return passthrough()
+
   // 2026-05-12 (Luiz/dev): G3 — short-circuit se outro hook ja disparou neste prompt (lock compartilhado)
   if (recentlyFired()) {
     emitTelemetry({ event: 'pre_mutation_gate.skipped', reason: 'hook-lock' })
