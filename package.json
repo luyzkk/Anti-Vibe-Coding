@@ -6,7 +6,8 @@
     "test": "bun test",
     "typecheck": "tsc --noEmit",
     "test:e2e": "bun test tests/e2e/",
-    "test:tracer": "bun test tests/e2e/init-tracer-bullet.test.ts"
+    "test:tracer": "bun test tests/e2e/init-tracer-bullet.test.ts",
+    "state:regenerate": "bun run skills/lib/state-md-generator.ts $PWD"
   },
   "devDependencies": {
     "@types/bun": "latest",
@@ -14,6 +15,7 @@
     "typescript": "^5.4.0"
   },
   "dependencies": {
+    "gray-matter": "^4.0.3",
     "js-yaml": "^4.1.1"
   }
 }
