@@ -137,6 +137,33 @@ Se falhar em qualquer um, a licao fica apenas nas lessons do projeto.
 3. Se nenhuma secao existente se aplica, criar uma nova secao
 4. Confirmar com o usuario o texto final antes de salvar
 
+## Fluxo de Captura (v6)
+
+```
+1. Resolve project layout via skills/lib/path-resolver-v6.ts
+   - v6 = docs/compound/ AND docs/exec-plans/ ambos presentes
+   - v5 = apenas lessons-learned.md presente
+   - cru = projeto virgem (usa v5-default)
+2. Se layout === 'v6':
+     - Escreve em docs/compound/YYYY-MM-DD-{slug}.md
+     - Frontmatter: title, category (default 'general'), tags (>=1), created (today)
+     - Secoes: ## Problem, ## Solution, ## Prevention
+3. Se layout === 'v5' ou 'cru':
+     - Appenda em lessons-learned.md (formato legado)
+     - Injeta tip de migracao uma vez (idempotente)
+4. Retorna { filePath, layout } para o orquestrador
+```
+
+Formas de invocacao (D10 — zero breaking change):
+
+```typescript
+// Forma posicional v5.x (string posicional)
+await add('Race condition em session refresh', projectRoot)
+
+// Forma rica v6 (objeto LessonOpts)
+await add({ title: 'Bug X', category: 'bug', tags: ['producao'] }, projectRoot)
+```
+
 ## Acao solicitada
 
 $ARGUMENTS
