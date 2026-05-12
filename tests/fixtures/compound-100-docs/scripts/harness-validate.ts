@@ -52,7 +52,10 @@ const AGENTS_REQUIRED_LINKS = [
 // compound/: compound notes tem frontmatter YAML (---) em linha 1 — incompativel com H1 check.
 //   BUG-04-01 (Luiz/dev 2026-05-12): harness H1 check conflita com CA-29 (frontmatter na linha 1).
 //   Fix: excluir docs/compound/ do crawl. compound-check.ts valida esses arquivos independentemente.
-const SKIP_DIRS = new Set(['node_modules', '.git', '.planning.v5-backup', 'compound'])
+// templates/: templates de skill tem placeholder links ({{X}}, ./PRD.md relativos a destino) — falsos positivos.
+//   BUG-08-01 (Luiz/dev 2026-05-12): dog-food em Plano 08 fase-08 revelou que templates/ tem placeholder links que nao resolvem em filesystem.
+// __fixtures__/: fixtures de teste com links relativos a destinos-clientes — nao a propria localizacao.
+const SKIP_DIRS = new Set(['node_modules', '.git', '.planning.v5-backup', 'compound', 'templates', '__fixtures__', 'fixtures', 'snippets'])
 const ARCHIVED_SEGMENT = '_archived'
 
 type Failure = { rule: string; message: string }
@@ -201,9 +204,22 @@ async function checkMarkdownFiles(files: ReadonlyArray<string>, failures: Failur
         return
       }
       const rel = path.relative(root, file)
+      const basename = path.basename(file)
 
-      // Todo .md deve comecar com H1.
-      if (!content.startsWith('# ')) {
+      // SKILL.md eh convencao Claude Code (frontmatter + content), nao requer H1.
+      // BUG-08-02 (Luiz/dev 2026-05-12): dog-food revelou que H1 check falhava em todos SKILL.md do plugin.
+      const isSkillMd = basename === 'SKILL.md'
+
+      // Strip YAML frontmatter antes de checar H1 — ADRs e docs com metadata sao validos.
+      // BUG-08-03 (Luiz/dev 2026-05-12): H1 check ignorava frontmatter, gerava falso positivo em ADR-0001.
+      // BUG-08-04: agents/*.md tem HTML comment entre frontmatter e H1 — strip leading comments/blank tambem.
+      const stripped = content
+        .replace(/^---\n[\s\S]*?\n---\n*/, '')   // remove frontmatter YAML
+        .replace(/^(?:<!--[\s\S]*?-->\s*)+/, '') // remove HTML comments lideres
+        .replace(/^\s+/, '')                       // remove leading whitespace
+
+      // Todo .md (exceto SKILL.md) deve comecar com H1 apos frontmatter/comments opcionais.
+      if (!isSkillMd && !stripped.startsWith('# ')) {
         failures.push({ rule: 'markdown-heading', message: `${rel} must start with an H1 heading` })
       }
 
