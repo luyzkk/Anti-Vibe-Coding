@@ -37,7 +37,7 @@ describe('writeADR', () => {
     const content = await fs.readFile(filePath, 'utf-8')
     expect(content).toContain('id: 1')
     expect(content).toContain('title: "Adotar monorepo"')
-    expect(content).toContain('status: active')
+    expect(content).toContain('status: "active"')
     expect(content).toMatch(/created: \d{4}-\d{2}-\d{2}/)
   })
 
@@ -105,6 +105,18 @@ describe('writeADR', () => {
     expect(content).toContain('(why is this decision needed)')
     expect(content).toContain('(what was decided)')
     expect(content).toContain('(no alternatives recorded)')
+  })
+
+  it('escapes newline in status to prevent YAML injection (security fix fase-02)', async () => {
+    // 2026-05-12 (Luiz/dev): caller JS sem types pode passar status com \n — JSON.stringify previne quebra de frontmatter
+    const { filePath } = await writeADR(tmpDir, {
+      title: 'Decisao X',
+      status: 'active\nmalicious: true' as unknown as 'active',
+    })
+
+    const content = await fs.readFile(filePath, 'utf-8')
+    expect(content).toContain('status: "active\\nmalicious: true"')
+    expect(content).not.toMatch(/^malicious: true$/m)
   })
 
   it('creates designDocsDir if it does not exist', async () => {

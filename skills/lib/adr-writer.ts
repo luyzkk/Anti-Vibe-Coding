@@ -3,6 +3,11 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 
+// 2026-05-12 (Luiz/dev): 4-digit pad → sort lexicografico em CLI (ls ADR-*.md) e mantem range util (9999 ADRs)
+const ADR_ID_WIDTH = 4
+// 2026-05-12 (Luiz/dev): slug max 50 → nome de arquivo legivel em terminal e Windows path budget (260 char total)
+const SLUG_MAX_LEN = 50
+
 export type ADRStatus = 'active' | 'superseded' | 'deprecated'
 
 export type ADRInput = {
@@ -37,11 +42,13 @@ export async function writeADR(designDocsDir: string, input: ADRInput): Promise<
   const filePath = path.join(designDocsDir, fileName)
 
   // 2026-05-12 (Luiz/dev): frontmatter inclui status para suportar D31 (Plano 06 fase-06 --revoke)
+  // 2026-05-12 (Luiz/dev): JSON.stringify em title E status — security audit fase-02:
+  // caller JS sem types pode injetar \n no campo e quebrar YAML
   const frontmatter = [
     '---',
     `id: ${nextId}`,
     `title: ${JSON.stringify(input.title)}`,
-    `status: ${input.status ?? 'active'}`,
+    `status: ${JSON.stringify(input.status ?? 'active')}`,
     `created: ${new Date().toISOString().slice(0, 10)}`,
     '---',
     '',
@@ -66,7 +73,9 @@ export async function writeADR(designDocsDir: string, input: ADRInput): Promise<
     '',
   ].join('\n')
 
-  await fs.writeFile(filePath, frontmatter + body, 'utf-8')
+  // 2026-05-12 (Luiz/dev): flag 'wx' — security audit fase-02 (MEDIUM):
+  // race 02-G1 (duas chamadas paralelas mesmo nextId) deixa de ser overwrite silencioso e vira EEXIST detectavel
+  await fs.writeFile(filePath, frontmatter + body, { encoding: 'utf-8', flag: 'wx' })
   return { filePath, id: nextId }
 }
 
@@ -84,7 +93,7 @@ async function getNextADRId(dir: string): Promise<number> {
 }
 
 function pad4(n: number): string {
-  return String(n).padStart(4, '0')
+  return String(n).padStart(ADR_ID_WIDTH, '0')
 }
 
 function slugify(s: string): string {
@@ -94,5 +103,5 @@ function slugify(s: string): string {
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
-    .slice(0, 50) || 'decision'
+    .slice(0, SLUG_MAX_LEN) || 'decision'
 }

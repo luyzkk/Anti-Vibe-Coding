@@ -37,8 +37,11 @@ export async function add(
   }
 
   // 2026-05-12 (Luiz/dev): legado — appenda em decisions.md raiz (mesmo padrao de fase-01 lessons-learned)
+  // 2026-05-12 (Luiz/dev): sanitiza \n em title — security audit fase-02 (LOW):
+  // title com newline quebra estrutura H2 do markdown legado e cria sub-headings espurias
+  const safeTitle = opts.title.replace(/\r?\n/g, ' ')
   const legacyFile = path.join(paths.projectRoot, 'decisions.md')
-  const line = `## ${new Date().toISOString().slice(0, 10)}: ${opts.title}\n\n${opts.decision ?? '(detalhe aqui)'}\n`
+  const line = `## ${new Date().toISOString().slice(0, 10)}: ${safeTitle}\n\n${opts.decision ?? '(detalhe aqui)'}\n`
   const existing = await readSafe(legacyFile)
   await fs.writeFile(
     legacyFile,

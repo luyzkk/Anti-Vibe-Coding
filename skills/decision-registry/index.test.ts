@@ -39,7 +39,7 @@ describe('add (v6 layout)', () => {
     expect(path.basename(result.filePath)).toMatch(/^ADR-0001-/)
 
     const content = await fs.readFile(result.filePath, 'utf-8')
-    expect(content).toContain('status: active')
+    expect(content).toContain('status: "active"')
     expect(content).toContain('id: 1')
   })
 
@@ -155,6 +155,19 @@ describe('add (v5 layout)', () => {
     const designDocsDir = path.join(tmpDir, 'docs', 'design-docs')
     const exists = await fs.stat(designDocsDir).then(() => true).catch(() => false)
     expect(exists).toBe(false)
+  })
+
+  it('sanitizes newline in title for legacy decisions.md (security fix fase-02)', async () => {
+    // 2026-05-12 (Luiz/dev): title com \n quebraria estrutura H2 do markdown legado; substituido por espaco
+    await makeV5Project(tmpDir)
+
+    await add('Decisao normal\n## Injected heading', tmpDir)
+
+    const content = await fs.readFile(path.join(tmpDir, 'decisions.md'), 'utf-8')
+    // 2026-05-12 (Luiz/dev): exatamente 1 H2 com data (cabecalho da decisao); injected heading nao aparece como H2
+    const h2Count = (content.match(/^## /gm) ?? []).length
+    expect(h2Count).toBe(1)
+    expect(content).toContain('Decisao normal ## Injected heading')
   })
 })
 
