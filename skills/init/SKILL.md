@@ -39,6 +39,47 @@ If exit code 1 → prompt user with three options: **Migrate / Dry-run / Skip (t
 
 ---
 
+### Step migrate.0: Parse --dry-run flag (Plano 03 fase-06 — CA-10, R14)
+
+<!-- Detects --dry-run in ARGUMENTS before any migration step runs. -->
+
+```javascript
+// DI-04/DI-06: logic in code block, await import pattern (GT-04 Windows).
+const dryRun = (typeof ARGUMENTS === 'string') && ARGUMENTS.includes('--dry-run')
+if (dryRun) {
+  console.log('Dry-run mode: no files will be modified.')
+}
+// Pass dryRun to migrate.all (Step below) — skip migrate.1/.2/.3/.4 when using migrate.all.
+```
+
+---
+
+### Step migrate.all: Orchestrated migration — replaces migrate.1 / migrate.2 / migrate.3 / migrate.4 (Plano 03 fase-06 — CA-10, R14)
+
+<!-- Use this step instead of the individual migrate.1–.4 steps.
+     In dry-run mode the user sees the full plan; re-run without --dry-run to apply.
+     DI-04/DI-06: await import in javascript block instead of bun run -e (GT-04 Windows). -->
+
+```javascript
+// DI-06: await import instead of bun run -e (GT-04 — bun -e with absolute paths breaks on Windows).
+const { orchestrateMigration } = await import('./lib/migrate-orchestrator.ts')
+const { renderDryRunReport } = await import('./lib/dry-run-renderer.ts')
+
+const isDryRun = (typeof ARGUMENTS === 'string') && ARGUMENTS.includes('--dry-run')
+const report = await orchestrateMigration(process.cwd(), { dryRun: isDryRun })
+console.log(renderDryRunReport(report))
+
+if (isDryRun) {
+  console.log('\nRe-run without --dry-run to apply.')
+  process.exit(0)
+}
+```
+
+In dry-run mode: zero side effects — `docs/` is never created, `.planning/` is never deleted,
+`.planning.v5-backup/` is cleaned up after report generation (CA-10 verbatim).
+
+---
+
 ### Step migrate.1: Backup before any mutation (Plano 03 fase-02 — R2, R14, M8)
 
 <!-- GATING: execute este step ANTES de qualquer helper de migracao (fase-03/04/05).
