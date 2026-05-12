@@ -110,11 +110,13 @@ describe("generate-manifest", () => {
     // Verifica 3 arquivos aleatorios que existem
     const sampleKeys = Object.keys(manifest.files).slice(0, 3)
     sampleKeys.forEach((relPath) => {
+      if (!relPath) return
       const absPath = path.join(PLUGIN_ROOT, relPath)
       if (fs.existsSync(absPath)) {
         const content = fs.readFileSync(absPath, "utf8")
         const expected = crypto.createHash("sha256").update(content).digest("hex")
-        expect(manifest.files[relPath].checksum).toBe(expected)
+        const entry = manifest.files[relPath]
+        if (entry) expect(entry.checksum).toBe(expected)
       }
     })
   })
