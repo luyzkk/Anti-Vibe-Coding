@@ -1,5 +1,8 @@
 # Architecture
 
+<!-- INIT:STACK_BLOCK -->
+<!-- This block is replaced by /init after stack detection. Do not edit by hand. -->
+
 ## Overview
 
 {{PROJECT_NAME}} — {{ONE_LINE_DESCRIPTION}}
