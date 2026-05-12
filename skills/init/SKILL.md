@@ -95,6 +95,24 @@ Important: v6.0.0 only **registers** the stack. Knowledge packs (`docs/knowledge
 
 ---
 
+<!-- Step 4 (v6.0.0): Customize ARCHITECTURE.md with detected stack — added by plano02/fase-03 -->
+
+---
+
+### Step 5 (v6.0.0): Install GitHub Actions + PR template (D14 — always)
+
+```bash
+bun run -e "
+import { installGhFiles } from './lib/install-gh-files.ts'
+const result = await installGhFiles(process.cwd())
+console.log('.github files installed:', result.filesWritten)
+"
+```
+
+These files are installed unconditionally (D14). Projects not using GitHub may delete `.github/` after init.
+
+---
+
 ### Passo 0 — Detectar Instalação Existente e Invalidar Cache
 
 **ANTES de qualquer coisa**, verificar se existe `.claude/.anti-vibe-manifest.json`:

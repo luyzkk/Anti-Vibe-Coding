@@ -1,0 +1,21 @@
+# 2026-05-11 (Luiz/dev): adaptado do harness do Andre — D13 troca npm por bun.
+# PRD CA-12 exige referencia a `bun run harness:validate`.
+name: Harness Guardrails
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+        if: hashFiles('bun.lockb') != ''
+      - run: bun run harness:validate
