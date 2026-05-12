@@ -228,8 +228,9 @@ async function checkMarkdownFiles(files: ReadonlyArray<string>, failures: Failur
       await Promise.all(
         links.map(async (m) => {
           const target = m[1]
+          if (!target) return  // BUG-08-05 (Luiz/dev 2026-05-12): noUncheckedIndexedAccess narrowing
           // Strip fragment and query string; anchor-only links (#foo) sao filtrados pelo regex.
-          const cleanTarget = target.split('#')[0].split('?')[0]
+          const cleanTarget = (target.split('#')[0] ?? '').split('?')[0] ?? ''
           if (cleanTarget === '') return
           const abs = path.resolve(path.dirname(file), cleanTarget)
           try {
