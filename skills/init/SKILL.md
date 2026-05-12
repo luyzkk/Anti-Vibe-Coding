@@ -121,6 +121,30 @@ will be validated by `bun run compound:check` (Plano 04 fase-02).
 
 ---
 
+### Step migrate.4: Convert decisions.md → docs/design-docs/ADR-NNNN-*.md (Plano 03 fase-05 — D3, M7, CA-15)
+
+<!-- Le do .planning.v5-backup/decisions.md (G1). Gera 1 ADR por decisao com numeracao
+     monotonica (G7) lendo o maior ADR-NNNN ja existente em docs/design-docs/. Idempotente
+     por slug (skip se ADR-*-{slug}.md ja existe). Se senior-principles.md existir no backup,
+     copia para docs/design-docs/core-beliefs.md (G-A3). -->
+
+```javascript
+// DI-01: import direto (GT-04).
+const { migrateDecisions } = await import('./lib/migrate-decisions.ts')
+
+const report = await migrateDecisions(process.cwd())
+console.log('Decisions:', report.status, '— wrote:', report.written.length)
+if (report.coreBeliefs === 'created') {
+  console.log('  core-beliefs.md created from senior-principles.md')
+}
+```
+
+ADRs follow the CA-15 contract (frontmatter `id`/`title`/`status`/`date`/`tags`) and Context/
+Decision/Consequences sections. Numbering is monotonic per `docs/design-docs/` (G7) — adding
+ADRs manually later does not collide.
+
+---
+
 ### Step 1 (v6.0.0): Scaffold full harness tree
 
 Run via bun:
