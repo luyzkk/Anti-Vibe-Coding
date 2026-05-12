@@ -95,7 +95,24 @@ Important: v6.0.0 only **registers** the stack. Knowledge packs (`docs/knowledge
 
 ---
 
-<!-- Step 4 (v6.0.0): Customize ARCHITECTURE.md with detected stack — added by plano02/fase-03 -->
+### Step 4 (v6.0.0): Customize ARCHITECTURE.md with detected stack
+
+```bash
+bun run -e "
+import { customizeArchitecture } from './lib/customize-architecture.ts'
+import { detectStack } from './lib/detect-stack.ts'
+
+const stack = await detectStack(process.cwd())
+const result = await customizeArchitecture({
+  targetDir: process.cwd(),
+  stack,
+})
+
+console.log('ARCHITECTURE.md customized for', stack.id, '— written:', result.written)
+"
+```
+
+After this step, ARCHITECTURE.md contains a "Detected Stack" section with the framework name and date.
 
 ---
 
