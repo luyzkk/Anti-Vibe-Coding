@@ -1,11 +1,12 @@
 // 2026-05-11 (Luiz/dev): tracer bullet E2E — prova D2, D13, D16 juntos.
-// Plano 01 fase-05.
+// Plano 01 fase-05. Atualizado em Plano 02 fase-02: scaffold gera 27 arquivos (2 base + 25 tree).
 
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { spawn } from 'node:child_process'
 import { scaffoldTemplates } from '../../skills/init/lib/scaffold-templates'
+import { scaffoldFullTree } from '../../skills/init/lib/scaffold-full-tree'
 import { linkClaudeToAgents } from '../../skills/init/lib/symlink-fallback'
 
 const FIXTURE = path.join(import.meta.dir, '..', 'fixtures', 'empty-dir')
@@ -58,11 +59,20 @@ describe('E2E tracer bullet — /init → harness-validate', () => {
       stack: 'unknown',
     })
 
-    expect(scaffoldResult.filesWritten.length).toBeGreaterThanOrEqual(2)
     expect(await fs.stat(path.join(FIXTURE, 'AGENTS.md'))).toBeDefined()
     expect(await fs.stat(path.join(FIXTURE, 'ARCHITECTURE.md'))).toBeDefined()
     expect(await fs.stat(path.join(FIXTURE, 'scripts/harness-validate.ts'))).toBeDefined()
     expect(await fs.stat(path.join(FIXTURE, 'package.json'))).toBeDefined()
+
+    // Step 1b — scaffold full tree (Plano 02 fase-02: 14+ docs)
+    // 2026-05-11 (Luiz/dev): apos fase-02 do Plano 02, scaffold gera 27 arquivos (2 base + 25 tree).
+    const treeResult = await scaffoldFullTree({
+      targetDir: FIXTURE,
+      projectName: 'tracer-fixture',
+      stack: 'unknown',
+    })
+
+    expect(scaffoldResult.filesWritten.length + treeResult.filesWritten.length).toBeGreaterThanOrEqual(27)
 
     // Step 2 — link CLAUDE.md to AGENTS.md (fase-03)
     const linkResult = await linkClaudeToAgents(FIXTURE)

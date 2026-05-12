@@ -30,10 +30,13 @@ export async function scaffoldTemplates(opts: ScaffoldOptions): Promise<Scaffold
     const srcPath = path.join(opts.templatesDir, src)
     const dstPath = path.join(opts.targetDir, dst)
 
+    // 2026-05-11 (Luiz/dev): + {{TODAY}} para alinhar com scaffoldFullTree — Plano 02 fase-02.
+    const today = new Date().toISOString().slice(0, 10)
     const tpl = await fs.readFile(srcPath, 'utf8')
     const rendered = tpl
       .replaceAll('{{PROJECT_NAME}}', opts.projectName)
       .replaceAll('{{STACK}}', opts.stack)
+      .replaceAll('{{TODAY}}', today)
       // ARCHITECTURE.md.tpl extras — default to "TBD" until Plano 02 fase-03
       .replaceAll('{{ONE_LINE_DESCRIPTION}}', 'TBD')
       .replaceAll('{{RUNTIME}}', 'TBD')

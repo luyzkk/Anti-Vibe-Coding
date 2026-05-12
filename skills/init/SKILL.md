@@ -13,28 +13,42 @@ Inicializar o Anti-Vibe Coding no projeto atual. Detectar o estado do projeto e 
 
 ## Fluxo de Execucao
 
-### Step 1 (v6.0.0): Copy harness templates
+### Step 1 (v6.0.0): Scaffold full harness tree
 
-Execute via bun runtime:
+Run via bun:
 
 ```bash
 bun run -e "
-import { scaffoldTemplates } from './lib/scaffold-templates.ts'
-import { detectProjectName } from './lib/detect-project-name.ts'
 import path from 'node:path'
+import { scaffoldTemplates } from './lib/scaffold-templates.ts'
+import { scaffoldFullTree } from './lib/scaffold-full-tree.ts'
+import { detectProjectName } from './lib/detect-project-name.ts'
 
-const result = await scaffoldTemplates({
+const projectName = detectProjectName(process.cwd())
+const stack = 'unknown' // step 6 (stack-detection) refines this
+
+// AGENTS.md + ARCHITECTURE.md (Plano 01)
+const baseResult = await scaffoldTemplates({
   targetDir: process.cwd(),
   templatesDir: path.join(import.meta.dir, 'assets/templates'),
-  projectName: detectProjectName(process.cwd()),
-  stack: 'unknown'
+  projectName,
+  stack,
 })
 
-console.log('Files written:', result.filesWritten)
+// 14+ docs + structure (Plano 02 fase-02)
+const treeResult = await scaffoldFullTree({
+  targetDir: process.cwd(),
+  projectName,
+  stack,
+})
+
+console.log('Base files:', baseResult.filesWritten.length)
+console.log('Tree files:', treeResult.filesWritten.length, 'in', treeResult.durationMs, 'ms')
 "
 ```
 
-After this step, AGENTS.md and ARCHITECTURE.md exist in the project root.
+After this step the project has 27 files: AGENTS.md, ARCHITECTURE.md, TODO.md, and 24 docs/* files.
+Step 2 (next phase) handles symlink fallback for CLAUDE.md → AGENTS.md.
 
 ---
 
