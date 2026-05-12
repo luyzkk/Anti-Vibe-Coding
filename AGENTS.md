@@ -19,7 +19,9 @@ Plan before code. Test before implement. Capture lessons after merge. Discipline
 | Lessons captured from real bugs | `docs/compound/*.md` |
 | Active execution plans | `docs/exec-plans/active/` |
 | Completed plans (historical reference) | `docs/exec-plans/completed/` |
-| Plugin architecture (skills/hooks/scripts/lib layout) | `ARCHITECTURE.md` |
+| Plugin architecture (skills/hooks/scripts/lib layout) | [ARCHITECTURE.md](./ARCHITECTURE.md) |
+| Quality score rubric (review checklist scoring) | [docs/QUALITY_SCORE.md](./docs/QUALITY_SCORE.md) |
+| Product sense (when to push back on requirements) | [docs/PRODUCT_SENSE.md](./docs/PRODUCT_SENSE.md) |
 
 ## Compound Decision Gate
 

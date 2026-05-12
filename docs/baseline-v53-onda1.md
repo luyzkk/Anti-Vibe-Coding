@@ -58,7 +58,7 @@ Apesar da fase-05 ter sido marcada `obsolete` (DEV-07), CA-12 fica coberto por:
 
 1. **Testes textuais** [skills/lib/read-architecture-profile.test.ts](../skills/lib/read-architecture-profile.test.ts) — `readArchitectureProfile()` retorna `null` quando flag=false.
 2. **Regression tests** [skills/lib/telemetry-utils.test.ts](../skills/lib/telemetry-utils.test.ts) — telemetria escreve `profile_arquitetura: "disabled"` independentemente da flag.
-3. **Fixture canônica** [skills/lib/__fixtures__/architecture-profile/flag-disabled.json](../skills/lib/__fixtures__/architecture-profile/flag-disabled.json).
+3. **Fixture canônica** [skills/lib/__fixtures__/manifests/flag-disabled.json](../skills/lib/__fixtures__/manifests/flag-disabled.json).
 
 Cobertura por testes é completa; ausência de validação empírica em projeto controle (Licitar virou Rails, saiu do escopo — DEV-03) não invalida a garantia.
 
