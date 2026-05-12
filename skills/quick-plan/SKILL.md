@@ -142,6 +142,26 @@ Apos ultimo passo:
 
 ---
 
+## Output Format (v6 — D18 reduzido)
+
+<!-- 2026-05-12 (Luiz/dev): 04-G1 — Assumptions/Risks/Review Checklist omitidos intencionalmente.
+     Sao overhead desnecessario para tasks de complexidade media (3-7 passos).
+     Ambiguity 05-A5: se PRD especificar outras 7 secoes, alterar EXEC_PLAN_SECTIONS_QUICK em skills/lib/exec-plan-sections.ts -->
+<!-- 2026-05-12 (Luiz/dev): 04-G2 — mode:quick no frontmatter permite validador (Plano 04) ter regra diferente
+     ex: nao validar ausencia de ## Review Checklist como erro -->
+
+```
+1. Para tasks de complexidade media (3-7 passos), sem entrar em pipeline /plan-feature
+2. Chamar renderExecPlan({ mode: 'quick', ... }) — 7 secoes
+3. Escrever em docs/exec-plans/active/YYYY-MM-DD-{slug}.md
+4. Secoes (case-sensitive):
+   Goal, Scope, Execution Steps, Validation Log,
+   Compound Opportunity, Lessons Captured, Exit Criteria
+5. Assumptions, Risks, Review Checklist OMITIDAS (over-engineering para tasks medias)
+```
+
+---
+
 ## O que Este Skill NAO Faz
 
 - NAO cria arquivos em `.planning/` (PLAN.md, STATE.md, etc.)
