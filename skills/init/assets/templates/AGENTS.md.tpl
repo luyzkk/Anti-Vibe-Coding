@@ -1,31 +1,29 @@
-# Agent Instructions
+# AGENTS.md
 
-This file is the single source of truth for working in this repository.
-Read it fully before any non-trivial change.
+## Read Before Major Changes
 
-## Working philosophy
+- [ARCHITECTURE.md](./ARCHITECTURE.md): system boundaries, layering, and ownership.
+- [docs/PLANS.md](./docs/PLANS.md): when to open an execution plan and how to keep it current.
+- [docs/PRODUCT_SENSE.md](./docs/PRODUCT_SENSE.md): users, outcomes, product tradeoffs, and non-goals.
+- [docs/QUALITY_SCORE.md](./docs/QUALITY_SCORE.md): current quality bar and the biggest gaps.
+- [docs/SECURITY.md](./docs/SECURITY.md): security constraints and review checklist.
 
-- The human is the navigator. The agent is the pilot.
-- Discipline beats speed. Tests come before production code.
-- Never invent context. Read [ARCHITECTURE.md](./ARCHITECTURE.md) first.
+## Required Working Rules
 
-## Required reading before changes
+1. Keep durable context in the repo, not only in chat history.
+2. Update architecture or docs when code changes invalidate them.
+3. Use an execution plan for substantial or multi-step work.
+4. Prefer small diffs that preserve architectural boundaries.
+5. Do not report completion while an active plan is still in `docs/exec-plans/active/`.
+6. Run `bun run harness:validate` before opening a PR.
 
-- [ARCHITECTURE.md](./ARCHITECTURE.md) — stack, folders, conventions
-- [docs/QUALITY_SCORE.md](./docs/QUALITY_SCORE.md) — current quality bar
-- [docs/PRODUCT_SENSE.md](./docs/PRODUCT_SENSE.md) — product north star
+<!-- INIT:DELIVERY_LOOP_SLOT -->
 
-## Before reporting completion
+## Pre-Mutation Gate
 
-Run the Compound Decision Gate: did this work teach the repo something
-durable? If yes, capture in `docs/compound/`. If no, log why in the
-exec-plan's "Lessons Captured" section.
+Before any edit, dependency install, codegen, or formatting rewrite, decide whether the task is substantial. If it is, read `AGENTS.md`, `ARCHITECTURE.md`, and the relevant active plan before editing.
 
-## Standards
-
-- Use `bun`, not `npm`.
-- TypeScript strict. No `any`. Type guards over `as`.
-- Tests first. `bun run test && bun run lint` before any commit.
+If substantial work has no active plan, create one before mutation. If editing already started, stop, create or update the plan, record current state, then continue.
 
 ## Project context
 
