@@ -35,7 +35,30 @@ console.log('Files written:', result.filesWritten)
 ```
 
 After this step, AGENTS.md and ARCHITECTURE.md exist in the project root.
-Step 2 (next phase) handles the symlink/hardlink/copy fallback for CLAUDE.md.
+
+---
+
+### Step 2 (v6.0.0): Link CLAUDE.md to AGENTS.md
+
+Creates CLAUDE.md as a mirror of AGENTS.md using a 3-tier fallback:
+- **Tier 1 (symlink):** POSIX / Windows with developer mode ON
+- **Tier 2 (hardlink):** Windows 11 without developer mode (NTFS hardlink, no admin required — G1)
+- **Tier 3 (copy + hook):** Fallback when both fail — copies content and registers a `PostToolUse` hook in `.claude/settings.local.json` that re-syncs CLAUDE.md whenever AGENTS.md is edited
+
+Invoke from the skill root:
+
+```javascript
+// DI-01: bun -e is unreliable on Windows (GT-04). Call helper via script reference instead.
+// From the skill runner context, resolve lib path relative to SKILL.md location.
+const { linkClaudeToAgents } = await import('./lib/symlink-fallback.ts')
+const r = await linkClaudeToAgents(targetDir)
+console.log('Linked via tier:', r.tier)
+if (r.tier === 'copy-with-hook') {
+  console.log('Hook registered in .claude/settings.local.json — CLAUDE.md will re-sync on edits to AGENTS.md')
+}
+```
+
+After this step, CLAUDE.md mirrors AGENTS.md (same content). AGENTS.md remains the single source of truth (D16).
 
 ---
 
