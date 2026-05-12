@@ -13,6 +13,32 @@ Inicializar o Anti-Vibe Coding no projeto atual. Detectar o estado do projeto e 
 
 ## Fluxo de Execucao
 
+### Step 1 (v6.0.0): Copy harness templates
+
+Execute via bun runtime:
+
+```bash
+bun run -e "
+import { scaffoldTemplates } from './lib/scaffold-templates.ts'
+import { detectProjectName } from './lib/detect-project-name.ts'
+import path from 'node:path'
+
+const result = await scaffoldTemplates({
+  targetDir: process.cwd(),
+  templatesDir: path.join(import.meta.dir, 'assets/templates'),
+  projectName: detectProjectName(process.cwd()),
+  stack: 'unknown'
+})
+
+console.log('Files written:', result.filesWritten)
+"
+```
+
+After this step, AGENTS.md and ARCHITECTURE.md exist in the project root.
+Step 2 (next phase) handles the symlink/hardlink/copy fallback for CLAUDE.md.
+
+---
+
 ### Passo 0 — Detectar Instalação Existente e Invalidar Cache
 
 **ANTES de qualquer coisa**, verificar se existe `.claude/.anti-vibe-manifest.json`:
