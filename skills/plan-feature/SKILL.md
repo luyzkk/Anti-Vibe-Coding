@@ -750,6 +750,22 @@ Ao finalizar o overview (via Step 8):
 
 ---
 
+## Output Format (v6 — D18)
+
+```
+1. Apos coletar goal + scope + assumptions + risks + execution_steps:
+2. Chamar lib/exec-plan-template.ts → renderExecPlan({ mode: 'full', ... })
+3. Escrever em docs/exec-plans/active/YYYY-MM-DD-{slug}.md
+4. Output garante 10 secoes H2 nesta ordem (case-sensitive):
+   Goal, Scope, Assumptions, Risks, Execution Steps,
+   Review Checklist, Validation Log, Compound Opportunity,
+   Lessons Captured, Exit Criteria
+5. Validation Log / Compound Opportunity / Lessons Captured ficam vazias
+   (preenchidas durante execucao via /execute-plan e /iterate)
+```
+
+---
+
 ## Regras
 
 1. O plano e o contrato — /execute-plan segue EXATAMENTE o que esta nos planos
