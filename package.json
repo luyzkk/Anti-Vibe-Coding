@@ -4,7 +4,9 @@
   "type": "module",
   "scripts": {
     "test": "bun test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:e2e": "bun test tests/e2e/",
+    "test:tracer": "bun test tests/e2e/init-tracer-bullet.test.ts"
   },
   "devDependencies": {
     "typescript": "^5.4.0",

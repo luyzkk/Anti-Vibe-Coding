@@ -1,0 +1,4 @@
+# Ignora tudo gerado pelo /init em runs locais
+*
+!.gitignore
+!.gitkeep
