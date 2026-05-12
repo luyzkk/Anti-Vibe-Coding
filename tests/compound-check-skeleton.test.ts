@@ -45,18 +45,21 @@ describe('compound-check (skeleton)', () => {
     expect(result.stdout).toContain('0 compound notes')
   })
 
-  it('exits 0 and reports count when 2 compound notes exist (frontmatter validation comes in fase-02)', async () => {
-    await fs.writeFile(path.join(FIXTURE, 'docs/compound/2026-05-12-a.md'), '# A\n', 'utf8')
-    await fs.writeFile(path.join(FIXTURE, 'docs/compound/2026-05-12-b.md'), '# B\n', 'utf8')
+  it('exits 0 and reports count when 2 valid compound notes exist', async () => {
+    // Updated in fase-02: notes now require valid frontmatter + required sections.
+    const note = (title: string) => `---\ntitle: ${title}\ncategory: bug\ntags: [x]\ncreated: 2026-05-12\n---\n\n# ${title}\n\n## Problem\np\n## Solution\ns\n## Prevention\nv\n`
+    await fs.writeFile(path.join(FIXTURE, 'docs/compound/2026-05-12-a.md'), note('A'), 'utf8')
+    await fs.writeFile(path.join(FIXTURE, 'docs/compound/2026-05-12-b.md'), note('B'), 'utf8')
     const result = await runScript(FIXTURE)
     expect(result.code).toBe(0)
     expect(result.stdout).toContain('2 compound notes')
   })
 
   it('G9: ignores files in _archived/ when counting', async () => {
+    const note = (title: string) => `---\ntitle: ${title}\ncategory: bug\ntags: [x]\ncreated: 2026-05-12\n---\n\n# ${title}\n\n## Problem\np\n## Solution\ns\n## Prevention\nv\n`
     await fs.mkdir(path.join(FIXTURE, 'docs/compound/_archived'), { recursive: true })
-    await fs.writeFile(path.join(FIXTURE, 'docs/compound/_archived/old.md'), '# Old\n', 'utf8')
-    await fs.writeFile(path.join(FIXTURE, 'docs/compound/2026-05-12-active.md'), '# Active\n', 'utf8')
+    await fs.writeFile(path.join(FIXTURE, 'docs/compound/_archived/old.md'), note('Old'), 'utf8')
+    await fs.writeFile(path.join(FIXTURE, 'docs/compound/2026-05-12-active.md'), note('Active'), 'utf8')
     const result = await runScript(FIXTURE)
     expect(result.code).toBe(0)
     expect(result.stdout).toContain('1 compound notes')
