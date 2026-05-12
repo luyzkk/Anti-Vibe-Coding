@@ -24,6 +24,15 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"try{require(process.env.CLAUDE_PLUGIN_ROOT+'/hooks/pre-mutation-gate.cjs')}catch(e){process.exit(0)}\"",
+            "timeout": 10
+          }
+        ]
       }
     ],
     "PreToolUse": [
