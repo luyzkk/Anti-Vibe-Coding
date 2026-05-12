@@ -69,6 +69,34 @@ After successful migration, suggest user adds `.planning.v5-backup/` to `.gitign
 
 ---
 
+### Step migrate.2: Convert .planning/ → docs/exec-plans/* + docs/product-specs/* (Plano 03 fase-03 — D3, M8)
+
+<!-- Le do .planning.v5-backup/ (G1), escreve em docs/. Deleta .planning/ original apos sucesso
+     (G-A1). Idempotente: arquivos ja migrados com mesmo conteudo viram skip; conteudo divergente
+     vira conflict (aborta migration). -->
+
+```javascript
+// DI-01: import direto (GT-04 — bun -e quebra em bash Windows com paths absolutos).
+const { migratePlanning } = await import('./lib/migrate-planning.ts')
+
+const report = await migratePlanning(process.cwd())
+console.log('Migration:', report.status)
+console.log('  entries:', report.entries)
+console.log('  written:', report.written.length)
+console.log('  skipped:', report.skipped.length)
+
+if (report.conflicts.length > 0) {
+  console.log('  CONFLICTS:', report.conflicts.map((c) => c.target).join(', '))
+  console.log('  Resolve manually (delete from docs/ or rename original) and re-run /init migrate.')
+  process.exit(1)
+}
+```
+
+**Gate:** if conflicts are reported, the pipeline halts — fase-04 (lessons) and fase-05 (decisions)
+do NOT run. User resolves manually and re-runs.
+
+---
+
 ### Step 1 (v6.0.0): Scaffold full harness tree
 
 Run via bun:
