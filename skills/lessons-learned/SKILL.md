@@ -164,6 +164,23 @@ await add('Race condition em session refresh', projectRoot)
 await add({ title: 'Bug X', category: 'bug', tags: ['producao'] }, projectRoot)
 ```
 
+## Completion Signal (D33)
+
+Ao finalizar o output principal (add/review/prune), a skill emite automaticamente um bloco YAML machine-readable via `console.log`. Orquestradores podem extrair o sinal usando `extractCompletionSignal(output)`.
+
+```typescript
+import { renderCompletionSignal } from '../lib/completion-signal'
+console.log('\n\n' + renderCompletionSignal({
+  skill: 'lessons-learned',
+  status: 'complete',
+  outputs: [/* filePath da licao escrita */],
+  next_suggested: null,
+  blocks_for_user: [],
+}))
+```
+
+---
+
 ## Acao solicitada
 
 $ARGUMENTS

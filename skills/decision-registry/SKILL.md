@@ -66,6 +66,23 @@ As decisoes sao armazenadas em `.claude/decisions.md` na raiz do projeto.
      - Appenda em decisions.md raiz (formato legado)
 ```
 
+## Completion Signal (D33)
+
+Ao finalizar o output principal (add/list/query), a skill emite automaticamente um bloco YAML machine-readable via `console.log`. Orquestradores podem extrair o sinal usando `extractCompletionSignal(output)`.
+
+```typescript
+import { renderCompletionSignal } from '../lib/completion-signal'
+console.log('\n\n' + renderCompletionSignal({
+  skill: 'decision-registry',
+  status: 'complete',
+  outputs: [/* filePath do ADR ou decisions.md escrito */],
+  next_suggested: null,
+  blocks_for_user: [],
+}))
+```
+
+---
+
 ## Acao solicitada
 
 $ARGUMENTS

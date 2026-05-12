@@ -4,6 +4,7 @@ import { resolvePaths } from '../lib/path-resolver-v6'
 import { writeADR, type ADRInput } from '../lib/adr-writer'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import { renderCompletionSignal } from '../lib/completion-signal'
 
 /**
  * Adiciona uma decisao ao registro do projeto.
@@ -33,6 +34,14 @@ export async function add(
   if (paths.layout === 'v6') {
     // 2026-05-12 (Luiz/dev): v6 — usa designDocsDir de resolvePaths (DI-01-01, nao construir path manual)
     const result = await writeADR(paths.designDocsDir, opts)
+    // 2026-05-12 (Luiz/dev): D33/CA-47 — emite completion signal para orquestradores
+    console.log('\n\n' + renderCompletionSignal({
+      skill: 'decision-registry',
+      status: 'complete',
+      outputs: [result.filePath],
+      next_suggested: null,
+      blocks_for_user: [],
+    }))
     return { ...result, layout: 'v6' }
   }
 
@@ -48,6 +57,14 @@ export async function add(
     existing ? existing + '\n' + line : `# Decisions\n\n${line}`,
     'utf-8',
   )
+  // 2026-05-12 (Luiz/dev): D33/CA-47 — emite completion signal (layout legado)
+  console.log('\n\n' + renderCompletionSignal({
+    skill: 'decision-registry',
+    status: 'complete',
+    outputs: [legacyFile],
+    next_suggested: null,
+    blocks_for_user: [],
+  }))
   return { filePath: legacyFile, id: null, layout: paths.layout }
 }
 

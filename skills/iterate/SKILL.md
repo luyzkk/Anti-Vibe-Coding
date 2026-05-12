@@ -246,6 +246,24 @@ APOS incident-response + hardening, ANTES de encerrar:
 
 ---
 
+## Completion Signal (D33)
+
+Ao finalizar o ciclo de iteracao (apos compound decision gate), a skill emite automaticamente um bloco YAML machine-readable via `console.log`. Orquestradores podem extrair o sinal usando `extractCompletionSignal(output)`.
+
+```typescript
+import { renderCompletionSignal } from '../lib/completion-signal'
+// next_suggested: '/lessons-learned' se capturou compound notes; null caso contrario
+console.log('\n\n' + renderCompletionSignal({
+  skill: 'iterate',
+  status: 'complete',
+  outputs: [/* paths dos planos processados */],
+  next_suggested: capturedAny ? '/lessons-learned' : null,
+  blocks_for_user: [],
+}))
+```
+
+---
+
 ## Regras
 
 ```

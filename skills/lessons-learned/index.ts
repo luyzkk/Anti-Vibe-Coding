@@ -5,6 +5,7 @@
 import { resolvePaths } from '../lib/path-resolver-v6'
 import { writeCompoundNote, type CompoundNoteInput } from '../lib/compound-note-writer'
 import { promises as fs } from 'node:fs'
+import { renderCompletionSignal } from '../lib/completion-signal'
 
 export type LessonAddInput = CompoundNoteInput
 
@@ -32,6 +33,14 @@ export async function add(
 
   if (paths.layout === 'v6') {
     const { filePath } = await writeCompoundNote(paths.compoundDir, opts)
+    // 2026-05-12 (Luiz/dev): D33/CA-47 — emite completion signal para orquestradores
+    console.log('\n\n' + renderCompletionSignal({
+      skill: 'lessons-learned',
+      status: 'complete',
+      outputs: [filePath],
+      next_suggested: null,
+      blocks_for_user: [],
+    }))
     return { filePath, layout: 'v6' }
   }
 
@@ -44,6 +53,14 @@ export async function add(
     ? existing + '\n' + line + (existing.includes('<!-- Tip:') ? '' : tip)
     : `# Lessons Learned\n\n${line}${tip}`
   await fs.writeFile(paths.legacyLessonsFile, body, 'utf-8')
+  // 2026-05-12 (Luiz/dev): D33/CA-47 — emite completion signal (layout legado)
+  console.log('\n\n' + renderCompletionSignal({
+    skill: 'lessons-learned',
+    status: 'complete',
+    outputs: [paths.legacyLessonsFile],
+    next_suggested: null,
+    blocks_for_user: [],
+  }))
   return { filePath: paths.legacyLessonsFile, layout: paths.layout }
 }
 

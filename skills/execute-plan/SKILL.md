@@ -797,6 +797,23 @@ Step 6-FLAT: SUMMARY ao completar
 
 ---
 
+## Completion Signal (D33)
+
+Ao finalizar a execucao de um plano (quando `onPlanPotentiallyComplete` move o plano para `completed/`), a skill emite automaticamente um bloco YAML machine-readable via `console.log`. Orquestradores podem extrair o sinal usando `extractCompletionSignal(output)`.
+
+```typescript
+import { renderCompletionSignal } from '../lib/completion-signal'
+console.log('\n\n' + renderCompletionSignal({
+  skill: 'execute-plan',
+  status: 'complete',
+  outputs: [/* path relativo do plano movido para completed/ */],
+  next_suggested: '/iterate',
+  blocks_for_user: [],
+}))
+```
+
+---
+
 ## Referencias
 
 - `references/wave-execution.md` — Conceitos de waves, paralelismo e recuperacao (formato flat)
