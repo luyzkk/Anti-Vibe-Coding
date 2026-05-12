@@ -1,23 +1,23 @@
-# Design Docs
+# Design Decisions Index
 
-Architectural decisions and core beliefs for the Anti-Vibe Coding plugin.
+## ADRs (Architecture Decision Records)
 
-## Files
+- [ADR-0001: Sistema de Versionamento — Manifest com Checksums SHA-256](./ADR-0001-manifest-checksums.md) — 2026-03-23, active
 
-| File | Description |
-|------|-------------|
-| `core-beliefs.md` | Senior engineering principles — the "why" behind plugin rules |
-| `ADR-0001-manifest-checksums.md` | Decision: SHA-256 checksums in plugin-manifest.json (created in plano08-fase07) |
+## Core Beliefs
+
+- [core-beliefs.md](./core-beliefs.md) — Senior engineering principles, always-on
 
 ## ADR Format
 
 Each ADR follows the format:
 ```
 ---
+adr-id: NNNN
 title: "..."
-status: active | superseded | deprecated
 date: YYYY-MM-DD
-superseded_by: ADR-NNNN (if applicable)
+status: active | superseded | deprecated
+tags: [...]
 ---
 
 ## Context
@@ -25,6 +25,7 @@ superseded_by: ADR-NNNN (if applicable)
 ## Alternatives Considered
 ## Consequences
 ## Reversibility
+## Verbatim original
 ```
 
 New ADRs: `ADR-NNNN-kebab-slug.md` where NNNN increments from 0001.
