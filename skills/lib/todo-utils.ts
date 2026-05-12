@@ -104,3 +104,123 @@ export function addLine(filePath: string, description: string): void {
   const separator = content.endsWith('\n') ? '' : '\n'
   fs.writeFileSync(filePath, content + separator + newItem, 'utf-8')
 }
+
+// ─── Rich-parsed line types (D8 format) ─────────────────────────────────────
+
+/** Classifier extracted from `{file:path:line}` or `{feature:name}` tokens */
+export type TodoClassifier =
+  | { kind: 'file'; path: string; line: number | null }
+  | { kind: 'feature'; name: string }
+  | null
+
+/** FIFO selection strategy — 'oldest' returns first open item by file position */
+export type PickStrategy = 'oldest'
+
+/** Line parsed with rich fields; does not replace the legacy TodoItem */
+export type ParsedLine = {
+  lineIndex: number
+  raw: string
+  state: TodoState     // uses 'open', not 'pending'
+  date: string | null  // YYYY-MM-DD or null
+  classifier: TodoClassifier
+  description: string
+}
+
+// Accepts optional {YYYY-MM-DD} date and optional {classifier} tokens
+const PARSED_LINE_RE =
+  /^-\s*\[(?<box>[ xX-])\]\s*(?:\{(?<date>\d{4}-\d{2}-\d{2})\})?\s*(?:\{(?<classifier>[^}]+)\})?\s*(?<desc>.*)$/
+
+function parseClassifier(raw: string | null): TodoClassifier {
+  if (!raw) return null
+  if (raw.startsWith('file:')) {
+    const rest = raw.slice('file:'.length)
+    const lastColon = rest.lastIndexOf(':')
+    if (lastColon !== -1) {
+      const maybeLine = rest.slice(lastColon + 1)
+      const lineNum = Number(maybeLine)
+      if (maybeLine !== '' && !Number.isNaN(lineNum)) {
+        return { kind: 'file', path: rest.slice(0, lastColon), line: lineNum }
+      }
+    }
+    return { kind: 'file', path: rest, line: null }
+  }
+  if (raw.startsWith('feature:')) {
+    return { kind: 'feature', name: raw.slice('feature:'.length) }
+  }
+  return null
+}
+
+/**
+ * Parses a single raw TODO.md line into a ParsedLine.
+ * Returns null for non-checkbox lines (headers, blank lines, etc.).
+ *
+ * @example parseLine('- [ ] {2026-01-01} {file:src/a.ts:5} fix it', 3)
+ */
+export function parseLine(raw: string, lineIndex: number): ParsedLine | null {
+  const match = PARSED_LINE_RE.exec(raw)
+  if (!match) return null
+
+  const groups = match.groups
+  if (!groups) return null
+
+  const box = groups['box'] ?? ' '
+  const dateStr = groups['date'] ?? null
+  const cls = groups['classifier'] ?? null
+  const desc = groups['desc'] ?? ''
+
+  return {
+    lineIndex,
+    raw,
+    state: stateFromChar(box),
+    date: dateStr,
+    classifier: parseClassifier(cls),
+    description: desc.trim(),
+  }
+}
+
+/**
+ * Returns items whose state is 'open' (i.e. pending/actionable).
+ *
+ * @example listPending(parsedLines).map(i => i.description)
+ */
+export function listPending(items: ParsedLine[]): ParsedLine[] {
+  return items.filter((i) => i.state === 'open')
+}
+
+/**
+ * Filters parsed items by the given TodoState.
+ *
+ * @example filterByStatus(items, 'done')
+ */
+export function filterByStatus(items: ParsedLine[], state: TodoState): ParsedLine[] {
+  return items.filter((i) => i.state === state)
+}
+
+/**
+ * Returns the first open item (FIFO by file position) or null when none exist.
+ *
+ * @example pickNext(items, 'oldest')
+ */
+export function pickNext(items: ParsedLine[], strategy: PickStrategy): ParsedLine | null {
+  // strategy is 'oldest' — FIFO means first by lineIndex order
+  void strategy
+  return items.find((i) => i.state === 'open') ?? null
+}
+
+/**
+ * Scores an item by days since its `date` field (UTC, deterministic).
+ * Returns 0 when `date` is null. Larger score = older = higher priority.
+ *
+ * @example scoreByPriority(item, new Date('2026-01-11'))
+ */
+export function scoreByPriority(item: ParsedLine, today: Date = new Date()): number {
+  if (!item.date) return 0
+  const itemDate = Date.UTC(
+    Number(item.date.slice(0, 4)),
+    Number(item.date.slice(5, 7)) - 1,
+    Number(item.date.slice(8, 10)),
+  )
+  const todayUtc = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())
+  const diffMs = todayUtc - itemDate
+  return Math.max(0, Math.floor(diffMs / 86_400_000))
+}
