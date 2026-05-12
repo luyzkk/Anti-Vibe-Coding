@@ -2,10 +2,12 @@
 // Assinatura union string | LessonOpts (Ambiguity 05-A1 resolvida)
 // Em v6: escreve compound note em docs/compound/
 // Em v5/cru: appenda em lessons-learned.md + injeta tip de migracao uma vez (Ambiguity 05-A2)
+// 2026-05-12 (Luiz/dev): D31 — roteamento de --update e --delete (CA-41, CA-42)
 import { resolvePaths } from '../lib/path-resolver-v6'
 import { writeCompoundNote, type CompoundNoteInput } from '../lib/compound-note-writer'
 import { promises as fs } from 'node:fs'
 import { renderCompletionSignal } from '../lib/completion-signal'
+import { update, archive } from '../lib/lessons-learned-crud'
 
 export type LessonAddInput = CompoundNoteInput
 
@@ -71,4 +73,35 @@ async function readSafe(p: string): Promise<string | null> {
 function formatLegacyLessonLine(opts: LessonAddInput): string {
   const date = opts.createdISO ?? new Date().toISOString().slice(0, 10)
   return `## ${date}: ${opts.title}\n\n${opts.body ?? '(detalhe aqui)'}\n`
+}
+
+/**
+ * Roteamento --update: atualiza compound note pelo slug (D31/CA-41).
+ * Delegado para skills/lib/lessons-learned-crud.ts.
+ *
+ * @example
+ * updateNote(process.cwd(), 'foo', { body: 'novo conteudo' })
+ */
+export function updateNote(
+  projectRoot: string,
+  slug: string,
+  opts: Parameters<typeof update>[2],
+): string {
+  return update(projectRoot, slug, opts)
+}
+
+/**
+ * Roteamento --delete: soft archive de compound note (D31/CA-42).
+ * Move para docs/compound/_archived/ — recuperavel via git.
+ * Delegado para skills/lib/lessons-learned-crud.ts.
+ *
+ * @example
+ * archiveNote(process.cwd(), 'foo')
+ * // => { from: '...compound/2026-05-12-foo.md', to: '...compound/_archived/2026-05-12-foo.md' }
+ */
+export function archiveNote(
+  projectRoot: string,
+  slug: string,
+): { from: string; to: string } {
+  return archive(projectRoot, slug)
 }

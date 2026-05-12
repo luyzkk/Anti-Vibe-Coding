@@ -181,6 +181,13 @@ console.log('\n\n' + renderCompletionSignal({
 
 ---
 
+## Sub-comandos CRUD (D31)
+
+- `--update {slug}` — reescreve compound note preservando `created`, adicionando `updated`
+- `--delete {slug}` — soft archive para `docs/compound/_archived/` (recuperavel via git)
+
+---
+
 ## Acao solicitada
 
 $ARGUMENTS
