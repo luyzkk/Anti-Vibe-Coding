@@ -1,0 +1,9 @@
+# Dependencies
+node_modules/
+
+# Plugin runtime state
+.claude/.context-monitor-state.json
+.claude/cache/
+
+# Logs
+*.log
