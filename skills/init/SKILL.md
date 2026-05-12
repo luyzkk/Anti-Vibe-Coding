@@ -80,6 +80,25 @@ In dry-run mode: zero side effects — `docs/` is never created, `.planning/` is
 
 ---
 
+### Step migrate.5: Final validation (Plano 03 fase-07 — CA-09)
+
+<!-- Runs harness:validate after migration completes. If it fails, print rollback instructions.
+     Exit code propagated so the caller (skill runner) can surface the failure. -->
+
+```bash
+bun run scripts/harness-validate.ts
+VALIDATION_EXIT=$?
+if [ $VALIDATION_EXIT -ne 0 ]; then
+  echo "WARN: harness:validate failed after migration. Inspect output above."
+  echo "Backup is at .planning.v5-backup/ — to roll back: git revert HEAD && cp -r .planning.v5-backup/.planning ./"
+  exit $VALIDATION_EXIT
+fi
+echo "Migration validated. Suggested commit: git commit -m 'chore: migrate to anti-vibe-coding v6.0.0'"
+echo "Add .planning.v5-backup/ to .gitignore (or delete after confirming all is well)."
+```
+
+---
+
 ### Step migrate.1: Backup before any mutation (Plano 03 fase-02 — R2, R14, M8)
 
 <!-- GATING: execute este step ANTES de qualquer helper de migracao (fase-03/04/05).
