@@ -9,6 +9,8 @@ export type ScaffoldFullTreeOptions = {
   targetDir: string
   projectName: string
   stack: string
+  /** Stack ja detectado para preencher {{DETECTED_STACK}} em STATE.md.tpl. Opcional — default 'unknown'. */
+  detectedStack?: string
 }
 
 export type ScaffoldFullTreeResult = {
@@ -29,10 +31,14 @@ export async function scaffoldFullTree(opts: ScaffoldFullTreeOptions): Promise<S
   const filesWritten: string[] = []
 
   // 2026-05-11 (Luiz/dev): {{TODAY}} adicionado para TODO.md.tpl — fase-01 introduziu.
+  // 2026-05-11 (Luiz/dev): {{DETECTED_STACK}} adicionado para STATE.md.tpl — fase-06.
+  // detectedStack e opcional (backward-compat): se ausente, STATE.md mostra 'unknown' ate
+  // writeStackToStateMd ser chamado em Step 3 do SKILL.md.
   const vars: Record<string, string> = {
     PROJECT_NAME: opts.projectName,
     STACK: opts.stack,
     TODAY: new Date().toISOString().slice(0, 10),
+    DETECTED_STACK: opts.detectedStack ?? 'unknown',
   }
 
   // Paraleliza por entry — cada uma e independente (mkdir + read + write).

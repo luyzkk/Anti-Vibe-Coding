@@ -51,6 +51,9 @@ export const TEMPLATE_MANIFEST: ReadonlyArray<TemplateEntry> = [
   { src: 'docs/references/README.md.tpl',          dst: 'docs/references/README.md',          required: true },
   { src: 'docs/generated/db-schema.md.tpl',        dst: 'docs/generated/db-schema.md',        required: true },
 
+  // Camada 7: state snapshot
+  { src: 'docs/STATE.md.tpl',                      dst: 'docs/STATE.md',                      required: true },
+
   // Raiz
   { src: 'TODO.md.tpl',                            dst: 'TODO.md',                            required: true },
 ]

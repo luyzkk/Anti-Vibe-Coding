@@ -76,6 +76,25 @@ After this step, CLAUDE.md mirrors AGENTS.md (same content). AGENTS.md remains t
 
 ---
 
+### Step 3 (v6.0.0): Detect stack and register in STATE.md (D7, M3)
+
+```bash
+bun run -e "
+import { detectStack } from './lib/detect-stack.ts'
+import { writeStackToStateMd } from './lib/state-md-init.ts'
+
+const stack = await detectStack(process.cwd())
+console.log('Detected stack:', stack.id, '(via', stack.signalSource, ')')
+
+const result = await writeStackToStateMd(process.cwd(), stack)
+console.log('STATE.md', result.status, ':', result.path)
+"
+```
+
+Important: v6.0.0 only **registers** the stack. Knowledge packs (`docs/knowledge/{stack}/`) ship in v6.1+.
+
+---
+
 ### Passo 0 — Detectar Instalação Existente e Invalidar Cache
 
 **ANTES de qualquer coisa**, verificar se existe `.claude/.anti-vibe-manifest.json`:
