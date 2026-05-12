@@ -2,6 +2,7 @@
 // DI-02-01: imports relativos em skills/lib/ (um nivel acima), nao de anti-vibe-coding/lib/ (inexistente)
 import { resolvePaths } from '../lib/path-resolver-v6'
 import { writeADR, type ADRInput } from '../lib/adr-writer'
+import { revoke as revokeAdr, type RevokeResult } from '../lib/decision-registry-revoke'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { renderCompletionSignal } from '../lib/completion-signal'
@@ -66,6 +67,29 @@ export async function add(
     blocks_for_user: [],
   }))
   return { filePath: legacyFile, id: null, layout: paths.layout }
+}
+
+/**
+ * Revoga um ADR existente criando nova ADR superseded com link bidirecional.
+ * ADR original NAO e deletada (CA-43, R14). Operacao nao-idempotente — segunda chamada cria ADR-NNNN+1.
+ *
+ * @param id - aceita: 1, '3', 'ADR-3', 'ADR-0003'
+ * @param reason - Motivo da revogacao (obrigatorio)
+ * @param projectRoot - Raiz do projeto (default: process.cwd())
+ * @param opts - Opcoes opcionais: newSlug, newBody
+ *
+ * @example
+ * const result = revoke(3, 'Replaced by simpler approach', '/my/project')
+ * // result.superseded.id === 'ADR-0004'
+ */
+export function revoke(
+  id: string | number,
+  reason: string,
+  projectRoot: string = process.cwd(),
+  opts?: { newSlug?: string; newBody?: string },
+): RevokeResult {
+  // 2026-05-12 (Luiz/dev): D31 — roteamento --revoke para helper decision-registry-revoke (CA-43)
+  return revokeAdr(projectRoot, id, { reason, ...opts })
 }
 
 async function readSafe(p: string): Promise<string | null> {
