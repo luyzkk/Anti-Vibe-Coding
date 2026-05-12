@@ -2,6 +2,68 @@
 
 Todas as mudanças notáveis do plugin Anti-Vibe Coding serão documentadas aqui.
 
+## [5.3.0] - 2026-05-12
+
+Plugin Adaptativo — Onda 1. Release detalhado em [docs/release-notes-v53.md](docs/release-notes-v53.md).
+
+### ✨ Adicionado
+
+#### Architecture Detector
+- **Skill `/anti-vibe-coding:detect-architecture`**: classifica projeto em 1 de 5 perfis com score 0-100% (RF1, RF3)
+- **5 perfis suportados**: clean-architecture-ritual, mvc-flat, vertical-slice, nextjs-app-router, unknown-mixed
+- **Schema `architectureProfile`** em `.claude/.anti-vibe-manifest.json` versionado para evolução futura (RF2)
+- **Markdown legível** `.claude/architecture-profile.md` gerado automaticamente (RF9)
+- **Documentação dos 5 perfis** em `docs/architecture-profiles.md` (RF10)
+
+#### Modo Dual
+- **Helper estável** `readArchitectureProfile()` em `skills/lib/read-architecture-profile.ts` — leitura UMA vez, retorna `null` quando flag=false (CA-04)
+- **5 skills estruturantes adaptadas**: `architecture`, `plan-feature`, `write-prd`, `execute-plan`, `verify-work` leem o perfil e adaptam recomendações sem prescrever refactor (RF7)
+- **Convenção documentada** em `docs/dual-mode-convention.md`
+- **8 fixtures canônicos** em `skills/lib/__fixtures__/architecture-profile/` (5 perfis + no-profile + flag-disabled + invalid-profile)
+
+#### Telemetria passiva
+- **Lib `telemetry-utils.ts`**: `writeTelemetryStart`/`writeTelemetryEnd` com falha silenciosa (CA-09) e rotação mensal `.claude/metrics/YYYY-MM.jsonl` (RF4, RF5)
+- **Schema JSONL** com 10 campos documentado em `docs/telemetry-schema.md`
+- **Script CLI** `scripts/analyze-metrics.ts`: agrega metrics local, gera relatório baseline com ASCII chart (`--ascii`), suporta `--set <perfil>` para override manual (RF8, RF12, RF14)
+- **Sugestão (não execução)** em `skills/init/SKILL.md` para rodar analyze-metrics (RF13)
+
+#### 5 Princípios universais
+- **10 Questions Test** integrado em `consultant` e `grill-me`
+- **Comment Provenance** em templates de PRD e fase
+- **Declarative-first** (outcomes antes de mecanismo) em `write-prd`
+- **Fresh-context Review** em `verify-work`
+- **YAGNI checklist** em `consultant`
+- Documentação consolidada em `docs/universal-principles-v53.md`
+
+#### Feature flag
+- **`architectureDetectorEnabled`** (default `false`) — opt-in puro, preserva comportamento v5.2 (RF6, CA-04)
+
+### 🛡️ Privacy-first (D7 — irreversível)
+
+Telemetria é **local-only**. Sem network calls, sem upload, sem endpoint configurável. Script `analyze-metrics.ts` apenas lê arquivos locais.
+
+### 🐛 Bugs conhecidos
+
+- **BUG-02 (crítico, arquitetural):** A instrumentação adicionada às 10 `SKILL.md` (blocos TypeScript chamando `writeTelemetryStart`/`writeTelemetryEnd`) é tratada como prompt markdown pelo agente Claude, não como runtime executável. Resultado: `.claude/metrics/YYYY-MM.jsonl` não é populado durante invocação real de skills. A função em si está implementada e testada (224 testes verdes), mas o gatilho de execução nunca dispara. Fix planejado para Onda 2 via par `PreToolUse`+`PostToolUse` em `hooks.json`. Detalhes em [docs/baseline-v53-onda1.md](docs/baseline-v53-onda1.md).
+
+### ⚠️ Validação parcial
+
+- **CA-04 (compatibilidade v5.2):** ✅ coberto por testes textuais
+- **CA-05 (saída adaptativa):** ✅ cumprido empiricamente em Carreirarte (modo dual ativo difere do v5.2 genérico)
+- **CA-10 (manifest pré-v5.3 não quebra):** ✅ coberto por testes
+- **CA-11 (≥50 pares válidos em dogfooding):** ❌ **deferred-to-onda-2** — bloqueado por BUG-02
+- **CA-12 (isolamento entre repos):** ✅ coberto por testes textuais e fixture `flag-disabled.json` (validação empírica via piloto-false ficou obsolete após Licitar virar Rails — DEV-07)
+
+### 📦 Compatibilidade
+
+- Manifest pré-v5.3 não quebra (campo `architectureProfile` é opcional — CA-10)
+- Comportamento v5.2 preservado integralmente quando flag desligada (CA-04)
+- Backfill de planos legacy é opcional (D5) — sem migração automática
+
+### 🔜 Onda 2 (depende de fix BUG-02)
+
+Token Tax audit, Comprehension Debt tracking, perfis adicionais (`rails-mvc`, `react-spa-flat`/`vite-spa`, DDD strategic, Monorepo), skill `/dependency-graph`.
+
 ## [4.0.0] - 2026-03-23
 
 ### ✨ Adicionado

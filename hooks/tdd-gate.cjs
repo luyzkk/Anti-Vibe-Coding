@@ -14,8 +14,10 @@ const fs = require('fs');
 const path = require('path');
 
 const PRODUCTION_EXTS  = /\.(ts|tsx|js|jsx)$/;
-const TEST_PATTERN     = /\.(test|spec)\.(ts|tsx|js|jsx)$|__tests__/;
+const TEST_PATTERN     = /\.(test|spec|e2e)\.(ts|tsx|js|jsx)$|__tests__/;
 const SKIP_PATTERN     = /\.(config\.|json$|ya?ml$|toml$|env)|\.d\.ts$|\.(md|txt|mdx|css|scss|svg|png|jpg|ico|graphql|gql|prisma|sql|mjs|cjs)$|(node_modules|dist|build|\.git|\.claude|\.next|migrations|seeds)[/\\]/;
+// Next.js route files are structural/presentational — covered by E2E, not unit tests
+const NEXTJS_ROUTE_FILE = /(^|[/\\])(page|layout|loading|error|not-found|template|default|global-error|route)\.(ts|tsx|js|jsx)$/;
 
 function allow()        { process.exit(0); }
 function block(reason)  {
@@ -144,6 +146,7 @@ function processInput() {
     if (TEST_PATTERN.test(filePath))      return allow();
     if (SKIP_PATTERN.test(filePath))      return allow();
     if (!PRODUCTION_EXTS.test(filePath))  return allow();
+    if (NEXTJS_ROUTE_FILE.test(filePath)) return allow();
 
     const basename = path.basename(filePath).replace(PRODUCTION_EXTS, '');
     const cwd      = process.cwd();
@@ -155,7 +158,9 @@ function processInput() {
     }
 
     // 2. Busca co-localizada (mesmo diretório do arquivo)
-    const sameDir   = path.join(cwd, path.dirname(filePath));
+    // Use path.resolve (not path.join) — absolute filePath + cwd mismatch on Windows
+    // produces invalid hybrid path like `cwd\F:\...` that fs.existsSync rejects.
+    const sameDir   = path.resolve(cwd, path.dirname(filePath));
     const colocated = [
       path.join(sameDir, `${basename}.test.ts`),
       path.join(sameDir, `${basename}.test.tsx`),
@@ -165,6 +170,10 @@ function processInput() {
       path.join(sameDir, `${basename}.spec.tsx`),
       path.join(sameDir, `${basename}.spec.js`),
       path.join(sameDir, `${basename}.spec.jsx`),
+      path.join(sameDir, `${basename}.e2e.ts`),
+      path.join(sameDir, `${basename}.e2e.tsx`),
+      path.join(sameDir, `${basename}.e2e.js`),
+      path.join(sameDir, `${basename}.e2e.jsx`),
       path.join(sameDir, '__tests__', `${basename}.test.ts`),
       path.join(sameDir, '__tests__', `${basename}.test.tsx`),
       path.join(sameDir, '__tests__', `${basename}.test.js`),
