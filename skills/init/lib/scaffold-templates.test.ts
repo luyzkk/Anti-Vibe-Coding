@@ -23,7 +23,7 @@ describe('scaffoldTemplates', () => {
       stack: 'Next.js',
     })
 
-    expect(result.filesWritten).toHaveLength(2)
+    expect(result.filesWritten).toHaveLength(4)
 
     const agents = await fs.readFile(path.join(FIXTURE_DIR, 'AGENTS.md'), 'utf8')
     expect(agents).toContain('my-app')

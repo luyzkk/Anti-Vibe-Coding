@@ -21,6 +21,9 @@ export async function scaffoldTemplates(opts: ScaffoldOptions): Promise<Scaffold
   const pairs: ReadonlyArray<readonly [string, string]> = [
     ['AGENTS.md.tpl', 'AGENTS.md'],
     ['ARCHITECTURE.md.tpl', 'ARCHITECTURE.md'],
+    // Adicionados em fase-04:
+    ['scripts/harness-validate.ts.tpl', 'scripts/harness-validate.ts'],
+    ['package.json.tpl', 'package.json'],
   ]
 
   for (const [src, dst] of pairs) {
@@ -37,6 +40,8 @@ export async function scaffoldTemplates(opts: ScaffoldOptions): Promise<Scaffold
       .replaceAll('{{FRAMEWORK}}', 'TBD')
       .replaceAll('{{DATABASE}}', 'TBD')
 
+    // Criar diretorio pai se nao existir (necessario para scripts/)
+    await fs.mkdir(path.dirname(dstPath), { recursive: true })
     await fs.writeFile(dstPath, rendered, 'utf8')
     filesWritten.push(dstPath)
   }
