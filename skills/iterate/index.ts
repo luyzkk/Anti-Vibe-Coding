@@ -2,6 +2,7 @@
 import { runCompoundGate, type GatePromptFn } from '../lib/compound-decision-gate'
 import { listActivePlans } from '../lib/exec-plan-mover'
 import { readExecPlan, isComplete } from '../lib/exec-plan-reader'
+import { renderCompletionSignal } from '../lib/completion-signal'
 
 export type IterateResult = {
   gatesRun: number
@@ -23,6 +24,17 @@ export async function iterate(
     gatesRun++
     plans.push({ planPath, moved: result.planMoved })
   }
+
+  // 2026-05-12 (Luiz/dev): D33/CA-47 — emite completion signal apos ciclo de iteracao
+  // next_suggested: '/lessons-learned' se capturou compound notes, null se nao
+  const capturedAny = plans.some(p => p.moved)
+  console.log('\n\n' + renderCompletionSignal({
+    skill: 'iterate',
+    status: 'complete',
+    outputs: plans.map(p => p.planPath),
+    next_suggested: capturedAny ? '/lessons-learned' : null,
+    blocks_for_user: [],
+  }))
 
   return { gatesRun, plans }
 }

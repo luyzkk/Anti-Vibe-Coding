@@ -783,6 +783,23 @@ Ao finalizar o overview (via Step 8):
 
 ---
 
+## Completion Signal (D33)
+
+Ao finalizar o output principal (criacao do plano), a skill emite automaticamente um bloco YAML machine-readable via `console.log`. Orquestradores podem extrair o sinal usando `extractCompletionSignal(output)`.
+
+```typescript
+import { renderCompletionSignal } from '../lib/completion-signal'
+console.log('\n\n' + renderCompletionSignal({
+  skill: 'plan-feature',
+  status: 'complete',
+  outputs: [/* filePath do plano criado */],
+  next_suggested: '/execute-plan',
+  blocks_for_user: [],
+}))
+```
+
+---
+
 ## Referencias
 
 - `lib/legacy-detector.md` — Algoritmo de deteccao de estrutura legacy (consumido pelo Step 0)
