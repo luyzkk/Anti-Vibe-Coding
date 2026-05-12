@@ -97,6 +97,30 @@ do NOT run. User resolves manually and re-runs.
 
 ---
 
+### Step migrate.3: Convert lessons-learned.md → docs/compound/*.md (Plano 03 fase-04 — D3, M7, CA-29)
+
+<!-- Le do .planning.v5-backup/lessons-learned.md (G1). Gera 1 arquivo .md por licao em
+     docs/compound/{date}-{slug}.md com frontmatter completo (title/category/tags/created).
+     Parser cobre formato A (## YYYY-MM-DD: titulo) e formato B (### [Categoria] titulo).
+     Idempotente: filename ja existente vira skip (nao sobrescreve edicoes manuais). -->
+
+```javascript
+// DI-01: import direto (GT-04).
+const { migrateLessons } = await import('./lib/migrate-lessons.ts')
+
+const report = await migrateLessons(process.cwd())
+console.log('Lessons:', report.status, '— wrote:', report.written.length, 'skipped:', report.skipped.length)
+
+if (report.status === 'skipped' && report.skipped.some((s) => s.reason.includes('source-missing'))) {
+  console.log('  (no lessons-learned.md in backup — nothing to migrate)')
+}
+```
+
+Compound notes follow the CA-29 contract (frontmatter `title`/`category`/`tags`/`created`) and
+will be validated by `bun run compound:check` (Plano 04 fase-02).
+
+---
+
 ### Step 1 (v6.0.0): Scaffold full harness tree
 
 Run via bun:
