@@ -244,6 +244,33 @@ Step 2 (next phase) handles symlink fallback for CLAUDE.md → AGENTS.md.
 
 ---
 
+### Passo 1.5 (v6.0.0): Criar TODO.md na raiz (idempotente)
+
+Verificar se `{projectRoot}/TODO.md` existe.
+- Se existe: skip silencioso (G2 — nao sobrescrever historico do usuario).
+- Se ausente: copiar `skills/todo-pick/templates/todo-md-skeleton.md` para `{projectRoot}/TODO.md`.
+
+Encoding: UTF-8 sem BOM. Line endings: LF.
+
+```javascript
+// DI-06: import direto em vez de bun -e (GT-04 — bun -e com paths absolutos quebra no Windows).
+// 2026-05-12 (Luiz/dev): CA-31 prereq — TODO.md idempotente para /todo-pick funcionar.
+const { scaffoldTodoMd } = await import('./lib/scaffold-todo-md.ts')
+
+const result = scaffoldTodoMd(process.cwd())
+if (result === 'created') {
+  console.log('TODO.md criado na raiz do projeto.')
+} else {
+  console.log('TODO.md ja existe — mantido sem modificacao (G2).')
+}
+```
+
+**Nota:** O `scaffoldFullTree` (Passo 1) ja cria `TODO.md` via `TODO.md.tpl` no manifest.
+Este passo garante criacao idempotente usando o skeleton canônico do `/todo-pick`
+quando o arquivo nao foi gerado pelo scaffold (ex: projeto legado ou init parcial).
+
+---
+
 ### Step 2 (v6.0.0): Link CLAUDE.md to AGENTS.md
 
 Creates CLAUDE.md as a mirror of AGENTS.md using a 3-tier fallback:
