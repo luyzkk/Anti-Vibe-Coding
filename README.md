@@ -491,5 +491,5 @@ Pipeline pesado (`/execute-plan` com subagentes paralelos) usa o perfil ativo �
 
 Issues e PRs em [github.com/luyzkk/Anti-Vibe-Coding](https://github.com/luyzkk/Anti-Vibe-Coding).
 
-Decisões arquiteturais do plugin em [`decisions.md`](./decisions.md).
-Lições do desenvolvimento em [`lessons-learned.md`](./lessons-learned.md).
+Decisões arquiteturais do plugin em [`docs/design-docs/`](./docs/design-docs/) (ADRs).
+Lições do desenvolvimento em [`docs/compound/`](./docs/compound/) (compound notes).
