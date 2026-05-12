@@ -22,6 +22,7 @@
     "skills/lib/architecture-detector/__fixtures__/projects/mvc-flat",
     "skills/lib/architecture-detector/__fixtures__/projects/vertical-slice",
     "skills/lib/architecture-detector/__fixtures__/projects/nextjs",
-    "skills/lib/architecture-detector/__fixtures__/projects/unknown"
+    "skills/lib/architecture-detector/__fixtures__/projects/unknown",
+    "tests/fixtures/compound-100-docs"
   ]
 }

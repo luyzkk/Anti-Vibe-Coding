@@ -49,7 +49,10 @@ const AGENTS_REQUIRED_LINKS = [
 // Diretorios excluidos do crawl de markdown (G10 do plano).
 // _archived/: compound notes arquivadas intencionalmente — links internos nao validados.
 // .planning.v5-backup/: backup de migracao v5→v6 durante Plano 03 — evita falsos positivos.
-const SKIP_DIRS = new Set(['node_modules', '.git', '.planning.v5-backup'])
+// compound/: compound notes tem frontmatter YAML (---) em linha 1 — incompativel com H1 check.
+//   BUG-04-01 (Luiz/dev 2026-05-12): harness H1 check conflita com CA-29 (frontmatter na linha 1).
+//   Fix: excluir docs/compound/ do crawl. compound-check.ts valida esses arquivos independentemente.
+const SKIP_DIRS = new Set(['node_modules', '.git', '.planning.v5-backup', 'compound'])
 const ARCHIVED_SEGMENT = '_archived'
 
 type Failure = { rule: string; message: string }
