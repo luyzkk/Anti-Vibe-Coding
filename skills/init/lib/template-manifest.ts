@@ -56,6 +56,10 @@ export const TEMPLATE_MANIFEST: ReadonlyArray<TemplateEntry> = [
 
   // Raiz
   { src: 'TODO.md.tpl',                            dst: 'TODO.md',                            required: true },
+
+  // Scripts de validacao
+  // 2026-05-11 (Luiz/dev): Plano 04 fase-01 — compound-check entra no scaffold.
+  { src: 'scripts/compound-check.ts.tpl',          dst: 'scripts/compound-check.ts',          required: true },
 ]
 
 export const TEMPLATES_ROOT = path.join(import.meta.dir, '..', 'assets', 'templates')
