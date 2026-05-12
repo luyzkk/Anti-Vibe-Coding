@@ -2,6 +2,14 @@
   "version": "6.0.0",
   "generatedAt": "2026-05-12T22:40:09.598Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
+  "skills": {
+    "todo-pick": {
+      "path": "skills/todo-pick/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "Puxa 1 item de micro-débito do TODO.md por vez."
+    }
+  },
   "files": {
     "CLAUDE.md": {
       "version": "6.0.0",
