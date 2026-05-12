@@ -7,6 +7,8 @@
     "typecheck": "tsc --noEmit",
     "test:e2e": "bun test tests/e2e/",
     "test:tracer": "bun test tests/e2e/init-tracer-bullet.test.ts",
+    "harness:validate": "bun scripts/harness-validate.ts .",
+    "compound:check": "bun scripts/compound-check.ts .",
     "state:regenerate": "bun run skills/lib/state-md-generator.ts $PWD"
   },
   "devDependencies": {
