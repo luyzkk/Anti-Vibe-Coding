@@ -228,6 +228,24 @@ Para config espalhada em múltiplos arquivos:
 
 ---
 
+## Compound Decision Gate (D17 — NOVO em v6)
+
+```
+APOS incident-response + hardening, ANTES de encerrar:
+
+1. Listar planos em docs/exec-plans/active/ com isComplete() === true
+2. Para cada plano completo, perguntar ao usuario:
+   "Plano '{titulo}' esta completo. Esse trabalho ensinou algo duravel que
+    outro agente/humano usaria? [Sim - capturar / Nao - registrar razao / Pensar mais]"
+3. Caminhos:
+   a. Capturar → coletar (title, problem, solution, prevention) → gerar compound note → mover plano para completed/
+   b. Registrar razao → appendar linha em Validation Log do plano → mover para completed/
+   c. Pensar mais → atualizar frontmatter status: pending-capture → plano FICA em active/
+4. Telemetria: emitir evento iterate.compound_gate { choice, plan_slug }
+```
+
+---
+
 ## Regras
 
 ```
