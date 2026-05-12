@@ -1,0 +1,5 @@
+# Artefatos gerados durante o teste (nao commitar).
+docs/
+.planning.v5-backup/
+.planning.v5-backup.tmp/
+.planning.v5-backup.lock
