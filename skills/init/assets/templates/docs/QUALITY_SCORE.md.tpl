@@ -1,30 +1,22 @@
 # Quality Score
 
-## Current Quality Bar
+Update this document whenever the team materially improves or accepts quality tradeoffs.
 
-| Dimension | Score (1-5) | Notes |
-|-----------|-------------|-------|
-| Test coverage | — | TBD |
-| Type safety | — | TBD |
-| Accessibility | — | TBD |
-| Performance | — | TBD |
-| Security | — | TBD |
+This is a living self-assessment of the project, not a merge gate. For binary merge requirements see `docs/MERGE_GATES.md`.
 
-## Gaps
+| Area | Score | Notes | Next Action |
+| --- | --- | --- | --- |
+| Architecture | C | Replace with repo-specific assessment. | Document actual package boundaries. |
+| Testing | C | Replace with repo-specific assessment. | Define minimum automated coverage expectations. |
+| Security | C | Replace with repo-specific assessment. | Record auth, secret, and dependency posture. |
+| Reliability | C | Replace with repo-specific assessment. | Define failure modes and alert ownership. |
+| Frontend | C | Replace with repo-specific assessment. | Document design-system source of truth. |
+| Docs | B | Starter docs exist but are still generic. | Tailor them during project setup. |
 
-List the known quality gaps and the plan to close them:
+## How to use this dashboard
 
-- TBD
-
-## Definition of "Shippable"
-
-The bar that must be met before releasing to production:
-
-- All tests pass (`bun run test`)
-- No lint errors (`bun run lint`)
-- Typecheck clean (`bun run typecheck`)
-- Accessibility audit passes for all core flows
-
----
-
-Replace this scaffold with project-specific content.
+- Letter grades (A/B/C/D/F) with optional `+` or `-` modifiers.
+- `Notes` records the honest current state, including accepted tradeoffs.
+- `Next Action` records one concrete step to raise the score, owned by the team.
+- Bump scores up only when evidence supports it (tests added, audit passed, etc.).
+- Drop scores down when reality regresses — this dashboard is honest, not aspirational.
