@@ -8,6 +8,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const yaml = require('js-yaml');
 
 const PLUGIN_ROOT = path.join(__dirname, '..');
 const VERSION = process.env.PLUGIN_VERSION || '6.0.0';
@@ -196,15 +197,75 @@ function collectManagedFiles() {
 }
 
 /**
+ * Le frontmatter YAML de um SKILL.md via js-yaml.
+ * Retorna {} se nao houver frontmatter ou se for invalido — o caller decide.
+ */
+function readSkillFrontmatter(absFile) {
+  const content = fs.readFileSync(absFile, 'utf8');
+  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/);
+  if (!match) {
+    console.warn(`! ${path.relative(PLUGIN_ROOT, absFile)}: missing or malformed frontmatter delimiters`);
+    return {};
+  }
+  try {
+    const parsed = yaml.load(match[1], { schema: yaml.CORE_SCHEMA });
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+      return parsed;
+    }
+    console.warn(`! ${path.relative(PLUGIN_ROOT, absFile)}: frontmatter is not a YAML mapping`);
+    return {};
+  } catch (err) {
+    console.warn(`! ${path.relative(PLUGIN_ROOT, absFile)}: invalid YAML frontmatter (${err.message.split('\n')[0]})`);
+    return {};
+  }
+}
+
+/**
+ * Escana skills/<name>/SKILL.md (case-insensitive) e gera o indice top-level
+ * `skills` keyado por nome da skill com { path, version, introduced, description }.
+ *
+ * Resolve a regressao do Plano 09 fase-03 (tests/todo-pick.test.ts:61-82):
+ * regeneracoes anteriores apagavam o indice por nao haver gerador automatico.
+ */
+function collectSkillsIndex() {
+  const skills = {};
+  const skillsDir = path.join(PLUGIN_ROOT, 'skills');
+  if (!fs.existsSync(skillsDir)) return skills;
+
+  for (const entry of fs.readdirSync(skillsDir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const skillBase = path.join(skillsDir, entry.name);
+    const skillFile = ['SKILL.md', 'skill.md']
+      .map(n => path.join(skillBase, n))
+      .find(p => fs.existsSync(p));
+    if (!skillFile) continue;
+
+    const fm = readSkillFrontmatter(skillFile);
+    const name = typeof fm.name === 'string' && fm.name.trim() !== '' ? fm.name : entry.name;
+    const description = typeof fm.description === 'string' ? fm.description : '';
+
+    skills[name] = {
+      path: `skills/${entry.name}/`,
+      version: VERSION,
+      introduced: `v${VERSION}`,
+      description
+    };
+  }
+  return skills;
+}
+
+/**
  * Gera o manifest
  */
 function generateManifest() {
   const files = collectManagedFiles();
+  const skills = collectSkillsIndex();
 
   const manifest = {
     version: VERSION,
     generatedAt: new Date().toISOString(),
     description: 'Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding',
+    skills,
     files
   };
 
@@ -214,6 +275,7 @@ function generateManifest() {
   console.log(`✓ plugin-manifest.json gerado com sucesso`);
   console.log(`✓ Versão: ${VERSION}`);
   console.log(`✓ Total de arquivos: ${Object.keys(files).length}`);
+  console.log(`✓ Skills indexadas: ${Object.keys(skills).length}`);
 
   // Estatísticas
   const stats = {
