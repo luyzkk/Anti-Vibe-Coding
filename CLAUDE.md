@@ -26,7 +26,7 @@ Plan before code. Test before implement. Capture lessons after merge. Discipline
 ## Compound Decision Gate
 
 Before reporting completion: did this work teach the repo something durable?
-If yes, run `/anti-vibe-coding:lessons-learned` to capture in `docs/compound/`.
+If yes, ask the human to run `/anti-vibe-coding:lessons-learned` so the lesson gets captured in `docs/compound/`.
 If no, log why no capture was needed in the plan's Lessons Captured section.
 
 ## Validation
