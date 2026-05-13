@@ -61,6 +61,16 @@
         "hooks": [
           {
             "type": "command",
+            "command": "node -e \"try{require(process.env.CLAUDE_PLUGIN_ROOT+'/hooks/pre-tool-use-destructive-guard.cjs')}catch(e){process.exit(0)}\"",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
             "command": "node -e \"const input=process.env.CLAUDE_TOOL_INPUT||'';if(!input.includes('git commit')){process.exit(0)}const{execSync}=require('child_process');try{execSync('bun run test',{timeout:60000,stdio:'pipe'});execSync('bun run lint',{timeout:30000,stdio:'pipe'})}catch(e){process.stderr.write('[PRE-COMMIT] Testes ou lint falharam. Corrija antes de commitar: '+e.message.slice(0,200));process.exit(2)}\"",
             "timeout": 90
           }
