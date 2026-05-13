@@ -22,7 +22,13 @@ function spawnHook(
 ): Promise<{ stdout: string; stderr: string; code: number; durationMs: number }> {
   return new Promise((resolve) => {
     const start = Date.now()
-    const proc = spawn('node', [HOOK_PATH], { stdio: ['pipe', 'pipe', 'pipe'] })
+    // tests/setup.ts seta ANTI_VIBE_DISABLE_HOOKS=1 no processo de teste; o spawn herda env por padrao,
+    // o que faria o hook entrar em passthrough silencioso (inject:false) e quebrar a expectativa
+    // do teste de integracao. Removemos a flag SO no env do filho — o setup.ts continua valendo para
+    // qualquer hook UserPromptSubmit invocado pelo proprio runner.
+    const childEnv: NodeJS.ProcessEnv = { ...process.env }
+    delete childEnv.ANTI_VIBE_DISABLE_HOOKS
+    const proc = spawn('node', [HOOK_PATH], { stdio: ['pipe', 'pipe', 'pipe'], env: childEnv })
     let stdout = ''
     let stderr = ''
     proc.stdout.on('data', (d) => { stdout += String(d) })
