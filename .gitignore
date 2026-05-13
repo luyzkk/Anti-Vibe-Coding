@@ -6,6 +6,9 @@ node_modules/
 .claude/cache/
 .claude/tasks/
 .claude/settings.local.json
+.claude/settings.json
+.claude/prd-v5/
+.claude/prompts/
 
 # Logs
 *.log
