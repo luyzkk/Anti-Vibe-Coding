@@ -177,7 +177,7 @@ Note: `git revert` undoes the structural migration (file moves, new docs). It do
 
 ## [5.3.0] - 2026-05-12
 
-Plugin Adaptativo — Onda 1. Release detalhado em [docs/release-notes-v53.md](docs/release-notes-v53.md).
+Plugin Adaptativo — Onda 1. Release detalhado em [docs/references/v5-legacy/release-notes-v53.md](docs/references/v5-legacy/release-notes-v53.md).
 
 ### ✨ Adicionado
 
@@ -217,7 +217,7 @@ Telemetria é **local-only**. Sem network calls, sem upload, sem endpoint config
 
 ### 🐛 Bugs conhecidos
 
-- **BUG-02 (crítico, arquitetural):** A instrumentação adicionada às 10 `SKILL.md` (blocos TypeScript chamando `writeTelemetryStart`/`writeTelemetryEnd`) é tratada como prompt markdown pelo agente Claude, não como runtime executável. Resultado: `.claude/metrics/YYYY-MM.jsonl` não é populado durante invocação real de skills. A função em si está implementada e testada (224 testes verdes), mas o gatilho de execução nunca dispara. Fix planejado para Onda 2 via par `PreToolUse`+`PostToolUse` em `hooks.json`. Detalhes em [docs/baseline-v53-onda1.md](docs/baseline-v53-onda1.md).
+- **BUG-02 (crítico, arquitetural):** A instrumentação adicionada às 10 `SKILL.md` (blocos TypeScript chamando `writeTelemetryStart`/`writeTelemetryEnd`) é tratada como prompt markdown pelo agente Claude, não como runtime executável. Resultado: `.claude/metrics/YYYY-MM.jsonl` não é populado durante invocação real de skills. A função em si está implementada e testada (224 testes verdes), mas o gatilho de execução nunca dispara. Fix planejado para Onda 2 via par `PreToolUse`+`PostToolUse` em `hooks.json`. Detalhes em [docs/references/v5-legacy/baseline-v53-onda1.md](docs/references/v5-legacy/baseline-v53-onda1.md).
 
 ### ⚠️ Validação parcial
 
