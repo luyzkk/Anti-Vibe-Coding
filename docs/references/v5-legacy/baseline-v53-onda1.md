@@ -71,7 +71,7 @@ Cobertura por testes é completa; ausência de validação empírica em projeto 
 - `/anti-vibe-coding:detect-architecture` em Carreirarte → perfil `unknown-mixed` com override manual a 100% confidence
 - `/anti-vibe-coding:architecture` em modo dual ativo produziu saída **diferente do v5.2 genérico**: citou perfil detectado, mudou tom para consultor caso-a-caso, mencionou explicitamente que skills estruturantes vão "tratar caso a caso, sem assumir padrões de pasta"
 
-Transcrição em [.planning/2026-05-04-v53-plugin-adaptativo/plano05/MEMORY.md](../../.planning/2026-05-04-v53-plugin-adaptativo/plano05/MEMORY.md) seção "Smoke Carreirarte".
+Transcrição em [exec-plans/completed/_legacy-detail/v53-plugin-adaptativo/plano05/MEMORY.md](./exec-plans/completed/_legacy-detail/v53-plugin-adaptativo/plano05/MEMORY.md) seção "Smoke Carreirarte".
 
 ---
 
