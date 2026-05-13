@@ -1,0 +1,5 @@
+# Test fixtures and snapshots must use LF regardless of platform autocrlf.
+# Generators emit LF; CRLF on disk causes false-negative snapshot mismatches.
+**/__fixtures__/** text eol=lf
+tests/fixtures/** text eol=lf
+**/*.snap text eol=lf
