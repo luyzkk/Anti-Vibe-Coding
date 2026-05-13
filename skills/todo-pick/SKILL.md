@@ -1,6 +1,6 @@
 ---
 name: todo-pick
-description: Lista micro-débito do TODO.md e puxa 1 item por vez para correção. Sub-comandos: --skip {n} marca como skipped, --remove {n} deleta linha com confirmação.
+description: "Lista micro-débito do TODO.md e puxa 1 item por vez para correção. Sub-comandos: --skip {n} marca como skipped, --remove {n} deleta linha com confirmação."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Edit, Write, Bash

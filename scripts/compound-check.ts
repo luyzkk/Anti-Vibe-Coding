@@ -5,6 +5,7 @@
 
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import yaml from 'js-yaml'
 
 const root = process.cwd()
 
@@ -57,7 +58,8 @@ async function collectMd(dir: string): Promise<string[]> {
 }
 
 // === fase-02: frontmatter + required sections (CA-29) ===
-// Parser inlinado — script independente do plugin no projeto-alvo.
+// Frontmatter parsing via js-yaml (CORE_SCHEMA) — closes the bypass surface
+// of the prior hand-rolled inline parser (verify-work plano08 MEDIO, TODO L12).
 // Schema espelhado em `lib/compound-frontmatter.ts` (fonte canonica para uso programatico).
 // Sincronizacao manual: se mudar schema, atualizar os dois lugares.
 
@@ -116,64 +118,41 @@ function parseFrontmatterInline(body: string): FmInlineResult {
     return { ok: false, errors: ['missing frontmatter (expected `---` on line 1)'] }
   }
 
-  const data = parseYamlInline(match[1]!)
+  // CORE_SCHEMA: strings/numbers/bools/nulls/arrays/maps — no JS-specific tags,
+  // no implicit Date coercion (matches our manual DATE_RE check below).
+  let parsed: unknown
+  try {
+    parsed = yaml.load(match[1]!, { schema: yaml.CORE_SCHEMA })
+  } catch (err) {
+    return { ok: false, errors: [`invalid YAML frontmatter: ${(err as Error).message}`] }
+  }
+
+  if (parsed === null || parsed === undefined) {
+    return { ok: false, errors: ['frontmatter is empty'] }
+  }
+  if (typeof parsed !== 'object' || Array.isArray(parsed)) {
+    return { ok: false, errors: ['frontmatter must be a YAML mapping'] }
+  }
+
+  const data = parsed as Record<string, unknown>
   const errors: string[] = []
 
-  if (typeof data.title !== 'string' || (data.title as string).trim() === '') {
+  if (typeof data.title !== 'string' || data.title.trim() === '') {
     errors.push('frontmatter.title must be a non-empty string')
   }
-  if (typeof data.category !== 'string' || (data.category as string).trim() === '') {
+  if (typeof data.category !== 'string' || data.category.trim() === '') {
     errors.push('frontmatter.category must be a non-empty string')
   }
   if (!Array.isArray(data.tags)) {
     errors.push('frontmatter.tags must be an array')
-  } else if ((data.tags as unknown[]).length === 0) {
+  } else if (data.tags.length === 0) {
     errors.push('frontmatter.tags must have at least 1 element')
   }
-  if (typeof data.created !== 'string' || !DATE_RE_INLINE.test(data.created as string)) {
+  if (typeof data.created !== 'string' || !DATE_RE_INLINE.test(data.created)) {
     errors.push('frontmatter.created must be a string in YYYY-MM-DD format')
   }
 
   return errors.length > 0 ? { ok: false, errors } : { ok: true }
-}
-
-function parseYamlInline(raw: string): Record<string, unknown> {
-  const data: Record<string, unknown> = {}
-  const lines = raw.split(/\r?\n/)
-  let i = 0
-  while (i < lines.length) {
-    const line = lines[i]!
-    if (line.trim() === '' || line.trim().startsWith('#')) { i += 1; continue }
-    const m = line.match(/^([a-zA-Z_][a-zA-Z0-9_-]*)\s*:\s*(.*)$/)
-    if (!m) { i += 1; continue }
-    const key = m[1]!
-    const rest = m[2]!.trim()
-    if (rest === '') {
-      const items: string[] = []
-      i += 1
-      while (i < lines.length && /^\s+-\s+/.test(lines[i]!)) {
-        const im = lines[i]!.match(/^\s+-\s+(.+)$/)
-        if (im) items.push(stripQ(im[1]!.trim()))
-        i += 1
-      }
-      data[key] = items
-      continue
-    }
-    if (rest.startsWith('[') && rest.endsWith(']')) {
-      const inner = rest.slice(1, -1)
-      data[key] = inner === '' ? [] : inner.split(',').map((s) => stripQ(s.trim()))
-    } else {
-      data[key] = stripQ(rest)
-    }
-    i += 1
-  }
-  return data
-}
-
-function stripQ(s: string): string {
-  return ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'")))
-    ? s.slice(1, -1)
-    : s
 }
 
 function findMissingSectionsInline(body: string): ReadonlyArray<string> {

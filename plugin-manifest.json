@@ -1,20 +1,206 @@
 {
   "version": "6.0.0",
-  "generatedAt": "2026-05-12T22:40:09.598Z",
+  "generatedAt": "2026-05-13T14:08:15.697Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
+    "anti-vibe-review": {
+      "path": "skills/anti-vibe-review/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "This skill should be used when the user asks to 'review my code', 'audit this module', 'run anti-vibe review', 'check code quality', 'post-implementation review', or after completing a feature implementation. Executes a read-only post-implementation audit covering TDD compliance, code patterns, architecture, error handling, and security."
+    },
+    "api-design": {
+      "path": "skills/api-design/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "This skill should be used when the user asks about 'API design', 'N+1 problem', 'idempotency', 'idempotent APIs', 'DTOs', 'data transfer objects', 'webhooks', 'websockets', 'SSE', 'REST vs GraphQL', 'SQL vs NoSQL', 'race conditions in APIs', 'API concurrency', 'gRPC', 'AMQP', 'RabbitMQ', 'message queue', 'GraphQL schema', 'GraphQL depth', 'DataLoader', 'pagination', 'cursor pagination', 'keyset pagination', 'REST URL design', 'status codes', 'API versioning', 'HATEOAS', 'filtering', 'sorting', 'Protocol Buffers', or needs to analyze and audit API endpoints. Provides expert consultation on API design patterns, protocols, anti-patterns, and best practices."
+    },
+    "architecture": {
+      "path": "skills/architecture/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "This skill should be used when the user asks about 'SOLID principles', 'monolith vs microservices', 'CQRS', 'event sourcing', 'REST vs GraphQL', 'tech stack selection', 'architecture decision', 'ADR', 'design patterns', 'Law of Demeter', 'Tell-Don't-Ask', 'composition vs inheritance', 'dependency injection', 'DI', 'IoC container', 'constructor injection', or faces architectural trade-off decisions. Provides senior-level architecture consultation with explicit trade-off analysis."
+    },
+    "centralize-config": {
+      "path": "skills/centralize-config/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "Detecta configurações espalhadas (strings hardcoded, valores duplicados) e executa migração disciplinada para uma única fonte de verdade. Fluxo: detectar → mapear → centralizar → substituir usos → verificar."
+    },
+    "consultant": {
+      "path": "skills/consultant/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "Phase Zero consultation for uncertain decisions, trade-off analysis, and irreversible choices. Use when facing database schema design, auth pattern selection, critical library choices, infrastructure decisions, or when the user asks 'how should I implement', 'best approach', 'which pattern'. Teaches before coding — presents options with pros/cons instead of jumping to implementation."
+    },
+    "decision-registry": {
+      "path": "skills/decision-registry/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "This skill should be used when the user asks to 'register a decision', 'log an architectural choice', 'add ADR', 'list decisions', 'query past decisions', or wants to track Architecture Decision Records (ADRs) for the project. Manages the project's decision history with alternatives and justifications."
+    },
+    "defensive-patterns": {
+      "path": "skills/defensive-patterns/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "Menu de padrões defensivos para produção. Apresenta categorias (rate limit, circuit breaker, timeout, fallback, retry, bulkhead, config centralizada, health check, graceful degradation) e guia o dev a escolher quais aplicar ao contexto atual."
+    },
+    "design-patterns": {
+      "path": "skills/design-patterns/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "This skill should be used when the user asks about 'code smells', 'code quality', 'Result Pattern', 'error handling patterns', 'structured logging', 'domain types', 'JavaScript internals', 'closures', 'event loop', 'race conditions', 'design patterns', 'GoF', 'Observer pattern', 'Factory pattern', 'Singleton', 'Decorator', 'Strategy pattern', 'Adapter', or requests a code quality analysis. Provides expert consultation on 28 code quality concepts covering code smells, error handling, logging, domain modeling, GoF design patterns, and JavaScript/TypeScript advanced patterns."
+    },
+    "design-twice": {
+      "path": "skills/design-twice/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "Gera 3+ propostas arquiteturais divergentes via subagentes paralelos. Combate convergencia prematura forcando exploracoes com restricoes diferentes antes de escolher."
+    },
+    "detect-architecture": {
+      "path": "skills/detect-architecture/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "Use this skill when the user asks to 'detectar arquitetura', 'classificar projeto', 'qual perfil arquitetural', '/detect-architecture', or runs `/anti-vibe-coding:detect-architecture`. Classifies the project in 1 of 5 architectural profiles (clean-architecture-ritual, mvc-flat, vertical-slice, nextjs-app-router, unknown-mixed) using folder + imports heuristic. Requires confirmation when confidence < 80%."
+    },
+    "enhance-prompt": {
+      "path": "skills/enhance-prompt/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "This skill should be used when the user asks to 'enhance my prompt', 'optimize start.md', 'add anti-vibe to my plans', 'improve my execution prompt', 'prepare tasks for automation', 'add skills to tasks', or wants to integrate Anti-Vibe Coding into their existing plan/task structure for automated execution by Claude Code."
+    },
+    "execute-plan": {
+      "path": "skills/execute-plan/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "Executa planos hierarquicos fase por fase usando subagentes com isolamento de contexto. Navega plano por plano, le fases detalhadas, aplica TDD com isolamento RED/GREEN, mantém MEMORY.md e STATE.md atualizados. Oferece troca de contexto entre planos."
+    },
+    "grill-me": {
+      "path": "skills/grill-me/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "Deep pre-implementation interview that resolves ALL ambiguity before coding. Asks 5-20 targeted questions covering scope, data, UX, edge cases, performance, security, and integration. Outputs CONTEXT.md with indexed decisions. Use before planning complex features or when requirements feel vague."
+    },
+    "incident-response": {
+      "path": "skills/incident-response/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "Fluxo disciplinado de resposta a incidentes pós-deploy. Raw logs → hipótese → regression test (ANTES do fix) → fix → commit. Cada fix vem com regression test — hardening é hábito, não fase."
+    },
+    "infrastructure": {
+      "path": "skills/infrastructure/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "This skill should be used when the user asks about 'DNS', 'domain setup', 'SSL', 'TLS certificates', 'hosting', 'deploy', 'VPS', 'serverless', 'CDN', 'PM2', 'Docker', 'Kubernetes', 'CI/CD', 'health checks', 'Let's Encrypt', 'Route 53', 'CloudFront', 'S3 hosting', or faces infrastructure and deployment decisions. Provides expert consultation on DNS, hosting, deployment patterns, and infrastructure architecture."
+    },
+    "init": {
+      "path": "skills/init/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "This skill should be used when the user asks to 'initialize anti-vibe', 'setup anti-vibe coding', 'add anti-vibe to project', 'configure anti-vibe', or wants to onboard a project into the Anti-Vibe Coding methodology. Handles first-time setup with intelligent CLAUDE.md merge, rules deployment, and decisions registry initialization."
+    },
+    "iterate": {
+      "path": "skills/iterate/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "Ciclo pos-deploy: incident response com regression test, hardening defensivo e centralizacao de config. A quarta pata do pipeline: Ensinar → Planejar → Verificar → Iterar. Use quando um bug foi relatado em producao ou quando uma feature estavel esta pronta para hardening."
+    },
+    "learn": {
+      "path": "skills/learn/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "This skill should be used when the user asks to 'explain', 'teach me', 'what is', 'how does X work', 'explain like I'm a beginner', 'quero entender', 'me explica', 'o que e CRUD', 'como funciona auth', 'explica pra mim', 'nao entendi', 'aprenda', 'ensina', 'estudo', 'aprender sobre', or wants to understand a technical concept before or after building. Provides adaptive teaching that calibrates to the user's level (basic, intermediate, advanced) and connects explanations to the actual project code."
+    },
+    "lessons-learned": {
+      "path": "skills/lessons-learned/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "This skill should be used when the user asks to 'add a lesson learned', 'register a lesson', 'review lessons', 'prune obsolete lessons', or when a significant error pattern is detected that should be recorded for future sessions. Manages project-specific senior knowledge with quality filters."
+    },
+    "pair-programming-with-agent": {
+      "path": "skills/pair-programming-with-agent/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "Tutorial da dinâmica 'humano navega, agente pilota'. Quando interromper o agente, como injetar contexto de domínio, tabela Akita de capacidades (faz bem / faz mal), e exemplos reais de interrupção por over-engineering, contexto insuficiente e decisão conjunta."
+    },
+    "plan-feature": {
+      "path": "skills/plan-feature/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "Converts PRD into executable hierarchical plan. Analyzes complexity like a senior engineer, decomposes into multiple plans with detailed phases, generates folder structure with memory per plan. Uses isolated subagents for each plan creation."
+    },
+    "qa-visual": {
+      "path": "skills/qa-visual/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "This skill should be used when the user asks to 'run QA', 'test visually', 'visual QA', 'check in browser', 'open browser test', 'verify frontend', 'QA visual', 'testar no navegador', 'verificar visual', 'abrir no browser', or after completing a frontend feature. Opens a real browser via Playwright MCP to verify visual layout, user flows, network requests, console errors, and accessibility."
+    },
+    "quick-plan": {
+      "path": "skills/quick-plan/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "Planejamento leve para tasks de complexidade media. Gera mini-plano de 3-7 passos no formato step/verify sem criar arquivos .planning/ ou spawnar subagentes. Alternativa ao pipeline completo (grill-me → plan-feature → execute-plan) para tarefas que nao justificam o overhead."
+    },
+    "react-patterns": {
+      "path": "skills/react-patterns/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "This skill should be used when the user asks about 'useEffect', 'React performance', 'data fetching in React', 'TanStack Query', 'state management', 'memoization', 'useMemo', 'useCallback', 'closure stale', 'React re-renders', 'virtualization', 'code splitting', or needs to analyze React component patterns and anti-patterns. Provides expert consultation on React/Next.js best practices."
+    },
+    "security": {
+      "path": "skills/security/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "Expert security consultation covering OWASP Top 10, authentication (OAuth2, PKCE, JWT, session management), authorization (RBAC, ABAC, RLS), cryptography (bcrypt, argon2, HMAC), API security (rate limiting, CORS, CSRF, WAF), and Supabase/BaaS hardening. Use when implementing auth flows, handling secrets, validating webhooks, preventing injection attacks, or auditing security posture."
+    },
+    "sync": {
+      "path": "skills/sync/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "This skill should be used when the user wants to 'sync plugin', 'force reload', 'invalidate cache', 'refresh plugin', or when encountering cache-related issues with the Anti-Vibe Coding plugin. Forces cache invalidation and shows current version status."
+    },
+    "system-design": {
+      "path": "skills/system-design/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "This skill should be used when the user asks about 'CAP theorem', 'PACELC', 'system design', 'caching strategies', 'Redis', 'horizontal scaling', 'vertical scaling', 'load balancer', 'load balancing algorithms', 'round robin', 'least connections', 'consistent hashing', 'database replication', 'sharding', 'SQL vs NoSQL', 'eventual consistency', 'CDN', 'edge server', 'anycast', 'cache invalidation', 'serverless', 'Lambda', 'cold start', 'serverfull', 'VPS', 'EC2', 'PM2', or faces infrastructure and scaling decisions. Provides expert consultation on distributed systems architecture, CDN, serverless, and trade-offs."
+    },
+    "tdd-workflow": {
+      "path": "skills/tdd-workflow/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "Adaptive 7-step TDD workflow with automatic level detection (guided/assisted/direct). Enforces test-first discipline with RED-GREEN-REFACTOR cycle, naive-first implementation, context isolation, and vertical slices. Use for new features, bug fixes, or refactoring with test-driven development."
+    },
     "todo-pick": {
       "path": "skills/todo-pick/",
       "version": "6.0.0",
       "introduced": "v6.0.0",
-      "description": "Puxa 1 item de micro-débito do TODO.md por vez."
+      "description": "Lista micro-débito do TODO.md e puxa 1 item por vez para correção. Sub-comandos: --skip {n} marca como skipped, --remove {n} deleta linha com confirmação."
+    },
+    "update": {
+      "path": "skills/update/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "This skill should be used when the user asks to 'update anti-vibe', 'check for updates', 'sync plugin changes', or when running /anti-vibe-coding:init in a project that already has Anti-Vibe Coding installed. Detects outdated files, shows available updates, and applies incremental updates with intelligent merge strategies."
+    },
+    "verify-work": {
+      "path": "skills/verify-work/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "Verificacao pos-execucao com testes, auditoria multi-agente paralela, test quality audit (cobertura real, testes fracos, alucinacoes) e debug automatico. Evolucao do anti-vibe-review com superpoderes."
+    },
+    "write-prd": {
+      "path": "skills/write-prd/",
+      "version": "6.0.0",
+      "introduced": "v6.0.0",
+      "description": "Cria especificacao completa de feature via entrevista interativa. Gera PRD com MoSCoW, criterios de aceite e decisoes tecnicas. Importa contexto do /grill-me se disponivel."
     }
   },
   "files": {
     "CLAUDE.md": {
       "version": "6.0.0",
-      "checksum": "1120e8b7dc80ddb320d74dd766734164b890146a9ac385cae789b93528cc1b60",
-      "lastModified": "2026-05-12",
+      "checksum": "a54ff182c7e8acf56acfd6e4b9c3ff41e2c41a31c9b211b2deb9df75d9a478f9",
+      "lastModified": "2026-05-13",
       "updateStrategy": "merge"
     },
     "rules/api-standards.md": {
@@ -103,14 +289,20 @@
     },
     "hooks/hooks.json": {
       "version": "6.0.0",
-      "checksum": "da4c8132a92d56e378423f40602502673d5a4e8a5a4a9ae699bf162f229f9fbd",
-      "lastModified": "2026-05-12",
+      "checksum": "7b89a0d068153f11b796c41420fe4e1fd27f149569ffe204afdc51ebf5039f01",
+      "lastModified": "2026-05-13",
       "updateStrategy": "replace"
     },
     "hooks/pre-mutation-gate.cjs": {
       "version": "6.0.0",
       "checksum": "2835d13656993ffc1bfaa32b89db4de871e805123ddf504cce00a9f10cc19c12",
       "lastModified": "2026-05-12",
+      "updateStrategy": "replace"
+    },
+    "hooks/pre-tool-use-destructive-guard.cjs": {
+      "version": "6.0.0",
+      "checksum": "ad9d50b2571f4da13f9544f19fa710cc0be2ee56cf28afe5b800df454d126239",
+      "lastModified": "2026-05-13",
       "updateStrategy": "replace"
     },
     "hooks/prompt-guard.cjs": {
@@ -259,20 +451,26 @@
     },
     "scripts/compound-check.ts": {
       "version": "6.0.0",
-      "checksum": "c519deed3802453953ef768877c1596659d1e0b9f538195da29b9c28b630f337",
-      "lastModified": "2026-05-12",
+      "checksum": "a630a85cf1af4bff99e83e88edaf5b9f3d0ab09dc6badf75526881348cc51d6c",
+      "lastModified": "2026-05-13",
       "updateStrategy": "replace"
     },
     "scripts/generate-manifest.js": {
       "version": "6.0.0",
-      "checksum": "098008830689ab7fbc0b98236d72f4966cdd74ea3afff3c62d16fd173ff8c058",
-      "lastModified": "2026-05-12",
+      "checksum": "627d62204857e065f22089087770695588b4b4404ce65ee066a7a331b14b5ad1",
+      "lastModified": "2026-05-13",
       "updateStrategy": "replace"
     },
     "scripts/harness-validate.ts": {
       "version": "6.0.0",
-      "checksum": "77a1c1849ad5b1a3dc07ae704b59f1735dbd4e61d01fe84fc169b1017f4d4002",
-      "lastModified": "2026-05-12",
+      "checksum": "554d909895d8d9e15f6105d4231da023e34d6542ba7c6276bab6fa18f014b9a8",
+      "lastModified": "2026-05-13",
+      "updateStrategy": "replace"
+    },
+    "scripts/run-tests.ts": {
+      "version": "6.0.0",
+      "checksum": "9b352cd3c1db5d065179852007905ff6d539766e0da6dd54ab9cdfaf7cc2aae9",
+      "lastModified": "2026-05-13",
       "updateStrategy": "replace"
     },
     "skills/anti-vibe-review/SKILL.md": {
@@ -391,8 +589,8 @@
     },
     "skills/centralize-config/SKILL.md": {
       "version": "6.0.0",
-      "checksum": "0d6370dc027cf6c04443005484308b7c7446a8b4cead8b5bd7e27e18065eb846",
-      "lastModified": "2026-04-21",
+      "checksum": "a428fc2b2575ad95dd63c049fc4e880fc20e5161380e0c793c30647e0cbfaa6c",
+      "lastModified": "2026-05-13",
       "updateStrategy": "replace"
     },
     "skills/consultant/SKILL.md": {
@@ -901,8 +1099,8 @@
     },
     "skills/init/assets/templates/scripts/harness-validate.ts.tpl": {
       "version": "6.0.0",
-      "checksum": "77a1c1849ad5b1a3dc07ae704b59f1735dbd4e61d01fe84fc169b1017f4d4002",
-      "lastModified": "2026-05-12",
+      "checksum": "5bd563b4910d1f03683a290b380038796c45c7265cb4a1719f91ded2e24bdcc3",
+      "lastModified": "2026-05-13",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/TODO.md.tpl": {
@@ -1159,8 +1357,8 @@
     },
     "skills/todo-pick/SKILL.md": {
       "version": "6.0.0",
-      "checksum": "978579de9db0521a34dbb811e6758af24ff61c3b99b2b75a4564700179f80d27",
-      "lastModified": "2026-05-12",
+      "checksum": "9699188425a85516da70693444e4e02d4a30e1b93176907087ec7436343ec5e3",
+      "lastModified": "2026-05-13",
       "updateStrategy": "replace"
     },
     "skills/todo-pick/templates/todo-md-skeleton.md": {
