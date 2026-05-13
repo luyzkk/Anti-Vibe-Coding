@@ -21,6 +21,8 @@ export const TEMPLATE_MANIFEST: ReadonlyArray<TemplateEntry> = [
   { src: 'docs/PLANS.md.tpl',                      dst: 'docs/PLANS.md',                      required: true },
   { src: 'docs/PRODUCT_SENSE.md.tpl',              dst: 'docs/PRODUCT_SENSE.md',              required: true },
   { src: 'docs/QUALITY_SCORE.md.tpl',              dst: 'docs/QUALITY_SCORE.md',              required: true },
+  // 2026-05-13 (Luiz/dev): MERGE_GATES split from QUALITY_SCORE (binary gates vs living dashboard).
+  { src: 'docs/MERGE_GATES.md.tpl',                dst: 'docs/MERGE_GATES.md',                required: true },
   { src: 'docs/RELIABILITY.md.tpl',                dst: 'docs/RELIABILITY.md',                required: true },
   { src: 'docs/SECURITY.md.tpl',                   dst: 'docs/SECURITY.md',                   required: true },
   { src: 'docs/COMPOUND_ENGINEERING.md.tpl',       dst: 'docs/COMPOUND_ENGINEERING.md',       required: true },

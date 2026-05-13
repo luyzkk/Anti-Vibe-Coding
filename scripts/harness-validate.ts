@@ -21,6 +21,7 @@ const REQUIRED_FILES = [
   'docs/PLANS.md',
   'docs/PRODUCT_SENSE.md',
   'docs/QUALITY_SCORE.md',
+  'docs/MERGE_GATES.md',
   'docs/RELIABILITY.md',
   'docs/SECURITY.md',
   'docs/COMPOUND_ENGINEERING.md',
@@ -73,6 +74,7 @@ async function main(): Promise<void> {
     checkRequiredFiles(failures),
     checkAgentsConstraints(failures),
     checkActivePlans(failures),
+    checkQualityScoreFormat(failures),
   ])
 
   // Coleta de markdown e recursiva — executa apos checks basicos mas internamente paralela.
@@ -140,6 +142,24 @@ async function checkAgentsConstraints(failures: Failure[]): Promise<void> {
         message: `AGENTS.md must link to ${link}`,
       })
     }
+  }
+}
+
+// 2026-05-13 (Luiz/dev): espelha o check do harness-engineering do Andre Prado.
+// QUALITY_SCORE.md tem que ser o dashboard vivo (Area|Score|Notes|Next Action),
+// nao um checklist de merge gate (esse vive em docs/MERGE_GATES.md).
+async function checkQualityScoreFormat(failures: Failure[]): Promise<void> {
+  let content: string
+  try {
+    content = await fs.readFile(path.join(root, 'docs/QUALITY_SCORE.md'), 'utf8')
+  } catch {
+    return
+  }
+  if (!content.includes('| Area | Score | Notes | Next Action |')) {
+    failures.push({
+      rule: 'quality-score-format',
+      message: 'docs/QUALITY_SCORE.md must contain the score table header "| Area | Score | Notes | Next Action |"',
+    })
   }
 }
 
