@@ -18,6 +18,7 @@
   "exclude": [
     "node_modules",
     "dist",
+    "claude-code",
     "skills/lib/architecture-detector/__fixtures__/projects/clean-arch",
     "skills/lib/architecture-detector/__fixtures__/projects/mvc-flat",
     "skills/lib/architecture-detector/__fixtures__/projects/vertical-slice",

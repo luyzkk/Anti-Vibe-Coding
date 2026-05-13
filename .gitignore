@@ -4,8 +4,14 @@ node_modules/
 # Plugin runtime state
 .claude/.context-monitor-state.json
 .claude/cache/
+.claude/tasks/
+.claude/settings.local.json
 
 # Logs
 *.log
 .planning.v5-backup/
+.planning/
 .release-backup/
+
+# Archive of old matrix-wrapper repo state (pre-flatten)
+claude-code/
