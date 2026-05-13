@@ -253,6 +253,10 @@ async function checkMarkdownFiles(files: ReadonlyArray<string>, failures: Failur
       // BUG-08-02 (Luiz/dev 2026-05-12): dog-food revelou que H1 check falhava em todos SKILL.md do plugin.
       const isSkillMd = basename === 'SKILL.md'
 
+      // 2026-05-13 (Luiz/dev): commands/*.md sao slash-command files (frontmatter + 1 linha invoke),
+      // nao tem H1 por convencao Claude Code. Mesma logica do isSkillMd.
+      const isCommandMd = rel.startsWith('commands' + path.sep) || rel.startsWith('commands/')
+
       // Strip YAML frontmatter antes de checar H1 — ADRs e docs com metadata sao validos.
       // BUG-08-03 (Luiz/dev 2026-05-12): H1 check ignorava frontmatter, gerava falso positivo em ADR-0001.
       // BUG-08-04: agents/*.md tem HTML comment entre frontmatter e H1 — strip leading comments/blank tambem.
@@ -264,8 +268,8 @@ async function checkMarkdownFiles(files: ReadonlyArray<string>, failures: Failur
         .replace(/^(?:<!--[\s\S]*?-->\s*)+/, '') // remove HTML comments lideres
         .replace(/^\s+/, '')                       // remove leading whitespace
 
-      // Todo .md (exceto SKILL.md) deve comecar com H1 apos frontmatter/comments opcionais.
-      if (!isSkillMd && !stripped.startsWith('# ')) {
+      // Todo .md (exceto SKILL.md e commands/*.md) deve comecar com H1 apos frontmatter/comments opcionais.
+      if (!isSkillMd && !isCommandMd && !stripped.startsWith('# ')) {
         failures.push({ rule: 'markdown-heading', message: `${rel} must start with an H1 heading` })
       }
 
