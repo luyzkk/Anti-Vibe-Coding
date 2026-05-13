@@ -426,3 +426,7 @@ Desvios significativos: 4 (DEV-03/05/07/12) | Dogfooding: 7 dias (planejados: 14
 - DEV-07: fase-05 (CA-12) marcada obsolete — coberta por testes
 - DEV-12: fase-04 encerrada no Day 7 (BUG-02 descoberto no mid-checkpoint)
 - CA-11 deferred-to-onda-2
+
+## Detail
+
+Working notes (PRD, PLAN, STATE, plano01..05/fase-XX.md) preservados em [_legacy-detail/v53-plugin-adaptativo/](_legacy-detail/v53-plugin-adaptativo/) para referencia historica. Resumo executivo acima é o documento canonico.
