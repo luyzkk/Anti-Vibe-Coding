@@ -55,7 +55,11 @@ const AGENTS_REQUIRED_LINKS = [
 // templates/: templates de skill tem placeholder links ({{X}}, ./PRD.md relativos a destino) — falsos positivos.
 //   BUG-08-01 (Luiz/dev 2026-05-12): dog-food em Plano 08 fase-08 revelou que templates/ tem placeholder links que nao resolvem em filesystem.
 // __fixtures__/: fixtures de teste com links relativos a destinos-clientes — nao a propria localizacao.
-const SKIP_DIRS = new Set(['node_modules', '.git', '.planning.v5-backup', 'compound', 'templates', '__fixtures__', 'fixtures', 'snippets'])
+// .planning/: convencao legada v5 — plans completos sao migrados para docs/exec-plans/completed/. Pasta viva pode conter fixtures de teste com links intencionalmente quebrados.
+// .claude/: runtime/config do Claude Code (settings.json, custom slash commands). Slash commands sao validados pelo loader do CC, nao pelo harness — harness foca em docs/.
+// _legacy-detail/: working notes (PRD/PLAN/STATE/planoXX) preservados ao migrar pastas .planning/<slug>/ para docs/exec-plans/completed/. Links sao historicos relativos a destinos antigos.
+// v5-legacy/: docs v5.x (COMO-ATUALIZAR, IMPLEMENTACAO-VERSIONAMENTO, etc.) preservados em docs/references/v5-legacy/ — links apontam para paths v5 nao mais existentes.
+const SKIP_DIRS = new Set(['node_modules', '.git', '.claude', '.planning', '.planning.v5-backup', 'compound', 'templates', '__fixtures__', 'fixtures', 'snippets', '_legacy-detail', 'v5-legacy'])
 const ARCHIVED_SEGMENT = '_archived'
 
 type Failure = { rule: string; message: string }
@@ -194,6 +198,20 @@ function looksCompleteInline(content: string): boolean {
   return signals.filter((p) => p.test(content)).length >= 2
 }
 
+// Detect H1 (`# `) at line start, ignorando linhas dentro de fenced code blocks (```).
+// Usado pelo SKILL.md check: H1 pode aparecer apos preambulos (HTML comments, telemetry block, prose-preface).
+function hasH1OutsideCodeFences(text: string): boolean {
+  let insideFence = false
+  for (const line of text.split('\n')) {
+    if (line.startsWith('```')) {
+      insideFence = !insideFence
+      continue
+    }
+    if (!insideFence && line.startsWith('# ')) return true
+  }
+  return false
+}
+
 async function checkMarkdownFiles(files: ReadonlyArray<string>, failures: Failure[]): Promise<void> {
   await Promise.all(
     files.map(async (file) => {
@@ -213,7 +231,10 @@ async function checkMarkdownFiles(files: ReadonlyArray<string>, failures: Failur
       // Strip YAML frontmatter antes de checar H1 — ADRs e docs com metadata sao validos.
       // BUG-08-03 (Luiz/dev 2026-05-12): H1 check ignorava frontmatter, gerava falso positivo em ADR-0001.
       // BUG-08-04: agents/*.md tem HTML comment entre frontmatter e H1 — strip leading comments/blank tambem.
-      const stripped = content
+      // Normalize CRLF -> LF antes de stripar; SKILL.md em Windows pode ter line endings mistos
+      // e o regex de frontmatter so casa com \n puro.
+      const normalized = content.replace(/\r\n/g, '\n')
+      const stripped = normalized
         .replace(/^---\n[\s\S]*?\n---\n*/, '')   // remove frontmatter YAML
         .replace(/^(?:<!--[\s\S]*?-->\s*)+/, '') // remove HTML comments lideres
         .replace(/^\s+/, '')                       // remove leading whitespace
@@ -221,6 +242,18 @@ async function checkMarkdownFiles(files: ReadonlyArray<string>, failures: Failur
       // Todo .md (exceto SKILL.md) deve comecar com H1 apos frontmatter/comments opcionais.
       if (!isSkillMd && !stripped.startsWith('# ')) {
         failures.push({ rule: 'markdown-heading', message: `${rel} must start with an H1 heading` })
+      }
+
+      // SKILL.md tambem deve conter pelo menos um H1 no corpo (apos frontmatter).
+      // Diferente dos outros .md, a ordem nao importa — pode ter HTML comments, bloco telemetry
+      // e prose-preface ANTES do H1. Detectar H1 fora de fenced code blocks evita falsos positivos.
+      if (isSkillMd) {
+        if (!hasH1OutsideCodeFences(stripped)) {
+          failures.push({
+            rule: 'markdown-heading-skill',
+            message: `${rel} SKILL.md must contain an H1 heading in the body (after frontmatter)`,
+          })
+        }
       }
 
       // Link checker recursivo — G2 do plano (cross-platform).
@@ -233,6 +266,15 @@ async function checkMarkdownFiles(files: ReadonlyArray<string>, failures: Failur
           const cleanTarget = (target.split('#')[0] ?? '').split('?')[0] ?? ''
           if (cleanTarget === '') return
           const abs = path.resolve(path.dirname(file), cleanTarget)
+          // Path-traversal boundary: links resolving outside repo root viram broken-link
+          // em vez de passarem silenciosamente em fs.stat de paths absolutos.
+          if (!abs.startsWith(root + path.sep) && abs !== root) {
+            failures.push({
+              rule: 'broken-link',
+              message: `${rel} has a relative link escaping repo root: ${target}`,
+            })
+            return
+          }
           try {
             await fs.stat(abs)
           } catch {
