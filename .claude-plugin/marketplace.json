@@ -7,8 +7,8 @@
   "plugins": [
     {
       "name": "anti-vibe-coding",
-      "description": "Plugin de desenvolvimento disciplinado com conhecimentos de programador senior. v6.0.0 — Harness + Compound Engineering Fusion.",
-      "version": "6.0.0",
+      "description": "Plugin de desenvolvimento disciplinado com conhecimentos de programador senior. v6.1.0 — Contrato de Subagentes v1.",
+      "version": "6.1.0",
       "source": "./",
       "author": {
         "name": "Luiz Felipe"

@@ -1,7 +1,7 @@
 {
   "name": "anti-vibe-coding",
-  "version": "6.0.0",
-  "description": "Plugin de desenvolvimento disciplinado com conhecimentos de programador sênior. v6.0.0 — Harness + Compound Engineering Fusion: AGENTS.md institucional, docs/* layered, validadores TS+bun (harness:validate + compound:check), /todo-pick, exec-plans + compound notes.",
+  "version": "6.1.0",
+  "description": "Plugin de desenvolvimento disciplinado com conhecimentos de programador sênior. v6.1.0 — Contrato de Subagentes v1: envelope padronizado para subagentes, harness workflow agents:contract, fix plan-feature paths (docs/exec-plans/active).",
   "author": {
     "name": "Luiz Felipe"
   },
