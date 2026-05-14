@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+# 2026-05-14 (Luiz/dev): pre-commit hook para v6.1.0 — RF-SH-05 + PRD §Riscos
+# (distincao lifecycle vs domain_status confunde autores).
+# Se algum agents/*.md esta staged, valida prompts contrato v1 antes do commit.
+# Skip rapido quando nao ha alteracao em agents/ — nao penaliza commits em outras areas.
+
+staged_agents=$(git diff --cached --name-only --diff-filter=ACM | grep -E '^agents/[^/]+\.md$' || true)
+
+if [ -z "$staged_agents" ]; then
+  exit 0
+fi
+
+echo "[pre-commit] Validando contrato v1 em agents/*.md staged..."
+bun run harness:validate
+status=$?
+
+if [ $status -ne 0 ]; then
+  echo ""
+  echo "[pre-commit] FALHOU: prompt(s) de agent nao instruem contrato v1."
+  echo "[pre-commit] Veja docs/design-docs/subagent-contract-v1.md."
+  exit $status
+fi

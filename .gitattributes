@@ -3,3 +3,8 @@
 **/__fixtures__/** text eol=lf
 tests/fixtures/** text eol=lf
 **/*.snap text eol=lf
+
+# 2026-05-14 (Luiz/dev): husky pre-commit hook must have LF endings — G-P05-02.
+# core.autocrlf=true on Windows would convert to CRLF in working tree,
+# causing "bad interpreter" errors in Git Bash when running the hook.
+.husky/* text eol=lf
