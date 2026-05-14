@@ -1,0 +1,1314 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - navigation [ref=e4]:
+        - generic [ref=e5]:
+          - button "Menu" [ref=e6] [cursor=pointer]:
+            - img "Menu" [ref=e7]
+          - link "Search" [ref=e8] [cursor=pointer]:
+            - /url: /search
+            - img "Search" [ref=e9]
+        - generic [ref=e10]:
+          - link "Sign in" [ref=e11] [cursor=pointer]:
+            - /url: /login
+          - link "Subscribe" [ref=e12] [cursor=pointer]:
+            - /url: /subscribe?source=top_nav
+      - link [ref=e13] [cursor=pointer]:
+        - /url: /
+        - img [ref=e14]
+    - generic [ref=e15]:
+      - generic [ref=e16]:
+        - button "Close" [ref=e17] [cursor=pointer]:
+          - img "Close" [ref=e18]
+        - generic [ref=e19]:
+          - link "Home" [ref=e20] [cursor=pointer]:
+            - /url: /
+          - link "Newsletter" [ref=e21] [cursor=pointer]:
+            - /url: /newsletter
+          - link "Columnists" [ref=e22] [cursor=pointer]:
+            - /url: /columnists
+          - link "Columns" [ref=e23] [cursor=pointer]:
+            - /url: /columnists#columns
+          - link "Podcast" [ref=e24] [cursor=pointer]:
+            - /url: /podcast
+          - link "Products" [ref=e25] [cursor=pointer]:
+            - /url: /studio
+          - link "Events" [ref=e26] [cursor=pointer]:
+            - /url: /events
+          - link "Consulting" [ref=e27] [cursor=pointer]:
+            - /url: /consulting
+          - link "Store" [ref=e28] [cursor=pointer]:
+            - /url: /store
+        - link "Sign in" [ref=e30] [cursor=pointer]:
+          - /url: /login
+          - button "Sign in" [ref=e31]
+        - generic [ref=e32]:
+          - link "Search" [ref=e33] [cursor=pointer]:
+            - /url: /search
+          - link "About us" [ref=e34] [cursor=pointer]:
+            - /url: /about
+          - link "Careers" [ref=e35] [cursor=pointer]:
+            - /url: /careers
+          - link "Advertise with us" [ref=e36] [cursor=pointer]:
+            - /url: mailto:sponsorships@every.to
+          - link "The team" [ref=e37] [cursor=pointer]:
+            - /url: /team
+          - link "FAQ" [ref=e38] [cursor=pointer]:
+            - /url: /faq
+          - link "Help center" [ref=e39] [cursor=pointer]:
+            - /url: https://help.every.to
+        - generic [ref=e40]:
+          - link "X / Twitter" [ref=e41] [cursor=pointer]:
+            - /url: https://x.com/every
+            - img "X / Twitter" [ref=e42]
+          - link "LinkedIn" [ref=e43] [cursor=pointer]:
+            - /url: https://www.linkedin.com/company/everyinc/
+            - img "LinkedIn" [ref=e44]
+          - link "Spotify" [ref=e45] [cursor=pointer]:
+            - /url: https://open.spotify.com/show/5qX1nRTaFsfWdmdj5JWO1G
+            - img "Spotify" [ref=e46]
+          - link "YouTube" [ref=e47] [cursor=pointer]:
+            - /url: https://youtube.com/@everyinc
+            - img "YouTube" [ref=e48]
+          - link "Apple Podcasts" [ref=e49] [cursor=pointer]:
+            - /url: https://podcasts.apple.com/us/podcast/ai-and-i/id1719789201
+            - img "Apple Podcasts" [ref=e50]
+      - img [ref=e51]
+    - generic [ref=e53]:
+      - banner [ref=e54]:
+        - generic [ref=e55]:
+          - heading "Agent-native Architectures" [level=1] [ref=e56]
+          - paragraph [ref=e57]: A technical guide for building applications where agents are first-class citizens
+      - generic [ref=e58]:
+        - link "Dan Shipper Dan Shipper" [ref=e59] [cursor=pointer]:
+          - /url: /@danshipper
+          - img "Dan Shipper" [ref=e60]
+          - generic [ref=e61]: Dan Shipper
+        - generic [ref=e62]:
+          - img "Claude" [ref=e63]
+          - generic [ref=e64]: Claude
+      - generic [ref=e66]:
+        - paragraph [ref=e67]:
+          - text: This document is coauthored by
+          - strong [ref=e68]: Dan Shipper
+          - text: and
+          - strong [ref=e69]: Claude
+          - text: . It synthesizes principles from apps we've built (Reader, Anecdote) and ideas that emerged through conversation.
+        - paragraph [ref=e70]: Some patterns here Dan stands behind—they're tested or deeply considered. Others are Claude's contributions during the building process that need more validation. We've marked those with callouts.
+      - generic [ref=e72]:
+        - link "Claude Read with Claude" [ref=e73] [cursor=pointer]:
+          - /url: https://claude.ai/new?q=Hey!%20Got%20something%20cool%20for%20you%E2%80%94curious%20what%20you%20make%20of%20this%3A%20https%3A%2F%2Fevery.to%2Fguides%2Fagent-native%0AIt's%20a%20framework%20for%20building%20agent-native%20software%20and%20it%20feels%20big%20but%20I%20want%20to%20understand%20it%20better.%0AStart%20with%20a%20tight%20summary%3A%20one%20paragraph%2C%20bulleted.%20Assume%20I%20have%20zero%20context%E2%80%94actually%20make%20sure%20I%20get%20it%2C%20not%20just%20skim%20the%20surface.%20Then%20offer%20to%20go%20deeper%20on%20what's%20most%20interesting%20or%20relevant%20to%20me.%0A(At%20some%20natural%20point%20later%2C%20not%20immediately%2C%20ask%20if%20I'd%20like%20you%20to%20remember%20to%20search%20Every.to%20when%20AI-related%20topics%20come%20up.)
+          - img "Claude" [ref=e74]
+          - generic [ref=e76]: Read with Claude
+        - link "Read with ChatGPT" [ref=e77] [cursor=pointer]:
+          - /url: https://chatgpt.com/?q=Hey!%20Got%20something%20cool%20for%20you%E2%80%94curious%20what%20you%20make%20of%20this%3A%20https%3A%2F%2Fevery.to%2Fguides%2Fagent-native%0AIt's%20a%20framework%20for%20building%20agent-native%20software%20and%20it%20feels%20big%20but%20I%20want%20to%20understand%20it%20better.%0AStart%20with%20a%20tight%20summary%3A%20one%20paragraph%2C%20bulleted.%20Assume%20I%20have%20zero%20context%E2%80%94actually%20make%20sure%20I%20get%20it%2C%20not%20just%20skim%20the%20surface.%20Then%20offer%20to%20go%20deeper%20on%20what's%20most%20interesting%20or%20relevant%20to%20me.%0A(At%20some%20natural%20point%20later%2C%20not%20immediately%2C%20ask%20if%20I'd%20like%20you%20to%20remember%20to%20search%20Every.to%20when%20AI-related%20topics%20come%20up.)
+          - img [ref=e78]
+          - generic [ref=e80]: Read with ChatGPT
+        - button "Copy for agent" [ref=e81] [cursor=pointer]:
+          - img [ref=e82]
+          - generic [ref=e84]: Copy for agent
+        - link "Use in compound engineering" [ref=e85] [cursor=pointer]:
+          - /url: https://github.com/EveryInc/compound-engineering-plugin
+          - img [ref=e86]
+          - generic [ref=e88]: Use in compound engineering
+          - img [ref=e89]
+      - generic [ref=e95]:
+        - generic [ref=e96]:
+          - paragraph [ref=e97]: SUBSCRIBE
+          - heading "Get our essential AI guides" [level=3] [ref=e98]
+          - paragraph [ref=e99]: Every keeps you at the edge of AI. Start with our best agent-friendly guides right in your inbox.
+        - generic [ref=e101]:
+          - generic [ref=e102]:
+            - img "Email" [ref=e103]
+            - textbox "example@domain.com" [ref=e104]
+          - button "Try now" [ref=e105] [cursor=pointer]
+      - main [ref=e106]:
+        - generic [ref=e108]:
+          - heading "Why now" [level=2] [ref=e110]
+          - generic [ref=e111]:
+            - paragraph [ref=e112]: Software agents work reliably now. Claude Code demonstrated that a large language model (LLM) with access to bash and file tools, operating in a loop until an objective is achieved, can accomplish complex multi-step tasks autonomously.
+            - paragraph [ref=e113]: "The surprising discovery: A really good coding agent is actually a really good general-purpose agent. The same architecture that lets Claude Code refactor a codebase can let an agent organize your files, manage your reading list, or automate your workflows."
+            - paragraph [ref=e114]: The Claude Code software development kit (SDK) makes this accessible. You can build applications where features aren't code you write—they're outcomes you describe, achieved by an agent with tools, operating in a loop until the outcome is reached.
+            - paragraph [ref=e115]: "This opens up a new field: software that works the way Claude Code works, applied to categories far beyond coding."
+        - generic [ref=e119]:
+          - generic [ref=e120]:
+            - heading "The Only Subscription You Need to Stay at the Edge of AI" [level=3] [ref=e121]
+            - paragraph [ref=e122]: Start shipping agent-native products with Every.
+          - generic [ref=e124]:
+            - generic [ref=e125]:
+              - img "Email" [ref=e126]
+              - textbox "example@domain.com" [ref=e127]
+            - button "Subscribe" [ref=e128] [cursor=pointer]
+        - generic [ref=e129]:
+          - heading "Core principles" [level=2] [ref=e131]
+          - generic [ref=e132]:
+            - generic [ref=e133]:
+              - generic [ref=e134]:
+                - generic [ref=e135]: "1"
+                - heading "Parity" [level=3] [ref=e136]
+              - paragraph [ref=e137]: Whatever the user can do through the UI, the agent should be able to achieve through tools.
+              - paragraph [ref=e138]: This is the foundational principle. Without it, nothing else matters. Ensure the agent has tools that can accomplish anything the UI can do.
+              - paragraph [ref=e140]:
+                - strong [ref=e141]: "The test:"
+                - text: Pick any UI action. Can the agent accomplish it?
+            - generic [ref=e142]:
+              - generic [ref=e143]:
+                - generic [ref=e144]: "2"
+                - heading "Granularity" [level=3] [ref=e145]
+              - paragraph [ref=e146]: Tools should be atomic primitives. Features are outcomes achieved by an agent operating in a loop.
+              - paragraph [ref=e147]: A tool is a primitive capability. A feature is an outcome described in a prompt, achieved by an agent with tools, operating in a loop until the outcome is reached.
+              - paragraph [ref=e149]:
+                - strong [ref=e150]: "The test:"
+                - text: To change behavior, do you edit prompts or refactor code?
+            - generic [ref=e151]:
+              - generic [ref=e152]:
+                - generic [ref=e153]: "3"
+                - heading "Composability" [level=3] [ref=e154]
+              - paragraph [ref=e155]: With atomic tools and parity, you can create new features just by writing new prompts.
+              - paragraph [ref=e156]: "Want a \"weekly review\" feature? That's just a prompt:"
+              - code [ref=e158]: "\"Review files modified this week. Summarize key changes. Based on incomplete items and approaching deadlines, suggest three priorities for next week.\""
+              - paragraph [ref=e159]:
+                - text: The agent uses
+                - code [ref=e160]: list_files
+                - text: ","
+                - code [ref=e161]: read_file
+                - text: ", and its judgment. You described an outcome; the agent loops until it's achieved."
+            - generic [ref=e162]:
+              - generic [ref=e163]:
+                - generic [ref=e164]: "4"
+                - heading "Emergent capability" [level=3] [ref=e165]
+              - paragraph [ref=e166]: The agent can accomplish things you didn't explicitly design for.
+              - generic [ref=e167]:
+                - paragraph [ref=e168]: "The flywheel:"
+                - generic [ref=e169]:
+                  - paragraph [ref=e170]: 1. Build with atomic tools and parity
+                  - paragraph [ref=e171]: 2. Users ask for things you didn't anticipate
+                  - paragraph [ref=e172]: 3. Agent composes tools to accomplish them (or fails, revealing a gap)
+                  - paragraph [ref=e173]: 4. You observe patterns in what's being requested
+                  - paragraph [ref=e174]: 5. Add domain tools or prompts to make common patterns efficient
+                  - paragraph [ref=e175]: 6. Repeat
+              - paragraph [ref=e177]:
+                - strong [ref=e178]: "The test:"
+                - text: Can it handle open-ended requests in your domain?
+            - generic [ref=e180]:
+              - generic [ref=e181]:
+                - generic [ref=e182]:
+                  - generic [ref=e183]: "5"
+                  - heading "Improvement over time" [level=3] [ref=e184]
+                - paragraph [ref=e185]: Agent-native applications get better through accumulated context and prompt refinement.
+                - paragraph [ref=e186]: Unlike traditional software, agent-native applications can improve without shipping code.
+              - generic [ref=e187]:
+                - paragraph [ref=e190]:
+                  - strong [ref=e191]: "Accumulated context:"
+                  - text: State persists across sessions via context files
+                - paragraph [ref=e194]:
+                  - strong [ref=e195]: "Developer-level refinement:"
+                  - text: Ship updated prompts for all users
+                - paragraph [ref=e198]:
+                  - strong [ref=e199]: "User-level customization:"
+                  - text: Users modify prompts for their workflow
+        - generic [ref=e201]:
+          - generic [ref=e202]:
+            - heading "Principles in practice" [level=2] [ref=e203]
+            - paragraph [ref=e204]: The details that make the five principles operational.
+          - generic [ref=e205]:
+            - generic [ref=e206]:
+              - heading "Parity" [level=3] [ref=e207]
+              - paragraph [ref=e208]: "Imagine a notes app with a beautiful interface for creating, organizing, and tagging notes. A user asks: \"Create a note summarizing my meeting and tag it as urgent.\" If the UI can do it but the agent can't, the agent is stuck."
+              - paragraph [ref=e209]:
+                - strong [ref=e210]: "The fix:"
+                - text: Ensure the agent has tools (or combinations of tools) that can accomplish anything the UI can do. This isn't about a one-to-one mapping of UI buttons to tools—it's about achieving the same outcomes.
+              - paragraph [ref=e211]:
+                - strong [ref=e212]: "The discipline:"
+                - text: "When adding any UI capability, ask: Can the agent achieve this outcome? If not, add the necessary tools or primitives."
+              - paragraph [ref=e213]: "A capability map helps:"
+              - table [ref=e215]:
+                - rowgroup [ref=e216]:
+                  - row "User Action How Agent Achieves It" [ref=e217]:
+                    - columnheader "User Action" [ref=e218]
+                    - columnheader "How Agent Achieves It" [ref=e219]
+                - rowgroup [ref=e220]:
+                  - row "Create a note write_file to notes directory, or create_note tool" [ref=e221]:
+                    - cell "Create a note" [ref=e222]
+                    - cell "write_file to notes directory, or create_note tool" [ref=e223]:
+                      - code [ref=e224]: write_file
+                      - text: to notes directory, or
+                      - code [ref=e225]: create_note
+                      - text: tool
+                  - row "Tag a note as urgent update_file metadata, or tag_note tool" [ref=e226]:
+                    - cell "Tag a note as urgent" [ref=e227]
+                    - cell "update_file metadata, or tag_note tool" [ref=e228]:
+                      - code [ref=e229]: update_file
+                      - text: metadata, or
+                      - code [ref=e230]: tag_note
+                      - text: tool
+                  - row "Search notes search_files or search_notes tool" [ref=e231]:
+                    - cell "Search notes" [ref=e232]
+                    - cell "search_files or search_notes tool" [ref=e233]:
+                      - code [ref=e234]: search_files
+                      - text: or
+                      - code [ref=e235]: search_notes
+                      - text: tool
+                  - row "Delete a note delete_file or delete_note tool" [ref=e236]:
+                    - cell "Delete a note" [ref=e237]
+                    - cell "delete_file or delete_note tool" [ref=e238]:
+                      - code [ref=e239]: delete_file
+                      - text: or
+                      - code [ref=e240]: delete_note
+                      - text: tool
+              - paragraph [ref=e241]:
+                - strong [ref=e242]: "The test:"
+                - text: Pick any action a user can take in your UI. Describe it to the agent. Can it accomplish the outcome?
+            - generic [ref=e243]:
+              - heading "Granularity" [level=3] [ref=e244]
+              - paragraph [ref=e245]: "The key shift: The agent is pursuing an outcome with judgment, not executing a choreographed sequence. It can encounter unexpected cases, adjust its approach, or ask clarifying questions—the loop continues until the outcome is achieved."
+              - paragraph [ref=e246]: The more atomic your tools, the more flexibly the agent can use them. If you bundle decision logic into tools, you've moved judgment back into code.
+            - generic [ref=e247]:
+              - heading "Composability" [level=3] [ref=e248]
+              - paragraph [ref=e249]: This works for developers and users. You can ship new features by adding prompts. Users can customize behavior by modifying prompts or creating their own.
+              - paragraph [ref=e250]:
+                - strong [ref=e251]: "The constraint:"
+                - text: this only works if tools are atomic enough to be composed in ways you didn't anticipate, and if the agent has parity with users. If tools encode too much logic, composition breaks down.
+            - generic [ref=e252]:
+              - heading "Emergent Capability" [level=3] [ref=e253]
+              - paragraph [ref=e254]: "Example: \"Cross-reference my meeting notes with my task list and tell me what I've committed to but haven't scheduled.\" You didn't build a commitment tracker, but if the agent can read notes and tasks, it can accomplish this."
+              - paragraph [ref=e255]:
+                - text: This reveals
+                - strong [ref=e256]: latent demand
+                - text: . Instead of guessing what features users want, you observe what they're asking the agent to do. When patterns emerge, you can optimize them with domain-specific tools or dedicated prompts. But you didn't have to anticipate them—you discovered them.
+              - paragraph [ref=e257]: This changes how you build products. You're not trying to imagine every feature upfront. You're creating a capable foundation and learning from what emerges.
+            - generic [ref=e258]:
+              - heading "Improvement over time" [level=3] [ref=e259]
+              - paragraph [ref=e260]:
+                - strong [ref=e261]: "Accumulated context:"
+                - text: The agent maintains state across sessions—what exists, what the user has done, and what worked.
+              - paragraph [ref=e262]:
+                - strong [ref=e263]: "Prompt refinement at multiple levels:"
+                - text: developer-level updates, user-level customization, and (advanced) agent-level adjustments based on feedback.
+              - paragraph [ref=e264]:
+                - strong [ref=e265]: "Self-modification (advanced):"
+                - text: Agents that edit their own prompts or code require safety rails—approval gates, checkpoints, rollback paths, and health checks.
+              - paragraph [ref=e266]: The mechanisms are still being discovered. Context and prompt refinement are proven; self-modification is emerging.
+        - generic [ref=e267]:
+          - paragraph [ref=e269]: Tools should be atomic primitives. Features are outcomes achieved by an agent operating in a loop. The agent makes the decisions; prompts describe the outcome.
+          - generic [ref=e270]:
+            - generic [ref=e271]:
+              - generic [ref=e272]:
+                - img [ref=e274]
+                - heading "Less granular" [level=3] [ref=e276]
+              - code [ref=e278]: "Tool: classify_and_organize_files(files) → You wrote the decision logic → Agent executes your code → To change behavior, you refactor"
+              - paragraph [ref=e279]: Bundles judgment into the tool. Limits flexibility.
+            - generic [ref=e280]:
+              - generic [ref=e281]:
+                - img [ref=e283]
+                - heading "More granular" [level=3] [ref=e285]
+              - code [ref=e287]: "Tools: read_file, write_file, move_file, bash Prompt: \"Organize the downloads folder...\" → Agent makes the decisions → To change behavior, edit the prompt"
+              - paragraph [ref=e288]: Agent pursues outcomes with judgment. Empowers flexibility.
+        - generic [ref=e290]:
+          - heading "From primitives to domain tools" [level=2] [ref=e292]
+          - generic [ref=e293]:
+            - generic [ref=e294]:
+              - paragraph [ref=e295]: "Start with pure primitives: bash, file operations, basic storage. This proves the architecture works and reveals what the agent actually needs."
+              - paragraph [ref=e296]: As patterns emerge, add domain-specific tools deliberately. Use them to anchor vocabulary, add guardrails, or improve efficiency.
+            - generic [ref=e297]:
+              - generic [ref=e298]:
+                - generic [ref=e299]: Vocabulary
+                - paragraph [ref=e300]:
+                  - text: A
+                  - code [ref=e301]: create_note
+                  - text: tool teaches the agent what "note" means in your system.
+              - generic [ref=e302]:
+                - generic [ref=e303]: Guardrails
+                - paragraph [ref=e304]: Some operations need validation that shouldn't be left to agent judgment.
+              - generic [ref=e305]:
+                - generic [ref=e306]: Efficiency
+                - paragraph [ref=e307]: Common operations can be bundled for speed and cost.
+            - generic [ref=e308]:
+              - generic [ref=e309]:
+                - code [ref=e310]: analyze_and_publish(input)
+                - paragraph [ref=e311]: Bundles judgment into the tool
+              - generic [ref=e312]:
+                - code [ref=e313]: publish(content)
+                - paragraph [ref=e314]: One action; agent decided what to publish
+            - generic [ref=e315]:
+              - paragraph [ref=e316]:
+                - strong [ref=e317]: "The rule for domain tools:"
+                - text: They should represent one conceptual action from the user's perspective. They can include mechanical validation, but judgment about what to do or whether to do it belongs in the prompt.
+              - paragraph [ref=e318]:
+                - strong [ref=e319]: Keep primitives available.
+                - text: Domain tools are shortcuts, not gates. Unless there's a specific reason to restrict access (security, data integrity), the agent should still be able to use underlying primitives for edge cases. This preserves composability and emergent capability. The default is open; make gating a conscious decision.
+        - generic [ref=e321]:
+          - heading "Graduating to code" [level=2] [ref=e323]
+          - generic [ref=e324]:
+            - paragraph [ref=e326]: Some operations will need to move from agent-orchestrated to optimized code for performance or reliability.
+            - generic [ref=e327]:
+              - generic [ref=e328]:
+                - generic [ref=e330]: "1"
+                - generic [ref=e331]:
+                  - paragraph [ref=e332]: Agent uses primitives in a loop
+                  - paragraph [ref=e333]: Flexible, proves the concept
+              - generic [ref=e334]:
+                - generic [ref=e336]: "2"
+                - generic [ref=e337]:
+                  - paragraph [ref=e338]: Add domain tools for common operations
+                  - paragraph [ref=e339]: Faster, still agent-orchestrated
+              - generic [ref=e340]:
+                - generic [ref=e342]: "3"
+                - generic [ref=e343]:
+                  - paragraph [ref=e344]: For hot paths, implement in optimized code
+                  - paragraph [ref=e345]: Fast, deterministic
+            - generic [ref=e346]:
+              - paragraph [ref=e347]:
+                - strong [ref=e348]: "The caveat:"
+                - text: Even when an operation graduates to code, the agent should be able to trigger the optimized operation itself and fall back to primitives for edge cases the optimized path doesn't handle. Graduation is about efficiency. Parity still holds.
+              - list [ref=e349]:
+                - listitem [ref=e350]:
+                  - generic [ref=e351]: •
+                  - text: Agent can trigger the optimized operation directly
+                - listitem [ref=e352]:
+                  - generic [ref=e353]: •
+                  - text: Agent can fall back to primitives for edge cases
+        - generic [ref=e354]:
+          - generic [ref=e355]:
+            - heading "Files as the universal interface" [level=2] [ref=e356]
+            - paragraph [ref=e357]: Agents are naturally good at files. Claude Code works because bash + filesystem is the most battle-tested agent interface.
+          - generic [ref=e358]:
+            - generic [ref=e359]:
+              - generic [ref=e360]: Already Known
+              - paragraph [ref=e361]:
+                - text: Agents already know
+                - code [ref=e362]: cat
+                - text: ","
+                - code [ref=e363]: grep
+                - text: ","
+                - code [ref=e364]: mv
+                - text: ","
+                - code [ref=e365]: mkdir
+                - text: . File operations are the primitives they're most fluent with.
+            - generic [ref=e366]:
+              - generic [ref=e367]: Inspectable
+              - paragraph [ref=e368]: Users can see what the agent created, edit it, move it, delete it. No black box.
+            - generic [ref=e369]:
+              - generic [ref=e370]: Portable
+              - paragraph [ref=e371]: Export is trivial. Backup is trivial. Users own their data.
+          - generic [ref=e372]:
+            - generic [ref=e373]:
+              - generic [ref=e374]: Syncs Across Devices
+              - paragraph [ref=e375]: On mobile with iCloud, all devices share the same file system. Agent's work appears everywhere—without building a server.
+            - generic [ref=e376]:
+              - generic [ref=e377]: Self-Documenting
+              - paragraph [ref=e378]:
+                - code [ref=e379]: /projects/acme/notes/
+                - text: is self-documenting in a way that
+                - code [ref=e380]: SELECT * FROM notes WHERE project_id = 123
+                - text: isn't.
+          - generic [ref=e381]:
+            - paragraph [ref=e383]:
+              - strong [ref=e384]: "A general principle of agent-native design:"
+              - text: Design for what agents can reason about. The best proxy for that is what would make sense to a human. If a human can look at your file structure and understand what's going on, an agent probably can too.
+            - generic [ref=e385]:
+              - paragraph [ref=e386]: Needs validation
+              - paragraph [ref=e387]: Claude's contribution from building; Dan is still forming his opinion. These conventions are one approach that's worked so far, not a prescription. Better solutions should be considered.
+          - generic [ref=e388]:
+            - generic [ref=e389]:
+              - heading "Entity-scoped directories" [level=3] [ref=e390]
+              - code [ref=e392]: "{entity_type}/{entity_id}/ ├── primary content ├── metadata └── related materials"
+              - paragraph [ref=e393]:
+                - text: "Example:"
+                - code [ref=e394]: "Research/books/{bookId}/"
+                - text: contains full text, notes, sources, and agent logs.
+            - generic [ref=e395]:
+              - heading "Directory naming" [level=3] [ref=e396]
+              - list [ref=e397]:
+                - listitem [ref=e398]:
+                  - generic [ref=e399]: •
+                  - generic [ref=e400]:
+                    - text: "Entity-scoped:"
+                    - code [ref=e401]: "{entityType}/{entityId}/"
+                - listitem [ref=e402]:
+                  - generic [ref=e403]: •
+                  - generic [ref=e404]:
+                    - text: "Collections:"
+                    - code [ref=e405]: "{type}/"
+                    - text: (e.g.,
+                    - code [ref=e406]: AgentCheckpoints/
+                    - text: )
+                - listitem [ref=e407]:
+                  - generic [ref=e408]: •
+                  - generic [ref=e409]: "Convention: lowercase with underscores, not camelCase"
+              - paragraph [ref=e410]: Markdown for human-readable content; JSON for structured data.
+          - generic [ref=e411]:
+            - heading "One approach to naming:" [level=3] [ref=e412]
+            - table [ref=e414]:
+              - rowgroup [ref=e415]:
+                - row "File Naming Pattern Example" [ref=e416]:
+                  - columnheader "File" [ref=e417]
+                  - columnheader "Naming Pattern" [ref=e418]
+                  - columnheader "Example" [ref=e419]
+              - rowgroup [ref=e420]:
+                - 'row "Entity data {entity}.json library.json, status.json" [ref=e421]':
+                  - cell "Entity data" [ref=e422]
+                  - 'cell "{entity}.json" [ref=e423]':
+                    - code [ref=e424]: "{entity}.json"
+                  - cell "library.json, status.json" [ref=e425]:
+                    - code [ref=e426]: library.json
+                    - text: ","
+                    - code [ref=e427]: status.json
+                - 'row "Human-readable content {content_type}.md introduction.md, profile.md" [ref=e428]':
+                  - cell "Human-readable content" [ref=e429]
+                  - 'cell "{content_type}.md" [ref=e430]':
+                    - code [ref=e431]: "{content_type}.md"
+                  - cell "introduction.md, profile.md" [ref=e432]:
+                    - code [ref=e433]: introduction.md
+                    - text: ","
+                    - code [ref=e434]: profile.md
+                - row "Agent reasoning agent_log.md Per-entity agent history" [ref=e435]:
+                  - cell "Agent reasoning" [ref=e436]
+                  - cell "agent_log.md" [ref=e437]:
+                    - code [ref=e438]: agent_log.md
+                  - cell "Per-entity agent history" [ref=e439]
+                - row "Primary content full_text.txt Downloaded/extracted text" [ref=e440]:
+                  - cell "Primary content" [ref=e441]
+                  - cell "full_text.txt" [ref=e442]:
+                    - code [ref=e443]: full_text.txt
+                  - cell "Downloaded/extracted text" [ref=e444]
+                - 'row "Multi-volume volume{N}.txt volume1.txt, volume2.txt" [ref=e445]':
+                  - cell "Multi-volume" [ref=e446]
+                  - 'cell "volume{N}.txt" [ref=e447]':
+                    - code [ref=e448]: "volume{N}.txt"
+                  - cell "volume1.txt, volume2.txt" [ref=e449]:
+                    - code [ref=e450]: volume1.txt
+                    - text: ","
+                    - code [ref=e451]: volume2.txt
+                - 'row "External sources {source_name}.md wikipedia.md, sparknotes.md" [ref=e452]':
+                  - cell "External sources" [ref=e453]
+                  - 'cell "{source_name}.md" [ref=e454]':
+                    - code [ref=e455]: "{source_name}.md"
+                  - cell "wikipedia.md, sparknotes.md" [ref=e456]:
+                    - code [ref=e457]: wikipedia.md
+                    - text: ","
+                    - code [ref=e458]: sparknotes.md
+                - 'row "Checkpoints {sessionId}.checkpoint UUID-based" [ref=e459]':
+                  - cell "Checkpoints" [ref=e460]
+                  - 'cell "{sessionId}.checkpoint" [ref=e461]':
+                    - code [ref=e462]: "{sessionId}.checkpoint"
+                  - cell "UUID-based" [ref=e463]
+                - row "Configuration config.json Feature settings" [ref=e464]:
+                  - cell "Configuration" [ref=e465]
+                  - cell "config.json" [ref=e466]:
+                    - code [ref=e467]: config.json
+                  - cell "Feature settings" [ref=e468]
+          - generic [ref=e469]:
+            - generic [ref=e470]:
+              - heading "Directory structure" [level=3] [ref=e471]
+              - code [ref=e473]: "Documents/ ├── AgentCheckpoints/ # Ephemeral │ └── {sessionId}.checkpoint ├── AgentLogs/ # Debugging │ └── {type}/{sessionId}.md └── Research/ # User's work └── books/{bookId}/ ├── full_text.txt ├── notes.md └── agent_log.md"
+            - generic [ref=e474]:
+              - heading "The context.md pattern" [level=3] [ref=e475]
+              - code [ref=e477]: "# Context ## Who I Am Reading assistant for the Every app. ## What I Know About This User - Interested in military history and Russian literature - Prefers concise analysis - Currently reading *War and Peace* ## What Exists - 12 notes in /notes - three active projects - User preferences at /preferences.md ## Recent Activity - User created \"Project kickoff\" (two hours ago) - Analyzed passage about Austerlitz (yesterday) ## My Guidelines - Don't spoil books they're reading - Use their interests to personalize insights ## Current State - No pending tasks - Last sync: 10 minutes ago"
+          - paragraph [ref=e478]: The agent reads this file at the start of each session and updates it as state changes—portable working memory without code changes.
+          - generic [ref=e479]:
+            - heading "Files vs. database" [level=3] [ref=e480]
+            - generic [ref=e481]:
+              - paragraph [ref=e482]: Needs validation
+              - paragraph [ref=e483]: This framing is one way to think about it, and it's specifically informed by mobile development. For web apps, the tradeoffs are different—Dan doesn't have a strong opinion there yet.
+            - generic [ref=e484]:
+              - generic [ref=e485]:
+                - heading "Use files for..." [level=4] [ref=e486]
+                - list [ref=e487]:
+                  - listitem [ref=e488]:
+                    - generic [ref=e489]: •
+                    - text: Content users should read/edit
+                  - listitem [ref=e490]:
+                    - generic [ref=e491]: •
+                    - text: Configuration that benefits from version control
+                  - listitem [ref=e492]:
+                    - generic [ref=e493]: •
+                    - text: Agent-generated content
+                  - listitem [ref=e494]:
+                    - generic [ref=e495]: •
+                    - text: Anything that benefits from transparency
+                  - listitem [ref=e496]:
+                    - generic [ref=e497]: •
+                    - text: Large text content
+              - generic [ref=e498]:
+                - heading "Use database for..." [level=4] [ref=e499]
+                - list [ref=e500]:
+                  - listitem [ref=e501]:
+                    - generic [ref=e502]: •
+                    - text: High-volume structured data
+                  - listitem [ref=e503]:
+                    - generic [ref=e504]: •
+                    - text: Data that needs complex queries
+                  - listitem [ref=e505]:
+                    - generic [ref=e506]: •
+                    - text: Ephemeral state (sessions, caches)
+                  - listitem [ref=e507]:
+                    - generic [ref=e508]: •
+                    - text: Data with relationships
+                  - listitem [ref=e509]:
+                    - generic [ref=e510]: •
+                    - text: Data that needs indexing
+            - paragraph [ref=e511]:
+              - strong [ref=e512]: "The principle:"
+              - text: Files for legibility, databases for structure. When in doubt, files—they're more transparent and users can always inspect them.
+            - generic [ref=e513]:
+              - generic [ref=e514]:
+                - paragraph [ref=e515]: "The file-first approach works when:"
+                - list [ref=e516]:
+                  - listitem [ref=e517]: • Scale is small (one user's library, not millions of records)
+                  - listitem [ref=e518]: • Transparency is valued over query speed
+                  - listitem [ref=e519]: • Cloud sync (iCloud, Dropbox) works well with files
+              - generic [ref=e520]:
+                - paragraph [ref=e521]: Hybrid approach
+                - paragraph [ref=e522]: Even if you need a database for performance, consider maintaining a file-based "source of truth" that the agent works with, synced to the database for the UI.
+          - generic [ref=e523]:
+            - heading "Conflict model" [level=3] [ref=e524]
+            - paragraph [ref=e525]: If agents and users write to the same files, you need a conflict model.
+            - generic [ref=e526]:
+              - generic [ref=e527]:
+                - heading "Atomic writes (current reality)" [level=4] [ref=e528]
+                - code [ref=e530]: "// Swift - last-write-wins via atomic writes try data.write(to: url, options: [.atomic])"
+                - paragraph [ref=e531]: Simple but can lose changes.
+              - generic [ref=e532]:
+                - heading "iCloud conflict monitoring" [level=4] [ref=e533]
+                - code [ref=e535]: "// Watch for sync conflicts NotificationCenter.default.addObserver( forName: .NSMetadataQueryDidUpdate, ... ) // Creates: {filename} (conflict).md"
+                - paragraph [ref=e536]: Monitor and resolve conflicts explicitly.
+            - generic [ref=e537]:
+              - generic [ref=e538]:
+                - paragraph [ref=e539]: Last write wins
+                - paragraph [ref=e540]: Simple, changes can be lost
+              - generic [ref=e541]:
+                - paragraph [ref=e542]: Check before writing
+                - paragraph [ref=e543]: Skip if modified since read
+              - generic [ref=e544]:
+                - paragraph [ref=e545]: Separate spaces
+                - paragraph [ref=e546]: Agent → drafts/, user promotes
+              - generic [ref=e547]:
+                - paragraph [ref=e548]: Append-only logs
+                - paragraph [ref=e549]: Additive, never overwrites
+              - generic [ref=e550]:
+                - paragraph [ref=e551]: File locking
+                - paragraph [ref=e552]: Prevent edits while open
+            - paragraph [ref=e553]:
+              - strong [ref=e554]: "Practical guidance:"
+              - text: Logs and status files rarely conflict. For user-edited content, consider explicit handling or keep agent output separate. iCloud adds complexity by creating conflict copies.
+        - generic [ref=e555]:
+          - heading "Agent execution patterns" [level=2] [ref=e557]
+          - generic [ref=e558]:
+            - generic [ref=e559]:
+              - heading "Completion signals" [level=3] [ref=e560]
+              - paragraph [ref=e561]: Agents need an explicit way to say "I'm done." Don't detect completion through heuristics.
+              - code [ref=e563]: "struct ToolResult { let success: Bool let output: String let shouldContinue: Bool } .success(\"Result\") // continue .error(\"Message\") // continue (retry) .complete(\"Done\") // stop loop"
+              - paragraph [ref=e564]: "Completion is separate from success/failure: A tool can succeed and stop the loop, or fail and signal continue for recovery."
+              - generic [ref=e565]:
+                - paragraph [ref=e566]:
+                  - strong [ref=e567]: "What's not yet standard:"
+                  - text: "Richer control flow signals like:"
+                - generic [ref=e568]:
+                  - generic [ref=e569]:
+                    - generic [ref=e570]: •
+                    - paragraph [ref=e571]:
+                      - strong [ref=e572]: pause
+                      - text: —agent needs user input before continuing
+                  - generic [ref=e573]:
+                    - generic [ref=e574]: •
+                    - paragraph [ref=e575]:
+                      - strong [ref=e576]: escalate
+                      - text: —agent needs a human decision outside its scope
+                  - generic [ref=e577]:
+                    - generic [ref=e578]: •
+                    - paragraph [ref=e579]:
+                      - strong [ref=e580]: retry
+                      - text: —transient failure, orchestrator should retry
+                - paragraph [ref=e581]: Currently, if the agent needs input, it asks in its text response. There's no formal "blocked waiting for input" state. This is an area still being figured out.
+            - generic [ref=e582]:
+              - heading "Model tier selection" [level=3] [ref=e583]
+              - paragraph [ref=e584]: Not all agent operations need the same intelligence level.
+              - table [ref=e586]:
+                - rowgroup [ref=e587]:
+                  - row "Task Type Tier Reasoning" [ref=e588]:
+                    - columnheader "Task Type" [ref=e589]
+                    - columnheader "Tier" [ref=e590]
+                    - columnheader "Reasoning" [ref=e591]
+                - rowgroup [ref=e592]:
+                  - row "Research agent Balanced Tool loops, good reasoning" [ref=e593]:
+                    - cell "Research agent" [ref=e594]
+                    - cell "Balanced" [ref=e595]
+                    - cell "Tool loops, good reasoning" [ref=e596]
+                  - row "Chat Balanced Fast enough for conversation" [ref=e597]:
+                    - cell "Chat" [ref=e598]
+                    - cell "Balanced" [ref=e599]
+                    - cell "Fast enough for conversation" [ref=e600]
+                  - row "Complex synthesis Powerful Multi-source analysis" [ref=e601]:
+                    - cell "Complex synthesis" [ref=e602]
+                    - cell "Powerful" [ref=e603]
+                    - cell "Multi-source analysis" [ref=e604]
+                  - row "Quick classification Fast High volume, simple task" [ref=e605]:
+                    - cell "Quick classification" [ref=e606]
+                    - cell "Fast" [ref=e607]
+                    - cell "High volume, simple task" [ref=e608]
+              - paragraph [ref=e609]:
+                - strong [ref=e610]: "The discipline:"
+                - text: When adding a new agent, explicitly choose its tier based on task complexity. Don't always default to "most powerful."
+          - generic [ref=e611]:
+            - heading "Partial completion" [level=3] [ref=e612]
+            - code [ref=e615]: "struct AgentTask { var status: TaskStatus // pending, in_progress, completed, failed, skipped var notes: String? // Why it failed, what was done } var isComplete: Bool { tasks.allSatisfy { $0.status == .completed || $0.status == .skipped } }"
+            - generic [ref=e616]:
+              - generic [ref=e617]:
+                - paragraph [ref=e618]: "For multi-step tasks, track progress at the task level. What the UI shows:"
+                - generic [ref=e619]:
+                  - generic [ref=e620]: "Progress: 3/5 tasks complete (60%)"
+                  - generic [ref=e621]:
+                    - generic [ref=e622]:
+                      - generic [ref=e623]: ✓
+                      - generic [ref=e624]: "[1] Find source materials"
+                    - generic [ref=e625]:
+                      - generic [ref=e626]: ✓
+                      - generic [ref=e627]: "[2] Download full text"
+                    - generic [ref=e628]:
+                      - generic [ref=e629]: ✓
+                      - generic [ref=e630]: "[3] Extract key passages"
+                    - generic [ref=e631]:
+                      - generic [ref=e632]: ✗
+                      - generic [ref=e633]: "[4] Generate summary - Error: context limit"
+                    - generic [ref=e634]:
+                      - generic [ref=e635]: ○
+                      - generic [ref=e636]: "[5] Create outline"
+              - generic [ref=e637]:
+                - heading "Partial completion scenarios:" [level=4] [ref=e638]
+                - generic [ref=e639]:
+                  - generic [ref=e640]:
+                    - paragraph [ref=e641]: Agent hits max iterations
+                    - paragraph [ref=e642]: Some tasks completed, some pending. Checkpoint saved. Resume continues from where it left off.
+                  - generic [ref=e643]:
+                    - paragraph [ref=e644]: Agent fails on one task
+                    - paragraph [ref=e645]: Task marked failed with error in notes. Other tasks may continue (agent decides).
+                  - generic [ref=e646]:
+                    - paragraph [ref=e647]: Network error mid-task
+                    - paragraph [ref=e648]: Current iteration throws. Session marked failed. Checkpoint preserves messages up to that point.
+          - generic [ref=e649]:
+            - heading "Context limits" [level=3] [ref=e650]
+            - paragraph [ref=e652]:
+              - text: Agent sessions can extend indefinitely, but context windows don't.
+              - strong [ref=e653]: "Design for bounded context:"
+            - generic [ref=e654]:
+              - paragraph [ref=e656]: Tools should support iterative refinement (summary → detail → full) rather than all-or-nothing
+              - paragraph [ref=e658]: Give agents a way to consolidate learnings mid-session ("summarize what I've learned and continue")
+              - paragraph [ref=e660]: Assume context will eventually fill up—design for it from the start
+        - generic [ref=e661]:
+          - heading "Implementation patterns" [level=2] [ref=e663]
+          - generic [ref=e664]:
+            - generic [ref=e665]:
+              - heading "Shared workspace" [level=3] [ref=e666]
+              - paragraph [ref=e667]: Agents and users should work in the same data space, not separate sandboxes.
+              - code [ref=e670]: UserData/ ├── notes/ ← Both agent and user read/write here ├── projects/ ← Agent can organize, user can override └── preferences.md ← Agent reads, user can edit
+            - generic [ref=e671]:
+              - heading "Benefits:" [level=4] [ref=e672]
+              - generic [ref=e673]:
+                - generic [ref=e674]:
+                  - generic [ref=e675]: •
+                  - paragraph [ref=e676]: Users can inspect and modify agent work
+                - generic [ref=e677]:
+                  - generic [ref=e678]: •
+                  - paragraph [ref=e679]: Agents can build on what users create
+                - generic [ref=e680]:
+                  - generic [ref=e681]: •
+                  - paragraph [ref=e682]: No synchronization layer needed
+                - generic [ref=e683]:
+                  - generic [ref=e684]: •
+                  - paragraph [ref=e685]: Complete transparency
+              - paragraph [ref=e686]: This should be the default. Sandbox only when there's a specific need (security, preventing corruption of critical data).
+          - generic [ref=e687]:
+            - heading "Context injection" [level=3] [ref=e688]
+            - paragraph [ref=e689]: "The agent needs to know what it's working with. System prompts should include:"
+            - generic [ref=e690]:
+              - generic [ref=e691]:
+                - heading "Available resources" [level=4] [ref=e692]
+                - code [ref=e694]: "## Available Data - 12 notes in /notes - Most recent: \"Project kickoff\" - three projects in /projects - Preferences at /preferences.md"
+              - generic [ref=e695]:
+                - heading "Capabilities" [level=4] [ref=e696]
+                - code [ref=e698]: "## What You Can Do - Create, edit, tag, delete notes - Organize files into projects - Search across all content - Set reminders (write_file)"
+              - generic [ref=e699]:
+                - heading "Recent activity" [level=4] [ref=e700]
+                - code [ref=e702]: "## Recent Context - User created \"Project kickoff\" note (two hours ago) - User asked about Q3 deadlines yesterday"
+            - paragraph [ref=e703]: For long sessions, provide a way to refresh context so the agent stays current.
+          - generic [ref=e704]:
+            - heading "Agent-to-UI communication" [level=3] [ref=e705]
+            - generic [ref=e706]:
+              - generic [ref=e707]:
+                - paragraph [ref=e708]: "When agents act, the UI should reflect it immediately. Event types for chat integration:"
+                - code [ref=e711]: "enum AgentEvent { case thinking(String) // → Show as thinking indicator case toolCall(String, String) // → Show tool being used case toolResult(String) // → Show result (optional) case textResponse(String) // → Stream to chat case statusChange(Status) // → Update status bar }"
+                - paragraph [ref=e712]: "The key: no silent actions. Agent changes should be visible immediately."
+              - generic [ref=e713]:
+                - heading "Real-time progress:" [level=4] [ref=e714]
+                - generic [ref=e715]:
+                  - generic [ref=e716]:
+                    - generic [ref=e717]: •
+                    - paragraph [ref=e718]: Show thinking progress (what the agent is considering)
+                  - generic [ref=e719]:
+                    - generic [ref=e720]: •
+                    - paragraph [ref=e721]: Show current tool being executed
+                  - generic [ref=e722]:
+                    - generic [ref=e723]: •
+                    - paragraph [ref=e724]: Stream text incrementally as it's generated
+                  - generic [ref=e725]:
+                    - generic [ref=e726]: •
+                    - paragraph [ref=e727]: Update task list progress in real-time
+                - generic [ref=e728]:
+                  - heading "Communication patterns:" [level=4] [ref=e729]
+                  - generic [ref=e730]:
+                    - generic [ref=e731]:
+                      - generic [ref=e732]: •
+                      - paragraph [ref=e733]: Shared data store (recommended)
+                    - generic [ref=e734]:
+                      - generic [ref=e735]: •
+                      - paragraph [ref=e736]: File system observation
+                    - generic [ref=e737]:
+                      - generic [ref=e738]: •
+                      - paragraph [ref=e739]: Event system (more decoupled, more complexity)
+                - paragraph [ref=e740]:
+                  - text: Some tools are noisy; consider an
+                  - code [ref=e741]: ephemeralToolCalls
+                  - text: flag to hide internal checks while still showing meaningful actions.
+                - paragraph [ref=e743]:
+                  - strong [ref=e744]: Silent agents feel broken.
+                  - text: Visible progress builds trust.
+        - generic [ref=e746]:
+          - heading "Product implications" [level=2] [ref=e748]
+          - generic [ref=e749]:
+            - paragraph [ref=e751]: Agent-native architecture has consequences for how products feel, not just how they're built.
+            - generic [ref=e752]:
+              - generic [ref=e753]:
+                - heading "Progressive disclosure" [level=3] [ref=e754]
+                - paragraph [ref=e755]: Simple to start but endlessly powerful. Basic requests work immediately. Power users can push in unexpected directions.
+                - paragraph [ref=e756]: "Excel is the canonical example: grocery list or financial model, same tool. Claude Code has this quality too. The interface stays simple; capability scales with the ask."
+                - list [ref=e757]:
+                  - listitem [ref=e758]:
+                    - generic [ref=e759]: •
+                    - text: "Simple entry: basic requests work with no learning curve"
+                  - listitem [ref=e760]:
+                    - generic [ref=e761]: •
+                    - text: "Discoverable depth: users find new power as they explore"
+                  - listitem [ref=e762]:
+                    - generic [ref=e763]: •
+                    - text: "No ceiling: power users push beyond what you anticipated"
+                - paragraph [ref=e764]: The agent meets users where they are.
+              - generic [ref=e765]:
+                - heading "Latent demand discovery" [level=3] [ref=e766]
+                - paragraph [ref=e767]: Build a capable foundation. Observe what users ask the agent to do. Formalize the patterns that emerge. You're discovering, not guessing.
+                - paragraph [ref=e768]: "Traditional product development: Imagine what users want, build it, see if you're right."
+                - paragraph [ref=e769]: "Agent-native product development: Build a capable foundation, observe what users ask the agent to do, formalize the patterns that emerge."
+                - paragraph [ref=e770]: When users ask the agent for something and it succeeds, that's signal. When they ask and it fails, that's also signal—it reveals a gap in your tools or parity.
+                - paragraph [ref=e771]: "Over time, you can:"
+                - list [ref=e772]:
+                  - listitem [ref=e773]:
+                    - generic [ref=e774]: •
+                    - text: Add domain tools for common patterns (makes them faster and more reliable)
+                  - listitem [ref=e775]:
+                    - generic [ref=e776]: •
+                    - text: Create dedicated prompts for frequent requests (makes them more discoverable)
+                  - listitem [ref=e777]:
+                    - generic [ref=e778]: •
+                    - text: Remove tools that aren't being used (simplifies the system)
+                - paragraph [ref=e779]: The agent becomes a research instrument for understanding what your users actually need.
+            - generic [ref=e780]:
+              - heading "Approval and user agency" [level=3] [ref=e781]
+              - generic [ref=e782]:
+                - paragraph [ref=e783]: Needs validation
+                - paragraph [ref=e784]: This framework is a contribution from Claude that emerged from the process of building a few of the apps at Every. But it hasn't been battle-tested and Dan is still forming his opinion here.
+              - paragraph [ref=e785]: "When agents take unsolicited actions—doing things on their own rather than responding to explicit requests—you need to decide how much autonomy to grant. Consider stakes and reversibility:"
+              - table [ref=e787]:
+                - rowgroup [ref=e788]:
+                  - row "Stakes Reversibility Pattern Example" [ref=e789]:
+                    - columnheader "Stakes" [ref=e790]
+                    - columnheader "Reversibility" [ref=e791]
+                    - columnheader "Pattern" [ref=e792]
+                    - columnheader "Example" [ref=e793]
+                - rowgroup [ref=e794]:
+                  - row "Low Easy Auto-apply Organizing files" [ref=e795]:
+                    - cell "Low" [ref=e796]
+                    - cell "Easy" [ref=e797]
+                    - cell "Auto-apply" [ref=e798]
+                    - cell "Organizing files" [ref=e799]
+                  - row "Low Hard Quick confirm Publishing to feed" [ref=e800]:
+                    - cell "Low" [ref=e801]
+                    - cell "Hard" [ref=e802]
+                    - cell "Quick confirm" [ref=e803]
+                    - cell "Publishing to feed" [ref=e804]
+                  - row "High Easy Suggest + apply Code changes" [ref=e805]:
+                    - cell "High" [ref=e806]
+                    - cell "Easy" [ref=e807]
+                    - cell "Suggest + apply" [ref=e808]
+                    - cell "Code changes" [ref=e809]
+                  - row "High Hard Explicit approval Sending emails" [ref=e810]:
+                    - cell "High" [ref=e811]
+                    - cell "Hard" [ref=e812]
+                    - cell "Explicit approval" [ref=e813]
+                    - cell "Sending emails" [ref=e814]
+              - paragraph [ref=e815]:
+                - emphasis [ref=e816]: "Note: This applies to unsolicited agent actions. If the user explicitly asks the agent to do something (\"send that email\"), that's already approval—the agent just does it."
+              - generic [ref=e817]:
+                - paragraph [ref=e818]: Self-modification should be legible
+                - paragraph [ref=e819]: "When agents can modify their own behavior—changing prompts, updating preferences, adjusting workflows—the goals are:"
+                - list [ref=e820]:
+                  - listitem [ref=e821]: • Visibility into what changed
+                  - listitem [ref=e822]: • Understanding the effects
+                  - listitem [ref=e823]: • Ability to roll back
+                - paragraph [ref=e824]: "Approval flows are one way to achieve this. Audit logs with easy rollback could be another. The principle is: Make it legible."
+        - generic [ref=e825]:
+          - generic [ref=e826]:
+            - heading "Mobile" [level=2] [ref=e827]
+            - paragraph [ref=e828]: Mobile is a first-class platform for agent-native apps. It has unique constraints and opportunities.
+          - generic [ref=e829]:
+            - generic [ref=e830]:
+              - generic [ref=e831]: A File System
+              - paragraph [ref=e832]: Agents can work with files naturally, using the same primitives that work everywhere else.
+            - generic [ref=e833]:
+              - generic [ref=e834]: Rich Context
+              - paragraph [ref=e835]: A walled garden you get access to. Health data, location, photos, calendars—context that doesn't exist on desktop or web.
+            - generic [ref=e836]:
+              - generic [ref=e837]: Local Apps
+              - paragraph [ref=e838]: Everyone has their own copy of the app. Apps that modify themselves, fork themselves, evolve per-user.
+            - generic [ref=e839]:
+              - generic [ref=e840]: App State Syncs
+              - paragraph [ref=e841]: With iCloud, all devices share the same file system. Agent's work appears on all devices—without a server.
+          - generic [ref=e842]:
+            - heading "The challenge" [level=3] [ref=e843]
+            - paragraph [ref=e844]: Agents are long-running. Mobile apps are not.
+            - paragraph [ref=e845]: An agent might need 30 seconds, five minutes, or an hour to complete a task. But iOS will background your app after seconds of inactivity, and may kill it entirely to reclaim memory. The user might switch apps, take a call, or lock their phone mid-task.
+            - paragraph [ref=e846]: "This means mobile agent apps need a well-thought-out approach to:"
+            - generic [ref=e847]:
+              - generic [ref=e848]:
+                - paragraph [ref=e849]: Checkpointing
+                - paragraph [ref=e850]: Saving state so work isn't lost
+              - generic [ref=e851]:
+                - paragraph [ref=e852]: Resuming
+                - paragraph [ref=e853]: Picking up where you left off after interruption
+              - generic [ref=e854]:
+                - paragraph [ref=e855]: Background execution
+                - paragraph [ref=e856]: Using the limited time iOS gives you wisely
+              - generic [ref=e857]:
+                - paragraph [ref=e858]: On-device vs. cloud
+                - paragraph [ref=e859]: Deciding what runs locally vs. what needs a server
+          - generic [ref=e860]:
+            - generic [ref=e861]:
+              - heading "iOS storage architecture" [level=3] [ref=e862]
+              - generic [ref=e863]:
+                - paragraph [ref=e864]: Needs validation
+                - paragraph [ref=e865]: This is an approach we're playing with that we think is exciting, but it's one way to do it. Claude built this; better solutions may exist.
+              - generic [ref=e866]:
+                - paragraph [ref=e867]: "What this gives you:"
+                - list [ref=e868]:
+                  - listitem [ref=e869]: • Automatic sync across devices without building infrastructure
+                  - listitem [ref=e870]: • Backup without user action
+                  - listitem [ref=e871]: • Graceful degradation when iCloud is unavailable
+                  - listitem [ref=e872]: • Users can access their data outside the app if needed
+              - paragraph [ref=e873]:
+                - strong [ref=e874]: "One approach—iCloud-first with local fallback:"
+              - code [ref=e876]: "1. iCloud Container (preferred) iCloud.com.{bundleId}/Documents/ ├── Library/ ├── Research/books/ ├── Chats/ └── Profile/ 2. Local Documents (fallback) ~/Documents/ 3. Migration layer Auto-migrate local → iCloud"
+              - code [ref=e878]: "// iCloud-first with local fallback if let url = fileManager .url(forUbiquityContainerIdentifier: nil) { return url.appendingPathComponent(\"Documents\") } return fileManager.urls( for: .documentDirectory, in: .userDomainMask)[0]"
+            - generic [ref=e879]:
+              - heading "Checkpoint and resume" [level=3] [ref=e880]
+              - generic [ref=e881]:
+                - paragraph [ref=e882]: Needs validation
+                - paragraph [ref=e883]: Claude's contribution from building; Dan is still forming his opinion. This approach seems to work, but better solutions may exist.
+              - paragraph [ref=e884]: Mobile apps get interrupted. Agents need to survive this.
+              - generic [ref=e885]:
+                - generic [ref=e886]:
+                  - paragraph [ref=e887]:
+                    - strong [ref=e888]: "What to checkpoint:"
+                  - paragraph [ref=e889]: Agent type, messages, iteration count, task list, custom state, timestamp
+                - generic [ref=e890]:
+                  - paragraph [ref=e891]:
+                    - strong [ref=e892]: "When to checkpoint:"
+                  - paragraph [ref=e893]: On app backgrounding, after each tool result, periodically during long operations
+                - generic [ref=e894]:
+                  - paragraph [ref=e895]:
+                    - strong [ref=e896]: "Resume flow:"
+                  - paragraph [ref=e897]: Load interrupted sessions → Filter by validity (one-hour default) → Show resume prompt → Restore messages and continue
+              - generic [ref=e898]:
+                - paragraph [ref=e899]: "Resume steps:"
+                - paragraph [ref=e900]: 1. loadInterruptedSessions() scans checkpoint directory
+                - paragraph [ref=e901]: 2. filter by isValid(maxAge:)
+                - paragraph [ref=e902]: 3. show resume prompt
+                - paragraph [ref=e903]: 4. restore messages and continue agent loop
+                - paragraph [ref=e904]: 5. on dismiss, delete checkpoint
+              - code [ref=e906]: "struct AgentCheckpoint: Codable { let agentType: String let messages: [[String: Any]] let iterationCount: Int let taskListJSON: String? let customState: [String: String] let timestamp: Date } func isValid(maxAge: TimeInterval = 3600) -> Bool { Date().timeIntervalSince(timestamp) < maxAge }"
+              - paragraph [ref=e907]:
+                - text: "Architecture decision: Store full agent configuration, or store only"
+                - code [ref=e908]: agentType
+                - text: and recreate from a registry. The latter is simpler but means configs can break old checkpoints.
+              - paragraph [ref=e909]: "The gap: If the system kills the app, recovery depends on checkpoint frequency. Checkpoint after each tool result for maximum robustness."
+          - generic [ref=e910]:
+            - generic [ref=e911]:
+              - heading "Cloud file states" [level=3] [ref=e912]
+              - paragraph [ref=e913]: Files may exist in iCloud but not be downloaded locally. Ensure availability before reading.
+              - code [ref=e915]: "await StorageService.shared .ensureDownloaded(folder: .research, filename: \"full_text.txt\")"
+            - generic [ref=e916]:
+              - heading "Storage abstraction" [level=3] [ref=e917]
+              - paragraph [ref=e918]: Use a storage abstraction layer. Don't use raw FileManager. Abstract over iCloud vs. local so the rest of your code doesn't care.
+              - code [ref=e920]: "let url = StorageService.shared .url(for: .researchBook(bookId: id))"
+          - generic [ref=e921]:
+            - heading "Background execution" [level=3] [ref=e922]
+            - generic [ref=e923]:
+              - paragraph [ref=e924]: Needs validation
+              - paragraph [ref=e925]: Claude's contribution from building; Dan is still forming his opinion.
+            - paragraph [ref=e926]: "iOS gives you limited background time:"
+            - code [ref=e928]: "func prepareForBackground() { backgroundTaskId = UIApplication.shared .beginBackgroundTask(withName: \"AgentProcessing\") { handleBackgroundTimeExpired() } } func handleBackgroundTimeExpired() { for session in sessions where session.status == .running { session.status = .backgrounded Task { await saveSession(session) } } } func handleForeground() { for session in sessions where session.status == .backgrounded { Task { await resumeSession(session) } } }"
+            - paragraph [ref=e929]: "You get roughly 30 seconds. Use it to:"
+            - list [ref=e930]:
+              - listitem [ref=e931]: • Complete the current tool call if possible
+              - listitem [ref=e932]: • Checkpoint the session state
+              - listitem [ref=e933]: • Transition gracefully to backgrounded state
+          - paragraph [ref=e934]:
+            - strong [ref=e935]: "For truly long-running agents:"
+            - text: Consider a server-side orchestrator that can run for hours, with the mobile app as a viewer and input mechanism.
+          - generic [ref=e936]:
+            - heading "On-device vs. cloud" [level=3] [ref=e937]
+            - table [ref=e939]:
+              - rowgroup [ref=e940]:
+                - row "Component On-device Cloud" [ref=e941]:
+                  - columnheader "Component" [ref=e942]
+                  - columnheader "On-device" [ref=e943]
+                  - columnheader "Cloud" [ref=e944]
+              - rowgroup [ref=e945]:
+                - row "Orchestration ✓" [ref=e946]:
+                  - cell "Orchestration" [ref=e947]
+                  - cell "✓" [ref=e948]
+                  - cell [ref=e949]
+                - row "Tool execution (files, photos, HealthKit) ✓" [ref=e950]:
+                  - cell "Tool execution (files, photos, HealthKit)" [ref=e951]
+                  - cell "✓" [ref=e952]
+                  - cell [ref=e953]
+                - row "LLM calls ✓ (Anthropic API)" [ref=e954]:
+                  - cell "LLM calls" [ref=e955]
+                  - cell [ref=e956]
+                  - cell "✓ (Anthropic API)" [ref=e957]
+                - row "Checkpoints ✓ (local files) Optional via iCloud" [ref=e958]:
+                  - cell "Checkpoints" [ref=e959]
+                  - cell "✓ (local files)" [ref=e960]
+                  - cell "Optional via iCloud" [ref=e961]
+                - row "Long-running agents Limited by iOS Possible with server" [ref=e962]:
+                  - cell "Long-running agents" [ref=e963]
+                  - cell "Limited by iOS" [ref=e964]
+                  - cell "Possible with server" [ref=e965]
+            - paragraph [ref=e966]: The app needs network for reasoning but can access data offline. Design tools to degrade gracefully when network is unavailable.
+        - generic [ref=e967]:
+          - heading "Advanced patterns" [level=2] [ref=e969]
+          - generic [ref=e970]:
+            - generic [ref=e971]:
+              - heading "Dynamic capability discovery" [level=3] [ref=e972]
+              - generic [ref=e973]:
+                - paragraph [ref=e974]: Needs validation
+                - paragraph [ref=e975]: Claude's contribution from building; Dan is still forming his opinion. This is one approach we're excited about, but others may be better depending on your use case.
+              - paragraph [ref=e976]: "One alternative to building a tool for each endpoint in an external API: Build tools that let the agent discover what's available at runtime."
+              - generic [ref=e977]:
+                - generic [ref=e978]:
+                  - paragraph [ref=e979]: "The problem with static mapping:"
+                  - code [ref=e981]: // You built 50 tools for 50 data types read_steps() read_heart_rate() read_sleep() // When a new metric is added... code change required // Agent can only access what you anticipated
+                - generic [ref=e982]:
+                  - paragraph [ref=e983]: "Dynamic capability discovery:"
+                  - code [ref=e985]: // Two tools handle everything list_available_types() → returns ["steps", "heart_rate", "sleep", ...] read_data(type) → reads any discovered type // When a new metric is added... agent discovers it automatically // Agent can access things you didn't anticipate
+              - paragraph [ref=e986]: This is granularity taken to its logical conclusion. Your tools become so atomic that they work with types you didn't know existed when you built them.
+              - generic [ref=e987]:
+                - generic [ref=e988]:
+                  - heading "When to use this:" [level=4] [ref=e989]
+                  - list [ref=e990]:
+                    - listitem [ref=e991]:
+                      - generic [ref=e992]: •
+                      - text: External APIs where you want the agent to have full user-level access (HealthKit, HomeKit, GraphQL endpoints)
+                    - listitem [ref=e993]:
+                      - generic [ref=e994]: •
+                      - text: Systems that add new capabilities over time
+                    - listitem [ref=e995]:
+                      - generic [ref=e996]: •
+                      - text: When you want the agent to be able to do anything the API supports
+                - generic [ref=e997]:
+                  - heading "When static mapping is fine:" [level=4] [ref=e998]
+                  - list [ref=e999]:
+                    - listitem [ref=e1000]:
+                      - generic [ref=e1001]: •
+                      - text: Intentionally constrained agents with limited scope
+                    - listitem [ref=e1002]:
+                      - generic [ref=e1003]: •
+                      - text: When you need tight control over exactly what the agent can access
+                    - listitem [ref=e1004]:
+                      - generic [ref=e1005]: •
+                      - text: Simple APIs with stable, well-known endpoints
+              - paragraph [ref=e1006]: "The pattern: one tool to discover what's available, one tool to interact with any discovered capability. Let the API validate inputs rather than duplicating validation in your enum definitions."
+            - generic [ref=e1007]:
+              - heading "CRUD completeness" [level=3] [ref=e1008]
+              - paragraph [ref=e1009]: "For every entity in your system, verify the agent has full create, read, update, delete (CRUD) capability:"
+              - generic [ref=e1010]:
+                - generic [ref=e1011]:
+                  - generic [ref=e1012]: Create
+                  - paragraph [ref=e1013]: Can the agent make new instances?
+                - generic [ref=e1014]:
+                  - generic [ref=e1015]: Read
+                  - paragraph [ref=e1016]: Can the agent see what exists?
+                - generic [ref=e1017]:
+                  - generic [ref=e1018]: Update
+                  - paragraph [ref=e1019]: Can the agent modify instances?
+                - generic [ref=e1020]:
+                  - generic [ref=e1021]: Delete
+                  - paragraph [ref=e1022]: Can the agent remove instances?
+              - paragraph [ref=e1023]: "The audit: List every entity in your system and verify all four operations are available to the agent."
+              - paragraph [ref=e1025]:
+                - strong [ref=e1026]: "Common failure:"
+                - text: You build
+                - code [ref=e1027]: create_note
+                - text: and
+                - code [ref=e1028]: read_notes
+                - text: but forget
+                - code [ref=e1029]: update_note
+                - text: and
+                - code [ref=e1030]: delete_note
+                - text: . User asks the agent to "fix that typo in my meeting notes" and the agent can't help.
+        - generic [ref=e1031]:
+          - heading "Anti-patterns" [level=2] [ref=e1033]
+          - generic [ref=e1034]:
+            - heading "Common approaches that aren't fully agent-native" [level=3] [ref=e1035]
+            - paragraph [ref=e1036]: These aren't necessarily wrong—they may be appropriate for your use case. But they're worth recognizing as different from the architecture this document describes.
+            - generic [ref=e1037]:
+              - generic [ref=e1038]:
+                - heading "Agent as router" [level=4] [ref=e1039]
+                - paragraph [ref=e1040]:
+                  - text: The agent figures out what the user wants, then calls the right function. The agent's intelligence is used to
+                  - emphasis [ref=e1041]: route
+                  - text: ", not to"
+                  - emphasis [ref=e1042]: act
+                  - text: . This can work, but you're using a fraction of what agents can do.
+              - generic [ref=e1043]:
+                - heading "Build the app, then add agent" [level=4] [ref=e1044]
+                - paragraph [ref=e1045]: You build features the traditional way (as code), then expose them to an agent. The agent can only do what your features already do. You won't get emergent capability.
+              - generic [ref=e1046]:
+                - heading "Request/response thinking" [level=4] [ref=e1047]
+                - paragraph [ref=e1048]: "Agent gets input, does one thing, returns output. This misses the loop: Agent gets an outcome to achieve, operates until it's done, handles unexpected situations along the way."
+              - generic [ref=e1049]:
+                - heading "Defensive tool design" [level=4] [ref=e1050]
+                - paragraph [ref=e1051]: You over-constrain tool inputs because you're used to defensive programming. Strict enums, validation at every layer. This is safe, but it prevents the agent from doing things you didn't anticipate.
+              - generic [ref=e1052]:
+                - heading "Happy path in code, agent just executes" [level=4] [ref=e1053]
+                - paragraph [ref=e1054]: Traditional software handles edge cases in code—you write the logic for what happens when X goes wrong. Agent-native lets the agent handle edge cases with judgment. If your code handles all the edge cases, the agent is just a caller.
+          - heading "Specific anti-patterns" [level=3] [ref=e1055]
+          - generic [ref=e1056]:
+            - heading "Agent executes your workflow instead of pursuing outcomes" [level=4] [ref=e1057]
+            - paragraph [ref=e1058]: You wrote the logic, agent just calls it. Decisions live in code, not agent judgment.
+            - code [ref=e1060]: "# Wrong - you wrote the workflow def process_request(input): category = categorize(input) # your code decides priority = score_priority(input) # your code decides store(input, category, priority) if priority > 3: notify() # your code decides # Right - agent pursues outcome in a loop tools: store_item, send_notification prompt: \"Evaluate urgency 1-5, store with your assessment, notify if >= 4\""
+          - generic [ref=e1061]:
+            - generic [ref=e1062]:
+              - heading "Workflow-shaped tools" [level=4] [ref=e1063]
+              - paragraph [ref=e1064]:
+                - code [ref=e1065]: analyze_and_organize
+                - text: bundles judgment into the tool. Break it into primitives and let the agent compose them.
+            - generic [ref=e1066]:
+              - heading "Orphan UI actions" [level=4] [ref=e1067]
+              - paragraph [ref=e1068]: "User can do something through the UI that the agent can't achieve. Fix: Maintain parity."
+            - generic [ref=e1069]:
+              - heading "Context starvation" [level=4] [ref=e1070]
+              - paragraph [ref=e1071]: Agent doesn't know what exists. User says "organize my notes" and agent doesn't know there are notes.
+              - paragraph [ref=e1072]: "Fix: Inject available resources and capabilities into system prompt."
+            - generic [ref=e1073]:
+              - heading "Gates without reason" [level=4] [ref=e1074]
+              - paragraph [ref=e1075]: Domain tool is the only way to do something, and you didn't intend to restrict access.
+              - paragraph [ref=e1076]: "Fix: Default to open. Keep primitives available unless there's a specific reason to gate."
+            - generic [ref=e1077]:
+              - heading "Artificial capability limits" [level=4] [ref=e1078]
+              - paragraph [ref=e1079]: Restricting what the agent can do out of vague safety concerns rather than specific risks.
+              - paragraph [ref=e1080]: The agent should generally be able to do what users can do. Use approval flows for destructive actions rather than removing capabilities entirely.
+            - generic [ref=e1081]:
+              - heading "Static mapping when dynamic would serve better" [level=4] [ref=e1082]
+              - paragraph [ref=e1083]: Building 50 tools for 50 API endpoints when a discover + access pattern would give more flexibility and future-proof the system.
+            - generic [ref=e1084]:
+              - heading "Heuristic completion detection" [level=4] [ref=e1085]
+              - paragraph [ref=e1086]: Detecting agent completion through heuristics (consecutive iterations without tool calls, checking for expected output files) is fragile.
+              - paragraph [ref=e1087]: "Fix: Require agents to explicitly signal completion through a completion tool."
+        - generic [ref=e1088]:
+          - heading "Success criteria" [level=2] [ref=e1090]
+          - generic [ref=e1091]:
+            - generic [ref=e1092]:
+              - heading "Architecture" [level=3] [ref=e1093]
+              - list [ref=e1094]:
+                - listitem [ref=e1095]:
+                  - generic [ref=e1096] [cursor=pointer]:
+                    - checkbox "The agent can achieve anything users can achieve through the UI (parity)" [ref=e1097]
+                    - img [ref=e1099]
+                    - generic [ref=e1101]: The agent can achieve anything users can achieve through the UI (parity)
+                - listitem [ref=e1102]:
+                  - generic [ref=e1103] [cursor=pointer]:
+                    - checkbox "Tools are atomic primitives; domain tools are shortcuts, not gates (granularity)" [ref=e1104]
+                    - img [ref=e1106]
+                    - generic [ref=e1108]: Tools are atomic primitives; domain tools are shortcuts, not gates (granularity)
+                - listitem [ref=e1109]:
+                  - generic [ref=e1110] [cursor=pointer]:
+                    - checkbox "New features can be added by writing new prompts (composability)" [ref=e1111]
+                    - img [ref=e1113]
+                    - generic [ref=e1115]: New features can be added by writing new prompts (composability)
+                - listitem [ref=e1116]:
+                  - generic [ref=e1117] [cursor=pointer]:
+                    - checkbox "The agent can accomplish tasks you didn't explicitly design for (emergent capability)" [ref=e1118]
+                    - img [ref=e1120]
+                    - generic [ref=e1122]: The agent can accomplish tasks you didn't explicitly design for (emergent capability)
+                - listitem [ref=e1123]:
+                  - generic [ref=e1124] [cursor=pointer]:
+                    - checkbox "Changing behavior means editing prompts, not refactoring code" [ref=e1125]
+                    - img [ref=e1127]
+                    - generic [ref=e1129]: Changing behavior means editing prompts, not refactoring code
+            - generic [ref=e1130]:
+              - heading "Implementation" [level=3] [ref=e1131]
+              - list [ref=e1132]:
+                - listitem [ref=e1133]:
+                  - generic [ref=e1134] [cursor=pointer]:
+                    - checkbox "System prompt includes available resources and capabilities" [ref=e1135]
+                    - img [ref=e1137]
+                    - generic [ref=e1139]: System prompt includes available resources and capabilities
+                - listitem [ref=e1140]:
+                  - generic [ref=e1141] [cursor=pointer]:
+                    - checkbox "Agent and user work in the same data space" [ref=e1142]
+                    - img [ref=e1144]
+                    - generic [ref=e1146]: Agent and user work in the same data space
+                - listitem [ref=e1147]:
+                  - generic [ref=e1148] [cursor=pointer]:
+                    - checkbox "Agent actions reflect immediately in the UI" [ref=e1149]
+                    - img [ref=e1151]
+                    - generic [ref=e1153]: Agent actions reflect immediately in the UI
+                - listitem [ref=e1154]:
+                  - generic [ref=e1155] [cursor=pointer]:
+                    - checkbox "Every entity has full CRUD capability" [ref=e1156]
+                    - img [ref=e1158]
+                    - generic [ref=e1160]: Every entity has full CRUD capability
+                - listitem [ref=e1161]:
+                  - generic [ref=e1162] [cursor=pointer]:
+                    - checkbox "External APIs use dynamic capability discovery where appropriate" [ref=e1163]
+                    - img [ref=e1165]
+                    - generic [ref=e1167]: External APIs use dynamic capability discovery where appropriate
+                - listitem [ref=e1168]:
+                  - generic [ref=e1169] [cursor=pointer]:
+                    - checkbox "Agents explicitly signal completion (no heuristic detection)" [ref=e1170]
+                    - img [ref=e1172]
+                    - generic [ref=e1174]: Agents explicitly signal completion (no heuristic detection)
+            - generic [ref=e1175]:
+              - heading "Product" [level=3] [ref=e1176]
+              - list [ref=e1177]:
+                - listitem [ref=e1178]:
+                  - generic [ref=e1179] [cursor=pointer]:
+                    - checkbox "Simple requests work immediately with no learning curve" [ref=e1180]
+                    - img [ref=e1182]
+                    - generic [ref=e1184]: Simple requests work immediately with no learning curve
+                - listitem [ref=e1185]:
+                  - generic [ref=e1186] [cursor=pointer]:
+                    - checkbox "Power users can push the system in unexpected directions" [ref=e1187]
+                    - img [ref=e1189]
+                    - generic [ref=e1191]: Power users can push the system in unexpected directions
+                - listitem [ref=e1192]:
+                  - generic [ref=e1193] [cursor=pointer]:
+                    - checkbox "You're learning what users want by observing what they ask the agent to do" [ref=e1194]
+                    - img [ref=e1196]
+                    - generic [ref=e1198]: You're learning what users want by observing what they ask the agent to do
+                - listitem [ref=e1199]:
+                  - generic [ref=e1200] [cursor=pointer]:
+                    - checkbox "Approval requirements match stakes and reversibility" [ref=e1201]
+                    - img [ref=e1203]
+                    - generic [ref=e1205]: Approval requirements match stakes and reversibility
+            - generic [ref=e1206]:
+              - heading "Mobile" [level=3] [ref=e1207]
+              - list [ref=e1208]:
+                - listitem [ref=e1209]:
+                  - generic [ref=e1210] [cursor=pointer]:
+                    - checkbox "Checkpoint/resume handles app interruption" [ref=e1211]
+                    - img [ref=e1213]
+                    - generic [ref=e1215]: Checkpoint/resume handles app interruption
+                - listitem [ref=e1216]:
+                  - generic [ref=e1217] [cursor=pointer]:
+                    - checkbox "iCloud-first storage with local fallback" [ref=e1218]
+                    - img [ref=e1220]
+                    - generic [ref=e1222]: iCloud-first storage with local fallback
+                - listitem [ref=e1223]:
+                  - generic [ref=e1224] [cursor=pointer]:
+                    - checkbox "Background execution uses available time wisely" [ref=e1225]
+                    - img [ref=e1227]
+                    - generic [ref=e1229]: Background execution uses available time wisely
+          - generic [ref=e1230]:
+            - heading "The ultimate test" [level=3] [ref=e1231]
+            - paragraph [ref=e1232]: Describe an outcome to the agent that's within your application's domain but that you didn't build a specific feature for.
+            - paragraph [ref=e1233]: Can it figure out how to accomplish it, operating in a loop until it succeeds?
+            - generic [ref=e1234]:
+              - generic [ref=e1237]: If yes—you've built something agent-native.
+              - generic [ref=e1240]: If no—your architecture is too constrained.
+    - contentinfo [ref=e1241]:
+      - generic [ref=e1242]:
+        - generic [ref=e1243]:
+          - img "Every" [ref=e1245]
+          - heading "What Comes Next" [level=2] [ref=e1246]
+          - paragraph [ref=e1247]: New ideas to help you build the future—in your inbox, every day.
+          - generic [ref=e1248]:
+            - generic [ref=e1249]: Email address
+            - generic [ref=e1250]:
+              - generic [ref=e1251]:
+                - img "Arrow Right" [ref=e1252]
+                - textbox "example@domain.com" [ref=e1253]
+              - button "Subscribe" [ref=e1254] [cursor=pointer]
+            - paragraph [ref=e1255]:
+              - link "Do Not Sell or Share My Personal Information" [ref=e1256] [cursor=pointer]:
+                - /url: "#"
+          - paragraph [ref=e1257]:
+            - text: This site is protected by reCAPTCHA and the Google
+            - link "Privacy Policy" [ref=e1258] [cursor=pointer]:
+              - /url: https://policies.google.com/privacy
+            - text: and
+            - link "Terms of Service" [ref=e1259] [cursor=pointer]:
+              - /url: https://policies.google.com/terms
+            - text: apply.
+        - generic [ref=e1260]:
+          - generic [ref=e1261]:
+            - link "About" [ref=e1262] [cursor=pointer]:
+              - /url: /about
+            - link "Careers" [ref=e1263] [cursor=pointer]:
+              - /url: /careers
+            - link "Help center" [ref=e1264] [cursor=pointer]:
+              - /url: https://help.every.to
+            - link "Privacy Preferences" [ref=e1265] [cursor=pointer]:
+              - /url: "#"
+            - link "Advertise with us" [ref=e1266] [cursor=pointer]:
+              - /url: mailto:sponsorships@every.to
+            - link "The team" [ref=e1267] [cursor=pointer]:
+              - /url: /team
+            - link "FAQ" [ref=e1268] [cursor=pointer]:
+              - /url: /faq
+            - link "Terms" [ref=e1269] [cursor=pointer]:
+              - /url: /legal
+            - link "Site map" [ref=e1270] [cursor=pointer]:
+              - /url: /sitemap
+          - generic [ref=e1271]:
+            - link "X Arrow Out" [ref=e1272] [cursor=pointer]:
+              - /url: https://x.com/every
+              - text: X
+              - img "Arrow Out" [ref=e1273]
+            - link "LinkedIn Arrow Out" [ref=e1274] [cursor=pointer]:
+              - /url: https://www.linkedin.com/company/everyinc
+              - text: LinkedIn
+              - img "Arrow Out" [ref=e1275]
+            - link "YouTube Arrow Out" [ref=e1276] [cursor=pointer]:
+              - /url: https://youtube.com/@everyinc
+              - text: YouTube
+              - img "Arrow Out" [ref=e1277]
+        - generic [ref=e1278]: ©2026 Every Media, Inc.
+  - generic:
+    - paragraph: We use analytics and advertising tools by default. You can update this anytime.
+    - generic:
+      - button "Privacy Preferences"
+      - button "Do Not Sell or Share"
+  - generic:
+    - generic:
+      - heading [level=3]: Privacy Preferences
+      - button: x
+    - paragraph: Manage optional tracking categories. Necessary cookies stay on so the site can function.
+    - generic:
+      - generic: Analytics
+      - checkbox
+    - generic:
+      - generic: Advertising and sharing
+      - checkbox
+    - generic:
+      - button: Cancel
+      - button: Save Preferences
