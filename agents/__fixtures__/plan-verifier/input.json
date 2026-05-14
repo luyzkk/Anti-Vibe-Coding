@@ -1,0 +1,5 @@
+{
+  "plan_path": "docs/exec-plans/active/example-feature/plano01/",
+  "phases_to_verify": ["fase-01-foo.md", "fase-02-bar.md"],
+  "context": "Plano 01 de feature simples; verificar coverage de CAs, sizing total, grafo de dependencias."
+}

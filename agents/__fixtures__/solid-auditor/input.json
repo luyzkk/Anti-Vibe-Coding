@@ -1,0 +1,9 @@
+{
+  "files": [
+    {
+      "path": "src/services/OrderService.ts",
+      "content": "export class OrderService {\n  async createOrder(data) {\n    const validated = this.validate(data);\n    const order = await this.db.insert(validated);\n    await this.emailClient.send(order.userEmail, 'Order confirmed');\n    await this.metrics.increment('orders.created');\n    return order;\n  }\n\n  validate(data) { /* ... */ }\n}"
+    }
+  ],
+  "scope": "Auditar adesao aos principios SOLID; foco em SRP e DI"
+}

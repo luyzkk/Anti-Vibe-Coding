@@ -1,0 +1,9 @@
+{
+  "files": [
+    {
+      "path": "src/components/UserProfile.tsx",
+      "content": "import { useState, useEffect } from 'react';\nimport { fetchUser } from '../api';\n\nexport function UserProfile({ userId }) {\n  const [user, setUser] = useState(null);\n\n  useEffect(() => {\n    fetchUser(userId).then(setUser);\n  }, []);\n\n  return <div>{user?.name}</div>;\n}"
+    }
+  ],
+  "scope": "Auditar hooks e side effects do componente UserProfile; verificar compliance com regras do React"
+}

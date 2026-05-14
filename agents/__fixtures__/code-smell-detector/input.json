@@ -1,0 +1,9 @@
+{
+  "files": [
+    {
+      "path": "src/utils/formatCurrency.ts",
+      "content": "export function formatCurrency(amount: number, currency: string): string {\n  return new Intl.NumberFormat('pt-BR', {\n    style: 'currency',\n    currency,\n  }).format(amount);\n}"
+    }
+  ],
+  "scope": "Detectar code smells: Long Method, Feature Envy, Data Clumps, Magic Numbers, duplicacao"
+}

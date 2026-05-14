@@ -1,0 +1,25 @@
+{
+  "contract_version": "1.0",
+  "agent": "api-auditor",
+  "kind": "audit",
+  "status": "complete",
+  "reasoning": "POST /orders/:id/pay nao e idempotente — double-submit (timeout + retry do cliente) cobra duas vezes o mesmo pedido sem idempotency key ou verificacao de estado previo. POST /orders nao valida corpo da requisicao antes de persistir, expondo o banco a dados malformados. Ambos sao problemas de seguranca e confiabilidade em endpoints de producao.",
+  "payload": {
+    "domain_status": "issues_found",
+    "issues": [
+      {
+        "severity": "high",
+        "file": "src/routes/orders.ts",
+        "line": 7,
+        "description": "POST /orders/:id/pay sem idempotency key — retry automatico do cliente pode cobrar duas vezes; implementar idempotency-key header ou verificar status do pagamento antes de cobrar"
+      },
+      {
+        "severity": "medium",
+        "file": "src/routes/orders.ts",
+        "line": 2,
+        "description": "POST /orders sem validacao de corpo — req.body passado diretamente para db.create; adicionar schema validation (zod/joi) antes de persistir"
+      }
+    ]
+  },
+  "metadata": { "run_id": "test-api-auditor-001", "duration_ms": 0, "model": "test" }
+}

@@ -1,0 +1,27 @@
+{
+  "contract_version": "1.0",
+  "agent": "plan-executor",
+  "kind": "verification",
+  "status": "complete",
+  "reasoning": "4 das 5 tasks rodaram e entregaram o envelope v1 em cada prompt de auditoria. Task lint-diff pulada porque o projeto nao tem markdownlint configurado — nao bloqueia merge, mas vale registrar para Plano 05 considerar adicionar lint de markdown.",
+  "payload": {
+    "domain_status": "partial",
+    "checks": [
+      { "name": "edit-react-auditor", "status": "pass", "detail": "envelope v1 aplicado ao prompt react-auditor" },
+      { "name": "edit-solid-auditor", "status": "pass", "detail": "envelope v1 aplicado ao prompt solid-auditor" },
+      { "name": "edit-code-smell-detector", "status": "pass", "detail": "envelope v1 aplicado ao prompt code-smell-detector" },
+      { "name": "edit-tdd-verifier", "status": "pass", "detail": "envelope v1 aplicado ao prompt tdd-verifier" },
+      { "name": "lint-diff", "status": "unable_to_verify", "detail": "markdownlint nao configurado no projeto — task pulada" }
+    ],
+    "tasks_completed": [
+      { "id": "edit-react-auditor", "summary": "envelope v1 aplicado ao prompt" },
+      { "id": "edit-solid-auditor", "summary": "envelope v1 aplicado ao prompt" },
+      { "id": "edit-code-smell-detector", "summary": "envelope v1 aplicado ao prompt" },
+      { "id": "edit-tdd-verifier", "summary": "envelope v1 aplicado ao prompt" }
+    ],
+    "tasks_skipped": [
+      { "id": "lint-diff", "summary": "verificacao de markdown lint", "reason": "linter nao configurado" }
+    ]
+  },
+  "metadata": { "run_id": "test-plan-executor-001", "duration_ms": 0, "model": "test" }
+}

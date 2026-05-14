@@ -1,0 +1,24 @@
+{
+  "contract_version": "1.0",
+  "agent": "security-auditor",
+  "kind": "audit",
+  "status": "complete",
+  "reasoning": "Encontrei MD5 usado para hash de senha em src/auth.ts:5 (algoritmo quebrado, criticamente inseguro) e SQL concatenado manualmente em src/api.ts:3 (injection). Ambos sao padroes claros documentados, sem nada fora do schema esperado.",
+  "payload": {
+    "domain_status": "critical_issues",
+    "issues": [
+      {
+        "severity": "critical",
+        "file": "src/auth.ts",
+        "line": 5,
+        "description": "MD5 usado para hash de senha — substituir por bcrypt/Argon2"
+      },
+      {
+        "severity": "high",
+        "file": "src/api.ts",
+        "line": 3,
+        "description": "SQL concatenado manualmente — usar prepared statement / parametrized query"
+      }
+    ]
+  }
+}

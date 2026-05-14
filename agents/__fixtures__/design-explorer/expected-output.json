@@ -1,0 +1,25 @@
+{
+  "contract_version": "1.0",
+  "agent": "design-explorer",
+  "kind": "proposal",
+  "status": "complete",
+  "reasoning": "A constraint 'sem novas deps' do input conflita com a Recommendation natural (lib de cache wrapper). Sinalizado como tradeoff #2. Tambem notei que o problema admite serverless KV que o input nao mencionou — incluida como Alternative B para o operador considerar se a restricao de deps for relaxada.",
+  "payload": {
+    "proposal": {
+      "title": "Cache Redis com TTL adaptativo",
+      "summary": "Cache de leitura no /api/lessons com TTL ajustado por latencia upstream. Falha aberta — endpoint degrada para Postgres se Redis cair.",
+      "constraints": ["Latencia P99 <100ms", "Sem novas deps de runtime", "Horizontal scaling OK", "Falha aberta se cache cair"],
+      "tradeoffs": [
+        { "axis": "consistencia x latencia", "choice": "TTL 30s favorece latencia; staleness aceitavel para lessons (conteudo muda raramente)" },
+        { "axis": "complexidade x deps", "choice": "Redis ja existe na stack — reuso vence Alternative B (KV serverless introduziria dep nova)" }
+      ],
+      "recommendation": "Alternative A: Redis com TTL adaptativo. Redis ja esta na stack, implementacao em menos de 1 dia, atende constraint de sem novas deps.",
+      "alternatives": [
+        { "id": "B", "title": "Cloudflare KV", "rejected_because": "Introduz dep nova de runtime, viola constraint explicita do input." },
+        { "id": "C", "title": "Otimizar query SQL", "rejected_because": "Nao resolve P99 sob trafego pico de 50req/s sem cache — gargalo e I/O, nao CPU da query." }
+      ]
+    }
+  },
+  "human_readable": "## Context\nEndpoint /api/lessons tem P99 de 800ms sob trafego de 50req/s. O alvo e 100ms. Redis ja existe na stack (Node + Postgres + Redis). A constraint central e nao introduzir novas deps de runtime.\n\n## Constraints\n- Latencia P99 <100ms\n- Sem novas deps de runtime\n- Horizontal scaling OK (Redis compartilhado entre instancias)\n- Falha aberta: se Redis cair, request cai para Postgres sem erro 500\n\n## Alternatives\n### A — Redis TTL adaptativo (RECOMENDADA)\nRedis ja existe na stack. Implementar cache-aside: antes de query Postgres, verificar chave no Redis. TTL inicial 30s, ajustavel por metrica de staleness. Falha aberta implementada com try/catch no client Redis.\n\n### B — Cloudflare KV\nCache serverless distribuido globalmente. Baixa latencia de leitura. Porem introduce dep nova de runtime, violando constraint explicita.\n\n### C — Otimizar query SQL\nAdicionar indices e reescrever query. Nao resolve o gargalo principal — com 50req/s pico, o bottleneck e I/O agregado, nao custo de parse da query.\n\n## Tradeoffs\nConsistencia x latencia: TTL 30s tolera staleness de lessons — conteudo editorial muda com baixa frequencia, staleness aceitavel.\nComplexidade x deps: Redis ja na stack elimina overhead de onboarding de nova dep; vence Alternative B.\n\n## Recommendation\nAlternative A. Redis com TTL adaptativo cobre todos os constraints sem adicionar deps novas. Implementacao estimada em menos de 1 dia.\n\n## Risks\n- Cache stampede em invalidacao em massa (ex: deploy de novo conteudo)\n- Memoria Redis sob pressao em pico se chaves nao expirarem uniformemente\n- TTL fixo pode ser alto demais em lessons com atualizacao urgente\n\n## Open Questions\n- TTL fixo (30s) ou adaptativo (ajusta por p95 do upstream) no v1?\n- Invalidacao ativa necessaria ou TTL e suficiente para o SLA?\n\n## References\n- docs/architecture/cache.md (se existir)\n- Redis docs: cache-aside pattern",
+  "metadata": { "run_id": "fixture-de-001", "duration_ms": 3400, "model": "sonnet" }
+}

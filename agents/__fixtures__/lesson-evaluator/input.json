@@ -1,0 +1,7 @@
+{
+  "lesson_path": "docs/compound/2026-05-14-reasoning-forca-observacao-meta.md",
+  "lesson_content": "## Contexto\nEm 3 ocasioes no Plano 02 fase-01, o agente emitiu reasoning genericos copiados entre auditores distintos.\n\n## Evidencia\n- fase-01 security-auditor: reasoning identico ao design-explorer\n- fase-02 plan-verifier: reasoning com 22 chars (threshold de warning)\n- fase-03 design-explorer: reasoning repetido de fixture piloto\n\n## Prescricao\nManter campo reasoning obrigatorio com minimo 50 chars e vocabulario especifico do dominio. Adicionar verificacao no parser (REASONING_LIKELY_WEAK) para detectar fraqueza automaticamente.\n\n## Aplicabilidade\nQualquer agente que emita envelope v1.",
+  "related_lessons": [
+    "docs/compound/2026-04-12-formatacao-prompts.md"
+  ]
+}

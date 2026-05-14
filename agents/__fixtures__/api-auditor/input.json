@@ -1,0 +1,9 @@
+{
+  "files": [
+    {
+      "path": "src/routes/orders.ts",
+      "content": "router.post('/orders', async (req, res) => {\n  const order = await db.orders.create(req.body);\n  await notificationService.send(order);\n  res.status(201).json(order);\n});\n\nrouter.post('/orders/:id/pay', async (req, res) => {\n  await paymentGateway.charge(req.params.id, req.body.amount);\n  res.json({ ok: true });\n});"
+    }
+  ],
+  "scope": "Auditar design REST: idempotencia, status codes, seguranca, validacao de entrada"
+}

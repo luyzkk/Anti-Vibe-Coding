@@ -1,0 +1,19 @@
+{
+  "contract_version": "1.0",
+  "agent": "database-analyzer",
+  "kind": "audit",
+  "status": "complete",
+  "reasoning": "Indice idx_orders_status_created coloca status (baixa cardinalidade — enum 3-5 valores) antes de created_at (alta cardinalidade — timestamp) invertendo a ordem otima para a query frequente que filtra por created_at > $1. O Postgres vai fazer full scan no indice pela baixa seletividade de status. Inverter para (created_at, status) reduz I/O em queries de range por data em producao.",
+  "payload": {
+    "domain_status": "critical",
+    "issues": [
+      {
+        "severity": "critical",
+        "file": "migrations/0012_add_orders_index.sql",
+        "line": 1,
+        "description": "Ordem das colunas no indice invertida: status tem baixa cardinalidade e prejudica seletividade do range scan em created_at — recriar como (created_at, status) para a query frequente de pedidos pendentes por data"
+      }
+    ]
+  },
+  "metadata": { "run_id": "test-database-analyzer-001", "duration_ms": 0, "model": "test" }
+}

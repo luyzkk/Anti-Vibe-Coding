@@ -1,0 +1,25 @@
+{
+  "contract_version": "1.0",
+  "agent": "solid-auditor",
+  "kind": "audit",
+  "status": "complete",
+  "reasoning": "OrderService viola SRP ao concentrar validacao, persistencia, notificacao por email e instrumentacao de metricas em um unico metodo createOrder. Qualquer mudanca em regra de email ou metrica exige editar a mesma classe — risco de regressao cruzada. Extrair EmailNotifier e MetricsRecorder como dependencias injetaveis resolve SRP e facilita testes unitarios isolados.",
+  "payload": {
+    "domain_status": "issues_found",
+    "issues": [
+      {
+        "severity": "high",
+        "file": "src/services/OrderService.ts",
+        "line": 4,
+        "description": "SRP violado: OrderService gerencia persistencia + notificacao por email + metricas no mesmo metodo — extrair EmailNotifier e MetricsRecorder como dependencias injetaveis"
+      },
+      {
+        "severity": "medium",
+        "file": "src/services/OrderService.ts",
+        "line": 3,
+        "description": "DI ausente: emailClient e metrics instanciados implicitamente — impossibilita mock em testes unitarios de createOrder"
+      }
+    ]
+  },
+  "metadata": { "run_id": "test-solid-auditor-001", "duration_ms": 0, "model": "test" }
+}
