@@ -75,6 +75,7 @@ async function main(): Promise<void> {
     checkAgentsConstraints(failures),
     checkActivePlans(failures),
     checkQualityScoreFormat(failures),
+    checkAgentContracts(failures), // 2026-05-14 (Luiz/dev): novo — CA-10
   ])
 
   // Coleta de markdown e recursiva — executa apos checks basicos mas internamente paralela.
@@ -160,6 +161,53 @@ async function checkQualityScoreFormat(failures: Failure[]): Promise<void> {
       rule: 'quality-score-format',
       message: 'docs/QUALITY_SCORE.md must contain the score table header "| Area | Score | Notes | Next Action |"',
     })
+  }
+}
+
+// 2026-05-14 (Luiz/dev): contract v1 prompt check — PRD CA-10 + RF-MH-02.
+// Regex linha-por-linha (G-P05-01): nao parse YAML completo. <50ms para 13 arquivos.
+// Tokens obrigatorios sao instrucoes literais que o prompt do agent precisa conter
+// para o LLM emitir envelope v1. Ausencia = prompt regrediu.
+// Glob agents/*.md (apenas top-level, nao recursivo — fixtures vivem em __fixtures__/).
+// Arquivos comecando com _ sao ignorados (_contract/, _archived/).
+const CONTRACT_TOKENS = [
+  'contract_version',
+  '"1.0"',
+  'kind',
+  'status',
+  'reasoning',
+  'payload',
+] as const
+
+export async function checkAgentContracts(
+  failures: Failure[],
+  agentsDir = 'agents',
+): Promise<void> {
+  let entries
+  try {
+    entries = await fs.readdir(path.join(root, agentsDir), { withFileTypes: true })
+  } catch {
+    // Diretorio ausente: nao ha agents para validar — nao e falha do check.
+    return
+  }
+  const agentFiles = entries
+    .filter((e) => e.isFile() && String(e.name).endsWith('.md') && !String(e.name).startsWith('_'))
+    .map((e) => path.join(agentsDir, String(e.name)))
+
+  for (const file of agentFiles) {
+    let content: string
+    try {
+      content = await fs.readFile(path.join(root, file), 'utf8')
+    } catch {
+      continue
+    }
+    const missing = CONTRACT_TOKENS.filter((token) => !content.includes(token))
+    if (missing.length > 0) {
+      failures.push({
+        rule: 'agent-contract-v1',
+        message: `${file}: missing contract v1 tokens in prompt: ${missing.join(', ')}. See docs/design-docs/subagent-contract-v1.md.`,
+      })
+    }
   }
 }
 
@@ -349,4 +397,9 @@ async function collectMarkdownFiles(startDir: string): Promise<string[]> {
   }
 }
 
-await main()
+// 2026-05-14 (Luiz/dev): guard para permitir import do modulo em testes (Plano 05 fase-01).
+// import.meta.main e true apenas quando executado como script principal (bun scripts/harness-validate.ts).
+// Quando importado por testes, main() nao roda — apenas as funcoes exportadas ficam disponiveis.
+if (import.meta.main) {
+  await main()
+}
