@@ -1,9 +1,12 @@
+<!-- 2026-05-14 (Luiz/dev): Agent e Bash adicionados para permitir delegacao opcional a auditores em v6.2.
+     v6.1.0 mantem checklist inline como default — Agent so e usado se dev pedir explicitamente.
+     Bash adicionado para harness/validate se aplicavel. Nao muda fluxo padrao. -->
 ---
 name: anti-vibe-review
 description: "This skill should be used when the user asks to 'review my code', 'audit this module', 'run anti-vibe review', 'check code quality', 'post-implementation review', or after completing a feature implementation. Executes a read-only post-implementation audit covering TDD compliance, code patterns, architecture, error handling, and security."
 user-invocable: true
 disable-model-invocation: false
-allowed-tools: Read, Grep, Glob
+allowed-tools: Read, Grep, Glob, Agent, Bash
 context: fork
 agent: Explore
 argument-hint: "[module or directory to review]"
@@ -130,6 +133,22 @@ Antes de spawnar agentes auditores (se aplicavel):
 
 ### Recomendacoes
 [Sugestoes de melhoria com referencia a skill relevante]
+
+### Reasoning dos auditores (apenas quando delegacao opcional foi usada)
+
+{Para cada agent em consolidation.reasoningByAgent:}
+**{agent}**: {reasoning}
+
+{Se algum agent em incomplete[]:}
+**{agent}** (incomplete): {reason}
+
+### Domain Status por auditor (apenas quando delegacao opcional foi usada)
+
+| Auditor | domain_status |
+|---------|---------------|
+| security-auditor | {clean / issues_found / critical} |
+| code-smell-detector | {clean / issues_found / critical} |
+| tdd-verifier | {clean / issues_found / critical} |
 </report-template>
 
 <context>
@@ -142,6 +161,42 @@ Para comparar codigo antes e depois da revisao sem perder o trabalho original:
 4. Comparar com `git diff` — staged = codigo original, unstaged = codigo revisado
 5. Aceitar ou rejeitar cada melhoria individualmente com `git add -p`
 </context>
+
+## Delegacao Opcional a Auditores (v6.1.0+)
+
+Por padrao, este skill avalia o checklist inline diretamente — o orquestrador (Claude) le os arquivos
+e pontua cada item. Esse fluxo nao mudou em v6.1.0.
+
+Para fluxo automatizado (delegar partes do checklist a auditores especializados), use:
+
+```typescript
+// 2026-05-14 (Luiz/dev): delegacao opcional — PRD §Decisoes #5 (handler unico por kind)
+// Default em v6.1.0 e manter checklist inline. Esta delegacao e opt-in.
+
+import { invokeAndConsolidate } from '../verify-work/lib/audit-consolidator'
+
+// Spawn dos auditores aplicaveis (subset do verify-work)
+const consolidation = await invokeAndConsolidate([
+  { agent: 'security-auditor', invoke: () => spawnAudit('security-auditor', files) },
+  { agent: 'code-smell-detector', invoke: () => spawnAudit('code-smell-detector', files) },
+  { agent: 'tdd-verifier', invoke: () => spawnAudit('tdd-verifier', files) },
+])
+
+// Mesmo shape do verify-work — alimenta secoes 1, 2, 4 do checklist
+// (TDD, Padroes de Codigo, Error Handling tem auditores correspondentes;
+// secoes 3, 5, 6, 7 ainda dependem do orquestrador avaliar inline).
+```
+
+**Quando usar delegacao:**
+- Codebase grande (>50 arquivos no diff) onde leitura manual via checklist demora muito
+- Fluxo CI/CD que precisa de saida estruturada (JSON via consolidation, nao prosa)
+- Equipe quer reutilizar findings ja gerados pelo verify-work sem re-rodar tudo
+
+**Quando manter inline (default v6.1.0):**
+- Dev quer feedback educacional ao percorrer cada item do checklist (caso uso classico)
+- Codebase pequeno onde overhead de spawn nao compensa
+- Foco em itens que nao tem auditor dedicado (Arquitetura, Seguranca contextual, React patterns)
+- Skill usa `context: fork` — invocar Agent dentro de fork spawna sub-fork, overhead de contexto adicional
 
 ## Modulo a revisar
 
