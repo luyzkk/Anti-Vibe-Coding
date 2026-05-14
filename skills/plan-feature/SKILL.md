@@ -68,7 +68,7 @@ Diferenca das outras skills:
 Estrutura gerada (dentro da pasta datada do PRD):
 
 ```
-.planning/
+docs/exec-plans/active/
 └── 2026-04-20-{feature-slug}/        ← criada pelo /write-prd
     ├── PRD.md                        ← ja existe
     ├── PLAN.md                       ← gerado aqui (overview)
@@ -101,22 +101,41 @@ Estrutura gerada (dentro da pasta datada do PRD):
 
 ## Step 0 — Deteccao de Legacy
 
-Roda ANTES de qualquer outra coisa. Se projeto tem estrutura pre-refatoracao
-(`PRD-*.md` ou `planoNN/` soltos em `.planning/`), esta skill nao consegue operar sem antes
-migrar — ou sem explicitamente ignorar.
+Roda ANTES de qualquer outra coisa. Detecta dois niveis de estrutura legacy:
 
-Algoritmo referenciado: `lib/legacy-detector.md`.
+- **v4 legacy**: `PRD-*.md` ou `planoNN/` soltos na raiz de `.planning/` (pre-pasta-datada)
+- **v5 legacy**: pastas `YYYY-MM-DD-slug/` dentro de `.planning/` (pre-v6, deve migrar para `docs/exec-plans/active/`)
+
+Algoritmo referenciado: `lib/legacy-detector.md` (v4 detection).
 Migracao referenciada: `lib/legacy-migrator.md`.
 
 ### Fluxo
 
 ```
-1. Se `.planning/` nao existe: skip Step 0, ir direto para Step 1 (projeto greenfield).
-2. Executar `detectLegacy(".planning/")` conforme `lib/legacy-detector.md`.
-3. Se `legacy == false`: skip — ir para Step 1.
-4. Se `legacy == true`:
+1. Se `.planning/` nao existe E `docs/exec-plans/active/` existe: skip Step 0, ir para Step 1.
+   Se nem `.planning/` nem `docs/exec-plans/active/` existem: skip Step 0, projeto greenfield.
+
+2. Verificar v5 legacy PRIMEIRO:
+   - Glob `.planning/YYYY-MM-DD-*/` (pastas datadas dentro de .planning/)
+   - Se encontrar pastas datadas: sao v5 legacy
+   - Apresentar ao dev:
+     "Detectei {N} pasta(s) v5 em .planning/ que devem migrar para docs/exec-plans/active/:
+        - .planning/2026-04-20-auth/
+        - .planning/2026-04-21-notificacoes/ ...
+      Deseja migrar agora?"
+   - AskUserQuestion: opcoes "Sim, migrar" / "Nao — usarei .planning/ (modo compatibilidade)" / "Cancelar"
+   - Se "Sim": mover cada .planning/YYYY-MM-DD-slug/ → docs/exec-plans/active/YYYY-MM-DD-slug/
+     (criar docs/exec-plans/active/ se nao existir)
+   - Se "Nao": setar BASE_PATH = ".planning/" e prosseguir (compatibilidade)
+   - Se "Cancelar": encerrar
+
+3. Verificar v4 legacy (apenas se nao havia v5 legacy):
+   - Executar `detectLegacy(".planning/")` conforme `lib/legacy-detector.md`
+   - Se `legacy == false`: skip — ir para Step 1
+
+4. Se v4 `legacy == true`:
    a. Apresentar ao dev:
-      "Detectei estrutura legacy em .planning/:
+      "Detectei estrutura v4 legacy em .planning/:
          Sinais: {signals.join(', ')}
          Artefatos:
            - {cada artifact.path}
@@ -129,28 +148,25 @@ Migracao referenciada: `lib/legacy-migrator.md`.
       - Se invalido: re-perguntar 1x; se continuar invalido: oferecer cancelar
    c. Computar nome da pasta: `targetFolderName = "{YYYY-MM-DD}-{slug}"`
       - Data: data atual no formato YYYY-MM-DD
-   d. Se `.planning/{targetFolderName}/` ja existir: avisar colisao e oferecer
+   d. Se `docs/exec-plans/active/{targetFolderName}/` ja existir: avisar colisao e oferecer
       `{targetFolderName}-v2` ou cancelar.
-      Mensagem: "A pasta {targetFolderName} ja existe. Possiveis causas:
-        - Outra sessao ja migrou esta feature
-        - Voce rodou plan-feature 2x hoje para a mesma feature
-        Opcoes: criar como {targetFolderName}-v2 / cancelar"
-   e. AskUserQuestion: "Migrar estes {N} artefatos para .planning/{targetFolderName}/?"
+   e. AskUserQuestion: "Migrar estes {N} artefatos para docs/exec-plans/active/{targetFolderName}/?"
       Opcoes:
         - "Sim, migrar agora"
         - "Nao — prosseguir com plan-feature em modo greenfield (legacy fica intocado)"
         - "Cancelar plan-feature"
    f. Se "Sim":
       - Chamar `migrateLegacy(detectorResult, targetFolderName)` conforme `lib/legacy-migrator.md`
+        (target path = "docs/exec-plans/active/{targetFolderName}/")
       - Se retorno status == "success":
-        - Confirmar: "Migrado com sucesso. {N} artefatos em .planning/{targetFolderName}/"
+        - Confirmar: "Migrado com sucesso. {N} artefatos em docs/exec-plans/active/{targetFolderName}/"
         - Continuar Step 1 com a pasta migrada como contexto ativo
       - Se retorno status == "rolled_back" ou "aborted":
         - Reportar erro claramente
         - Perguntar: "prosseguir em modo greenfield ou cancelar?"
    g. Se "Nao":
       - Confirmar: "Prosseguindo em modo greenfield. Legacy em .planning/ nao foi tocado."
-      - Ir para Step 1 (que vai criar nova pasta datada para a nova feature)
+      - Ir para Step 1
    h. Se "Cancelar":
       - Encerrar skill sem tocar em nada
 
@@ -158,6 +174,7 @@ Regras:
 - Step 0 roda apenas 1 vez por invocacao
 - Se migracao falhou (rolled_back): NAO insistir automaticamente — deixar dev corrigir
 - Slug fornecido pelo dev vale apenas para a sessao atual
+- BASE_PATH default = "docs/exec-plans/active/" (salvo se dev escolheu modo compatibilidade)
 ```
 
 ---
@@ -166,24 +183,24 @@ Regras:
 
 NOTA: Apos identificar o PRD, a skill fixa a PASTA_ATIVA = diretorio que contem `PRD.md`.
 TODOS os artefatos gerados por esta skill (PLAN.md, STATE.md, planoNN/) sao escritos
-dentro de PASTA_ATIVA. Nunca na raiz de `.planning/`.
+dentro de PASTA_ATIVA. Nunca fora da pasta do PRD.
 
 ### Caminho A: Caminho fornecido como argumento
 
 ```
 1. Se o dev passou caminho, aceita DOIS formatos:
 
-   a) Caminho de ARQUIVO: /plan-feature ".planning/2026-04-20-slug/PRD.md"
+   a) Caminho de ARQUIVO: /plan-feature "docs/exec-plans/active/2026-04-20-slug/PRD.md"
       - Validar que o arquivo existe
-      - PASTA_ATIVA = diretorio pai do arquivo (ex: ".planning/2026-04-20-slug/")
-      - Salvaguarda: se o caminho contem "_archive/", RECUSAR com:
-        "Este PRD esta arquivado. Mova para fora de `_archive/` se quiser re-planejar."
+      - PASTA_ATIVA = diretorio pai do arquivo (ex: "docs/exec-plans/active/2026-04-20-slug/")
+      - Salvaguarda: se o caminho contem "docs/exec-plans/_archive/" ou ".planning/", RECUSAR com:
+        "Este PRD esta arquivado ou em estrutura legada. Mova para docs/exec-plans/active/ se quiser re-planejar."
 
-   b) Caminho de PASTA: /plan-feature ".planning/2026-04-20-slug/"
+   b) Caminho de PASTA: /plan-feature "docs/exec-plans/active/2026-04-20-slug/"
       - PASTA_ATIVA = a propria pasta informada
       - Verificar existencia de "{PASTA_ATIVA}/PRD.md"
       - Se nao existir: "Nao encontrei PRD.md em {PASTA_ATIVA}. Quer criar com /write-prd?"
-      - Salvaguarda: se a pasta esta dentro de "_archive/", RECUSAR com a mesma mensagem acima
+      - Salvaguarda: se a pasta esta dentro de "docs/exec-plans/_archive/", RECUSAR com a mesma mensagem acima
 
    Apos identificar o arquivo PRD.md:
    - Ler com Read
@@ -204,13 +221,13 @@ dentro de PASTA_ATIVA. Nunca na raiz de `.planning/`.
 2. Prosseguir para Step 2
 ```
 
-### Caminho B: Buscar em .planning/ (nova estrutura — pastas datadas)
+### Caminho B: Buscar em docs/exec-plans/active/ (estrutura v6)
 
 ```
 1. Se nao forneceu caminho:
-   a. Enumerar pastas datadas em `.planning/` (mesmo algoritmo do execute-plan Step 1a)
-      - Glob `.planning/YYYY-MM-DD-*/`
-      - Excluir `_archive/`
+   a. Enumerar pastas datadas em `docs/exec-plans/active/` (mesmo algoritmo do execute-plan Step 1a)
+      - Glob `docs/exec-plans/active/YYYY-MM-DD-*/`
+      - Excluir `docs/exec-plans/_archive/`
       - Para cada pasta, ler `STATE.md` e extrair `Phase`
         (STATE.md usa "**Phase:**" bold — buscar com regex, nao grep literal)
       - Default filtrar: `planned` + `in-progress` + `paused`
@@ -228,11 +245,11 @@ dentro de PASTA_ATIVA. Nunca na raiz de `.planning/`.
       - Dev escolhe, le `{escolhida}/PRD.md`
       - PASTA_ATIVA = pasta escolhida (caminho ABSOLUTO)
    d. Se lista vazia:
-      - Se `--all` foi usado: "Nenhum PRD em .planning/." → Caminho C
+      - Se `--all` foi usado: "Nenhum PRD em docs/exec-plans/active/." → Caminho C
       - Se default: "Nenhum PRD ativo (planned/in-progress/paused). Rode /plan-feature --all para ver todos."
       - Oferecer Caminho C (PRD nao existe)
-   e. Se ZERO pastas datadas (independente de filtro):
-      - Verificar se ha PRD-*.md solto na raiz de .planning/ → legacy, nao migrar aqui
+   e. Se ZERO pastas datadas em docs/exec-plans/active/ (independente de filtro):
+      - Verificar se ha pastas em .planning/ → step 0 cuida disso se rodar antes
       - Oferecer Caminho C
 2. Prosseguir para Step 2 operando DENTRO da pasta escolhida
    (todos os outputs vao para `{pasta}/PLAN.md`, `{pasta}/STATE.md`,
@@ -242,7 +259,7 @@ dentro de PASTA_ATIVA. Nunca na raiz de `.planning/`.
 ### Caminho C: PRD nao existe
 
 ```
-1. Informar: "Nao encontrei nenhum PRD em .planning/."
+1. Informar: "Nao encontrei nenhum PRD em docs/exec-plans/active/."
 2. Oferecer: "Quer criar um com /write-prd?"
 3. Se o dev fornecer descricao inline: aceitar como PRD simplificado
    - Avisar: "Vou planejar com base nessa descricao, mas um PRD completo daria mais precisao."
@@ -254,7 +271,7 @@ dentro de PASTA_ATIVA. Nunca na raiz de `.planning/`.
 ## Step 1.5 — Detectar Ciclos em Requires
 
 ```
-1. Glob `.planning/YYYY-MM-DD-*/` (APENAS pastas ativas — NAO incluir `.planning/_archive/`)
+1. Glob `docs/exec-plans/active/YYYY-MM-DD-*/` (APENAS pastas ativas — NAO incluir `docs/exec-plans/_archive/`)
    - Se vazio ou apenas o PRD atual: pular este step silenciosamente
 2. Para cada pasta encontrada:
    a. Ler `PRD.md` dentro dela
@@ -262,7 +279,7 @@ dentro de PASTA_ATIVA. Nunca na raiz de `.planning/`.
    c. Extrair `requires:` normalizado como lista
    d. Para cada item em requires:
       - Se e pasta exata (`YYYY-MM-DD-slug`): usar diretamente
-      - Se e slug (`auth`): buscar pasta que termina em `-auth` em `.planning/YYYY-MM-DD-*/`
+      - Se e slug (`auth`): buscar pasta que termina em `-auth` em `docs/exec-plans/active/YYYY-MM-DD-*/`
       - Se nao encontrado ou ambiguo: ignorar silenciosamente (fase-01 ja reporta dangling)
    e. Registrar no grafo: `{nome_pasta: [dep1, dep2, ...]}`
 3. Incluir o PRD atual no grafo:
@@ -598,7 +615,7 @@ Uma fase DEVE conter:
 ## Step 8 — Salvar Overview e Criar Estrutura
 
 ```
-1. PASTA_ATIVA ja definida no Step 1 (ex: ".planning/2026-04-20-sistema-notificacoes/")
+1. PASTA_ATIVA ja definida no Step 1 (ex: "docs/exec-plans/active/2026-04-20-sistema-notificacoes/")
 2. Salvar overview em "{PASTA_ATIVA}/PLAN.md" (nu, sem prefixo)
    - Se ja existir: perguntar "Substituir ou cancelar?"
    (nota: colisao de v2 nao se aplica aqui — ja estamos DENTRO da pasta do PRD)
@@ -703,7 +720,7 @@ Para aprofundar: sugerir `/anti-vibe-coding:learn "vertical slices"` ou `/anti-v
 |---------|----------|
 | Planos criados, /execute-plan existe | "Quer prosseguir para /execute-plan? Ele vai executar plano por plano." |
 | Dev quer criar mais planos | "Criar Plano {N+1}?" |
-| Dev quer revisar plano especifico | "Os planos sao editaveis em .planning/plano{NN}/. Regenere com /plan-feature se a feature mudar." |
+| Dev quer revisar plano especifico | "Os planos sao editaveis em docs/exec-plans/active/{slug}/plano{NN}/. Regenere com /plan-feature se a feature mudar." |
 | Dev quer voltar ao PRD | "Quer ajustar o PRD antes de executar? Rode /write-prd para editar." |
 
 ---
@@ -711,21 +728,21 @@ Para aprofundar: sugerir `/anti-vibe-coding:learn "vertical slices"` ou `/anti-v
 ## Pipeline Integration
 
 ### 0. Deteccao de Legacy (ver Step 0 acima)
-Se detectar PRD/plano soltos na raiz de .planning/, oferece migrar antes de qualquer outro
-fluxo. Ver `lib/legacy-detector.md` e `lib/legacy-migrator.md`.
+Se detectar artefatos em `.planning/` (v4 ou v5), oferece migrar para `docs/exec-plans/active/`
+antes de qualquer outro fluxo. Ver `lib/legacy-detector.md` e `lib/legacy-migrator.md`.
 
 ### 1. Importar PRD (se disponivel)
 Antes de iniciar o planejamento, executar o Step 1 para localizar o PRD:
 
-- **Se encontrar PRD em pasta datada (`.planning/YYYY-MM-DD-{slug}/PRD.md`):** Importar automaticamente. Dizer ao dev:
-  > "Encontrei PRD em `.planning/{pasta}/PRD.md` do `/write-prd`. Vou usar este PRD como base."
+- **Se encontrar PRD em pasta datada (`docs/exec-plans/active/YYYY-MM-DD-{slug}/PRD.md`):** Importar automaticamente. Dizer ao dev:
+  > "Encontrei PRD em `docs/exec-plans/active/{pasta}/PRD.md` do `/write-prd`. Vou usar este PRD como base."
   Fixar PASTA_ATIVA = diretorio que contem o PRD.md (caminho absoluto).
   Usar os requisitos e escopo do PRD para guiar a decomposicao.
 
 - **Se NAO encontrar:** Prosseguir com o fluxo normal — perguntar ao dev o que planejar (Caminho C).
 
 ### 1. Importar CONTEXT (se disponivel)
-Se `.planning/CONTEXT-*.md` existir (do /grill-me):
+Se `{PASTA_ATIVA}/CONTEXT.md` existir (do /grill-me, movido pelo /write-prd):
 - Importar decisoes indexadas (D1, D2...)
 - Usar como restricoes na decomposicao
 - Referenciar decisoes nas fases: "Conforme D3: usar Supabase RLS"
@@ -752,17 +769,27 @@ Ao finalizar o overview (via Step 8):
 
 ## Output Format (v6 — D18)
 
+Os artefatos gerados ficam DENTRO da pasta `docs/exec-plans/active/YYYY-MM-DD-{slug}/`
+(PASTA_ATIVA). Estrutura:
+
 ```
-1. Apos coletar goal + scope + assumptions + risks + execution_steps:
-2. Chamar lib/exec-plan-template.ts → renderExecPlan({ mode: 'full', ... })
-3. Escrever em docs/exec-plans/active/YYYY-MM-DD-{slug}.md
-4. Output garante 10 secoes H2 nesta ordem (case-sensitive):
-   Goal, Scope, Assumptions, Risks, Execution Steps,
-   Review Checklist, Validation Log, Compound Opportunity,
-   Lessons Captured, Exit Criteria
-5. Validation Log / Compound Opportunity / Lessons Captured ficam vazias
-   (preenchidas durante execucao via /execute-plan e /iterate)
+docs/exec-plans/active/YYYY-MM-DD-{slug}/   ← PASTA_ATIVA (criada pelo /write-prd)
+├── PRD.md                                  ← ja existe
+├── PLAN.md                                 ← overview gerado no Step 8
+├── STATE.md                                ← tracking global gerado no Step 8
+├── plano01/                                ← gerado no Step 9 sob demanda
+│   ├── README.md
+│   ├── MEMORY.md
+│   ├── fase-01-{nome}.md
+│   └── fase-02-{nome}.md
+└── plano02/ ...
 ```
+
+PLAN.md usa `lib/exec-plan-template.ts → renderExecPlan({ mode: 'full', ... })` e garante
+10 secoes H2 (Goal, Scope, Assumptions, Risks, Execution Steps, Review Checklist,
+Validation Log, Compound Opportunity, Lessons Captured, Exit Criteria).
+Validation Log / Compound Opportunity / Lessons Captured ficam vazias inicialmente
+(preenchidas durante execucao via /execute-plan e /iterate).
 
 ---
 
