@@ -1,0 +1,9 @@
+{
+  "files": [
+    {
+      "path": "migrations/0012_add_orders_index.sql",
+      "content": "CREATE INDEX idx_orders_status_created ON orders (status, created_at);\n-- Query frequente: SELECT * FROM orders WHERE created_at > $1 AND status = 'pending';"
+    }
+  ],
+  "scope": "Analisar indices, cardinalidade de colunas e impacto de performance em queries frequentes"
+}

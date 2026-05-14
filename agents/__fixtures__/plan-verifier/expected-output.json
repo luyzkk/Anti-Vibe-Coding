@@ -1,0 +1,18 @@
+{
+  "contract_version": "1.0",
+  "agent": "plan-verifier",
+  "kind": "verification",
+  "status": "complete",
+  "reasoning": "Verifiquei 4 checks contra o plano exemplo. 3 passaram, 1 emitiu warn em fixture_matrix — o plano nao especifica matriz de fixtures por kind. Nao bloqueia merge, mas o Plano 02 fase-03 vai criar essas fixtures e o gap pode confundir o autor do Plano 03.",
+  "payload": {
+    "domain_status": "warn",
+    "checks": [
+      { "name": "ac_coverage", "status": "pass", "detail": "Todos os CAs do PRD tem fase associada." },
+      { "name": "phase_sizing", "status": "pass", "detail": "Total 5h, alinhado com overview." },
+      { "name": "dependency_graph", "status": "pass", "detail": "fase-02 depende corretamente de fase-01." },
+      { "name": "fixture_matrix", "status": "warn", "detail": "Matriz por kind nao especificada explicitamente; sera produzida em fase-03." }
+    ]
+  },
+  "human_readable": "## Resumo da verificacao\n- 3 checks OK\n- 1 warn em fixture_matrix (nao bloqueante)",
+  "metadata": { "run_id": "fixture-pv-001", "duration_ms": 1200, "model": "sonnet" }
+}

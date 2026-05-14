@@ -1,0 +1,5 @@
+{
+  "problem": "Adicionar cache de leitura em endpoint /api/lessons. P99 atual 800ms, alvo 100ms.",
+  "constraints": ["Sem novas deps de runtime", "Compativel com horizontal scaling", "Falha aberta se cache cair"],
+  "context": "Stack: Node + Postgres + Redis (ja existe). Trafego 50req/s pico."
+}

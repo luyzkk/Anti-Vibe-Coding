@@ -1,0 +1,4 @@
+{
+  "target_doc": "docs/PIPELINE.md",
+  "instruction": "Adicionar step 'iterate' apos 'verify-work' no diagrama do pipeline"
+}

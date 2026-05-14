@@ -1,0 +1,13 @@
+{
+  "files": [
+    {
+      "path": "src/services/PaymentService.ts",
+      "content": "export class PaymentService {\n  async charge(userId: string, amount: number): Promise<Receipt> { /* ... */ }\n  async refund(receiptId: string): Promise<void> { /* ... */ }\n  async getHistory(userId: string): Promise<Receipt[]> { /* ... */ }\n}"
+    },
+    {
+      "path": "src/services/PaymentService.test.ts",
+      "content": "describe('PaymentService', () => {\n  it('charges user', async () => {\n    const mockDb = jest.fn().mockResolvedValue({ id: '1' });\n    const svc = new PaymentService(mockDb, mockDb, mockDb);\n    const r = await svc.charge('u1', 100);\n    expect(r.id).toBe('1');\n  });\n  // refund e getHistory nao testados\n});"
+    }
+  ],
+  "scope": "Verificar compliance TDD: cobertura de branches, uso de mocks e qualidade dos testes"
+}

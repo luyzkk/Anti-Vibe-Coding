@@ -1,0 +1,9 @@
+{
+  "files": [
+    {
+      "path": "k8s/deployment.yaml",
+      "content": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: api-service\nspec:\n  replicas: 3\n  template:\n    spec:\n      containers:\n      - name: api\n        image: api-service:1.2.0\n        ports:\n        - containerPort: 3000\n        livenessProbe:\n          httpGet:\n            path: /health\n            port: 3000\n          initialDelaySeconds: 10\n        readinessProbe:\n          httpGet:\n            path: /ready\n            port: 3000\n          initialDelaySeconds: 5\n      affinity:\n        podAntiAffinity:\n          requiredDuringSchedulingIgnoredDuringExecution:\n          - labelSelector:\n              matchLabels:\n                app: api-service\n            topologyKey: kubernetes.io/hostname"
+    }
+  ],
+  "scope": "Auditar configuracao Kubernetes: health checks, anti-affinity, resource limits, seguranca"
+}

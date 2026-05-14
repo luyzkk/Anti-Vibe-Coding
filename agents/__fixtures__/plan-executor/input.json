@@ -1,0 +1,10 @@
+{
+  "plan_phase": "docs/exec-plans/active/2026-05-14-v6.1.0-subagent-contract/plano03/fase-01-batch-audit-1.md",
+  "executed_tasks": [
+    { "id": "edit-react-auditor", "status": "done" },
+    { "id": "edit-solid-auditor", "status": "done" },
+    { "id": "edit-code-smell-detector", "status": "done" },
+    { "id": "edit-tdd-verifier", "status": "done" },
+    { "id": "lint-diff", "status": "skipped", "reason": "linter de markdown nao configurado no projeto" }
+  ]
+}
