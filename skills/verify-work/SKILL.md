@@ -253,11 +253,16 @@ IMPORTANTE: mutacoes sao SEMPRE revertidas. Nunca persistir.
 ### 2f. Coletar Resultados
 
 ```
-- Aguardar todos os agents completarem
-- Se agent falha (timeout, erro) → registrar como "audit incomplete: {agent}"
-- Consolidar todos os findings em lista unica
-- Deduplicar: se mesmo issue aparece em 2+ agents → manter o mais severo
-- Prosseguir para Step 3
+- Chamar invokeAndConsolidate(invocationFns) de skills/verify-work/lib/audit-consolidator.ts
+- O modulo cuida de:
+  * Promise.allSettled (1 agent falhar nao derruba pipeline — G1)
+  * withRetry(invoke, {max: 1}) para status: "needs_retry" — D9
+  * parseContract para output cru (rejeita kind != audit, contract invalido)
+  * Deduplicacao por (file, line, description) mantendo severidade mais alta
+  * Captura de incomplete[] (blocked / needs_human / parse error / kind mismatch)
+  * Reasoning preservado por agent (alimenta secao "Reasoning dos auditores")
+- Output tipado: { findings, reasoningByAgent, incomplete, domainStatuses }
+- Prosseguir para Step 3 (Compilar Relatorio)
 ```
 
 ---
@@ -291,16 +296,18 @@ IMPORTANTE: mutacoes sao SEMPRE revertidas. Nunca persistir.
 - Tests: ✅ {pass}/{total} | ❌ FAILED ({failures})
 - Lint: ✅ clean | ❌ {N} errors
 - TDD Compliance: ✅ strict | ⚠️ partial | ❌ none
-- Security: ✅ clean | ⚠️ {N} warnings | ❌ {N} issues
-- Code Quality: ✅ clean | ⚠️ {N} smells | ❌ {N} issues
+- Security: {se domainStatuses["security-auditor"] === "clean"} ✅ clean | {se "issues_found"} ⚠️ issues found | {se "critical_issues"} ❌ critical | {se incomplete} ⏸ incomplete
+- Code Quality: {se domainStatuses["code-smell-detector"] === "clean"} ✅ clean | {se "issues_found"} ⚠️ issues found | {se incomplete} ⏸ incomplete
+- React: {se "react-auditor" rodou} ✅ clean | ⚠️ issues found | ❌ critical | ⏸ incomplete
+- SOLID: {se "solid-auditor" rodou} ✅ clean | ⚠️ issues found | ⏸ incomplete
 - Test Quality: ✅ solid | ⚠️ {N} weak | ❌ {N} hallucinated
 
 ### Issues Found
-| # | Severity | Category | Description | File:Line |
-|---|----------|----------|-------------|-----------|
-| 1 | CRITICO  | Security | ...         | ...       |
-| 2 | ALTO     | TDD      | ...         | ...       |
-| 3 | MEDIO    | Quality  | ...         | ...       |
+| # | Severity | Description | File:Line | Agent |
+|---|----------|-------------|-----------|-------|
+| 1 | critical  | ...         | ...       | security-auditor |
+| 2 | high      | ...         | ...       | tdd-verifier |
+| 3 | medium    | ...         | ...       | code-smell-detector |
 
 ### Test Quality Assessment
 - Business coverage: {X}% ({Y}/{Z} business files tested)
@@ -308,6 +315,14 @@ IMPORTANTE: mutacoes sao SEMPRE revertidas. Nunca persistir.
 - Hallucinated references: {N}
 - Mutation score: {X}% | Disabled
 - TDD compliance: strict | partial | none
+
+### Reasoning dos auditores
+
+{Para cada agent em reasoningByAgent (ordem alfabetica):}
+**{agent}**: {reasoning}
+
+{Para cada entry em incomplete[]:}
+**{agent}** (incomplete): {reason}
 
 ### Recommendations
 - {top 3 acoes priorizadas por severidade}
@@ -377,13 +392,13 @@ Se nao:
 ## Pipeline Integration
 
 ### 0. Importar Contexto de Pipeline (se disponivel)
-Antes de iniciar a verificacao, verificar se `.planning/SUMMARY.md` existe:
+Antes de iniciar a verificacao, verificar se `{PASTA_ATIVA}/SUMMARY.md` existe (dentro de `docs/exec-plans/active/{date-slug}/`):
 
 - **Se existir:** Usar o SUMMARY.md para enriquecer o contexto da verificacao:
   - Waves executadas → focar auditoria nas areas tocadas
   - Arquivos modificados → verificar especificamente esses arquivos
   - Issues encontrados durante execucao → verificar se foram realmente resolvidos
-  - Dizer ao dev: "Encontrei `.planning/SUMMARY.md`. Vou usar este contexto para focar a verificacao."
+  - Dizer ao dev: "Encontrei `{PASTA_ATIVA}/SUMMARY.md`. Vou usar este contexto para focar a verificacao."
 
 - **Se NAO existir:** Prosseguir com o fluxo normal de verificacao.
 
@@ -413,11 +428,11 @@ Antes de iniciar a verificacao, verificar se `.planning/SUMMARY.md` existe:
 ### Cleanup de Artefatos — Arquivamento do PRD
 
 ```
-Apos verificacao completa, se a pasta do PRD for detectada (`.planning/YYYY-MM-DD-{slug}/`):
+Apos verificacao completa, se a pasta do PRD for detectada (`docs/exec-plans/active/YYYY-MM-DD-{slug}/`):
 
 1. Detectar pasta ativa do PRD:
-   - Se argumento passado com caminho `.planning/...`: extrair pasta
-   - Senao: Glob `.planning/YYYY-MM-DD-*/` excluindo `_archive/`
+   - Se argumento passado com caminho `docs/exec-plans/active/...`: extrair pasta
+   - Senao: Glob `docs/exec-plans/active/YYYY-MM-DD-*/`
      - Filtrar por Phase=completed no STATE.md de cada uma
      - Se 1 pasta completada: usar ela
      - Se 2+: AskUserQuestion "Qual pasta deseja arquivar?"
@@ -434,21 +449,21 @@ Apos verificacao completa, se a pasta do PRD for detectada (`.planning/YYYY-MM-D
    Se NAO pode arquivar:
      "Auditoria concluida, mas a pasta {pasta} tem planos nao terminais: {motivo}.
       Nao vou oferecer arquivamento — verifique se algum plano ficou inacabado.
-      Voce pode arquivar manualmente depois com: mv {pasta} .planning/_archive/"
+      Voce pode arquivar manualmente depois com: mv {pasta} docs/exec-plans/completed/"
      Encerrar sem tocar em nada.
 
 3. Se pode arquivar: apresentar oferta ao dev via AskUserQuestion:
    "Auditoria concluida. Todos os planos estao em estado terminal (completed/skipped).
-    Deseja arquivar a pasta em .planning/_archive/?
-    [1] Sim, arquivar ({pasta} → .planning/_archive/{basename})
-    [2] Nao, manter em .planning/ (pode arquivar depois manualmente)
+    Deseja mover a pasta para docs/exec-plans/completed/?
+    [1] Sim, mover ({pasta} → docs/exec-plans/completed/{basename})
+    [2] Nao, manter em docs/exec-plans/active/ (pode mover depois manualmente)
     [3] Ver o STATE.md da pasta antes de decidir"
 
 4. Acao conforme resposta:
 
    OPCAO 1 — ARQUIVAR:
-     a. Criar `.planning/_archive/` se nao existir
-     b. Verificar que `.planning/_archive/{basename}` NAO existe
+     a. Criar `docs/exec-plans/completed/` se nao existir
+     b. Verificar que `docs/exec-plans/completed/{basename}` NAO existe
         - Se existe: "destino ja existe — conflito, investigar manualmente". Abortar.
      c. GERAR MEMORY CONSOLIDADO antes do mv:
 
@@ -483,14 +498,14 @@ Se falha (template nao encontrado, erro de leitura):
   - Se nao: abortar arquivamento
 ```
      d. Executar mv:
-        mv .planning/{basename} .planning/_archive/{basename}
+        mv docs/exec-plans/active/{basename} docs/exec-plans/completed/{basename}
         (Windows: mover pasta completa com bash mv ou PowerShell Move-Item)
-     e. Confirmar: ler `.planning/_archive/{basename}/PRD.md` para verificar
-     f. Informar: "Pasta arquivada em .planning/_archive/{basename}/"
+     e. Confirmar: ler `docs/exec-plans/completed/{basename}/PRD.md` para verificar
+     f. Informar: "Pasta movida para docs/exec-plans/completed/{basename}/"
 
    OPCAO 2 — MANTER:
      - Nao fazer nada, nao consolidar memoria
-     - "OK, pasta mantida. Use /verify-work novamente ou mova manualmente quando quiser."
+     - "OK, pasta mantida em docs/exec-plans/active/. Use /verify-work novamente ou mova manualmente quando quiser."
 
    OPCAO 3 — VER STATE:
      - Mostrar conteudo de `{pasta}/STATE.md` inline
