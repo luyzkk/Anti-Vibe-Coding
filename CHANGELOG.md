@@ -3,6 +3,58 @@
 Todas as mudanças notáveis do plugin Anti-Vibe Coding serão documentadas aqui.
 
 
+## [6.1.0] - 2026-05-14
+
+> **Minor release — Contrato de Subagentes v1 (Eixo 1 Agent-Native)**
+> Unifica output dos 13 subagentes do plugin em um contrato JSON unico.
+> Orquestradores passam a parsear via `kind` (audit/mutation/proposal/verification),
+> sem regex por auditor. Pre-requisito para `/init` migration-mode (v6.2).
+
+### Breaking Changes
+
+- **Output dos 13 subagentes mudou de markdown com enum de dominio para JSON envelope v1.** Auditores agora emitem `{contract_version, agent, kind, status, reasoning, payload}`. Skills consumidoras (`execute-plan`, `design-twice`, `verify-work`, `anti-vibe-review`) parsam via handler generico `parseAndDispatch()` de `skills/lib/subagent-contract.ts`. Plugins/forks que estendiam parsers custom por nome de auditor precisam migrar. Migration guide: [docs/design-docs/subagent-contract-v1.md](docs/design-docs/subagent-contract-v1.md) (<30min).
+- **Campo `status` agora e lifecycle padronizado** (`complete | needs_retry | needs_human | blocked`), separado de status de dominio. Enum de dominio (`VULNERABILITIES_FOUND`, `OPTIMIZED`, `COMPLIANT`, etc) vive em `payload.domain_status`. Validator rejeita uso de enum de dominio em `status` top-level.
+- **Campo `reasoning` obrigatorio, minimo 20 caracteres** (warning em <50 chars). Sem reasoning => output rejeitado com erro `REASONING_TOO_SHORT`.
+
+### Added
+
+- **Contrato de Subagentes v1.** [docs/design-docs/subagent-contract-v1.md](docs/design-docs/subagent-contract-v1.md) (doc canonico + migration guide), [docs/design-docs/ADR-0002-subagent-contract.md](docs/design-docs/ADR-0002-subagent-contract.md), [agents/_contract/v1.schema.json](agents/_contract/v1.schema.json).
+- **Helper TS** [skills/lib/subagent-contract.ts](skills/lib/subagent-contract.ts) — `parseContract()`, `parseAndDispatch()`, `withRetry(needsRetry, max=1)`, secret-pattern detection (`API_KEY=`, `SECRET=`, etc), threshold reasoning (rejeita <20, warning <50).
+- **13 fixtures de regressao** em `agents/__fixtures__/{nome}/{input.json,expected-output.json}` — 1 cenario por subagente. Rodam em CI via `bun run agents:contract`.
+- **Harness validator** estendido (`scripts/harness-validate.ts` :: `checkAgentContracts()`) — confirma que prompt em `agents/*.md` instrui emissao de contrato v1.
+- **Pre-commit hook** via husky + `.husky/pre-commit` — bloqueia commit local quando `agents/*.md` staged sem instrucao de contrato v1.
+- **CI step** `bun run agents:contract` adicionado em `.github/workflows/harness.yml`.
+
+### Changed
+
+- **4 orquestradores agora consomem via handler generico**: `execute-plan` (mini-tracer-bullet — `plan-verifier` + `plan-executor` via `kind: verification`), `design-twice` (3x `design-explorer` paralelos via `kind: proposal`), `verify-work` (ate 8 auditores via `kind: audit` com deduplicacao de findings cross-agent), `anti-vibe-review` (replica padrao do verify-work). Codigo de parsing markdown por-agente removido. Adicionar auditor novo passa a custar zero mudanca nas skills (CA-06).
+- **`/init` (`docs/exec-plans/active/2026-05-14-init-migration-mode/PRD.md`)** declara `requires: [v6.1.0-subagent-contract]`. Reconciler/Explorer/Compound do /init nascerao ja conformes.
+
+### Security
+
+- **Validator rejeita patterns de secret** (`API_KEY=`, `SECRET=`, `PASSWORD=`, `TOKEN=`) em `payload` e `reasoning` — defesa-em-profundidade contra agentes que copiariam arquivo cru com credenciais (PRD §Seguranca).
+
+### Known Issues
+
+- **`harness-validate v6-path-whitelist` tests (2 fails):** Tests in `tests/harness-validate-v6-path-whitelist.test.ts` expect exit 1 when SKILL.md or template references `.planning/` but validator returns exit 0. Won't-fix in v6.1.0 — pre-existing bug, does not affect runtime behavior. Tracked for v6.2.
+
+### Reservation
+
+- **v6.2 — spec real do `payload.mutation`.** `documentation-writer` ganhou envelope cosmetico `kind: "mutation"` em v6.1.0; spec do payload (dry-run, diff preview, conflict resolution) fica para v6.2. Tracked em [TODO.md](TODO.md).
+
+### Migration Guide
+
+Para autor de subagente externo / fork:
+
+1. Adicione `kind: <audit|mutation|proposal|verification>` no frontmatter de `agents/{nome}.md`.
+2. Substitua o template de output do agent por bloco JSON com `{contract_version: "1.0", agent, kind, status, reasoning, payload}` — exemplos em [docs/design-docs/subagent-contract-v1.md](docs/design-docs/subagent-contract-v1.md).
+3. Adicione fixture em `agents/__fixtures__/{nome}/{input.json,expected-output.json}`.
+4. Rode `bun run harness:validate && bun run agents:contract` — deve passar.
+
+Tempo medio: <30min por agent.
+
+---
+
 ## [6.0.0] - 2026-05-12
 
 > **Major release — Harness Engineering + Compound Engineering Fusion**

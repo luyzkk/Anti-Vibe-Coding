@@ -1,0 +1,10 @@
+{
+  "contract_version": "1.0",
+  "agent": "security-auditor",
+  "kind": "audit",
+  "status": "complete",
+  "reasoning": "curto",
+  "payload": {
+    "issues": []
+  }
+}

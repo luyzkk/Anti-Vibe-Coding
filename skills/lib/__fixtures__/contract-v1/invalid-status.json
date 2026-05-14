@@ -1,0 +1,10 @@
+{
+  "contract_version": "1.0",
+  "agent": "security-auditor",
+  "kind": "audit",
+  "status": "VULNERABILITIES_FOUND",
+  "reasoning": "texto suficientemente longo aqui para passar o threshold ok",
+  "payload": {
+    "issues": []
+  }
+}
