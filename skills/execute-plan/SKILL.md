@@ -169,20 +169,20 @@ Nota sobre CA-12 (projeto em execucao nao interrompido):
 
 ```
 Se caminho fornecido (/execute-plan "path/to/PASTA/" ou ".../PLAN.md"):
-  - Resolver para pasta datada `.planning/YYYY-MM-DD-{slug}/`
+  - Resolver para pasta datada `docs/exec-plans/active/YYYY-MM-DD-{slug}/`
   - Ler `STATE.md` de dentro da pasta
   - Prosseguir para 1b
 
 Se NAO forneceu caminho:
-  1. Enumerar pastas datadas em `.planning/` (Glob `.planning/YYYY-MM-DD-*/`)
-     - EXCLUIR `.planning/_archive/` e seu conteudo
+  1. Enumerar pastas datadas em `docs/exec-plans/active/` (Glob `docs/exec-plans/active/YYYY-MM-DD-*/`)
+     - Pastas em `docs/exec-plans/completed/` ficam fora (estado terminal — nao listadas no default)
      - Para cada pasta, ler `STATE.md` local e extrair `Phase` + `Current Plan`
        (STATE.md usa "**Phase:**" bold — buscar com regex, nao grep literal)
   2. Aplicar filtro default: mostrar apenas `planned` + `in-progress` + `paused`
-     - Flag `--all` incluida no argumento: mostrar tambem `completed`
+     - Flag `--all` incluida no argumento: mostrar tambem `completed` (de active/ e completed/)
   3. Apresentar lista ao dev:
 
-     Encontrei 3 PRDs ativos em .planning/:
+     Encontrei 3 PRDs ativos em docs/exec-plans/active/:
        [1] 2026-04-20-sistema-notificacoes  (in-progress — Plano 2/4)
        [2] 2026-04-21-auth-refactor         (planned)
        [3] 2026-04-15-billing               (paused — Plano 3/5)
@@ -190,15 +190,15 @@ Se NAO forneceu caminho:
 
   4. Se dev escolher um: usar aquela pasta como raiz, ler `STATE.md` dela
   5. Se lista vazia apos filtro:
-     - Se `--all` foi usado: "Nenhum PRD em .planning/." + oferecer /plan-feature
+     - Se `--all` foi usado: "Nenhum PRD em docs/exec-plans/active/." + oferecer /plan-feature
      - Se default: "Nenhum PRD ativo (planned/in-progress/paused). Rode /execute-plan --all para ver todos."
   6. Se apenas 1 PRD ativo apos filtro: pedir confirmacao
      "Encontrei 1 PRD ativo: {nome} ({status}). Executar?"
 
 Se apos enumeracao NAO houver nenhuma pasta datada:
-  - Verificar se ha artefatos legacy (`PRD-*.md` solto, `plano*/` solto)
-    → detectLegacy() via Step 0
-  - Senao: "Nao encontrei nenhum PRD em .planning/. Quer criar um com /write-prd?"
+  - Verificar se ha artefatos legacy v5 (`.planning/PRD-*.md` solto, `.planning/plano*/` solto)
+    → detectLegacy() via Step 0 (mantido para D10 — `/init` faz a migracao v5→v6)
+  - Senao: "Nao encontrei nenhum PRD em docs/exec-plans/active/. Quer criar um com /write-prd?"
   - Encerrar
 
 Nota sobre flag --all:
@@ -312,8 +312,8 @@ Tasks done: {X}/{Y} ({Z}%)
 3. Para cada dependencia em `requires`:
    a. Resolver para pasta:
       - Se valor e pasta exata (`2026-04-20-auth`): usar diretamente
-      - Se e slug (`auth`): glob `.planning/????-??-??-*-auth/` (sufixo exato)
-                            + `.planning/_archive/????-??-??-*-auth/`
+      - Se e slug (`auth`): glob `docs/exec-plans/active/????-??-??-*-auth/` (sufixo exato)
+                            + `docs/exec-plans/completed/????-??-??-*-auth/`
       - Se nao encontrou: status = "nao encontrado"
       - Se mais de 1 pasta: status = "ambiguo" (listar pastas)
    b. Se resolveu para exatamente 1 pasta:
@@ -419,7 +419,7 @@ Spawn do agent plan-executor com contexto:
   - README do plano: `{PASTA_ATIVA}/plano{NN}/README.md`
   - "Notas para Planos Seguintes" de `{PASTA_ATIVA}/plano{01..NN-1}/MEMORY.md`
   - Estado atual: relevant-only do `{PASTA_ATIVA}/STATE.md` (progresso, nao logs completos)
-  - Padrao de codigo existente (1-2 arquivos de referencia do codebase do projeto — nao do .planning/)
+  - Padrao de codigo existente (1-2 arquivos de referencia do codebase do projeto — nao do docs/exec-plans/active/)
   - Instrucao: "Execute APENAS esta fase. Siga TDD. Commit atomico por passo."
   - Instrucao: "Reporte: decisoes tomadas, bugs encontrados, desvios do plano."
   - Instrucao: "Commits e edits de codigo vao para o repositorio DO PROJETO, nao dentro de PASTA_ATIVA.
@@ -460,16 +460,30 @@ Se a fase NAO tem TDD explicito (ex: migration pura, config):
 
 ### 4d. Coletar Resultados e Atualizar Memoria
 
+<!-- 2026-05-14 (Luiz/dev): Step 4d agora consome contrato v1 — PRD §Decisoes #5 (kind dispatch)
+     Aplica D2 (lifecycle vs domain_status), D9 (retry policy), D10 (reasoning threshold).
+     Regex/markdown parse de status removido — dados vem do JSON estruturado. Plano 04 fase-01. -->
+
 ```
 Apos cada subagente completar:
 
-1. Ler output do subagente
-2. Extrair do report:
-   - Status: done | partial | blocked
-   - Decisoes tomadas (DI-*)
-   - Bugs encontrados (BUG-*)
-   - Gotchas descobertos (GT-*)
-   - Desvios do plano (DEV-*)
+1. Ler output do subagente (string JSON — raw output do Task tool)
+2. Parsar output via skills/lib/subagent-contract.ts → parseAndDispatch():
+   - Se status === "blocked": registrar blocker no STATE.md, nao consolida payload
+   - Se status === "needs_human": empilhar pergunta ao operador antes de consolidar
+   - Se status === "needs_retry": withRetry(invoke, {max: 1}) ja cuidou — escala para
+     needs_human apos 2a tentativa (D9)
+   - Se status === "complete":
+     - kind === "verification" (plan-verifier): ler payload.checks[] + payload.domain_status
+     - kind === "verification" (plan-executor): ler payload.checks[] + payload.domain_status
+       + payload.tasks_completed[] + payload.tasks_skipped[] (dual shape pos Plano 03 fase-03)
+     - payload.domain_status === "partial" NAO e blocker lifecycle — fase parcial, mas segue (D2)
+   - reasoning vai para MEMORY.md secao "Decisoes de Implementacao" como contexto rico (D10)
+   - Extrair adicionalmente do human_readable:
+     - Decisoes tomadas (DI-*)
+     - Bugs encontrados (BUG-*)
+     - Gotchas descobertos (GT-*)
+     - Desvios do plano (DEV-*)
 
 3. Atualizar `{PASTA_ATIVA}/STATE.md`:
    - Mudar status da fase
@@ -483,12 +497,18 @@ Apos cada subagente completar:
    - Append desvios em "Desvios do Plano"
    - Atualizar metricas
 
-5. Se partial: registrar o que foi feito e o que falta
+5. Se payload.domain_status === "partial": registrar o que foi feito e o que falta
 ```
 
 ---
 
 ## Step 4-RETRY — Retries e Recuperacao
+
+<!-- 2026-05-14 (Luiz/dev): Nota adicionada em Plano 04 fase-01 — PRD §Decisoes #9 (D9) -->
+Nota: retries semanticos (status: "needs_retry") agora sao tratados pelo helper
+withRetry() de skills/lib/subagent-contract.ts (1 retry default, cap em v6.1.0).
+Os niveis 1/2/3 abaixo cobrem APENAS erros mecanicos do subagente
+(timeout, processo morreu, output vazio). PRD §Decisoes #9.
 
 ### Niveis de Retry (max 3):
 
@@ -743,11 +763,11 @@ Sugerir:
 
 O Step 2-FLAT pode operar em 2 modos dependendo do que aconteceu no Step 0:
 
-1. **Modo migrado (padrao):** PLAN.md flat vive em `.planning/YYYY-MM-DD-{slug}/PLAN.md`.
+1. **Modo migrado (padrao):** PLAN.md flat vive em `docs/exec-plans/active/YYYY-MM-DD-{slug}/PLAN.md`.
    STATE.md ao lado. Step 2-FLAT le de la. (PASTA_ATIVA ja foi resolvida no Step 1.)
 
 2. **Modo legacy v1 (opt-in via Step 0 "Nao"):** Dev escolheu nao migrar. PLAN.md flat
-   esta em `.planning/PLAN-{feature}.md` solto. Step 2-FLAT le de la.
+   esta em `.planning/PLAN-{feature}.md` solto. Step 2-FLAT le de la (legacy v5 — `/init` faz a migracao para v6).
 
 O conteudo interno (waves/tasks) eh IDENTICO nos 2 modos — so o path eh diferente.
 
@@ -757,8 +777,8 @@ Para planos flat (PLAN.md unico com waves/tasks), manter o fluxo original:
 Step 2-FLAT assume PASTA_ATIVA ja identificada no Step 1.
 Todos os caminhos (STATE.md, logs) vivem dentro de PASTA_ATIVA.
 Se detectar PLAN.md SOLTO na raiz de `.planning/` (sem pasta datada),
-isso eh legacy puro — Plano 02 cuida da migracao. Nesta fase, apenas
-avisar: "PLAN.md solto detectado. Migracao sera oferecida em versao futura."
+isso eh legacy v5 puro — `/anti-vibe-coding:init` faz a migracao v5→v6. Nesta fase, apenas
+avisar: "PLAN.md solto detectado em `.planning/`. Rode `/anti-vibe-coding:init` para migrar."
 
 O fluxo flat funciona exatamente como a versao anterior:
 - Le waves e tasks do `{PASTA_ATIVA}/PLAN.md`
