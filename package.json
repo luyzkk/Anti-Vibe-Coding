@@ -11,7 +11,8 @@
     "compound:check": "bun scripts/compound-check.ts .",
     "new-plan": "bun run scripts/new-plan.ts",
     "state:regenerate": "bun run skills/lib/state-md-generator.ts $PWD",
-    "prepare": "husky"
+    "prepare": "husky",
+    "agents:contract": "bun test skills/lib/subagent-contract.test.ts"
   },
   "devDependencies": {
     "@types/bun": "^1.1.0",
