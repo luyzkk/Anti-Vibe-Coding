@@ -1,0 +1,17 @@
+{
+  "contract_version": "1.0",
+  "agent": "security-auditor",
+  "kind": "audit",
+  "status": "complete",
+  "reasoning": "Encontrei MD5 em src/auth.ts:42 e SQL concatenado em src/api.ts:15. Nada fora do schema.",
+  "payload": {
+    "issues": [
+      {
+        "severity": "critical",
+        "file": "src/auth.ts",
+        "line": 42,
+        "description": "MD5 used for password hashing"
+      }
+    ]
+  }
+}

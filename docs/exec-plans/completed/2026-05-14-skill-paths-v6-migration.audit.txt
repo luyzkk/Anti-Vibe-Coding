@@ -1,0 +1,290 @@
+templates\SUMMARY.md:3:**Plan:** `.planning/PLAN-{plan_name}.md`
+skills\write-prd\SKILL.md:75:1. Buscar arquivos em .planning/CONTEXT-*.md (Glob)
+skills\write-prd\SKILL.md:219:1. Criar diretorio `.planning/` se nao existir
+skills\write-prd\SKILL.md:223:   - `folder` = `.planning/{date}-{slug}/`
+skills\write-prd\SKILL.md:234:Apos calcular `.planning/YYYY-MM-DD-{slug}/`, antes de criar:
+skills\write-prd\SKILL.md:270:     - Criar `.planning/YYYY-MM-DD-{slug}-v2/` (ou -vN)
+skills\write-prd\SKILL.md:285:1. Glob `.planning/CONTEXT-*.md` na raiz de `.planning/` (nao subpastas)
+skills\write-prd\SKILL.md:291:      - mv .planning/CONTEXT-{slug}.md → .planning/{folder}/CONTEXT.md
+skills\write-prd\SKILL.md:296:        "Encontrei `.planning/CONTEXT-{slug-do-grill}.md` mas a pasta do PRD e `{folder}`.
+skills\write-prd\SKILL.md:302:        Informar: "CONTEXT renomeado e movido: .planning/CONTEXT-{slug-do-grill}.md → {folder}/CONTEXT.md"
+skills\write-prd\SKILL.md:311:PRD salvo em `.planning/{date}-{slug}/PRD.md`
+skills\write-prd\SKILL.md:312:CONTEXT movido de `.planning/CONTEXT-{slug}.md` para `.planning/{date}-{slug}/CONTEXT.md`
+skills\write-prd\SKILL.md:352:| Dev quer parar | "Ok. PRD salvo em `.planning/{date}-{slug}/PRD.md`. Retome com /plan-feature quando quiser." |
+skills\write-prd\SKILL.md:359:Antes de iniciar o PRD, verificar se `.planning/CONTEXT-*.md` existe na raiz de `.planning/`:
+skills\write-prd\SKILL.md:362:  > "Encontrei `.planning/CONTEXT-{slug}.md` do `/grill-me`. Vou usar este contexto para gerar o PRD."
+skills\write-prd\SKILL.md:365:  (sem prefixo). A partir dai, a raiz de `.planning/` nao tera mais arquivos `CONTEXT-*` soltos.
+skills\write-prd\SKILL.md:371:Ao finalizar o PRD gerado e aprovado pelo dev, salvar em `.planning/{YYYY-MM-DD-{slug}}/PRD.md`.
+skills\write-prd\SKILL.md:375:> "PRD salvo em `.planning/{date}-{slug}/PRD.md`.
+skills\iterate\SKILL.md:48:   - Existe SUMMARY.md com Wave concluída? (Glob ".planning/*/SUMMARY.md")
+skills\init\SKILL.md:78:In dry-run mode: zero side effects — `docs/` is never created, `.planning/` is never deleted,
+skills\init\SKILL.md:79:`.planning.v5-backup/` is cleaned up after report generation (CA-10 verbatim).
+skills\init\SKILL.md:93:  echo "Backup is at .planning.v5-backup/ — to roll back: git revert HEAD && cp -r .planning.v5-backup/.planning ./"
+skills\init\SKILL.md:97:echo "Add .planning.v5-backup/ to .gitignore (or delete after confirming all is well)."
+skills\init\SKILL.md:128:After successful migration, suggest user adds `.planning.v5-backup/` to `.gitignore`.
+skills\init\SKILL.md:132:### Step migrate.2: Convert .planning/ → docs/exec-plans/* + docs/product-specs/* (Plano 03 fase-03 — D3, M8)
+skills\init\SKILL.md:134:<!-- Le do .planning.v5-backup/ (G1), escreve em docs/. Deleta .planning/ original apos sucesso
+skills\init\SKILL.md:162:<!-- Le do .planning.v5-backup/lessons-learned.md (G1). Gera 1 arquivo .md por licao em
+skills\init\SKILL.md:186:<!-- Le do .planning.v5-backup/decisions.md (G1). Gera 1 ADR por decisao com numeracao
+skills\grill-me\SKILL.md:41:Resolver TODA ambiguidade antes de qualquer planejamento ou implementacao. Output: CONTEXT.md estruturado em `.planning/` com decisoes indexadas e rastreadas.
+skills\grill-me\SKILL.md:190:Ao final da entrevista, gerar o arquivo `.planning/CONTEXT-{feature-name}.md` (criar `.planning/` se nao existir):
+skills\grill-me\SKILL.md:249:Salvar o resultado consolidado em `.planning/CONTEXT.md`:
+skills\grill-me\SKILL.md:278:> "Contexto salvo em `.planning/CONTEXT.md`.
+skills\grill-me\SKILL.md:302:6. Salvar em `.planning/CONTEXT-{feature-name}.md`.
+skills\verify-work\SKILL.md:380:Antes de iniciar a verificacao, verificar se `.planning/SUMMARY.md` existe:
+skills\verify-work\SKILL.md:386:  - Dizer ao dev: "Encontrei `.planning/SUMMARY.md`. Vou usar este contexto para focar a verificacao."
+skills\verify-work\SKILL.md:416:Apos verificacao completa, se a pasta do PRD for detectada (`.planning/YYYY-MM-DD-{slug}/`):
+skills\verify-work\SKILL.md:419:   - Se argumento passado com caminho `.planning/...`: extrair pasta
+skills\verify-work\SKILL.md:420:   - Senao: Glob `.planning/YYYY-MM-DD-*/` excluindo `_archive/`
+skills\verify-work\SKILL.md:437:      Voce pode arquivar manualmente depois com: mv {pasta} .planning/_archive/"
+skills\verify-work\SKILL.md:442:    Deseja arquivar a pasta em .planning/_archive/?
+skills\verify-work\SKILL.md:443:    [1] Sim, arquivar ({pasta} → .planning/_archive/{basename})
+skills\verify-work\SKILL.md:444:    [2] Nao, manter em .planning/ (pode arquivar depois manualmente)
+skills\verify-work\SKILL.md:450:     a. Criar `.planning/_archive/` se nao existir
+skills\verify-work\SKILL.md:451:     b. Verificar que `.planning/_archive/{basename}` NAO existe
+skills\verify-work\SKILL.md:486:        mv .planning/{basename} .planning/_archive/{basename}
+skills\verify-work\SKILL.md:488:     e. Confirmar: ler `.planning/_archive/{basename}/PRD.md` para verificar
+skills\verify-work\SKILL.md:489:     f. Informar: "Pasta arquivada em .planning/_archive/{basename}/"
+skills\init\lib\backup-planning.ts:2:// .planning/ + 3 .md legados copiados para .planning.v5-backup/.
+skills\init\lib\backup-planning.ts:3:// Rename atomico via diretorio temporario .planning.v5-backup.tmp/.
+skills\init\lib\backup-planning.ts:10:export const BACKUP_DIR = '.planning.v5-backup'
+skills\init\lib\backup-planning.ts:11:const TMP_DIR = '.planning.v5-backup.tmp'
+skills\init\lib\backup-planning.ts:12:const LOCK_FILE = '.planning.v5-backup.lock'
+skills\init\lib\backup-planning.ts:31: * Cria backup atomico em .planning.v5-backup/.
+skills\init\lib\backup-planning.ts:33: * - Operacao: copia para .planning.v5-backup.tmp/ → rename final.
+skills\init\lib\backup-planning.test.ts:13:  await fs.mkdir(path.join(FIXTURE, '.planning', 'plano01'), { recursive: true })
+skills\init\lib\backup-planning.test.ts:14:  await fs.writeFile(path.join(FIXTURE, '.planning', 'CONTEXT-foo.md'), '# Foo\n', 'utf8')
+skills\init\lib\backup-planning.test.ts:15:  await fs.writeFile(path.join(FIXTURE, '.planning', 'plano01', 'PRD.md'), '# PRD\n', 'utf8')
+skills\init\lib\backup-planning.test.ts:24:  it('creates .planning.v5-backup/ with all artifacts', async () => {
+skills\init\lib\backup-planning.test.ts:28:    expect(await fs.stat(path.join(FIXTURE, BACKUP_DIR, '.planning'))).toBeDefined()
+skills\init\lib\backup-planning.test.ts:44:    const nested = path.join(FIXTURE, BACKUP_DIR, '.planning', 'plano01', 'PRD.md')
+skills\init\lib\backup-planning.test.ts:60:    await fs.mkdir(path.join(FIXTURE, '.planning.v5-backup.tmp', 'leftover'), { recursive: true })
+skills\init\lib\backup-planning.test.ts:61:    await fs.writeFile(path.join(FIXTURE, '.planning.v5-backup.tmp', 'leftover', 'x'), 'x', 'utf8')
+skills\init\lib\backup-planning.test.ts:67:    const tmpExists = await fs.stat(path.join(FIXTURE, '.planning.v5-backup.tmp'))
+skills\init\lib\backup-planning.test.ts:73:    await fs.writeFile(path.join(FIXTURE, '.planning.v5-backup.lock'), 'pid=999\n', 'utf8')
+skills\init\lib\backup-planning.test.ts:81:    const lockExists = await fs.stat(path.join(FIXTURE, '.planning.v5-backup.lock'))
+skills\init\lib\backup-planning.test.ts:86:  it('does NOT modify the original .planning/ (read-only over source)', async () => {
+skills\init\lib\backup-planning.test.ts:88:    const before = await fs.readFile(path.join(FIXTURE, '.planning', 'CONTEXT-foo.md'), 'utf8')
+skills\init\lib\backup-planning.test.ts:90:    const after = await fs.readFile(path.join(FIXTURE, '.planning', 'CONTEXT-foo.md'), 'utf8')
+skills\execute-plan\SKILL.md:83:3. Se layout === 'v5' ou 'cru' (legado): usar fluxo .planning/{date-slug}/ descrito no Step 0 abaixo (mantido para D10)
+skills\execute-plan\SKILL.md:107:Roda antes de qualquer outra coisa. Se `.planning/` tem artefatos soltos pre-refatoracao
+skills\execute-plan\SKILL.md:116:1. Se `.planning/` nao existe: skip — ir para Step 1.
+skills\execute-plan\SKILL.md:117:2. Executar `detectLegacy(".planning/")` conforme `lib/legacy-detector.md`.
+skills\execute-plan\SKILL.md:121:      "Detectei estrutura legacy em .planning/:
+skills\execute-plan\SKILL.md:141:      - "Nao — executar legacy em modo v1 a partir de .planning/ raiz (nao migra)"
+skills\execute-plan\SKILL.md:149:      - Ir para Step 1 com convencao ANTIGA: buscar `.planning/PLAN-*.md`, `.planning/STATE-*.md`,
+skills\execute-plan\SKILL.md:150:        `.planning/plano*/` soltos — o Step 2-FLAT opera sobre eles
+skills\execute-plan\SKILL.md:172:  - Resolver para pasta datada `.planning/YYYY-MM-DD-{slug}/`
+skills\execute-plan\SKILL.md:177:  1. Enumerar pastas datadas em `.planning/` (Glob `.planning/YYYY-MM-DD-*/`)
+skills\execute-plan\SKILL.md:178:     - EXCLUIR `.planning/_archive/` e seu conteudo
+skills\execute-plan\SKILL.md:185:     Encontrei 3 PRDs ativos em .planning/:
+skills\execute-plan\SKILL.md:193:     - Se `--all` foi usado: "Nenhum PRD em .planning/." + oferecer /plan-feature
+skills\execute-plan\SKILL.md:201:  - Senao: "Nao encontrei nenhum PRD em .planning/. Quer criar um com /write-prd?"
+skills\execute-plan\SKILL.md:315:      - Se e slug (`auth`): glob `.planning/????-??-??-*-auth/` (sufixo exato)
+skills\execute-plan\SKILL.md:316:                            + `.planning/_archive/????-??-??-*-auth/`
+skills\execute-plan\SKILL.md:422:  - Padrao de codigo existente (1-2 arquivos de referencia do codebase do projeto — nao do .planning/)
+skills\execute-plan\SKILL.md:746:1. **Modo migrado (padrao):** PLAN.md flat vive em `.planning/YYYY-MM-DD-{slug}/PLAN.md`.
+skills\execute-plan\SKILL.md:750:   esta em `.planning/PLAN-{feature}.md` solto. Step 2-FLAT le de la.
+skills\execute-plan\SKILL.md:759:Se detectar PLAN.md SOLTO na raiz de `.planning/` (sem pasta datada),
+skills\design-twice\SKILL.md:50:Se vem do `/grill-me`: importar CONTEXT.md de `.planning/` com Read para reaproveitar decisoes ja tomadas.
+skills\init\lib\detect-v5-legacy.test.ts:25:  it('detects .planning/ with content', async () => {
+skills\init\lib\detect-v5-legacy.test.ts:26:    await fs.mkdir(path.join(FIXTURE, '.planning'), { recursive: true })
+skills\init\lib\detect-v5-legacy.test.ts:27:    await fs.writeFile(path.join(FIXTURE, '.planning', 'CONTEXT-foo.md'), '# Foo\n', 'utf8')
+skills\init\lib\detect-v5-legacy.test.ts:33:  it('does NOT count empty .planning/ as legacy', async () => {
+skills\init\lib\detect-v5-legacy.test.ts:34:    await fs.mkdir(path.join(FIXTURE, '.planning'), { recursive: true })
+skills\init\lib\detect-v5-legacy.test.ts:47:    await fs.mkdir(path.join(FIXTURE, '.planning'), { recursive: true })
+skills\init\lib\detect-v5-legacy.test.ts:48:    await fs.writeFile(path.join(FIXTURE, '.planning', 'x.md'), 'x', 'utf8')
+skills\init\lib\detect-v5-legacy.test.ts:58:    await fs.mkdir(path.join(FIXTURE, '.planning'), { recursive: true })
+skills\init\lib\detect-v5-legacy.test.ts:59:    await fs.writeFile(path.join(FIXTURE, '.planning', 'x.md'), 'x', 'utf8')
+skills\init\lib\detect-v5-legacy.ts:8:  | 'planning-dir'           // .planning/ existe e tem conteudo
+skills\init\lib\detect-v5-legacy.ts:34: * Heuristica de v5.x: .planning/ ou um dos 3 .md legados.
+skills\init\lib\detect-v5-legacy.ts:46:    ['planning-dir', path.join(targetDir, '.planning')],
+skills\init\lib\detect-v5-legacy.ts:57:      // Para .planning/ exigimos conteudo > 0 (diretorio vazio nao conta).
+skills\init\lib\dry-run-renderer.ts:24:  lines.push('Planning migration (.planning/ → docs/):')
+skills\init\lib\dry-run-renderer.ts:25:  lines.push(`  entries: ${report.planning.entries}`)
+skills\init\lib\dry-run-renderer.ts:26:  lines.push(`  would write: ${report.planning.written.length}`)
+skills\init\lib\dry-run-renderer.ts:27:  lines.push(`  skipped: ${report.planning.skipped.length}`)
+skills\init\lib\dry-run-renderer.ts:28:  if (report.planning.conflicts.length > 0) {
+skills\init\lib\dry-run-renderer.ts:29:    lines.push(`  CONFLICTS: ${report.planning.conflicts.length} (resolve manually)`)
+skills\init\lib\dry-run-renderer.ts:31:  for (const p of report.planning.written.slice(0, 10)) {
+skills\init\lib\dry-run-renderer.ts:34:  if (report.planning.written.length > 10) {
+skills\init\lib\dry-run-renderer.ts:35:    lines.push(`    ... +${report.planning.written.length - 10} more`)
+skills\init\lib\dry-run-renderer.ts:61:  lines.push('Backup will go to: .planning.v5-backup/')
+skills\init\lib\dry-run-renderer.ts:62:  lines.push('Original .planning/ will be deleted after success (backup preserves it).')
+skills\init\lib\migrate-lessons.test.ts:12:  const backupDir = path.join(FIXTURE, '.planning.v5-backup')
+skills\init\lib\migrate-lessons.test.ts:91:    await fs.mkdir(path.join(FIXTURE, '.planning.v5-backup'), { recursive: true })
+skills\init\lib\dry-run-renderer.test.ts:16:    backup: { status: 'dry-run', backupPath: '/tmp/x/.planning.v5-backup', filesCopied: 2 },
+skills\init\lib\migrate-decisions.test.ts:12:  const backupDir = path.join(FIXTURE, '.planning.v5-backup')
+skills\init\lib\migrate-decisions.test.ts:104:    await fs.mkdir(path.join(FIXTURE, '.planning.v5-backup'), { recursive: true })
+skills\init\lib\migrate-decisions.ts:3:// Le de .planning.v5-backup/ (fonte de verdade durante migracao — G1).
+skills\init\lib\migrate-orchestrator.ts:28: * In dry-run mode: zero side effects in docs/ and no .planning.v5-backup/ persists.
+skills\init\lib\migrate-orchestrator.ts:29: * In real mode: backup is created, docs/ is populated, .planning/ is removed.
+skills\init\lib\migrate-orchestrator.ts:77:  // DEV-02: helpers read from .planning.v5-backup/ as source of truth (G1).
+skills\init\lib\migrate-orchestrator.ts:80:  // This satisfies CA-10: docs/ never created, .planning/ never deleted.
+skills\init\assets\templates\scripts\harness-validate.ts.tpl:51:// .planning.v5-backup/: backup de migracao v5→v6 durante Plano 03 — evita falsos positivos.
+skills\init\assets\templates\scripts\harness-validate.ts.tpl:58:// .planning/: convencao legada v5 — plans completos sao migrados para docs/exec-plans/completed/. Pasta viva pode conter fixtures de teste com links intencionalmente quebrados.
+skills\init\assets\templates\scripts\harness-validate.ts.tpl:60:// _legacy-detail/: working notes (PRD/PLAN/STATE/planoXX) preservados ao migrar pastas .planning/<slug>/ para docs/exec-plans/completed/. Links sao historicos relativos a destinos antigos.
+skills\init\assets\templates\scripts\harness-validate.ts.tpl:62:const SKIP_DIRS = new Set(['node_modules', '.git', '.claude', '.planning', '.planning.v5-backup', 'compound', 'templates', '__fixtures__', 'fixtures', 'snippets', '_legacy-detail', 'v5-legacy'])
+skills\init\lib\migrate-lessons.ts:3:// Lê do backup (.planning.v5-backup/) — G1: fonte de verdade durante migracao.
+skills\init\lib\migrate-planning.ts:1:// 2026-05-11 (Luiz/dev): converte .planning.v5-backup/.planning/ em docs/exec-plans/* + docs/product-specs/*.
+skills\init\lib\migrate-planning.ts:29: * Migra .planning.v5-backup/.planning/ → docs/exec-plans/* + docs/product-specs/*.
+skills\init\lib\migrate-planning.ts:41:  const backupPlanningDir = path.join(targetDir, BACKUP_DIR, '.planning')
+skills\init\lib\migrate-planning.ts:80:  // G-A1: deletar .planning/ original (NAO o backup). Skip em dry-run.
+skills\init\lib\migrate-planning.ts:82:    const original = path.join(targetDir, '.planning')
+skills\init\lib\migrate-planning.ts:104:      // .planning/CONTEXT-foo.md → docs/exec-plans/active/{slug}.md
+skills\quick-plan\SKILL.md:3:description: "Planejamento leve para tasks de complexidade media. Gera mini-plano de 3-7 passos no formato step/verify sem criar arquivos .planning/ ou spawnar subagentes. Alternativa ao pipeline completo (grill-me → plan-feature → execute-plan) para tarefas que nao justificam o overhead."
+skills\quick-plan\SKILL.md:184:- NAO cria arquivos em `.planning/` (PLAN.md, STATE.md, etc.)
+skills\init\lib\migrate-orchestrator.test.ts:13:  await fs.mkdir(path.join(FIXTURE, '.planning'), { recursive: true })
+skills\init\lib\migrate-orchestrator.test.ts:14:  await fs.writeFile(path.join(FIXTURE, '.planning', 'CONTEXT-x.md'), '# X\n', 'utf8')
+skills\init\lib\migrate-orchestrator.test.ts:30:    // .planning/ original must remain intact
+skills\init\lib\migrate-orchestrator.test.ts:31:    const originalExists = await fs.access(path.join(FIXTURE, '.planning')).then(() => true).catch(() => false)
+skills\init\lib\migrate-orchestrator.test.ts:39:      report.planning.written.length +
+skills\init\lib\migrate-orchestrator.test.ts:50:    const backupExists = await fs.access(path.join(FIXTURE, '.planning.v5-backup')).then(() => true).catch(() => false)
+skills\init\lib\parse-planning-entry.ts:1:// 2026-05-11 (Luiz/dev): inferencia de {date, slug, kind} a partir de paths .planning/.
+skills\init\lib\parse-planning-entry.ts:7:  | 'context-file'        // .planning/CONTEXT-foo.md
+skills\init\lib\parse-planning-entry.ts:8:  | 'plan-folder-prd'     // .planning/2026-04-21-foo/PRD.md
+skills\init\lib\parse-planning-entry.ts:9:  | 'plan-folder-plan'    // .planning/2026-04-21-foo/PLAN.md
+skills\init\lib\parse-planning-entry.ts:10:  | 'plan-folder-context' // .planning/2026-04-21-foo/CONTEXT.md
+skills\init\lib\parse-planning-entry.ts:11:  | 'plan-folder-state'   // .planning/2026-04-21-foo/STATE.md
+skills\init\lib\parse-planning-entry.ts:12:  | 'plan-folder-summary' // .planning/2026-04-21-foo/SUMMARY*.md
+skills\init\lib\parse-planning-entry.ts:13:  | 'subplan-readme'      // .planning/2026-04-21-foo/plano01/README.md
+skills\init\lib\parse-planning-entry.ts:14:  | 'subplan-fase'        // .planning/2026-04-21-foo/plano01/fase-01-x.md
+skills\init\lib\parse-planning-entry.ts:15:  | 'subplan-memory'      // .planning/2026-04-21-foo/plano01/MEMORY.md
+skills\init\lib\parse-planning-entry.ts:24:  /** Path relativo a .planning/ (ex: 'plano01/fase-02.md'). */
+skills\init\lib\parse-planning-entry.ts:38: * Classifica um path relativo a `.planning/` em uma PlanningEntry.
+skills\init\lib\parse-planning-entry.ts:39: * `relPath` deve ser relativo a `.planning/` (ex: "2026-04-21-foo/plano01/fase-01.md").
+skills\plan-feature\SKILL.md:71:.planning/
+skills\plan-feature\SKILL.md:105:(`PRD-*.md` ou `planoNN/` soltos em `.planning/`), esta skill nao consegue operar sem antes
+skills\plan-feature\SKILL.md:114:1. Se `.planning/` nao existe: skip Step 0, ir direto para Step 1 (projeto greenfield).
+skills\plan-feature\SKILL.md:115:2. Executar `detectLegacy(".planning/")` conforme `lib/legacy-detector.md`.
+skills\plan-feature\SKILL.md:119:      "Detectei estrutura legacy em .planning/:
+skills\plan-feature\SKILL.md:132:   d. Se `.planning/{targetFolderName}/` ja existir: avisar colisao e oferecer
+skills\plan-feature\SKILL.md:138:   e. AskUserQuestion: "Migrar estes {N} artefatos para .planning/{targetFolderName}/?"
+skills\plan-feature\SKILL.md:146:        - Confirmar: "Migrado com sucesso. {N} artefatos em .planning/{targetFolderName}/"
+skills\plan-feature\SKILL.md:152:      - Confirmar: "Prosseguindo em modo greenfield. Legacy em .planning/ nao foi tocado."
+skills\plan-feature\SKILL.md:169:dentro de PASTA_ATIVA. Nunca na raiz de `.planning/`.
+skills\plan-feature\SKILL.md:176:   a) Caminho de ARQUIVO: /plan-feature ".planning/2026-04-20-slug/PRD.md"
+skills\plan-feature\SKILL.md:178:      - PASTA_ATIVA = diretorio pai do arquivo (ex: ".planning/2026-04-20-slug/")
+skills\plan-feature\SKILL.md:182:   b) Caminho de PASTA: /plan-feature ".planning/2026-04-20-slug/"
+skills\plan-feature\SKILL.md:207:### Caminho B: Buscar em .planning/ (nova estrutura — pastas datadas)
+skills\plan-feature\SKILL.md:211:   a. Enumerar pastas datadas em `.planning/` (mesmo algoritmo do execute-plan Step 1a)
+skills\plan-feature\SKILL.md:212:      - Glob `.planning/YYYY-MM-DD-*/`
+skills\plan-feature\SKILL.md:231:      - Se `--all` foi usado: "Nenhum PRD em .planning/." → Caminho C
+skills\plan-feature\SKILL.md:235:      - Verificar se ha PRD-*.md solto na raiz de .planning/ → legacy, nao migrar aqui
+skills\plan-feature\SKILL.md:245:1. Informar: "Nao encontrei nenhum PRD em .planning/."
+skills\plan-feature\SKILL.md:257:1. Glob `.planning/YYYY-MM-DD-*/` (APENAS pastas ativas — NAO incluir `.planning/_archive/`)
+skills\plan-feature\SKILL.md:265:      - Se e slug (`auth`): buscar pasta que termina em `-auth` em `.planning/YYYY-MM-DD-*/`
+skills\plan-feature\SKILL.md:601:1. PASTA_ATIVA ja definida no Step 1 (ex: ".planning/2026-04-20-sistema-notificacoes/")
+skills\plan-feature\SKILL.md:706:| Dev quer revisar plano especifico | "Os planos sao editaveis em .planning/plano{NN}/. Regenere com /plan-feature se a feature mudar." |
+skills\plan-feature\SKILL.md:714:Se detectar PRD/plano soltos na raiz de .planning/, oferece migrar antes de qualquer outro
+skills\plan-feature\SKILL.md:720:- **Se encontrar PRD em pasta datada (`.planning/YYYY-MM-DD-{slug}/PRD.md`):** Importar automaticamente. Dizer ao dev:
+skills\plan-feature\SKILL.md:721:  > "Encontrei PRD em `.planning/{pasta}/PRD.md` do `/write-prd`. Vou usar este PRD como base."
+skills\plan-feature\SKILL.md:728:Se `.planning/CONTEXT-*.md` existir (do /grill-me):
+skills\init\lib\migrate-planning.test.ts:14:  await fs.mkdir(path.join(FIXTURE, '.planning', '2026-04-21-foo', 'plano01'), { recursive: true })
+skills\init\lib\migrate-planning.test.ts:15:  await fs.writeFile(path.join(FIXTURE, '.planning', 'CONTEXT-baseline.md'), '# baseline\n', 'utf8')
+skills\init\lib\migrate-planning.test.ts:16:  await fs.writeFile(path.join(FIXTURE, '.planning', '2026-04-21-foo', 'PRD.md'), '# PRD\n', 'utf8')
+skills\init\lib\migrate-planning.test.ts:17:  await fs.writeFile(path.join(FIXTURE, '.planning', '2026-04-21-foo', 'PLAN.md'), '# PLAN\n', 'utf8')
+skills\init\lib\migrate-planning.test.ts:18:  await fs.writeFile(path.join(FIXTURE, '.planning', '2026-04-21-foo', 'STATE.md'), '# STATE\n', 'utf8')
+skills\init\lib\migrate-planning.test.ts:19:  await fs.writeFile(path.join(FIXTURE, '.planning', '2026-04-21-foo', 'plano01', 'README.md'), '# plano01\n', 'utf8')
+skills\init\lib\migrate-planning.test.ts:20:  await fs.writeFile(path.join(FIXTURE, '.planning', '2026-04-21-foo', 'plano01', 'fase-01-x.md'), '# fase01\n', 'utf8')
+skills\init\lib\migrate-planning.test.ts:61:  it('deletes .planning/ original after success (G-A1)', async () => {
+skills\init\lib\migrate-planning.test.ts:63:    const exists = await fs.stat(path.join(FIXTURE, '.planning')).then(() => true).catch(() => false)
+skills\init\lib\migrate-planning.test.ts:66:    const backupExists = await fs.stat(path.join(FIXTURE, '.planning.v5-backup', '.planning')).then(() => true).catch(() => false)
+skills\init\lib\migrate-planning.test.ts:72:    // Re-rodar migratePlanning sem .planning/ — entries=0:
+skills\init\lib\migrate-planning.test.ts:85:    // .planning/ original tambem nao foi deletada:
+skills\init\lib\migrate-planning.test.ts:86:    const originalExists = await fs.stat(path.join(FIXTURE, '.planning')).then(() => true).catch(() => false)
+skills\init\lib\migrate-planning.test.ts:92:    await fs.writeFile(path.join(FIXTURE, '.planning.v5-backup', '.planning', 'CONTEXT-bommed.md'), bommed, 'utf8')
+skills\lib\completion-signal.test.ts:10:      outputs: ['./.planning/foo/CONTEXT.md'],
+skills\lib\completion-signal.test.ts:20:    expect(parsed?.outputs).toEqual(['./.planning/foo/CONTEXT.md'])
+skills\lessons-learned\SKILL.md:80:   1. Glob `.planning/_archive/YYYY-MM-DD-*/` — buscar pastas cujo nome comeca com data no formato `YYYY-MM-DD-`
+skills\lessons-learned\SKILL.md:81:   2. Se resultado vazio ou `.planning/_archive/` nao existe:
+skills\lessons-learned\SKILL.md:87:      - Construir linha: `**Origem:** .planning/_archive/{nome-da-pasta}/SUMMARY.md`
+skills\lessons-learned\SKILL.md:94:      **Origem:** .planning/_archive/2026-04-20-auth/SUMMARY.md
+skills\lib\legacy-detector.md:14:**Sinal A** — `PRD-*.md` solto na raiz de `.planning/`
+skills\lib\legacy-detector.md:15:- Arquivos no padrao `.planning/PRD-*.md` que NAO estejam dentro de `_archive/`
+skills\lib\legacy-detector.md:16:- Ex: `.planning/PRD-auth.md`, `.planning/PRD-notificacoes.md`
+skills\lib\legacy-detector.md:18:**Sinal B** — `plano*/` solto na raiz de `.planning/` contendo pelo menos 1 `fase-*.md`
+skills\lib\legacy-detector.md:19:- Diretorios no padrao `.planning/plano*/` que NAO estejam dentro de `_archive/`
+skills\lib\legacy-detector.md:22:- Ex: `.planning/plano01/fase-01-auth.md`
+skills\lib\legacy-detector.md:27:  `SUMMARY-*.md`, `CONTEXT-*.md` soltos na raiz de `.planning/`
+skills\lib\legacy-detector.md:39:    { path: ".planning/PRD-auth.md",      type: "PRD" },
+skills\lib\legacy-detector.md:40:    { path: ".planning/plano01/",         type: "planoDir" },
+skills\lib\legacy-detector.md:41:    { path: ".planning/PLAN-auth.md",     type: "PLAN" },
+skills\lib\legacy-detector.md:42:    { path: ".planning/STATE-auth.md",    type: "STATE" },
+skills\lib\legacy-detector.md:43:    { path: ".planning/CONTEXT-auth.md",  type: "CONTEXT" }
+skills\lib\legacy-detector.md:131:    # ".planning/PRD-auth.md" → "auth"
+skills\lib\legacy-detector.md:142:| `.planning/_archive/**` | Arquivado — nao migrar |
+skills\lib\legacy-detector.md:143:| `.planning/YYYY-MM-DD-*/plano*/` | Plano DENTRO da nova estrutura datada |
+skills\lib\legacy-detector.md:144:| `.planning/notas/`, `.planning/drafts/` | Pastas sem `fase-*.md` — Sinal B nao dispara |
+skills\lib\legacy-detector.md:145:| `.planning/CONTEXT-*.md` isolado | Artefato valido pre-`/write-prd` — Sinal C nao dispara sozinho |
+skills\lib\legacy-detector.md:146:| `.planning/PLAN.md` isolado sem PRD/plano | Sinal C nao dispara sozinho |
+skills\lib\legacy-detector.md:147:| `.planning/plano01/` sem `fase-*.md` | Pasta vazia ou so com README — Sinal B nao dispara |
+skills\lib\legacy-migrator.md:6:Pre-requisito: .planning/ deve estar no mesmo filesystem do projeto (mv cross-filesystem pode falhar no Windows).
+skills\lib\legacy-migrator.md:18:- .planning/{targetFolderName}/ NAO pode existir (abortar se existir)
+skills\lib\legacy-migrator.md:39:Se `.planning/{targetFolderName}/` ja existe:
+skills\lib\legacy-migrator.md:48:| PRD | `.planning/PRD-{slug}.md` | `.planning/{target}/PRD.md` |
+skills\lib\legacy-migrator.md:49:| PLAN | `.planning/PLAN-{slug}.md` ou `.planning/PLAN.md` | `.planning/{target}/PLAN.md` |
+skills\lib\legacy-migrator.md:50:| STATE | `.planning/STATE-{slug}.md` ou `.planning/STATE.md` | `.planning/{target}/STATE.md` |
+skills\lib\legacy-migrator.md:51:| SUMMARY | `.planning/SUMMARY-{slug}.md` | `.planning/{target}/SUMMARY.md` |
+skills\lib\legacy-migrator.md:52:| CONTEXT | `.planning/CONTEXT-{slug}.md` | `.planning/{target}/CONTEXT.md` |
+skills\lib\legacy-migrator.md:53:| planoDir | `.planning/plano{NN}/` | `.planning/{target}/plano{NN}/` |
+skills\lib\legacy-migrator.md:57:Para cada `to` computado: verificar que `normalize(to)` comeca com `.planning/{targetFolderName}/`.
+skills\lib\legacy-migrator.md:69:mkdir(".planning/" + targetFolderName)
+skills\lib\legacy-migrator.md:74:Criar `.planning/{targetFolderName}/.migration-log.json`:
+skills\lib\legacy-migrator.md:92:writeFile(".planning/" + targetFolderName + "/.migration-log.json", log)
+skills\lib\legacy-migrator.md:109:- {timestamp}: migracao legacy — {N} artefatos movidos de .planning/ raiz (signals: {sinais}). Ver .migration-log.json para detalhes.
+skills\lib\legacy-migrator.md:113:- Se `.planning/{targetFolderName}/STATE.md` JA EXISTE (veio do legacy): append a linha na secao `## Log`. NAO regenerar o arquivo.
+skills\lib\legacy-migrator.md:123:- {timestamp}: migracao legacy — {N} artefatos movidos de .planning/ raiz (signals: {sinais}). Ver .migration-log.json para detalhes.
+skills\lib\legacy-migrator.md:161:if isEmpty(".planning/" + targetFolderName):
+skills\lib\legacy-migrator.md:162:    rmdir(".planning/" + targetFolderName)
+skills\lib\legacy-migrator.md:188:- NUNCA tocar em arquivo fora de `.planning/`
+skills\lib\legacy-migrator.md:211:    if exists(".planning/" + targetFolderName):
+skills\lib\legacy-migrator.md:217:        if not normalize(dest).startsWith(".planning/" + targetFolderName + "/"):
+skills\lib\legacy-migrator.md:222:    mkdir(".planning/" + targetFolderName)
+skills\lib\legacy-migrator.md:224:    writeFile(".planning/" + targetFolderName + "/.migration-log.json", log)
+skills\lib\legacy-migrator.md:232:            writeFile(".planning/" + targetFolderName + "/.migration-log.json", log)
+skills\lib\legacy-migrator.md:237:    updateStateLog(".planning/" + targetFolderName + "/STATE.md", log, detectorResult.signals)
+skills\lib\legacy-migrator.md:249:    if isEmpty(".planning/" + targetFolderName):
+skills\lib\legacy-migrator.md:250:        rmdir(".planning/" + targetFolderName)
+skills\lib\legacy-migrator.md:258:    base = ".planning/" + targetFolderName + "/"
+skills\lib\legacy-migrator.md:277:           " artefatos movidos de .planning/ raiz (signals: " + join(signals, ",") +
+skills\lib\legacy-migrator.md:298:### Estado inicial (.planning/ raiz)
+skills\lib\legacy-migrator.md:301:.planning/
+skills\lib\legacy-migrator.md:321:    { "path": ".planning/PRD-auth.md",    "type": "PRD" },
+skills\lib\legacy-migrator.md:322:    { "path": ".planning/PLAN-auth.md",   "type": "PLAN" },
+skills\lib\legacy-migrator.md:323:    { "path": ".planning/STATE-auth.md",  "type": "STATE" },
+skills\lib\legacy-migrator.md:324:    { "path": ".planning/CONTEXT-auth.md","type": "CONTEXT" },
+skills\lib\legacy-migrator.md:325:    { "path": ".planning/plano01/",       "type": "planoDir" },
+skills\lib\legacy-migrator.md:326:    { "path": ".planning/plano02/",       "type": "planoDir" }
+skills\lib\legacy-migrator.md:339:- `.planning/2026-04-20-auth/` nao existe → ok
+skills\lib\legacy-migrator.md:341:  - `.planning/PRD-auth.md` → `.planning/2026-04-20-auth/PRD.md`
+skills\lib\legacy-migrator.md:342:  - `.planning/PLAN-auth.md` → `.planning/2026-04-20-auth/PLAN.md`
+skills\lib\legacy-migrator.md:343:  - `.planning/STATE-auth.md` → `.planning/2026-04-20-auth/STATE.md`
+skills\lib\legacy-migrator.md:344:  - `.planning/CONTEXT-auth.md` → `.planning/2026-04-20-auth/CONTEXT.md`
+skills\lib\legacy-migrator.md:345:  - `.planning/plano01/` → `.planning/2026-04-20-auth/plano01/`
+skills\lib\legacy-migrator.md:346:  - `.planning/plano02/` → `.planning/2026-04-20-auth/plano02/`
+skills\lib\legacy-migrator.md:347:- Todos os destinos iniciam com `.planning/2026-04-20-auth/` → ok
+skills\lib\legacy-migrator.md:351:mkdir .planning/2026-04-20-auth/
+skills\lib\legacy-migrator.md:353:mv .planning/PRD-auth.md    .planning/2026-04-20-auth/PRD.md      # atualiza log
+skills\lib\legacy-migrator.md:354:mv .planning/PLAN-auth.md   .planning/2026-04-20-auth/PLAN.md     # atualiza log
+skills\lib\legacy-migrator.md:355:mv .planning/STATE-auth.md  .planning/2026-04-20-auth/STATE.md    # atualiza log
+skills\lib\legacy-migrator.md:356:mv .planning/CONTEXT-auth.md .planning/2026-04-20-auth/CONTEXT.md # atualiza log
+skills\lib\legacy-migrator.md:357:mv .planning/plano01/       .planning/2026-04-20-auth/plano01/    # atualiza log
+skills\lib\legacy-migrator.md:358:mv .planning/plano02/       .planning/2026-04-20-auth/plano02/    # atualiza log
+skills\lib\legacy-migrator.md:364:- 2026-04-20T14:32:00Z: migracao legacy — 6 artefatos movidos de .planning/ raiz (signals: A,B,C). Ver .migration-log.json para detalhes.
+skills\lib\legacy-migrator.md:369:### Estado final (.planning/)
+skills\lib\legacy-migrator.md:372:.planning/
+skills\lib\legacy-migrator.md:398:for each subfolder in glob(".planning/*/"):
+skills\lib\legacy-migrator.md:424:| NUNCA tocar fora de `.planning/` | Evita dano ao codebase do projeto |
+skills\lib\state-utils.md:3:Instruções para skills manipularem arquivos de estado de execução em `.planning/`.
+skills\lib\state-utils.md:11:- **Diretório:** `.planning/` na raiz do projeto do usuário
+skills\lib\state-utils.md:16:- **Fallback:** se `.planning/` não existir, criar com `mkdir -p .planning/`
+skills\lib\state-utils.md:30:1. Ler `.planning/STATE-{featureName}.md`
+skills\lib\state-utils.md:36:Read: .planning/STATE-user-auth.md
+skills\lib\state-utils.md:52:1. Criar `.planning/` se não existir
+skills\lib\state-utils.md:55:4. Escrever em `.planning/STATE-{featureName}.md`
+skills\lib\state-utils.md:62:→ Write: .planning/STATE-user-auth.md
+skills\lib\state-utils.md:84:Read: .planning/STATE-user-auth.md
+skills\lib\state-utils.md:86:Edit: .planning/STATE-user-auth.md
+skills\lib\state-utils.md:176:3. Escrever em `.planning/SUMMARY-{featureName}.md`
+skills\lib\state-utils.md:184:2. **SEMPRE** criar `.planning/` se não existir antes de escrever
