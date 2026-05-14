@@ -262,8 +262,8 @@ Pipeline em **5 fases**, ancorado no esqueleto canônico do harness do André (l
 
 Os 3 subagentes novos do /init (`reconciler`, `explorer`, `compound-writer`)
 declaram `kind` no frontmatter e emitem envelope conforme `subagent-contract-v1`.
-Referencia: [docs/design-docs/subagent-contract-v1.md](../../design-docs/subagent-contract-v1.md)
-e [ADR-0002](../../design-docs/ADR-0002-subagent-contract.md).
+Referencia: [docs/design-docs/subagent-contract-v1.md](../../../design-docs/subagent-contract-v1.md)
+e [ADR-0002](../../../design-docs/ADR-0002-subagent-contract.md).
 
 Mapeamento de kind por agent do /init:
 - `reconciler` -> `kind: "verification"` (compara estado existente vs canon, emite `payload.checks[]`)

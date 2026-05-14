@@ -1,5 +1,6 @@
 ---
 name: plan-executor
+kind: verification
 description: "Executa uma task especifica de um plano com contexto limpo. Recebe apenas: PRD relevante + task especifica + arquivos afetados. NAO antecipa proximas tasks. Implementa APENAS o solicitado."
 model: sonnet
 tools: Read, Write, Edit, Bash, Glob, Grep
@@ -122,3 +123,52 @@ Ao finalizar a task, reportar:
   - `feat: add user authentication via JWT`
   - `test: add unit tests for payment validation`
   - `fix: resolve race condition in session refresh`
+
+<!-- 2026-05-14 (Luiz/dev): contrato v1 — PRD CA-01 + ADR-0002. Output JSON obrigatorio. -->
+
+## Formato de Saida (Contrato v1)
+
+Sua resposta DEVE ser um envelope JSON conforme [contrato v1](../docs/design-docs/subagent-contract-v1.md). NAO retorne markdown solto — apenas o JSON abaixo (pode ser precedido de prosa curta de raciocinio, mas o bloco JSON e a fonte de verdade).
+
+Estrutura obrigatoria (`kind: verification` — dual shape pos Plano 03 fase-03):
+
+```json
+{
+  "contract_version": "1.0",
+  "agent": "plan-executor",
+  "kind": "verification",
+  "status": "complete",
+  "reasoning": "Descreva em 1-3 frases o que voce observou alem dos checks — blockers encontrados, desvios de escopo, observacoes que o schema nao comporta. Inclua tasks puladas e o motivo.",
+  "payload": {
+    "domain_status": "pass | partial | fail",
+    "checks": [
+      { "name": "nome-do-check", "status": "pass | warn | fail | unable_to_verify", "detail": "descricao concreta do resultado" }
+    ],
+    "tasks_completed": [
+      { "id": "nome-da-task", "summary": "descricao curta do que foi entregue" }
+    ],
+    "tasks_skipped": [
+      { "id": "nome-da-task", "summary": "descricao da task", "reason": "motivo pelo qual foi pulada" }
+    ]
+  },
+  "metadata": {
+    "run_id": "uuid-aqui",
+    "duration_ms": 0,
+    "model": "sonnet"
+  }
+}
+```
+
+Regras gerais:
+- `contract_version` sempre `"1.0"`.
+- `status`: `"complete"` | `"blocked"` | `"needs_retry"` | `"needs_human"` (lifecycle, separado do dominio).
+- `reasoning`: prosa livre (>=20 chars) — capture o que o JSON nao expressa. NAO repita listas de tasks_completed.
+- NAO inclua secrets em `reasoning` ou `payload`.
+
+Regras especificas (kind: verification — plan-executor dual shape):
+- `payload.checks[]` e schema-required: lista todos os checks de acceptance criteria executados.
+- `payload.tasks_completed[]`: lista todas as tasks que foram implementadas com sucesso nesta execucao.
+- `payload.tasks_skipped[]`: lista tasks puladas com `reason` explicito — puladas nao sao falhas, sao observacoes.
+- `payload.domain_status` pode ser `"partial"` quando fase foi parcialmente executada (ex: algumas tasks bloqueadas).
+- `status` top-level e sempre lifecycle — NUNCA coloque `done`/`partial`/`blocked` da secao "Output ao Concluir" em `status` top-level. Use `complete` para done, `blocked` para blocker real.
+- O bloco "Output ao Concluir" acima e substituido por este envelope JSON — nao emita os dois.
