@@ -10,11 +10,13 @@
     "harness:validate": "bun scripts/harness-validate.ts .",
     "compound:check": "bun scripts/compound-check.ts .",
     "new-plan": "bun run scripts/new-plan.ts",
-    "state:regenerate": "bun run skills/lib/state-md-generator.ts $PWD"
+    "state:regenerate": "bun run skills/lib/state-md-generator.ts $PWD",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@types/bun": "^1.1.0",
     "@types/js-yaml": "^4.0.9",
+    "husky": "^9.1.7",
     "typescript": "^5.4.0"
   },
   "dependencies": {
