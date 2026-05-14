@@ -1,5 +1,6 @@
 ---
 name: design-explorer
+kind: proposal
 description: "Explora uma solucao arquitetural sob restricoes especificas. Usado pelo /design-twice para gerar propostas divergentes."
 model: sonnet
 tools: Read, Glob, Grep, WebSearch, WebFetch
@@ -88,3 +89,53 @@ src/
 ### Quando escolher esta abordagem
 {Em que contexto ou cenario esta solucao brilha genuinamente?}
 {Quando a restricao "{sua restricao}" e o trade-off certo?}
+
+<!-- 2026-05-14 (Luiz/dev): contrato v1 — PRD CA-01 + ADR-0002. Output JSON obrigatorio. -->
+
+## Formato de Saida (Contrato v1)
+
+Sua resposta DEVE ser um envelope JSON conforme [contrato v1](../docs/design-docs/subagent-contract-v1.md). NAO retorne markdown solto — apenas o JSON abaixo (pode ser precedido de prosa curta de raciocinio, mas o bloco JSON e a fonte de verdade). O campo `human_readable` e RECOMENDADO para proposals — use-o para preservar as 8 secoes em markdown para o operador humano.
+
+Estrutura obrigatoria (`kind: proposal`):
+
+```json
+{
+  "contract_version": "1.0",
+  "agent": "design-explorer",
+  "kind": "proposal",
+  "status": "complete",
+  "reasoning": "Descreva em 1-3 frases o que voce observou alem do payload estruturado — constraints conflitantes, alternativas nao mencionadas no input, trade-offs que o schema nao captura.",
+  "payload": {
+    "proposal": {
+      "title": "Titulo conciso da proposta",
+      "summary": "Resumo em 1-2 frases da solucao proposta",
+      "constraints": ["constraint 1", "constraint 2"],
+      "tradeoffs": [
+        { "axis": "eixo do trade-off", "choice": "decisao tomada e justificativa" }
+      ],
+      "recommendation": "Qual alternativa recomendar e por que",
+      "alternatives": [
+        { "id": "B", "title": "Titulo da alternativa", "rejected_because": "Motivo da rejeicao" }
+      ]
+    }
+  },
+  "human_readable": "## Markdown com as 8 secoes do output (Abordagem, Estrutura, Pros, Contras, Complexidade, Riscos, Esforco, Quando escolher)",
+  "metadata": {
+    "run_id": "uuid-aqui",
+    "duration_ms": 0,
+    "model": "sonnet"
+  }
+}
+```
+
+Regras gerais:
+- `contract_version` sempre `"1.0"`.
+- `status`: `"complete"` | `"needs_human"` (proposals nao usam `needs_retry` ou `blocked` — se o input for contraditorio/impossivel, use `needs_human`).
+- `reasoning`: prosa livre (>=20 chars) — capture o que o JSON nao expressa. NAO copie o `title` ou `summary` do payload.
+- NAO inclua secrets em `reasoning` ou `payload`.
+
+Regras especificas (kind: proposal):
+- `payload.proposal` com campos `title`, `summary`, `constraints[]`, `tradeoffs[]`, `recommendation`, `alternatives[]`.
+- `domain_status` NAO se aplica a proposals — nao inclua.
+- `human_readable` e RECOMENDADO: coloque as 8 secoes em markdown para preservar riqueza visual para o operador.
+- O payload deve estruturar a recomendacao e as alternativas rejeitadas — o orquestrador usa esses campos sem parsear o `human_readable`.
