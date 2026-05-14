@@ -47,7 +47,7 @@ Diferenca das outras skills:
 
 Se argumento passado no comando, usar como ponto de partida.
 
-Se vem do `/grill-me`: importar CONTEXT.md de `.planning/` com Read para reaproveitar decisoes ja tomadas.
+Se vem do `/grill-me`: importar CONTEXT.md de `docs/exec-plans/active/` com Read para reaproveitar decisoes ja tomadas.
 
 Se descricao vaga: usar AskUserQuestion:
 > "Descreva o problema em 2-3 frases. O que a feature precisa fazer? Quais sao as constraints conhecidas?"
@@ -149,90 +149,69 @@ Para cada agente (A, B, C):
 - model: "sonnet" (custo-eficiente para exploracao)
 ```
 
+<!-- 2026-05-14 (Luiz/dev): A3 — subagent_type permanece "general-purpose" (nao migrado para anti-vibe-coding:design-explorer ainda). Comportamento de output foi migrado para contrato v1 pelo Plano 02 fase-02. -->
+
 Regras de isolamento:
 - Subagentes NAO veem as solucoes uns dos outros
 - Cada subagente recebe as MESMAS constraints compartilhadas + restricao UNICA
 - Se um subagente falhar, reportar ao dev e oferecer re-tentar ou prosseguir com 2 propostas
 
-### Template de Input para Cada Subagente
+### Output Esperado dos Subagentes (Contrato v1)
 
-```markdown
-# Design Twice — Proposta {letra}
+Cada subagente retorna JSON conforme contrato v1 com `kind: "proposal"` — ver `agents/design-explorer.md` para template atualizado (Plano 02 fase-02).
 
-## Problema
-{descricao do problema/feature do dev}
+O orquestrador NAO parseia markdown manual — chama `consolidateProposals()` de `skills/design-twice/index.ts` que usa `parseContract()` internamente. Output dos subagentes vira array `ConsolidatedProposal[]` ordenado por letra (A/B/C).
 
-## Constraints Compartilhadas (inegociaveis)
-{constraints do Step 2 — stack, must-haves, constraints tecnicas e de negocio}
-
-## Sua Restricao Especifica
-{restricao unica deste agente — ex: "Minimize complexity. Simplest possible approach."}
-
-## Instrucoes
-Voce e um arquiteto de software explorando UMA abordagem especifica para este problema.
-Sua restricao e seu norte — TODAS as decisoes devem favorecer essa direcao.
-Use Read/Grep/Glob para explorar o codebase se precisar de mais contexto.
-Produza o output EXATAMENTE no formato abaixo. Nao omita nenhuma secao.
-
-## Output Esperado
-
-### Abordagem
-{descricao da solucao proposta em 3-5 paragrafos}
-{incluir estrutura de arquivos/modulos se aplicavel}
-{incluir diagrama textual se ajudar na compreensao}
-
-### Pros (minimo 3)
-1. {vantagem concreta e especifica ao problema, nao generica}
-2. ...
-3. ...
-
-### Contras (minimo 3)
-1. {desvantagem concreta e especifica ao problema, nao generica}
-2. ...
-3. ...
-
-### Complexidade: {1-5}
-{1=trivial, 2=simples, 3=moderado, 4=complexo, 5=muito complexo}
-{justificativa em relacao ao projeto atual}
-
-### Riscos
-1. {risco tecnico ou de negocio concreto}
-2. ...
-
-### Esforco: {S|M|L}
-{S=horas, M=dias, L=semanas}
-{justificativa em relacao ao projeto atual}
+```
+Shape canonico de payload.proposal (contrato v1):
+- title: string
+- summary: string
+- constraints: string[]
+- tradeoffs: Array<{ axis: string, choice: string }>
+- recommendation: string
+- alternatives: Array<{ id: string, title: string, rejected_because: string }>
 ```
 
 Regras de output dos subagentes:
-1. TODAS as secoes sao obrigatorias — se um agente omitir algo, reformatar antes de comparar
-2. Pros e contras devem ser CONCRETOS e especificos ao problema — nao genericos
-3. Complexidade e esforco justificados em relacao ao projeto atual, nao em absoluto
+1. Output DEVE ser JSON valido conforme contrato v1 — nao markdown livre
+2. `kind` DEVE ser `"proposal"` — qualquer outro kind e rejeitado pelo consolidador
+3. `payload.proposal` DEVE incluir todos os campos acima (schema validado)
 4. O orquestrador espera TODOS os 3 agentes completarem antes de prosseguir
 
 ---
 
 ## Step 4 — Compilar Tabela Comparativa
 
-Apos os subagentes retornarem, compilar em tabela Markdown:
+Apos os subagentes retornarem, chamar `consolidateProposals()` e derivar tabela Markdown de `ConsolidatedProposal[].proposal`:
+
+```
+Fonte de dados:
+- Tabela comparativa: derivada de ConsolidatedProposal[].proposal (campos: title, summary, constraints, tradeoffs, recommendation, alternatives)
+- Detalhamento completo apos tabela: ConsolidatedProposal[].humanReadable (preserva as secoes que design-explorer.md gera em human_readable)
+- Reasoning de cada agente: ConsolidatedProposal[].reasoning — colocar em secao "Reasoning dos exploradores"
+  (G-P02-03: reasoning = meta-observacao; human_readable = proposta em si — nao misturar)
+- Se proposal == null (status != complete): adicionar nota "Proposta {letter} bloqueada: {reasoning}"
+```
+
+<!-- 2026-05-14 (Luiz/dev): Step 4 migrado de "parse 8 secoes markdown" para campos estruturados de payload.proposal — Plano 04 fase-02. Tabela nao usa mais complexity/effort/pros/cons/risks (campos obsoletos rejeitados em Plano 02 fase-02 BUG-1). -->
 
 ```markdown
 ## Comparacao de Propostas
 
-| Aspecto          | Proposta A ({filosofia}) | Proposta B ({filosofia}) | Proposta C ({filosofia}) |
-|------------------|--------------------------|--------------------------|--------------------------|
-| **Abordagem**    | {resumo em 1-2 frases}   | {resumo em 1-2 frases}   | {resumo em 1-2 frases}   |
-| **Complexidade** | {N}/5                    | {N}/5                    | {N}/5                    |
-| **Esforco**      | {S/M/L}                  | {S/M/L}                  | {S/M/L}                  |
-| **Pros**         | {top 2 pros}             | {top 2 pros}             | {top 2 pros}             |
-| **Contras**      | {top 2 contras}          | {top 2 contras}          | {top 2 contras}          |
-| **Riscos**       | {principal risco}        | {principal risco}        | {principal risco}        |
+| Aspecto              | Proposta A ({filosofia}) | Proposta B ({filosofia}) | Proposta C ({filosofia}) |
+|----------------------|--------------------------|--------------------------|--------------------------|
+| **Titulo**           | {proposal.title}         | {proposal.title}         | {proposal.title}         |
+| **Resumo**           | {proposal.summary}       | {proposal.summary}       | {proposal.summary}       |
+| **Recomendacao**     | {proposal.recommendation}| {proposal.recommendation}| {proposal.recommendation}|
+| **Tradeoffs chave**  | {tradeoffs[0].choice}    | {tradeoffs[0].choice}    | {tradeoffs[0].choice}    |
+| **Alternativas rej.**| {alternatives count}     | {alternatives count}     | {alternatives count}     |
 ```
 
 Regras da tabela:
-- Resumir para caber na tabela — o detalhamento completo fica abaixo (em secoes sequenciais)
+- Resumir para caber na tabela — o detalhamento completo (human_readable) fica abaixo em secoes sequenciais
 - Para 4-5 propostas, estender com colunas adicionais (ou usar formato de lista se ficar muito largo)
-- Incluir output COMPLETO de cada subagente apos a tabela
+- Incluir human_readable COMPLETO de cada proposta apos a tabela
+- Incluir secao "Reasoning dos exploradores" com reasoning de cada ConsolidatedProposal
 
 ---
 
