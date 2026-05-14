@@ -21,3 +21,4 @@ jobs:
       - run: bun install
       - run: bun run harness:validate
       - run: bun run compound:check
+      - run: bun run agents:contract  # 2026-05-14 (Luiz/dev): CA-07 — 13 fixtures contrato v1
