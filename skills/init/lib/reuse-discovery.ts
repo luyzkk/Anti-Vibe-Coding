@@ -10,7 +10,7 @@ export const FRESH_THRESHOLD_MS = 24 * 60 * 60 * 1000
  * Mirror do pattern `parseDryRunFlag` em Step migrate.0 (skills/init/SKILL.md:47-53).
  */
 export function parseReuseDiscoveryFlag(args: string[]): { reuseDiscovery: boolean } {
-  return { reuseDiscovery: args.includes('--reuse-discovery') }
+  return { reuseDiscovery: args.includes('--reuse-discovery') || args.includes('--refresh') }
 }
 
 /**
@@ -76,4 +76,40 @@ export function resolveThresholdMs(envValue: string | undefined): number {
   const hours = Number(envValue)
   if (!Number.isFinite(hours) || hours <= 0) return FRESH_THRESHOLD_MS
   return hours * 60 * 60 * 1000
+}
+
+// 2026-05-15 (Luiz/dev): loader pattern — unknown return lets mocks assign freely (covariant); internal cast is safe given runtime contract — PRD v6.3.0 §RF-CH-01 / DEC-2 option 3
+type ParityAuditModule = {
+  inspectToolRegistry: (projectRoot: string) => Promise<unknown>
+  computeParityGaps: (snapshot: unknown, taskType: string | null) => unknown
+  writeParityGaps: (output: unknown, projectRoot: string) => Promise<string>
+}
+
+type RegenerateResult =
+  | { regenerated: false; reason: 'parity-audit-unavailable' | 'error' }
+  | { regenerated: true; reason: 'success' }
+
+// 2026-05-15 (Luiz/dev): graceful degradation — if parity-audit module unavailable, skip silently — PRD v6.3.0 §RF-CH-01 / DEC-2 option 3
+export async function tryRegenerateParityGaps(
+  projectRoot: string,
+  // loader returns unknown (covariant) so test mocks with narrow return types stay assignable
+  loader: () => Promise<unknown>,
+): Promise<RegenerateResult> {
+  let raw: unknown
+  try {
+    raw = await loader()
+  } catch {
+    return { regenerated: false, reason: 'parity-audit-unavailable' }
+  }
+  if (raw === null || raw === undefined) return { regenerated: false, reason: 'parity-audit-unavailable' }
+
+  const mod = raw as ParityAuditModule
+  try {
+    const snapshot = await mod.inspectToolRegistry(projectRoot)
+    const output = mod.computeParityGaps(snapshot, null)
+    await mod.writeParityGaps(output, projectRoot)
+    return { regenerated: true, reason: 'success' }
+  } catch {
+    return { regenerated: false, reason: 'error' }
+  }
 }
