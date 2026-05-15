@@ -41,10 +41,18 @@ const REQUIRED_FILES = [
 const AGENTS_MAX_LINES = 40
 
 // Required links inside AGENTS.md — sinal do harness do Andre.
+// 2026-05-14 (Luiz/dev): Plano 05 fase-03 — DT-10: 4 extensões anti-vibe adicionadas.
+// Links devem corresponder exatamente ao AGENTS.md.tpl — qualquer diferença de texto
+// causa falso negativo no content.includes(link) check.
 const AGENTS_REQUIRED_LINKS = [
   '[ARCHITECTURE.md](./ARCHITECTURE.md)',
   '[docs/QUALITY_SCORE.md](./docs/QUALITY_SCORE.md)',
   '[docs/PRODUCT_SENSE.md](./docs/PRODUCT_SENSE.md)',
+  // Anti-vibe extensions (DT-10 — category: 'anti-vibe-extension')
+  '[docs/MERGE_GATES.md](./docs/MERGE_GATES.md)',
+  '[docs/COMPOUND_ENGINEERING.md](./docs/COMPOUND_ENGINEERING.md)',
+  '[docs/review-checklists/](./docs/review-checklists/)',
+  '[docs/smoke-flows/](./docs/smoke-flows/)',
 ] as const
 
 // Diretorios excluidos do crawl de markdown (G10 do plano).
@@ -64,23 +72,97 @@ const AGENTS_REQUIRED_LINKS = [
 const SKIP_DIRS = new Set(['node_modules', '.git', '.claude', '.planning', '.planning.v5-backup', 'claude-code', 'compound', 'templates', '__fixtures__', 'fixtures', 'snippets', '_legacy-detail', 'v5-legacy'])
 const ARCHIVED_SEGMENT = '_archived'
 
+// Inline — harness-validate é script standalone sem imports externos.
+// CANONICAL: skills/init/lib/manifest-writer.ts InitMode/MigrationPlanEntry/AntiVibeManifest
+// Manter em sync manual. Drift detectado por: diferença no shape do JSON retornado.
+type InitMode = 'fresh' | 'migration' | 'completed'
+type ManifestMigrationPlan = { id: string; slot: string; path: string; status: 'active' | 'completed' }
+type InitManifest = {
+  initMode?: InitMode
+  migrationPlans?: ManifestMigrationPlan[]
+}
+
+async function readInitManifest(projectRoot: string): Promise<InitManifest | null> {
+  try {
+    const raw = await fs.readFile(path.join(projectRoot, '.claude', '.anti-vibe-manifest.json'), 'utf8')
+    return JSON.parse(raw) as InitManifest
+  } catch {
+    return null
+  }
+}
+
 type Failure = { rule: string; message: string }
+
+/**
+ * Em migration mode: verifica que todo slot ausente tem um plan ativo correspondente no manifest.
+ * Slots sem plan ativo = error (mesmo em migration mode — "permissivo" != "sem cobertura").
+ *
+ * @param missingSlots - Paths relativos dos arquivos ausentes (ex: ['AGENTS.md', 'docs/DESIGN.md'])
+ */
+export async function checkMigrationConsistency(
+  failures: Failure[],
+  manifest: { migrationPlans?: Array<{ slot: string; status: string }> },
+  _projectRoot: string,
+  missingSlots: string[],
+): Promise<void> {
+  if (missingSlots.length === 0) return
+
+  const activePlanSlots = new Set(
+    (manifest.migrationPlans ?? [])
+      .filter((p) => p.status === 'active')
+      .map((p) => p.slot),
+  )
+
+  for (const missingSlot of missingSlots) {
+    if (!activePlanSlots.has(missingSlot)) {
+      failures.push({
+        rule: 'migration-consistency',
+        message: `Migration mode: '${missingSlot}' is missing and has no active migration plan. Add a plan or create the file.`,
+      })
+    }
+  }
+}
 
 async function main(): Promise<void> {
   const failures: Failure[] = []
+  const warnings: Failure[] = []
+
+  const manifest = await readInitManifest(root)
+  const isMigrationMode = manifest?.initMode === 'migration'
 
   // Checks paralelos que nao dependem de coleta de markdown.
   await Promise.all([
-    checkRequiredFiles(failures),
+    checkRequiredFiles(failures, warnings, isMigrationMode),
     checkAgentsConstraints(failures),
     checkActivePlans(failures),
     checkQualityScoreFormat(failures),
     checkAgentContracts(failures), // 2026-05-14 (Luiz/dev): novo — CA-10
   ])
 
+  // Consistency check em migration mode: todo slot ausente deve ter plan ativo.
+  if (isMigrationMode && manifest) {
+    const missingSlotsInChecks = warnings
+      .filter((w) => w.rule === 'required-files')
+      .map((w) => {
+        const match = w.message.match(/Missing required file: (.+)/)
+        return match?.[1] ?? null
+      })
+      .filter((s): s is string => s !== null)
+
+    await checkMigrationConsistency(failures, manifest, root, missingSlotsInChecks)
+  }
+
   // Coleta de markdown e recursiva — executa apos checks basicos mas internamente paralela.
   const mdFiles = await collectMarkdownFiles(root)
   await checkMarkdownFiles(mdFiles, failures)
+
+  // Print warnings (nao param o pipeline).
+  if (warnings.length > 0) {
+    console.warn(`Migration mode: ${warnings.length} warning(s) (slots sem arquivo — coverage by plans expected):`)
+    for (const w of warnings) {
+      console.warn(`  [${w.rule}] ${w.message}`)
+    }
+  }
 
   if (failures.length > 0) {
     console.error('Harness validation failed:')
@@ -90,11 +172,16 @@ async function main(): Promise<void> {
     process.exit(1)
   }
 
-  console.log(`Harness validation passed (${REQUIRED_FILES.length} required files, ${mdFiles.length} markdown files checked).`)
+  const modeLabel = isMigrationMode ? ' (migration mode — some checks relaxed)' : ''
+  console.log(`Harness validation passed${modeLabel} (${REQUIRED_FILES.length} required files, ${mdFiles.length} markdown files checked).`)
   process.exit(0)
 }
 
-async function checkRequiredFiles(failures: Failure[]): Promise<void> {
+async function checkRequiredFiles(
+  failures: Failure[],
+  warnings: Failure[],
+  isMigrationMode: boolean,
+): Promise<void> {
   await Promise.all(
     REQUIRED_FILES.map(async (rel) => {
       try {
@@ -103,7 +190,13 @@ async function checkRequiredFiles(failures: Failure[]): Promise<void> {
           failures.push({ rule: 'required-files', message: `${rel} exists but is not a file or symlink` })
         }
       } catch {
-        failures.push({ rule: 'required-files', message: `Missing required file: ${rel}` })
+        const msg = `Missing required file: ${rel}`
+        if (isMigrationMode) {
+          // Em migration mode: warning em vez de error. Consistency check posterior valida coverage.
+          warnings.push({ rule: 'required-files', message: msg })
+        } else {
+          failures.push({ rule: 'required-files', message: msg })
+        }
       }
     }),
   )

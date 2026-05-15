@@ -8,6 +8,13 @@
 - [docs/QUALITY_SCORE.md](./docs/QUALITY_SCORE.md): current quality bar and the biggest gaps.
 - [docs/SECURITY.md](./docs/SECURITY.md): security constraints and review checklist.
 
+## Anti-Vibe Extensions
+
+- [docs/MERGE_GATES.md](./docs/MERGE_GATES.md): PR gates, TDD enforcement, and quality checklist.
+- [docs/COMPOUND_ENGINEERING.md](./docs/COMPOUND_ENGINEERING.md): compound engineering and lessons capture.
+- [docs/review-checklists/](./docs/review-checklists/): pre-merge review checklists by domain.
+- [docs/smoke-flows/](./docs/smoke-flows/): critical user flows for smoke testing.
+
 ## Required Working Rules
 
 1. Keep durable context in the repo, not only in chat history.

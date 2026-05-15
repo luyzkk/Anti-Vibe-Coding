@@ -1,7 +1,7 @@
 # State: /init Migration Mode
 
 **Plan:** ./PLAN.md
-**Phase:** in-progress
+**Phase:** completed
 **Current Plan:** 05/05
 **Last Updated:** 2026-05-14
 
@@ -13,14 +13,14 @@
 | 02 | Discovery TS: Fase 0 + Audit Log | 3 | 3/3 | completed |
 | 03 | Subagent Orchestration | 5 | 5/5 | completed |
 | 04 | Manifest + Harness Validate: Fase 4 | 3 | 3/3 | completed |
-| 05 | Polish: Idempotência + Fixtures + AGENTS.md | 3 | 0/3 | pending |
+| 05 | Polish: Idempotência + Fixtures + AGENTS.md | 3 | 3/3 | completed |
 
 ## Progress Global
 
-Fases done: 15/18 (83%)
+Fases done: 18/18 (100%)
 
 ```
-[████████████████    ] 83%
+[████████████████████] 100%
 ```
 
 ## Log
@@ -46,3 +46,7 @@ Fases done: 15/18 (83%)
 - 2026-05-14: Plano 04 fase-02 concluída — harness-validate.ts estendido com migration mode: readInitManifest (inline), checkMigrationConsistency (export), checkRequiredFiles usa warnings[] em migration mode, main() lê manifest e aplica consistency check. 2 testes passando (RED→GREEN), tsc limpo.
 - 2026-05-14: Plano 04 fase-03 concluída — autoFlipIfComplete exportada de manifest-writer.ts; 4 testes passando (RED→GREEN); SKILL.md Passo 0 substituído por routing detectInitMode + 4 branches + autoFlipIfComplete no branch migration. Backfill de Plano 01 fase-03 (SKILL.md routing nunca commitado). Plano 04 completado (3/3 fases).
 - 2026-05-14: Plano 04 completado — Current Plan avança para 05
+- 2026-05-14: Plano 05 fase-01 concluída — idempotency.ts criado, 11 testes passando, commit (vide MEMORY.md)
+- 2026-05-14: Plano 05 fase-02 concluída — 5 fixtures repos-mock criados; 13 testes passando (fixtures.test.ts), dense-architecture=1268 linhas, single-design-file=465 linhas, greenfield sem .md files, commit 66fb9b8
+- 2026-05-14: Plano 05 fase-03 concluída — AGENTS.md.tpl + harness-validate.ts + AGENTS.md (dogfood) atualizados; 5 testes TDD GREEN (agents-md-template.test.ts), tsc limpo. G4 aplicado: links integrados na tabela do repo AGENTS.md para manter ≤40 linhas. Plano 05 completado (3/3).
+- 2026-05-14: Todos os planos completados (18/18 fases). Feature /init Migration Mode concluída.
