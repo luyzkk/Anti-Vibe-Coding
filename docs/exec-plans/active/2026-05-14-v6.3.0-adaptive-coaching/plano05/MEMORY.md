@@ -2,11 +2,20 @@
 
 **Feature:** Adaptive Coaching v6.3.0
 **Iniciado:** 2026-05-15 (fase-01 imediatamente pausada — bloqueador externo)
-**Status:** in-progress (fase-01 e fase-02 concluídas; resta fase-03)
+**Status:** completed (3/3 fases — encerra release v6.3.0)
 
 ---
 
 ## Decisões Durante Execução
+
+- **DEC-4 (2026-05-15, fase-03):** CLI `preface:simulate` shipa como função pura `simulate(projectRoot, skillName)` + thin entrypoint guarded por `import.meta.main`, **não** como CLI spawn-based.
+  - **Contexto:** Spec de fase-03 oferecia dois caminhos (spawn `Bun.spawn` vs função pura) e citava `Bun.spawn` como flaky no Windows (G7). Repo é Windows-first; `scripts/__tests__/analyze-metrics.test.ts` já testa libs por import direto (sem spawn).
+  - **3 opções:**
+    1. Spawn-based como literal no draft. Mais fiel ao "comportamento real da CLI" mas frágil em Windows (paths, escaping, stdio race).
+    2. Pure-fn `simulate(projectRoot, skillName): Promise<{stdout, stderr, code}>` testada por chamada direta. Determinístico, segue padrão do repo. Trade-off: shebang/entrypoint não coberto por teste — mitigado por smoke manual.
+    3. Híbrido (spawn p/ caso feliz + pure-fn p/ edge cases). Custo dobrado, sem ganho real.
+  - **Decisão:** opção 2. Justificativa: paridade com `scripts/__tests__/analyze-metrics.test.ts`, G7 do README do plano explicitamente autoriza, sem trade-off relevante. Smoke manual com `bun run preface:simulate security` valida o entrypoint real (rodou exit 0 imprimindo bloco da skill `/security`).
+  - **Impacto:** padrão reusável — futuros scripts CLI no repo devem exportar a função "puramente computacional" e atar o I/O em um bloco `if (import.meta.main)`. Documentar no migration guide quando o tema de DX voltar.
 
 - **DEC-3 (2026-05-15, fase-02):** Convenção opt-in para threshold — diretório `config/` deve existir no `projectRoot` para o threshold ser aplicado.
   - **Contexto:** Pre-existing CA-09 fixture test para `unknown-mixed` chama `readPrefaceContext("/fake/root")` com mock retornando `confidence: 45` e espera `profile === "unknown-mixed"`. Após adicionar threshold default 70, `45 < 70` faria o teste falhar (`profile === null`).
@@ -53,6 +62,10 @@
 
 - **DEV-4 (fase-02, 2026-05-15):** Spec sugere validação manual (`typeof + >= + <=`) em vez de AJV (G7). GREEN inicial implementou apenas `typeof === 'number'` sem bounds. Bounds (`0..100`) adicionados no commit de scaffolding para garantir que `confidence_threshold: 150` no config caia em default ao invés de propagar valor inválido. Não há teste explícito para bounds — risco aceito porque o schema JSON cobre o caso em CI (eventualmente).
 
+- **DEV-5 (fase-03, 2026-05-15):** Spec do fase-03 trazia exemplo de `simulate(skillName)` com `process.exit`/`console.log` inline; teste shape era spawn-based. Adotado contrato pure-fn `simulate(projectRoot, skillName): Promise<{stdout:string[], stderr:string[], code:number}>` para satisfazer DEC-4 (testabilidade Windows-friendly). Entrypoint sob `if (import.meta.main)` faz console + exit. Cobertura real do shebang fica no smoke manual, não automatizada.
+
+- **DEV-6 (fase-03, 2026-05-15):** Spec sugeriu inserir entry `preface:simulate` em `package.json` "entre `new-plan` e `prepare`". Mantido ordem alfabética real (entre `new-plan` e `state:regenerate`) — `prepare` vem depois de `state:regenerate` no objeto. Sem impacto funcional.
+
 <!-- Exemplo:
 - **BUG-1:** preface:simulate quebra em Windows quando skill name tem barra invertida
   - Causa: path.join no Windows produz \ mas glob pattern espera /
@@ -68,11 +81,24 @@
 
 - **L-2 (fase-02, 2026-05-15):** RED com 3 testes que falham + 3 boundary tests que "passam vacuously" é TDD legítimo. Boundary tests não falham antes da impl porque o comportamento default (preservar profile) já satisfaz a asserção; eles servem de regression guard durante GREEN. Não considerar isso falha de RED.
 
+- **L-3 (fase-03, 2026-05-15):** Scripts CLI testáveis no padrão do repo: exportar função pura computacional `simulate(...): Promise<{stdout, stderr, code}>` + bloco `if (import.meta.main)` que traduz para `console.*` e `process.exit`. Beneficios: testes determinísticos em Windows, tipagem estática completa, anchor TDD claro. Trade-off: shebang/entrypoint precisa de smoke manual. Aplicável a qualquer novo script futuro em `scripts/`.
+
 ---
 
 ## Patterns Emergentes
 
 - **P-1 (fase-02, 2026-05-15):** Config files novos em `config/` shipam como tripla: arquivo de config default + JSON Schema draft-07 em `config/_schemas/` + 3 fixtures em `config/__fixtures__/` (válida + 2 inválidas para edge cases distintos). Mantém validação CI estável e fornece exemplos canônicos para o autor da próxima skill. Source: schema `adaptive-coaching-v1`.
+
+- **P-2 (fase-03, 2026-05-15):** Pure-fn CLI pattern (ver L-3). Exportar `simulate(projectRoot, ...): Promise<{stdout: string[], stderr: string[], code: number}>` + `if (import.meta.main) { ... }` para entrypoint. Aplicar em qualquer novo script `scripts/*.ts` que precise de testes determinísticos cross-platform.
+
+---
+
+## Notas para v6.3.1 / v6.4
+
+- **CLI `bun run preface:simulate {skill}`** está estável; consumidores: humanos em debug ad-hoc. Para CI snapshot futuro de prefaces compostos, importar `simulate(projectRoot, skillName)` direto e snapshot-test stdout — sem precisar spawnar processo.
+- **Pure-fn pattern (P-2 / L-3)** disponível para qualquer novo script `scripts/*.ts`. Caso o repo padronize, vale RFC para migrar `scripts/new-plan.ts` e demais entries (não bloqueia release atual).
+- **fase-03 não introduziu novos schemas ou ADRs.** Apenas adicionou `scripts/preface-simulate.ts`, `scripts/preface-simulate.test.ts`, e a entrada `preface:simulate` em `package.json`.
+- **Plano 05 e feature v6.3.0 CONCLUÍDOS.** Próximo passo coordenado pelo dev: SUMMARY.md + /lessons-learned destilação + mover pasta para `docs/exec-plans/completed/`.
 
 ---
 
