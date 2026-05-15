@@ -383,6 +383,70 @@ If `result.status === 'marker-missing'`, log a warning — AGENTS.md was hand-ed
 
 ---
 
+### Step 7 (v6.3.0): Capabilities Discovery (Plano 02 fase-03)
+
+<!-- Roda APÓS architecture profile detectado (via skill separada /detect-architecture).
+     Se o profile não foi detectado (readArchitectureProfile retorna null), o step pula silenciosamente.
+     Soft-fail obrigatório — NUNCA aborta /init em caso de erro. -->
+
+```javascript
+const { randomUUID } = await import('node:crypto')
+const { writeFile, readFile } = await import('node:fs/promises')
+const path = await import('node:path')
+const { readArchitectureProfile } = await import('../lib/read-architecture-profile.ts')
+const { discoverCapabilities } = await import('../lib/capabilities-writer.ts')
+const { AuditLogWriter } = await import('./lib/audit-log.ts')
+
+const projectRoot = process.cwd()
+const profileObj = readArchitectureProfile()
+
+if (profileObj === null) {
+  console.log('[capabilities-discovery] skipped — architecture profile not detected. Run /anti-vibe-coding:detect-architecture first.')
+} else {
+  const startMs = Date.now()
+  try {
+    const output = await discoverCapabilities(projectRoot, profileObj.profile)
+
+    const capsPath = path.join(projectRoot, 'discovery', 'capabilities.json')
+    await writeFile(capsPath, JSON.stringify(output, null, 2), 'utf-8')
+
+    // Soft schema validation — warn only, never throw
+    if (output.schema_version !== '1.0') {
+      console.warn('[capabilities-discovery] schema_version mismatch — expected "1.0", got ' + JSON.stringify(output.schema_version))
+    }
+
+    // Audit entry — generate fresh run_id (greenfield /init has no inventory.json)
+    const writer = new AuditLogWriter(projectRoot, randomUUID())
+    await writer.append({
+      subagent_id: 'capabilities-discovery',
+      input_paths: ['app/**', 'routes/**'],
+      output_struct: {
+        capabilities_count: output.capabilities.length,
+        coverage_gaps_count: output.coverage_gaps.length,
+        profile: profileObj.profile,
+        schema_version: '1.0',
+      },
+      duration_ms: Date.now() - startMs,
+      retry_count: 0,
+    })
+
+    // User-facing warnings via console.log (NOT stderr) — these surface as Claude text output
+    if (output.coverage_gaps.length > 0 && output.capabilities.length === 0) {
+      console.log('Capabilities discovery found no routes. Consider running /anti-vibe-coding:init --refresh after adding routes.')
+    } else if (output.coverage_gaps.length > 0) {
+      console.log('Capabilities discovery: ' + output.capabilities.length + ' routes found, ' + output.coverage_gaps.length + ' coverage gaps. Run /anti-vibe-coding:init --refresh if routes change.')
+    }
+  } catch (err) {
+    // Soft-fail: log warning but DO NOT rethrow — /init must continue
+    console.warn('[capabilities-discovery] step failed, skipping:', err instanceof Error ? err.message : String(err))
+  }
+}
+```
+
+After this step, `discovery/capabilities.json` exists (when profile detected) and `discovery/agents-log.json` has a `capabilities-discovery` audit entry. Profile detection itself is performed by the standalone `/anti-vibe-coding:detect-architecture` skill — this step is a no-op when profile is absent.
+
+---
+
 ### Passo 0 — Detectar Modo de Inicialização (Plano 01 fase-03 + Plano 04 fase-03)
 
 <!-- DEPRECATED: bloco anterior (hasManifest/require/pluginVersion) substituído por detectInitMode. -->
