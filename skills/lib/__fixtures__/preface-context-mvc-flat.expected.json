@@ -1,0 +1,11 @@
+{
+  "_comment": "Fixture de regressão para readPrefaceContext com profile mvc-flat.",
+  "input_profile": "mvc-flat",
+  "input_confidence": 75,
+  "expected_output": {
+    "profile": "mvc-flat",
+    "language": null,
+    "framework": null,
+    "confidence": 75
+  }
+}

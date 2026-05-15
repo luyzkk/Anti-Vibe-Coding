@@ -1,0 +1,11 @@
+{
+  "_comment": "Fixture de regressão para readPrefaceContext com profile vertical-slice.",
+  "input_profile": "vertical-slice",
+  "input_confidence": 79,
+  "expected_output": {
+    "profile": "vertical-slice",
+    "language": null,
+    "framework": null,
+    "confidence": 79
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "_comment": "Fixture de regressão para readPrefaceContext com profile unknown-mixed. confidence tipicamente baixa.",
+  "input_profile": "unknown-mixed",
+  "input_confidence": 45,
+  "expected_output": {
+    "profile": "unknown-mixed",
+    "language": null,
+    "framework": null,
+    "confidence": 45
+  }
+}

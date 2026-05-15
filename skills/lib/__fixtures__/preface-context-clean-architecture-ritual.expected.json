@@ -1,0 +1,11 @@
+{
+  "_comment": "Fixture de regressão para readPrefaceContext com profile clean-architecture-ritual.",
+  "input_profile": "clean-architecture-ritual",
+  "input_confidence": 82,
+  "expected_output": {
+    "profile": "clean-architecture-ritual",
+    "language": null,
+    "framework": null,
+    "confidence": 82
+  }
+}

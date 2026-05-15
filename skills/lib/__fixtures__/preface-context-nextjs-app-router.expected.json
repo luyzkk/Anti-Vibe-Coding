@@ -1,0 +1,11 @@
+{
+  "_comment": "Fixture de regressão para readPrefaceContext com profile nextjs-app-router. language e framework são null em v6.3.0 (PRD §Decisão #2).",
+  "input_profile": "nextjs-app-router",
+  "input_confidence": 88,
+  "expected_output": {
+    "profile": "nextjs-app-router",
+    "language": null,
+    "framework": null,
+    "confidence": 88
+  }
+}
