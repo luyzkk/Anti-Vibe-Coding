@@ -2,7 +2,7 @@
 
 **Feature:** Adaptive Coaching v6.3.0
 **Iniciado:** 2026-05-14
-**Status:** in-progress (fases 01-02 concluídas em 2026-05-15)
+**Status:** completed (3/3 fases concluídas em 2026-05-15)
 
 ---
 
@@ -32,6 +32,10 @@ Formato: o que foi decidido + por que + impacto.
 - **DI-4 (fase-02):** Validação de schema mantida SOFT (apenas warning), conforme G4 do README do plano03. `computeParityGaps` produz `schema_version: '1.0'` mas não importa `ajv`. PRD §RNF de dependências mínimas + decisão #8 de gitignore.
   - Por que: schema vive em `discovery/_schemas/parity-gaps-v1.schema.json`, mas validação dura introduziria runtime dependency. A skill executa em context efêmero (developer-time, não prod).
   - Impacto: drift entre código e schema é detectado por inspeção humana ou linter externo, não por crash. Aceitável v6.3.0 — endurecer se houver consumidor downstream que precise garantia.
+
+- **DI-5 (fase-03):** Bloco de pre-check em SKILL.md é declarativo (markdown + snippet TypeScript de referência), não executado inline. EXECUTOR-LLM lê o bloco como instrução para chamar `inspectToolRegistry` via Read+Bash antes do Passo 0.
+  - Por que: SKILL.md é prosa instrucional consumida pelo harness do Claude Code, não código compilável. Tentar executar o snippet inline quebra o paradigma declarativo das outras skills (`/architecture`, `/init`).
+  - Impacto: pre-check só é efetivo quando o EXECUTOR-LLM segue a skill — desenvolvedores que invocam tools Playwright diretamente continuam dependendo apenas do frontmatter `allowed-tools:` (que NÃO foi alterado por G1).
 
 ---
 
@@ -92,6 +96,9 @@ Se nada mudou, manter vazio (bom sinal).
   - Motivo: gate funciona por convenção de naming (file foo.ts → foo.test.ts), não por análise de cobertura. `parity-gaps-writer.test.ts` indiretamente cobre gap-rules (via GAP_RULES default param), mas o gate não consegue saber isso.
   - Impacto: anchor immutable do RED step (`parity-gaps-writer.test.ts`) NÃO foi tocado. Os 2 testes extras de `gap-rules.test.ts` são livres para evoluir. PRs futuros que adicionem mais entradas a GAP_RULES devem atualizar o assert de tamanho em `gap-rules.test.ts`.
 
+- **DEV-4 (fase-03):** Sem desvios significativos do spec. Bloco de pre-check inserido verbatim entre `</philosophy>` e `## Passo 0 — Resolver URL`. Frontmatter intocado. Testes 2/2 verdes na primeira tentativa.
+  - DEV-1 da fase-01 (parser usa `allowed-tools:` mas agents reais usam `tools:`) PERMANECE pendente — fase-03 não consome `subagents[].allowed_tools`, só `snapshot.mcps`. Continua candidato para fix em PR separado ou v6.3.1.
+
 ---
 
 ## Metricas
@@ -99,7 +106,7 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 3 |
-| Fases concluidas | 2 |
+| Fases concluidas | 3 |
 | Fases com desvio | 2 (fase-01 — DEV-1; fase-02 — DEV-2, DEV-3) |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
@@ -124,6 +131,14 @@ O subagente do proximo plano le este campo.
 - **Manifest path resolution** usa busca ascendente (`findManifestPath`) — espelha `read-architecture-profile.ts`. Não importou — copiou padrão para manter lib independente do profile.
 - **Performance medida:** `inspectToolRegistry(process.cwd())` no plugin retorna em <100ms com ~10 agents/*.md (consistente com PRD §RNF Performance, target <50ms aproximado).
 - **Sem AST library** (G9 do plano): apenas `gray-matter` para frontmatter + `JSON.parse` para manifest. `package.json` continua sem adicionar deps.
+
+### Notas para Planos Seguintes (Plano 04 / Plano 05)
+
+- **`tool-registry-inspector.ts`** está estável e tem 3 consumidores reais: `/parity-audit` (fase-02 deste plano), `qa-visual` (fase-03 deste plano, via pre-check declarativo em SKILL.md), e ficará disponível para Plano 04 quando alguma skill profile-aware precisar saber se um MCP/subagente está disponível antes de sugerir uso.
+- **Pattern de pre-check em SKILL.md** (DI-5): bloco com snippet TypeScript declarativo + comentário de provenance + posicionamento entre `</philosophy>` (ou bloco de telemetria) e o primeiro `## Passo`. Plano 04 deve seguir o mesmo pattern ao adicionar profile-aware blocks — sem mexer no frontmatter `allowed-tools:` das skills (parsing acontece antes da skill rodar).
+- **Frontmatter `allowed-tools:` é INVIOLÁVEL** (G1 do README + DI-5): o harness do Claude Code parseia antes da skill executar. Refactor que precise "detectar tool ausente" deve ser DEFENSIVO (mensagem clara + early return) e não substituto do frontmatter.
+- **DEV-1 pendente (carry-over de fase-01)**: parser de `agents/*.md` em `tool-registry-inspector.ts` lê `data['allowed-tools']` mas os agents do plugin usam `data.tools`. Plano 04, se inspecionar subagents[].allowed_tools, deve aplicar fallback `data['allowed-tools'] ?? data.tools` no parser — ou aceitar `allowed_tools: []` para todos os subagentes reais.
+- **Schema drift de parity-gaps-v1** (carry-over de fase-02 DEV-2): validação SOFT; corrigir em PR de manutenção, não bloqueia consumers.
 
 ### Notas internas (fase-02 → fase-03)
 
