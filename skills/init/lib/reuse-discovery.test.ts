@@ -7,6 +7,7 @@ import {
   readLastInitTimestamp,
   shouldReuseDiscovery,
   formatStaleMessage,
+  resolveThresholdMs,
   FRESH_THRESHOLD_MS,
 } from './reuse-discovery'
 
@@ -138,5 +139,44 @@ describe('formatStaleMessage', () => {
 
   it('returns unreadable when cachedAt is malformed', () => {
     expect(formatStaleMessage('not-an-iso')).toContain('unreadable')
+  })
+})
+
+describe('resolveThresholdMs (RF-CH-01)', () => {
+  it('returns default when envValue is undefined', () => {
+    expect(resolveThresholdMs(undefined)).toBe(FRESH_THRESHOLD_MS)
+  })
+
+  it('returns default when envValue is empty string', () => {
+    expect(resolveThresholdMs('')).toBe(FRESH_THRESHOLD_MS)
+  })
+
+  it('returns hours converted to ms when envValue is "1"', () => {
+    expect(resolveThresholdMs('1')).toBe(60 * 60 * 1000)
+  })
+
+  it('returns hours converted to ms when envValue is "0.5"', () => {
+    expect(resolveThresholdMs('0.5')).toBe(30 * 60 * 1000)
+  })
+
+  it('returns default when envValue is non-numeric "abc"', () => {
+    expect(resolveThresholdMs('abc')).toBe(FRESH_THRESHOLD_MS)
+  })
+
+  it('returns default when envValue is "0"', () => {
+    expect(resolveThresholdMs('0')).toBe(FRESH_THRESHOLD_MS)
+  })
+
+  it('returns default when envValue is negative', () => {
+    expect(resolveThresholdMs('-1')).toBe(FRESH_THRESHOLD_MS)
+  })
+})
+
+describe('shouldReuseDiscovery with thresholdMs override', () => {
+  it('uses override threshold when provided', () => {
+    const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+    // default 24h -> true; override 1h -> false
+    expect(shouldReuseDiscovery(twoHoursAgo)).toBe(true)
+    expect(shouldReuseDiscovery(twoHoursAgo, 60 * 60 * 1000)).toBe(false)
   })
 })
