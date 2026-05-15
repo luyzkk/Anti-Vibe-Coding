@@ -1,9 +1,9 @@
 # State: Adaptive Coaching (v6.3.0)
 
 **Plan:** ./PLAN.md
-**Phase:** in-progress
+**Phase:** paused
 **Current Plan:** 02/05
-**Last Updated:** 2026-05-15 (Plano 02 fase-02 concluída — 2/3 fases)
+**Last Updated:** 2026-05-15 (Plano 02 fase-02 concluída — 2/3 fases — sessão encerrada pelo dev)
 
 ## Progress por Plano
 
@@ -35,3 +35,4 @@ Fases done: 6/17 (35%)
 - 2026-05-15: **Plano 01 (Fundação Adaptativa) CONCLUÍDO** — 4/4 fases, desbloqueia Planos 02, 03 e 04 (paralelizáveis).
 - 2026-05-15: Plano 02 fase-01 (AST parser Next.js App Router) concluída — commits ecca33a (RED), 086b216 (GREEN), f470eeb (typecheck fix). 5/5 testes passam (23 assertions), typecheck limpo. RED→GREEN confirmado: import-not-found → all green. DI-01 (typecheck no lugar de lint) reaplicado. DEV-01: spec sugeria importar stale-detector.ts em capabilities-writer.ts; agente GREEN não importou — não exigido pelos testes desta fase (uso real em fase-03 quando capabilities.json for escrito em disco). DEV-02: orquestrador editou test file pós-GREEN para satisfazer noUncheckedIndexedAccess via optional chaining (3 linhas); semântica preservada.
 - 2026-05-15: Plano 02 fase-02 (LLM fallback mvc-flat + dispatcher) concluída — commits d726169 (RED), 54064c0 (GREEN). 10/10 testes passam (44 assertions), typecheck limpo. RED→GREEN confirmado: SyntaxError "Export named 'discoverCapabilities' not found" → all green. Adicionados `discoverMvcFlatCapabilities` (source 'llm', confidence 0.7) + dispatcher `discoverCapabilities(profile)`. DEV-04: implementação GREEN divergiu do pseudocódigo do spec em 3 pontos não-cobertos por teste (handler sem `:line`, walk só da primeira candidate dir, regex linha-a-linha em vez de matchAll global). Registrado em plano02/MEMORY.md para reavaliação se fase-03 exigir.
+- 2026-05-15: Execução pausada pelo dev após fase-02. Próxima retomada: Plano 02 fase-03 (/init Integration + Audit).
