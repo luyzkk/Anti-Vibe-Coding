@@ -7,6 +7,28 @@ allowed-tools: Read, Grep, Glob, WebSearch
 argument-hint: "[API design question or endpoint to analyze]"
 ---
 
+<!-- profile-aware-preface:start -->
+```typescript
+// 2026-05-15 (Luiz/dev): Plano 04 fase-01 — profile-aware-preface (PRD §RF-MH-05).
+// Lê context UMA vez via readPrefaceContext (Plano 01). Lookup table per-skill (G3).
+// Quando ctx.profile === null: fallback default = comportamento v6.2 intacto (CA-02).
+
+import { readPrefaceContext } from '../lib/preface-context'
+import { API_DESIGN_PREFACE_BY_PROFILE, DEFAULT_API_DESIGN_PREFACE } from './lib/api-design-prefaces'
+
+const ctx = readPrefaceContext(process.cwd())
+const preface = ctx.profile
+  ? (API_DESIGN_PREFACE_BY_PROFILE[ctx.profile] ?? DEFAULT_API_DESIGN_PREFACE)
+  : DEFAULT_API_DESIGN_PREFACE
+
+// Quando ctx.profile é não-nulo, prepend preface ao corpo da skill.
+// Quando null, behavior idêntico a v6.2 (CA-02).
+```
+
+Se `preface` for não-vazio, inicie sua resposta com o conteúdo de `preface` e em seguida proceda com a consulta de API design normal.
+Se `preface` for vazio (profile null), comportamento v6.2 intacto — sem preface, ir direto ao corpo.
+<!-- profile-aware-preface:end -->
+
 # API Design — Anti-Vibe Coding
 
 Modo **Consultor de API Design**. Neste modo, ENSINAR e ANALISAR — nunca gerar codigo.
