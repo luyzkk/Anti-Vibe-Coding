@@ -463,6 +463,7 @@ const {
   readLastInitTimestamp,
   shouldReuseDiscovery,
   formatStaleMessage,
+  resolveThresholdMs,
   FRESH_THRESHOLD_MS,
 } = await import('./lib/reuse-discovery.ts')
 const { AuditLogWriter } = await import('./lib/audit-log.ts')
@@ -474,7 +475,10 @@ if (reuseDiscovery) {
   const startMs = Date.now()
   const cachedAt = await readLastInitTimestamp(process.cwd())
 
-  if (shouldReuseDiscovery(cachedAt)) {
+  // 2026-05-15 (Luiz/dev): env override RF-CH-01 — injection (DI) para testabilidade
+  const thresholdMs = resolveThresholdMs(process.env.ANTI_VIBE_FRESH_HOURS)
+
+  if (shouldReuseDiscovery(cachedAt, thresholdMs)) {
     console.log('[reuse-discovery] cache fresh — running Step 7 only')
 
     // Inline Step 7 (Capabilities Discovery) — single capabilities-discovery audit entry (G4: NÃO duplicar)
