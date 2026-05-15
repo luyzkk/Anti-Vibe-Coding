@@ -447,13 +447,15 @@ After this step, `discovery/capabilities.json` exists (when profile detected) an
 
 ---
 
-### Step reuse-discovery.0: Parse --reuse-discovery flag (Plano 01 fase-01 — CA-01, CA-03)
+### Step reuse-discovery.0: Parse --reuse-discovery / --refresh flag (Plano 01 fase-01 — CA-01, CA-03; estendido por v6.3.0 plano05 fase-01 DEC-2)
 
-<!-- Detecta --reuse-discovery em ARGUMENTS antes de qualquer outro passo.
-     Quando presente e cache fresh (<24h), pula direto para Step 7 (Capabilities Discovery).
+<!-- Detecta --reuse-discovery OU --refresh (alias) em ARGUMENTS antes de qualquer outro passo.
+     Quando presente e cache fresh (<24h), regenera capabilities.json + parity-gaps.json (graceful degradation).
      Quando presente e cache stale/ausente, warn + cai no fluxo normal (Passo 0 abaixo).
      Quando ausente, comportamento byte-identical ao v6.2.x.
-     D1/D4 do PRD: flag --reuse-discovery, antes do Passo 0 (não dentro). -->
+     D1/D4 do PRD: flag --reuse-discovery, antes do Passo 0 (não dentro).
+     DEC-2 (2026-05-15) v6.3.0 plano05 fase-01: --refresh é alias do --reuse-discovery; parity-gaps.json
+     também é regenerado quando /parity-audit está disponível. -->
 
 ```javascript
 // 2026-05-15 (Luiz/dev): subagent_id 'reuse-discovery' — alinhado com PRD §RF-SH-01 / §CA-05
@@ -464,6 +466,7 @@ const {
   shouldReuseDiscovery,
   formatStaleMessage,
   resolveThresholdMs,
+  tryRegenerateParityGaps,
   FRESH_THRESHOLD_MS,
 } = await import('./lib/reuse-discovery.ts')
 const { AuditLogWriter } = await import('./lib/audit-log.ts')
@@ -493,6 +496,25 @@ if (reuseDiscovery) {
       await writeFile(pathMod.join(process.cwd(), 'discovery', 'capabilities.json'), JSON.stringify(out, null, 2), 'utf-8')
     }
 
+    // 2026-05-15 (Luiz/dev): regen parity-gaps.json — PRD v6.3.0 §RF-CH-01 / DEC-2 option 3.
+    // Loader retorna null se /parity-audit ausente (graceful degradation — warning único, sem falhar).
+    const parityResult = await tryRegenerateParityGaps(process.cwd(), async () => {
+      try {
+        const inspector = await import('../lib/tool-registry-inspector.ts')
+        const writer = await import('../parity-audit/lib/parity-gaps-writer.ts')
+        return {
+          inspectToolRegistry: inspector.inspectToolRegistry,
+          computeParityGaps: writer.computeParityGaps,
+          writeParityGaps: writer.writeParityGaps,
+        }
+      } catch {
+        return null
+      }
+    })
+    if (!parityResult.regenerated) {
+      console.warn(`[reuse-discovery] parity-gaps.json skipped — ${parityResult.reason}`)
+    }
+
     // Audit entry adicional para o reuse-discovery (G4: ADICIONAL ao audit de capabilities-discovery, não substitui)
     const cachedAtMs = cachedAt !== null ? Date.parse(cachedAt) : 0
     const writer = new AuditLogWriter(process.cwd(), randomUUID())
@@ -516,7 +538,7 @@ if (reuseDiscovery) {
 }
 ```
 
-After this step, when `--reuse-discovery` is passed and cache is fresh, control should jump to Step 7. When stale or absent, control continues to `Passo 0 — Detectar Modo de Inicialização`.
+After this step, when `--reuse-discovery` (ou alias `--refresh`) is passed and cache is fresh, control should jump to Step 7 (capabilities.json é regenerado + parity-gaps.json é regenerado se /parity-audit disponível, com graceful degradation caso contrário). When stale or absent, control continues to `Passo 0 — Detectar Modo de Inicialização`.
 
 ---
 
