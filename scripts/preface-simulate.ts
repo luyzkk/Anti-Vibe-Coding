@@ -8,6 +8,10 @@ import { readPrefaceContext } from "../skills/lib/preface-context"
 const PREFACE_START = "<!-- profile-aware-preface:start -->"
 const PREFACE_END = "<!-- profile-aware-preface:end -->"
 
+// 2026-05-15 (Luiz/dev): skill-name regex barra path traversal (../, /, .) e null bytes.
+// Skill names sao identificadores kebab/underscore — ver skills/* atuais.
+const SAFE_SKILL_NAME = /^[a-zA-Z0-9_-]+$/
+
 async function findSkillDir(
   projectRoot: string,
   skillName: string,
@@ -50,6 +54,11 @@ export async function simulate(
       "Prints the composed preface that would be injected into <skill-name>",
     )
     return { stdout, stderr, code: 2 }
+  }
+
+  if (!SAFE_SKILL_NAME.test(skillName)) {
+    stderr.push(`Invalid skill name. Allowed: [a-zA-Z0-9_-]+, no path separators.`)
+    return { stdout, stderr, code: 1 }
   }
 
   const skillDir = await findSkillDir(projectRoot, skillName)

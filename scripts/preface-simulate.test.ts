@@ -65,6 +65,18 @@ describe("preface:simulate (pure-fn contract)", () => {
     expect(result.stdout.join("\n")).toContain("Default Fallback Preface")
   })
 
+  test("rejects skill name containing path traversal", async () => {
+    const result = await simulate(workdir, "../etc")
+    expect(result.code).toBe(1)
+    expect(result.stderr.join("\n")).toMatch(/invalid skill name/i)
+  })
+
+  test("rejects absolute path as skill name", async () => {
+    const result = await simulate(workdir, "/etc")
+    expect(result.code).toBe(1)
+    expect(result.stderr.join("\n")).toMatch(/invalid skill name/i)
+  })
+
   test("prints preface block when skill has it", async () => {
     await mkdir(path.join(workdir, "skills", "security"), { recursive: true })
     await writeFile(
