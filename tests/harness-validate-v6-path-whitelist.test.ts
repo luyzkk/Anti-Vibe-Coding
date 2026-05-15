@@ -17,6 +17,10 @@ This is the agent index.
 - [ARCHITECTURE.md](./ARCHITECTURE.md)
 - [docs/QUALITY_SCORE.md](./docs/QUALITY_SCORE.md)
 - [docs/PRODUCT_SENSE.md](./docs/PRODUCT_SENSE.md)
+- [docs/MERGE_GATES.md](./docs/MERGE_GATES.md)
+- [docs/COMPOUND_ENGINEERING.md](./docs/COMPOUND_ENGINEERING.md)
+- [docs/review-checklists/](./docs/review-checklists/)
+- [docs/smoke-flows/](./docs/smoke-flows/)
 `
 
 const QUALITY_SCORE_HEADER = `# Quality Score
@@ -54,6 +58,8 @@ async function setupMinimalFixture(fixture: string): Promise<void> {
     ['docs/RELIABILITY.md', '# Reliability\n'],
     ['docs/SECURITY.md', '# Security\n'],
     ['docs/COMPOUND_ENGINEERING.md', '# Compound\n'],
+    ['docs/review-checklists/index.md', '# Review Checklists\n'],
+    ['docs/smoke-flows/index.md', '# Smoke Flows\n'],
     ['docs/STATE.md', '# State\n'],
     ['docs/design-docs/index.md', '# Design Docs\n'],
     ['docs/design-docs/core-beliefs.md', '# Core Beliefs\n'],

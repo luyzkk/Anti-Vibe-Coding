@@ -73,12 +73,14 @@ describe('plugin-manifest.json skills.todo-pick', () => {
     expect(entry['path']).toBe('skills/todo-pick/')
   })
 
-  it('manifest.skills.todo-pick tem version 6.0.0', () => {
+  it('manifest.skills.todo-pick tem version atual do plugin', () => {
     const raw = fs.readFileSync(MANIFEST, 'utf-8')
     const manifest = JSON.parse(raw) as Record<string, unknown>
+    const pkgRaw = fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf-8')
+    const pkg = JSON.parse(pkgRaw) as Record<string, unknown>
     const skills = manifest['skills'] as Record<string, unknown>
     const entry = skills['todo-pick'] as Record<string, unknown>
-    expect(entry['version']).toBe('6.0.0')
+    expect(entry['version']).toBe(pkg['version'])
   })
 })
 

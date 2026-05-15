@@ -1,0 +1,15 @@
+{
+  "startedAt": "2026-05-14T00:00:00.000Z",
+  "sourceSignals": ["A", "B", "C"],
+  "moves": [
+    { "from": ".planning/CONTEXT-refatoracao-prd-folders.md", "to": "docs/exec-plans/active/2026-05-14-refatoracao-prd-folders/CONTEXT.md", "timestamp": "2026-05-14T00:00:01.000Z" },
+    { "from": ".planning/PLAN-refatoracao-prd-folders.md",    "to": "docs/exec-plans/active/2026-05-14-refatoracao-prd-folders/PLAN.md",    "timestamp": "2026-05-14T00:00:01.000Z" },
+    { "from": ".planning/PRD-refatoracao-prd-folders.md",     "to": "docs/exec-plans/active/2026-05-14-refatoracao-prd-folders/PRD.md",     "timestamp": "2026-05-14T00:00:01.000Z" },
+    { "from": ".planning/STATE-refatoracao-prd-folders.md",   "to": "docs/exec-plans/active/2026-05-14-refatoracao-prd-folders/STATE.md",   "timestamp": "2026-05-14T00:00:01.000Z" },
+    { "from": ".planning/SUMMARY-refatoracao-prd-folders.md", "to": "docs/exec-plans/active/2026-05-14-refatoracao-prd-folders/SUMMARY.md", "timestamp": "2026-05-14T00:00:01.000Z" },
+    { "from": ".planning/plano01/",                           "to": "docs/exec-plans/active/2026-05-14-refatoracao-prd-folders/plano01/",   "timestamp": "2026-05-14T00:00:02.000Z" },
+    { "from": ".planning/plano02/",                           "to": "docs/exec-plans/active/2026-05-14-refatoracao-prd-folders/plano02/",   "timestamp": "2026-05-14T00:00:02.000Z" },
+    { "from": ".planning/plano03/",                           "to": "docs/exec-plans/active/2026-05-14-refatoracao-prd-folders/plano03/",   "timestamp": "2026-05-14T00:00:02.000Z" },
+    { "from": ".planning/plano04/",                           "to": "docs/exec-plans/active/2026-05-14-refatoracao-prd-folders/plano04/",   "timestamp": "2026-05-14T00:00:02.000Z" }
+  ]
+}

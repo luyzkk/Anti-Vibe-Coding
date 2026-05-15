@@ -1,6 +1,6 @@
 # Execution Summary — {feature_name}
 
-**Plan:** `.planning/PLAN-{plan_name}.md`
+**Plan:** `docs/exec-plans/completed/{date}-{plan_name}/PLAN.md`
 **Duration:** {started_at} → {completed_at}
 **Status:** {Completed | Partial | Blocked}
 
