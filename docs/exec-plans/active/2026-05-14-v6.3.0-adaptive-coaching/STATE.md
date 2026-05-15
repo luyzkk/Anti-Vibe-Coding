@@ -3,7 +3,7 @@
 **Plan:** ./PLAN.md
 **Phase:** in-progress
 **Current Plan:** 05/05
-**Last Updated:** 2026-05-15 (Plano 04 CONCLUÍDO — 4/4 fases)
+**Last Updated:** 2026-05-15 (Plano 05 fase-01 RETOMADA — spin-off shippou; DEC-2 adota opção 3: --refresh como alias)
 
 ## Progress por Plano
 
@@ -13,11 +13,11 @@
 | 02 | /init produz capabilities.json | 3 | 3/3 | completed |
 | 03 | /parity-audit + tool-registry-inspector | 3 | 3/3 | completed |
 | 04 | profile-aware-preface ×4-6 skills | 4 | 4/4 | completed |
-| 05 | Polish & DX (Could Haves) | 3 | 0/3 | pending |
+| 05 | Polish & DX (Could Haves) | 3 | 1/3 | in-progress |
 
 ## Progress Global
 
-Fases done: 14/17 (82%)
+Fases done: 15/17 (88%)
 
 ## Log
 
@@ -49,3 +49,6 @@ Fases done: 14/17 (82%)
 - 2026-05-15: Plano 04 fase-03 (harness-validate-preface check) concluída — commits 4806519 (RED) e fe16b62 (GREEN). 4/4 testes passam (valid, missing-end, missing-readPrefaceContext-ref, opt-in skip CA-02). Typecheck limpo. `bun run harness:validate` OK (26 required files, 184 markdown — todas as 6 skills com preface + as 2 skills legadas que usam `readArchitectureProfile` continuam compliance). Suite global preserva baseline (mesmos 9 fails pré-existentes). RED→GREEN confirmado: SyntaxError 'Export named checkProfileAwarePreface not found' → all green. DEV-2: GREEN subagent precisou estender o check com 2 tolerâncias para não quebrar skills pré-existentes — (a) aceitar `readArchitectureProfile(` como referência alternativa (skills `/architecture` e `/detect-architecture` usam o padrão legado), (b) skip silencioso quando bloco preface não tem fenced code (prosa-only, sem contexto executável). Fixture MISSING_REF continua falhando corretamente porque o regex `/readPrefaceContext\s*[({]/` exige `(` ou `{` após o nome — comentário `// sem readPrefaceContext` não casa. Anchor (teste) preservado.
 - 2026-05-15: Plano 04 fase-04 (CHANGELOG v6.3.0 + compound note) concluída — commit 3c93c73. CHANGELOG.md ganhou entrada `## [6.3.0] - 2026-05-15` no topo (acima de 6.1.0) citando 6 skills migradas, PrefaceContext, capabilities.json, /parity-audit, harness validator estendido, ADR-0020. Compound note `docs/compound/2026-05-15-profile-aware-preface-migration.md` criado (decisão: CRIAR — 2+ critérios atendidos: replicação mecânica em 6 skills + tolerâncias intencionais do harness). harness:validate (26 required + 184 markdown) e compound:check (18 notes) e typecheck todos verdes. Grep checks: `## [6.3.0]`=1, `PrefaceContext`=6, `profile-aware-preface`=2.
 - 2026-05-15: **Plano 04 (profile-aware-preface ×4-6 skills) CONCLUÍDO** — 4/4 fases. Fecha conteúdo v6.3.0. Próximo: Plano 05 (Polish & DX — Could Haves, defer-friendly v6.3.0/v6.3.1).
+- 2026-05-15: **Plano 05 fase-01 PAUSED — bloqueador externo confirmado.** O Passo 0 do fase-01 exige `FRESH_THRESHOLD_MS` + leitura de timestamp `<24h` no `/init` (PRD `/init` §RF-CH-02 / flag `--reuse-discovery`). Grep em `skills/init/`: zero matches para `FRESH_THRESHOLD`, `--reuse-discovery`, `reuseDiscovery`. PRD original do /init listou RF-CH-02 como Could Have e nunca foi construído. Decisão do dev (2026-05-15): **NÃO deferir para v6.3.1, NÃO improvisar inline**; spin-off de PRD próprio para `--reuse-discovery` + `<24h` cache no /init. Após o spin-off shippar, retoma plano05 fase-01 normalmente. Detalhes da decisão em `plano05/MEMORY.md` DEC-1.
+- 2026-05-15: Spin-off `init-reuse-discovery` SHIPPADO (commits e56bba0/e718cf3/d226c46/d777370 — movido para `docs/exec-plans/completed/2026-05-15-init-reuse-discovery/`). `skills/init/lib/reuse-discovery.ts` exporta `FRESH_THRESHOLD_MS`, `shouldReuseDiscovery`, `readLastInitTimestamp`, `resolveThresholdMs`, `parseReuseDiscoveryFlag`. SKILL.md `Step reuse-discovery.0` (linhas 450–519) liga end-to-end com `process.exit(0)` quando cache fresh. Bloqueador da fase-01 RESOLVIDO. DEC-2 adota opção 3 (--refresh como alias + extensão p/ parity-gaps.json).
+- 2026-05-15: Plano 05 fase-01 CONCLUÍDA via DEC-2 (option 3). Commits e863994 (RED — 7 testes novos em `reuse-discovery.test.ts`), 407cec7 (GREEN — `parseReuseDiscoveryFlag` aceita `--refresh`; novo export `tryRegenerateParityGaps` com graceful degradation via loader pattern), e316025 (wire-up SKILL.md — Step reuse-discovery.0 importa o helper e chama-o entre capabilities.json e audit entry). 34/34 testes em `reuse-discovery.test.ts` verdes (era 27 antes da fase). Typecheck limpo. harness:validate OK (26 required + 184 markdown). Suite global: 1 failure pré-existente em `tests/harness-validate-v6-path-whitelist.test.ts` (baseline, confirmado via `git stash` reproduzir o mesmo fail no HEAD anterior). DEV-1: GREEN tipou loader como `() => Promise<unknown>` em vez de `() => Promise<ParityAuditModule | null>` para evitar contravariância de TS strict com mocks de teste — cast interno seguro porque runtime é validado pelos testes. DEV-2: AC literal da spec ("`grep -c refresh.0`", "`grep -c regenerateDiscovery`") superseded pela DEC-2; AC efetivo é `grep --refresh skills/init/SKILL.md` = 6 e `grep tryRegenerateParityGaps skills/init/lib/reuse-discovery.ts` = 1 (verificados). Próxima fase: fase-02 (confidence threshold config) — independente, pode rodar imediatamente.
