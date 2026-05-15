@@ -22,6 +22,10 @@ Plan before code. Test before implement. Capture lessons after merge. Discipline
 | Plugin architecture (skills/hooks/scripts/lib layout) | [ARCHITECTURE.md](./ARCHITECTURE.md) |
 | Quality score rubric (review checklist scoring) | [docs/QUALITY_SCORE.md](./docs/QUALITY_SCORE.md) |
 | Product sense (when to push back on requirements) | [docs/PRODUCT_SENSE.md](./docs/PRODUCT_SENSE.md) |
+| PR gates, TDD enforcement, quality checklist | [docs/MERGE_GATES.md](./docs/MERGE_GATES.md) |
+| Compound engineering and lessons capture | [docs/COMPOUND_ENGINEERING.md](./docs/COMPOUND_ENGINEERING.md) |
+| Pre-merge review checklists by domain | [docs/review-checklists/](./docs/review-checklists/) |
+| Critical user flows for smoke testing | [docs/smoke-flows/](./docs/smoke-flows/) |
 
 ## Compound Decision Gate
 
