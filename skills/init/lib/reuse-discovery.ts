@@ -50,14 +50,30 @@ export function formatStaleMessage(cachedAt: string | null): string {
 
 /**
  * Decide se o cache de discovery anterior pode ser reusado.
- * Retorna true APENAS quando cachedAt é ISO válido E Date.now() - cachedAt < FRESH_THRESHOLD_MS.
- * Retorna false em todos os outros casos (null, string vazia, ISO inválido, >=24h).
+ * Retorna true APENAS quando cachedAt é ISO válido E Date.now() - cachedAt < thresholdMs.
+ * Retorna false em todos os outros casos (null, string vazia, ISO inválido, >=threshold).
+ *
+ * @param cachedAt ISO timestamp do ultimo init (ou null)
+ * @param thresholdMs Override opcional para o threshold (default: FRESH_THRESHOLD_MS).
+ *                    Permite injecao para test e env var override (RF-CH-01).
  *
  * Contrato publico estavel — consumido por PRD v6.3.0-adaptive-coaching / plano05/fase-01.
  */
-export function shouldReuseDiscovery(cachedAt: string | null): boolean {
+export function shouldReuseDiscovery(cachedAt: string | null, thresholdMs: number = FRESH_THRESHOLD_MS): boolean {
   if (cachedAt === null || cachedAt === '') return false
   const parsed = Date.parse(cachedAt)
   if (Number.isNaN(parsed)) return false
-  return Date.now() - parsed < FRESH_THRESHOLD_MS
+  return Date.now() - parsed < thresholdMs
+}
+
+/**
+ * Resolve o threshold em ms a partir de env var override (RF-CH-01).
+ * Se `envValue` for parseavel como numero finito positivo, retorna `envValue * 60 * 60 * 1000`.
+ * Caso contrario (undefined, vazio, NaN, negativo, zero), retorna FRESH_THRESHOLD_MS default.
+ */
+export function resolveThresholdMs(envValue: string | undefined): number {
+  if (envValue === undefined || envValue === '') return FRESH_THRESHOLD_MS
+  const hours = Number(envValue)
+  if (!Number.isFinite(hours) || hours <= 0) return FRESH_THRESHOLD_MS
+  return hours * 60 * 60 * 1000
 }
