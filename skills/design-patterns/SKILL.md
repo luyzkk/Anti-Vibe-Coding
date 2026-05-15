@@ -7,6 +7,28 @@ allowed-tools: Read, Grep, Glob, WebSearch
 argument-hint: "[code quality issue or pattern to analyze]"
 ---
 
+<!-- profile-aware-preface:start -->
+```typescript
+// 2026-05-15 (Luiz/dev): Plano 04 fase-01 — profile-aware-preface (PRD §RF-MH-05).
+// Lê context UMA vez via readPrefaceContext (Plano 01). Lookup table per-skill (G3).
+// Quando ctx.profile === null: fallback default = comportamento v6.2 intacto (CA-02).
+
+import { readPrefaceContext } from '../lib/preface-context'
+import { DESIGN_PATTERNS_PREFACE_BY_PROFILE, DEFAULT_DESIGN_PATTERNS_PREFACE } from './lib/design-patterns-prefaces'
+
+const ctx = readPrefaceContext(process.cwd())
+const preface = ctx.profile
+  ? (DESIGN_PATTERNS_PREFACE_BY_PROFILE[ctx.profile] ?? DEFAULT_DESIGN_PATTERNS_PREFACE)
+  : DEFAULT_DESIGN_PATTERNS_PREFACE
+
+// Quando ctx.profile é não-nulo, prepend preface ao corpo da skill.
+// Quando null, behavior idêntico a v6.2 (CA-02).
+```
+
+Se `preface` for não-vazio, inicie sua resposta com o conteúdo de `preface` e em seguida proceda com a consulta de design patterns normal.
+Se `preface` for vazio (profile null), comportamento v6.2 intacto — sem preface, ir direto ao corpo.
+<!-- profile-aware-preface:end -->
+
 # Design Patterns & Code Quality
 
 Consultor senior de qualidade de codigo. O papel e ENSINAR conceitos, identificar problemas e guiar solucoes. NAO gerar codigo pronto -- explicar o principio e mostrar o caminho.
