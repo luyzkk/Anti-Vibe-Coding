@@ -61,7 +61,7 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 4 |
-| Fases concluidas | 3 |
+| Fases concluidas | 4 |
 | Fases com desvio | 0 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
@@ -73,12 +73,13 @@ Se nada mudou, manter vazio (bom sinal).
 Informacoes que o proximo plano PRECISA saber antes de comecar.
 O subagente do proximo plano le este campo.
 
-**Assinaturas finais de exports (validadas por testes em fase-03):**
+**Assinaturas finais de exports (validadas por testes em fase-04):**
 
 - `parseReuseDiscoveryFlag(args: string[]): { reuseDiscovery: boolean }`
 - `readLastInitTimestamp(projectRoot: string): Promise<string | null>`
-- `shouldReuseDiscovery(cachedAt: string | null): boolean`
+- `shouldReuseDiscovery(cachedAt: string | null, thresholdMs?: number): boolean`
 - `formatStaleMessage(cachedAt: string | null): string`
+- `resolveThresholdMs(envValue: string | undefined): number`
 - `FRESH_THRESHOLD_MS: number` (= 24 * 60 * 60 * 1000 = 86400000ms)
 
 Todos exportados de `skills/init/lib/reuse-discovery.ts`.
@@ -88,7 +89,11 @@ Consumidor: PRD v6.3.0-adaptive-coaching / plano05/fase-01-init-refresh-flag (pa
 rodando `/init` sem flag e verificando `git diff` em `discovery/agents-log.json` contra
 versao v6.2.x.
 
-<!-- SHA do commit a preencher apos fase-04 (ship final do plano) -->
+**RF-CH-01 (Could Have — env override):** Entregue em fase-04. `ANTI_VIBE_FRESH_HOURS` env var
+sobrescreve `FRESH_THRESHOLD_MS` via DI (`thresholdMs` parametro opcional em `shouldReuseDiscovery`).
+Verificacao humana: `ANTI_VIBE_FRESH_HOURS=1` + projeto com `started_at` ha 2h → mensagem stale.
+
+<!-- SHA dos commits fase-04: e56bba0 (RED tests), e718cf3 (GREEN impl) -->
 
 ---
 
