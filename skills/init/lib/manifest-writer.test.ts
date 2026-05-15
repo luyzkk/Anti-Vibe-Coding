@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
-import { writeManifest, readManifest, computeChecksum, buildMigrationPlanCatalog } from './manifest-writer'
-import type { AntiVibeManifest } from './manifest-writer'
 import { tmpdir } from 'node:os'
+import { randomUUID } from 'node:crypto'
+import { writeManifest, readManifest, computeChecksum, buildMigrationPlanCatalog, autoFlipIfComplete } from './manifest-writer'
+import type { AntiVibeManifest } from './manifest-writer'
 
 describe('manifest-writer', () => {
   it('module exists and exports writeManifest and readManifest', () => {
@@ -112,5 +113,89 @@ describe('manifest-writer', () => {
     )
     const result = await buildMigrationPlanCatalog(tmpDir)
     expect(result[0]?.slot).toBe('unknown')
+  })
+})
+
+describe('autoFlipIfComplete', () => {
+  let tmpDir: string
+
+  beforeEach(async () => {
+    tmpDir = path.join(tmpdir(), `manifest-test-${randomUUID()}`)
+    await fs.mkdir(path.join(tmpDir, '.claude'), { recursive: true })
+  })
+
+  afterEach(async () => {
+    await fs.rm(tmpDir, { recursive: true, force: true })
+  })
+
+  it('returns flipped: true and updates initMode when all plans are completed', async () => {
+    const manifest: AntiVibeManifest = {
+      pluginVersion: '6.1.0',
+      initMode: 'migration',
+      installedAt: new Date().toISOString(),
+      files: {},
+      migrationPlans: [
+        { id: 'plan-a', slot: 'AGENTS.md', path: 'docs/exec-plans/completed/plan-a.md', status: 'completed' },
+        { id: 'plan-b', slot: 'docs/DESIGN.md', path: 'docs/exec-plans/completed/plan-b.md', status: 'completed' },
+      ],
+    }
+    await writeManifest(tmpDir, manifest)
+
+    const result = await autoFlipIfComplete(tmpDir, manifest)
+
+    expect(result.flipped).toBe(true)
+    expect(result.updatedManifest.initMode).toBe('completed')
+
+    const onDisk = await readManifest(tmpDir)
+    expect(onDisk?.initMode).toBe('completed')
+  })
+
+  it('returns flipped: false when at least one plan is still active', async () => {
+    const manifest: AntiVibeManifest = {
+      pluginVersion: '6.1.0',
+      initMode: 'migration',
+      installedAt: new Date().toISOString(),
+      files: {},
+      migrationPlans: [
+        { id: 'plan-a', slot: 'AGENTS.md', path: 'docs/exec-plans/active/plan-a.md', status: 'active' },
+        { id: 'plan-b', slot: 'docs/DESIGN.md', path: 'docs/exec-plans/completed/plan-b.md', status: 'completed' },
+      ],
+    }
+    await writeManifest(tmpDir, manifest)
+
+    const result = await autoFlipIfComplete(tmpDir, manifest)
+
+    expect(result.flipped).toBe(false)
+    expect(result.updatedManifest.initMode).toBe('migration')
+  })
+
+  it('returns flipped: false when initMode is not migration', async () => {
+    const manifest: AntiVibeManifest = {
+      pluginVersion: '6.1.0',
+      initMode: 'fresh',
+      installedAt: new Date().toISOString(),
+      files: {},
+    }
+    await writeManifest(tmpDir, manifest)
+
+    const result = await autoFlipIfComplete(tmpDir, manifest)
+
+    expect(result.flipped).toBe(false)
+    expect(result.updatedManifest.initMode).toBe('fresh')
+  })
+
+  it('returns flipped: false when migrationPlans is empty (nothing to complete)', async () => {
+    const manifest: AntiVibeManifest = {
+      pluginVersion: '6.1.0',
+      initMode: 'migration',
+      installedAt: new Date().toISOString(),
+      files: {},
+      migrationPlans: [],
+    }
+    await writeManifest(tmpDir, manifest)
+
+    const result = await autoFlipIfComplete(tmpDir, manifest)
+
+    expect(result.flipped).toBe(false)
   })
 })
