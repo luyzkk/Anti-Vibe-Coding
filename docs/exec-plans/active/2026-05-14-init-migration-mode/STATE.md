@@ -2,7 +2,7 @@
 
 **Plan:** ./PLAN.md
 **Phase:** in-progress
-**Current Plan:** 04/05
+**Current Plan:** 05/05
 **Last Updated:** 2026-05-14
 
 ## Progress por Plano
@@ -12,15 +12,15 @@
 | 01 | Fundação: Category Field + Detection + Tracer Bullet | 4 | 4/4 | completed |
 | 02 | Discovery TS: Fase 0 + Audit Log | 3 | 3/3 | completed |
 | 03 | Subagent Orchestration | 5 | 5/5 | completed |
-| 04 | Manifest + Harness Validate: Fase 4 | 3 | 0/3 | pending |
+| 04 | Manifest + Harness Validate: Fase 4 | 3 | 3/3 | completed |
 | 05 | Polish: Idempotência + Fixtures + AGENTS.md | 3 | 0/3 | pending |
 
 ## Progress Global
 
-Fases done: 12/18 (66%)
+Fases done: 15/18 (83%)
 
 ```
-[█████████████       ] 66%
+[████████████████    ] 83%
 ```
 
 ## Log
@@ -42,3 +42,7 @@ Fases done: 12/18 (66%)
 - 2026-05-14: Plano 03 fase-04 concluída — compound-writer.ts + CA-29 validator criados; 6 testes passando, commit 4c24dbe
 - 2026-05-14: Plano 03 fase-05 concluída — invokeExplorerWithRetry (DT-03) implementado; 12 testes passando (2 novos: retry + abort), tsc limpo
 - 2026-05-14: Plano 03 completado (5/5 fases) — Current Plan avança para 04
+- 2026-05-14: Plano 04 fase-01 concluída — manifest-writer.ts + orchestrator-writer.ts criados; 16 testes passando (9 manifest + 7 orchestrator), tsc limpo, commit 79a648e. DI: AGENTS.md/ARCHITECTURE.md/CLAUDE.md não estão no TEMPLATE_MANIFEST (user-owned) — adicionado EXTRA_SLOTS para cobrir Tier 1/5.
+- 2026-05-14: Plano 04 fase-02 concluída — harness-validate.ts estendido com migration mode: readInitManifest (inline), checkMigrationConsistency (export), checkRequiredFiles usa warnings[] em migration mode, main() lê manifest e aplica consistency check. 2 testes passando (RED→GREEN), tsc limpo.
+- 2026-05-14: Plano 04 fase-03 concluída — autoFlipIfComplete exportada de manifest-writer.ts; 4 testes passando (RED→GREEN); SKILL.md Passo 0 substituído por routing detectInitMode + 4 branches + autoFlipIfComplete no branch migration. Backfill de Plano 01 fase-03 (SKILL.md routing nunca commitado). Plano 04 completado (3/3 fases).
+- 2026-05-14: Plano 04 completado — Current Plan avança para 05

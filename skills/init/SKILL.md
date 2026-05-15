@@ -383,61 +383,65 @@ If `result.status === 'marker-missing'`, log a warning — AGENTS.md was hand-ed
 
 ---
 
-### Passo 0 — Detectar Instalação Existente e Invalidar Cache
+### Passo 0 — Detectar Modo de Inicialização (Plano 01 fase-03 + Plano 04 fase-03)
 
-**ANTES de qualquer coisa**, verificar se existe `.claude/.anti-vibe-manifest.json`:
+<!-- DEPRECATED: bloco anterior (hasManifest/require/pluginVersion) substituído por detectInitMode. -->
+
+**ANTES de qualquer coisa**, detectar o modo de inicialização do projeto:
 
 ```javascript
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
+// DI-06: import direto em vez de bun -e (GT-04 — bun -e com paths absolutos quebra no Windows).
+const { detectInitMode } = await import('./lib/migration-mode-detector.ts')
 
-const manifestPath = path.join(projectRoot, '.claude', '.anti-vibe-manifest.json');
-const hasManifest = fs.existsSync(manifestPath);
-
-// Ler versão do plugin global
-const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT;
-const pluginManifestPath = path.join(pluginRoot, 'plugin-manifest.json');
-const pluginManifest = JSON.parse(fs.readFileSync(pluginManifestPath, 'utf8'));
-const pluginVersion = pluginManifest.version;
+const { mode, signals } = await detectInitMode(process.cwd())
+console.log(`## Anti-Vibe Coding — Inicialização\nModo detectado: ${mode}`)
+signals.forEach((s) => console.log(`  [${s.type}] ${s.description}`))
 ```
 
-#### Invalidação de Cache
+#### Se mode === 'already-initiated' → Modo Atualização
 
-**IMPORTANTE:** O Claude Code pode cachear a versão anterior do plugin mesmo após atualização global.
+O projeto já tem Anti-Vibe Coding instalado. Executar lógica de **atualização incremental**
+(ver `skills/update/SKILL.md`). Não seguir para os passos seguintes.
 
-Para invalidar o cache, **sempre** mostrar a versão do plugin no início:
+#### Se mode === 'v5-legacy' → Migração v5
 
+Equivalente ao exit(1) do Step 0.5 original. Prompt user com:
+- Migrar / Dry-run / Skip (treat as new)
+
+Seguir para `Step migrate.all`. Não seguir para greenfield.
+
+#### Se mode === 'migration' → Migration Mode (3rd State — RF-MH-01)
+
+Repo populado com docs institucionais humanos — sem harness. Antes de exibir o menu:
+
+```javascript
+// Plano 04 fase-03: auto-flip se todos os migration plans já foram completados.
+const { readManifest, autoFlipIfComplete } = await import('./lib/manifest-writer.ts')
+
+const manifest = await readManifest(process.cwd())
+if (manifest) {
+  const flipResult = await autoFlipIfComplete(process.cwd(), manifest)
+  if (flipResult.flipped) {
+    console.log('Migration concluded — strict mode re-engaged. All migration plans are now in completed/.')
+    // Encerrar sem re-executar fases.
+    process.exit(0)
+  }
+  const remaining = manifest.migrationPlans?.filter((p) => p.status === 'active').length ?? 0
+  console.log(`Migration in progress: ${remaining} plans remaining in docs/exec-plans/active/. Run /execute-plan or move plans manually.`)
+}
 ```
-## Anti-Vibe Coding — Inicialização
 
-Plugin versão: v{pluginVersion} (global)
-{hasManifest ? `Versão instalada: v{localVersion}` : 'Primeira instalação'}
-```
+Se `autoFlipIfComplete` não flippou, mostrar resumo e usar `AskUserQuestion` com opções:
+- 1: "Iniciar migration pipeline" → seguir para `Step migration.0`
+- 2: "Dry-run (ver inventário sem executar)" → seguir para `Step migration.dry-run`
+- 3: "Tratar como greenfield (ignorar docs existentes)" → seguir para Passo 1
 
-Isso força o Claude Code a recarregar o plugin atual.
+**IMPORTANTE (RF-MH-06):** A confirmação humana via AskUserQuestion é OBRIGATÓRIA antes
+de qualquer fase que consuma tokens. Nunca iniciar a migration pipeline sem confirmação.
 
-#### Se manifest EXISTE → Modo Atualização
+#### Se mode === 'greenfield' → Instalação Normal
 
-O projeto já tem Anti-Vibe Coding instalado. Executar lógica de **atualização incremental**:
-
-1. **Comparar versões** do plugin global vs manifest local
-2. **Se versões diferentes:**
-   - Avisar: "⚠️ Detectado plugin atualizado! Versão local será sincronizada."
-   - Invalidar cache (mostrar versão)
-3. Ler manifest local e plugin-manifest
-4. Detectar arquivos desatualizados (consultar `skills/lib/manifest-utils.md`)
-5. Apresentar atualizações disponíveis ao usuário
-6. Perguntar: "Deseja atualizar agora? [1] Sim [2] Não [3] Ver detalhes"
-7. Se "Sim", aplicar atualizações seguindo as estratégias (merge/replace)
-8. Atualizar manifest local com **versão do plugin global atual**
-9. Fim da execução (não seguir para Passo 1)
-
-**Ver lógica completa de update em:** `skills/update/SKILL.md`
-
-#### Se manifest NÃO existe → Modo Instalação
-
-Primeira instalação. Seguir para Passo 1 normalmente.
+Primeira instalação em repo limpo. Seguir para Passo 1 normalmente.
 
 ---
 

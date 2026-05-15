@@ -141,6 +141,49 @@ export async function readManifest(targetDir: string): Promise<AntiVibeManifest 
   }
 }
 
+export type AutoFlipResult = {
+  flipped: boolean
+  updatedManifest: AntiVibeManifest
+}
+
+/**
+ * Verifies if all migration plans are completed and, if so, flips
+ * `initMode: "migration" → "completed"` in the manifest on disk.
+ *
+ * Never flips when `migrationPlans` is empty — empty catalog indicates
+ * an inconsistent state (manifest created before Plano 03 ran).
+ */
+export async function autoFlipIfComplete(
+  targetDir: string,
+  manifest: AntiVibeManifest,
+): Promise<AutoFlipResult> {
+  if (manifest.initMode !== 'migration') {
+    return { flipped: false, updatedManifest: manifest }
+  }
+
+  const plans = manifest.migrationPlans ?? []
+
+  if (plans.length === 0) {
+    return { flipped: false, updatedManifest: manifest }
+  }
+
+  const hasActivePlans = plans.some((p) => p.status === 'active')
+
+  if (hasActivePlans) {
+    return { flipped: false, updatedManifest: manifest }
+  }
+
+  const updatedManifest: AntiVibeManifest = {
+    ...manifest,
+    initMode: 'completed',
+    installedAt: new Date().toISOString(),
+  }
+
+  await writeManifest(targetDir, updatedManifest)
+
+  return { flipped: true, updatedManifest }
+}
+
 export async function buildAndWritePhase4Manifest(input: Phase4Input): Promise<AntiVibeManifest> {
   const { targetDir, pluginVersion, planPaths } = input
 
