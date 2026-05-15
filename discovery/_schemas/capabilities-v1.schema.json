@@ -1,0 +1,74 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "capabilities-v1",
+  "title": "Capabilities",
+  "description": "Inventário de capabilities do projeto gerado por /init (v6.3.0+). Campos source:ast têm confidence alta; source:llm têm confidence < 1.0 e requerem revisão humana.",
+  "type": "object",
+  "required": ["capabilities", "generated_at", "profile_at_generation", "schema_version"],
+  "properties": {
+    "capabilities": {
+      "type": "array",
+      "description": "Lista de capabilities detectadas (rotas, mutations, jobs, CLIs).",
+      "items": {
+        "type": "object",
+        "required": ["kind", "path", "handler", "confidence", "source"],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["route", "mutation", "job", "cli"],
+            "description": "Categoria da capability."
+          },
+          "method": {
+            "type": "string",
+            "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"],
+            "description": "Método HTTP. Obrigatório quando kind=route."
+          },
+          "path": {
+            "type": "string",
+            "description": "Caminho da rota (ex: /api/users/:id) ou identificador do job/CLI."
+          },
+          "handler": {
+            "type": "string",
+            "description": "Caminho relativo ao projeto do arquivo handler (ex: app/api/users/[id]/route.ts)."
+          },
+          "owner_path": {
+            "type": "string",
+            "description": "Caminho do módulo de domínio responsável, se detectável (ex: src/modules/users/)."
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Score 0..1 de confiança na detecção. AST-first tende a 1.0; LLM-fallback entre 0.6 e 0.9."
+          },
+          "source": {
+            "type": "string",
+            "enum": ["ast", "llm"],
+            "description": "Método de detecção. 'ast' = AST parser determinístico; 'llm' = LLM inference (requer revisão)."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "coverage_gaps": {
+      "type": "array",
+      "description": "Caminhos ou padrões onde a detecção foi parcial ou impossível (ex: páginas do pages/ router em projeto híbrido).",
+      "items": { "type": "string" }
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp de quando o arquivo foi gerado."
+    },
+    "profile_at_generation": {
+      "type": "string",
+      "description": "Profile de arquitetura ativo no momento da geração (ex: nextjs-app-router). Usado pelo stale detector."
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "1.0",
+      "description": "Versão do schema. Incrementar em breaking changes."
+    }
+  },
+  "additionalProperties": false
+}
