@@ -1,0 +1,8 @@
+{
+  "scenario": "single-design-file",
+  "expected_mode": "migration",
+  "expected_plan_count": 1,
+  "doc_files": ["docs/ARCHITECTURE.md"],
+  "has_dense_doc": false,
+  "notes": "Repo com exatamente 1 arquivo de design existente. Trigger de migration mode. Deve gerar 1 migration plan para ARCHITECTURE.md. Testa batching com doc único."
+}

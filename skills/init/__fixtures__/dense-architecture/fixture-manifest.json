@@ -1,0 +1,8 @@
+{
+  "scenario": "dense-architecture",
+  "expected_mode": "migration",
+  "expected_plan_count": 1,
+  "doc_files": ["docs/architecture-notes.md"],
+  "has_dense_doc": true,
+  "notes": "1 documento com 1200+ linhas. Testa detecção de dense=true em discovery.ts (linha count > threshold). Explorer deve processar em modo sequencial/chunked para evitar context overflow."
+}

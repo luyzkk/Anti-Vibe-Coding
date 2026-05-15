@@ -1,0 +1,16 @@
+{
+  "scenario": "dogfood-anti-vibe-plugin",
+  "expected_mode": "migration",
+  "expected_plan_count": 7,
+  "doc_files": [
+    "ARCHITECTURE.md",
+    "docs/PIPELINE.md",
+    "docs/MODEL_PROFILES.md",
+    "docs/AGENTS_LIST.md",
+    "docs/UPGRADE.md",
+    "docs/design-docs/ADR-001.md",
+    "docs/compound/2026-04-01-compound.md"
+  ],
+  "has_dense_doc": false,
+  "notes": "Mirrors estrutura do repo Anti-Vibe-Coding. Conteúdo sintético (não copia do repo real) para determinismo. Testa pipeline com mix de docs na raiz e em subdiretórios. expected_plan_count=7 (1 por doc_file)."
+}

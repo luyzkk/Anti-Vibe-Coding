@@ -1,0 +1,12 @@
+{
+  "scenario": "scattered-adrs",
+  "expected_mode": "migration",
+  "expected_plan_count": 3,
+  "doc_files": [
+    "docs/design-docs/ADR-001.md",
+    "docs/design-docs/ADR-002.md",
+    "docs/notes-2024.md"
+  ],
+  "has_dense_doc": false,
+  "notes": "3 documentos espalhados. Testa walk recursivo de docs/ e detecção de múltiplos arquivos elegíveis para migração. Cada ADR deve gerar 1 migration plan."
+}

@@ -1,0 +1,7 @@
+{
+  "scenario": "greenfield",
+  "expected_mode": "greenfield",
+  "expected_plan_count": 0,
+  "doc_files": [],
+  "notes": "Repo completamente vazio sem docs. detectMigrationMode deve retornar greenfield. Nenhum plano de migração gerado — scaffold completo direto."
+}
