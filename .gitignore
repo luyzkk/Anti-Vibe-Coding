@@ -18,3 +18,7 @@ node_modules/
 
 # Archive of old matrix-wrapper repo state (pre-flatten)
 claude-code/
+
+# Adaptive Coaching v6.3.0 — discovery outputs (runtime, não versionados)
+# Apenas os JSONs gerados; _schemas/ e .gitkeep são comitados
+discovery/*.json
