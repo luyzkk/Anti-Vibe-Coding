@@ -17,6 +17,31 @@ Um botao pode estar renderizado no DOM e passar no teste, mas estar invisivel, f
 O QA Visual e o ultimo checkpoint antes de entregar — ele ve o que o usuario ve.
 </philosophy>
 
+<!-- 2026-05-14 (Luiz/dev): pre-check via tool-registry-inspector — RF-MH-04, CA-06 -->
+<!-- Bloco defensivo: se Playwright MCP ausente, abortar com mensagem clara. UX idêntica a v6.2 quando presente. -->
+
+## Pre-check — Playwright MCP disponível?
+
+Antes de prosseguir, valide que o Playwright MCP está disponível no registry runtime.
+
+```typescript
+// Pseudocódigo declarativo — EXECUTOR-LLM chama via Read+Bash, não inline
+import { inspectToolRegistry } from '../lib/tool-registry-inspector'
+
+const snapshot = await inspectToolRegistry(process.cwd())
+const hasPlaywright = snapshot.mcps.some(m =>
+  m.name.toLowerCase().includes('playwright')
+)
+
+if (!hasPlaywright) {
+  console.error('Playwright MCP nao esta instalado ou nao foi declarado no .anti-vibe-manifest.json.')
+  console.error('Instale o plugin Playwright MCP antes de rodar /qa-visual.')
+  return  // early return — UX idêntica ao caso sem MCP em v6.2 (mensagem antes era genérica)
+}
+```
+
+Se o pre-check passar, prossiga para o Passo 0 abaixo — comportamento idêntico ao v6.2.
+
 ## Passo 0 — Resolver URL
 
 <instructions>
