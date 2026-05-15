@@ -1,9 +1,9 @@
 # State: Adaptive Coaching (v6.3.0)
 
 **Plan:** ./PLAN.md
-**Phase:** paused
+**Phase:** in-progress
 **Current Plan:** 03/05
-**Last Updated:** 2026-05-15 (Plano 02 CONCLUÍDO — 3/3 fases — execução pausada pelo dev)
+**Last Updated:** 2026-05-15 (Plano 03 fase-02 concluída — 2/3 fases)
 
 ## Progress por Plano
 
@@ -11,13 +11,13 @@
 |-------|------|-------|------|--------|
 | 01 | Fundação Adaptativa | 4 | 4/4 | completed |
 | 02 | /init produz capabilities.json | 3 | 3/3 | completed |
-| 03 | /parity-audit + tool-registry-inspector | 3 | 0/3 | pending |
+| 03 | /parity-audit + tool-registry-inspector | 3 | 2/3 | in-progress |
 | 04 | profile-aware-preface ×4-6 skills | 4 | 0/4 | pending |
 | 05 | Polish & DX (Could Haves) | 3 | 0/3 | pending |
 
 ## Progress Global
 
-Fases done: 7/17 (41%)
+Fases done: 9/17 (53%)
 
 ## Log
 
@@ -39,3 +39,5 @@ Fases done: 7/17 (41%)
 - 2026-05-15: Plano 02 fase-03 (/init Integration + Audit) concluída — commit 0069d6d. Integration test 2/2 pass (12 assertions), regression 10/10 pass, typecheck limpo. Sem TDD RED→GREEN clássico (smoke test contra dispatcher pré-existente — DI-07). SKILL.md: Step 7 inserido após Step 6 (Delivery Loop), antes de Passo 0. DEV-07: spec citava "Step 4 — Detect Architecture Profile" mas tal step não existe — `/detect-architecture` é skill SEPARADA; novo step pula silenciosamente quando `readArchitectureProfile()` retorna null. DEV-08: AuditLogWriter requer `run_id` (vem de `inventory.json` em migration mode); em /init greenfield não há inventory — usado `crypto.randomUUID()` como fallback. DEV-09: pseudocódigo do spec listava `readFile` import; mantido no SKILL.md mesmo sem uso (SKILL.md é prosa instrucional, não compilada). DI-08: schema validation reduzida a check de `schema_version === '1.0'` (sem ajv) — alinhado com spec.
 - 2026-05-15: **Plano 02 (/init produz capabilities.json) CONCLUÍDO** — 3/3 fases. Desbloqueia Plano 03 (parity-audit pode consumir capabilities.json) e qualquer skill que precise de contexto de rotas.
 - 2026-05-15: Execução pausada pelo dev no marco de conclusão do Plano 02. Próxima retomada: Plano 03 fase-01 (tool-registry-inspector).
+- 2026-05-15: Plano 03 fase-01 (tool-registry-inspector) concluída — commits c4a172f (RED) e e422053 (GREEN). 4/4 testes passam (18 assertions), typecheck limpo, suite global sem regressões (mesmos 9 fails pré-existentes). RED→GREEN confirmado: "Cannot find module" → all green. DEV-1: agents reais do projeto usam frontmatter `tools:` (sem hífen), mas spec da fase e fixtures de teste usam `allowed-tools:` (com hífen) — testes self-consistent, mas leitura de agents reais retornaria `allowed_tools:[]` para todos. Decisão de campo fica para fase-02. GT-1: `noUncheckedIndexedAccess:true` no tsconfig exige `?? ''` em `String.split()[0]` — não documentado nos gotchas da fase mas resolvido sem mudar comportamento.
+- 2026-05-15: Plano 03 fase-02 (parity-audit skill + lib) concluída — commits be9d41d (RED) e 2378388 (GREEN). parity-gaps-writer: 3/3 pass (11 assertions). gap-rules: 2/2 pass adicional. Typecheck limpo. Suite global 898 pass / 9 fail (baseline preservado). RED→GREEN confirmado: "Cannot find module ../parity-gaps-writer" → all green. DEV-2: schema `parity-gaps-v1.schema.json` define `tool_registry_snapshot.mcps` como `array of string`, mas `ToolRegistrySnapshot.mcps` é `Array<{name,tools}>` — validação soft per G4, não corrigido nesta fase (escopo Plano 01 ou v6.3.1). DEV-3: TDD gate aplicou basename matching e forçou criar `gap-rules.test.ts` (2 testes adicionais, additivo — não tocou no anchor `parity-gaps-writer.test.ts`). DEV-1 da fase-01 (allowed-tools vs tools no parser de subagentes) PERMANECE pendente — fase-02 consome snapshot via inspectToolRegistry e não depende do campo allowed_tools.
