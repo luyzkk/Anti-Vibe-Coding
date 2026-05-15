@@ -12,9 +12,45 @@
  * @see docs/design-docs/ADR-0020-adaptive-coaching.md — decisão D2 (shape composto)
  */
 
+import * as fs from "fs";
 import * as path from "path";
 import type { ArchitectureProfileName } from "./manifest-types";
 import { readArchitectureProfile } from "./read-architecture-profile";
+
+// 2026-05-15 (Luiz/dev): confidence threshold — PRD v6.3.0 §RF-CH-02 (plano05 fase-02)
+const DEFAULT_CONFIDENCE_THRESHOLD = 70;
+
+/**
+ * Reads the confidence threshold from config/adaptive-coaching.json.
+ * Returns null when the config/ directory does not exist (backward compat: no threshold).
+ * Returns DEFAULT_CONFIDENCE_THRESHOLD when config/ exists but file is absent or malformed.
+ */
+function readConfidenceThreshold(projectRoot: string): number | null {
+  const configDir = path.join(projectRoot, "config");
+  const configPath = path.join(configDir, "adaptive-coaching.json");
+  // If config/ directory doesn't exist, threshold feature is not opted in
+  try {
+    const stat = fs.statSync(configDir);
+    if (!stat.isDirectory()) return null;
+  } catch {
+    return null;
+  }
+  try {
+    const raw = fs.readFileSync(configPath, "utf-8");
+    const parsed: unknown = JSON.parse(raw);
+    if (
+      typeof parsed === "object" &&
+      parsed !== null &&
+      "confidenceThreshold" in parsed &&
+      typeof (parsed as Record<string, unknown>)["confidenceThreshold"] === "number"
+    ) {
+      return (parsed as Record<string, number>)["confidenceThreshold"] ?? DEFAULT_CONFIDENCE_THRESHOLD;
+    }
+    return DEFAULT_CONFIDENCE_THRESHOLD;
+  } catch {
+    return DEFAULT_CONFIDENCE_THRESHOLD;
+  }
+}
 
 // 2026-05-14 (Luiz/dev): slots de linguagem e framework reservados para v6.5/v6.6
 // (PRD §Decisão #2). Em v6.3.0 são sempre null — não hardcode lógica de preenchimento.
@@ -70,8 +106,14 @@ export function readPrefaceContext(projectRoot: string): PrefaceContext {
     return NULL_CONTEXT;
   }
 
+  // 2026-05-15 (Luiz/dev): confidence threshold — PRD v6.3.0 §RF-CH-02 (plano05 fase-02)
+  // null threshold = config dir absent = feature not opted in; skip threshold check
+  const threshold = readConfidenceThreshold(projectRoot);
+  const profileOrNull: ArchitectureProfileName | null =
+    threshold === null || archProfile.confidence >= threshold ? archProfile.profile : null;
+
   return {
-    profile: archProfile.profile,
+    profile: profileOrNull,
     // 2026-05-14 (Luiz/dev): language null — aguarda v6.5 (PRD §Decisão #2)
     language: null,
     // 2026-05-14 (Luiz/dev): framework null — aguarda v6.6 (PRD §Decisão #2)
