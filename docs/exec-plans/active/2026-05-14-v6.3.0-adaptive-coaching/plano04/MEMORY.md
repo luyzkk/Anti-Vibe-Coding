@@ -2,7 +2,8 @@
 
 **Feature:** Adaptive Coaching v6.3.0
 **Iniciado:** 2026-05-15
-**Status:** em andamento
+**Concluído:** 2026-05-15
+**Status:** concluído
 
 ---
 
@@ -26,6 +27,12 @@ Formato: o que foi decidido + por que + impacto.
 - **DI-5 (fase-03):** `checkProfileAwarePreface` faz skip silencioso quando o bloco preface NÃO tem fenced code (` ``` `).
   - Por que: existe pelo menos uma skill com preface em prosa pura (sem bloco de código executável) — exigir `readPrefaceContext` em prosa é nonsense (não há contexto executável para validar).
   - Impacto: prosa-only é tratado como documentação narrativa, não como contrato de execução. Trade-off aceito: um bloco preface marcado mas sem código nem prosa explicativa passaria silenciosamente — falsa-conformidade improvável na prática.
+- **DI-6 (fase-04):** Compound note CRIADO (não skipado) — `docs/compound/2026-05-15-profile-aware-preface-migration.md`.
+  - Por que: 2+ critérios da spec atendidos — (a) replicação mecânica em 6 skills validou pattern como copia-cole-adapte (DI-3); (b) harness check bidirecional gerou tolerâncias intencionais legítimas (DI-4 + DI-5) — duas APIs coexistindo (`readPrefaceContext` vs legado `readArchitectureProfile`) é cenário comum em migrações incrementais e merece documentação durável.
+  - Impacto: lesson durável para autores de skill futuros sobre per-skill lookup table + tradeoff de tolerâncias com data de validade (v6.5 unificará as APIs). Frontmatter category=arquitetura, 4 tags, seções Problem/Solution/Prevention/See Also completas.
+- **DI-7 (fase-04):** CHANGELOG.md inseriu entrada v6.3.0 acima de v6.1.0 (não criou entrada para v6.2.0, que existe no package.json mas não no CHANGELOG).
+  - Por que: spec do plano explícita "inserir entre linha 4 e linha 6 (atual `## [6.1.0]`)". v6.2.0 é skip intencional/já consumido (não escopo deste plano).
+  - Impacto: CHANGELOG pula de 6.1.0 direto para 6.3.0. Se v6.2.0 precisar de entry retroativo, é trabalho separado (TODO.md candidato).
 
 ---
 
@@ -76,11 +83,13 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 4 |
-| Fases concluidas | 3 |
+| Fases concluidas | 4 |
 | Fases com desvio | 2 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
 | Skills com preface (acumulado) | 6 (4 Must + 2 Should) + 2 legadas (architecture, detect-architecture) reconhecidas pelo check |
+| Compound notes geradas | 1 (`2026-05-15-profile-aware-preface-migration.md`) |
+| Commits | 8 (fases 01-04) — commit final fase-04: 3c93c73 |
 
 ---
 
@@ -93,12 +102,14 @@ O subagente do proximo plano le este campo.
      Notas aqui servem para v6.3.1 (patch) ou v6.4/v6.5 (próxima minor).
 -->
 
-### Para fase-04 (CHANGELOG + compound) — fase-03 já concluída
+### Para Plano 05 (Polish & DX — Could Haves) e v6.3.1/v6.5
 
 - **6 skills com bloco `<!-- profile-aware-preface:start --> ... :end -->`:** `security`, `api-design`, `system-design`, `design-patterns` (Must Have, fase-01), `decision-registry`, `lessons-learned` (Should Have, fase-02). Todas seguem o mesmo template literal — harness check da fase-03 valida bem-formação.
-- **Total final do RF-SH-05:** 100% — não houve SKIP. Fase-04 compound note NÃO precisa documentar "SKIP é resultado válido"; pode focar em "replicação mecânica funcionou" + "harness gate gera tolerâncias intencionais" (ver DI-4/DI-5) como lessons principais.
+- **Total final do RF-SH-05:** 100% — não houve SKIP. Fase-04 compound documentou "replicação mecânica funcionou" + "harness gate gera tolerâncias intencionais" (DI-4/DI-5).
 - **Pattern estável para v6.5:** quando `PrefaceContext` ganhar `language` e `framework` (slots reservados), as 6 lookup tables existentes continuam válidas — só ampliam mapas. CA-09 satisfeito.
-- **Harness check em produção:** `checkProfileAwarePreface` em `scripts/harness-validate.ts` valida 6 skills v6.3.0 + 2 skills legadas (`/architecture`, `/detect-architecture`). Para v6.5 simplificar, basta remover o ramo `readArchitectureProfile` do regex (DI-4) E migrar essas skills para `readPrefaceContext`.
+- **Débito técnico com data de validade para v6.5:** unificar `readArchitectureProfile` → `readPrefaceContext` nas skills legadas (`/architecture`, `/detect-architecture`) E remover o ramo legado do regex em `checkProfileAwarePreface` (DI-4). Skills prosa-only (DI-5) precisarão ganhar bloco executável ou marcação explícita de "documentation-only".
+- **CHANGELOG não cobre v6.2.0:** entrada pula de 6.1.0 para 6.3.0 (DI-7). Se v6.2.0 precisar de entry retroativo, é candidato a TODO.md.
+- **Compound note v6.3.0:** `docs/compound/2026-05-15-profile-aware-preface-migration.md` documenta as duas tensões resolvidas (per-skill lookup vs God-table; spec estrita vs codebase real) — referência para autores de skill futuros.
 
 ---
 

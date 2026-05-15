@@ -2,8 +2,8 @@
 
 **Plan:** ./PLAN.md
 **Phase:** in-progress
-**Current Plan:** 04/05
-**Last Updated:** 2026-05-15 (Plano 04 fase-03 concluída — 3/4 fases)
+**Current Plan:** 05/05
+**Last Updated:** 2026-05-15 (Plano 04 CONCLUÍDO — 4/4 fases)
 
 ## Progress por Plano
 
@@ -12,12 +12,12 @@
 | 01 | Fundação Adaptativa | 4 | 4/4 | completed |
 | 02 | /init produz capabilities.json | 3 | 3/3 | completed |
 | 03 | /parity-audit + tool-registry-inspector | 3 | 3/3 | completed |
-| 04 | profile-aware-preface ×4-6 skills | 4 | 3/4 | in-progress |
+| 04 | profile-aware-preface ×4-6 skills | 4 | 4/4 | completed |
 | 05 | Polish & DX (Could Haves) | 3 | 0/3 | pending |
 
 ## Progress Global
 
-Fases done: 13/17 (76%)
+Fases done: 14/17 (82%)
 
 ## Log
 
@@ -47,3 +47,5 @@ Fases done: 13/17 (76%)
 - 2026-05-15: Plano 04 fase-01 (profile-aware-preface ×4 Must Have) concluída — commits 20fa851 (RED) e dedfd02 (GREEN). 16/16 testes passam (4 testes × 4 skills: /security, /api-design, /system-design, /design-patterns). Suite global 916 pass (era 900, +16), 9 fail (baseline pré-existente, sem regressões). Typecheck limpo. harness:validate OK (26 required + 184 markdown). RED→GREEN confirmado: "Cannot find module" → all green. DI-1: bloco preface em SKILL.md usa `process.cwd()` como argumento de `readPrefaceContext` (consistente com pattern de `/architecture`). DEV-1: lookup table de `/api-design` ajustada após primeiro RED — teste exigia "route handler" (lowercase, singular) e implementação inicial usou "Route handlers" (capitalizado, plural); fix mantém teste como anchor (G4 do plano). Frontmatter `allowed-tools:` intacto nas 4 skills.
 - 2026-05-15: Plano 04 fase-02 (profile-aware-preface ×2 Should Have) concluída — commits 360fcba (RED) e 828d710 (GREEN). Decisão Passo 0 (G6): INCLUIR ambas /decision-registry e /lessons-learned (não SKIP). 6/6 testes passam (3 por skill: nextjs-app-router, mvc-flat, DEFAULT='' CA-02). Typecheck limpo. harness:validate OK. Suite global preserva baseline (mesmos 9 fails pré-existentes). RED→GREEN confirmado: "Cannot find module" → all green. Total de skills com preface ao fim da fase-02: **6** (4 Must Have + 2 Should Have). Frontmatter `allowed-tools:` intacto nas 2 skills (G1 do plano). Sem desvios.
 - 2026-05-15: Plano 04 fase-03 (harness-validate-preface check) concluída — commits 4806519 (RED) e fe16b62 (GREEN). 4/4 testes passam (valid, missing-end, missing-readPrefaceContext-ref, opt-in skip CA-02). Typecheck limpo. `bun run harness:validate` OK (26 required files, 184 markdown — todas as 6 skills com preface + as 2 skills legadas que usam `readArchitectureProfile` continuam compliance). Suite global preserva baseline (mesmos 9 fails pré-existentes). RED→GREEN confirmado: SyntaxError 'Export named checkProfileAwarePreface not found' → all green. DEV-2: GREEN subagent precisou estender o check com 2 tolerâncias para não quebrar skills pré-existentes — (a) aceitar `readArchitectureProfile(` como referência alternativa (skills `/architecture` e `/detect-architecture` usam o padrão legado), (b) skip silencioso quando bloco preface não tem fenced code (prosa-only, sem contexto executável). Fixture MISSING_REF continua falhando corretamente porque o regex `/readPrefaceContext\s*[({]/` exige `(` ou `{` após o nome — comentário `// sem readPrefaceContext` não casa. Anchor (teste) preservado.
+- 2026-05-15: Plano 04 fase-04 (CHANGELOG v6.3.0 + compound note) concluída — commit 3c93c73. CHANGELOG.md ganhou entrada `## [6.3.0] - 2026-05-15` no topo (acima de 6.1.0) citando 6 skills migradas, PrefaceContext, capabilities.json, /parity-audit, harness validator estendido, ADR-0020. Compound note `docs/compound/2026-05-15-profile-aware-preface-migration.md` criado (decisão: CRIAR — 2+ critérios atendidos: replicação mecânica em 6 skills + tolerâncias intencionais do harness). harness:validate (26 required + 184 markdown) e compound:check (18 notes) e typecheck todos verdes. Grep checks: `## [6.3.0]`=1, `PrefaceContext`=6, `profile-aware-preface`=2.
+- 2026-05-15: **Plano 04 (profile-aware-preface ×4-6 skills) CONCLUÍDO** — 4/4 fases. Fecha conteúdo v6.3.0. Próximo: Plano 05 (Polish & DX — Could Haves, defer-friendly v6.3.0/v6.3.1).
