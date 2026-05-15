@@ -7,6 +7,24 @@ allowed-tools: Read, Grep, Glob, Write, Edit
 argument-hint: "add|review|prune [description]"
 ---
 
+<!-- profile-aware-preface:start -->
+```typescript
+// 2026-05-15 (Luiz/dev): Plano 04 fase-02 — profile-aware-preface (PRD §RF-SH-05).
+// Mesmo pattern de /security (fase-01); per-skill lookup; fallback v6.2 quando profile null.
+
+import { readPrefaceContext } from '../lib/preface-context'
+import { LESSONS_LEARNED_PREFACE_BY_PROFILE, DEFAULT_LESSONS_LEARNED_PREFACE } from './lib/lessons-learned-prefaces'
+
+const ctx = readPrefaceContext(process.cwd())
+const preface = ctx.profile
+  ? (LESSONS_LEARNED_PREFACE_BY_PROFILE[ctx.profile] ?? DEFAULT_LESSONS_LEARNED_PREFACE)
+  : DEFAULT_LESSONS_LEARNED_PREFACE
+```
+
+Se `preface` for não-vazio, prepend ao corpo da skill (inicie sua resposta com o preface e prossiga com a operação normal).
+Se vazio (profile null), comportamento v6.2 intacto — sem preface (CA-02).
+<!-- profile-aware-preface:end -->
+
 # Licoes Aprendidas — Anti-Vibe Coding
 
 Gerenciar o repositorio de conhecimento de nivel senior do projeto.
