@@ -1,9 +1,9 @@
 # State: Adaptive Coaching (v6.3.0)
 
 **Plan:** ./PLAN.md
-**Phase:** in-progress
+**Phase:** paused
 **Current Plan:** 03/05
-**Last Updated:** 2026-05-15 (Plano 02 CONCLUÍDO — 3/3 fases — aguardando decisão do dev sobre Plano 03)
+**Last Updated:** 2026-05-15 (Plano 02 CONCLUÍDO — 3/3 fases — execução pausada pelo dev)
 
 ## Progress por Plano
 
@@ -38,3 +38,4 @@ Fases done: 7/17 (41%)
 - 2026-05-15: Execução pausada pelo dev após fase-02. Próxima retomada: Plano 02 fase-03 (/init Integration + Audit).
 - 2026-05-15: Plano 02 fase-03 (/init Integration + Audit) concluída — commit 0069d6d. Integration test 2/2 pass (12 assertions), regression 10/10 pass, typecheck limpo. Sem TDD RED→GREEN clássico (smoke test contra dispatcher pré-existente — DI-07). SKILL.md: Step 7 inserido após Step 6 (Delivery Loop), antes de Passo 0. DEV-07: spec citava "Step 4 — Detect Architecture Profile" mas tal step não existe — `/detect-architecture` é skill SEPARADA; novo step pula silenciosamente quando `readArchitectureProfile()` retorna null. DEV-08: AuditLogWriter requer `run_id` (vem de `inventory.json` em migration mode); em /init greenfield não há inventory — usado `crypto.randomUUID()` como fallback. DEV-09: pseudocódigo do spec listava `readFile` import; mantido no SKILL.md mesmo sem uso (SKILL.md é prosa instrucional, não compilada). DI-08: schema validation reduzida a check de `schema_version === '1.0'` (sem ajv) — alinhado com spec.
 - 2026-05-15: **Plano 02 (/init produz capabilities.json) CONCLUÍDO** — 3/3 fases. Desbloqueia Plano 03 (parity-audit pode consumir capabilities.json) e qualquer skill que precise de contexto de rotas.
+- 2026-05-15: Execução pausada pelo dev no marco de conclusão do Plano 02. Próxima retomada: Plano 03 fase-01 (tool-registry-inspector).
