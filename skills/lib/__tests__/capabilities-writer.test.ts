@@ -85,8 +85,8 @@ describe('discoverNextjsAppRouterCapabilities', () => {
     const result = await discoverNextjsAppRouterCapabilities(tmpDir)
 
     expect(result.capabilities.length).toBe(1)
-    expect(result.capabilities[0].path).toBe('/dashboard')
-    expect(result.capabilities[0].handler).toContain('route.tsx:')
+    expect(result.capabilities[0]?.path).toBe('/dashboard')
+    expect(result.capabilities[0]?.handler).toContain('route.tsx:')
   })
 
   it('extracts line numbers correctly in handler field', async () => {
@@ -100,7 +100,7 @@ describe('discoverNextjsAppRouterCapabilities', () => {
 
     const result = await discoverNextjsAppRouterCapabilities(tmpDir)
 
-    expect(result.capabilities[0].handler).toBe('app/api/users/route.ts:22')
+    expect(result.capabilities[0]?.handler).toBe('app/api/users/route.ts:22')
   })
 
   it('adds coverage_gap for route file with no HTTP method exports', async () => {
