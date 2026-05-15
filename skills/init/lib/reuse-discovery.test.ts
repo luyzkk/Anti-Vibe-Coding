@@ -10,6 +10,8 @@ import {
   resolveThresholdMs,
   FRESH_THRESHOLD_MS,
 } from './reuse-discovery'
+// RED: tryRegenerateParityGaps does not exist yet — imported lazily so existing tests keep running
+import type { tryRegenerateParityGaps as TryRegenerateParityGapsFn } from './reuse-discovery'
 
 let tmp: string
 
@@ -178,5 +180,72 @@ describe('shouldReuseDiscovery with thresholdMs override', () => {
     // default 24h -> true; override 1h -> false
     expect(shouldReuseDiscovery(twoHoursAgo)).toBe(true)
     expect(shouldReuseDiscovery(twoHoursAgo, 60 * 60 * 1000)).toBe(false)
+  })
+})
+
+describe('parseReuseDiscoveryFlag — --refresh alias (DEC-2 option 3)', () => {
+  it('returns reuseDiscovery true when --refresh present', () => {
+    expect(parseReuseDiscoveryFlag(['--refresh']).reuseDiscovery).toBe(true)
+  })
+
+  it('returns reuseDiscovery true when --refresh mixed with other args', () => {
+    expect(parseReuseDiscoveryFlag(['--dry-run', '--refresh']).reuseDiscovery).toBe(true)
+  })
+
+  it('returns reuseDiscovery true when BOTH --refresh and --reuse-discovery present (idempotent)', () => {
+    expect(parseReuseDiscoveryFlag(['--refresh', '--reuse-discovery']).reuseDiscovery).toBe(true)
+  })
+})
+
+describe('tryRegenerateParityGaps (DEC-2 option 3 — graceful degradation)', () => {
+  let tryRegenerateParityGaps: typeof TryRegenerateParityGapsFn
+
+  beforeEach(async () => {
+    // Dynamic import isolates load error from existing tests — RED phase: export does not exist yet
+    const mod = await import('./reuse-discovery')
+    tryRegenerateParityGaps = (mod as typeof mod & { tryRegenerateParityGaps: typeof TryRegenerateParityGapsFn }).tryRegenerateParityGaps
+  })
+
+  it('returns regenerated:false reason:parity-audit-unavailable when loader returns null', async () => {
+    const result = await tryRegenerateParityGaps(tmp, async () => null)
+    expect(result).toEqual({ regenerated: false, reason: 'parity-audit-unavailable' })
+  })
+
+  it('returns regenerated:false reason:parity-audit-unavailable when loader throws', async () => {
+    const result = await tryRegenerateParityGaps(tmp, async () => { throw new Error('mod not found') })
+    expect(result).toEqual({ regenerated: false, reason: 'parity-audit-unavailable' })
+  })
+
+  it('regenerates parity-gaps.json and returns regenerated:true reason:success with mock loader', async () => {
+    const calls: { inspect: number; compute: number; write: number } = { inspect: 0, compute: 0, write: 0 }
+    const fakeSnapshot = {
+      mcps: [],
+      builtin_tools: [],
+      subagents: [],
+      generated_at: '2026-05-15T00:00:00.000Z',
+      source: 'partial' as const,
+    }
+    const fakeOutput = {
+      gaps: [],
+      tool_registry_snapshot: fakeSnapshot,
+      generated_at: '2026-05-15T00:00:00.000Z',
+      schema_version: '1.0' as const,
+    }
+    const result = await tryRegenerateParityGaps(tmp, async () => ({
+      inspectToolRegistry: async (root: string) => { calls.inspect++; expect(root).toBe(tmp); return fakeSnapshot },
+      computeParityGaps: (snap: typeof fakeSnapshot, task: string | null) => { calls.compute++; expect(snap).toBe(fakeSnapshot); expect(task).toBeNull(); return fakeOutput },
+      writeParityGaps: async (out: typeof fakeOutput, root: string) => { calls.write++; expect(out).toBe(fakeOutput); expect(root).toBe(tmp); return path.join(root, 'discovery', 'parity-gaps.json') },
+    }))
+    expect(result).toEqual({ regenerated: true, reason: 'success' })
+    expect(calls).toEqual({ inspect: 1, compute: 1, write: 1 })
+  })
+
+  it('returns regenerated:false reason:error when one of the steps throws after loader succeeded', async () => {
+    const result = await tryRegenerateParityGaps(tmp, async () => ({
+      inspectToolRegistry: async () => { throw new Error('boom') },
+      computeParityGaps: () => { throw new Error('should not run') },
+      writeParityGaps: async () => { throw new Error('should not run') },
+    }))
+    expect(result).toEqual({ regenerated: false, reason: 'error' })
   })
 })
