@@ -14,6 +14,12 @@ Formato: o que foi decidido + por que + impacto.
 - **DI-1 (fase-01):** Bloco preface em SKILL.md passa `process.cwd()` como argumento de `readPrefaceContext(projectRoot)` nas 4 skills.
   - Por que: `readPrefaceContext` exige `projectRoot` posicional; spec da fase não especifica o valor mas pattern de `/architecture` usa `process.cwd()` implicitamente via `readArchitectureProfile()` sem argumento.
   - Impacto: harness check é string-presence apenas (G4 do plano), então a chamada literal nunca executa neste contexto — escolha é cosmética/documental. Se v6.5 tornar SKILL.md executável, revisar.
+- **DI-2 (fase-02):** Passo 0 (G6 do plano) — operador escolheu INCLUIR `/lessons-learned` em vez de SKIPAR.
+  - Por que: mesmo sendo meta-skill orquestradora, profile pode informar **categorização** das lições (sugerir tag `[Next-Specific]` quando nextjs-app-router, `[MVC-Specific]` quando mvc-flat) sem mexer no filtro de qualidade senior (universal).
+  - Impacto: total final = 6 skills com preface (4 Must Have + 2 Should Have). RF-SH-05 satisfeito 100%. Sem candidato a compound lesson de "SKIP é resultado válido" — Plano 04 fase-04 ficará livre desse caso.
+- **DI-3 (fase-02):** Lookup tables novas reusam estritamente o pattern de `/security` (referência canônica) — provenance comments, ordem de exports, comentário CA-02 no DEFAULT, import path `'../../lib/manifest-types'` para `ArchitectureProfileName`.
+  - Por que: replicação mecânica é exatamente o objetivo do tracer bullet da fase-01 — fase-02 confirma que o pattern é copia-cole-adapte sem invenção.
+  - Impacto: zero divergência estrutural entre as 6 lookup tables; harness check da fase-03 ficará trivial.
 
 ---
 
@@ -61,10 +67,11 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 4 |
-| Fases concluidas | 1 |
+| Fases concluidas | 2 |
 | Fases com desvio | 1 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
+| Skills com preface (acumulado) | 6 (4 Must + 2 Should) |
 
 ---
 
@@ -75,12 +82,13 @@ O subagente do proximo plano le este campo.
 
 <!-- Não há próximo plano após este — Plano 04 fecha o release v6.3.0.
      Notas aqui servem para v6.3.1 (patch) ou v6.4/v6.5 (próxima minor).
-     Exemplo:
-     - Pattern de preface estabilizado em 6 skills; v6.5 só adiciona campo `language` no PrefaceContext
-       e amplia lookup tables — sem refactor das skills migradas (CA-09).
-     - Compound note `2026-05-15-profile-aware-preface-migration.md` documenta tradeoffs
-       (replicação mecânica vs. adaptação per-skill) para autores futuros.
 -->
+
+### Para fase-03 (harness-validate-preface) e fase-04 (CHANGELOG + compound)
+
+- **6 skills com bloco `<!-- profile-aware-preface:start --> ... :end -->`:** `security`, `api-design`, `system-design`, `design-patterns` (Must Have, fase-01), `decision-registry`, `lessons-learned` (Should Have, fase-02). Todas seguem o mesmo template literal — harness check (fase-03) pode usar `string.includes()` simples (G4 + G7 do plano).
+- **Total final do RF-SH-05:** 100% — não houve SKIP. Fase-04 compound note NÃO precisa documentar "SKIP é resultado válido"; pode focar em "replicação mecânica funcionou" como lesson principal.
+- **Pattern estável para v6.5:** quando `PrefaceContext` ganhar `language` e `framework` (slots reservados), as 6 lookup tables existentes continuam válidas — só ampliam mapas. CA-09 satisfeito.
 
 ---
 
