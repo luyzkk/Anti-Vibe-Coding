@@ -11,11 +11,9 @@
 Decisoes tomadas durante execucao que nao estavam no PRD ou plano.
 Formato: o que foi decidido + por que + impacto.
 
-<!-- Exemplo:
-- **DI-1:** /decision-registry recebeu preface com escopo "headline + 1 patterns" (não rationale completo)
-  - Por que: skill é meta-orquestradora, preface longo polui o prompt de invocação
-  - Impacto: PREFACE_BY_PROFILE menor; default = string vazia para preservar CA-02
--->
+- **DI-1 (fase-01):** Bloco preface em SKILL.md passa `process.cwd()` como argumento de `readPrefaceContext(projectRoot)` nas 4 skills.
+  - Por que: `readPrefaceContext` exige `projectRoot` posicional; spec da fase não especifica o valor mas pattern de `/architecture` usa `process.cwd()` implicitamente via `readArchitectureProfile()` sem argumento.
+  - Impacto: harness check é string-presence apenas (G4 do plano), então a chamada literal nunca executa neste contexto — escolha é cosmética/documental. Se v6.5 tornar SKILL.md executável, revisar.
 
 ---
 
@@ -52,11 +50,9 @@ Apenas gotchas que NAO eram obvios antes de implementar.
 O que mudou em relacao ao que estava planejado e por que.
 Se nada mudou, manter vazio (bom sinal).
 
-<!-- Exemplo:
-- **DEV-1:** fase-02 entregou 1 skill em vez de 2 (RF-SH-05 permite "candidates, choice open")
-  - Motivo: /lessons-learned não tem dependência de profile arquitetural — preface seria ruído
-  - Aprovado pelo dev em sessao
--->
+- **DEV-1 (fase-01):** Implementação GREEN de `/api-design` lookup table foi corrigida após primeira tentativa de RED→GREEN. Teste do RED esperava `"route handler"` (lowercase, singular) na preface de `nextjs-app-router`, mas implementação inicial usou `"Route handlers"` (capitalizado, plural). Decisão: ajustar implementação para casar com o teste (G4 do plano — teste é anchor imutável após RED).
+  - Motivo: TDD — teste é a spec, implementação serve o teste.
+  - Impacto: nenhum (anchor preservado, RED→GREEN completou conforme contrato).
 
 ---
 
@@ -65,8 +61,8 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 4 |
-| Fases concluidas | 0 |
-| Fases com desvio | 0 |
+| Fases concluidas | 1 |
+| Fases com desvio | 1 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
 

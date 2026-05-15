@@ -2,8 +2,8 @@
 
 **Plan:** ./PLAN.md
 **Phase:** in-progress
-**Current Plan:** 03/05
-**Last Updated:** 2026-05-15 (Plano 03 CONCLUÍDO — 3/3 fases)
+**Current Plan:** 04/05
+**Last Updated:** 2026-05-15 (Plano 04 fase-01 concluída — 1/4 fases)
 
 ## Progress por Plano
 
@@ -12,12 +12,12 @@
 | 01 | Fundação Adaptativa | 4 | 4/4 | completed |
 | 02 | /init produz capabilities.json | 3 | 3/3 | completed |
 | 03 | /parity-audit + tool-registry-inspector | 3 | 3/3 | completed |
-| 04 | profile-aware-preface ×4-6 skills | 4 | 0/4 | pending |
+| 04 | profile-aware-preface ×4-6 skills | 4 | 1/4 | in-progress |
 | 05 | Polish & DX (Could Haves) | 3 | 0/3 | pending |
 
 ## Progress Global
 
-Fases done: 10/17 (59%)
+Fases done: 11/17 (65%)
 
 ## Log
 
@@ -44,3 +44,4 @@ Fases done: 10/17 (59%)
 - 2026-05-15: Execução pausada pelo dev após fase-02. Próxima retomada: Plano 03 fase-03 (qa-visual refactor — pre-check via inspectToolRegistry, ~0.5h, CA-06).
 - 2026-05-15: Plano 03 fase-03 (qa-visual refactor) concluída — commits 4d3c9e2 (RED) e 87f7f8b (GREEN). 2/2 testes passam (3 assertions), typecheck limpo. RED→GREEN confirmado: SKILL.md sem 'inspectToolRegistry' → bloco de pre-check inserido após `</philosophy>` e antes do `## Passo 0`. Frontmatter `allowed-tools:` INTOCADO (G1: harness do Claude Code parseia antes da skill rodar). Suite global preserva baseline pré-existente. CA-06 satisfeito: UX idêntica a v6.2 quando Playwright instalado; mensagem clara quando ausente. DEV-1 da fase-01 (allowed-tools vs tools no parser de subagentes) permanece pendente — fase-03 não consome `subagents[].allowed_tools`, só `snapshot.mcps`.
 - 2026-05-15: **Plano 03 (/parity-audit + tool-registry-inspector) CONCLUÍDO** — 3/3 fases. Lib `tool-registry-inspector.ts`, skill `/parity-audit`, e `qa-visual` pre-check refatorado todos verdes. Desbloqueia Plano 04 (profile-aware-preface ×4-6 skills) e Plano 05 (Polish & DX).
+- 2026-05-15: Plano 04 fase-01 (profile-aware-preface ×4 Must Have) concluída — commits 20fa851 (RED) e dedfd02 (GREEN). 16/16 testes passam (4 testes × 4 skills: /security, /api-design, /system-design, /design-patterns). Suite global 916 pass (era 900, +16), 9 fail (baseline pré-existente, sem regressões). Typecheck limpo. harness:validate OK (26 required + 184 markdown). RED→GREEN confirmado: "Cannot find module" → all green. DI-1: bloco preface em SKILL.md usa `process.cwd()` como argumento de `readPrefaceContext` (consistente com pattern de `/architecture`). DEV-1: lookup table de `/api-design` ajustada após primeiro RED — teste exigia "route handler" (lowercase, singular) e implementação inicial usou "Route handlers" (capitalizado, plural); fix mantém teste como anchor (G4 do plano). Frontmatter `allowed-tools:` intacto nas 4 skills.
