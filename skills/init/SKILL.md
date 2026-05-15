@@ -447,6 +447,38 @@ After this step, `discovery/capabilities.json` exists (when profile detected) an
 
 ---
 
+### Step reuse-discovery.0: Parse --reuse-discovery flag (Plano 01 fase-01 — CA-01, CA-03)
+
+<!-- Detecta --reuse-discovery em ARGUMENTS antes de qualquer outro passo.
+     Quando presente e cache fresh (<24h), pula direto para Step 7 (Capabilities Discovery).
+     Quando presente e cache stale/ausente, warn + cai no fluxo normal (Passo 0 abaixo).
+     Quando ausente, comportamento byte-identical ao v6.2.x.
+     D1/D4 do PRD: flag --reuse-discovery, antes do Passo 0 (não dentro). -->
+
+```javascript
+// 2026-05-15 (Luiz/dev): await import em vez de bun -e — GT-04 (bun -e com paths absolutos quebra no Windows)
+const { parseReuseDiscoveryFlag, readLastInitTimestamp, shouldReuseDiscovery } = await import('./lib/reuse-discovery.ts')
+
+const argsStr = typeof ARGUMENTS === 'string' ? ARGUMENTS : ''
+const { reuseDiscovery } = parseReuseDiscoveryFlag(argsStr.split(/\s+/).filter(Boolean))
+
+if (reuseDiscovery) {
+  const cachedAt = await readLastInitTimestamp(process.cwd())
+  if (shouldReuseDiscovery(cachedAt)) {
+    console.log('[reuse-discovery] cache fresh — skipping Steps 0-1, jumping to Step 7 (Capabilities Discovery)')
+    // fall through to Step 7 (fase-02 adicionará audit entry; fase-01 deixa só o skip)
+    // IMPORTANT: subsequent Step 0 / Step 0.5 / Steps 1-6 must NOT execute when reuseDiscovery && fresh.
+    // Fase-01 (tracer): apenas console.log + comentário direcional. Fase-02 implementa o skip real via control flow.
+  } else {
+    console.log('[reuse-discovery] cache stale or absent — running full init (Step 0 onward)')
+  }
+}
+```
+
+After this step, when `--reuse-discovery` is passed and cache is fresh, control should jump to Step 7. When stale or absent, control continues to `Passo 0 — Detectar Modo de Inicialização`.
+
+---
+
 ### Passo 0 — Detectar Modo de Inicialização (Plano 01 fase-03 + Plano 04 fase-03)
 
 <!-- DEPRECATED: bloco anterior (hasManifest/require/pluginVersion) substituído por detectInitMode. -->
