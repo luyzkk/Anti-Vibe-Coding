@@ -1,9 +1,9 @@
 # State: Adaptive Coaching (v6.3.0)
 
 **Plan:** ./PLAN.md
-**Phase:** in-progress
+**Phase:** paused
 **Current Plan:** 03/05
-**Last Updated:** 2026-05-15 (Plano 03 fase-02 concluída — 2/3 fases)
+**Last Updated:** 2026-05-15 (Plano 03 fase-02 concluída — 2/3 fases — pausada pelo dev)
 
 ## Progress por Plano
 
@@ -41,3 +41,4 @@ Fases done: 9/17 (53%)
 - 2026-05-15: Execução pausada pelo dev no marco de conclusão do Plano 02. Próxima retomada: Plano 03 fase-01 (tool-registry-inspector).
 - 2026-05-15: Plano 03 fase-01 (tool-registry-inspector) concluída — commits c4a172f (RED) e e422053 (GREEN). 4/4 testes passam (18 assertions), typecheck limpo, suite global sem regressões (mesmos 9 fails pré-existentes). RED→GREEN confirmado: "Cannot find module" → all green. DEV-1: agents reais do projeto usam frontmatter `tools:` (sem hífen), mas spec da fase e fixtures de teste usam `allowed-tools:` (com hífen) — testes self-consistent, mas leitura de agents reais retornaria `allowed_tools:[]` para todos. Decisão de campo fica para fase-02. GT-1: `noUncheckedIndexedAccess:true` no tsconfig exige `?? ''` em `String.split()[0]` — não documentado nos gotchas da fase mas resolvido sem mudar comportamento.
 - 2026-05-15: Plano 03 fase-02 (parity-audit skill + lib) concluída — commits be9d41d (RED) e 2378388 (GREEN). parity-gaps-writer: 3/3 pass (11 assertions). gap-rules: 2/2 pass adicional. Typecheck limpo. Suite global 898 pass / 9 fail (baseline preservado). RED→GREEN confirmado: "Cannot find module ../parity-gaps-writer" → all green. DEV-2: schema `parity-gaps-v1.schema.json` define `tool_registry_snapshot.mcps` como `array of string`, mas `ToolRegistrySnapshot.mcps` é `Array<{name,tools}>` — validação soft per G4, não corrigido nesta fase (escopo Plano 01 ou v6.3.1). DEV-3: TDD gate aplicou basename matching e forçou criar `gap-rules.test.ts` (2 testes adicionais, additivo — não tocou no anchor `parity-gaps-writer.test.ts`). DEV-1 da fase-01 (allowed-tools vs tools no parser de subagentes) PERMANECE pendente — fase-02 consome snapshot via inspectToolRegistry e não depende do campo allowed_tools.
+- 2026-05-15: Execução pausada pelo dev após fase-02. Próxima retomada: Plano 03 fase-03 (qa-visual refactor — pre-check via inspectToolRegistry, ~0.5h, CA-06).
