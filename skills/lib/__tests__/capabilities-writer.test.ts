@@ -1,11 +1,12 @@
 // 2026-05-15 (Luiz/dev): RED phase — Plano 02 fase-01. Tests specify discoverNextjsAppRouterCapabilities.
 // Implementation does not exist yet. All tests must fail on import.
+// 2026-05-15 (Luiz/dev): RED phase — Plano 02 fase-02. Adds mvc-flat + dispatcher tests.
 
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
 import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises'
 import path from 'node:path'
 import os from 'node:os'
-import { discoverNextjsAppRouterCapabilities } from '../capabilities-writer'
+import { discoverNextjsAppRouterCapabilities, discoverMvcFlatCapabilities, discoverCapabilities } from '../capabilities-writer'
 
 let tmpDir: string
 
@@ -117,5 +118,70 @@ describe('discoverNextjsAppRouterCapabilities', () => {
 
     expect(result.capabilities).toEqual([])
     expect(result.coverage_gaps[0]).toContain('no HTTP method exports found')
+  })
+})
+
+describe('discoverMvcFlatCapabilities', () => {
+  it('discovers GET and POST routes from Express-style router methods', async () => {
+    const routeContent = [
+      "router.get('/users', async (req, res) => { return res.json([]) })",
+      "router.post('/users', async (req, res) => { return res.status(201).json({}) })",
+    ].join('\n')
+
+    await mkdir(path.join(tmpDir, 'routes'), { recursive: true })
+    await writeFile(path.join(tmpDir, 'routes', 'users.ts'), routeContent)
+
+    const result = await discoverMvcFlatCapabilities(tmpDir)
+
+    expect(result.capabilities.length).toBe(2)
+
+    const get = result.capabilities.find(c => c.method === 'GET')
+    const post = result.capabilities.find(c => c.method === 'POST')
+
+    expect(get).toBeDefined()
+    expect(post).toBeDefined()
+
+    expect(get?.path).toBe('/users')
+    expect(post?.path).toBe('/users')
+
+    expect(get?.source).toBe('llm')
+    expect(post?.source).toBe('llm')
+
+    expect(get?.confidence).toBe(0.7)
+    expect(post?.confidence).toBe(0.7)
+
+    expect(result.profile_at_generation).toBe('mvc-flat')
+  })
+
+  it('returns coverage_gap when no routes folder exists', async () => {
+    // tmpDir is empty — no routes/, src/routes/, or app/routes/
+    const result = await discoverMvcFlatCapabilities(tmpDir)
+
+    expect(result.capabilities).toEqual([])
+    expect(result.coverage_gaps.length).toBe(1)
+    expect(result.coverage_gaps[0]).toContain('mvc-flat discovery skipped')
+    expect(result.profile_at_generation).toBe('mvc-flat')
+    expect(result.schema_version).toBe('1.0')
+  })
+})
+
+describe('discoverCapabilities (dispatcher)', () => {
+  it('routes to correct function by profile — nextjs-app-router', async () => {
+    const result = await discoverCapabilities(tmpDir, 'nextjs-app-router')
+    expect(result.profile_at_generation).toBe('nextjs-app-router')
+  })
+
+  it('routes to correct function by profile — mvc-flat', async () => {
+    const result = await discoverCapabilities(tmpDir, 'mvc-flat')
+    expect(result.profile_at_generation).toBe('mvc-flat')
+  })
+
+  it('returns best-effort output for unknown profile', async () => {
+    const result = await discoverCapabilities(tmpDir, 'unknown-mixed')
+
+    expect(result.capabilities).toEqual([])
+    expect(result.coverage_gaps[0]).toContain('not supported')
+    expect(result.profile_at_generation).toBe('unknown-mixed')
+    expect(result.schema_version).toBe('1.0')
   })
 })
