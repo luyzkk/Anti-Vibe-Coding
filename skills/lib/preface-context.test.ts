@@ -117,7 +117,7 @@ describe("readPrefaceContext — confidence threshold (RF-CH-02)", () => {
   test("confidence 50 with threshold 70 returns profile null", async () => {
     await writeFile(
       path.join(workdir, "config", "adaptive-coaching.json"),
-      JSON.stringify({ confidenceThreshold: 70 }),
+      JSON.stringify({ confidence_threshold: 70, schema_version: "1.0" }),
     );
     mock.module("./read-architecture-profile", () => ({
       readArchitectureProfile: () => ({
@@ -143,7 +143,7 @@ describe("readPrefaceContext — confidence threshold (RF-CH-02)", () => {
   test("confidence exactly 70 with threshold 70 keeps profile (boundary accepted)", async () => {
     await writeFile(
       path.join(workdir, "config", "adaptive-coaching.json"),
-      JSON.stringify({ confidenceThreshold: 70 }),
+      JSON.stringify({ confidence_threshold: 70, schema_version: "1.0" }),
     );
     mock.module("./read-architecture-profile", () => ({
       readArchitectureProfile: () => ({
@@ -168,7 +168,7 @@ describe("readPrefaceContext — confidence threshold (RF-CH-02)", () => {
   test("confidence 71 with threshold 70 keeps profile", async () => {
     await writeFile(
       path.join(workdir, "config", "adaptive-coaching.json"),
-      JSON.stringify({ confidenceThreshold: 70 }),
+      JSON.stringify({ confidence_threshold: 70, schema_version: "1.0" }),
     );
     mock.module("./read-architecture-profile", () => ({
       readArchitectureProfile: () => ({
@@ -193,7 +193,7 @@ describe("readPrefaceContext — confidence threshold (RF-CH-02)", () => {
   test("confidence 100 with threshold 70 keeps profile", async () => {
     await writeFile(
       path.join(workdir, "config", "adaptive-coaching.json"),
-      JSON.stringify({ confidenceThreshold: 70 }),
+      JSON.stringify({ confidence_threshold: 70, schema_version: "1.0" }),
     );
     mock.module("./read-architecture-profile", () => ({
       readArchitectureProfile: () => ({
