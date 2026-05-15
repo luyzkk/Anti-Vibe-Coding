@@ -6,6 +6,7 @@ import {
   parseReuseDiscoveryFlag,
   readLastInitTimestamp,
   shouldReuseDiscovery,
+  formatStaleMessage,
   FRESH_THRESHOLD_MS,
 } from './reuse-discovery'
 
@@ -69,5 +70,20 @@ describe('shouldReuseDiscovery', () => {
 
   it('returns false when cachedAt is null', () => {
     expect(shouldReuseDiscovery(null)).toBe(false)
+  })
+})
+
+describe('formatStaleMessage', () => {
+  it('returns "no previous init detected" when cachedAt is null', () => {
+    expect(formatStaleMessage(null)).toContain('no previous init detected')
+  })
+
+  it('returns "stale (XXh ago)" with hours when cachedAt is 48h ago', () => {
+    const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()
+    expect(formatStaleMessage(fortyEightHoursAgo)).toMatch(/stale \(48h ago\)/)
+  })
+
+  it('returns unreadable when cachedAt is malformed', () => {
+    expect(formatStaleMessage('not-an-iso')).toContain('unreadable')
   })
 })
