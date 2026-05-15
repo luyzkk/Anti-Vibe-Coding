@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://anti-vibe-coding.dev/schemas/adaptive-coaching-v1.json",
+  "title": "Adaptive Coaching Config v1",
+  "description": "Configuracao do framework adaptive-coaching (v6.3.0). PRD v6.3.0 RF-CH-02.",
+  "type": "object",
+  "required": ["confidence_threshold", "schema_version"],
+  "additionalProperties": false,
+  "properties": {
+    "confidence_threshold": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Profiles com confidence abaixo deste valor caem em fallback generico (profile: null). Default 70 do PRD."
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "1.0",
+      "description": "Versao do schema. Bumps requerem migration documentada em ADR."
+    }
+  }
+}

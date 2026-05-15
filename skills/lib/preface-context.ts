@@ -38,13 +38,12 @@ function readConfidenceThreshold(projectRoot: string): number | null {
   try {
     const raw = fs.readFileSync(configPath, "utf-8");
     const parsed: unknown = JSON.parse(raw);
-    if (
-      typeof parsed === "object" &&
-      parsed !== null &&
-      "confidenceThreshold" in parsed &&
-      typeof (parsed as Record<string, unknown>)["confidenceThreshold"] === "number"
-    ) {
-      return (parsed as Record<string, number>)["confidenceThreshold"] ?? DEFAULT_CONFIDENCE_THRESHOLD;
+    if (typeof parsed !== "object" || parsed === null) {
+      return DEFAULT_CONFIDENCE_THRESHOLD;
+    }
+    const value = (parsed as Record<string, unknown>)["confidence_threshold"];
+    if (typeof value === "number" && value >= 0 && value <= 100) {
+      return value;
     }
     return DEFAULT_CONFIDENCE_THRESHOLD;
   } catch {
