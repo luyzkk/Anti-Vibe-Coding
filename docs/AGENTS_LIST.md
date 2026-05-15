@@ -1,6 +1,6 @@
 # Agents List — Plugin Subagents
 
-13 subagent auditors available for skills to invoke via the Agent tool.
+13 standalone subagent auditors in `agents/`, invokable from any skill via the Agent tool.
 All agents are read-only unless noted. Default profile is `balanced` unless overridden.
 
 ## Subagent Auditors
@@ -20,6 +20,17 @@ All agents are read-only unless noted. Default profile is `balanced` unless over
 | plan-executor | [v5] Executes individual tasks with mandatory TDD | balanced |
 | plan-verifier | [v5] Verifies task output (read-only, JSON output) | balanced |
 | design-explorer | [v5] Architectural proposal with specific constraint | balanced |
+
+## Init Skill — Internal Subagents
+
+Two additional subagents are private to `/init` (prompts in `skills/init/lib/prompts/`, not in `agents/`):
+
+| Subagent | Prompt file | Purpose |
+|---|---|---|
+| explorer | `skills/init/lib/prompts/explorer.md` | Semantic classification of existing docs — outputs `SemanticInventoryEntry[]`, never returns raw file content to caller (CA-05) |
+| reconciler | `skills/init/lib/prompts/reconciler.md` | Per-slot gap analysis — compares existing docs to canonical slot, outputs migration plan content |
+
+These are invoked inline by `migration-planner.ts` and `reconciler.ts` via the `SubagentInvoker` abstraction, which makes them mockable in tests.
 
 ## Model Assignment
 

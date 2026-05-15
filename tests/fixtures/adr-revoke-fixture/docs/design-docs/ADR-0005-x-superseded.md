@@ -3,7 +3,7 @@ id: ADR-0005
 title: "Supersedes ADR-0001"
 status: active
 supersedes: ADR-0001
-created: 2026-05-14
+created: 2026-05-15
 ---
 > **Supersedes:** [ADR-0001](./ADR-0001-x.md)
 

@@ -1,7 +1,7 @@
 ---
 slug: v6.1.0-subagent-contract
 date: 2026-05-14
-status: draft
+status: complete
 requires: []
 unblocks: [init-migration-mode, v6.3.0-adaptive-coaching]
 ---

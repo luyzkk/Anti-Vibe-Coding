@@ -35,28 +35,6 @@ Vai contra o que a IA faria por padrao.
 
 **Teste:** Se eu pedisse a 10 IAs para fazer isso, quantas fariam do jeito errado? Se >7, vale registrar.
 
-## Formato de Saida
-
-```
-## Avaliacao de Licao
-
-**Correcao analisada:** [descricao]
-
-### Criterios Atendidos:
-- [ ] Nao deduzivel: [sim/nao - justificativa]
-- [ ] Especifica do projeto: [sim/nao - justificativa]
-- [ ] Custo alto: [sim/nao - justificativa]
-- [ ] Contra-intuitiva: [sim/nao - justificativa]
-
-**Criterios atendidos:** X/4
-**Veredicto:** QUALIFICA / NAO QUALIFICA
-
-### Licao Sugerida (se qualifica):
-### [Categoria] Titulo
-**Regra:** [frase imperativa]
-**Contexto:** [maximo 2 linhas]
-```
-
 ## Regras
 - NUNCA modifique arquivos. Apenas avalie e reporte.
 - Seja rigoroso. E melhor rejeitar uma licao mediocre do que poluir o registro.

@@ -431,7 +431,30 @@ if (manifest) {
 }
 ```
 
-Se `autoFlipIfComplete` não flippou, mostrar resumo e usar `AskUserQuestion` com opções:
+Se `autoFlipIfComplete` não flippou, executar verificação de idempotência ANTES de exibir o menu:
+
+```javascript
+<!-- IDEMPOTENCY CHECK (Plano 05 fase-01) -->
+// Ordem importa: regenerateDiscovery ANTES de checkIdempotency (G4 do README do Plano 05).
+const { regenerateDiscovery, checkIdempotency } = await import('./lib/idempotency.ts')
+
+// 1. Deletar artefatos de discovery para forçar re-scan completo.
+await regenerateDiscovery(process.cwd())
+
+// 2. Verificar quais candidatos foram editados pelo humano ou são plans preservados.
+const planCandidates = manifest.migrationPlans?.map((p) => p.path) ?? []
+const idempotencyResult = await checkIdempotency(process.cwd(), manifest, planCandidates)
+
+// 3. Exibir warnings ao operador.
+for (const warning of idempotencyResult.warnings) {
+  console.warn(`⚠️ [idempotency] ${warning.message}`)
+}
+
+// 4. Passar skipPaths para runMigrationMode() — orchestrator pula fases cujo output já existe.
+// runMigrationMode({ ..., skipPaths: idempotencyResult.skipPaths })
+```
+
+Mostrar resumo e usar `AskUserQuestion` com opções:
 - 1: "Iniciar migration pipeline" → seguir para `Step migration.0`
 - 2: "Dry-run (ver inventário sem executar)" → seguir para `Step migration.dry-run`
 - 3: "Tratar como greenfield (ignorar docs existentes)" → seguir para Passo 1

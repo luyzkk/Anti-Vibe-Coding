@@ -54,6 +54,28 @@ docs/exec-plans/
 - `/consultant` → exists for ad-hoc queries without pipeline
 - `/tdd-workflow` → exists for direct implementation
 - `/learn` → can be invoked at any point
+- `/init` → onboards a project; mode-detected (see below)
+
+## Init Modes
+
+`/init` is the plugin entry point for new projects. It auto-detects state and branches:
+
+| Mode | Trigger | Outcome |
+|---|---|---|
+| `greenfield` | No docs, no manifest | Full scaffold (27 files) |
+| `already-initiated` | `.claude/.anti-vibe-manifest.json` present | Delegates to `/update` |
+| `v5-legacy` | `.planning/` or v5 artifacts | Migration wizard (backup → convert → validate) |
+| `migration` | `docs/` has ≥5 non-harness `.md` files | Migration pipeline (Explorer → Reconciler → plans) |
+
+In **migration mode**, `/init` does not scaffold from scratch. Instead it:
+1. Discovers existing docs with `discovery.ts`
+2. Runs up to 6 parallel Explorer subagents to classify files semantically
+3. Runs Reconciler subagents per canonical slot to generate migration plans
+4. Writes `docs/exec-plans/active/_INIT_ORCHESTRATOR.md` with topological execution order
+5. Writes `.claude/.anti-vibe-manifest.json` tracking plan status
+
+Human confirmation via `AskUserQuestion` is required before the pipeline starts (RF-MH-06).
+Re-runs are idempotent: human-edited files and active plans are preserved.
 
 ## AI-TDD Levels (v5.0+)
 

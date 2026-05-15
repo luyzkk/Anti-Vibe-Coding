@@ -23,8 +23,8 @@ describe("generate-manifest", () => {
     manifest = JSON.parse(raw)
   })
 
-  test("top-level version matches PLUGIN_VERSION=6.0.0", () => {
-    expect(manifest.version).toBe("6.0.0")
+  test("top-level version matches PLUGIN_VERSION=6.2.0", () => {
+    expect(manifest.version).toBe("6.2.0")
   })
 
   test("generatedAt is a valid ISO string", () => {
@@ -62,9 +62,9 @@ describe("generate-manifest", () => {
     expect(bad.map(([k]) => k)).toEqual([])
   })
 
-  test("all per-file versions are 6.0.0", () => {
+  test("all per-file versions are 6.2.0", () => {
     const versions = [...new Set(Object.values(manifest.files).map((f) => f.version))]
-    expect(versions).toEqual(["6.0.0"])
+    expect(versions).toEqual(["6.2.0"])
   })
 
   test("all new v6 files have updateStrategy=replace", () => {

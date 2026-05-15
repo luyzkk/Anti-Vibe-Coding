@@ -69,7 +69,8 @@ const AGENTS_REQUIRED_LINKS = [
 // .claude/: runtime/config do Claude Code (settings.json, custom slash commands). Slash commands sao validados pelo loader do CC, nao pelo harness — harness foca em docs/.
 // _legacy-detail/: working notes (PRD/PLAN/STATE/planoXX) preservados ao migrar pastas .planning/<slug>/ para docs/exec-plans/completed/. Links sao historicos relativos a destinos antigos.
 // v5-legacy/: docs v5.x (COMO-ATUALIZAR, IMPLEMENTACAO-VERSIONAMENTO, etc.) preservados em docs/references/v5-legacy/ — links apontam para paths v5 (scripts/*.js, hooks/*.json) nao mais existentes.
-const SKIP_DIRS = new Set(['node_modules', '.git', '.claude', '.planning', '.planning.v5-backup', 'claude-code', 'compound', 'templates', '__fixtures__', 'fixtures', 'snippets', '_legacy-detail', 'v5-legacy'])
+// exec-plans/: artefatos de planejamento (PRD, planoXX/fase-*.md) — links relativos ao repo root mas interpretados relativo ao path profundo; falsos positivos inevitaveis. Required-files check usa path direto (nao crawl).
+const SKIP_DIRS = new Set(['node_modules', '.git', '.claude', '.planning', '.planning.v5-backup', 'claude-code', 'compound', 'templates', '__fixtures__', 'fixtures', 'snippets', '_legacy-detail', 'v5-legacy', 'exec-plans'])
 const ARCHIVED_SEGMENT = '_archived'
 
 // Inline — harness-validate é script standalone sem imports externos.
@@ -137,6 +138,7 @@ async function main(): Promise<void> {
     checkActivePlans(failures),
     checkQualityScoreFormat(failures),
     checkAgentContracts(failures), // 2026-05-14 (Luiz/dev): novo — CA-10
+    checkV6PathWhitelist(failures), // 2026-05-14 (Luiz/dev): v6.2.0 — CA-v6pw
   ])
 
   // Consistency check em migration mode: todo slot ausente deve ter plan ativo.
@@ -376,6 +378,83 @@ function hasH1OutsideCodeFences(text: string): boolean {
     if (!insideFence && line.startsWith('# ')) return true
   }
   return false
+}
+
+// 2026-05-14 (Luiz/dev): v6.2.0 — CA-v6pw.
+// Detecta referencias a `.planning/` em skills/ e templates/ fora da whitelist.
+// Separado do crawl principal para varrer templates/ (excluido do crawl por SKIP_DIRS).
+// Whitelist: skills/init/** (migration logic), skills/lib/legacy-*.md, skills/plan-feature/SKILL.md.
+// Padrao negativo: `.planning.v5-backup/` nao e violacao (namespace distinto).
+const PLANNING_REF = /(?<![.\w])\.planning\//
+
+// Skills com referencias .planning/ legadas (v5) — pendentes de migracao para docs/exec-plans/.
+// Adicionados em v6.2.0 como tech debt explicito. Remover quando cada skill for migrada.
+const LEGACY_V5_SKILLS = new Set([
+  'skills/grill-me/SKILL.md',       // escreve CONTEXT.md em .planning/ — migrar para docs/
+  'skills/write-prd/SKILL.md',       // le .planning/CONTEXT-*.md e cria .planning/{date}-{slug}/
+  'skills/lessons-learned/SKILL.md', // le .planning/_archive/ para contexto de licoes
+  'skills/iterate/SKILL.md',         // busca .planning/*/SUMMARY.md
+  'skills/lib/state-utils.md',       // documenta o sistema legado .planning/ — atualizar para docs/exec-plans/
+  'skills/execute-plan/SKILL.md',    // Step 0 legacy detection + referencias v5 — migrar para docs/exec-plans/
+  'skills/quick-plan/SKILL.md',      // usa .planning/ como destino do plano leve
+  'templates/SUMMARY.md',            // template historico com path .planning/
+])
+
+function isV6PathWhitelisted(rel: string): boolean {
+  const posix = rel.replace(/\\/g, '/')
+  if (posix.startsWith('skills/init/')) return true
+  if (/^skills\/lib\/legacy-[^/]+\.md$/.test(posix)) return true
+  if (posix === 'skills/plan-feature/SKILL.md') return true
+  if (LEGACY_V5_SKILLS.has(posix)) return true
+  return false
+}
+
+async function walkDirForMd(dir: string): Promise<string[]> {
+  const results: string[] = []
+  let entries
+  try {
+    entries = await fs.readdir(dir, { withFileTypes: true })
+  } catch {
+    return results
+  }
+  await Promise.all(
+    entries.map(async (entry) => {
+      const name = String(entry.name)
+      const full = path.join(dir, name)
+      if (entry.isDirectory()) {
+        const sub = await walkDirForMd(full)
+        results.push(...sub)
+      } else if (entry.isFile() && name.endsWith('.md')) {
+        results.push(full)
+      }
+    }),
+  )
+  return results
+}
+
+export async function checkV6PathWhitelist(failures: Failure[]): Promise<void> {
+  const scanDirs = ['skills', 'templates']
+  for (const dir of scanDirs) {
+    const files = await walkDirForMd(path.join(root, dir))
+    await Promise.all(
+      files.map(async (file) => {
+        const rel = path.relative(root, file).replace(/\\/g, '/')
+        if (isV6PathWhitelisted(rel)) return
+        let content: string
+        try {
+          content = await fs.readFile(file, 'utf8')
+        } catch {
+          return
+        }
+        if (PLANNING_REF.test(content)) {
+          failures.push({
+            rule: 'v6-path-whitelist',
+            message: `${rel} references .planning/ — migrate to docs/exec-plans/. Add to whitelist if intentional (skills/init/**, skills/lib/legacy-*.md, skills/plan-feature/SKILL.md).`,
+          })
+        }
+      }),
+    )
+  }
 }
 
 async function checkMarkdownFiles(files: ReadonlyArray<string>, failures: Failure[]): Promise<void> {
