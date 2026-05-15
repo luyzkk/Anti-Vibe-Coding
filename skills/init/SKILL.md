@@ -456,21 +456,58 @@ After this step, `discovery/capabilities.json` exists (when profile detected) an
      D1/D4 do PRD: flag --reuse-discovery, antes do Passo 0 (não dentro). -->
 
 ```javascript
-// 2026-05-15 (Luiz/dev): await import em vez de bun -e — GT-04 (bun -e com paths absolutos quebra no Windows)
-const { parseReuseDiscoveryFlag, readLastInitTimestamp, shouldReuseDiscovery } = await import('./lib/reuse-discovery.ts')
+// 2026-05-15 (Luiz/dev): subagent_id 'reuse-discovery' — alinhado com PRD §RF-SH-01 / §CA-05
+const { randomUUID } = await import('node:crypto')
+const {
+  parseReuseDiscoveryFlag,
+  readLastInitTimestamp,
+  shouldReuseDiscovery,
+  formatStaleMessage,
+  FRESH_THRESHOLD_MS,
+} = await import('./lib/reuse-discovery.ts')
+const { AuditLogWriter } = await import('./lib/audit-log.ts')
 
 const argsStr = typeof ARGUMENTS === 'string' ? ARGUMENTS : ''
 const { reuseDiscovery } = parseReuseDiscoveryFlag(argsStr.split(/\s+/).filter(Boolean))
 
 if (reuseDiscovery) {
+  const startMs = Date.now()
   const cachedAt = await readLastInitTimestamp(process.cwd())
+
   if (shouldReuseDiscovery(cachedAt)) {
-    console.log('[reuse-discovery] cache fresh — skipping Steps 0-1, jumping to Step 7 (Capabilities Discovery)')
-    // fall through to Step 7 (fase-02 adicionará audit entry; fase-01 deixa só o skip)
-    // IMPORTANT: subsequent Step 0 / Step 0.5 / Steps 1-6 must NOT execute when reuseDiscovery && fresh.
-    // Fase-01 (tracer): apenas console.log + comentário direcional. Fase-02 implementa o skip real via control flow.
+    console.log('[reuse-discovery] cache fresh — running Step 7 only')
+
+    // Inline Step 7 (Capabilities Discovery) — single capabilities-discovery audit entry (G4: NÃO duplicar)
+    const { readArchitectureProfile } = await import('../lib/read-architecture-profile.ts')
+    const { discoverCapabilities } = await import('../lib/capabilities-writer.ts')
+    const { writeFile } = await import('node:fs/promises')
+    const pathMod = await import('node:path')
+
+    const profileObj = readArchitectureProfile()
+    if (profileObj !== null) {
+      const out = await discoverCapabilities(process.cwd(), profileObj.profile)
+      await writeFile(pathMod.join(process.cwd(), 'discovery', 'capabilities.json'), JSON.stringify(out, null, 2), 'utf-8')
+    }
+
+    // Audit entry adicional para o reuse-discovery (G4: ADICIONAL ao audit de capabilities-discovery, não substitui)
+    const cachedAtMs = cachedAt !== null ? Date.parse(cachedAt) : 0
+    const writer = new AuditLogWriter(process.cwd(), randomUUID())
+    await writer.append({
+      subagent_id: 'reuse-discovery',
+      input_paths: ['discovery/agents-log.json'],
+      output_struct: {
+        cache_age_ms: Date.now() - cachedAtMs,
+        cached_at: cachedAt,
+        threshold_ms: FRESH_THRESHOLD_MS,
+      },
+      duration_ms: Date.now() - startMs,
+      retry_count: 0,
+    })
+
+    process.exit(0) // atalho concluído — não cair em Passo 0
   } else {
-    console.log('[reuse-discovery] cache stale or absent — running full init (Step 0 onward)')
+    console.log(formatStaleMessage(cachedAt))
+    // fall through para Passo 0 — fluxo normal completo
   }
 }
 ```
