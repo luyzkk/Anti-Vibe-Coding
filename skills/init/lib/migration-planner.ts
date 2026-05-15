@@ -92,6 +92,8 @@ export type MigrationPlannerResult = {
 // 2026-05-14 (Luiz/dev): DEFAULT_MAX_PARALLEL=6 — PRD DT-01
 const DEFAULT_MAX_PARALLEL = 6
 const DEFAULT_MAX_FILES_PER_SUBAGENT = 3
+// DT-03: max 2 arquivos por subagent no retry
+const DEFAULT_MAX_FILES_RETRY = 2
 
 // ---------------------------------------------------------------------------
 // Helpers de batching
@@ -220,6 +222,86 @@ async function invokeExplorer(
   return payload.semantic_entries
 }
 
+type ChunkResult = { entries: SemanticInventoryEntry[]; failed: InventoryEntry[] }
+
+/**
+ * DT-03: retry 1× com batches menores quando Explorer falha.
+ * Primeira tentativa: full batch. Falha → retry com sub-batches de maxRetryFiles.
+ * Se retry falhar: paths adicionados a failed (unprocessed).
+ */
+async function invokeExplorerWithRetry(
+  entries: InventoryEntry[],
+  targetDir: string,
+  promptText: string,
+  invoker: SubagentInvoker,
+  runId: string,
+  maxRetryFiles: number,
+  logger?: AuditLogWriter,
+): Promise<ChunkResult> {
+  const start = Date.now()
+
+  try {
+    const result = await invokeExplorer(entries, targetDir, promptText, invoker, runId)
+    if (logger) {
+      await logger.append({
+        subagent_id: 'explorer',
+        input_paths: entries.map((e) => e.path),
+        output_struct: { count: result.length },
+        duration_ms: Date.now() - start,
+        retry_count: 0,
+      })
+    }
+    return { entries: result, failed: [] }
+  } catch (firstErr) {
+    if (logger) {
+      await logger.append({
+        subagent_id: 'explorer',
+        input_paths: entries.map((e) => e.path),
+        output_struct: null,
+        duration_ms: Date.now() - start,
+        retry_count: 0,
+        error: String(firstErr),
+      })
+    }
+
+    // DT-03: retry com sub-batches menores
+    const retryChunks = chunkEntries(entries, maxRetryFiles)
+    const retrySuccesses: SemanticInventoryEntry[] = []
+    const retryFailed: InventoryEntry[] = []
+
+    for (const retryChunk of retryChunks) {
+      const retryStart = Date.now()
+      try {
+        const retryResult = await invokeExplorer(retryChunk, targetDir, promptText, invoker, runId)
+        retrySuccesses.push(...retryResult)
+        if (logger) {
+          await logger.append({
+            subagent_id: 'explorer',
+            input_paths: retryChunk.map((e) => e.path),
+            output_struct: { count: retryResult.length },
+            duration_ms: Date.now() - retryStart,
+            retry_count: 1,
+          })
+        }
+      } catch (retryErr) {
+        retryFailed.push(...retryChunk)
+        if (logger) {
+          await logger.append({
+            subagent_id: 'explorer',
+            input_paths: retryChunk.map((e) => e.path),
+            output_struct: null,
+            duration_ms: Date.now() - retryStart,
+            retry_count: 1,
+            error: String(retryErr),
+          })
+        }
+      }
+    }
+
+    return { entries: retrySuccesses, failed: retryFailed }
+  }
+}
+
 // ---------------------------------------------------------------------------
 // runMigrationPlanner — função principal
 // ---------------------------------------------------------------------------
@@ -261,56 +343,25 @@ export async function runMigrationPlanner(
   const allEntries: SemanticInventoryEntry[] = []
   const unprocessedPaths: string[] = []
 
-  type ChunkResult = { entries: SemanticInventoryEntry[] } | { failed: InventoryEntry[] }
+  const maxRetryFiles = opts.maxFilesPerSubagentRetry ?? DEFAULT_MAX_FILES_RETRY
 
-  const tasks: Array<() => Promise<ChunkResult>> = chunks.map((chunk) => async (): Promise<ChunkResult> => {
-    const chunkStart = Date.now()
-    try {
-      const explorerEntries = await invokeExplorer(chunk, targetDir, explorerPrompt, invoker, runId)
-
-      if (opts.logger) {
-        await opts.logger.append({
-          subagent_id: 'explorer',
-          input_paths: chunk.map((e) => e.path),
-          output_struct: { count: explorerEntries.length },
-          duration_ms: Date.now() - chunkStart,
-          retry_count: 0,
-        })
-      }
-
-      return { entries: explorerEntries }
-    } catch (err) {
-      if (opts.logger) {
-        await opts.logger.append({
-          subagent_id: 'explorer',
-          input_paths: chunk.map((e) => e.path),
-          output_struct: null,
-          duration_ms: Date.now() - chunkStart,
-          retry_count: 0,
-          error: String(err),
-        })
-      }
-
-      // DT-03: retry wrapper será adicionado em fase-05
-      // Aqui retornamos failed para que o orchestrator marque como unprocessed
-      return { failed: chunk }
-    }
-  })
+  const tasks: Array<() => Promise<ChunkResult>> = chunks.map((chunk) => () =>
+    invokeExplorerWithRetry(chunk, targetDir, explorerPrompt, invoker, runId, maxRetryFiles, opts.logger)
+  )
 
   // Rodar com cap de paralelos
   const results = await runParallelCapped(tasks, maxParallel)
 
   for (const result of results) {
-    if ('entries' in result) {
-      allEntries.push(...result.entries)
-    } else {
-      unprocessedPaths.push(...result.failed.map((e) => e.path))
-    }
+    allEntries.push(...result.entries)
+    unprocessedPaths.push(...result.failed.map((e) => e.path))
   }
 
   const aborted = unprocessedPaths.length > 0
   const abortReason = aborted
-    ? `${unprocessedPaths.length} arquivo(s) não-processados: ${unprocessedPaths.join(', ')}`
+    ? `${unprocessedPaths.length} arquivo(s) não-processados após retry (DT-03). ` +
+      `Arquivos: ${unprocessedPaths.join(', ')}. ` +
+      `Investigar agents-log.json para detalhes. Re-rodar /init para nova tentativa.`
     : undefined
 
   const semanticInventory: SemanticInventory = {
