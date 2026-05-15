@@ -2,11 +2,20 @@
 
 **Feature:** Adaptive Coaching v6.3.0
 **Iniciado:** 2026-05-15 (fase-01 imediatamente pausada — bloqueador externo)
-**Status:** in-progress (fase-01 retomada após spin-off `init-reuse-discovery` shippar)
+**Status:** in-progress (fase-01 e fase-02 concluídas; resta fase-03)
 
 ---
 
 ## Decisões Durante Execução
+
+- **DEC-3 (2026-05-15, fase-02):** Convenção opt-in para threshold — diretório `config/` deve existir no `projectRoot` para o threshold ser aplicado.
+  - **Contexto:** Pre-existing CA-09 fixture test para `unknown-mixed` chama `readPrefaceContext("/fake/root")` com mock retornando `confidence: 45` e espera `profile === "unknown-mixed"`. Após adicionar threshold default 70, `45 < 70` faria o teste falhar (`profile === null`).
+  - **3 opções:**
+    1. Modificar a fixture CA-09 para confidence ≥ 70 — quebra contrato de regressão estabelecido em fase-04 do Plano 01.
+    2. Tornar o threshold sempre opcional via flag explícita no manifest — adiciona acoplamento manifest ↔ threshold sem ganho.
+    3. **Existência de `config/` dir = opt-in.** Sem o diretório, threshold não se aplica (comportamento v6.2). Com o diretório (vazio ou com JSON), threshold opera (default 70).
+  - **Decisão:** opção 3. Justificativa: backward compat (CA-02) preservado, opt-in explícito, contrato CA-09 intacto. Documentar em ADR-0020 ou seção "Adaptive Coaching" do design-doc se ainda não existir.
+  - **Impacto:** plugin shipa com `config/` já populado (config.json + schema + fixtures), então em projetos onde o plugin é o próprio repo, threshold está ATIVO. Em projetos externos consumindo o plugin, o usuário precisa criar o diretório/arquivo conscientemente. Documentar no migration guide.
 
 - **DEC-2 (2026-05-15):** fase-01 adota **opção 3** (alias + extensão), não a spec literal.
   - **Contexto:** Spin-off `init-reuse-discovery` (completed em `docs/exec-plans/completed/2026-05-15-init-reuse-discovery/`) já shippou em `skills/init/lib/reuse-discovery.ts` exatamente a lógica que a fase-01 ia construir do zero: `FRESH_THRESHOLD_MS`, `shouldReuseDiscovery(cachedAt, thresholdMs?)`, `readLastInitTimestamp`, `resolveThresholdMs`, `parseReuseDiscoveryFlag`. SKILL.md `Step reuse-discovery.0` (linhas 450–519) já liga tudo, com `process.exit(0)` quando cache fresh + regen de capabilities.json.
@@ -40,6 +49,10 @@
 
 - **GT-1 (fase-01, 2026-05-15):** TS strict reclama de contravariância quando o loader de `tryRegenerateParityGaps` é tipado como `() => Promise<ParityAuditModule | null>` e o teste passa mocks com types inferidos estreitamente (ex: `mcps: never[]` quando o array literal é vazio). Tipar o loader como `() => Promise<unknown>` (covariante) e fazer o cast interno para `ParityAuditModule` resolve sem perder safety — o runtime é validado pelos testes que injetam mocks fakes. Pattern reaproveitável quando função aceita módulo carregado por DI para testabilidade.
 
+- **DEV-3 (fase-02, 2026-05-15):** GREEN inicial escolheu `confidenceThreshold` (camelCase) como chave do config JSON. Spec do plano e AC machine (`jq .confidence_threshold`) exigem snake_case. Catch tardio (pós-GREEN); corrigido em commit de scaffolding com rename mecânico de impl + tests + JSON shipado. Anchor (semântica do teste) preservada. Aprendizado: briefar GREEN explicitamente com o nome da chave JSON quando o spec define um identificador externamente visível.
+
+- **DEV-4 (fase-02, 2026-05-15):** Spec sugere validação manual (`typeof + >= + <=`) em vez de AJV (G7). GREEN inicial implementou apenas `typeof === 'number'` sem bounds. Bounds (`0..100`) adicionados no commit de scaffolding para garantir que `confidence_threshold: 150` no config caia em default ao invés de propagar valor inválido. Não há teste explícito para bounds — risco aceito porque o schema JSON cobre o caso em CI (eventualmente).
+
 <!-- Exemplo:
 - **BUG-1:** preface:simulate quebra em Windows quando skill name tem barra invertida
   - Causa: path.join no Windows produz \ mas glob pattern espera /
@@ -51,25 +64,15 @@
 
 ## Learnings
 
-_(preencher durante execução do plano)_
+- **L-1 (fase-02, 2026-05-15):** Existência de **diretório** como signal opt-in é mais robusto que existência de **arquivo** quando há fixtures legadas com paths fake. Arquivos faltam por diversos motivos (não criado, ENOENT por bug, race condition); diretório é decisão deliberada do usuário/instalação. Padrão reaproveitável para configs futuras.
 
-<!-- Exemplo:
-- **L-1:** Threshold default 70 cobre casos reais — fixtures de profile com confidence 65-75
-  validam o limiar sem ruído. Subir para 80 derrubaria 20% dos casos legítimos.
-  Source: fase-02 testes edge cases.
--->
+- **L-2 (fase-02, 2026-05-15):** RED com 3 testes que falham + 3 boundary tests que "passam vacuously" é TDD legítimo. Boundary tests não falham antes da impl porque o comportamento default (preservar profile) já satisfaz a asserção; eles servem de regression guard durante GREEN. Não considerar isso falha de RED.
 
 ---
 
 ## Patterns Emergentes
 
-_(preencher durante execução do plano)_
-
-<!-- Exemplo:
-- **P-1:** Config files novos em config/ devem vir com schema + fixture válida + 2 inválidas
-  desde o primeiro commit. Validador em CI evita drift silencioso.
-  Source: fase-02 — schema adaptive-coaching-v1.
--->
+- **P-1 (fase-02, 2026-05-15):** Config files novos em `config/` shipam como tripla: arquivo de config default + JSON Schema draft-07 em `config/_schemas/` + 3 fixtures em `config/__fixtures__/` (válida + 2 inválidas para edge cases distintos). Mantém validação CI estável e fornece exemplos canônicos para o autor da próxima skill. Source: schema `adaptive-coaching-v1`.
 
 ---
 

@@ -3,7 +3,7 @@
 **Plan:** ./PLAN.md
 **Phase:** in-progress
 **Current Plan:** 05/05
-**Last Updated:** 2026-05-15 (Plano 05 fase-01 RETOMADA — spin-off shippou; DEC-2 adota opção 3: --refresh como alias)
+**Last Updated:** 2026-05-15 (Plano 05 fase-02 CONCLUÍDA — confidence threshold + scaffolding)
 
 ## Progress por Plano
 
@@ -13,11 +13,11 @@
 | 02 | /init produz capabilities.json | 3 | 3/3 | completed |
 | 03 | /parity-audit + tool-registry-inspector | 3 | 3/3 | completed |
 | 04 | profile-aware-preface ×4-6 skills | 4 | 4/4 | completed |
-| 05 | Polish & DX (Could Haves) | 3 | 1/3 | in-progress |
+| 05 | Polish & DX (Could Haves) | 3 | 2/3 | in-progress |
 
 ## Progress Global
 
-Fases done: 15/17 (88%)
+Fases done: 16/17 (94%)
 
 ## Log
 
@@ -52,3 +52,4 @@ Fases done: 15/17 (88%)
 - 2026-05-15: **Plano 05 fase-01 PAUSED — bloqueador externo confirmado.** O Passo 0 do fase-01 exige `FRESH_THRESHOLD_MS` + leitura de timestamp `<24h` no `/init` (PRD `/init` §RF-CH-02 / flag `--reuse-discovery`). Grep em `skills/init/`: zero matches para `FRESH_THRESHOLD`, `--reuse-discovery`, `reuseDiscovery`. PRD original do /init listou RF-CH-02 como Could Have e nunca foi construído. Decisão do dev (2026-05-15): **NÃO deferir para v6.3.1, NÃO improvisar inline**; spin-off de PRD próprio para `--reuse-discovery` + `<24h` cache no /init. Após o spin-off shippar, retoma plano05 fase-01 normalmente. Detalhes da decisão em `plano05/MEMORY.md` DEC-1.
 - 2026-05-15: Spin-off `init-reuse-discovery` SHIPPADO (commits e56bba0/e718cf3/d226c46/d777370 — movido para `docs/exec-plans/completed/2026-05-15-init-reuse-discovery/`). `skills/init/lib/reuse-discovery.ts` exporta `FRESH_THRESHOLD_MS`, `shouldReuseDiscovery`, `readLastInitTimestamp`, `resolveThresholdMs`, `parseReuseDiscoveryFlag`. SKILL.md `Step reuse-discovery.0` (linhas 450–519) liga end-to-end com `process.exit(0)` quando cache fresh. Bloqueador da fase-01 RESOLVIDO. DEC-2 adota opção 3 (--refresh como alias + extensão p/ parity-gaps.json).
 - 2026-05-15: Plano 05 fase-01 CONCLUÍDA via DEC-2 (option 3). Commits e863994 (RED — 7 testes novos em `reuse-discovery.test.ts`), 407cec7 (GREEN — `parseReuseDiscoveryFlag` aceita `--refresh`; novo export `tryRegenerateParityGaps` com graceful degradation via loader pattern), e316025 (wire-up SKILL.md — Step reuse-discovery.0 importa o helper e chama-o entre capabilities.json e audit entry). 34/34 testes em `reuse-discovery.test.ts` verdes (era 27 antes da fase). Typecheck limpo. harness:validate OK (26 required + 184 markdown). Suite global: 1 failure pré-existente em `tests/harness-validate-v6-path-whitelist.test.ts` (baseline, confirmado via `git stash` reproduzir o mesmo fail no HEAD anterior). DEV-1: GREEN tipou loader como `() => Promise<unknown>` em vez de `() => Promise<ParityAuditModule | null>` para evitar contravariância de TS strict com mocks de teste — cast interno seguro porque runtime é validado pelos testes. DEV-2: AC literal da spec ("`grep -c refresh.0`", "`grep -c regenerateDiscovery`") superseded pela DEC-2; AC efetivo é `grep --refresh skills/init/SKILL.md` = 6 e `grep tryRegenerateParityGaps skills/init/lib/reuse-discovery.ts` = 1 (verificados). Próxima fase: fase-02 (confidence threshold config) — independente, pode rodar imediatamente.
+- 2026-05-15: Plano 05 fase-02 (confidence threshold config) CONCLUÍDA. Commits a06873d (RED — 6 novos testes em `preface-context.test.ts`), 61623f3 (GREEN — `readPrefaceContext` aplica threshold), 858c16d (scaffolding — `config/adaptive-coaching.json` + schema draft-07 + 3 fixtures, mais alinhamento snake_case e bounds 0..100). 13/13 testes em `preface-context.test.ts` verdes (era 10 antes da fase). Typecheck limpo. harness:validate OK (26 required + 184 markdown). Suite global preserva baseline (mesmo 1 fail pré-existente em `harness-validate-v6-path-whitelist`). RED→GREEN confirmado: 3 testes de violação de threshold falhavam por assertion (`expected null, received 'nextjs-app-router'`); pós-GREEN, todos os 13 passam. DEV-3: GREEN escolheu `confidenceThreshold` (camelCase) — corrigido em commit de scaffolding para `confidence_threshold` (snake_case per PRD §RF-CH-02 e AC `jq .confidence_threshold`); rename mecânico de impl+test, anchor semântica preservada. DEV-4: GREEN usou existência do diretório `config/` como signal opt-in para preservar CA-09 fixture `unknown-mixed` (confidence 45 em "/fake/root" — projectRoot sem `config/` → threshold null → profile preservado). Convenção shipa: para customizar threshold, criar `config/adaptive-coaching.json` no project root; ausência da pasta = comportamento v6.2 inalterado. Próxima fase: fase-03 (preface-simulate CLI) — depende de Plano 04 fase-01 (já merged) + fase-02 (impl atual).
