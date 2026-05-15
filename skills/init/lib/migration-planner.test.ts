@@ -237,3 +237,78 @@ describe('runMigrationPlanner', () => {
     }
   })
 })
+
+// ---------------------------------------------------------------------------
+// runMigrationPlanner retry logic
+// ---------------------------------------------------------------------------
+
+describe('runMigrationPlanner retry logic', () => {
+  it('retenta com batch reduzido quando Explorer falha na primeira tentativa', async () => {
+    const tmpDir = await mkdtemp(path.join(tmpdir(), 'retry-test-'))
+    try {
+      for (let i = 1; i <= 4; i++) {
+        await writeFile(path.join(tmpDir, `doc${i}.md`), `# Doc ${i}\nConteudo ${i}`)
+      }
+
+      const inventory = makeInventory(['doc1.md', 'doc2.md', 'doc3.md', 'doc4.md'], tmpDir)
+
+      let callCount = 0
+      const mockInvoker: SubagentInvoker = mock(async (_prompt, fileContents) => {
+        callCount++
+        if (callCount === 1) throw new Error('Simulated Explorer timeout')
+        const entries = Object.keys(fileContents).map((p) => ({
+          path: p,
+          semantic_topic: 'Documento de teste',
+          slot_match: 'no-match',
+          confidence: 0.5,
+          sections: [{ heading: '# Doc', lines: '1', purpose: 'Teste', mergeable_into_slot: false }],
+          suggested_destiny: 'move-to-references' as const,
+          density_score: 'thin' as const,
+        }))
+        return JSON.stringify({
+          contract_version: '1.0',
+          agent: 'explorer',
+          kind: 'mutation',
+          status: 'complete',
+          reasoning: 'Retry bem-sucedido com batch reduzido',
+          payload: { semantic_entries: entries },
+          metadata: { run_id: 'test-run-id', duration_ms: 50, model: 'sonnet' },
+        })
+      })
+
+      const result = await runMigrationPlanner(inventory, [], tmpDir, mockInvoker, {
+        maxParallelSubagents: 1,
+        maxFilesPerSubagent: 4,
+        maxFilesPerSubagentRetry: 2,
+      })
+
+      expect(callCount).toBeGreaterThan(1)
+      expect(result.aborted).toBe(false)
+    } finally {
+      await rm(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  it('aborta e reporta arquivos nao-processados quando retry tambem falha', async () => {
+    const tmpDir = await mkdtemp(path.join(tmpdir(), 'abort-test-'))
+    try {
+      await writeFile(path.join(tmpDir, 'fail.md'), '# Fail\nConteudo')
+
+      const inventory = makeInventory(['fail.md'], tmpDir)
+
+      const mockInvoker: SubagentInvoker = mock(async () => {
+        throw new Error('Persistent Explorer failure')
+      })
+
+      const result = await runMigrationPlanner(inventory, [], tmpDir, mockInvoker, {
+        maxParallelSubagents: 1,
+      })
+
+      expect(result.aborted).toBe(true)
+      expect(result.abortReason).toBeTruthy()
+      expect(result.semanticInventory.unprocessed_paths).toContain('fail.md')
+    } finally {
+      await rm(tmpDir, { recursive: true, force: true })
+    }
+  })
+})

@@ -2,7 +2,7 @@
 
 **Plan:** ./PLAN.md
 **Phase:** in-progress
-**Current Plan:** 01/05
+**Current Plan:** 04/05
 **Last Updated:** 2026-05-14
 
 ## Progress por Plano
@@ -10,17 +10,17 @@
 | Plano | Nome | Fases | Done | Status |
 |-------|------|-------|------|--------|
 | 01 | Fundação: Category Field + Detection + Tracer Bullet | 4 | 4/4 | completed |
-| 02 | Discovery TS: Fase 0 + Audit Log | 3 | 0/3 | pending |
-| 03 | Subagent Orchestration [BLOQUEADO: v6.1.0] | 5 | 0/5 | blocked |
+| 02 | Discovery TS: Fase 0 + Audit Log | 3 | 3/3 | completed |
+| 03 | Subagent Orchestration | 5 | 5/5 | completed |
 | 04 | Manifest + Harness Validate: Fase 4 | 3 | 0/3 | pending |
 | 05 | Polish: Idempotência + Fixtures + AGENTS.md | 3 | 0/3 | pending |
 
 ## Progress Global
 
-Fases done: 4/18 (22%)
+Fases done: 12/18 (66%)
 
 ```
-[████                ] 22%
+[█████████████       ] 66%
 ```
 
 ## Log
@@ -35,3 +35,10 @@ Fases done: 4/18 (22%)
 - 2026-05-14: fase-02 concluída — 6 testes passando, detectInitMode 4-state detector, commit 7b4a121
 - 2026-05-14: fase-03 concluída — SKILL.md expandido com Passo 0 (detectInitMode + 4 branches), Step migration.0 stub, Step 0.5 marcado DEPRECATED
 - 2026-05-14: fase-04 concluída — migration-tracer.ts criado, 6 testes passando (TDD RED→GREEN), smoke test em Windows usa os.tmpdir() (Unix /tmp não disponível — comportamento esperado)
+- 2026-05-14: Plano 02 marcado completed (3/3 fases concluídas: discovery.ts, fixtures, audit-log.ts)
+- 2026-05-14: Plano 03 desbloqueado — v6.1.0 mergeado, subagent-contract.ts disponível
+- 2026-05-14: Plano 03 fase-02 concluída — migration-planner.ts criado, 10 testes passando (5 chunkEntries + 5 runMigrationPlanner), AuditLogWriter adaptado (AuditLogger não existe — corrigido)
+- 2026-05-14: Plano 03 fase-03 concluída — plan-validator.ts (10 seções CA-08), plan-writer.ts, reconciler.ts criados; 6 testes passando, commit b7cee9f (DEV: slot.path→slot.dst, slot.description→slot.src)
+- 2026-05-14: Plano 03 fase-04 concluída — compound-writer.ts + CA-29 validator criados; 6 testes passando, commit 4c24dbe
+- 2026-05-14: Plano 03 fase-05 concluída — invokeExplorerWithRetry (DT-03) implementado; 12 testes passando (2 novos: retry + abort), tsc limpo
+- 2026-05-14: Plano 03 completado (5/5 fases) — Current Plan avança para 04
