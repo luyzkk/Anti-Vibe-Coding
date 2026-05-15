@@ -31,6 +31,24 @@ export async function readLastInitTimestamp(projectRoot: string): Promise<string
 }
 
 /**
+ * Formata mensagem de warning quando o atalho nao pode ser usado.
+ * Distingue dois subcasos para diagnostico (RF-SH-02):
+ *   - cachedAt === null: "no previous init detected — running full init"
+ *   - cachedAt presente mas stale: "stale (XXh ago) — running full init"
+ */
+export function formatStaleMessage(cachedAt: string | null): string {
+  if (cachedAt === null) {
+    return '[reuse-discovery] no previous init detected — running full init'
+  }
+  const parsed = Date.parse(cachedAt)
+  if (Number.isNaN(parsed)) {
+    return '[reuse-discovery] previous init timestamp unreadable — running full init'
+  }
+  const ageHours = Math.floor((Date.now() - parsed) / (60 * 60 * 1000))
+  return `[reuse-discovery] stale (${ageHours}h ago) — running full init`
+}
+
+/**
  * Decide se o cache de discovery anterior pode ser reusado.
  * Retorna true APENAS quando cachedAt é ISO válido E Date.now() - cachedAt < FRESH_THRESHOLD_MS.
  * Retorna false em todos os outros casos (null, string vazia, ISO inválido, >=24h).
