@@ -139,6 +139,7 @@ async function main(): Promise<void> {
     checkQualityScoreFormat(failures),
     checkAgentContracts(failures), // 2026-05-14 (Luiz/dev): novo — CA-10
     checkV6PathWhitelist(failures), // 2026-05-14 (Luiz/dev): v6.2.0 — CA-v6pw
+    checkProfileAwarePreface(failures), // 2026-05-15 (Luiz/dev): Plano 04 fase-03 — CA-07, CA-11
   ])
 
   // Consistency check em migration mode: todo slot ausente deve ter plan ativo.
@@ -567,6 +568,74 @@ async function collectMarkdownFiles(startDir: string): Promise<string[]> {
       }),
     )
   }
+}
+
+// 2026-05-15 (Luiz/dev): Plano 04 fase-03 — CA-07, CA-11, RF-SH-06.
+// Check bidirecional: marker start exige marker end E mencao a readPrefaceContext entre eles.
+// G7 do plano04: string presence, sem AST parser. projectRoot opcional para isolamento em testes.
+export async function checkProfileAwarePreface(
+  failures: Failure[],
+  projectRoot?: string,
+): Promise<void> {
+  const base = projectRoot ?? root
+  const skillsDir = path.join(base, 'skills')
+  let entries
+  try {
+    entries = await fs.readdir(skillsDir, { withFileTypes: true })
+  } catch {
+    return
+  }
+
+  await Promise.all(
+    entries.map(async (entry) => {
+      const name = String(entry.name)
+      if (!entry.isDirectory()) return
+      if (name.startsWith('_') || name.startsWith('.')) return
+
+      const skillMd = path.join(skillsDir, name, 'SKILL.md')
+      let content: string
+      try {
+        content = await fs.readFile(skillMd, 'utf8')
+      } catch {
+        return
+      }
+
+      const hasStart = content.includes('<!-- profile-aware-preface:start -->')
+      if (!hasStart) return // CA-02 opt-in: silently skip
+
+      const relPath = path.relative(base, skillMd).replace(/\\/g, '/')
+
+      const hasEnd = content.includes('<!-- profile-aware-preface:end -->')
+      if (!hasEnd) {
+        failures.push({
+          rule: 'profile-aware-preface',
+          message: `${relPath}: profile-aware-preface block start marker found but end marker is missing`,
+        })
+        return
+      }
+
+      // Extract block between markers and check for preface-context reading reference.
+      // G7: string presence, sem AST. Detecta import ou chamada — nao comentarios negativos.
+      // Aceita readPrefaceContext (padrao novo) ou readArchitectureProfile (padrao legado architecture/).
+      // Padrao positivo: nome da funcao seguido de ( ou { — distingue de comentarios "//<nome>".
+      // Prosa-only (sem fenced code block): skill explicativa sem contexto executavel — skip.
+      const startIdx = content.indexOf('<!-- profile-aware-preface:start -->')
+      const endIdx = content.indexOf('<!-- profile-aware-preface:end -->')
+      const block = content.slice(startIdx, endIdx)
+      const hasCodeBlock = block.includes('```')
+      if (!hasCodeBlock) return // Prosa-only preface: sem bloco de codigo executavel — skip
+      const hasActualRef =
+        /readPrefaceContext\s*[({]/.test(block) ||
+        /\{\s*readPrefaceContext/.test(block) ||
+        /readArchitectureProfile\s*\(/.test(block)
+      if (!hasActualRef) {
+        failures.push({
+          rule: 'profile-aware-preface',
+          message: `${relPath}: profile-aware-preface block does not reference readPrefaceContext`,
+        })
+      }
+    }),
+  )
 }
 
 // 2026-05-14 (Luiz/dev): guard para permitir import do modulo em testes (Plano 05 fase-01).
