@@ -3,6 +3,54 @@
 Todas as mudanças notáveis do plugin Anti-Vibe Coding serão documentadas aqui.
 
 
+## [6.3.0] - 2026-05-15
+
+> **Minor release — Adaptive Coaching (Eixo 2 Agent-Native)**
+> Skills priorizadas leem `architecture-profile.md` automaticamente e adaptam o prompt
+> por perfil arquitetural. `/init` produz inventário de capabilities do projeto.
+> `/parity-audit` audita gaps entre capabilities do agente e task types do projeto.
+> Fundação `PrefaceContext` reserva slots para v6.5 (Node+TS) e v6.6 (Rails).
+
+### Added
+
+- **`PrefaceContext` + `readPrefaceContext`** ([skills/lib/preface-context.ts](skills/lib/preface-context.ts)) — helper único para skills consumirem profile/language/framework. Shape composto desde já; v6.5/v6.6 preenchem slots reservados sem refactor.
+- **`discovery/capabilities.json`** — `/init` produz inventário de rotas/handlers do projeto. Cobertura inicial: `nextjs-app-router` (AST determinístico) + `mvc-flat` (LLM-fallback marcado). Gitignored por default.
+- **Skill `/anti-vibe-coding:parity-audit`** ([skills/parity-audit/SKILL.md](skills/parity-audit/SKILL.md)) — produz `discovery/parity-gaps.json` ranqueado por severity (`critical | important | nice`). `kind: "audit"` no contrato v6.1.0.
+- **Lib `tool-registry-inspector`** ([skills/lib/tool-registry-inspector.ts](skills/lib/tool-registry-inspector.ts)) — enumera MCPs/builtin-tools/subagents em runtime. Consumida por `/parity-audit` e `qa-visual` refatorada.
+- **Schemas JSON versionados** em `discovery/_schemas/` (`capabilities-v1.schema.json`, `parity-gaps-v1.schema.json`).
+- **6 skills com `profile-aware-preface`** (4 Must Have + 2 Should Have): `/security`, `/api-design`, `/system-design`, `/design-patterns`, `/decision-registry`, `/lessons-learned`. Pattern: lookup table per-skill em `skills/{skill}/lib/{skill}-prefaces.ts`; fallback default = comportamento v6.2 quando profile null (CA-02).
+- **Harness validator estendido** (`scripts/harness-validate.ts :: checkProfileAwarePreface`) — verifica bidirecionalmente start/end markers + referência a `readPrefaceContext`.
+- **Doc canônico** [docs/design-docs/adaptive-coaching-framework.md](docs/design-docs/adaptive-coaching-framework.md) — `PrefaceContext` shape, schemas, migration guide para autores de skill (<30min).
+- **ADR-0020** [docs/design-docs/ADR-0020-adaptive-coaching.md](docs/design-docs/ADR-0020-adaptive-coaching.md) — decisões e alternativas rejeitadas (runtime discovery puro, extender qa-visual, mobile checkpointing).
+
+### Changed
+
+- **`qa-visual` consome `tool-registry-inspector`** em vez de listar tools hardcoded em `allowed-tools`. UX idêntica a v6.2 (CA-06).
+- **`/architecture` permanece como referência do padrão** — preface block existente alinhado com o helper composto (sem migração necessária; usa `readArchitectureProfile` direto + lookup próprio).
+
+### Security
+
+- **`capabilities.json` e `parity-gaps.json` gitignored por default.** Endpoints internos e MCPs instalados podem ser sensíveis em contexto pentest. Operador opt-in via flag para commitar.
+
+### Reservation
+
+- **`language` e `framework` no `PrefaceContext` ficam null em v6.3.0.** Slots reservados para v6.5.0 (Node+TS knowledge) e v6.6.0 (Rails). Lookup tables das 6 skills migradas continuam estáveis quando v6.5/v6.6 plugarem (CA-09).
+- **Cobertura AST de profiles além de `nextjs-app-router` + `mvc-flat`** fica para v6.4+ (PRD Won't Have).
+
+### Migration Guide
+
+Para autor de skill que queira adicionar preface adaptativo:
+
+1. Criar `skills/{skill}/lib/{skill}-prefaces.ts` exportando `{SKILL}_PREFACE_BY_PROFILE: Partial<Record<ArchitectureProfileName, string>>` e `DEFAULT_{SKILL}_PREFACE = ''`.
+2. Inserir bloco `<!-- profile-aware-preface:start --> ... <!-- profile-aware-preface:end -->` no `SKILL.md` entre frontmatter (ou telemetry, se existir) e H1.
+3. No bloco, ler `const ctx = readPrefaceContext()` e selecionar via `ctx.profile ? TABLE[ctx.profile] ?? DEFAULT : DEFAULT`.
+4. Criar teste em `skills/{skill}/lib/{skill}-prefaces.test.ts` — 1 caso por profile suportado + 1 caso de fallback.
+5. Rodar `bun run harness:validate && bun run test`.
+
+Tempo médio: <30min por skill.
+
+---
+
 ## [6.1.0] - 2026-05-14
 
 > **Minor release — Contrato de Subagentes v1 (Eixo 1 Agent-Native)**
