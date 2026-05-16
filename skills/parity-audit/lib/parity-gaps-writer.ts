@@ -2,8 +2,9 @@
 
 import { writeFile, mkdir } from 'node:fs/promises'
 import path from 'node:path'
-import { GAP_RULES, type GapRule, type Severity } from './gap-rules'
+import { GAP_RULES, crossCapabilitiesWithUsage, type GapRule, type Severity } from './gap-rules'
 import type { ToolRegistrySnapshot } from '../../lib/tool-registry-inspector'
+import type { Capability } from '../../lib/capabilities-writer'
 
 export type ParityGap = {
   gap_id: string
@@ -24,14 +25,16 @@ export type ParityGapsOutput = {
 
 const SEVERITY_RANK: Record<Severity, number> = { critical: 0, important: 1, nice: 2 }
 
-export function computeParityGaps(
+export async function computeParityGaps(
   snapshot: ToolRegistrySnapshot,
   taskType: string | null,
-  rules: GapRule[] = GAP_RULES
-): ParityGapsOutput {
+  rules: GapRule[] = GAP_RULES,
+  capabilities?: Capability[],
+  projectRoot?: string,
+): Promise<ParityGapsOutput> {
   const filtered = taskType ? rules.filter(r => r.task_type === taskType) : rules
 
-  const gaps: ParityGap[] = filtered
+  const ruleGaps: ParityGap[] = filtered
     .filter(rule => rule.detect(snapshot))
     .map(rule => ({
       gap_id: rule.gap_id,
@@ -40,7 +43,15 @@ export function computeParityGaps(
       severity: rule.severity,
       suggestion: rule.suggestion,
     }))
-    .sort((a, b) => SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity])
+
+  const crossGaps: ParityGap[] =
+    capabilities && projectRoot
+      ? await crossCapabilitiesWithUsage(capabilities, projectRoot)
+      : []
+
+  const gaps = [...ruleGaps, ...crossGaps].sort(
+    (a, b) => SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity],
+  )
 
   return {
     gaps,

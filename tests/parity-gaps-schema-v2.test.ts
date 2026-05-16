@@ -44,7 +44,7 @@ function assertMatchesV2(output: unknown, schema: { properties: Record<string, u
 describe('parity-gaps schema v2', () => {
   test('writer output matches v2 schema (CA-06)', async () => {
     const schema = JSON.parse(await readFile(SCHEMA_V2_PATH, 'utf-8'))
-    const output = computeParityGaps(
+    const output = await computeParityGaps(
       {
         mcps: [{ name: 'playwright', tools: ['browser_navigate'] }],
         builtin_tools: [{ name: 'Bash' }],

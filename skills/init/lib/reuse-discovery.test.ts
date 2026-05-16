@@ -233,7 +233,7 @@ describe('tryRegenerateParityGaps (DEC-2 option 3 — graceful degradation)', ()
     }
     const result = await tryRegenerateParityGaps(tmp, async () => ({
       inspectToolRegistry: async (root: string) => { calls.inspect++; expect(root).toBe(tmp); return fakeSnapshot },
-      computeParityGaps: (snap: typeof fakeSnapshot, task: string | null) => { calls.compute++; expect(snap).toBe(fakeSnapshot); expect(task).toBeNull(); return fakeOutput },
+      computeParityGaps: async (snap: typeof fakeSnapshot, task: string | null) => { calls.compute++; expect(snap).toBe(fakeSnapshot); expect(task).toBeNull(); return fakeOutput },
       writeParityGaps: async (out: typeof fakeOutput, root: string) => { calls.write++; expect(out).toBe(fakeOutput); expect(root).toBe(tmp); return path.join(root, 'discovery', 'parity-gaps.json') },
     }))
     expect(result).toEqual({ regenerated: true, reason: 'success' })

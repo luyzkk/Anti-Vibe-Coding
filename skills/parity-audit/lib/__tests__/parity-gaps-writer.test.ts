@@ -16,8 +16,8 @@ const stripeSnapshot: ToolRegistrySnapshot = {
 }
 
 describe('computeParityGaps', () => {
-  it('returns all rules as gaps when registry is empty', () => {
-    const output = computeParityGaps(emptySnapshot, null)
+  it('returns all rules as gaps when registry is empty', async () => {
+    const output = await computeParityGaps(emptySnapshot, null)
 
     expect(output.gaps.length).toBe(4)
     expect(output.gaps[0]?.severity).toBe('critical')
@@ -26,20 +26,20 @@ describe('computeParityGaps', () => {
     expect(isNaN(Date.parse(output.generated_at))).toBe(false)
   })
 
-  it('returns zero gaps when Stripe MCP is installed and task_type is payment-debug', () => {
-    const output = computeParityGaps(stripeSnapshot, 'payment-debug')
+  it('returns zero gaps when Stripe MCP is installed and task_type is payment-debug', async () => {
+    const output = await computeParityGaps(stripeSnapshot, 'payment-debug')
 
     expect(output.gaps.length).toBe(0)
     expect(output.tool_registry_snapshot.mcps[0]?.name).toBe('mcp-stripe')
   })
 
-  it('sorts gaps by severity rank: critical first, then important, then nice', () => {
+  it('sorts gaps by severity rank: critical first, then important, then nice', async () => {
     const partial: ToolRegistrySnapshot = {
       ...emptySnapshot,
       mcps: [{ name: 'mcp-stripe', tools: [] }],
     }
 
-    const output = computeParityGaps(partial, null)
+    const output = await computeParityGaps(partial, null)
 
     expect(output.gaps.length).toBe(3)
     expect(output.gaps[0]?.severity).toBe('critical')
