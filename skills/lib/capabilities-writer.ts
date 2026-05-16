@@ -1,5 +1,10 @@
 import { readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
+// 2026-05-16 (Luiz/dev): AST real via @typescript-eslint/parser substitui regex line-by-line.
+// Cumpre RF-MH-01 do PRD v6.3.1 (CA-01 + CA-02). Enum CapabilitySource permanece 'ast' | 'llm'
+// — D1 do PRD / D4 do ADR-0020 intacto. Auditores downstream confiam em source === 'ast'.
+import { parse } from '@typescript-eslint/parser'
+import type { TSESTree } from '@typescript-eslint/types'
 
 export type CapabilitySource = 'ast' | 'llm'
 
@@ -35,17 +40,52 @@ async function findRouteFiles(appDir: string): Promise<string[]> {
   return results
 }
 
-function extractMethods(content: string): Array<{ method: string; line: number }> {
+const HTTP_VERBS = new Set(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'])
+
+function extractMethods(content: string, filePath: string): Array<{ method: string; line: number }> {
   const found: Array<{ method: string; line: number }> = []
-  const lines = content.split('\n')
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i]
-    if (line === undefined) continue
-    const match = line.match(/export\s+(?:async\s+)?function\s+(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)/)
-    if (match?.[1] !== undefined) {
-      found.push({ method: match[1], line: i + 1 })
+  const isJsx = filePath.endsWith('.tsx')
+  let ast: TSESTree.Program
+  try {
+    ast = parse(content, {
+      loc: true,
+      range: true, // 2026-05-16 (Luiz/dev): scope-manager requires range:true in Bun — crashes with range:false (BUG-1)
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      jsx: isJsx,
+    })
+  } catch {
+    // 2026-05-16 (Luiz/dev): parse error degrada silenciosamente — coverage_gaps já registra no caller
+    return found
+  }
+
+  for (const node of ast.body) {
+    if (node.type !== 'ExportNamedDeclaration' || node.declaration === null) continue
+    const decl = node.declaration
+
+    // case: export function GET() {} | export async function GET() {}
+    if (decl.type === 'FunctionDeclaration' && decl.id !== null) {
+      const name = decl.id.name
+      if (HTTP_VERBS.has(name)) {
+        found.push({ method: name, line: decl.loc.start.line })
+      }
+      continue
+    }
+
+    // case: export const GET = async () => {} | export const GET = function () {}
+    if (decl.type === 'VariableDeclaration') {
+      for (const declarator of decl.declarations) {
+        if (declarator.id.type !== 'Identifier') continue
+        const name = (declarator.id as TSESTree.Identifier).name
+        if (!HTTP_VERBS.has(name)) continue
+        const init = declarator.init
+        if (init === null || init === undefined) continue
+        if (init.type !== 'ArrowFunctionExpression' && init.type !== 'FunctionExpression') continue
+        found.push({ method: name, line: declarator.loc.start.line })
+      }
     }
   }
+
   return found
 }
 
@@ -187,7 +227,7 @@ export async function discoverNextjsAppRouterCapabilities(
       coverage_gaps.push(`${relPath} — read failed`)
       continue
     }
-    const methods = extractMethods(content)
+    const methods = extractMethods(content, filePath)
     const relPath = path.relative(projectRoot, filePath).replace(/\\/g, '/')
     if (methods.length === 0) {
       coverage_gaps.push(`${relPath} — no HTTP method exports found`)
