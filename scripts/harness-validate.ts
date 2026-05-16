@@ -614,20 +614,25 @@ export async function checkProfileAwarePreface(
         return
       }
 
-      // Extract block between markers and check for preface-context reading reference.
-      // G7: string presence, sem AST. Detecta import ou chamada — nao comentarios negativos.
-      // Aceita readPrefaceContext (padrao novo) ou readArchitectureProfile (padrao legado architecture/).
+      // 2026-05-16 (Luiz/dev): v6.3.1 fase-07 — tolerâncias removidas após migração de
+      // /architecture + /detect-architecture (RF-CH-01, CA-10 PRD v6.3.1).
+      // Bloco profile-aware-preface agora EXIGE fenced code block + readPrefaceContext.
       // Padrao positivo: nome da funcao seguido de ( ou { — distingue de comentarios "//<nome>".
-      // Prosa-only (sem fenced code block): skill explicativa sem contexto executavel — skip.
       const startIdx = content.indexOf('<!-- profile-aware-preface:start -->')
       const endIdx = content.indexOf('<!-- profile-aware-preface:end -->')
       const block = content.slice(startIdx, endIdx)
-      const hasCodeBlock = block.includes('```')
-      if (!hasCodeBlock) return // Prosa-only preface: sem bloco de codigo executavel — skip
+
+      if (!block.includes('```')) {
+        failures.push({
+          rule: 'profile-aware-preface',
+          message: `${relPath}: profile-aware-preface block has no fenced code block`,
+        })
+        return
+      }
+
       const hasActualRef =
         /readPrefaceContext\s*[({]/.test(block) ||
-        /\{\s*readPrefaceContext/.test(block) ||
-        /readArchitectureProfile\s*\(/.test(block)
+        /\{\s*readPrefaceContext/.test(block)
       if (!hasActualRef) {
         failures.push({
           rule: 'profile-aware-preface',
