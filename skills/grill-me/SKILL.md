@@ -38,7 +38,7 @@ Skill ativa. Modo: entrevistador implacavel. Nao aceita ambiguidade. Nao gera co
 
 ## Objetivo
 
-Resolver TODA ambiguidade antes de qualquer planejamento ou implementacao. Output: CONTEXT.md estruturado em `.planning/` com decisoes indexadas e rastreadas.
+Resolver TODA ambiguidade antes de qualquer planejamento ou implementacao. Output: CONTEXT.md estruturado em `docs/exec-plans/active/YYYY-MM-DD-{slug}/CONTEXT.md` com decisoes indexadas e rastreadas.
 
 Diferenca de /consultant: grill-me e sobre RESOLVER ambiguidades. Consultant e sobre ENSINAR antes de codar. Use grill-me quando precisa clareza, consultant quando precisa orientacao tecnica.
 
@@ -187,7 +187,17 @@ Resposta vaga → reformular imediatamente:
 
 ## Passo 5 — Gerar CONTEXT.md
 
-Ao final da entrevista, gerar o arquivo `.planning/CONTEXT-{feature-name}.md` (criar `.planning/` se nao existir):
+Ao final da entrevista, criar a pasta datada do PRD e salvar CONTEXT.md dentro dela:
+
+1. Derivar:
+   - `slug` = kebab-case do nome da feature
+   - `date` = YYYY-MM-DD atual
+   - `folder` = `docs/exec-plans/active/{date}-{slug}/`
+2. Se `{folder}` nao existe: criar e salvar `{folder}/CONTEXT.md`
+3. Se `{folder}` ja existe (write-prd rodou antes? raro): salvar/mesclar `{folder}/CONTEXT.md`
+4. Compatibilidade legacy (apenas LEITURA): se houver `.planning/CONTEXT-{slug}.md` solto, mesclar conteudo no novo CONTEXT.md e deixar o arquivo antigo intacto para o dev limpar manualmente
+
+Template do conteudo:
 
 ```markdown
 # Context: {Feature Name}
@@ -246,7 +256,7 @@ Se o dev disser sim, identificar o topico mais relevante da entrevista e sugerir
 Ao finalizar a entrevista (todas as perguntas respondidas, contexto suficiente coletado):
 
 ### 1. Salvar Contexto
-Salvar o resultado consolidado em `.planning/CONTEXT.md`:
+Salvar o resultado consolidado em `docs/exec-plans/active/{date}-{slug}/CONTEXT.md` (ver Passo 5):
 
 ```
 # CONTEXT.md — Resultado do /grill-me
@@ -275,9 +285,9 @@ Salvar o resultado consolidado em `.planning/CONTEXT.md`:
 
 ### 2. Sugerir Proximo Passo
 
-> "Contexto salvo em `.planning/CONTEXT.md`.
+> "Contexto salvo em `docs/exec-plans/active/{date}-{slug}/CONTEXT.md`.
 >
-> Quer prosseguir para `/write-prd`? Ele vai importar este contexto automaticamente e gerar o PRD da feature."
+> Quer prosseguir para `/write-prd`? Ele vai importar este contexto automaticamente e gerar o PRD da feature na mesma pasta."
 
 Se o dev disser NAO: encerrar normalmente. O CONTEXT.md continua disponivel para uso futuro.
 
@@ -299,7 +309,7 @@ Se o dev disser NAO: encerrar normalmente. O CONTEXT.md continua disponivel para
 3. Minimo 5 perguntas, maximo 20.
 4. Se o dev ja passou pelo /consultant, importar decisoes de la.
 5. Se ja existe um CONTEXT.md anterior, fazer merge (nao sobrescrever).
-6. Salvar em `.planning/CONTEXT-{feature-name}.md`.
+6. Salvar em `docs/exec-plans/active/{date}-{slug}/CONTEXT.md` (criar pasta datada se nao existir).
 7. Explorar codebase para contextualizar perguntas — perguntas genericas sao proibidas.
 8. Intensidade proporcional a complexidade da feature.
 9. Sempre oferecer learn point ao final.
