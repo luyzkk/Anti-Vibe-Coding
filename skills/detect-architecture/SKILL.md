@@ -8,8 +8,21 @@ argument-hint: "[optional: path to project root]"
 ---
 
 <!-- profile-aware-preface:start -->
-Esta skill detecta e persiste o `architectureProfile` no manifest. Ela mesma não lê o manifest
-antes de rodar — o objetivo é populá-lo pela primeira vez ou reclassificar quando pedido.
+```typescript
+// 2026-05-15 (Luiz/dev): v6.3.1 RF-CH-01 fase-07 — migra prosa-only → bloco TS canônico.
+// Esta skill DETECTA e PERSISTE o architectureProfile. O ctx lido aqui é INFORMACIONAL:
+// informa se já existe profile detectado (reclassificar) vs. primeira detecção.
+// G5 do plano02 / CA-12: NUNCA preencher ctx.language ou ctx.framework — reservado v6.5/v6.6.
+
+import { readPrefaceContext } from '../lib/preface-context'
+
+const ctx = readPrefaceContext(process.cwd())
+const existingProfile = ctx.profile ?? null
+```
+
+Esta skill detecta e persiste o `architectureProfile` no manifest. O contexto lido acima é
+informacional apenas — quando `existingProfile` é não-nulo, a execução é "reclassificar";
+quando é nulo, é "detectar pela primeira vez". A skill em si NÃO depende do profile já existir.
 <!-- profile-aware-preface:end -->
 
 # /anti-vibe-coding:detect-architecture

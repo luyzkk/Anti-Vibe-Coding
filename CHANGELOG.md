@@ -3,6 +3,39 @@
 Todas as mudanças notáveis do plugin Anti-Vibe Coding serão documentadas aqui.
 
 
+## [6.3.1] - 2026-05-16
+
+> **Patch release — Honesty & Wire-up sobre Adaptive Coaching**
+> Fecha as 4 CAs da v6.3.0 que ficaram pendentes: capabilities AST honestas,
+> `parity-audit` script executável, cruzamento real declared-vs-used,
+> stale-warning nas skills profile-aware e migração final de
+> `/architecture` + `/detect-architecture` ao bloco canônico.
+
+### Added
+
+- **AST-based capabilities writer** ([skills/lib/capabilities-writer.ts](skills/lib/capabilities-writer.ts)) — `discovery/capabilities.json` agora tem `source: "ast"` honesto via `@typescript-eslint/parser`. Rotas Next.js App Router detectadas determinísticamente (CA-05).
+- **Script executável `bun run parity:audit`** ([scripts/parity-audit.ts](scripts/parity-audit.ts)) — wire-up CLI da skill `/parity-audit` com validação de `task_type` por whitelist (CA-07).
+- **`gap-rules.crossCapabilitiesWithUsage`** — `parity-gaps.json` agora cruza capabilities declaradas vs. uso real no codebase, gerando linha `declared-not-used` para handlers órfãos (CA-08).
+- **Stale-warning helper** (`<!-- stale-capabilities-check:start -->`) replicado nas 6 skills profile-aware — quando `capabilities.json:generated_at > 24h`, emite warning stderr non-blocking (CA-09).
+- **2 regressões em `harness-validate-preface.test.ts`** — bloco prosa-only ou bloco com apenas `readArchitectureProfile` agora falham explicitamente.
+
+### Changed
+
+- **Schema `parity-gaps` v2** ([discovery/_schemas/parity-gaps-v2.schema.json](discovery/_schemas/parity-gaps-v2.schema.json)) — shape rico com `handler` line-suffix (`app/api/foo/route.ts:42`). `parity-gaps-writer.ts:computeParityGaps` é agora `async`. v1 mantido como deprecated até v6.4 (CA-06/CA-13).
+- **`computeParityGaps` agora async** — 5 callers atualizados em `scripts/parity-audit.ts`, `tests/parity-gaps-schema-v2.test.ts`, `skills/parity-audit/lib/__tests__/parity-gaps-writer.test.ts`, `skills/init/lib/reuse-discovery.ts`/`.test.ts`.
+- **`/architecture` e `/detect-architecture` migrados ao bloco canônico** (`<!-- profile-aware-preface:start -->`) usando `readPrefaceContext` em vez de `readArchitectureProfile` direto. Espelha padrão de `skills/security/SKILL.md`. Fecha CA-11 da v6.3.0.
+
+### Removed
+
+- **2 tolerâncias em `scripts/harness-validate.ts:checkProfileAwarePreface`** — alt-regex `readArchitectureProfile\(` e skip silencioso de prosa-only foram removidas. Bloco profile-aware-preface agora EXIGE fenced code block + `readPrefaceContext` (CA-10).
+
+### Reservation
+
+- **`PrefaceContext.language` e `PrefaceContext.framework` continuam null em v6.3.1.** Slots reservados para v6.5.0 (Node+TS) e v6.6.0 (Rails). CA-12 protege regressão.
+- **v1 schema (`parity-gaps-v1.schema.json`)** permanece em `discovery/_schemas/` como deprecated até v6.4.
+
+---
+
 ## [6.3.0] - 2026-05-15
 
 > **Minor release — Adaptive Coaching (Eixo 2 Agent-Native)**

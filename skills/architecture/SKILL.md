@@ -34,13 +34,16 @@ writeTelemetryStart(__telemetry_startEntry)
 
 <!-- profile-aware-preface:start -->
 ```typescript
-// === Modo Dual (Plano 04 fase-02) — leitura UMA vez + lookup table ===
-// G1: sem branching profundo; G2: flag off preserva v5.2; G4: Greenfield so em src/ vazia
-// Lê architectureProfile do manifest via readArchitectureProfile() — retorna null se flag off (CA-04)
+// 2026-05-15 (Luiz/dev): v6.3.1 RF-CH-01 fase-07 — migra readArchitectureProfile → readPrefaceContext.
+// Lê architectureProfile do manifest via readPrefaceContext (Plano 01 v6.3.0) — UMA leitura.
+// Lookup table per-skill mantido.
+// G5 do plano02 / CA-12: NUNCA preencher ctx.language ou ctx.framework — D2 ADR-0020 reserva v6.5/v6.6.
+// Quando ctx.profile === null: fallback Greenfield/default (CA-04 v6.3.0 preserved).
 
 import { readdirSync } from 'node:fs'
 import { join } from 'node:path'
-import { readArchitectureProfile, getRecommendationForProfile } from '../../lib/read-architecture-profile'
+import { readPrefaceContext } from '../lib/preface-context'
+import { getRecommendationForProfile } from '../../lib/read-architecture-profile'
 import {
   ARCHITECTURE_RECOMMENDATIONS,
   DEFAULT_RECOMMENDATION_V52,
@@ -48,28 +51,20 @@ import {
   isGreenfield,
 } from './lib/architecture-recommendations'
 
-// 1. UMA leitura do perfil
-const profile = readArchitectureProfile()
+const ctx = readPrefaceContext(process.cwd())
+const profileName = ctx.profile ?? null
 
-// 2. Contagem de arquivos de src/ (Greenfield trigger — CA-06)
 let srcFileCount = 0
 try {
   srcFileCount = (readdirSync(join(process.cwd(), 'src'), { recursive: true }) as string[])
     .filter((f) => /\.(ts|tsx)$/.test(f)).length
 } catch {
-  srcFileCount = 0 // src/ ausente conta como Greenfield candidate
+  srcFileCount = 0
 }
 
-// 3. UMA resolução com lookup
-const recommendation = isGreenfield(profile?.profile ?? null, srcFileCount)
+const recommendation = isGreenfield(profileName, srcFileCount)
   ? GREENFIELD_RECOMMENDATION
-  : getRecommendationForProfile(profile?.profile ?? null, ARCHITECTURE_RECOMMENDATIONS, DEFAULT_RECOMMENDATION_V52)
-
-// 4. Preparar preface
-// Quando profile detectado: prepend "Recomendações para perfil: <profile>"
-// Quando Greenfield: prepend headline do GREENFIELD_RECOMMENDATION
-// Quando flag off / null: sem preface, comportamento v5.2 intacto (CA-04)
-const profileName = profile?.profile ?? null
+  : getRecommendationForProfile(profileName, ARCHITECTURE_RECOMMENDATIONS, DEFAULT_RECOMMENDATION_V52)
 ```
 
 Ao produzir recomendações, use `recommendation.headline`, `recommendation.rationale`,
@@ -78,7 +73,7 @@ Ao produzir recomendações, use `recommendation.headline`, `recommendation.rati
 Se `profileName` for não-nulo, inicie sua resposta com:
   "Recomendações para perfil: <profileName>"
 
-Se `profileName` for nulo (flag off ou manifest ausente), comportamento v5.2 intacto — sem preface.
+Se `profileName` for nulo (manifest ausente), comportamento v5.2 intacto — sem preface.
 <!-- profile-aware-preface:end -->
 
 # Consultor de Arquitetura de Software
