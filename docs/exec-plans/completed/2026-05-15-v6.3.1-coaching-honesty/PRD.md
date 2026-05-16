@@ -1,7 +1,8 @@
 ---
 slug: v6.3.1-coaching-honesty
 date: 2026-05-15
-status: draft
+status: completed
+completedAt: 2026-05-16
 requires: [2026-05-14-v6.3.0-adaptive-coaching]
 ---
 
