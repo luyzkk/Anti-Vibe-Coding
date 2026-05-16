@@ -314,6 +314,33 @@ Important: v6.0.0 only **registers** the stack. Knowledge packs (`docs/knowledge
 
 ---
 
+### Step 3.1 (v6.3.2): Persist stack to `.claude/stack.json` + copy knowledge (Plano 01)
+
+<!-- 2026-05-16 (Luiz/dev): Plano 01 fase-03 monostack extension.
+     G2 do plano: Step 3 (state-md-init) acima permanece intacto (CA-10).
+     G1 do plano: alias map node-ts → nodejs-typescript em write-stack-json.ts.
+     Plano 02 estende este step para multi-stack, --refresh-knowledge, telemetria. -->
+
+```bash
+bun run -e "
+import { detectStack } from './lib/detect-stack.ts'
+import { writeStackJson } from './lib/write-stack-json.ts'
+import { copyKnowledge } from './lib/copy-knowledge.ts'
+
+const projectRoot = process.cwd()
+const pluginRoot = process.env.PLUGIN_ROOT ?? import.meta.dir + '/../..'
+
+const stack = await detectStack(projectRoot)
+const stackJson = await writeStackJson(projectRoot, stack)
+console.log('stack.json written. primary =', stackJson.primary)
+
+const copyResult = await copyKnowledge({ projectRoot, pluginRoot, primary: stackJson.primary })
+console.log('knowledge copy:', copyResult.status)
+"
+```
+
+---
+
 ### Step 4 (v6.0.0): Customize ARCHITECTURE.md with detected stack
 
 ```bash
