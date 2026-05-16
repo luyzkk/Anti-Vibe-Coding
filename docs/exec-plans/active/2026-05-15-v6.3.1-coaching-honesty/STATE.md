@@ -1,7 +1,7 @@
 # State: v6.3.1 — Adaptive Coaching: Honesty & Wire-up
 
 **Plan:** ./PLAN.md
-**Phase:** in-progress
+**Phase:** paused
 **Current Plan:** 02/2
 **Last Updated:** 2026-05-16
 
@@ -24,3 +24,4 @@ Fases done: 4/7 (57%)
 - 2026-05-16: Fase-02 GREEN. 2 commits (8e161f3 RED + fa3cb0f GREEN). 2/2 testes dual-field pass. Smoke security-auditor.allowed_tools = ['Read', 'Grep', 'Glob'] (era []). Passo 5 (migrar fixtures legadas) skipped — nada a migrar.
 - 2026-05-16: Fase-03 GREEN. 2 commits (40c46f7 RED + 38a8da1 GREEN). 3/3 testes parity-audit script pass. Smoke happy `bun run parity:audit` exit 0 + 4 gaps + JSON escrito. Smoke unsafe `../etc/passwd` exit 1 + "Invalid task_type". `bun run harness:validate` aceita Bash em allowed-tools. GT-5: tdd-gate exige criar test ANTES do stub (Bash heredoc para fixtures, Write do test, depois Write do stub).
 - 2026-05-16: Fase-04 GREEN. 2 commits (d58095f RED + 57d865d GREEN). 2/2 testes parity-gaps schema v2 pass (CA-06 + CA-13). `bun run parity:audit` agora escreve `schema_version: "2.0"`. v1 schema title/description marcados como DEPRECATED (nao-breaking — fixture v1 ainda valida). DI-8: test existente `parity-gaps-writer.test.ts` tambem migrado (`'1.0'`→`'2.0'`) — in-scope porque testa direto o writer migrado. typecheck warn pre-existente em `subagent-contract.ts` (ajv AnySchema) confirmado via stash — nao introduzido nesta fase. **Plano 01 COMPLETED (4/4).**
+- 2026-05-16: Execucao PAUSADA pelo dev apos Plano 01 completo. Plano 02 (Use Crossing & Tolerance Cleanup) pending — retomar com `/anti-vibe-coding:execute-plan`.
