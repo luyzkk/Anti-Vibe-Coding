@@ -7,6 +7,11 @@ import { readFile, readdir } from 'node:fs/promises'
 import path from 'node:path'
 import matter from 'gray-matter'
 
+// 2026-05-15 (Luiz/dev): cache 1× por agent — evita poluir stderr em projetos com muitos
+// agents legacy. RNF Observabilidade do PRD v6.3.1. Module-scoped Set persiste entre
+// múltiplas chamadas de inspectToolRegistry() no mesmo processo (ex: test suite).
+const warnedAgents = new Set<string>()
+
 // 2026-05-15 (Luiz/dev): shape composto desde ja — PRD §Decisao #2 (composabilidade futura)
 export type MCPDescriptor = {
   name: string
@@ -93,9 +98,24 @@ async function readSubagents(projectRoot: string): Promise<{
     const { data } = matter(raw)
     const name = typeof data['name'] === 'string' ? data['name'] : entry.name.replace(/\.md$/, '')
     const description = typeof data['description'] === 'string' ? (data['description'].split('\n')[0] ?? '') : ''
-    // 2026-05-15 (Luiz/dev): field is 'allowed-tools' (with hyphen) per G8 of plano03 README
-    const allowedRaw = typeof data['allowed-tools'] === 'string' ? data['allowed-tools'] : ''
-    const allowed_tools = allowedRaw
+
+    // 2026-05-15 (Luiz/dev): precedência 'tools:' canônica per convenção Claude Code
+    // (agents=tools, skills=allowed-tools) — ref D2 do PRD v6.3.1, .claude/prd-v5/11-new-agents.md:31.
+    // Fallback a 'allowed-tools:' emite deprecation warning 1× por agent (cache módulo).
+    let toolsRaw = ''
+    if (typeof data['tools'] === 'string') {
+      toolsRaw = data['tools']
+    } else if (typeof data['allowed-tools'] === 'string') {
+      toolsRaw = data['allowed-tools']
+      if (!warnedAgents.has(name)) {
+        process.stderr.write(
+          `[deprecation] agent ${name} uses 'allowed-tools'; canonical is 'tools' (per Claude Code convention)\n`
+        )
+        warnedAgents.add(name)
+      }
+    }
+
+    const allowed_tools = toolsRaw
       .split(',')
       .map((s: string) => s.trim())
       .filter((s): s is string => s.length > 0)
