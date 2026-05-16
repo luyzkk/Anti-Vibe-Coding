@@ -23,6 +23,12 @@ Formato: o que foi decidido + por que + impacto.
 - **DI-4 (fase-05):** Fase-05 executada em 3 spawns (RED + GREEN minimo + integracao), nao 2.
   - Por que: GREEN inicial recebeu instrucao de focar APENAS em fazer os 2 tests `crossCapabilitiesWithUsage` passar — integracao com `computeParityGaps` ficou de fora desse spawn por ANCHOR de TDD (GREEN nao olha codigo alem de tests). Orquestrador detectou gap vs. Criterio de Aceite e spawnou 3o subagente.
   - Impacto: 3 commits para a fase (bae595b RED, c8811aa GREEN minimo, 77d33c6 integracao). Padrao replicavel para fases com integracao multi-arquivo: GREEN minimo + spawn de integracao.
+- **DI-5 (fase-06):** RED inicial usou STUB no-op em vez de copia da implementacao alvo.
+  - Por que: a fase doc duplica a logica em duas localizacoes (bloco SKILL.md inline + funcao `checkStaleCapabilities` no test). Se o RED ja tivesse a copia, os 3 tests passariam de cara — sem falha legitima. Stub no-op produz falha real (1/3) no caso "stale > 24h", mantendo os 2 no-op tests (absent + fresh) verdes (comportamento desejado para a stub).
+  - Impacto: TDD honesto sem reescrever a estrutura do test. Padrao replicavel para fases onde a unidade-sob-teste vive duplicada por restricao de runtime (skills.md inline vs. test helper).
+- **DI-6 (fase-06):** Bloco stale-check inserido EXATAMENTE identico nas 6 SKILL.md.
+  - Por que: fase doc §Passo 2 — "Aplicar bloco IDENTICO nas 6 skills. NAO parametrizar nome da skill". Como o comportamento nao varia, parametrizacao seria YAGNI.
+  - Impacto: 6 edits sequenciais com mesmo `old_string`/`new_string` por skill (diferindo apenas no H1 imediatamente posterior, usado como ancora de match). Custo de manutencao futuro: se a logica mudar, atualizar 7 locais (6 SKILL.md + test). SYNC comment apontando para o test.
 
 ---
 
@@ -56,6 +62,8 @@ Apenas gotchas que NAO eram obvios antes de implementar.
   - Nota: destructive-guard bloqueia `git checkout -- <file>` para discard direto; usar stash isolado eh o caminho safe.
 - **GT-4 (fase-05):** GREEN-isolation pura nao captura integracao multi-arquivo. Se a fase exige refatorar callers downstream, GREEN sozinho nao faz — orquestrador precisa spawnar passo de integracao apos GREEN.
   - Impacto: previne falsos "complete" onde o codigo passa nos novos tests mas quebra contrato da fase. Ver DI-4.
+- **GT-5 (fase-06):** Teste pre-existente `tests/harness-validate-v6-path-whitelist.test.ts` ja falha em `main` antes desta fase (1 fail, 7 pass). Confirmado via `git stash && bun test` na mesma sessao. Nao foi introduzido pela fase-06.
+  - Impacto: continuar fluxo da fase sem trata-lo. Registrar para evitar repetir analise em fases futuras. Pode justificar item em TODO.md ou /iterate.
 
 ---
 
@@ -75,7 +83,7 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 3 |
-| Fases concluidas | 1 |
+| Fases concluidas | 2 |
 | Fases com desvio | 1 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |

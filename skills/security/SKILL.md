@@ -29,6 +29,39 @@ Se `preface` for não-vazio, inicie sua resposta com o conteúdo de `preface` e 
 Se `preface` for vazio (profile null), comportamento v6.2 intacto — sem preface, ir direto ao corpo.
 <!-- profile-aware-preface:end -->
 
+<!-- stale-capabilities-check:start -->
+```typescript
+// 2026-05-15 (Luiz/dev): wire-up CA-09 v6.3.0 (closed em v6.3.1 RF-SH-02) — non-blocking warning.
+// G2 do plano02: NUNCA bloqueia execução — alinhado com stale-detector.ts:8-10.
+// G6 do plano02: capabilities.json AUSENTE NÃO emite warning falso (silently null).
+// G7 do plano02: shape atual de capabilities.json não tem `storedChecksums` — check direto por age.
+// SYNC: logica espelhada em skills/lib/__tests__/stale-warning.test.ts:checkStaleCapabilities.
+
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+
+const __STALE_THRESHOLD_MS = 24 * 60 * 60 * 1000 // 24h — CA-09 PRD v6.3.1
+
+function __readCapabilitiesGeneratedAt(projectRoot: string): string | null {
+  try {
+    const raw = readFileSync(join(projectRoot, 'discovery', 'capabilities.json'), 'utf-8')
+    const parsed = JSON.parse(raw) as { generated_at?: unknown }
+    return typeof parsed.generated_at === 'string' ? parsed.generated_at : null
+  } catch {
+    return null
+  }
+}
+
+const __caps_generated_at = __readCapabilitiesGeneratedAt(process.cwd())
+if (__caps_generated_at !== null) {
+  const __age = Date.now() - new Date(__caps_generated_at).getTime()
+  if (Number.isFinite(__age) && __age > __STALE_THRESHOLD_MS) {
+    process.stderr.write('capabilities.json stale (>24h) — run /init --refresh\n')
+  }
+}
+```
+<!-- stale-capabilities-check:end -->
+
 # Consultor de Seguranca — Anti-Vibe Coding
 
 Modo Consultor de Seguranca. **ENSINAR** conceitos e **AUDITAR** codigo existente. NAO gerar codigo de producao — explicar, identificar vulnerabilidades e recomendar correcoes.

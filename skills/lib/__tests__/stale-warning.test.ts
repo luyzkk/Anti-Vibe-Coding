@@ -1,19 +1,36 @@
-// 2026-05-15 (Luiz/dev): RED phase — Plano 02 fase-06 v6.3.1-coaching-honesty (CA-09).
+// 2026-05-15 (Luiz/dev): Plano 02 fase-06 v6.3.1-coaching-honesty (CA-09).
 // Spawn de subprocess que carrega markdown executavel e fragil em Windows; pure-fn evita.
 //
-// SYNC OBRIGATORIO: na GREEN, o corpo de `checkStaleCapabilities` deve ser identico
-// ao bloco <!-- stale-capabilities-check:start --> presente nas 6 SKILL.md
+// SYNC OBRIGATORIO: o corpo de `checkStaleCapabilities` espelha o bloco
+// <!-- stale-capabilities-check:start --> presente nas 6 SKILL.md
 // (security, api-design, system-design, design-patterns, decision-registry, lessons-learned).
 // Se uma mudar, atualizar TODAS — comentario espelhado nas SKILL.md aponta para este arquivo.
 
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
-import { mkdtempSync, rmSync, mkdirSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, rmSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-// RED stub — implementacao real chega na GREEN.
-function checkStaleCapabilities(_projectRoot: string, _write: (s: string) => void): void {
-  return
+function checkStaleCapabilities(projectRoot: string, write: (s: string) => void): void {
+  const STALE_THRESHOLD_MS = 24 * 60 * 60 * 1000
+  let raw: string
+  try {
+    raw = readFileSync(join(projectRoot, 'discovery', 'capabilities.json'), 'utf-8')
+  } catch {
+    return
+  }
+  let parsed: { generated_at?: unknown }
+  try {
+    parsed = JSON.parse(raw) as { generated_at?: unknown }
+  } catch {
+    return
+  }
+  const generated_at = typeof parsed.generated_at === 'string' ? parsed.generated_at : null
+  if (generated_at === null) return
+  const age = Date.now() - new Date(generated_at).getTime()
+  if (Number.isFinite(age) && age > STALE_THRESHOLD_MS) {
+    write('capabilities.json stale (>24h) — run /init --refresh\n')
+  }
 }
 
 describe('stale capabilities warning (CA-09 v6.3.1)', () => {
