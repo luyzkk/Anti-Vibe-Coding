@@ -4,7 +4,7 @@ description: Audita capabilities do agente (MCPs, tools, subagentes) e produz pa
 kind: audit
 user-invocable: true
 disable-model-invocation: false
-allowed-tools: Read, Glob, Grep, Write, AskUserQuestion
+allowed-tools: Bash, Read, Glob, Grep, Write, AskUserQuestion
 argument-hint: "[task_type opcional, ex: payment-debug, browser-test]"
 ---
 
@@ -20,39 +20,41 @@ Se o usuário passou argumento, use como `task_type`. Caso contrário, pergunte 
 
 Aceite resposta vazia → `task_type = null` (audita ruleset completo).
 
-## Passo 2 — Snapshot via tool-registry-inspector
+## Passo 2 — Executar script parity-audit
 
-Importe `inspectToolRegistry` de `skills/lib/tool-registry-inspector.ts` e chame com `process.cwd()` como `projectRoot`.
+Rode o script via Bash. O script faz: snapshot via `inspectToolRegistry` → compute gaps → escrita em `discovery/parity-gaps.json` → resumo top-3 ao stdout.
 
-Se `snapshot.source === 'partial'`, emita warning ANTES de prosseguir:
-> "Tool registry incompleto (manifest ou agents/ ausente). Resultado será best-effort."
+Se `task_type` foi resolvido no Passo 1, passe como argumento; se vazio, omita (audita ruleset completo):
 
-## Passo 3 — Cruzar com gap-rules
+```bash
+bun run parity:audit "$task_type"
+```
 
-Importe `computeParityGaps` de `skills/parity-audit/lib/parity-gaps-writer.ts` e chame:
-`const output = computeParityGaps(snapshot, taskType)`.
+Ou (sem argumento, ruleset completo):
 
-## Passo 4 — Escrever discovery/parity-gaps.json
+```bash
+bun run parity:audit
+```
 
-Chame `writeParityGaps(output, process.cwd())`. O arquivo é gitignored por default (PRD Decisão #8) — confirme que `.gitignore` cobre `discovery/*.json` (Plano 01 fase-02).
-
-## Passo 5 — Apresentar resumo ao dev
-
-Mostre top 3 gaps por severity (critical primeiro):
+Saída esperada (exemplo):
 
 ```
-Parity Audit — N gap(s) encontrado(s)
+Parity Audit — 2 gap(s) encontrado(s)
 
-CRITICAL (X):
-  - gap_id: ... | missing: ... | suggestion: ...
+CRITICAL (1):
+  - gap_id: GAP-001 | missing: MCP playwright | suggestion: instalar @playwright/mcp
 
-IMPORTANT (Y):
-  - ...
+IMPORTANT (1):
+  - gap_id: GAP-007 | missing: Bash tool | suggestion: adicionar Bash em allowed-tools
 
-NICE (Z):
-  - ...
-
-Output completo: discovery/parity-gaps.json
+Output completo: /path/to/project/discovery/parity-gaps.json
 ```
+
+Se stderr contém `Tool registry incompleto`, sinalize ao usuário ANTES do resumo final:
+> "Tool registry incompleto (manifest ou agents/ ausente). Resultado é best-effort — considere rodar `/init --refresh` antes de re-auditar."
+
+## Passo 3 — Apresentar resumo ao dev
+
+O script já imprime o resumo; reforce a interpretação ao dev se houver gaps `critical`.
 
 Se 0 gaps: "Nenhum gap detectado para task_type=`<taskType>`. O agente tem todas as capabilities mapeadas no ruleset atual."
