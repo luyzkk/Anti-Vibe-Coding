@@ -1,20 +1,20 @@
 # State: v6.3.1 — Adaptive Coaching: Honesty & Wire-up
 
 **Plan:** ./PLAN.md
-**Phase:** in-progress
+**Phase:** completed
 **Current Plan:** 02/2
-**Last Updated:** 2026-05-16 (fase-06 GREEN)
+**Last Updated:** 2026-05-16 (fase-07 GREEN — todas as fases concluidas)
 
 ## Progress por Plano
 
 | Plano | Nome | Fases | Done | Status |
 |-------|------|-------|------|--------|
 | 01 | Honesty & Wire-up Core (Must) | 4 | 4/4 | completed |
-| 02 | Use Crossing & Tolerance Cleanup (Should/Could) | 3 | 2/3 | in-progress |
+| 02 | Use Crossing & Tolerance Cleanup (Should/Could) | 3 | 3/3 | completed |
 
 ## Progress Global
 
-Fases done: 6/7 (86%)
+Fases done: 7/7 (100%)
 
 ## Log
 
@@ -28,3 +28,4 @@ Fases done: 6/7 (86%)
 - 2026-05-16: Execucao retomada. Plano 02 fase-05 (gap-rules use-crossing) iniciada. Notas do Plano 01 (9 DI, 8 GT) carregadas como contexto.
 - 2026-05-16: Fase-05 GREEN + integracao. 3 commits (bae595b RED + c8811aa GREEN + 77d33c6 integracao async). 4/4 testes gap-rules pass, 3/3 testes parity-gaps-writer pass, 2/2 testes parity-gaps-schema-v2 pass, 34/34 testes reuse-discovery pass. Smoke Criterio de Aceite: `declared-not-used` count = 1 (orphan-route), schema_version=2.0. DEV-1: integracao em `computeParityGaps` ficou em 3o subagente (GREEN inicial focou apenas em fazer os 2 tests crossCapabilitiesWithUsage passar). `computeParityGaps` agora eh async — 5 callers atualizados. typecheck warn pre-existente em `subagent-contract.ts` (GT-8 Plano 01) permanece, sem nova regressao. harness:validate OK.
 - 2026-05-16: Fase-06 GREEN. 2 commits (8cea0fa RED + GREEN abaixo). 3/3 testes stale-warning pass (CA-09). Bloco `<!-- stale-capabilities-check:start -->` aplicado IDENTICO nas 6 SKILL.md profile-aware (security, api-design, system-design, design-patterns, decision-registry, lessons-learned) — `grep -c` retorna 1 para cada arquivo. harness:validate OK (validator do profile-aware-preface inalterado, novo bloco nao tem check proprio). DI-5: RED inicial usou stub no-op (vs. copia da impl). DI-6: 6 edits sequenciais com mesmo bloco. GT-5: 1 fail pre-existente em `harness-validate-v6-path-whitelist.test.ts` confirmado via `git stash` — nao introduzido nesta fase.
+- 2026-05-16: Fase-07 GREEN. 2 commits (8842f9c RED + 7bfd428 GREEN). 6/6 testes profile-aware-preface pass (4 existentes + 2 novos). harness:validate exit 0 SEM as 2 tolerancias. `grep -c 'readArchitectureProfile' scripts/harness-validate.ts` = 0; `grep -cE 'if \(!hasCodeBlock\) return'` = 0. `/architecture` + `/detect-architecture` migrados ao bloco canonico usando `readPrefaceContext`. CHANGELOG `[6.3.1]` adicionado consolidando fases 01-07. DI-7: comentario do bloco em architecture/SKILL.md mantem literal "architectureProfile" (lowercase) para preservar tracer-bullet test `telemetry-utils.test.ts:190`. Total fails da suite: 11 (== baseline pre-fase, todos pre-existentes — GT-5 confirmado novamente). **Plano 02 COMPLETED (3/3). v6.3.1 100% complete (7/7 fases).**
