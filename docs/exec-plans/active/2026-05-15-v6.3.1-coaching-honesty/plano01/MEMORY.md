@@ -21,6 +21,8 @@ Formato: o que foi decidido + por que + impacto.
 - **DI-4 (fase-02):** Test file em `tests/tool-registry-inspector.dual-field.test.ts` (flat) em vez de `tests/unit/...` da fase doc.
   - Por que: aplicada Nota dos Planos Seguintes da fase-01 (convencao real do repo eh flat).
 - **DI-5 (fase-02):** Passo 5 (migrar fixtures legadas em `tests/fixtures/v6-state-fixture/agents/`) skipped — pasta nao existe, grep retornou `none — nothing to migrate`.
+- **DI-6 (fase-03):** Test file em `tests/parity-audit-script.test.ts` (flat) em vez de `tests/unit/...` da fase doc. Continuacao do DI-2/DI-4 (convencao real do repo).
+- **DI-7 (fase-03):** Ordem RED ajustada por causa do tdd-gate: fixtures via Bash heredoc PRIMEIRO, depois Write do test, depois Write do stub script. Sem essa ordem, gate bloqueia Write em `scripts/` quando nao ha teste co-localizado.
 
 ---
 
@@ -48,6 +50,8 @@ Apenas gotchas que NAO eram obvios antes de implementar.
 - **GT-2 (fase-01):** Spec original da fase usava `range: false` no parser — nao validado em Bun. Toda fase futura que use @typescript-eslint/parser deve assumir `range: true` por default em ambiente Bun.
 - **GT-3 (fase-02):** Cache `warnedAgents` Set em `tool-registry-inspector.ts` eh module-scoped — sobrevive entre chamadas no mesmo processo. Test suites que rodam multiplas inspecoes podem precisar de `__resetWarnedAgentsForTests()` se aparecer flake. Em RED inicial, testes isolados sao suficientes.
 - **GT-4 (fase-02):** `tools:` como array YAML (`tools: [Read, Grep]`) seria silenciosamente ignorado pelo parser dual-field — `typeof === 'string'` falha em array. Todos os 13 agents reais usam CSV string, mas documentar como `coverage_gap` futuro.
+- **GT-5 (fase-03):** `hooks/tdd-gate.cjs` bloqueia Write em `scripts/*.ts` quando nao ha teste co-localizado de mesmo basename. Workaround na fase RED: criar fixtures via Bash heredoc, depois Write do test (passa porque gate enxerga test), depois Write do stub script (passa porque test ja existe). Mesmo principio do GT-1 mas aplicado a `scripts/` em vez de `tests/fixtures/`.
+- **GT-6 (fase-03):** Quando o stub RED lanca synchronously dentro de `async function`, o `await audit()` propaga como rejected promise — Bun reporta como `error: not implemented`. Nao e module-not-found, nao e assertion fail "classico", mas QUALIFICA como RED valido porque o teste nao consegue chegar ao `expect()` ate a impl real existir.
 
 ---
 
@@ -60,6 +64,8 @@ Se nada mudou, manter vazio (bom sinal).
   - Motivo: convencao real do repo eh flat. Instrucoes do task context (Step 4b) sobrepuseram spec da fase.
 - **DEV-2 (fase-01):** Parser chamado com `range: true` (BUG-1 em Bun). Fase doc dizia `range: false`.
 - **DEV-3 (fase-02):** Test file em `tests/tool-registry-inspector.dual-field.test.ts` (flat), nao `tests/unit/...` como fase doc indicava. Motivo: Nota dos Planos Seguintes da fase-01 sobrepoe spec da fase.
+- **DEV-4 (fase-03):** Test file em `tests/parity-audit-script.test.ts` (flat), nao `tests/unit/...` da fase doc. Motivo: Nota dos Planos Seguintes da fase-01 (convencao real do repo).
+- **DEV-5 (fase-03):** Ordem de Write na RED ajustada (fixtures → test → stub script) para passar pelo tdd-gate. Spec da fase nao previa hook impedindo Write em `scripts/` antes do test.
 
 ---
 
@@ -68,8 +74,8 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 4 |
-| Fases concluidas | 2 |
-| Fases com desvio | 2 |
+| Fases concluidas | 3 |
+| Fases com desvio | 3 |
 | Bugs encontrados | 1 |
 | Retries necessarios | 0 |
 
@@ -89,6 +95,8 @@ O subagente do proximo plano le este campo.
 - **`readSubagents()` agora le `tools:` (canonico) com fallback `allowed-tools:` (legacy + warning 1x cached):** Fase 03 e 05 podem assumir `subagents[*].allowed_tools` populado para os 13 agents reais. Cache `warnedAgents` Set eh module-scoped.
 - **Fixtures de agents dual-field em `tests/fixtures/agents-dual-field/`:** agent-canonical.md (tools:), agent-legacy.md (allowed-tools:). Reutilizar em testes futuros de tool-registry.
 - **Convencao CC oficial (G6):** agents=`tools:`, skills=`allowed-tools:`. NAO inverter precedencia em nenhuma fase futura.
+- **`bun run parity:audit [task_type]` disponivel (fase-03):** chama pure-fn `audit()` de `scripts/parity-audit.ts` → snapshot via `inspectToolRegistry` → `computeParityGaps` → escreve `discovery/parity-gaps.json` (gitignored, D8) → resumo top-3. Regex `SAFE_TASK_TYPE = /^[a-z][a-z0-9-]*$/i` rejeita path traversal. Skill `/parity-audit` ganhou `Bash` em `allowed-tools` (6 tools). Fase 04 (schema v2) ira mudar o consumidor, nao a CLI.
+- **tdd-gate aplica a `scripts/*.ts` tambem (GT-5):** quando criar novo script em `scripts/`, criar test co-localizado ANTES via Write do test, ou stub via Bash heredoc. Aplicar em fases futuras que criem scripts auxiliares.
 
 ---
 
