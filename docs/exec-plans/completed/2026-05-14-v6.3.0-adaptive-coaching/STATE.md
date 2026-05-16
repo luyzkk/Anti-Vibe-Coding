@@ -1,9 +1,9 @@
 # State: Adaptive Coaching (v6.3.0)
 
 **Plan:** ./PLAN.md
-**Phase:** in-progress
+**Phase:** completed
 **Current Plan:** 05/05
-**Last Updated:** 2026-05-15 (Plano 05 fase-03 CONCLUÍDA — preface:simulate CLI; Plano 05 e feature v6.3.0 fecham)
+**Last Updated:** 2026-05-15 (Feature v6.3.0 SHIPPED — plano movido para completed/, plugin bumped 6.2.0 → 6.3.0)
 
 ## Progress por Plano
 

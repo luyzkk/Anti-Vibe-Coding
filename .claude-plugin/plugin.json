@@ -1,7 +1,7 @@
 {
   "name": "anti-vibe-coding",
-  "version": "6.2.0",
-  "description": "Plugin de desenvolvimento disciplinado com conhecimentos de programador sênior. v6.2.0 — Init Migration Mode: envelope padronizado para subagentes, harness workflow agents:contract, fix plan-feature paths (docs/exec-plans/active).",
+  "version": "6.3.1",
+  "description": "Plugin de desenvolvimento disciplinado com conhecimentos de programador sênior. v6.3.1 — Honesty & Wire-up: skills priorizadas leem architecture-profile.md e adaptam preface por perfil; /init produz capabilities.json; /parity-audit cruza capabilities do agente com task types do projeto; PrefaceContext reserva slots para v6.5/v6.6.",
   "author": {
     "name": "Luiz Felipe"
   },

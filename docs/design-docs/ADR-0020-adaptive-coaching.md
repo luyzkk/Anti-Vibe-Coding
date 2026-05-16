@@ -27,7 +27,7 @@ This ADR records the architectural decisions forming the Adaptive Coaching Frame
 organized around three artifacts: `PrefaceContext` helper, `capabilities.json`, and
 `parity-gaps.json`.
 
-**PRD:** [Adaptive Coaching v6.3.0](../exec-plans/active/2026-05-14-v6.3.0-adaptive-coaching/PRD.md)
+**PRD:** [Adaptive Coaching v6.3.0](../exec-plans/completed/2026-05-14-v6.3.0-adaptive-coaching/PRD.md)
 
 ## Decision
 
