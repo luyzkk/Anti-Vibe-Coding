@@ -1,0 +1,26 @@
+{
+  "capabilities": [
+    {
+      "kind": "route",
+      "method": "GET",
+      "path": "/api/used-route",
+      "handler": "app/api/used-route/route.ts:5",
+      "owner_path": "app/api/used-route/",
+      "confidence": 1.0,
+      "source": "ast"
+    },
+    {
+      "kind": "route",
+      "method": "POST",
+      "path": "/api/orphan-route",
+      "handler": "app/api/orphan-route/route.ts:8",
+      "owner_path": "app/api/orphan-route/",
+      "confidence": 1.0,
+      "source": "ast"
+    }
+  ],
+  "coverage_gaps": [],
+  "generated_at": "2026-05-15T10:00:00.000Z",
+  "profile_at_generation": "nextjs-app-router",
+  "schema_version": "2.0"
+}
