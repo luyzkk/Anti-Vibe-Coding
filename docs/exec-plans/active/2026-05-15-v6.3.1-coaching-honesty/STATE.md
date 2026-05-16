@@ -1,7 +1,7 @@
 # State: v6.3.1 — Adaptive Coaching: Honesty & Wire-up
 
 **Plan:** ./PLAN.md
-**Phase:** paused
+**Phase:** in-progress
 **Current Plan:** 02/2
 **Last Updated:** 2026-05-16
 
@@ -10,11 +10,11 @@
 | Plano | Nome | Fases | Done | Status |
 |-------|------|-------|------|--------|
 | 01 | Honesty & Wire-up Core (Must) | 4 | 4/4 | completed |
-| 02 | Use Crossing & Tolerance Cleanup (Should/Could) | 3 | 0/3 | pending |
+| 02 | Use Crossing & Tolerance Cleanup (Should/Could) | 3 | 1/3 | in-progress |
 
 ## Progress Global
 
-Fases done: 4/7 (57%)
+Fases done: 5/7 (71%)
 
 ## Log
 
@@ -25,3 +25,5 @@ Fases done: 4/7 (57%)
 - 2026-05-16: Fase-03 GREEN. 2 commits (40c46f7 RED + 38a8da1 GREEN). 3/3 testes parity-audit script pass. Smoke happy `bun run parity:audit` exit 0 + 4 gaps + JSON escrito. Smoke unsafe `../etc/passwd` exit 1 + "Invalid task_type". `bun run harness:validate` aceita Bash em allowed-tools. GT-5: tdd-gate exige criar test ANTES do stub (Bash heredoc para fixtures, Write do test, depois Write do stub).
 - 2026-05-16: Fase-04 GREEN. 2 commits (d58095f RED + 57d865d GREEN). 2/2 testes parity-gaps schema v2 pass (CA-06 + CA-13). `bun run parity:audit` agora escreve `schema_version: "2.0"`. v1 schema title/description marcados como DEPRECATED (nao-breaking — fixture v1 ainda valida). DI-8: test existente `parity-gaps-writer.test.ts` tambem migrado (`'1.0'`→`'2.0'`) — in-scope porque testa direto o writer migrado. typecheck warn pre-existente em `subagent-contract.ts` (ajv AnySchema) confirmado via stash — nao introduzido nesta fase. **Plano 01 COMPLETED (4/4).**
 - 2026-05-16: Execucao PAUSADA pelo dev apos Plano 01 completo. Plano 02 (Use Crossing & Tolerance Cleanup) pending — retomar com `/anti-vibe-coding:execute-plan`.
+- 2026-05-16: Execucao retomada. Plano 02 fase-05 (gap-rules use-crossing) iniciada. Notas do Plano 01 (9 DI, 8 GT) carregadas como contexto.
+- 2026-05-16: Fase-05 GREEN + integracao. 3 commits (bae595b RED + c8811aa GREEN + 77d33c6 integracao async). 4/4 testes gap-rules pass, 3/3 testes parity-gaps-writer pass, 2/2 testes parity-gaps-schema-v2 pass, 34/34 testes reuse-discovery pass. Smoke Criterio de Aceite: `declared-not-used` count = 1 (orphan-route), schema_version=2.0. DEV-1: integracao em `computeParityGaps` ficou em 3o subagente (GREEN inicial focou apenas em fazer os 2 tests crossCapabilitiesWithUsage passar). `computeParityGaps` agora eh async — 5 callers atualizados. typecheck warn pre-existente em `subagent-contract.ts` (GT-8 Plano 01) permanece, sem nova regressao. harness:validate OK.
