@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "parity-gaps-v1",
-  "title": "ParityGaps",
-  "description": "Gaps entre capabilities do projeto e tools disponíveis ao agente. Gerado por /parity-audit (v6.3.0+).",
+  "title": "ParityGaps (DEPRECATED)",
+  "description": "DEPRECATED em v6.3.1 — use parity-gaps-v2 (./parity-gaps-v2.schema.json). v1 permanece como referência histórica até v6.4 (D5 do PRD v6.3.1). Shapes string[] em mcps/builtin_tools/subagents não refletem o runtime — bug fechado em v2.",
   "type": "object",
   "required": ["gaps", "tool_registry_snapshot", "generated_at", "schema_version"],
   "properties": {

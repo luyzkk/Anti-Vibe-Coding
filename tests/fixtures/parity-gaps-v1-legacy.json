@@ -1,0 +1,10 @@
+{
+  "gaps": [],
+  "tool_registry_snapshot": {
+    "mcps": ["playwright"],
+    "builtin_tools": ["Bash", "Read"],
+    "subagents": ["security-auditor"]
+  },
+  "generated_at": "2026-05-13T10:00:00.000Z",
+  "schema_version": "1.0"
+}

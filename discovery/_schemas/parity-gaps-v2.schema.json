@@ -1,0 +1,104 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "parity-gaps-v2",
+  "title": "ParityGaps v2",
+  "description": "v2 alinha schema ao runtime (v6.3.1 RF-MH-04). v1 deprecated — remover em v6.4. Mudanças vs. v1: mcps/builtin_tools/subagents passam de string[] para objetos ricos refletindo skills/lib/tool-registry-inspector.ts.",
+  "type": "object",
+  "required": ["gaps", "tool_registry_snapshot", "generated_at", "schema_version"],
+  "properties": {
+    "gaps": {
+      "type": "array",
+      "description": "Lista de gaps ranqueados por severity (critical > important > nice).",
+      "items": {
+        "type": "object",
+        "required": ["gap_id", "task_type", "missing_capability", "severity", "suggestion"],
+        "properties": {
+          "gap_id": { "type": "string" },
+          "task_type": { "type": "string" },
+          "missing_capability": { "type": "string" },
+          "severity": {
+            "type": "string",
+            "enum": ["critical", "important", "nice"]
+          },
+          "suggestion": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "tool_registry_snapshot": {
+      "type": "object",
+      "required": ["mcps", "builtin_tools", "subagents", "generated_at", "source"],
+      "properties": {
+        "mcps": {
+          "type": "array",
+          "description": "MCPs conectados, com lista de tools expostas. Espelha MCPDescriptor em tool-registry-inspector.ts:11.",
+          "items": {
+            "type": "object",
+            "required": ["name", "tools"],
+            "properties": {
+              "name": { "type": "string" },
+              "tools": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "builtin_tools": {
+          "type": "array",
+          "description": "Tools nativas do agente. Objeto envelope permite extensão futura (versão, scope) sem outro bump. Espelha BuiltinToolDescriptor em tool-registry-inspector.ts:15.",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "subagents": {
+          "type": "array",
+          "description": "Skills/subagentes disponíveis, com description e allowed_tools. Espelha SubagentDescriptor em tool-registry-inspector.ts:20.",
+          "items": {
+            "type": "object",
+            "required": ["name", "description", "allowed_tools"],
+            "properties": {
+              "name": { "type": "string" },
+              "description": { "type": "string" },
+              "allowed_tools": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "source": {
+          "type": "string",
+          "enum": ["manifest", "partial"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp de quando o arquivo foi gerado."
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "2.0",
+      "description": "Versão do schema. v2 introduz objetos ricos nos 3 campos drifted (v6.3.1)."
+    },
+    "task_type_audited": {
+      "type": ["string", "null"],
+      "description": "task_type passado ao audit() ou null (audita ruleset completo). Campo opcional aditivo vs. v1."
+    }
+  },
+  "additionalProperties": false
+}

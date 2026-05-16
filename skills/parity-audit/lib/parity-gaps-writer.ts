@@ -13,11 +13,13 @@ export type ParityGap = {
   suggestion: string
 }
 
+// 2026-05-15 (Luiz/dev): schema bump v1→v2 — alinha runtime com schema (D4 do PRD v6.3.1).
+// parity-gaps.json é gitignored (D8 v6.3.0); sem consumidor externo persistido, bump é livre.
 export type ParityGapsOutput = {
   gaps: ParityGap[]
   tool_registry_snapshot: ToolRegistrySnapshot
   generated_at: string
-  schema_version: '1.0'
+  schema_version: '2.0'
 }
 
 const SEVERITY_RANK: Record<Severity, number> = { critical: 0, important: 1, nice: 2 }
@@ -44,7 +46,7 @@ export function computeParityGaps(
     gaps,
     tool_registry_snapshot: snapshot,
     generated_at: new Date().toISOString(),
-    schema_version: '1.0',
+    schema_version: '2.0',
   }
 }
 

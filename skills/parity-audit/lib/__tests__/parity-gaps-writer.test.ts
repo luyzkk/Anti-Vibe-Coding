@@ -22,7 +22,7 @@ describe('computeParityGaps', () => {
     expect(output.gaps.length).toBe(4)
     expect(output.gaps[0]?.severity).toBe('critical')
     expect(output.gaps[output.gaps.length - 1]?.severity).toBe('nice')
-    expect(output.schema_version).toBe('1.0')
+    expect(output.schema_version).toBe('2.0')
     expect(isNaN(Date.parse(output.generated_at))).toBe(false)
   })
 
