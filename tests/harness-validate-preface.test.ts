@@ -109,4 +109,47 @@ describe('harness-validate checkProfileAwarePreface', () => {
 
     expect(failures).toHaveLength(0)
   })
+
+  // 2026-05-16 (Luiz/dev): v6.3.1 fase-07 — regressão CA-10 PRD v6.3.1.
+  // Após migração de /architecture + /detect-architecture, as 2 tolerâncias em
+  // checkProfileAwarePreface foram removidas: prosa-only agora FALHA, e
+  // readArchitectureProfile dentro do bloco já NÃO é mais aceito.
+  test('fails when profile-aware-preface block uses readArchitectureProfile only (no readPrefaceContext)', async () => {
+    const skillDir = path.join(workdir, 'skills', 'legacy-skill')
+    await fs.mkdir(skillDir, { recursive: true })
+    await fs.writeFile(
+      path.join(skillDir, 'SKILL.md'),
+      `---\nname: legacy\n---\n` +
+        `<!-- profile-aware-preface:start -->\n` +
+        '```typescript\n' +
+        `import { readArchitectureProfile } from '../../lib/read-architecture-profile'\n` +
+        `const p = readArchitectureProfile()\n` +
+        '```\n' +
+        `<!-- profile-aware-preface:end -->\n`,
+      'utf8',
+    )
+
+    const failures: Failure[] = []
+    await checkProfileAwarePreface(failures, workdir)
+
+    expect(failures.some(f => f.message.includes('readPrefaceContext'))).toBe(true)
+  })
+
+  test('fails when profile-aware-preface block has no fenced code block (prosa-only)', async () => {
+    const skillDir = path.join(workdir, 'skills', 'prose-skill')
+    await fs.mkdir(skillDir, { recursive: true })
+    await fs.writeFile(
+      path.join(skillDir, 'SKILL.md'),
+      `---\nname: prose\n---\n` +
+        `<!-- profile-aware-preface:start -->\n` +
+        `Esta skill apenas descreve algo em prosa, sem bloco de codigo.\n` +
+        `<!-- profile-aware-preface:end -->\n`,
+      'utf8',
+    )
+
+    const failures: Failure[] = []
+    await checkProfileAwarePreface(failures, workdir)
+
+    expect(failures.some(f => f.message.includes('fenced code block'))).toBe(true)
+  })
 })
