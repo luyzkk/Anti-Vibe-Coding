@@ -33,7 +33,7 @@ export async function audit(
     )
   }
 
-  const output = computeParityGaps(snapshot, taskType)
+  const output = await computeParityGaps(snapshot, taskType)
   const outPath = await writeParityGaps(output, projectRoot)
 
   // resumo top-3 por severity

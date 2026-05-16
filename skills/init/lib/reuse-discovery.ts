@@ -81,7 +81,7 @@ export function resolveThresholdMs(envValue: string | undefined): number {
 // 2026-05-15 (Luiz/dev): loader pattern — unknown return lets mocks assign freely (covariant); internal cast is safe given runtime contract — PRD v6.3.0 §RF-CH-01 / DEC-2 option 3
 type ParityAuditModule = {
   inspectToolRegistry: (projectRoot: string) => Promise<unknown>
-  computeParityGaps: (snapshot: unknown, taskType: string | null) => unknown
+  computeParityGaps: (snapshot: unknown, taskType: string | null) => Promise<unknown>
   writeParityGaps: (output: unknown, projectRoot: string) => Promise<string>
 }
 
@@ -106,7 +106,7 @@ export async function tryRegenerateParityGaps(
   const mod = raw as ParityAuditModule
   try {
     const snapshot = await mod.inspectToolRegistry(projectRoot)
-    const output = mod.computeParityGaps(snapshot, null)
+    const output = await mod.computeParityGaps(snapshot, null)
     await mod.writeParityGaps(output, projectRoot)
     return { regenerated: true, reason: 'success' }
   } catch {
