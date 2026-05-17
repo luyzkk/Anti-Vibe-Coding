@@ -473,6 +473,75 @@ describe('writeTelemetryDomainEvent', () => {
   })
 })
 
+// === Wave 4 S4 — baseDir opcional nas funções write* ===
+// 2026-05-17 (Luiz/dev): S4 — writeTelemetry* aceita baseDir para consistência com targetDir do orchestrator.
+describe('writeTelemetryStart/End/DomainEvent com baseDir (S4)', () => {
+  test('writeTelemetryStart writes to baseDir/.claude/metrics not cwd', async () => {
+    const base = mkdtempSync(join(tmpdir(), 's4-start-'))
+    try {
+      writeTelemetryStart(FIXTURE_START, base)
+      const expectedPath = join(base, '.claude', 'metrics', `${new Date().toISOString().slice(0, 7)}.jsonl`)
+      expect(existsSync(expectedPath)).toBe(true)
+      const content = readFileSync(expectedPath, 'utf-8').trim()
+      const parsed = parseTelemetryEntry(JSON.parse(content))
+      expect(parsed.evento).toBe('start')
+    } finally {
+      rmSync(base, { recursive: true, force: true })
+    }
+  })
+
+  test('writeTelemetryEnd writes to baseDir/.claude/metrics not cwd', async () => {
+    const base = mkdtempSync(join(tmpdir(), 's4-end-'))
+    try {
+      writeTelemetryEnd(FIXTURE_END_SUCCESS, base)
+      const expectedPath = join(base, '.claude', 'metrics', `${new Date().toISOString().slice(0, 7)}.jsonl`)
+      expect(existsSync(expectedPath)).toBe(true)
+      const content = readFileSync(expectedPath, 'utf-8').trim()
+      const parsed = parseTelemetryEntry(JSON.parse(content))
+      expect(parsed.evento).toBe('end')
+    } finally {
+      rmSync(base, { recursive: true, force: true })
+    }
+  })
+
+  test('writeTelemetryDomainEvent writes to baseDir/.claude/metrics not cwd', async () => {
+    const base = mkdtempSync(join(tmpdir(), 's4-domain-'))
+    const nowYearMonth = new Date().toISOString().slice(0, 7)
+    try {
+      writeTelemetryDomainEvent({
+        evento: 'stack_detected',
+        skill_invocada: 'init',
+        timestamp: new Date().toISOString(),
+        primary: 'nodejs-typescript',
+        secondary: [],
+        anchor_files: ['package.json'],
+      }, base)
+      const expectedPath = join(base, '.claude', 'metrics', `${nowYearMonth}.jsonl`)
+      expect(existsSync(expectedPath)).toBe(true)
+      const content = readFileSync(expectedPath, 'utf-8').trim()
+      const parsed = JSON.parse(content)
+      expect(parsed.evento).toBe('stack_detected')
+      expect(parsed.primary).toBe('nodejs-typescript')
+    } finally {
+      rmSync(base, { recursive: true, force: true })
+    }
+  })
+
+  test('write* without baseDir still writes to cwd/.claude/metrics (backward-compat)', () => {
+    const originalCwd = process.cwd()
+    const tmp = mkdtempSync(join(tmpdir(), 's4-compat-'))
+    process.chdir(tmp)
+    try {
+      writeTelemetryStart(FIXTURE_START)
+      const expectedPath = join(tmp, '.claude', 'metrics', `${new Date().toISOString().slice(0, 7)}.jsonl`)
+      expect(existsSync(expectedPath)).toBe(true)
+    } finally {
+      process.chdir(originalCwd)
+      rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+})
+
 // === Smoke tests fase-02 (Plano 03) ===
 describe('pipeline-core skills (fase-02 smoke)', () => {
   const PIPELINE_CORE = ['grill-me', 'write-prd', 'plan-feature', 'execute-plan', 'verify-work'] as const

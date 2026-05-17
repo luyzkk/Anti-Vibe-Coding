@@ -1,4 +1,4 @@
-import type { TelemetryEntry, TelemetryEnd } from "../../skills/lib/telemetry-types"
+import type { TelemetryEntry, TelemetryEnd, AnyTelemetryEntry } from "../../skills/lib/telemetry-types"
 import { isTelemetryEnd } from "../../skills/lib/telemetry-schema"
 
 export type PairedEntry = {
@@ -24,14 +24,19 @@ const SAME_DAY_WINDOW_MS = 24 * 60 * 60 * 1000
 
 /**
  * Pairs start/end events for the same skill within a 24h window.
+ * Accepts AnyTelemetryEntry[] — domain events (stack_detected, knowledge_copied) are filtered out.
  * Unpaired starts and ends are returned as orphans.
  */
-export function pairStartEnd(entries: TelemetryEntry[]): PairResult {
+export function pairStartEnd(entries: AnyTelemetryEntry[]): PairResult {
+  // D5/GT-4: filter to pipeline events only before sorting by timestamp_inicio
+  const pipelineEntries = entries.filter(
+    (e): e is TelemetryEntry => e.evento === 'start' || e.evento === 'end',
+  )
   const startsBySkill = new Map<string, TelemetryEntry[]>()
   const paired: PairedEntry[] = []
   const orphanedEnds: TelemetryEnd[] = []
 
-  const sorted = [...entries].sort(
+  const sorted = [...pipelineEntries].sort(
     (a, b) => Date.parse(a.timestamp_inicio) - Date.parse(b.timestamp_inicio),
   )
 

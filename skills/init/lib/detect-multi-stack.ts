@@ -5,19 +5,9 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import type { StackId } from './detect-stack'
-import { isMatrixFolder } from './stack-id-map'
+import { isMatrixFolder, STACK_ID_TO_MATRIX_FOLDER } from './stack-id-map'
 
-// G1 / DI-1: alias map estendido. Plano 01 entregou apenas 'node-ts' → 'nodejs-typescript' em write-stack-json.ts.
-// Plano 02 fase-01 cria alias map LOCAL cobrindo todas as StackIds.
-// Plano 02 fase-03 unificará com write-stack-json.ts conforme MEMORY.md.
-const STACK_ID_TO_MATRIX_FOLDER: Record<StackId, string | null> = {
-  'node-ts': 'nodejs-typescript',
-  'nextjs': 'nodejs-typescript', // Next.js compartilha matrix Node+TS em v6.3.2
-  'rails': 'rails',
-  'laravel': 'laravel',
-  'python': 'python',
-  'unknown': null, // G10: sentinel "não copiar nada" (CA-06)
-}
+// Wave 4 D4: STACK_ID_TO_MATRIX_FOLDER moved to stack-id-map.ts (single source of truth).
 
 export type MatrixFolder = 'nodejs-typescript' | 'rails' | 'laravel' | 'python'
 
