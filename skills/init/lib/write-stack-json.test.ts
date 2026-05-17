@@ -1,33 +1,101 @@
-// 2026-05-16 (Luiz/dev): RED phase — Plano 01 fase-03, CA-02 setup.
-import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
-import { mkdtempSync, rmSync, readFileSync, existsSync } from 'node:fs'
+// 2026-05-16 (Luiz/dev): RED phase — Plano 02 fase-02. Schema final multi-stack.
+// Casos legados do Plano 01 migrados para nova assinatura (MultiStackResult).
+// Novos casos: secondary, anchor_files, ISO 8601, atomicidade, readStackJson round-trip.
+import { describe, it, expect } from 'bun:test'
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
-import { writeStackJson } from './write-stack-json'
+import { writeStackJson, readStackJson } from './write-stack-json'
 
-describe('writeStackJson', () => {
-  let target: string
+const FIXED_NOW = new Date('2026-05-16T12:34:56.789Z')
 
-  beforeEach(() => {
-    target = mkdtempSync(join(tmpdir(), 'init-stack-'))
+async function tmpDir(): Promise<string> {
+  return fs.mkdtemp(path.join(tmpdir(), 'stack-json-'))
+}
+
+describe('writeStackJson — schema final', () => {
+  it('writes primary, empty secondary, single anchor for monostack Node+TS (CA-02)', async () => {
+    const dir = await tmpDir()
+    const result = await writeStackJson(
+      dir,
+      { primary: 'nodejs-typescript', secondary: [], anchor_files: ['package.json'] },
+      FIXED_NOW,
+    )
+    expect(result.written.primary).toBe('nodejs-typescript')
+    expect(result.written.secondary).toEqual([])
+    expect(result.written.anchor_files).toEqual(['package.json'])
+    expect(result.written.detected_at).toBe('2026-05-16T12:34:56.789Z')
   })
 
-  afterEach(() => {
-    rmSync(target, { recursive: true, force: true })
+  it('writes primary=null + empty arrays when no stack detected (CA-06)', async () => {
+    const dir = await tmpDir()
+    const { written } = await writeStackJson(
+      dir,
+      { primary: null, secondary: [], anchor_files: [] },
+      FIXED_NOW,
+    )
+    expect(written.primary).toBeNull()
+    expect(written.secondary).toEqual([])
+    expect(written.anchor_files).toEqual([])
   })
 
-  it('writes .claude/stack.json with canonical matrix folder name (alias node-ts → nodejs-typescript)', async () => {
-    await writeStackJson(target, { id: 'node-ts', signalSource: 'package.json#devDependencies.typescript' })
-    const raw = readFileSync(join(target, '.claude', 'stack.json'), 'utf8')
-    const parsed = JSON.parse(raw) as { primary: string; secondary: string[]; detected_at: string; anchor_files: string[] }
-    expect(parsed.primary).toBe('nodejs-typescript')
-    expect(parsed.secondary).toEqual([])
-    expect(parsed.anchor_files).toContain('package.json')
-    expect(new Date(parsed.detected_at).toString()).not.toBe('Invalid Date')
+  it('writes multi-stack with primary=rails, secondary=[nodejs-typescript] (CA-07)', async () => {
+    const dir = await tmpDir()
+    const { path: jsonPath } = await writeStackJson(
+      dir,
+      {
+        primary: 'rails',
+        secondary: ['nodejs-typescript'],
+        anchor_files: ['Gemfile', 'package.json'],
+      },
+      FIXED_NOW,
+    )
+    const body = await fs.readFile(jsonPath, 'utf8')
+    const parsed = JSON.parse(body)
+    expect(parsed.primary).toBe('rails')
+    expect(parsed.secondary).toEqual(['nodejs-typescript'])
+    expect(parsed.anchor_files).toEqual(['Gemfile', 'package.json'])
   })
 
-  it('creates .claude/ folder if absent', async () => {
-    await writeStackJson(target, { id: 'node-ts', signalSource: 'package.json#devDependencies.typescript' })
-    expect(existsSync(join(target, '.claude'))).toBe(true)
+  it('emits ISO 8601 UTC with Z suffix for detected_at', async () => {
+    const dir = await tmpDir()
+    const { written } = await writeStackJson(dir, {
+      primary: 'nodejs-typescript',
+      secondary: [],
+      anchor_files: ['package.json'],
+    })
+    // 2026-05-16 (Luiz/dev): regex valida formato ISO 8601 UTC (Z final, ms opcional)
+    expect(written.detected_at).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/)
+  })
+
+  it('creates .claude/ directory if missing and writes atomically (no .tmp leftover)', async () => {
+    const dir = await tmpDir()
+    await writeStackJson(
+      dir,
+      { primary: 'nodejs-typescript', secondary: [], anchor_files: ['package.json'] },
+      FIXED_NOW,
+    )
+    const claudeEntries = await fs.readdir(path.join(dir, '.claude'))
+    expect(claudeEntries).toContain('stack.json')
+    expect(claudeEntries).not.toContain('stack.json.tmp')
+  })
+
+  it('readStackJson returns null when file absent', async () => {
+    const dir = await tmpDir()
+    const result = await readStackJson(dir)
+    expect(result).toBeNull()
+  })
+
+  it('readStackJson round-trips a written stack.json', async () => {
+    const dir = await tmpDir()
+    await writeStackJson(
+      dir,
+      { primary: 'rails', secondary: ['nodejs-typescript'], anchor_files: ['Gemfile', 'package.json'] },
+      FIXED_NOW,
+    )
+    const read = await readStackJson(dir)
+    expect(read?.primary).toBe('rails')
+    expect(read?.secondary).toEqual(['nodejs-typescript'])
+    expect(read?.detected_at).toBe('2026-05-16T12:34:56.789Z')
   })
 })

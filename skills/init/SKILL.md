@@ -323,15 +323,15 @@ Important: v6.0.0 only **registers** the stack. Knowledge packs (`docs/knowledge
 
 ```bash
 bun run -e "
-import { detectStack } from './lib/detect-stack.ts'
+import { detectMultiStack } from './lib/detect-multi-stack.ts'
 import { writeStackJson } from './lib/write-stack-json.ts'
 import { copyKnowledge } from './lib/copy-knowledge.ts'
 
 const projectRoot = process.cwd()
 const pluginRoot = process.env.PLUGIN_ROOT ?? import.meta.dir + '/../..'
 
-const stack = await detectStack(projectRoot)
-const stackJson = await writeStackJson(projectRoot, stack)
+const detection = await detectMultiStack(projectRoot)
+const { written: stackJson } = await writeStackJson(projectRoot, detection)
 console.log('stack.json written. primary =', stackJson.primary)
 
 const copyResult = await copyKnowledge({ projectRoot, pluginRoot, primary: stackJson.primary })
