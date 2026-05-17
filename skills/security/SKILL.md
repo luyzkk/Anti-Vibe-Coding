@@ -35,13 +35,12 @@ Se `preface` for vazio (profile null), comportamento v6.2 intacto — sem prefac
 // G4 do plano: este bloco é template verbatim para as 6 skills cross-stack restantes (Plano 03).
 // G2 do plano: path fixo .claude/knowledge/INDEX.md — init garantiu o stack certo (D13).
 // CA-09: se INDEX ausente, preface = ''; comportamento da skill = v6.3.1 intacto.
+// 2026-05-16 (Luiz/dev): verify-work HIGH #4 — extraído para helper testável (lib/stack-aware-preface.ts).
+// Tests no helper exercitam diretamente; E2E importa a mesma função.
 
-import { existsSync } from 'node:fs'
+import { getStackKnowledgePreface } from './lib/stack-aware-preface'
 
-const knowledgePath = '.claude/knowledge/INDEX.md'
-const stackKnowledgePreface = existsSync(knowledgePath)
-  ? `Antes do corpo desta skill, consulte \`.claude/knowledge/INDEX.md\` para padrões stack-specific deste projeto.`
-  : ''
+const stackKnowledgePreface = getStackKnowledgePreface(process.cwd())
 ```
 
 Se `stackKnowledgePreface` for não-vazio, **prepende** esta frase ao início da resposta (após o `preface` profile-aware, se ambos existirem). Se vazio, ignore — comportamento da skill segue do bloco `profile-aware-preface` acima sem mudança (CA-09).

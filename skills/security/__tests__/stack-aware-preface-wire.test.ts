@@ -13,12 +13,12 @@ describe('security SKILL.md stack-aware-preface wire-up', () => {
     expect(body).toContain('<!-- stack-aware-preface:end -->')
   })
 
-  it('preface uses fixed path .claude/knowledge/INDEX.md (D11)', () => {
+  it('preface block delegates to getStackKnowledgePreface helper (D11)', () => {
     const start = body.indexOf('<!-- stack-aware-preface:start -->')
     const end = body.indexOf('<!-- stack-aware-preface:end -->')
     const block = body.slice(start, end)
-    expect(block).toContain('.claude/knowledge/INDEX.md')
-    expect(block).toContain('existsSync')
+    expect(block).toContain('getStackKnowledgePreface')
+    expect(block).toContain('./lib/stack-aware-preface')
   })
 
   it('preserves profile-aware-preface block intact (CA-10 regression check)', () => {

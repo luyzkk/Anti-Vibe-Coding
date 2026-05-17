@@ -10,6 +10,7 @@ import { join } from 'node:path'
 import { detectStack } from '../../skills/init/lib/detect-stack'
 import { writeStackJson } from '../../skills/init/lib/write-stack-json'
 import { copyKnowledge } from '../../skills/init/lib/copy-knowledge'
+import { getStackKnowledgePreface, PREFACE_MESSAGE } from '../../skills/security/lib/stack-aware-preface'
 
 const PLUGIN_ROOT = join(import.meta.dir, '..', '..')
 
@@ -53,29 +54,20 @@ describe('stack-knowledge tracer bullet (Plano 01 fase-05)', () => {
   })
 
   // CA-05 — preface aparece quando INDEX existe
+  // 2026-05-16 (Luiz/dev): verify-work HIGH #4 — usa helper real (não replica inline)
   it('CA-05: stack-aware-preface in /security yields non-empty string when .claude/knowledge/INDEX.md exists', () => {
-    // simula resultado de CA-02
     mkdirSync(join(project, '.claude', 'knowledge'), { recursive: true })
     writeFileSync(join(project, '.claude', 'knowledge', 'INDEX.md'), '# fake INDEX')
 
-    // replica a lógica do bloco stack-aware-preface (fase-04). Em produção, o agente lê o bloco e executa.
-    const knowledgePath = join(project, '.claude', 'knowledge', 'INDEX.md')
-    const preface = existsSync(knowledgePath)
-      ? `Antes do corpo desta skill, consulte \`.claude/knowledge/INDEX.md\` para padrões stack-specific deste projeto.`
-      : ''
-    expect(preface).not.toBe('')
+    const preface = getStackKnowledgePreface(project)
+    expect(preface).toBe(PREFACE_MESSAGE)
     expect(preface).toContain('.claude/knowledge/INDEX.md')
   })
 
   // CA-09 — preface vazio (graceful degradation) quando INDEX ausente
   it('CA-09: stack-aware-preface in /security yields empty string when .claude/knowledge/INDEX.md absent', () => {
     expect(existsSync(join(project, '.claude', 'knowledge', 'INDEX.md'))).toBe(false)
-
-    const knowledgePath = join(project, '.claude', 'knowledge', 'INDEX.md')
-    const preface = existsSync(knowledgePath)
-      ? `Antes do corpo desta skill, consulte \`.claude/knowledge/INDEX.md\` para padrões stack-specific deste projeto.`
-      : ''
-    expect(preface).toBe('')
+    expect(getStackKnowledgePreface(project)).toBe('')
   })
 
   // Bonus regression: stack-aware-preface block existe no SKILL.md (espelha test unitário da fase-04, garantido aqui no E2E)
