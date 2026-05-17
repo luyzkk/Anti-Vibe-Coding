@@ -43,14 +43,13 @@ describe('stack-knowledge tracer bullet (Plano 01 fase-05)', () => {
     expect(stackJson.primary).toBe('nodejs-typescript')
 
     const start = performance.now()
-    const result = await copyKnowledge({ projectRoot: project, pluginRoot: PLUGIN_ROOT, primary: stackJson.primary })
+    // 2026-05-16 (Luiz/dev): Plano 02 fase-03 — nova assinatura targetDir (não projectRoot), sem durationMs.
+    const result = await copyKnowledge({ targetDir: project, pluginRoot: PLUGIN_ROOT, primary: stackJson.primary })
     const elapsed = performance.now() - start
 
     expect(result.status).toBe('copied')
-    if (result.status === 'copied') {
-      expect(result.atomCount).toBeGreaterThanOrEqual(1) // pilot atom da fase-02
-      expect(result.durationMs).toBeLessThan(100) // CA-02 SLA
-    }
+    expect(result.atomCount).toBeGreaterThanOrEqual(1) // pilot atom da fase-02
+    // CA-02 SLA: ≤100ms medido externamente (durationMs removido do contrato em fase-03)
     expect(elapsed).toBeLessThan(100)
     expect(existsSync(join(project, '.claude', 'knowledge', 'INDEX.md'))).toBe(true)
     expect(existsSync(join(project, '.claude', 'knowledge', 'atoms', 'type-system-idioms.md'))).toBe(true)
