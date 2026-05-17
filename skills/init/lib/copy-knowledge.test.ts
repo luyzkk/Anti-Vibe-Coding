@@ -46,4 +46,23 @@ describe('copyKnowledge (monostack)', () => {
     expect(result.status).toBe('noop')
     expect(existsSync(join(project, '.claude', 'knowledge'))).toBe(false)
   })
+
+  // 2026-05-16 (Luiz/dev): path traversal guard — verify-work HIGH #1.
+  it('noops on path traversal attempt (primary contains ..)', async () => {
+    // simula que algum consumidor futuro injetou primary lido de stack.json em disco
+    const result = await copyKnowledge({ projectRoot: project, pluginRoot, primary: '../etc' })
+    expect(result.status).toBe('noop')
+    if (result.status === 'noop') {
+      expect(result.reason).toMatch(/invalid primary id/)
+    }
+    expect(existsSync(join(project, '.claude', 'knowledge'))).toBe(false)
+  })
+
+  it('noops on primary with path separators (forward or back slash)', async () => {
+    const forward = await copyKnowledge({ projectRoot: project, pluginRoot, primary: 'foo/bar' })
+    expect(forward.status).toBe('noop')
+    const back = await copyKnowledge({ projectRoot: project, pluginRoot, primary: 'foo\\bar' })
+    expect(back.status).toBe('noop')
+    expect(existsSync(join(project, '.claude', 'knowledge'))).toBe(false)
+  })
 })
