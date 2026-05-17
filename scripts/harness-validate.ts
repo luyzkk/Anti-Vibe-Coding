@@ -398,8 +398,9 @@ const LEGACY_V5_SKILLS = new Set([
   'skills/iterate/SKILL.md',         // busca .planning/*/SUMMARY.md
   'skills/lib/state-utils.md',       // documenta o sistema legado .planning/ — atualizar para docs/exec-plans/
   'skills/execute-plan/SKILL.md',    // Step 0 legacy detection + referencias v5 — migrar para docs/exec-plans/
-  'skills/quick-plan/SKILL.md',      // usa .planning/ como destino do plano leve
-  'templates/SUMMARY.md',            // template historico com path .planning/
+  // 2026-05-17: removidos da whitelist apos auditoria (zero referencias .planning/ no arquivo real):
+  //   skills/quick-plan/SKILL.md — migrado para docs/exec-plans/
+  //   templates/SUMMARY.md — migrado, paths agora apontam para docs/exec-plans/
 ])
 
 function isV6PathWhitelisted(rel: string): boolean {
