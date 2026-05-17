@@ -58,8 +58,9 @@ updated: 2026-05-16
   // Em qualquer profundidade (service, repo, logger):
   const ctx = requestCtx.getStore(); // RequestCtx | undefined
   ```
-- **Custo:** ~10% overhead em hot path de alta frequência. Favorável para visibilidade; evitar
-  para estado crítico de latência (ex.: inner loop de serialização).
+- **Custo:** implementação otimizada ("involves significant optimizations" — docs Node.js);
+  Node 24+ adota `AsyncContextFrame` por padrão, reduzindo overhead ainda mais. Favorável
+  para visibilidade; evitar em inner loops de latência crítica onde microssegundos importam.
 - **Quando NÃO usar:** estado compartilhado entre requests; dados de grande volume por request.
 
 ---
@@ -86,11 +87,18 @@ updated: 2026-05-16
 ### Pattern: Singleflight para evitar cache stampede
 
 - **Problema:** chave hot expira; N requests simultâneos sofrem cache miss e vão todas ao DB.
-- **Solução local (processo único):**
+- **Solução local (processo único) — padrão `Map<key, Promise<T>>`:**
   ```ts
-  import pMemoize from "p-memoize";
-  const getUser = pMemoize(fetchUserFromDb, { cache: false }); // deduplica concurrent calls
+  const inflight = new Map<string, Promise<User>>();
+  async function getUser(id: string): Promise<User> {
+    if (inflight.has(id)) return inflight.get(id)!;
+    const promise = fetchUserFromDb(id).finally(() => inflight.delete(id));
+    inflight.set(id, promise);
+    return promise;
+  }
   ```
+  Concurrent misses compartilham uma única chamada ao DB; a chave é removida ao resolver.
+  Alternativa de wrapper: `p-memoize` com `cache: false` produz o mesmo efeito com menos boilerplate.
 - **Solução distribuída (multi-réplica):** Redis `SET key "" NX EX 5` como lock — apenas
   o primeiro processo carrega; os outros aguardam e re-tentam com backoff.
 - **Alternativa:** stale-while-revalidate — servir valor expirado enquanto uma goroutine atualiza.
@@ -127,7 +135,7 @@ updated: 2026-05-16
 | Dado request-scoped (correlationId, tenantId, currentUser) | `AsyncLocalStorage` |
 | Dado compartilhado entre processos / instâncias | Redis read-through |
 | Invalidação imediata após mutação | TTL + pub/sub Redis event-driven |
-| Chave hot com risco de stampede — processo único | `p-memoize` singleflight local |
+| Chave hot com risco de stampede — processo único | `Map<string, Promise<T>>` inflight (ou `p-memoize`) |
 | Chave hot com risco de stampede — multi-réplica | Redis SETNX lock + stale-while-revalidate |
 | Cache miss caro (query agregada) | Read-through + warm-up no boot |
 
