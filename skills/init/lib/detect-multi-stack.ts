@@ -122,7 +122,7 @@ export async function detectMultiStack(targetDir: string): Promise<MultiStackRes
 
   // Single match: primary direto, secondary vazio
   if (folders.length === 1) {
-    return { primary: folders[0], secondary: [], anchor_files, recognized_no_matrix }
+    return { primary: folders[0] as MatrixFolder, secondary: [], anchor_files, recognized_no_matrix }
   }
 
   // Multi-match: tiebreaker por file count

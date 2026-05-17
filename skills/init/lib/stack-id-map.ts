@@ -1,20 +1,28 @@
 // 2026-05-17 (Luiz/dev): Wave 3 hardening — single source of truth for MatrixFolder literals.
 // Extracted from detect-multi-stack.ts so write-stack-json.ts can share the type guard.
 // Wave 4 D4: STACK_ID_TO_MATRIX_FOLDER consolidated here (moved from detect-multi-stack.ts).
+// H2.2 (2026-05-17): MatrixFolder type now derived from MATRIX_FOLDER_VALUES — adding a value to the
+// array automatically expands the type; the Set is built from the same array (no dual source drift).
 
-import type { MatrixFolder } from './detect-multi-stack'
 import type { StackId } from './detect-stack'
 
 /**
- * All known MatrixFolder values, as a Set for O(1) membership checks.
- * Must stay in sync with the MatrixFolder union type in detect-multi-stack.ts.
+ * Single source of truth for all known MatrixFolder values.
+ * MatrixFolder type is derived from this array, so adding a value here
+ * automatically expands the type — no dual maintenance of union type + Set.
  */
-const MATRIX_FOLDERS: ReadonlySet<string> = new Set<MatrixFolder>([
+export const MATRIX_FOLDER_VALUES = [
   'nodejs-typescript',
   'rails',
   'laravel',
   'python',
-])
+] as const
+
+export type MatrixFolder = typeof MATRIX_FOLDER_VALUES[number]
+
+// Widened to ReadonlySet<string> so `.has(s: string)` compiles in isMatrixFolder.
+// The Set is still populated from typed MATRIX_FOLDER_VALUES — no values can drift in.
+const MATRIX_FOLDERS: ReadonlySet<string> = new Set<MatrixFolder>(MATRIX_FOLDER_VALUES)
 
 /**
  * Type guard: checks whether `s` is a valid MatrixFolder literal.

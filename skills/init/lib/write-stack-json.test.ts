@@ -5,7 +5,7 @@ import { describe, it, expect } from 'bun:test'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { tmpdir } from 'node:os'
-import { writeStackJson, readStackJson } from './write-stack-json'
+import { writeStackJson, readStackJson, isValidStackJson } from './write-stack-json'
 
 const FIXED_NOW = new Date('2026-05-16T12:34:56.789Z')
 
@@ -140,7 +140,7 @@ describe('writeStackJson — schema final', () => {
     await fs.mkdir(path.join(dir, '.claude'), { recursive: true })
     await fs.writeFile(
       path.join(dir, '.claude', 'stack.json'),
-      JSON.stringify({ primary: 'nodejs-typescript', secondary: ['rails'], anchor_files: ['package.json'], detected_at: '2026-05-16T12:00:00.000Z' }),
+      JSON.stringify({ schema_version: '1', primary: 'nodejs-typescript', secondary: ['rails'], anchor_files: ['package.json'], detected_at: '2026-05-16T12:00:00.000Z' }),
       'utf8',
     )
     const result = await readStackJson(dir)
@@ -160,5 +160,119 @@ describe('writeStackJson — schema final', () => {
     expect(read?.primary).toBe('rails')
     expect(read?.secondary).toEqual(['nodejs-typescript'])
     expect(read?.detected_at).toBe('2026-05-16T12:34:56.789Z')
+  })
+
+  // H2.1 — schema_version guard
+  it('readStackJson rejects JSON without schema_version field', async () => {
+    const dir = await tmpDir()
+    await fs.mkdir(path.join(dir, '.claude'), { recursive: true })
+    await fs.writeFile(
+      path.join(dir, '.claude', 'stack.json'),
+      JSON.stringify({ primary: 'nodejs-typescript', secondary: [], anchor_files: [], detected_at: '2026-05-16T12:00:00.000Z' }),
+      'utf8',
+    )
+    const result = await readStackJson(dir)
+    expect(result).toBeNull()
+  })
+
+  it('readStackJson rejects JSON with schema_version !== "1"', async () => {
+    const dir = await tmpDir()
+    await fs.mkdir(path.join(dir, '.claude'), { recursive: true })
+    await fs.writeFile(
+      path.join(dir, '.claude', 'stack.json'),
+      JSON.stringify({ schema_version: '2', primary: 'nodejs-typescript', secondary: [], anchor_files: [], detected_at: '2026-05-16T12:00:00.000Z' }),
+      'utf8',
+    )
+    const result = await readStackJson(dir)
+    expect(result).toBeNull()
+  })
+
+  it('writeStackJson always writes schema_version "1"', async () => {
+    const dir = await tmpDir()
+    const { path: jsonPath } = await writeStackJson(
+      dir,
+      { primary: 'nodejs-typescript', secondary: [], anchor_files: ['package.json'] },
+      FIXED_NOW,
+    )
+    const body = await fs.readFile(jsonPath, 'utf8')
+    const parsed = JSON.parse(body)
+    expect(parsed.schema_version).toBe('1')
+  })
+
+  it('readStackJson accepts valid JSON with schema_version "1" (round-trip check)', async () => {
+    const dir = await tmpDir()
+    await writeStackJson(
+      dir,
+      { primary: 'python', secondary: [], anchor_files: ['pyproject.toml'] },
+      FIXED_NOW,
+    )
+    const result = await readStackJson(dir)
+    expect(result).not.toBeNull()
+    expect(result?.schema_version).toBe('1')
+  })
+})
+
+// M1.2: isValidStackJson exported callable
+describe('isValidStackJson — exported type guard (M1.2)', () => {
+  it('isValidStackJson is exported and callable as a function', () => {
+    expect(typeof isValidStackJson).toBe('function')
+  })
+
+  it('returns true for valid StackJson', () => {
+    const valid = {
+      schema_version: '1' as const,
+      primary: 'nodejs-typescript' as const,
+      secondary: [],
+      anchor_files: ['package.json'],
+      detected_at: '2026-05-16T12:34:56.789Z',
+    }
+    expect(isValidStackJson(valid)).toBe(true)
+  })
+
+  it('returns false for object missing schema_version', () => {
+    expect(isValidStackJson({ primary: 'nodejs-typescript', secondary: [], anchor_files: [], detected_at: '2026-05-16T12:00:00.000Z' })).toBe(false)
+  })
+
+  it('returns false for null', () => {
+    expect(isValidStackJson(null)).toBe(false)
+  })
+})
+
+// M1.5: PID-unique tmp suffix — concurrent writes do not collide
+describe('writeStackJson — pid-unique tmp (M1.5)', () => {
+  it('no .tmp files left after successful write', async () => {
+    const dir = await tmpDir()
+    await writeStackJson(dir, { primary: 'nodejs-typescript', secondary: [], anchor_files: [] }, FIXED_NOW)
+    const claudeEntries = await fs.readdir(path.join(dir, '.claude'))
+    const tmpFiles = claudeEntries.filter(f => f.includes('.tmp'))
+    expect(tmpFiles).toHaveLength(0)
+  })
+
+  it('two concurrent writeStackJson calls to different dirs do not interfere', async () => {
+    const [dir1, dir2] = await Promise.all([tmpDir(), tmpDir()])
+    await Promise.all([
+      writeStackJson(dir1, { primary: 'nodejs-typescript', secondary: [], anchor_files: ['package.json'] }, FIXED_NOW),
+      writeStackJson(dir2, { primary: 'rails', secondary: [], anchor_files: ['Gemfile'] }, FIXED_NOW),
+    ])
+    const r1 = await readStackJson(dir1)
+    const r2 = await readStackJson(dir2)
+    expect(r1?.primary).toBe('nodejs-typescript')
+    expect(r2?.primary).toBe('rails')
+  })
+
+  it('stale .tmp files older than 5min are cleaned up on next write', async () => {
+    const dir = await tmpDir()
+    await fs.mkdir(path.join(dir, '.claude'), { recursive: true })
+    const dest = path.join(dir, '.claude', 'stack.json')
+    // Plant a stale .tmp that is "old" (simulate by writing a recognizable .tmp)
+    const staleTmp = `${dest}.99999.${Date.now() - 6 * 60 * 1000}.tmp`
+    await fs.writeFile(staleTmp, '{}', 'utf8')
+
+    // Run a real write — should clean up stale .tmp
+    await writeStackJson(dir, { primary: 'nodejs-typescript', secondary: [], anchor_files: [] }, FIXED_NOW)
+
+    const claudeEntries = await fs.readdir(path.join(dir, '.claude'))
+    const tmpFiles = claudeEntries.filter(f => f.endsWith('.tmp'))
+    expect(tmpFiles).toHaveLength(0)
   })
 })
