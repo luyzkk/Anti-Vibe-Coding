@@ -1,9 +1,12 @@
 // 2026-05-14 (Luiz/dev): testes de regressão para CA-01 e CA-02 do PRD v6.3.0
 // Fase-04: adicionados testes de regressão CA-09 com 5 fixtures de profile
-import { describe, test, expect, mock, afterAll, beforeEach, afterEach } from "bun:test";
+// 2026-05-17 (Luiz/dev): migrado de mock.module para reader injetável — mock.module
+// no Bun é global e vazava `() => null` para read-architecture-profile.test.ts e
+// fase-policy.test.ts (9 testes falhavam em `bun run test`, passavam isolados).
+import { describe, test, expect, beforeEach, afterEach } from "bun:test";
 import type { PrefaceContext } from "./preface-context";
 import { readPrefaceContext } from "./preface-context";
-import type { ArchitectureProfileName } from "./manifest-types";
+import type { ArchitectureProfile, ArchitectureProfileName } from "./manifest-types";
 import fixtureNextjs from "./__fixtures__/preface-context-nextjs-app-router.expected.json";
 import fixtureMvc from "./__fixtures__/preface-context-mvc-flat.expected.json";
 import fixtureCleanArch from "./__fixtures__/preface-context-clean-architecture-ritual.expected.json";
@@ -14,32 +17,18 @@ import { mkdtemp, mkdir, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import * as path from "node:path";
 
-// 2026-05-14 (Luiz/dev): mock.module é global no Bun — reset após todos os testes do arquivo
-// para manter estado de contaminação idêntico ao baseline (CA-02 deixa null, mantemos null).
-afterAll(() => {
-  mock.module("./read-architecture-profile", () => ({
-    readArchitectureProfile: () => null,
-  }));
-});
-
 describe("readPrefaceContext", () => {
   test("retorna shape correto quando architecture profile existe (CA-01)", () => {
-    // Arrange: mock readArchitectureProfile retornando profile nextjs-app-router com confidence 92
-    const mockProfile = {
-      profile: "nextjs-app-router" as const,
+    const mockProfile: ArchitectureProfile = {
+      profile: "nextjs-app-router",
       confidence: 92,
       detectedAt: "2026-05-14T10:00:00.000Z",
       signals: ["folder:app/"],
       schemaVersion: 1,
     };
-    mock.module("./read-architecture-profile", () => ({
-      readArchitectureProfile: () => mockProfile,
-    }));
 
-    // Act
-    const result = readPrefaceContext("/fake/project/root");
+    const result = readPrefaceContext("/fake/project/root", () => mockProfile);
 
-    // Assert
     expect(result.profile).toBe("nextjs-app-router");
     expect(result.language).toBeNull();
     expect(result.framework).toBeNull();
@@ -47,15 +36,8 @@ describe("readPrefaceContext", () => {
   });
 
   test("retorna profile null e confidence 0 quando architecture profile ausente (CA-02)", () => {
-    // Arrange: mock readArchitectureProfile retornando null (manifest ausente ou flag off)
-    mock.module("./read-architecture-profile", () => ({
-      readArchitectureProfile: () => null,
-    }));
+    const result = readPrefaceContext("/fake/project/root", () => null);
 
-    // Act
-    const result = readPrefaceContext("/fake/project/root");
-
-    // Assert
     expect(result.profile).toBeNull();
     expect(result.language).toBeNull();
     expect(result.framework).toBeNull();
@@ -75,21 +57,16 @@ describe("readPrefaceContext — fixtures de regressão (CA-09)", () => {
 
   for (const { name, fixture } of fixtures) {
     test(`shape estável para profile ${name}`, () => {
-      mock.module("./read-architecture-profile", () => ({
-        readArchitectureProfile: () => ({
-          profile: fixture.input_profile,
-          confidence: fixture.input_confidence,
-          detectedAt: "2026-05-14T00:00:00.000Z",
-          signals: [],
-          schemaVersion: 1,
-        }),
-      }));
+      const reader = (): ArchitectureProfile => ({
+        profile: fixture.input_profile as ArchitectureProfileName,
+        confidence: fixture.input_confidence,
+        detectedAt: "2026-05-14T00:00:00.000Z",
+        signals: [],
+        schemaVersion: 1,
+      });
 
-      const result = readPrefaceContext("/fake/root");
+      const result = readPrefaceContext("/fake/root", reader);
 
-      // Construir expected tipado a partir dos campos do fixture —
-      // fixture.expected_output.profile é string (JSON), mas PrefaceContext.profile
-      // é ArchitectureProfileName | null. input_profile já tem o tipo correto.
       const expected: PrefaceContext = {
         profile: fixture.input_profile as ArchitectureProfileName,
         language: null,
@@ -114,27 +91,21 @@ describe("readPrefaceContext — confidence threshold (RF-CH-02)", () => {
     await rm(workdir, { recursive: true, force: true });
   });
 
+  const makeReader = (confidence: number): (() => ArchitectureProfile) => () => ({
+    profile: "nextjs-app-router",
+    confidence,
+    detectedAt: "2026-05-15T00:00:00.000Z",
+    signals: [],
+    schemaVersion: 1,
+  });
+
   test("confidence 50 with threshold 70 returns profile null", async () => {
     await writeFile(
       path.join(workdir, "config", "adaptive-coaching.json"),
       JSON.stringify({ confidence_threshold: 70, schema_version: "1.0" }),
     );
-    mock.module("./read-architecture-profile", () => ({
-      readArchitectureProfile: () => ({
-        profile: "nextjs-app-router" as const,
-        confidence: 50,
-        detectedAt: "2026-05-15T00:00:00.000Z",
-        signals: [],
-        schemaVersion: 1,
-      }),
-      getRecommendationForProfile: <T>(
-        profile: ArchitectureProfileName | null,
-        lookup: Record<ArchitectureProfileName, T>,
-        fallback: T,
-      ): T => (profile === null ? fallback : lookup[profile]),
-    }));
 
-    const result = readPrefaceContext(workdir);
+    const result = readPrefaceContext(workdir, makeReader(50));
 
     expect(result.profile).toBeNull();
     expect(result.confidence).toBe(50);
@@ -145,22 +116,8 @@ describe("readPrefaceContext — confidence threshold (RF-CH-02)", () => {
       path.join(workdir, "config", "adaptive-coaching.json"),
       JSON.stringify({ confidence_threshold: 70, schema_version: "1.0" }),
     );
-    mock.module("./read-architecture-profile", () => ({
-      readArchitectureProfile: () => ({
-        profile: "nextjs-app-router" as const,
-        confidence: 70,
-        detectedAt: "2026-05-15T00:00:00.000Z",
-        signals: [],
-        schemaVersion: 1,
-      }),
-      getRecommendationForProfile: <T>(
-        profile: ArchitectureProfileName | null,
-        lookup: Record<ArchitectureProfileName, T>,
-        fallback: T,
-      ): T => (profile === null ? fallback : lookup[profile]),
-    }));
 
-    const result = readPrefaceContext(workdir);
+    const result = readPrefaceContext(workdir, makeReader(70));
 
     expect(result.profile).toBe("nextjs-app-router");
   });
@@ -170,22 +127,8 @@ describe("readPrefaceContext — confidence threshold (RF-CH-02)", () => {
       path.join(workdir, "config", "adaptive-coaching.json"),
       JSON.stringify({ confidence_threshold: 70, schema_version: "1.0" }),
     );
-    mock.module("./read-architecture-profile", () => ({
-      readArchitectureProfile: () => ({
-        profile: "nextjs-app-router" as const,
-        confidence: 71,
-        detectedAt: "2026-05-15T00:00:00.000Z",
-        signals: [],
-        schemaVersion: 1,
-      }),
-      getRecommendationForProfile: <T>(
-        profile: ArchitectureProfileName | null,
-        lookup: Record<ArchitectureProfileName, T>,
-        fallback: T,
-      ): T => (profile === null ? fallback : lookup[profile]),
-    }));
 
-    const result = readPrefaceContext(workdir);
+    const result = readPrefaceContext(workdir, makeReader(71));
 
     expect(result.profile).toBe("nextjs-app-router");
   });
@@ -195,44 +138,15 @@ describe("readPrefaceContext — confidence threshold (RF-CH-02)", () => {
       path.join(workdir, "config", "adaptive-coaching.json"),
       JSON.stringify({ confidence_threshold: 70, schema_version: "1.0" }),
     );
-    mock.module("./read-architecture-profile", () => ({
-      readArchitectureProfile: () => ({
-        profile: "nextjs-app-router" as const,
-        confidence: 100,
-        detectedAt: "2026-05-15T00:00:00.000Z",
-        signals: [],
-        schemaVersion: 1,
-      }),
-      getRecommendationForProfile: <T>(
-        profile: ArchitectureProfileName | null,
-        lookup: Record<ArchitectureProfileName, T>,
-        fallback: T,
-      ): T => (profile === null ? fallback : lookup[profile]),
-    }));
 
-    const result = readPrefaceContext(workdir);
+    const result = readPrefaceContext(workdir, makeReader(100));
 
     expect(result.profile).toBe("nextjs-app-router");
   });
 
   test("config file absent uses default threshold 70", async () => {
     // No config file written — workdir/config/ exists but adaptive-coaching.json does not
-    mock.module("./read-architecture-profile", () => ({
-      readArchitectureProfile: () => ({
-        profile: "nextjs-app-router" as const,
-        confidence: 65,
-        detectedAt: "2026-05-15T00:00:00.000Z",
-        signals: [],
-        schemaVersion: 1,
-      }),
-      getRecommendationForProfile: <T>(
-        profile: ArchitectureProfileName | null,
-        lookup: Record<ArchitectureProfileName, T>,
-        fallback: T,
-      ): T => (profile === null ? fallback : lookup[profile]),
-    }));
-
-    const result = readPrefaceContext(workdir);
+    const result = readPrefaceContext(workdir, makeReader(65));
 
     // confidence 65 < default threshold 70 → profile should be null
     expect(result.profile).toBeNull();
@@ -244,22 +158,8 @@ describe("readPrefaceContext — confidence threshold (RF-CH-02)", () => {
       path.join(workdir, "config", "adaptive-coaching.json"),
       "{not valid json",
     );
-    mock.module("./read-architecture-profile", () => ({
-      readArchitectureProfile: () => ({
-        profile: "nextjs-app-router" as const,
-        confidence: 65,
-        detectedAt: "2026-05-15T00:00:00.000Z",
-        signals: [],
-        schemaVersion: 1,
-      }),
-      getRecommendationForProfile: <T>(
-        profile: ArchitectureProfileName | null,
-        lookup: Record<ArchitectureProfileName, T>,
-        fallback: T,
-      ): T => (profile === null ? fallback : lookup[profile]),
-    }));
 
-    const result = readPrefaceContext(workdir);
+    const result = readPrefaceContext(workdir, makeReader(65));
 
     // confidence 65 < default threshold 70 → profile should be null
     expect(result.profile).toBeNull();

@@ -14,7 +14,7 @@
 
 import * as fs from "fs";
 import * as path from "path";
-import type { ArchitectureProfileName } from "./manifest-types";
+import type { ArchitectureProfile, ArchitectureProfileName } from "./manifest-types";
 import { readArchitectureProfile } from "./read-architecture-profile";
 
 // 2026-05-15 (Luiz/dev): confidence threshold — PRD v6.3.0 §RF-CH-02 (plano05 fase-02)
@@ -97,9 +97,14 @@ const NULL_CONTEXT: PrefaceContext = {
  * const ctx = readPrefaceContext(projectRoot)
  * const advice = getRecommendationForProfile(ctx.profile, ADVICE_TABLE, DEFAULT_ADVICE)
  */
-export function readPrefaceContext(projectRoot: string): PrefaceContext {
+export function readPrefaceContext(
+  projectRoot: string,
+  // 2026-05-17: reader injetável evita necessidade de mock.module global em testes
+  // (que vaza entre arquivos no Bun e causou regressão cross-file detectada hoje).
+  reader: (manifestPath: string) => ArchitectureProfile | null = readArchitectureProfile,
+): PrefaceContext {
   const manifestPath = path.join(projectRoot, ".anti-vibe-manifest.json");
-  const archProfile = readArchitectureProfile(manifestPath);
+  const archProfile = reader(manifestPath);
 
   if (archProfile === null) {
     return NULL_CONTEXT;
