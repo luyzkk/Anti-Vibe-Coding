@@ -107,10 +107,13 @@ export async function copyKnowledge(opts: CopyKnowledgeOptions): Promise<CopyKno
     if (e.message?.includes('CWE-61')) {
       // Symlink detectado — limpar destDir parcialmente criado e sinalizar
       await fs.rm(destDir, { recursive: true, force: true })
+      // M1.4: sanitize pluginRoot from user-facing message to avoid exposing absolute paths in CI logs.
+      // Full path preserved in thrown Error (caught locally) for debugging; message returned to caller is redacted.
+      const safeMessage = e.message.replace(pluginRoot, '<plugin-root>')
       return {
         status: 'no-source',
         atomCount: 0,
-        message: e.message,
+        message: safeMessage,
         destDir,
       }
     }
