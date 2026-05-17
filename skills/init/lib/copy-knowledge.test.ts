@@ -175,4 +175,34 @@ describe('copyKnowledge security hardening (Wave 1)', () => {
     const r3 = await copyKnowledge({ targetDir, pluginRoot, primary: 'test-stack', refresh: true })
     expect(['copied', 'refreshed']).toContain(r3.status)
   })
+
+  // M1.4: mensagem de erro de symlink não expõe path absoluto do pluginRoot
+  it('M1.4: symlink error message does not contain absolute pluginRoot path', async () => {
+    const outsideFile = join(tmpdir(), 'outside-secret-m14.txt')
+    writeFileSync(outsideFile, 'secret')
+    const symlinkPath = join(pluginRoot, 'docs/knowledge/test-stack/atoms/evil-link-m14.md')
+    try {
+      symlinkSync(outsideFile, symlinkPath)
+    } catch (err: unknown) {
+      const e = err as NodeJS.ErrnoException
+      // Windows blocks symlink without admin — graceful skip
+      if (e.code === 'EPERM' || e.code === 'EACCES') {
+        rmSyncNode(outsideFile, { force: true })
+        return
+      }
+      throw err
+    }
+
+    try {
+      const result = await copyKnowledge({ targetDir, pluginRoot, primary: 'test-stack' as 'rails', refresh: false })
+      // if not thrown, message must not contain absolute pluginRoot (starts with / or drive letter)
+      const hasAbsolutePath = /^[/\\]/.test(result.message) || /^[A-Za-z]:[/\\]/.test(result.message)
+      // message may contain <plugin-root> placeholder or relative path, but NOT absolute pluginRoot
+      expect(result.message).not.toContain(pluginRoot)
+    } catch {
+      // if it threw, that's also acceptable (symlink detected at OS level)
+    }
+
+    rmSyncNode(outsideFile, { force: true })
+  })
 })

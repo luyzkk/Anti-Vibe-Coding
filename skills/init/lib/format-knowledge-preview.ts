@@ -1,20 +1,24 @@
 // 2026-05-17 (Luiz/dev): RF10 — parser do INDEX.md + formato do preview (PRD §Could Haves, Plano 06 fase-05)
-import { existsSync, readFileSync } from 'node:fs'
+// M1.1 (2026-05-17): parseTopKeywords migrado para async (fs.promises) — elimina sync I/O no pipeline async.
+import { promises as fs } from 'node:fs'
 
 // G3 deste plano: top-N = 8 mantém output scanable; lista completa polui (~14 átomos × 5 keywords = 70).
 // 2026-05-17 (Luiz/dev): Wave 5 CS3 — exportar constante elimina magic number em SKILL.md Step 3 e callers.
 export const TOP_N_KEYWORDS = 8 as const
 
-export function parseTopKeywords(indexPath: string, topN: number = TOP_N_KEYWORDS): string[] {
-  if (!existsSync(indexPath)) return []
-
-  const content = readFileSync(indexPath, 'utf-8')
+export async function parseTopKeywords(indexPath: string, topN: number = TOP_N_KEYWORDS): Promise<string[]> {
+  let content: string
+  try {
+    content = await fs.readFile(indexPath, 'utf-8')
+  } catch {
+    return []
+  }
 
   // Localizar seção "## Por keyword" e parsear tabela markdown subsequente
   const sectionMatch = content.match(/##\s+Por\s+keyword\s*\n([\s\S]*?)(?=\n##\s|$)/i)
-  if (!sectionMatch) return []
+  if (!sectionMatch || sectionMatch[1] === undefined) return []
 
-  const sectionBody = sectionMatch[1]
+  const sectionBody: string = sectionMatch[1]
   const keywords: string[] = []
 
   // Cada linha da tabela: | keyword1, keyword2, ... | [atom](path) |
@@ -30,7 +34,9 @@ export function parseTopKeywords(indexPath: string, topN: number = TOP_N_KEYWORD
       .map((c) => c.trim())
       .filter(Boolean)
     if (cells.length < 2) continue
-    const cellKeywords = cells[0]
+    const firstCell = cells[0]
+    if (firstCell === undefined) continue
+    const cellKeywords = firstCell
       .split(',')
       .map((k) => k.trim())
       .filter(Boolean)
