@@ -29,6 +29,20 @@ Se `preface` for não-vazio, inicie sua resposta com o conteúdo de `preface` e 
 Se `preface` for vazio (profile null), comportamento v6.2 intacto — sem preface, ir direto ao corpo.
 <!-- profile-aware-preface:end -->
 
+<!-- stack-aware-preface:start -->
+```typescript
+// 2026-05-16 (Luiz/dev): Plano 03 fase-01 — stack-aware-preface (PRD §Mecanismo Skill wire-up, D11).
+// G1 do plano: bloco verbatim do Plano 01 fase-04 (security wire). Path fixo .claude/knowledge/INDEX.md (D11).
+// CA-09: se INDEX ausente, preface = ''; comportamento da skill = v6.3.1 intacto.
+
+import { getStackKnowledgePreface } from '../security/lib/stack-aware-preface'
+
+const stackKnowledgePreface = getStackKnowledgePreface(process.cwd())
+```
+
+Se `stackKnowledgePreface` for não-vazio, **prepende** esta frase ao início da resposta (após o `preface` profile-aware, se ambos existirem). Se vazio, ignore — comportamento da skill segue do bloco `profile-aware-preface` acima sem mudança (CA-09).
+<!-- stack-aware-preface:end -->
+
 <!-- stale-capabilities-check:start -->
 ```typescript
 // 2026-05-15 (Luiz/dev): wire-up CA-09 v6.3.0 (closed em v6.3.1 RF-SH-02) — non-blocking warning.
