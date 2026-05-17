@@ -326,9 +326,10 @@ Important: v6.0.0 only **registers** the stack. Knowledge packs (`docs/knowledge
 ```javascript
 // 2026-05-17 (Luiz/dev): Wave 5 D2 — orquestracao extraida para lib/run-stack-knowledge-init.ts (testavel).
 // DI-06: import direto (GT-04 — bun -e com paths absolutos quebra no Windows).
+import path from 'node:path'
 const { runStackKnowledgeInit } = await import('./lib/run-stack-knowledge-init.ts')
 const targetDir = process.cwd()
-const pluginRoot = process.env.PLUGIN_ROOT ?? import.meta.dir + '/../..'
+const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT ?? path.join(import.meta.dir, '..', '..')
 await runStackKnowledgeInit({ targetDir, pluginRoot, args: typeof ARGUMENTS === 'string' ? ARGUMENTS : '' })
 ```
 
