@@ -63,7 +63,7 @@ updated: 2026-05-16
 ### Pattern: SBOM com CycloneDX
 
 - **Problema:** Produto vendido para enterprise ou governo precisa listar todos os componentes com versão e origem para compliance (NIST SP 800-218, EU Cyber Resilience Act).
-- **Padrão:** `cdxgen -o sbom.json` (pacote `@cyclonedx/cdxgen`) gera SBOM JSON no pipeline de release, versionado junto ao artefato.
+- **Padrão:** `npx @cyclonedx/cyclonedx-npm --output-file bom.json` gera SBOM CycloneDX JSON no pipeline de release, versionado junto ao artefato.
 - **Quando usar:** produto com requisito regulatório ou contratual de SBOM.
 - **Quando NÃO usar:** SaaS interno sem requisito regulatório.
 
@@ -72,7 +72,7 @@ updated: 2026-05-16
 ### Pattern: License scanning automatizado
 
 - **Problema:** Dependência GPL ou AGPL em produto proprietário pode criar obrigação de publicar o código-fonte.
-- **Padrão:** `npx license-checker --failOn "GPL;AGPL" --excludePrivatePackages` no CI falha o build se licença proibida for detectada. Manter allowlist (MIT, Apache-2.0, BSD, ISC).
+- **Padrão:** `npx license-checker --production --onlyAllow "MIT;Apache-2.0;BSD-3-Clause;BSD-2-Clause;ISC;CC0-1.0;Unlicense" --excludePrivatePackages` no CI falha o build se licença fora da allowlist for detectada.
 - **Quando usar:** qualquer produto comercial ou proprietário com dependências externas.
 - **Quando NÃO usar:** lib open-source com licença permissiva — sem restrição de saída.
 
@@ -108,8 +108,8 @@ updated: 2026-05-16
 | Vulnerabilidade high/critical em CI | `npm audit --audit-level=high` bloqueia merge |
 | Malware / typo-squatting | Socket.dev ou osv-scanner |
 | CVE transitiva sem patch upstream | `overrides` em `package.json` (solução temporária) |
-| Produto enterprise / gov | SBOM via CycloneDX (`cdxgen -o sbom.json`) |
-| Produto proprietário com deps externas | `license-checker --failOn "GPL;AGPL"` |
+| Produto enterprise / gov | SBOM via CycloneDX (`npx @cyclonedx/cyclonedx-npm --output-file bom.json`) |
+| Produto proprietário com deps externas | `license-checker --onlyAllow "MIT;Apache-2.0;BSD-3-Clause;ISC"` |
 | Updates automáticos de minor/patch | Renovate com automerge + CI verde |
 
 ## Referências externas
