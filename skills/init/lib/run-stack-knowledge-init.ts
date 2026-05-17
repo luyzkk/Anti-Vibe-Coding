@@ -7,8 +7,10 @@ import { copyKnowledge } from './copy-knowledge'
 import type { CopyKnowledgeResult } from './copy-knowledge'
 import { parseRefreshFlag } from './parse-refresh-flag'
 import { parseTopKeywords, formatKnowledgePreview, TOP_N_KEYWORDS } from './format-knowledge-preview'
-import { writeTelemetryDomainEvent } from '../../lib/telemetry-utils'
+import { emitStackKnowledgeEvents } from './emit-stack-knowledge-events'
 import { join } from 'node:path'
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
 
 export interface RunStackKnowledgeInitOpts {
   targetDir: string
@@ -36,29 +38,34 @@ export async function runStackKnowledgeInit(opts: RunStackKnowledgeInitOpts): Pr
   const copyResult = await copyKnowledge({ targetDir, pluginRoot, primary: stackJson.primary, refresh })
   logger(copyResult.message)
 
-  // RF9 — emitir eventos auxiliares de dominio.
-  // G7: writeTelemetryDomainEvent e silencioso (appendJsonlLine tem try/catch interno).
-  const nowISO = new Date().toISOString()
-  writeTelemetryDomainEvent({
-    evento: 'stack_detected',
-    skill_invocada: 'init',
-    timestamp: nowISO,
-    primary: detection.primary,
-    secondary: detection.secondary,
-    anchor_files: detection.anchor_files,
-  }, targetDir)
-  writeTelemetryDomainEvent({
-    evento: 'knowledge_copied',
-    skill_invocada: 'init',
-    timestamp: nowISO,
-    stack: detection.primary,
-    atom_count: copyResult.atomCount,
-    status: copyResult.status,
-  }, targetDir)
+  // M2.6: transactional consistency — if copy failed (no-source or no-matrix after primary was set),
+  // patch stack.json to set primary=null so it doesn't claim a stack that has no knowledge atoms.
+  // Trade-off: we prefer a slightly stale detected_at over a misleading primary field.
+  if ((copyResult.status === 'no-source' || copyResult.status === 'no-matrix') && stackJson.primary !== null) {
+    const stackJsonPath = path.join(targetDir, '.claude', 'stack.json')
+    try {
+      const patched = { ...stackJson, primary: null }
+      await fs.writeFile(stackJsonPath, JSON.stringify(patched, null, 2) + '\n', 'utf8')
+    } catch {
+      // M2.6: best-effort patch — if it fails, the inconsistency remains but we don't break the caller
+    }
+  }
+
+  // M2.4: informative message when a stack was detected via anchor but has no matrix folder in this version
+  if (detection.recognized_no_matrix.length > 0 && stackJson.primary === null) {
+    const names = detection.recognized_no_matrix.join(', ')
+    logger(
+      `Stack ${names} detectada (anchor: ${detection.anchor_files.join(', ')}) mas matrix não disponível em v6.3.2. Disponível para Node+TS, Rails, Python, Laravel.`,
+    )
+  }
+
+  // RF9 — emitir eventos auxiliares de dominio via helper (M1.3 SRP).
+  // G7: emitStackKnowledgeEvents e void/silencioso — fire-and-forget preservado.
+  emitStackKnowledgeEvents({ detection, copyResult, baseDir: targetDir })
 
   // RF10 preview — top-N keywords ao output user-facing (PRD §Could Haves)
   const indexPath = join(targetDir, '.claude/knowledge/INDEX.md')
-  const preview = formatKnowledgePreview(parseTopKeywords(indexPath, TOP_N_KEYWORDS))
+  const preview = formatKnowledgePreview(await parseTopKeywords(indexPath, TOP_N_KEYWORDS))
   let previewEmitted = false
   if (preview) {
     logger(preview)

@@ -30,6 +30,24 @@
 
 **Automatic backup:** Everything goes to `.claude/backups/YYYY-MM-DD/` before modification.
 
+## Stack Knowledge Layer (v6.3.2+)
+
+`.claude/knowledge/` contains atoms copied by `/init`. When the plugin is updated and new atoms are
+published, existing projects need to re-run `/init --refresh-knowledge` to receive the updates.
+
+- **Strategy:** never overwrite automatically (preserves manual customizations)
+- **Command:** run `/anti-vibe-coding:init` with flag `--refresh-knowledge`
+- **What is re-copied:** 14 atoms + INDEX.md in `docs/knowledge/{stack}/`
+- **What is preserved:** `.claude/stack.json` (`detected_at` does not change; `primary`/`secondary`
+  only change if the project's stack changed)
+
+## Telemetry files
+
+`.claude/metrics/*.jsonl` files accumulate locally and are never sent anywhere. There is no
+automatic rotation in v6.3.2. Recommended: remove files older than 6 months periodically.
+
+See [docs/TELEMETRY.md](./TELEMETRY.md) for opt-out instructions (`ANTI_VIBE_TELEMETRY=off`).
+
 ## v5.x → v6.0.0 Migration
 
 v6.0.0 introduces the harmonized docs structure:

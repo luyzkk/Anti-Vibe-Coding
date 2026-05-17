@@ -927,13 +927,13 @@ Após todas as instalações/merges, criar `.claude/.anti-vibe-manifest.json` pa
 **Implementação:**
 
 ```javascript
-const crypto = require('crypto');
-const fs = require('fs');
-const path = require('path');
+import { createHash } from 'node:crypto'
+import { readFileSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
 
 // Ler plugin-manifest.json
-const pluginManifestPath = path.join(process.env.CLAUDE_PLUGIN_ROOT, 'plugin-manifest.json');
-const pluginManifest = JSON.parse(fs.readFileSync(pluginManifestPath, 'utf8'));
+const pluginManifestPath = join(process.env.CLAUDE_PLUGIN_ROOT, 'plugin-manifest.json');
+const pluginManifest = JSON.parse(readFileSync(pluginManifestPath, 'utf8'));
 
 // Criar estrutura do manifest local
 const localManifest = {
@@ -944,9 +944,9 @@ const localManifest = {
 
 // Para cada arquivo instalado/mesclado nesta sessão:
 installedFiles.forEach(file => {
-  const filePath = path.join(projectRoot, file);
-  const content = fs.readFileSync(filePath, 'utf8');
-  const checksum = crypto.createHash('sha256').update(content).digest('hex');
+  const filePath = join(projectRoot, file);
+  const content = readFileSync(filePath, 'utf8');
+  const checksum = createHash('sha256').update(content).digest('hex');
 
   localManifest.files[file] = {
     sourceVersion: pluginManifest.files[file].version,
@@ -957,8 +957,8 @@ installedFiles.forEach(file => {
 });
 
 // Salvar
-const manifestPath = path.join(projectRoot, '.claude', '.anti-vibe-manifest.json');
-fs.writeFileSync(manifestPath, JSON.stringify(localManifest, null, 2), 'utf8');
+const manifestPath = join(projectRoot, '.claude', '.anti-vibe-manifest.json');
+writeFileSync(manifestPath, JSON.stringify(localManifest, null, 2), 'utf8');
 ```
 
 **Arquivos rastreados:**
