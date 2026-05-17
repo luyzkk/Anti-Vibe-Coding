@@ -22,3 +22,9 @@ claude-code/
 # Adaptive Coaching v6.3.0 — discovery outputs (runtime, não versionados)
 # Apenas os JSONs gerados; _schemas/ e .gitkeep são comitados
 discovery/*.json
+
+# Runtime artifacts (v6.3.2 Stack Knowledge Layer)
+.claude/metrics/
+.claude/stack.json
+.claude/knowledge/
+.claude/.anti-vibe-manifest.json

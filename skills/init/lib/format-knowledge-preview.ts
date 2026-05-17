@@ -6,7 +6,18 @@ import { promises as fs } from 'node:fs'
 // 2026-05-17 (Luiz/dev): Wave 5 CS3 — exportar constante elimina magic number em SKILL.md Step 3 e callers.
 export const TOP_N_KEYWORDS = 8 as const
 
+/**
+ * Parses the top-N keywords from the INDEX.md "Por keyword" table.
+ *
+ * @param indexPath - Absolute path to INDEX.md.
+ * @param topN - How many keywords to return. `topN <= 0` returns `[]` immediately.
+ *   Values above 50 are clamped to 50 to avoid unbounded output (sane upper limit).
+ *   Default: `TOP_N_KEYWORDS` (8).
+ */
 export async function parseTopKeywords(indexPath: string, topN: number = TOP_N_KEYWORDS): Promise<string[]> {
+  if (topN <= 0) return []
+  const clampedTopN = Math.min(topN, 50)
+
   let content: string
   try {
     content = await fs.readFile(indexPath, 'utf-8')
@@ -43,14 +54,14 @@ export async function parseTopKeywords(indexPath: string, topN: number = TOP_N_K
     keywords.push(...cellKeywords)
   }
 
-  // Dedup preservando ordem; primeiros N
+  // Dedup preservando ordem; primeiros N (clamped)
   const seen = new Set<string>()
   const result: string[] = []
   for (const kw of keywords) {
     if (!seen.has(kw)) {
       seen.add(kw)
       result.push(kw)
-      if (result.length >= topN) break
+      if (result.length >= clampedTopN) break
     }
   }
 

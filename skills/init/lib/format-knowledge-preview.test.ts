@@ -64,4 +64,25 @@ describe('format-knowledge-preview (RF10)', () => {
     const result = parseTopKeywords('/any/path/INDEX.md', 8)
     expect(result).toBeInstanceOf(Promise)
   })
+
+  // L3 — topN boundary validation
+  it('parseTopKeywords com topN=0 retorna array vazio imediatamente', async () => {
+    const tmpDir = mkdtempSync(join(tmpdir(), 'kn-zero-'))
+    const indexPath = join(tmpDir, 'INDEX.md')
+    writeFileSync(indexPath, `# Index\n\n## Por keyword\n\n| Keyword | Átomos |\n|---|---|\n| a, b, c | [atom](./atoms/atom.md) |\n`)
+    const keywords = await parseTopKeywords(indexPath, 0)
+    expect(keywords).toEqual([])
+    rmSync(tmpDir, { recursive: true, force: true })
+  })
+
+  it('parseTopKeywords com topN=Infinity clampeia em 50 no máximo', async () => {
+    const tmpDir = mkdtempSync(join(tmpdir(), 'kn-inf-'))
+    const indexPath = join(tmpDir, 'INDEX.md')
+    // 60 keywords únicas em 1 linha para verificar o clamp
+    const manyKeywords = Array.from({ length: 60 }, (_, i) => `kw${i}`).join(', ')
+    writeFileSync(indexPath, `# Index\n\n## Por keyword\n\n| Keyword | Átomos |\n|---|---|\n| ${manyKeywords} | [atom](./atoms/atom.md) |\n`)
+    const keywords = await parseTopKeywords(indexPath, Infinity)
+    expect(keywords.length).toBe(50)
+    rmSync(tmpDir, { recursive: true, force: true })
+  })
 })

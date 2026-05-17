@@ -16,7 +16,27 @@ export interface RunStackKnowledgeInitOpts {
   targetDir: string
   pluginRoot: string
   args?: string
-  /** Sink for preview output. Default: console.log. Tests override. */
+  /**
+   * Sink for preview output. Default: console.log. Tests override.
+   *
+   * @deprecated Prefer passing `logger` via the `ctx` second parameter
+   * (`RunStackKnowledgeInitContext`) to separate domain opts from infra concerns (ISP/L1).
+   * Both forms are supported; `ctx.logger` takes precedence when both are provided.
+   *
+   * **L7 note:** This function does not support concurrent execution against the same
+   * `targetDir`. Concurrent callers may observe interleaved writes to `stack.json` or
+   * `.claude/knowledge/`. This scenario is considered out-of-scope for a CLI tool
+   * (single-user, sequential invocations). No lock is implemented.
+   */
+  logger?: (line: string) => void
+}
+
+/**
+ * Infra context for `runStackKnowledgeInit` (ISP split — L1).
+ * Keeps cross-cutting concerns (logging) separate from domain options.
+ */
+export interface RunStackKnowledgeInitContext {
+  /** Sink for output lines. Default: `console.log`. */
   logger?: (line: string) => void
 }
 
@@ -27,8 +47,10 @@ export interface RunStackKnowledgeInitResult {
   previewEmitted: boolean
 }
 
-export async function runStackKnowledgeInit(opts: RunStackKnowledgeInitOpts): Promise<RunStackKnowledgeInitResult> {
-  const { targetDir, pluginRoot, args = '', logger = console.log } = opts
+export async function runStackKnowledgeInit(opts: RunStackKnowledgeInitOpts, ctx?: RunStackKnowledgeInitContext): Promise<RunStackKnowledgeInitResult> {
+  // ctx.logger takes precedence; opts.logger is the backward-compat path; console.log is the default.
+  const { targetDir, pluginRoot, args = '' } = opts
+  const logger = ctx?.logger ?? opts.logger ?? console.log
   const refresh = parseRefreshFlag(args)
   const detection = await detectMultiStack(targetDir)
   const { written: stackJson } = await writeStackJson(targetDir, detection)
