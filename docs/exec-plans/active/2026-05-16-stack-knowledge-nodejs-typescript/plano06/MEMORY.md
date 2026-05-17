@@ -2,7 +2,7 @@
 
 **Feature:** Stack Knowledge Layer — Node.js + TypeScript (v6.3.2)
 **Iniciado:** 2026-05-16
-**Status:** in-progress (3/6 fases — atomos tier 3 escritos, falta INDEX + RF10/RF11 + E2E)
+**Status:** in-progress (5/6 fases — INDEX + RF10/RF11 prontos, falta E2E + cleanup)
 
 ---
 
@@ -62,7 +62,21 @@ Formato: o que foi decidido + por que + impacto.
   - Impacto: INDEX (fase-04) terá keyword map diferente do planejado para tooling — sem cobertura de monorepo/watch/CI-cache. Esses tópicos viram follow-ups (vão para `_topic-plan.md` ou próximo PRD se relevantes).
   - **Compound lesson candidata:** "Editorial guide do plano não substitui rastreabilidade da fonte — quando há divergência, anti-drift > guide editorial. Verifier deve preferir conteúdo rastreável a aderência ao guide."
 
-<!-- Adicionar DI-9, DI-10, ... durante execução conforme decisões emergirem. -->
+- **DI-9 (fase-04 INDEX final):** INDEX consolidado em 61 linhas (cap ≤100 OK) usa valores REAIS do frontmatter dos 14 atomos, não os "esperados" do plano. Descobertas:
+  - `architecture-conventions.md` → `layer: backend` (plano esperava `both`)
+  - `dependencies-supply-chain.md` → `layer: backend` (plano esperava `both`)
+  - Impacto: mapa "Por layer" tem 7 backend-only + 7 both (vs 5+9 esperado). Não é regressão — é dado real.
+  - Triggers de tooling.md usados são os reais pós-fix do commit `249d44a` (não os do template). Sem cobertura de monorepo/watch/CI-cache nas keywords — alinhado com DEV-1.
+
+- **DI-10 (fase-05 RF11):** Audit-trail-paths anexados ao YAML `sources:` de todos os 14 átomos no formato `- key: value (claude-code/knowledge/Nodejs/<filename-real>)`. Filenames são os REAIS do filesystem (não shortened):
+  - compass research: `compass_artifact_wf-<full-uuid>_text_markdown.md`
+  - non-compass: `deps-kb` → `node-deps-kb.md`, `security-guide` → `nodejs-typescript-security-guide.md`
+  - Edits cirúrgicos preservaram ordem dos campos do frontmatter (G1 zero drift).
+  - YAML continua válido — paths em parênteses são parte do string value.
+
+- **DI-11 (fase-05 RF10 — DEV-2 guard rail aplicado):** Template do plano usava `vitest` mas projeto usa `bun:test`. Subagente converteu sintaxe verbatim (`import { describe, it, expect, afterEach } from 'bun:test'`). Helper `format-knowledge-preview.ts` parseia tabela markdown "Por keyword" do INDEX via regex (good-enough, não AST), retorna top-N (default 8) dedup preservando ordem. Graceful: arquivo inexistente → `[]`; vazio → `''`. Wire em `skills/init/SKILL.md` linha 367 usa `await import('./lib/format-knowledge-preview.ts')` matching o padrão dos outros imports do bloco.
+
+<!-- Adicionar DI-12, DI-13, ... durante execução conforme decisões emergirem. -->
 
 ---
 
@@ -100,18 +114,18 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 6 |
-| Fases concluidas | 3 (01, 02, 03) |
+| Fases concluidas | 5 (01-05) |
 | Fases com desvio | 1 (fase-03 — DEV-1/DI-8) |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 (anti-drift evitou rework loop esperado) |
 | Átomos tier 3 escritos | 3/3 (performance-and-internals, operations-and-deploy, tooling) |
-| Átomos tier 3 aprovados no verifier (≥80% claims rastreáveis) | pendente (fase-06) |
-| INDEX final coberto pelos 14 átomos | 0/14 (pendente fase-04) |
-| RF10 implementado (preview de keywords) | nao (pendente fase-05) |
-| RF11 verificado (audit-trail paths em sources) | parcial (fases 01-03 pré-cumpriram audit-trail em "Referências externas"; auditar restantes em fase-05) |
+| Átomos tier 3 aprovados no verifier (≥80% claims rastreáveis) | pendente (fase-06 CA-08) |
+| INDEX final coberto pelos 14 átomos | 14/14 (não-órfãos, todos links válidos, 61 ln) |
+| RF10 implementado (preview de keywords) | sim — `format-knowledge-preview.ts` + 3 testes pass; wire em SKILL.md L367 |
+| RF11 verificado (audit-trail paths em sources) | sim — 14/14 átomos com path no YAML `sources:`; snapshot test pass |
 | CA-01..CA-10 verdes em E2E | 0/10 (pendente fase-06) |
-| `bun run harness:validate` verde | sim (26 required + 202 markdown OK pós-3-átomos) |
-| Work artifacts removidos (`_catalog.md`, `_topic-plan.md`) | 0/2 (pendente fase-06 — depende de gates verdes) |
+| `bun run harness:validate` verde | sim (26 required + 202 markdown OK) |
+| Work artifacts removidos (`_catalog.md`, `_topic-plan.md`) | 0/2 (pendente fase-06 — depende de gates verdes + confirmação do dev) |
 
 ---
 
