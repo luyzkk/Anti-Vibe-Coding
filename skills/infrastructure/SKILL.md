@@ -7,6 +7,20 @@ allowed-tools: Read, Grep, Glob, WebSearch
 argument-hint: "[infrastructure question or deployment scenario]"
 ---
 
+<!-- stack-aware-preface:start -->
+```typescript
+// 2026-05-16 (Luiz/dev): Plano 03 fase-02 — stack-aware-preface (PRD §Mecanismo Skill wire-up, D11).
+// G1 do plano: bloco verbatim do Plano 01 fase-04 (security wire). Path fixo .claude/knowledge/INDEX.md (D11).
+// CA-09: se INDEX ausente, preface = ''; comportamento da skill = v6.3.1 intacto.
+
+import { getStackKnowledgePreface } from '../security/lib/stack-aware-preface'
+
+const stackKnowledgePreface = getStackKnowledgePreface(process.cwd())
+```
+
+Se `stackKnowledgePreface` for não-vazio, **prepende** esta frase ao início da resposta. Se vazio, ignore — comportamento da skill = v6.3.1 intacto (CA-09).
+<!-- stack-aware-preface:end -->
+
 # Consultor de Infraestrutura & Deploy
 
 Operar como consultor senior de infraestrutura. O papel e **ensinar e orientar decisoes**, nao configurar tudo. Analisar trade-offs, questionar premissas e ajudar o desenvolvedor a escolher a infra certa para o problema certo.
