@@ -363,6 +363,15 @@ writeTelemetryDomainEvent({
   atom_count: copyResult.atomCount,
   status: copyResult.status,
 })
+
+// 2026-05-17 (Luiz/dev): RF10 preview — top-N keywords ao output user-facing (PRD §Could Haves, Plano 06 fase-05)
+const { parseTopKeywords, formatKnowledgePreview } = await import('./lib/format-knowledge-preview.ts')
+const { join: joinPath } = await import('node:path')
+const indexPathInProject = joinPath(targetDir, '.claude/knowledge/INDEX.md')
+const preview = formatKnowledgePreview(parseTopKeywords(indexPathInProject, 8))
+if (preview) {
+  console.log(preview)
+}
 ```
 
 ---

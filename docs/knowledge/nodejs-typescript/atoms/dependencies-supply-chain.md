@@ -3,7 +3,7 @@ topic: dependencies-supply-chain
 stack: nodejs-typescript
 layer: backend
 sources:
-  - research: deps-kb
+  - research: deps-kb (claude-code/knowledge/Nodejs/node-deps-kb.md)
 tier: 2
 triggers: [lockfile, npm audit, pnpm, workspaces, SBOM, CycloneDX, supply chain, license]
 related_skills: [/security, /infrastructure]

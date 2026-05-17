@@ -3,7 +3,7 @@ topic: testing-strategy
 stack: nodejs-typescript
 layer: both
 sources:
-  - research: ab2553f8
+  - research: ab2553f8 (claude-code/knowledge/Nodejs/compass_artifact_wf-ab2553f8-3ae8-4b5e-b194-a134c0c0e36c_text_markdown.md)
 tier: 2
 triggers: [vitest, jest, node:test, mock, fast-check, pact, stryker, mutation testing]
 related_skills: [/tdd-workflow]

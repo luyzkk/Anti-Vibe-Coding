@@ -3,8 +3,8 @@ topic: type-system-idioms
 stack: nodejs-typescript
 layer: both
 sources:
-  - research: f8f4e50c
-  - research: 2230af87
+  - research: f8f4e50c (claude-code/knowledge/Nodejs/compass_artifact_wf-f8f4e50c-24d6-4d5b-b823-75d7fdae759c_text_markdown.md)
+  - research: 2230af87 (claude-code/knowledge/Nodejs/compass_artifact_wf-2230af87-8246-4c0f-817d-16030a2c0e0e_text_markdown.md)
 tier: 1
 triggers: [type, generic, branded, discriminated, satisfies, ESM, CJS]
 related_skills: [/design-patterns]

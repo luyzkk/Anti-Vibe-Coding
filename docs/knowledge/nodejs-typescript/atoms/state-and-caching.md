@@ -3,7 +3,7 @@ topic: state-and-caching
 stack: nodejs-typescript
 layer: both
 sources:
-  - research: b407bc0c
+  - research: b407bc0c (claude-code/knowledge/Nodejs/compass_artifact_wf-b407bc0c-5924-44c2-b452-d5b70bd581e2_text_markdown.md)
 tier: 2
 triggers: [cache, Redis, AsyncLocalStorage, request-scoped, invalidation, singleflight, stampede]
 related_skills: [/system-design]
