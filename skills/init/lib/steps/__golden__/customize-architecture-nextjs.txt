@@ -1,0 +1,1 @@
+ARCHITECTURE.md customized for nextjs — written: true
