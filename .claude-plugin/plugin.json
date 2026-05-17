@@ -1,7 +1,7 @@
 {
   "name": "anti-vibe-coding",
-  "version": "6.3.1",
-  "description": "Plugin de desenvolvimento disciplinado com conhecimentos de programador sênior. v6.3.1 — Honesty & Wire-up: skills priorizadas leem architecture-profile.md e adaptam preface por perfil; /init produz capabilities.json; /parity-audit cruza capabilities do agente com task types do projeto; PrefaceContext reserva slots para v6.5/v6.6.",
+  "version": "6.3.2",
+  "description": "Plugin de desenvolvimento disciplinado com conhecimentos de programador sênior. v6.3.2 — Stack Knowledge Layer Node.js+TypeScript: /init detecta stack e copia 14 átomos sênior + INDEX para .claude/knowledge/; 7 skills cross-stack consomem via stack-aware-preface; RF10 preview de keywords no /init; telemetria multi-stack; hardening security (symlink reject, TOCTOU elim, type guards).",
   "author": {
     "name": "Luiz Felipe"
   },

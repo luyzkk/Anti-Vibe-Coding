@@ -3,6 +3,46 @@
 Todas as mudanças notáveis do plugin Anti-Vibe Coding serão documentadas aqui.
 
 
+## [6.3.2] - 2026-05-17
+
+> **Minor release — Stack Knowledge Layer (Node.js + TypeScript) + hardening security/types**
+> Primeira concretização dos slots `PrefaceContext.language`/`framework` reservados em v6.3.1: o `/init` agora detecta a stack do projeto consumidor e copia 14 átomos sênior stack-specific para `.claude/knowledge/`; as 7 skills cross-stack (`/security`, `/api-design`, `/system-design`, `/design-patterns`, `/architecture`, `/infrastructure`, `/tdd-workflow`) consomem o INDEX automaticamente via `stack-aware-preface`. Inclui hardening security pós-feature (symlink reject, TOCTOU elim, type guards completos).
+
+### Added
+
+- **14 átomos sênior Node+TS** em [docs/knowledge/nodejs-typescript/atoms/](docs/knowledge/nodejs-typescript/atoms/) — `async-concurrency-streams`, `type-system-idioms`, `error-handling-observability`, `state-and-caching`, `data-persistence`, `api-design-stack-specific`, `testing-strategy`, `security-stack-specific` (inclui primordials RF8), `code-smells-catalog`, `architecture-conventions`, `dependencies-supply-chain`, `performance-and-internals`, `operations-and-deploy`, `tooling`. Cada átomo: 5 seções (Quando consultar / Padrões sênior / Anti-padrões / Critérios de decisão / Referências externas), cap 200 ln, frontmatter 8 campos verbatim, audit-trail-paths nos `sources:` (RF11).
+- **INDEX final consolidado** em [docs/knowledge/nodejs-typescript/INDEX.md](docs/knowledge/nodejs-typescript/INDEX.md) — 61 ln, mapas Por keyword / Por layer / Por tier / Como consultar.
+- **`/init` multi-stack detection** ([skills/init/lib/detect-multi-stack.ts](skills/init/lib/detect-multi-stack.ts)) — detecta `primary` + `secondary[]` + `anchor_files[]` via file-extension tiebreaker; suporta `nodejs-typescript`, `rails`, `python`, `laravel`.
+- **`.claude/stack.json` schema** ([skills/init/lib/write-stack-json.ts](skills/init/lib/write-stack-json.ts)) — `primary | null`, `secondary[]`, `anchor_files[]`, `detected_at` ISO 8601 UTC; atomic write via tmp+rename.
+- **`copyKnowledge` discriminated union 5-status** ([skills/init/lib/copy-knowledge.ts](skills/init/lib/copy-knowledge.ts)) — `copied | skipped | refreshed | no-matrix | no-source`; path traversal guard via `VALID_PRIMARY` regex + `resolve()` defense-in-depth + (v6.3.2 hardening) symlink reject via `lstat()`.
+- **Flag `--refresh-knowledge`** ([skills/init/lib/parse-refresh-flag.ts](skills/init/lib/parse-refresh-flag.ts)) — força re-cópia idempotente sobre `.claude/knowledge/` pré-existente.
+- **Telemetria dedicada** ([skills/lib/telemetry-types.ts](skills/lib/telemetry-types.ts)) — `TelemetryStackDetected` + `TelemetryKnowledgeCopied` + `TelemetryDomainEvent` + `AnyTelemetryEntry` union; `writeTelemetryDomainEvent` em `.claude/metrics/YYYY-MM.jsonl`.
+- **RF10 preview de keywords** ([skills/init/lib/format-knowledge-preview.ts](skills/init/lib/format-knowledge-preview.ts)) — após `knowledge_copied`, `/init` mostra "Knowledge cobre: kw1, kw2, ..." com top-8 keywords parseadas do INDEX.md; graceful quando INDEX ausente. `TOP_N_KEYWORDS = 8 as const` exportada.
+- **Orquestrador callable `runStackKnowledgeInit`** ([skills/init/lib/run-stack-knowledge-init.ts](skills/init/lib/run-stack-knowledge-init.ts)) — extrai Step 3.1 do SKILL.md para função testável (D2 hardening); SKILL.md Step 3 reduziu de ~40 para 6 linhas.
+- **Type guard compartilhado** ([skills/init/lib/stack-id-map.ts](skills/init/lib/stack-id-map.ts)) — `isMatrixFolder()` + `STACK_ID_TO_MATRIX_FOLDER` consolidados; substitui assertions `as MatrixFolder[]` (CS1+CS2 hardening) e cast cego em `readStackJson` (S5 hardening — `isValidStackJson` valida primary literal + array contents).
+- **24+ testes E2E** — `stack-knowledge-tracer-bullet.test.ts` (CA-02/05/09 + edge CA-03/06/07/10reg), `stack-aware-preface-all-skills.test.ts` (CA-05+CA-09 nas 7 skills), `stack-knowledge-full-e2e.test.ts` (CA-01 atoms+INDEX validity + CA-04 skip+refresh), `format-knowledge-preview.test.ts`, `atoms-rf11-audit.test.ts`, `run-stack-knowledge-init.test.ts`, `pair-events.test.ts`, `copy-knowledge.test.ts` security cases.
+- **2 compound lessons** em [docs/compound/](docs/compound/) — `2026-05-16-verifier-protocol-technical-sections-only.md` (verifier audita apenas Padrões/Anti-padrões/Critérios) + `2026-05-16-extrator-subagente-injeta-verdades-fora-do-source.md` (anti-drift clause).
+
+### Changed
+
+- **Bloco `stack-aware-preface` nas 7 SKILL.md cross-stack** — `/security`, `/api-design`, `/system-design`, `/design-patterns`, `/architecture`, `/infrastructure`, `/tdd-workflow` agora importam `getStackKnowledgePreface()` de [skills/security/lib/stack-aware-preface.ts](skills/security/lib/stack-aware-preface.ts). Preface cita `.claude/knowledge/INDEX.md` quando presente, vazio (graceful CA-09) quando ausente. JSDoc completo documentando assumption `process.cwd()` (D3 hardening).
+- **`pairStartEnd` aceita `AnyTelemetryEntry[]`** — filtra pipeline events explicitamente antes de processar; permite consumir JSONL misto sem crash (D5+GT-4 hardening, destrava DEV-1 Plano 02).
+- **`writeTelemetryStart/End/DomainEvent` aceitam `baseDir?` opcional** (default `process.cwd()`, backward-compat) — `runStackKnowledgeInit` passa `targetDir` explícito (S4 hardening, resolve CWE-706).
+
+### Fixed (security/hardening pós-feature)
+
+- **CWE-61 symlink following em `copyTree`** ([skills/init/lib/copy-knowledge.ts:119](skills/init/lib/copy-knowledge.ts#L119)) — `lstat()` rejeita symlinks no source tree antes de `copyFile`. Symlink plantado em `docs/knowledge/{stack}/` não escapa pluginRoot para `.claude/knowledge/` do consumidor.
+- **CWE-367 TOCTOU em `copyKnowledge`** ([skills/init/lib/copy-knowledge.ts:83](skills/init/lib/copy-knowledge.ts#L83)) — substituído `existsSync → rm → mkdir` por `rm({force, recursive}) + mkdir({recursive})` incondicionais no branch refresh; elimina race window em invocações paralelas.
+- **CWE-20 incomplete validation em `readStackJson`** — `isValidStackJson` type guard valida `primary` literal contra `MatrixFolder` + cada elemento dos arrays `secondary`/`anchor_files`; rejeita JSON adulterado.
+
+### Reservation / WONTFIX consciente
+
+- **Information disclosure RF11 (`sources:` audit-trail-paths em 14 átomos copiados):** mantido por design. Plugin é open-source — paths expostos (`claude-code/knowledge/Nodejs/...`) são públicos no GitHub; RF11 audit-trail é transparência intencional do PRD permitindo devs consumidores rastrear claims até a fonte. Decisão registrada no SUMMARY do PRD completado.
+- **Tooling.md keyword coverage** — anti-drift do Plano 06 fase-03 levou à substituição de patterns planejados (Executor TS/Monorepo/Watch/CI-cache não estavam na fonte). Esses tópicos viram átomos próprios em v6.3.3+ se houver demanda.
+- **CA-10 UX baseline snapshot pré-v6.3.2** não capturado durante dev — coberto pelo CA-10 regression existente (StackId interno vs matrix folder); future-proofing: capturar baseline antes da próxima feature similar.
+
+---
+
 ## [6.3.1] - 2026-05-16
 
 > **Patch release — Honesty & Wire-up sobre Adaptive Coaching**
