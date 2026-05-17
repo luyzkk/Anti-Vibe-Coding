@@ -46,7 +46,7 @@ export async function runStackKnowledgeInit(opts: RunStackKnowledgeInitOpts): Pr
     primary: detection.primary,
     secondary: detection.secondary,
     anchor_files: detection.anchor_files,
-  })
+  }, targetDir)
   writeTelemetryDomainEvent({
     evento: 'knowledge_copied',
     skill_invocada: 'init',
@@ -54,7 +54,7 @@ export async function runStackKnowledgeInit(opts: RunStackKnowledgeInitOpts): Pr
     stack: detection.primary,
     atom_count: copyResult.atomCount,
     status: copyResult.status,
-  })
+  }, targetDir)
 
   // RF10 preview — top-N keywords ao output user-facing (PRD §Could Haves)
   const indexPath = join(targetDir, '.claude/knowledge/INDEX.md')

@@ -29,6 +29,14 @@ export function computeMonthlyPath(now: Date = new Date(), baseDir: string = MET
 }
 
 /**
+ * Resolve o metricsDir a partir de um baseDir (raiz do projeto).
+ * S4: chamado internamente pelas funcoes write* para suportar o parametro opcional baseDir.
+ */
+function resolveMetricsDir(baseDir?: string): string {
+  return baseDir != null ? join(baseDir, '.claude', 'metrics') : METRICS_DIR
+}
+
+/**
  * Serializa uma entrada como JSONL (1 linha + `\n`).
  * Quem chama garante que `entry` e TelemetryStart ou TelemetryEnd valido.
  */
@@ -62,8 +70,8 @@ export function appendJsonlLine(filePath: string, line: string): void {
  *     fase_pipeline: 'plan-feature',
  *   })
  */
-export function writeTelemetryStart(entry: TelemetryStart): void {
-  const filePath = computeMonthlyPath()
+export function writeTelemetryStart(entry: TelemetryStart, baseDir?: string): void {
+  const filePath = computeMonthlyPath(new Date(), resolveMetricsDir(baseDir))
   appendJsonlLine(filePath, serializeEntry(entry))
 }
 
@@ -85,8 +93,8 @@ export function writeTelemetryStart(entry: TelemetryStart): void {
  *     suceso: true,
  *   })
  */
-export function writeTelemetryEnd(entry: TelemetryEnd): void {
-  const filePath = computeMonthlyPath()
+export function writeTelemetryEnd(entry: TelemetryEnd, baseDir?: string): void {
+  const filePath = computeMonthlyPath(new Date(), resolveMetricsDir(baseDir))
   appendJsonlLine(filePath, serializeEntry(entry))
 }
 
@@ -114,8 +122,8 @@ const SKILL_TO_FASE: Record<string, FasePipeline> = {
  * Nota: nao reutiliza serializeEntry() pois TelemetryDomainEvent nao e subtype de TelemetryEntry
  * (pair-events.ts acessa timestamp_inicio sem discriminar — TDD gate impede modificar o arquivo).
  */
-export function writeTelemetryDomainEvent(entry: TelemetryDomainEvent): void {
-  const filePath = computeMonthlyPath()
+export function writeTelemetryDomainEvent(entry: TelemetryDomainEvent, baseDir?: string): void {
+  const filePath = computeMonthlyPath(new Date(), resolveMetricsDir(baseDir))
   appendJsonlLine(filePath, JSON.stringify(entry) + '\n')
 }
 

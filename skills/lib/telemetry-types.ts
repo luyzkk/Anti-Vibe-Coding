@@ -45,9 +45,8 @@ export type TelemetryEntry = TelemetryStart | TelemetryEnd;
 // 2026-05-16 (Luiz/dev): tipos dedicados para eventos auxiliares do /init — RF9.
 // DI-6 (Plano 02 fase-04): tipo dedicado em vez de reusar TelemetryStart/TelemetryEnd (G8).
 // Justificativa: eventos de dominio nao tem duracao_ms, fase_pipeline, timestamp_inicio — campos nao-aplicaveis.
-// Nota de desvio: TelemetryDomainEvent NAO e incluido em TelemetryEntry pois pair-events.ts acessa
-// timestamp_inicio em toda a uniao sem discriminar (TDD gate bloqueia modificar pair-events.ts sem testes).
-// writeTelemetryDomainEvent serializa diretamente com JSON.stringify para manter compatibilidade.
+// Wave 4 D5/GT-4: Pipeline events = TelemetryEntry; consumers que precisam de TODOS os eventos usam AnyTelemetryEntry.
+// pair-events.ts aceita AnyTelemetryEntry[] e filtra internamente para pipeline events (start/end).
 
 export interface TelemetryStackDetected {
   evento: "stack_detected";
@@ -68,3 +67,10 @@ export interface TelemetryKnowledgeCopied {
 }
 
 export type TelemetryDomainEvent = TelemetryStackDetected | TelemetryKnowledgeCopied;
+
+/**
+ * Union of all telemetry events (pipeline + domain).
+ * Use this when consuming raw JSONL that may contain mixed event types.
+ * Pipeline-only consumers use TelemetryEntry; pair-events.ts filters to pipeline events internally.
+ */
+export type AnyTelemetryEntry = TelemetryEntry | TelemetryDomainEvent;
