@@ -207,36 +207,35 @@ ADRs manually later does not collide.
 
 ### Step 1 (v6.0.0): Scaffold full harness tree
 
-Run via bun:
-
-```bash
-bun run -e "
+```javascript
+// DI-06: import direto em vez de bun -e (GT-04 — bun -e com paths absolutos quebra no Windows).
 import path from 'node:path'
-import { scaffoldTemplates } from './lib/scaffold-templates.ts'
-import { scaffoldFullTree } from './lib/scaffold-full-tree.ts'
-import { detectProjectName } from './lib/detect-project-name.ts'
+const { scaffoldTemplates } = await import('./lib/scaffold-templates.ts')
+const { scaffoldFullTree } = await import('./lib/scaffold-full-tree.ts')
+const { detectProjectName } = await import('./lib/detect-project-name.ts')
 
-const projectName = detectProjectName(process.cwd())
+const targetDir = process.cwd()
+const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT ?? path.join(import.meta.dir, '..', '..')
+const projectName = detectProjectName(targetDir)
 const stack = 'unknown' // step 6 (stack-detection) refines this
 
 // AGENTS.md + ARCHITECTURE.md (Plano 01)
 const baseResult = await scaffoldTemplates({
-  targetDir: process.cwd(),
-  templatesDir: path.join(import.meta.dir, 'assets/templates'),
+  targetDir,
+  templatesDir: path.join(pluginRoot, 'skills/init/assets/templates'),
   projectName,
   stack,
 })
 
 // 14+ docs + structure (Plano 02 fase-02)
 const treeResult = await scaffoldFullTree({
-  targetDir: process.cwd(),
+  targetDir,
   projectName,
   stack,
 })
 
 console.log('Base files:', baseResult.filesWritten.length)
 console.log('Tree files:', treeResult.filesWritten.length, 'in', treeResult.durationMs, 'ms')
-"
 ```
 
 After this step the project has 27 files: AGENTS.md, ARCHITECTURE.md, TODO.md, and 24 docs/* files.
@@ -297,17 +296,16 @@ After this step, CLAUDE.md mirrors AGENTS.md (same content). AGENTS.md remains t
 
 ### Step 3 (v6.0.0): Detect stack and register in STATE.md (D7, M3)
 
-```bash
-bun run -e "
-import { detectStack } from './lib/detect-stack.ts'
-import { writeStackToStateMd } from './lib/state-md-init.ts'
+```javascript
+// DI-06: import direto em vez de bun -e (GT-04 — bun -e com paths absolutos quebra no Windows).
+const { detectStack } = await import('./lib/detect-stack.ts')
+const { writeStackToStateMd } = await import('./lib/state-md-init.ts')
 
 const stack = await detectStack(process.cwd())
 console.log('Detected stack:', stack.id, '(via', stack.signalSource, ')')
 
 const result = await writeStackToStateMd(process.cwd(), stack)
 console.log('STATE.md', result.status, ':', result.path)
-"
 ```
 
 Important: v6.0.0 only **registers** the stack. Knowledge packs (`docs/knowledge/{stack}/`) ship in v6.1+.
@@ -337,10 +335,10 @@ await runStackKnowledgeInit({ targetDir, pluginRoot, args: typeof ARGUMENTS === 
 
 ### Step 4 (v6.0.0): Customize ARCHITECTURE.md with detected stack
 
-```bash
-bun run -e "
-import { customizeArchitecture } from './lib/customize-architecture.ts'
-import { detectStack } from './lib/detect-stack.ts'
+```javascript
+// DI-06: import direto em vez de bun -e (GT-04 — bun -e com paths absolutos quebra no Windows).
+const { customizeArchitecture } = await import('./lib/customize-architecture.ts')
+const { detectStack } = await import('./lib/detect-stack.ts')
 
 const stack = await detectStack(process.cwd())
 const result = await customizeArchitecture({
@@ -349,7 +347,6 @@ const result = await customizeArchitecture({
 })
 
 console.log('ARCHITECTURE.md customized for', stack.id, '— written:', result.written)
-"
 ```
 
 After this step, ARCHITECTURE.md contains a "Detected Stack" section with the framework name and date.
@@ -358,12 +355,11 @@ After this step, ARCHITECTURE.md contains a "Detected Stack" section with the fr
 
 ### Step 5 (v6.0.0): Install GitHub Actions + PR template (D14 — always)
 
-```bash
-bun run -e "
-import { installGhFiles } from './lib/install-gh-files.ts'
+```javascript
+// DI-06: import direto em vez de bun -e (GT-04 — bun -e com paths absolutos quebra no Windows).
+const { installGhFiles } = await import('./lib/install-gh-files.ts')
 const result = await installGhFiles(process.cwd())
 console.log('.github files installed:', result.filesWritten)
-"
 ```
 
 These files are installed unconditionally (D14). Projects not using GitHub may delete `.github/` after init.
@@ -379,14 +375,15 @@ Default: **N** (skip).
 
 If yes:
 
-```bash
-bun run -e "
+```javascript
+// DI-06: import direto em vez de bun -e (GT-04 — bun -e com paths absolutos quebra no Windows).
 import path from 'node:path'
-import { injectOptionalSection } from './lib/inject-optional-section.ts'
 import { promises as fs } from 'node:fs'
+const { injectOptionalSection } = await import('./lib/inject-optional-section.ts')
 
+const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT ?? path.join(import.meta.dir, '..', '..')
 const snippet = await fs.readFile(
-  path.join(import.meta.dir, 'assets/snippets/delivery-loop.md'),
+  path.join(pluginRoot, 'skills/init/assets/snippets/delivery-loop.md'),
   'utf8',
 )
 
@@ -397,7 +394,6 @@ const result = await injectOptionalSection({
 })
 
 console.log('Delivery Loop injection:', result.status)
-"
 ```
 
 If `result.status === 'marker-missing'`, log a warning — AGENTS.md was hand-edited or template version mismatch.
