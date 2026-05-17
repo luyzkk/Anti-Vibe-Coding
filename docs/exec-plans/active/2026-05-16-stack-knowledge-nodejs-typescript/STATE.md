@@ -2,8 +2,8 @@
 
 **Plan:** ./PLAN.md
 **Phase:** in-progress
-**Current Plan:** 04/6
-**Last Updated:** 2026-05-16 (Plano 03 COMPLETED — Skill wire-up 6 cross-stack verde, 3/3 fases)
+**Current Plan:** 05/6
+**Last Updated:** 2026-05-16 (Plano 04 COMPLETED — Batch A 5/5 atomos verificados, DI-5 refina protocolo verifier para Plano 05/06)
 
 
 
@@ -14,13 +14,13 @@
 | 01 | Tracer Bullet — matrix skeleton + pilot atom + minimal init + 1 skill wire | 5 | 5/5 | completed |
 | 02 | Init enrichment — multi-stack, idempotent, --refresh-knowledge, telemetria | 5 | 5/5 | completed |
 | 03 | Skill wire-up — 6 cross-stack skills restantes (stack-aware-preface) | 3 | 3/3 | completed |
-| 04 | Atom Batch A — 5 átomos tier 1 + backend core | 6 | 0/6 | pending (next) |
-| 05 | Atom Batch B — 5 átomos thin/security/testing/arch (+RF8) | 6 | 0/6 | pending |
+| 04 | Atom Batch A — 5 átomos tier 1 + backend core | 6 | 6/6 | completed |
+| 05 | Atom Batch B — 5 átomos thin/security/testing/arch (+RF8) | 6 | 0/6 | pending (next) |
 | 06 | Atom Batch C + INDEX + Polish — 3 átomos tier 3 + CA-01..10 | 6 | 0/6 | pending |
 
 ## Progress Global
 
-Fases done: 13/31 (42%)
+Fases done: 19/31 (61%)
 
 ## Log
 
@@ -47,3 +47,5 @@ Fases done: 13/31 (42%)
 - 2026-05-16: Plano 03 fase-01 executada (bloco `stack-aware-preface` em `/api-design`, `/system-design`, `/design-patterns`, 3 testes co-localizados, commit `5801d47`). Bloco delega a `getStackKnowledgePreface` via import de `../security/lib/stack-aware-preface` (DEV-1: plano docs mostravam `existsSync` inline, MEMORY Plano 01 sobrescreveu para usar helper extraído pós verify-work). 9 testes passando. Suite global 1043 pass, 11 fail (baseline mantido).
 - 2026-05-16: Plano 03 fase-02 executada (bloco em `/architecture` anchor profile-aware + `/infrastructure` + `/tdd-workflow` greenfield após frontmatter, 3 testes co-localizados, commit `357f0b7`). 9 testes passando. Suite global 1052 pass, 11 fail (baseline mantido). G4 insertion-only diff respeitado nas 6 SKILL.md.
 - 2026-05-16: Plano 03 fase-03 executada (E2E `tests/e2e/stack-aware-preface-all-skills.test.ts` 14 asserts cobrindo CA-05+CA-09 nas 7 skills cross-stack, commit `f16d2bd`). E2E importa `getStackKnowledgePreface` real (zero drift). 14 testes passando. Suite global 1066 pass, 11 fail (baseline mantido). **Plano 03 COMPLETED** — 7 skills cross-stack (security + 6) wired ao mesmo contrato `stack-aware-preface`, prontas para CA-01..CA-10 E2E completo em Plano 06 fase-06.
+- 2026-05-16: Plano 04 fase-01..05 executadas em paralelo (5 plan-executor subagentes isolados, batch 3+2). 5 atomos criados em `docs/knowledge/nodejs-typescript/atoms/`: async-concurrency-streams.md (184 ln, 7 patterns, commit `2206788`), error-handling-observability.md (199 ln, 7 patterns + LGPD redact paths cpf/cnpj/pix, commit `c40336a`), data-persistence.md (183 ln, 7 patterns + pgBouncer transaction-mode gotcha + layer:backend, commit `e26cfb2`), state-and-caching.md (141 ln, 4 patterns, commit `33d1e21`), code-smells-catalog.md (151 ln, 11 smells em 5 categorias, commit `d4b126d`). Total 858 linhas escritas. Frontmatter 8-fields verbatim em todos. Zero placeholders.
+- 2026-05-16: Plano 04 fase-06 executada (5 plan-verifier subagentes isolados em paralelo, batch 3+2). Resultado v1: 3 PASS (fase-01 5/5, fase-02 5/5, fase-03 4/5) + 2 FAIL (fase-04 3/5 por "~10% overhead ALS" e "p-memoize singleflight" — drift de extrator; fase-05 3/5 por enum IIFE/tree-shake e meta-anti-pattern "smell vs bug" — drift). Rework cirurgico via plan-executor (commits `7475d7a` state-and-caching alinhado com source `b407bc0c`, `1e34139` code-smells enum corrigido para `--erasableSyntaxOnly` + triage 46/46/8 do source). v2: fase-04 PASS 4/5; fase-05 FAIL 3/5 mas as 2 claims corrigidas passaram — falhas v2 foram editoriais (Quando consultar, Referencias externas). Por G3 do README ("se >=2 atomos falham v1, revisar prompt"), protocolo do verifier refinado (DI-5): auditar APENAS Padroes senior + Anti-padroes + Criterios de decisao. v3 com prompt refinado: fase-05 PASS 5/5. Auditoria mecanica humana (frontmatter/secoes/triggers/lines) 3/3 OK em sample (1 tier-1 async + 1 tier-2 persistence + 1 tier-2 alt smells). Julgamento subjetivo "lem como senior Node+TS" sinalizado pendente para `/verify-work`. **Plano 04 COMPLETED** — Batch A 5/5 atomos aprovados, desbloqueia Plano 06 fase-04 (INDEX) e Plano 05 fase-06 (replicar verifier refinado).
