@@ -1,5 +1,6 @@
 import { describe, expect, test, beforeEach, afterEach } from 'bun:test'
 import { mkdtempSync, readFileSync, existsSync, rmSync } from 'node:fs'
+import { promises as fsPromises } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import type { TelemetryStart, TelemetryEnd } from './telemetry-types'
@@ -389,6 +390,85 @@ describe('skill com erro em meio a execucao (fase-04 / CA-03)', () => {
     } finally {
       process.chdir(originalCwd)
       rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+})
+
+// === Plano 02 fase-04 — writeTelemetryDomainEvent ===
+// 2026-05-16 (Luiz/dev): RF9 — eventos auxiliares do /init. DI-6: tipo dedicado TelemetryDomainEvent.
+import { writeTelemetryDomainEvent } from './telemetry-utils'
+
+describe('writeTelemetryDomainEvent', () => {
+  test('appends stack_detected entry as single JSONL line', async () => {
+    const cwd = await fsPromises.mkdtemp(join(tmpdir(), 'telem-domain-'))
+    const originalCwd = process.cwd()
+    process.chdir(cwd)
+    try {
+      writeTelemetryDomainEvent({
+        evento: 'stack_detected',
+        skill_invocada: 'init',
+        timestamp: '2026-05-16T12:34:56.789Z',
+        primary: 'nodejs-typescript',
+        secondary: [],
+        anchor_files: ['package.json'],
+      })
+      const monthlyFile = join(cwd, '.claude', 'metrics', '2026-05.jsonl')
+      const body = await fsPromises.readFile(monthlyFile, 'utf8')
+      const lines = body.split('\n').filter(Boolean)
+      expect(lines).toHaveLength(1)
+      const parsed = JSON.parse(lines[0] ?? '{}')
+      expect(parsed.evento).toBe('stack_detected')
+      expect(parsed.primary).toBe('nodejs-typescript')
+      expect(parsed.anchor_files).toEqual(['package.json'])
+    } finally {
+      process.chdir(originalCwd)
+      await fsPromises.rm(cwd, { recursive: true, force: true })
+    }
+  })
+
+  test('appends knowledge_copied entry with status field', async () => {
+    const cwd = await fsPromises.mkdtemp(join(tmpdir(), 'telem-domain-'))
+    const originalCwd = process.cwd()
+    process.chdir(cwd)
+    try {
+      const now = new Date()
+      writeTelemetryDomainEvent({
+        evento: 'knowledge_copied',
+        skill_invocada: 'init',
+        timestamp: now.toISOString(),
+        stack: 'nodejs-typescript',
+        atom_count: 14,
+        status: 'copied',
+      })
+      const monthlyFile = join(cwd, '.claude', 'metrics', now.toISOString().slice(0, 7) + '.jsonl')
+      const body = await fsPromises.readFile(monthlyFile, 'utf8')
+      const parsed = JSON.parse(body.trim())
+      expect(parsed.evento).toBe('knowledge_copied')
+      expect(parsed.atom_count).toBe(14)
+      expect(parsed.status).toBe('copied')
+    } finally {
+      process.chdir(originalCwd)
+      await fsPromises.rm(cwd, { recursive: true, force: true })
+    }
+  })
+
+  test('never throws when filesystem write fails (G7 / CA-09 graceful)', () => {
+    // 2026-05-16 (Luiz/dev): appendJsonlLine engole erros — G7 requer que o callsite nao precise de try/catch.
+    const originalCwd = process.cwd()
+    process.chdir(tmpdir())
+    try {
+      expect(() =>
+        writeTelemetryDomainEvent({
+          evento: 'stack_detected',
+          skill_invocada: 'init',
+          timestamp: new Date().toISOString(),
+          primary: null,
+          secondary: [],
+          anchor_files: [],
+        }),
+      ).not.toThrow()
+    } finally {
+      process.chdir(originalCwd)
     }
   })
 })
