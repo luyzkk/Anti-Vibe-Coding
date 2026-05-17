@@ -7,6 +7,20 @@ allowed-tools: Read, Grep, Glob, Bash, Write, Edit, Agent
 argument-hint: "[feature description]"
 ---
 
+<!-- stack-aware-preface:start -->
+```typescript
+// 2026-05-16 (Luiz/dev): Plano 03 fase-02 — stack-aware-preface (PRD §Mecanismo Skill wire-up, D11).
+// G1 do plano: bloco verbatim do Plano 01 fase-04 (security wire). Path fixo .claude/knowledge/INDEX.md (D11).
+// CA-09: se INDEX ausente, preface = ''; comportamento da skill = v6.3.1 intacto.
+
+import { getStackKnowledgePreface } from '../security/lib/stack-aware-preface'
+
+const stackKnowledgePreface = getStackKnowledgePreface(process.cwd())
+```
+
+Se `stackKnowledgePreface` for não-vazio, **prepende** esta frase ao início da resposta. Se vazio, ignore — comportamento da skill = v6.3.1 intacto (CA-09).
+<!-- stack-aware-preface:end -->
+
 # TDD Workflow — Anti-Vibe Coding
 
 Workflow TDD adaptativo de 7 passos. Seguir EXATAMENTE esta sequencia.
