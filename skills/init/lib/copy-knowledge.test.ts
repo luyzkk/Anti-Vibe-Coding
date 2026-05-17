@@ -101,3 +101,78 @@ describe('copyKnowledge — idempotência + refresh', () => {
     expect(result.destDir).toBe(join(targetDir, '.claude', 'knowledge'))
   })
 })
+
+// 2026-05-17 (Luiz/dev): security hardening Wave 1 — CWE-61 + CWE-367
+import { symlinkSync, rmSync as rmSyncNode } from 'node:fs'
+
+describe('copyKnowledge security hardening (Wave 1)', () => {
+  let pluginRoot: string
+  let targetDir: string
+
+  beforeEach(() => {
+    pluginRoot = mkdtempSync(join(tmpdir(), 'plugin-'))
+    targetDir = mkdtempSync(join(tmpdir(), 'target-'))
+    // fake stack matrix folder
+    const matrixDir = join(pluginRoot, 'docs/knowledge/test-stack')
+    mkdirSync(matrixDir, { recursive: true })
+    writeFileSync(join(matrixDir, 'INDEX.md'), '# Test')
+    mkdirSync(join(matrixDir, 'atoms'), { recursive: true })
+    writeFileSync(join(matrixDir, 'atoms/atom1.md'), '# Atom 1')
+  })
+
+  afterEach(() => {
+    rmSyncNode(pluginRoot, { recursive: true, force: true })
+    rmSyncNode(targetDir, { recursive: true, force: true })
+  })
+
+  it('S1: rejects symlink in source tree (CWE-61)', async () => {
+    // plant symlink pointing outside pluginRoot
+    const outsideFile = join(tmpdir(), 'outside-secret.txt')
+    writeFileSync(outsideFile, 'secret')
+    const symlinkPath = join(pluginRoot, 'docs/knowledge/test-stack/atoms/evil-link.md')
+    try {
+      symlinkSync(outsideFile, symlinkPath)
+    } catch (err: unknown) {
+      const e = err as NodeJS.ErrnoException
+      // Windows blocks symlink without admin — graceful skip
+      if (e.code === 'EPERM' || e.code === 'EACCES') {
+        rmSyncNode(outsideFile, { force: true })
+        return
+      }
+      throw err
+    }
+
+    let threw = false
+    let result: Awaited<ReturnType<typeof copyKnowledge>> | undefined
+    try {
+      result = await copyKnowledge({ targetDir, pluginRoot, primary: 'test-stack', refresh: false })
+    } catch {
+      threw = true
+    }
+
+    // evil-link.md must NOT exist in destination regardless of throw/return path
+    expect(existsSync(join(targetDir, '.claude/knowledge/atoms/evil-link.md'))).toBe(false)
+
+    // if it didn't throw, status must be no-source (symlink rejection)
+    if (!threw && result !== undefined) {
+      expect(result.status).toBe('no-source')
+    }
+
+    rmSyncNode(outsideFile, { force: true })
+  })
+
+  it('S3: refresh eliminates TOCTOU — does not fail across sequential rapid calls', async () => {
+    // 1st pass: destDir does not exist, refresh=true
+    const r1 = await copyKnowledge({ targetDir, pluginRoot, primary: 'test-stack', refresh: true })
+    expect(['copied', 'refreshed']).toContain(r1.status)
+
+    // 2nd pass: destDir exists, refresh=true
+    const r2 = await copyKnowledge({ targetDir, pluginRoot, primary: 'test-stack', refresh: true })
+    expect(r2.status).toBe('refreshed')
+
+    // 3rd pass: simulate "someone deleted destDir between check and rm"
+    rmSyncNode(join(targetDir, '.claude/knowledge'), { recursive: true, force: true })
+    const r3 = await copyKnowledge({ targetDir, pluginRoot, primary: 'test-stack', refresh: true })
+    expect(['copied', 'refreshed']).toContain(r3.status)
+  })
+})
