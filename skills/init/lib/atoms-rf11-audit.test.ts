@@ -13,7 +13,8 @@ describe('RF11 — audit-trail paths em sources', () => {
       const content = readFileSync(join(atomsDir, atom), 'utf-8')
       const sourcesBlock = content.match(/^sources:\s*\n([\s\S]*?)(?=^[a-z]+:|^---)/m)
       expect(sourcesBlock, `${atom} sem bloco sources:`).toBeTruthy()
-      const hasAuditPath = /\(claude-code\/knowledge\/Nodejs\/[^)]+\)/.test(sourcesBlock![1])
+      const sourcesContent = sourcesBlock?.[1] ?? ''
+      const hasAuditPath = /\(claude-code\/knowledge\/Nodejs\/[^)]+\)/.test(sourcesContent)
       expect(hasAuditPath, `${atom}: sources: não contém audit-trail-path entre parênteses`).toBe(true)
     }
   })

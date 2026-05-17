@@ -113,7 +113,7 @@ describe('copyKnowledge security hardening (Wave 1)', () => {
     pluginRoot = mkdtempSync(join(tmpdir(), 'plugin-'))
     targetDir = mkdtempSync(join(tmpdir(), 'target-'))
     // fake stack matrix folder
-    const matrixDir = join(pluginRoot, 'docs/knowledge/test-stack')
+    const matrixDir = join(pluginRoot, 'docs/knowledge/nodejs-typescript')
     mkdirSync(matrixDir, { recursive: true })
     writeFileSync(join(matrixDir, 'INDEX.md'), '# Test')
     mkdirSync(join(matrixDir, 'atoms'), { recursive: true })
@@ -129,7 +129,7 @@ describe('copyKnowledge security hardening (Wave 1)', () => {
     // plant symlink pointing outside pluginRoot
     const outsideFile = join(tmpdir(), 'outside-secret.txt')
     writeFileSync(outsideFile, 'secret')
-    const symlinkPath = join(pluginRoot, 'docs/knowledge/test-stack/atoms/evil-link.md')
+    const symlinkPath = join(pluginRoot, 'docs/knowledge/nodejs-typescript/atoms/evil-link.md')
     try {
       symlinkSync(outsideFile, symlinkPath)
     } catch (err: unknown) {
@@ -145,7 +145,7 @@ describe('copyKnowledge security hardening (Wave 1)', () => {
     let threw = false
     let result: Awaited<ReturnType<typeof copyKnowledge>> | undefined
     try {
-      result = await copyKnowledge({ targetDir, pluginRoot, primary: 'test-stack', refresh: false })
+      result = await copyKnowledge({ targetDir, pluginRoot, primary: 'nodejs-typescript', refresh: false })
     } catch {
       threw = true
     }
@@ -163,16 +163,16 @@ describe('copyKnowledge security hardening (Wave 1)', () => {
 
   it('S3: refresh eliminates TOCTOU — does not fail across sequential rapid calls', async () => {
     // 1st pass: destDir does not exist, refresh=true
-    const r1 = await copyKnowledge({ targetDir, pluginRoot, primary: 'test-stack', refresh: true })
+    const r1 = await copyKnowledge({ targetDir, pluginRoot, primary: 'nodejs-typescript', refresh: true })
     expect(['copied', 'refreshed']).toContain(r1.status)
 
     // 2nd pass: destDir exists, refresh=true
-    const r2 = await copyKnowledge({ targetDir, pluginRoot, primary: 'test-stack', refresh: true })
+    const r2 = await copyKnowledge({ targetDir, pluginRoot, primary: 'nodejs-typescript', refresh: true })
     expect(r2.status).toBe('refreshed')
 
     // 3rd pass: simulate "someone deleted destDir between check and rm"
     rmSyncNode(join(targetDir, '.claude/knowledge'), { recursive: true, force: true })
-    const r3 = await copyKnowledge({ targetDir, pluginRoot, primary: 'test-stack', refresh: true })
+    const r3 = await copyKnowledge({ targetDir, pluginRoot, primary: 'nodejs-typescript', refresh: true })
     expect(['copied', 'refreshed']).toContain(r3.status)
   })
 
@@ -180,7 +180,7 @@ describe('copyKnowledge security hardening (Wave 1)', () => {
   it('M1.4: symlink error message does not contain absolute pluginRoot path', async () => {
     const outsideFile = join(tmpdir(), 'outside-secret-m14.txt')
     writeFileSync(outsideFile, 'secret')
-    const symlinkPath = join(pluginRoot, 'docs/knowledge/test-stack/atoms/evil-link-m14.md')
+    const symlinkPath = join(pluginRoot, 'docs/knowledge/nodejs-typescript/atoms/evil-link-m14.md')
     try {
       symlinkSync(outsideFile, symlinkPath)
     } catch (err: unknown) {
@@ -194,7 +194,7 @@ describe('copyKnowledge security hardening (Wave 1)', () => {
     }
 
     try {
-      const result = await copyKnowledge({ targetDir, pluginRoot, primary: 'test-stack' as 'rails', refresh: false })
+      const result = await copyKnowledge({ targetDir, pluginRoot, primary: 'nodejs-typescript', refresh: false })
       // if not thrown, message must not contain absolute pluginRoot (starts with / or drive letter)
       const hasAbsolutePath = /^[/\\]/.test(result.message) || /^[A-Za-z]:[/\\]/.test(result.message)
       // message may contain <plugin-root> placeholder or relative path, but NOT absolute pluginRoot
