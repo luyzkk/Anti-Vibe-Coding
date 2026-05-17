@@ -86,6 +86,69 @@ describe('writeStackJson — schema final', () => {
     expect(result).toBeNull()
   })
 
+  // Wave 3 — S5: deep validation in readStackJson
+  it('readStackJson rejects JSON with primary as number (not string|null)', async () => {
+    const dir = await tmpDir()
+    await fs.mkdir(path.join(dir, '.claude'), { recursive: true })
+    await fs.writeFile(
+      path.join(dir, '.claude', 'stack.json'),
+      JSON.stringify({ primary: 12345, secondary: [], anchor_files: [], detected_at: '2026-05-16T12:00:00.000Z' }),
+      'utf8',
+    )
+    const result = await readStackJson(dir)
+    expect(result).toBeNull()
+  })
+
+  it('readStackJson rejects JSON with secondary containing non-string values', async () => {
+    const dir = await tmpDir()
+    await fs.mkdir(path.join(dir, '.claude'), { recursive: true })
+    await fs.writeFile(
+      path.join(dir, '.claude', 'stack.json'),
+      JSON.stringify({ primary: 'rails', secondary: [null, {}], anchor_files: [], detected_at: '2026-05-16T12:00:00.000Z' }),
+      'utf8',
+    )
+    const result = await readStackJson(dir)
+    expect(result).toBeNull()
+  })
+
+  it('readStackJson rejects JSON with primary as invalid MatrixFolder string', async () => {
+    const dir = await tmpDir()
+    await fs.mkdir(path.join(dir, '.claude'), { recursive: true })
+    await fs.writeFile(
+      path.join(dir, '.claude', 'stack.json'),
+      JSON.stringify({ primary: 'invalid-matrix-folder', secondary: [], anchor_files: [], detected_at: '2026-05-16T12:00:00.000Z' }),
+      'utf8',
+    )
+    const result = await readStackJson(dir)
+    expect(result).toBeNull()
+  })
+
+  it('readStackJson rejects JSON with secondary containing invalid MatrixFolder strings', async () => {
+    const dir = await tmpDir()
+    await fs.mkdir(path.join(dir, '.claude'), { recursive: true })
+    await fs.writeFile(
+      path.join(dir, '.claude', 'stack.json'),
+      JSON.stringify({ primary: 'rails', secondary: ['not-a-matrix'], anchor_files: [], detected_at: '2026-05-16T12:00:00.000Z' }),
+      'utf8',
+    )
+    const result = await readStackJson(dir)
+    expect(result).toBeNull()
+  })
+
+  it('readStackJson accepts valid JSON (regression)', async () => {
+    const dir = await tmpDir()
+    await fs.mkdir(path.join(dir, '.claude'), { recursive: true })
+    await fs.writeFile(
+      path.join(dir, '.claude', 'stack.json'),
+      JSON.stringify({ primary: 'nodejs-typescript', secondary: ['rails'], anchor_files: ['package.json'], detected_at: '2026-05-16T12:00:00.000Z' }),
+      'utf8',
+    )
+    const result = await readStackJson(dir)
+    expect(result).not.toBeNull()
+    expect(result?.primary).toBe('nodejs-typescript')
+    expect(result?.secondary).toEqual(['rails'])
+  })
+
   it('readStackJson round-trips a written stack.json', async () => {
     const dir = await tmpDir()
     await writeStackJson(
