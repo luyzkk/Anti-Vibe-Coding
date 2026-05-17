@@ -17,10 +17,15 @@ export type StepContext = {
  * Resultado de um step executado com sucesso (sem abort).
  * `mutated`: true se o step escreveu/alterou disco. Steps read-only retornam false.
  * `summary`: string curta para o log do dispatcher (uma linha).
+ * `skipRemaining`: quando true, o dispatcher interrompe o loop do registry APOS este step (early-exit).
+ * 2026-05-17 (Luiz/dev): introduzido para mapear `process.exit(0)` do reuse-discovery.0
+ * (SKILL.md linha 550) sem usar AbortError (que carrega semantica de erro). PRD MH-04, CA-04.
+ * Default: undefined (falsy) — comportamento anterior preservado.
  */
 export type StepReport = {
   mutated: boolean
   summary: string
+  skipRemaining?: boolean
 }
 
 /**

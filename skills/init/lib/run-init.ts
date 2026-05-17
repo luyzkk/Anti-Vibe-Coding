@@ -43,6 +43,11 @@ export async function runInit(
         // 2026-05-17 (Luiz/dev): log explicito de mutacao — alinhado com PRD SH-04 (rastreabilidade).
         log(`[${step.id}] (mutated disk)`)
       }
+      // 2026-05-17 (Luiz/dev): Plano 02 fase-06 — early-exit para reuse-discovery cache-fresh.
+      // Mapeia process.exit(0) do SKILL.md linha 550 sem usar AbortError (semantica de erro). PRD MH-04, CA-04.
+      if (report.skipRemaining === true) {
+        break
+      }
     } catch (e) {
       if (e instanceof AbortError) {
         log(e.reason)
