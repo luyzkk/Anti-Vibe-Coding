@@ -33,8 +33,8 @@ updated: 2026-05-16
 
 ### Smell: `enum` numérico em contexto literal-friendly
 
-- **Sintoma:** `enum Status { Pending, Paid, Failed }` — valores numéricos no runtime, IIFE emitido, reverse mapping desnecessário.
-- **Por que dói:** não tree-shakes; incompatível com `isolatedModules` / esbuild para `const enum`; não aceita string literals diretamente; dificulta serialização JSON e logs.
+- **Sintoma:** `enum Status { Pending, Paid, Failed }` — `enum Foo { A, B }` falha com TS 5.8 `--erasableSyntaxOnly` e com Node `--experimental-strip-types`.
+- **Por que dói:** TS 5.8 e Node nativo-TS rejeitam enums porque têm comportamento de runtime — Daniel Rosenwasser (TS 5.8 release): "TypeScript will error on most TypeScript-specific constructs that have runtime behavior." (SMELL-NTS-009)
 - **Refactor:** `const Status = { Pending: "pending", Paid: "paid", Failed: "failed" } as const; type Status = (typeof Status)[keyof typeof Status];`
 - **Quando tolerar:** código gerado por Prisma ou OpenAPI — não reescreva; os toolings já tratam internamente.
 
@@ -127,7 +127,7 @@ updated: 2026-05-16
 
 - **Atacar todos os 52 smells de uma vez:** criar um backlog de refactor com 52 itens garante que nenhum seja feito. Correção: priorizar 3-5 smells por sprint usando a tabela severidade × urgência; fechar antes de abrir novos.
 
-- **Confundir smell com bug:** smell é sinal de risco e de dívida técnica — não é erro confirmado. Tratar smell como bug urgente gera over-engineering; ignorar smell grave gera bugs reais. Correção: usar a tabela abaixo para decidir urgência; smell "Refactor agora" tem risco de bug iminente, os demais são dívida gerenciada.
+- **Tratar todos os smells como quick-wins (ou todos como defer):** o catálogo de 52 smells tem categorias distintas — ~46% quick-win (agente aplica com baixa supervisão), ~46% strategic (exige revisão humana de arquitetura), ~8% devem ser adiados ou tratados como dívida documentada (Research 98973791, linha 6). Colapsar tudo em "arruma agora" gera over-engineering; colapsar tudo em "defer" acumula dívida invisível. Correção: classificar cada smell em quick-win / strategic / defer antes de abrir ticket.
 
 ## Critérios de decisão
 
