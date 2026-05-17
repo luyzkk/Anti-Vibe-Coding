@@ -8,6 +8,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 import { detectStack } from '../../skills/init/lib/detect-stack'
+import { detectMultiStack } from '../../skills/init/lib/detect-multi-stack'
 import { writeStackJson } from '../../skills/init/lib/write-stack-json'
 import { copyKnowledge } from '../../skills/init/lib/copy-knowledge'
 import { getStackKnowledgePreface, PREFACE_MESSAGE } from '../../skills/security/lib/stack-aware-preface'
@@ -36,7 +37,9 @@ describe('stack-knowledge tracer bullet (Plano 01 fase-05)', () => {
     const stack = await detectStack(project)
     expect(stack.id).toBe('node-ts')
 
-    const stackJson = await writeStackJson(project, stack)
+    // 2026-05-16 (Luiz/dev): Plano 02 fase-02 — writeStackJson now receives MultiStackResult.
+    const multiResult = await detectMultiStack(project)
+    const { written: stackJson } = await writeStackJson(project, multiResult)
     expect(stackJson.primary).toBe('nodejs-typescript')
 
     const start = performance.now()
