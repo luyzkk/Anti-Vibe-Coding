@@ -2,6 +2,7 @@
 import { AbortError } from './steps/abort-error'
 import type { Step, StepResult } from './steps/types'
 import { parseFlags } from './parse-flags'
+import { lazyImport } from './lazy-import'
 
 export type RunInitOptions = {
   /** Permite injetar registry alternativo (tests). Default: registry global. */
@@ -25,9 +26,9 @@ export async function runInit(
   opts: RunInitOptions = {},
 ): Promise<StepResult> {
   const { registry: injectedRegistry, cwd, log = console.log } = opts
-  // 2026-05-17 (Luiz/dev): import dinamico apenas se nao houver injecao — evita carregar
-  // todos os steps em testes que so usam fake. Tambem isola o boundary DI-06 (fase-04 centraliza).
-  const reg = injectedRegistry ?? (await import('./registry')).registry
+  // 2026-05-17 (Luiz/dev): lazyImport documenta DI-06/GT-04 — Windows safety boundary.
+  // import dinamico apenas se nao houver injecao — evita carregar todos os steps em testes.
+  const reg = injectedRegistry ?? (await lazyImport(() => import('./registry'))).registry
 
   const ctx = (() => {
     const { args, flags } = parseFlags(argv)
