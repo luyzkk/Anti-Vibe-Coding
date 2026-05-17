@@ -52,8 +52,9 @@ export async function runStackKnowledgeInit(opts: RunStackKnowledgeInitOpts): Pr
   }
 
   // M2.4: informative message when a stack was detected via anchor but has no matrix folder in this version
-  if (detection.recognized_no_matrix.length > 0 && stackJson.primary === null) {
-    const names = detection.recognized_no_matrix.join(', ')
+  const noMatrixFolders = detection.recognized_no_matrix ?? []
+  if (noMatrixFolders.length > 0 && stackJson.primary === null) {
+    const names = noMatrixFolders.join(', ')
     logger(
       `Stack ${names} detectada (anchor: ${detection.anchor_files.join(', ')}) mas matrix não disponível em v6.3.2. Disponível para Node+TS, Rails, Python, Laravel.`,
     )
