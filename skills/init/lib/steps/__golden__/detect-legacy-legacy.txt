@@ -1,0 +1,2 @@
+Detected v5.x artifacts: planning-dir
+Run `/init migrate` (or `--dry-run` to preview).
