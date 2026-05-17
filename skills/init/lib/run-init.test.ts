@@ -53,4 +53,17 @@ describe('runInit dispatcher', () => {
     const buggy: Step = { id: 'bug', async run() { throw new Error('boom') } }
     await expect(runInit([], { registry: [buggy], cwd: '/tmp', log: () => {} })).rejects.toThrow('boom')
   })
+
+  test('accepts Windows-style cwd verbatim (no path mangling)', async () => {
+    let seenCwd: string | undefined
+    const probe: Step = {
+      id: 'probe-cwd',
+      async run(ctx) { seenCwd = ctx.cwd; return { mutated: false, summary: '' } },
+    }
+    // 2026-05-17 (Luiz/dev): cwd nao eh tocado pelo dispatcher — repassado ao step inalterado.
+    // Isso garante que portar para Windows nao requer mudanca no dispatcher (DI-06 e sobre IMPORT,
+    // nao sobre cwd, mas a confianca ajuda).
+    await runInit([], { registry: [probe], cwd: 'C:\\Users\\luiz\\projeto', log: () => {} })
+    expect(seenCwd).toBe('C:\\Users\\luiz\\projeto')
+  })
 })
