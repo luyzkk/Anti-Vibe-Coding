@@ -5,6 +5,7 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import type { StackId } from './detect-stack'
+import { isMatrixFolder } from './stack-id-map'
 
 // G1 / DI-1: alias map estendido. Plano 01 entregou apenas 'node-ts' → 'nodejs-typescript' em write-stack-json.ts.
 // Plano 02 fase-01 cria alias map LOCAL cobrindo todas as StackIds.
@@ -106,12 +107,11 @@ export async function detectMultiStack(targetDir: string): Promise<MultiStackRes
     return { primary: null, secondary: [], anchor_files }
   }
 
-  const folders = Array.from(matrixCandidates.keys()) as MatrixFolder[]
+  const folders = Array.from(matrixCandidates.keys()).filter(isMatrixFolder)
 
   // Single match: primary direto, secondary vazio
   if (folders.length === 1) {
-    // folders[0] is always defined when length === 1
-    return { primary: folders[0] as MatrixFolder, secondary: [], anchor_files }
+    return { primary: folders[0], secondary: [], anchor_files }
   }
 
   // Multi-match: tiebreaker por file count
@@ -123,8 +123,9 @@ export async function detectMultiStack(targetDir: string): Promise<MultiStackRes
   )
   counts.sort((a, b) => b.count - a.count) // desc
 
-  // counts is non-empty (folders.length >= 2 here) — safe to destructure
-  const [primaryEntry, ...rest] = counts as [typeof counts[number], ...typeof counts]
+  // counts.length === folders.length >= 2 here — guard makes invariant explicit
+  if (counts.length < 2) throw new Error(`Expected ≥2 entries in counts, got ${counts.length}`)
+  const [primaryEntry, ...rest] = counts
   return {
     primary: primaryEntry.folder,
     secondary: rest.map((r) => r.folder),

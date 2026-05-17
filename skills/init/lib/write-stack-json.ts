@@ -6,6 +6,7 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import type { MultiStackResult, MatrixFolder } from './detect-multi-stack'
+import { isMatrixFolder } from './stack-id-map'
 
 // 2026-05-16 (Luiz/dev): schema final de .claude/stack.json — alinhado com PRD §Mecanismo (linha 96-101).
 export interface StackJson {
@@ -41,6 +42,18 @@ export async function writeStackJson(
   return { path: dest, written: payload }
 }
 
+function isValidStackJson(parsed: unknown): parsed is StackJson {
+  if (typeof parsed !== 'object' || parsed === null) return false
+  const c = parsed as Record<string, unknown>
+  if (typeof c.detected_at !== 'string') return false
+  if (!Array.isArray(c.secondary)) return false
+  if (!Array.isArray(c.anchor_files)) return false
+  if (c.primary !== null && !isMatrixFolder(c.primary)) return false
+  if (!c.secondary.every(isMatrixFolder)) return false
+  if (!c.anchor_files.every((a) => typeof a === 'string')) return false
+  return true
+}
+
 /**
  * Lê e parseia .claude/stack.json se existir. Retorna `null` se ausente ou inválido.
  * Usado por fase-04 (telemetria) e Plano 06 (preview de keywords).
@@ -49,12 +62,8 @@ export async function readStackJson(targetDir: string): Promise<StackJson | null
   try {
     const body = await fs.readFile(path.join(targetDir, STACK_JSON_REL_PATH), 'utf8')
     const parsed: unknown = JSON.parse(body)
-    if (!parsed || typeof parsed !== 'object') return null
-    const candidate = parsed as Record<string, unknown>
-    if (typeof candidate.detected_at !== 'string') return null
-    if (!Array.isArray(candidate.secondary) || !Array.isArray(candidate.anchor_files)) return null
-    if (candidate.primary !== null && typeof candidate.primary !== 'string') return null
-    return parsed as StackJson
+    if (!isValidStackJson(parsed)) return null
+    return parsed
   } catch {
     return null
   }
