@@ -89,6 +89,25 @@ describe('appendJsonlLine', () => {
 
     console.error = originalError
   })
+
+  // L2 — warnSink param: custom sink receives warn message instead of console.error
+  test('warnSink param receives warn message on I/O failure (L2)', () => {
+    const warnMessages: string[] = []
+    expect(() => appendJsonlLine('\0/invalid/path.jsonl', 'x\n', (msg) => warnMessages.push(msg))).not.toThrow()
+    expect(warnMessages.some(line => line.includes('[telemetry-warn]'))).toBe(true)
+  })
+
+  test('warnSink default falls back to console.error when not provided (backward-compat)', () => {
+    const errorSpy: string[] = []
+    const original = console.error
+    console.error = (...args: unknown[]) => { errorSpy.push(args.join(' ')) }
+    try {
+      appendJsonlLine('\0/invalid/path.jsonl', 'x\n')
+      expect(errorSpy.some(line => line.includes('[telemetry-warn]'))).toBe(true)
+    } finally {
+      console.error = original
+    }
+  })
 })
 
 describe('writeTelemetryStart / writeTelemetryEnd', () => {

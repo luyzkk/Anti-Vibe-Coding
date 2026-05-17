@@ -97,4 +97,41 @@ describe('runStackKnowledgeInit (Wave 5 D2)', () => {
 
     expect(captured.some(l => l.includes('go') && l.toLowerCase().includes('matrix'))).toBe(true)
   })
+
+  // L1 — ISP ctx split: logger accepted as 2nd param ctx.logger
+  it('L1: aceita logger via ctx 2º parâmetro (ISP split)', async () => {
+    writeFileSync(join(targetDir, 'package.json'), JSON.stringify({ devDependencies: { typescript: '^5.0.0' } }))
+    writeFileSync(join(targetDir, 'tsconfig.json'), '{}')
+
+    const ctxCaptured: string[] = []
+    const result = await runStackKnowledgeInit(
+      { targetDir, pluginRoot: PLUGIN_ROOT },
+      { logger: (line) => ctxCaptured.push(line) },
+    )
+
+    expect(result.stackPrimary).toBe('nodejs-typescript')
+    expect(ctxCaptured.some(l => l.includes('stack.json'))).toBe(true)
+  })
+
+  it('L1: backward-compat — logger em opts ainda funciona sem ctx', async () => {
+    writeFileSync(join(targetDir, 'package.json'), JSON.stringify({ devDependencies: { typescript: '^5.0.0' } }))
+
+    const result = await runStackKnowledgeInit({
+      targetDir,
+      pluginRoot: PLUGIN_ROOT,
+      logger: (line) => captured.push(line),
+    })
+
+    expect(result.stackPrimary).toBe('nodejs-typescript')
+    expect(captured.some(l => l.includes('stack.json'))).toBe(true)
+  })
+
+  it('L1: ctx sem logger usa console.log (default silencioso)', async () => {
+    const result = await runStackKnowledgeInit(
+      { targetDir, pluginRoot: PLUGIN_ROOT },
+      {},
+    )
+    // No error thrown — default logger (console.log) is used
+    expect(result).toBeDefined()
+  })
 })

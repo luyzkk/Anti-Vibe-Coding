@@ -52,14 +52,22 @@ export function serializeEntry(entry: TelemetryEntry): string {
 /**
  * Append-only. Falha silenciosa: nunca lanca para o caller (G2 / CA-09).
  * Garante que `dirname(filePath)` existe (G4) — mkdirSync recursive.
+ *
+ * @param warnSink - Optional sink for warning messages on I/O failure.
+ *   Default: `console.error`. Tests should pass a fake sink instead of monkey-patching.
+ *
+ * **L6 note:** `appendFileSync` is atomic on Linux for writes < PIPE_BUF (~4 KB).
+ *   On Windows multi-process scenarios (e.g. two CLI instances writing simultaneously),
+ *   interleaving is theoretically possible. This is considered an acceptable risk given
+ *   CLI usage patterns (single user, sequential invocations).
  */
-export function appendJsonlLine(filePath: string, line: string): void {
+export function appendJsonlLine(filePath: string, line: string, warnSink: (msg: string) => void = console.error): void {
   try {
     mkdirSync(dirname(filePath), { recursive: true })
     appendFileSync(filePath, line, { encoding: 'utf-8', flag: 'a' })
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e)
-    console.error(`${TELEMETRY_WARN_PREFIX} append failed: ${message}`)
+    warnSink(`${TELEMETRY_WARN_PREFIX} append failed: ${message}`)
   }
 }
 
