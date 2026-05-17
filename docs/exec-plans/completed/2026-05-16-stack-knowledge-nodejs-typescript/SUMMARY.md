@@ -1,10 +1,10 @@
 # Summary: Stack Knowledge Layer — Node.js + TypeScript (v6.3.2)
 
 **Completed:** 2026-05-17
-**Duration:** 2026-05-16 → 2026-05-17 (~1.5 dia execução + ~3h hardening)
+**Duration:** 2026-05-16 → 2026-05-17 (~1.5 dia execução + ~3h hardening I + ~3h hardening II pós-2ª-auditoria)
 **Planos:** 6 (6 completed, 0 skipped)
 **Fases Total:** 31 (31 done, 0 skipped, 0 blocked)
-**Hardening pós-feature:** 4 waves (4 commits) cobrindo todos os 8 findings das auditorias
+**Hardening pós-feature:** 10 commits cobrindo TODOS os 29 findings das 6 auditorias (security + code-smell + solid + api + database + infrastructure)
 **Auditor final:** AI assistant (Claude) via `/anti-vibe-coding:execute-plan`
 
 ---
@@ -106,6 +106,44 @@ Auditor flagou `sources: <id> (claude-code/knowledge/Nodejs/...)` em 14 átomos 
 - **D6** Typecheck baseline 2 erros pré-existentes em `subagent-contract.ts` (ajv) — não introduzido por essa feature.
 - **D7** `tooling.md` keyword coverage (Executor TS/Monorepo/Watch/CI-cache faltando — anti-drift do Plano 06 DEV-1).
 - **D8** CA-10 UX baseline snapshot — capturar antes da próxima feature similar.
+
+---
+
+## 2ª Rodada de Hardening (2026-05-17 — fechamento "100% sem débito técnico")
+
+Auditorias `solid-auditor` + `api-auditor` + `database-analyzer` + `infrastructure-auditor` rodadas pós-1ª-rodada-de-hardening detectaram 29 findings (3+4+4+9 + 4+10+5+9 entre seus reports overlap). Resolvidos em 7 commits, mantendo todos os gates verdes (baseline typecheck restaurado, harness:validate exit 0, suite global pass):
+
+| Wave | Commit | Findings resolvidos |
+|---|---|---|
+| H1 | `d2cc042` | Infra HIGH: `CLAUDE_PLUGIN_ROOT` standardização + `path.join` cross-platform; `atoms-rf11-audit.test.ts` ancorado a `import.meta.dir`; CI workflow adiciona `bun run test` + `bun run typecheck`; `harness:validate` valida presença de `docs/knowledge/INDEX.md` |
+| H2 | `2921455` | Api HIGH: `StackJson.schema_version: "1"` literal + `isValidStackJson` rejeita versões inválidas; `MatrixFolder` agora derivado de `MATRIX_FOLDER_VALUES as const` (single source of truth — elimina drift type/Set); `isPipelineEntry` / `isDomainEntry` / `getEntryTimestamp` exportados para narrow seguro de `AnyTelemetryEntry` |
+| M1 | `2d04750` | Quality MEDIUM: `parseTopKeywords` async (`fs.promises`); `isValidStackJson` exportada; `emit-stack-knowledge-events.ts` extraído (SRP+DIP do orquestrador); symlink error message sanitiza `pluginRoot → <plugin-root>` (não vaza paths em CI logs); `writeStackJson` tmp file com `${dest}.${pid}.${timestamp}.tmp` (race-safe Windows multi-process) |
+| M2 | `825f270` | Infra MEDIUM: SKILL.md Passo 6 snippet migrado CJS→ESM; `docs/UPGRADE.md` ganha seção "Stack Knowledge Layer"; `docs/TELEMETRY.md` (novo) documenta opt-out via `ANTI_VIBE_TELEMETRY=off` + retention policy 6 meses; mensagem informativa para Go (anchor detectado, matrix não disponível); rollback transacional em `runStackKnowledgeInit` (patch `stack.json.primary=null` quando copyKnowledge falha) |
+| L-quick | `ffadd9c` | Quality LOW: `RunStackKnowledgeInitContext` 2º param opcional separa logger de domain (ISP); `appendJsonlLine` aceita `warnSink?` injetável (elimina `console.error` hardcoded); `parseTopKeywords` valida `topN <= 0` + clamp a 50; `getStackKnowledgePreface` valida INDEX content (size>0 + começa com `# `); `.gitignore` lista 4 runtime artifacts; JSDoc notes L5/L6/L7 (sync I/O rationale + Windows atomicity caveat + no-concurrent-lock policy) |
+| L-skill | `bd50bb5` | Infra LOW: 5 blocos `bun run -e` remanescentes no `skills/init/SKILL.md` migrados para `await import('./lib/X.ts')` pattern (GT-04 follow-through — paths absolutos no Windows não quebram mais) |
+| fix | `622bbd0` | Regression fix: `copy-knowledge.test.ts` + `atoms-rf11-audit.test.ts` alinhados ao `MatrixFolder` narrow (substituir `'test-stack'` literal por `'nodejs-typescript'`; optional chaining em regex capture) — typecheck baseline restaurado |
+
+### Findings WONTFIX nesta rodada (decisão consciente, documentados em L5/L6/L7 JSDoc)
+
+- **L5** `existsSync` síncrono per skill invocation em `stack-aware-preface` — aceitável (cwd-local, microsegundos por chamada). JSDoc explica trade-off.
+- **L6** `appendFileSync` não-atomic em Windows multi-process — cenário improvável (plugin é CLI single-shot, não daemon). JSDoc documenta a limitação para uso futuro em watchers paralelos.
+- **L7** `runStackKnowledgeInit` sem locking explícito para execução concorrente no mesmo `targetDir` — cenário de duplo `/init` manual é improvável. JSDoc documenta não-suporte; se virar problema, implementar `.claude/.init.lock` em iteração futura.
+
+### Backlog REMOVIDO (todos resolvidos nesta rodada)
+
+- ~~D5 OQ11 opt-out telemetria~~ → ✅ M2.3 (`ANTI_VIBE_TELEMETRY=off`)
+- ~~Schema versionamento `.claude/stack.json`~~ → ✅ H2.1 (`schema_version: "1"`)
+- ~~CI sem `bun run test` + `bun run typecheck`~~ → ✅ H1.2 (steps adicionados)
+- ~~JSONL telemetry sem doc de rotação~~ → ✅ M2.5 (doc em TELEMETRY.md)
+- ~~`/init` UPGRADE.md doc gap~~ → ✅ M2.2 (seção Stack Knowledge Layer)
+
+### Backlog **ainda** adiado para v6.3.3+ (irredutível ou fora de escopo)
+
+- **D1** Commits atômicos teste+prod sem hook git-level — mudança transversal a TODO o pipeline (não escopo cirúrgico).
+- **D6** Typecheck baseline 2 erros em `subagent-contract.ts` (ajv types) — pré-existente, requer bump de `ajv` ou refactor de tipo.
+- **D7** `tooling.md` keyword coverage (átomos novos sobre Executor TS, Monorepo, Watch, CI-cache) — requer extração de fontes ainda não escritas.
+- **D8** CA-10 UX baseline snapshot — só capturável ANTES da próxima feature comparável (preventivo).
+- **scripts/generate-manifest.js** `introduced` field overwrite — bug do gerador (registra version atual em vez de preservar histórico). Requer redesign do script.
 
 ---
 
