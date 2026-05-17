@@ -1,9 +1,9 @@
 # State: Stack Knowledge Layer — Node.js + TypeScript (v6.3.2)
 
 **Plan:** ./PLAN.md
-**Phase:** in-progress
+**Phase:** completed
 **Current Plan:** 06/6
-**Last Updated:** 2026-05-17 (Plano 06 fases 04-05 executadas — INDEX final + RF10 preview + RF11 audit-trail em 14 atomos)
+**Last Updated:** 2026-05-17 (Feature v6.3.2 APROVADA — Plano 06 COMPLETED, work artifacts removidos, todos os 6 planos verdes)
 
 
 
@@ -16,11 +16,11 @@
 | 03 | Skill wire-up — 6 cross-stack skills restantes (stack-aware-preface) | 3 | 3/3 | completed |
 | 04 | Atom Batch A — 5 átomos tier 1 + backend core | 6 | 6/6 | completed |
 | 05 | Atom Batch B — 5 átomos thin/security/testing/arch (+RF8) | 6 | 6/6 | completed |
-| 06 | Atom Batch C + INDEX + Polish — 3 átomos tier 3 + CA-01..10 | 6 | 5/6 | in-progress |
+| 06 | Atom Batch C + INDEX + Polish — 3 átomos tier 3 + CA-01..10 | 6 | 6/6 | completed |
 
 ## Progress Global
 
-Fases done: 30/31 (97%)
+Fases done: 31/31 (100%)
 
 ## Log
 
@@ -55,3 +55,4 @@ Fases done: 30/31 (97%)
 - 2026-05-17: Plano 06 fases 01-03 executadas em paralelo (3 plan-executor isolados, batch 3+0). 3 atomos tier 3 criados em `docs/knowledge/nodejs-typescript/atoms/`: `performance-and-internals.md` (131 ln, 7 patterns V8/libuv/GC/profiling, commit `fb3a3a8`), `operations-and-deploy.md` (120 ln, 6 patterns supervisor/graceful-shutdown/probes/12-factor/migrations, commit `2cc3984`), `tooling.md` (112 ln, 6 patterns biome/tsconfig/hooks/Knip/pnpm/SAST, commit `0b6fb8c`). Total 363 linhas. Anti-drift clause (compound lesson) aplicada agressivamente: fase-01 omitiu simdjson/eval-deopt/try-catch-deopt; fase-02 omitiu pino-final/dumb-init detail; **fase-03 substituiu maioria dos patterns do plano** (tsc/tsx/Bun/Turborepo/Nx/Watch/CI-cache não estavam em wf-0058a9e6 — DEV-1 do Plano 06). Triggers de tooling.md realinhados ao corpo real (commit `249d44a`). harness:validate verde 3/3 (26 required + 202 markdown). Total 13/14 atomos populados (falta INDEX consolidar).
 - 2026-05-17: Plano 06 fase-04 executada (subagente plan-executor isolado). INDEX.md final consolidado em 61 linhas (cap ≤100 OK), substituindo skeleton do Plano 01. Mapas Por keyword (1 linha por atomo, agregado dos triggers reais) + Por layer + Por tier + Como consultar. **Drift de layer detectado em 2 atomos:** `architecture-conventions.md` e `dependencies-supply-chain.md` têm `layer: backend` no frontmatter (Plano 05) mas plano de fase-04 esperava `both` — INDEX usa valores REAIS do frontmatter. Todos 14 atomos não-órfãos, todos 14 links válidos, harness:validate verde. Commit `dfff394`.
 - 2026-05-17: Plano 06 fase-05 executada (subagente plan-executor isolado). RF10 + RF11 entregues em 1 commit atomico `9ff8cd5`. **RF11:** 14/14 atomos receberam audit-trail-path no YAML `sources:` no formato `- research: <id> (claude-code/knowledge/Nodejs/<filename real>)` — filenames REAIS do filesystem (compass_artifact_wf-...md) e não os shortened do plano. Edits cirurgicos sem reescrever resto do frontmatter (G1 preservado). 2 IDs não-compass mapeados: `deps-kb→node-deps-kb.md`, `security-guide→nodejs-typescript-security-guide.md`. **RF10:** `format-knowledge-preview.ts` + `.test.ts` em `skills/init/lib/`, parser de tabela "Por keyword" do INDEX retorna top-8 keywords; wired em `skills/init/SKILL.md` linha 367 após `knowledge_copied`. Sintaxe `bun:test` (DEV-2: convertido do template `vitest` do plano). 3 testes RF10 + 1 teste RF11 snapshot passing. Suite global baseline mantido. harness:validate verde. **5/6 fases concluídas — só falta fase-06 (E2E + cleanup).**
+- 2026-05-17: Plano 06 fase-06 executada (orchestrator direto + AskUserQuestion para cleanup). E2E gaps cobertos via novo `tests/e2e/stack-knowledge-full-e2e.test.ts` (5 testes: CA-01 atoms+INDEX validity + CA-04 skip pré-existente + --refresh). CA-02/03/05/06/07/09 reaproveitados de tracer-bullet + preface-all-skills (já verdes). CA-08 humano executado pelo assistant: 1 tier 1 (async-concurrency-streams) + 1 tier 2 (data-persistence) + 1 tier 3 (performance-and-internals) — 3/3 PASS 5/5 com regra literal do PRD. CA-10 PARCIAL: regression existente OK; UX baseline snapshot do PRD não implementado (baseline pré-v6.3.2 não capturado em dev — trade-off documentado em DI-3). Scripts: harness:validate verde, 40/41 tests stack-knowledge pass. **Veredito DI-3: Feature v6.3.2 APROVADA.** Cleanup destrutivo executado após confirmação explícita do dev: `rm _catalog.md _topic-plan.md` (commit `2add3c3` E2E+verdict). **Plano 06 COMPLETED — 6/6 planos da feature v6.3.2 verdes.**
