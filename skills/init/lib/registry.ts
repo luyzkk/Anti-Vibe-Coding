@@ -1,9 +1,6 @@
 // skills/init/lib/registry.ts
 import type { Step } from './steps/types'
+import { detectLegacyStep } from './steps/00-detect-legacy'
 
-/**
- * Lista ORDENADA de steps que o dispatcher executa sequencialmente.
- * Cada plano (01/02/03) adiciona suas entradas. Manter a ordem deste array eh contratual:
- * altera = revisar SKILL.md (Plano 04 — cutover).
- */
-export const registry: readonly Step[] = []
+// 2026-05-17 (Luiz/dev): ordem contratual — detect-legacy SEMPRE primeiro (PRD: gate inicial).
+export const registry: readonly Step[] = [detectLegacyStep]
