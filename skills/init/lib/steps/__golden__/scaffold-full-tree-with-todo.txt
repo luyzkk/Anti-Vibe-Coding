@@ -1,0 +1,3 @@
+Base files: 4
+Tree files: 32 in <NN> ms
+TODO.md ja existe — mantido sem modificacao (G2).
