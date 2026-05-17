@@ -3,7 +3,7 @@ topic: tooling
 stack: nodejs-typescript
 layer: both
 sources:
-  - research: 0058a9e6
+  - research: 0058a9e6 (claude-code/knowledge/Nodejs/compass_artifact_wf-0058a9e6-c207-4d87-aaab-2e1d2b43a481_text_markdown.md)
 tier: 3
 triggers: [biome, eslint, prettier, tsconfig, strict, noUncheckedIndexedAccess, pnpm, npm, yarn, lockfile, knip, ts-prune, depcheck, husky, lint-staged, lefthook, pre-commit, pre-push, sast, semgrep, codeql]
 related_skills: [/architecture, /infrastructure]

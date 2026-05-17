@@ -3,12 +3,12 @@ topic: async-concurrency-streams
 stack: nodejs-typescript
 layer: both
 sources:
-  - research: cbfb8720
-  - skill: nodejs-core/rules/libuv-event-loop.md
-  - skill: nodejs-core/rules/libuv-thread-pool.md
-  - skill: nodejs-core/rules/libuv-async-io.md
-  - skill: nodejs-core/rules/streams-internals.md
-  - skill: nodejs-core/rules/worker-threads-internals.md
+  - research: cbfb8720 (claude-code/knowledge/Nodejs/compass_artifact_wf-cbfb8720-085e-4778-b2c7-c423b3cb6ef8_text_markdown.md)
+  - skill: nodejs-core/rules/libuv-event-loop.md (claude-code/knowledge/Nodejs/nodejs-core/rules/libuv-event-loop.md)
+  - skill: nodejs-core/rules/libuv-thread-pool.md (claude-code/knowledge/Nodejs/nodejs-core/rules/libuv-thread-pool.md)
+  - skill: nodejs-core/rules/libuv-async-io.md (claude-code/knowledge/Nodejs/nodejs-core/rules/libuv-async-io.md)
+  - skill: nodejs-core/rules/streams-internals.md (claude-code/knowledge/Nodejs/nodejs-core/rules/streams-internals.md)
+  - skill: nodejs-core/rules/worker-threads-internals.md (claude-code/knowledge/Nodejs/nodejs-core/rules/worker-threads-internals.md)
 tier: 1
 triggers: [event loop, promise, async, worker, stream, backpressure, AbortController]
 related_skills: [/system-design]

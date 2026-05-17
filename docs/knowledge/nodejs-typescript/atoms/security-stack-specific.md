@@ -3,8 +3,8 @@ topic: security-stack-specific
 stack: nodejs-typescript
 layer: backend
 sources:
-  - research: security-guide
-  - skill: nodejs-core/rules/primordials.md
+  - research: security-guide (claude-code/knowledge/Nodejs/nodejs-typescript-security-guide.md)
+  - skill: nodejs-core/rules/primordials.md (claude-code/knowledge/Nodejs/nodejs-core/rules/primordials.md)
 tier: 2
 triggers: [prototype pollution, npm audit, dotenv, env, primordials, supply chain, helmet]
 related_skills: [/security]

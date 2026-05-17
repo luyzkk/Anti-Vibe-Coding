@@ -3,9 +3,9 @@ topic: architecture-conventions
 stack: nodejs-typescript
 layer: backend
 sources:
-  - research: 3f1af213
-  - skill: nodejs-best-practices/SKILL.md
-  - skill: nodejs-backend-patterns/SKILL.md
+  - research: 3f1af213 (claude-code/knowledge/Nodejs/compass_artifact_wf-3f1af213-e4f0-4600-ad65-88d1903bc4fe_text_markdown.md)
+  - skill: nodejs-best-practices/SKILL.md (claude-code/knowledge/Nodejs/nodejs-best-practices/SKILL.md)
+  - skill: nodejs-backend-patterns/SKILL.md (claude-code/knowledge/Nodejs/nodejs-backend-patterns/SKILL.md)
 tier: 2
 triggers: [layered, modular, dependency injection, DI, ports, adapters, monorepo, conventions]
 related_skills: [/architecture]

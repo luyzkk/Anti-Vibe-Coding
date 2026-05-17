@@ -3,7 +3,7 @@ topic: code-smells-catalog
 stack: nodejs-typescript
 layer: both
 sources:
-  - research: 98973791
+  - research: 98973791 (claude-code/knowledge/Nodejs/compass_artifact_wf-98973791-5fa9-4b2a-b2d6-04b515df7652_text_markdown.md)
 tier: 2
 triggers: [code smell, refactor, any, enum, await, fire-and-forget, god module]
 related_skills: [/design-patterns]

@@ -3,7 +3,7 @@ topic: data-persistence
 stack: nodejs-typescript
 layer: backend
 sources:
-  - research: deadf855
+  - research: deadf855 (claude-code/knowledge/Nodejs/compass_artifact_wf-deadf855-7823-4d55-8ccc-599c9fa6f8e7_text_markdown.md)
 tier: 2
 triggers: [Prisma, Drizzle, Kysely, N+1, migration, RLS, multi-tenant, pgBouncer, transaction]
 related_skills: [/system-design, /api-design]

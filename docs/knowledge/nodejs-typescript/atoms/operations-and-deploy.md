@@ -3,7 +3,7 @@ topic: operations-and-deploy
 stack: nodejs-typescript
 layer: backend
 sources:
-  - research: 21a08436
+  - research: 21a08436 (claude-code/knowledge/Nodejs/compass_artifact_wf-21a08436-5963-44dc-8d97-5fe396c05500_text_markdown.md)
 tier: 3
 triggers: [pm2, systemd, docker, cluster, graceful shutdown, sigterm, zero downtime, blue green, canary, rolling deploy, health check, liveness, readiness, 12-factor, env vars, dotenv, zod-config]
 related_skills: [/infrastructure, /system-design]

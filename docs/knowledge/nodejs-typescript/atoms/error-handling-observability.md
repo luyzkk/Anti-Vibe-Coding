@@ -3,7 +3,7 @@ topic: error-handling-observability
 stack: nodejs-typescript
 layer: both
 sources:
-  - research: e4ce81c8
+  - research: e4ce81c8 (claude-code/knowledge/Nodejs/compass_artifact_wf-e4ce81c8-fb33-485c-a64a-0294c3fffe00_text_markdown.md)
 tier: 1
 triggers: [error, exception, Result, Pino, telemetry, log, correlation, OTel, LGPD]
 related_skills: [/design-patterns, /system-design]

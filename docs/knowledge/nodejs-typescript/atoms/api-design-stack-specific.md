@@ -3,8 +3,8 @@ topic: api-design-stack-specific
 stack: nodejs-typescript
 layer: backend
 sources:
-  - research: 26cc8f92
-  - skill: nodejs-backend-patterns/SKILL.md
+  - research: 26cc8f92 (claude-code/knowledge/Nodejs/compass_artifact_wf-26cc8f92-38dd-42cc-90e8-1610235e9a71_text_markdown.md)
+  - skill: nodejs-backend-patterns/SKILL.md (claude-code/knowledge/Nodejs/nodejs-backend-patterns/SKILL.md)
 tier: 2
 triggers: [fastify, express, zod, typebox, trpc, openapi, validation]
 related_skills: [/api-design]

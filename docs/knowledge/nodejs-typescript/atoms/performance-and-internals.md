@@ -3,13 +3,13 @@ topic: performance-and-internals
 stack: nodejs-typescript
 layer: backend
 sources:
-  - research: 55c3ca89
-  - skill: nodejs-core/rules/v8-garbage-collection.md
-  - skill: nodejs-core/rules/v8-hidden-classes.md
-  - skill: nodejs-core/rules/v8-jit-compilation.md
-  - skill: nodejs-core/rules/native-memory.md
-  - skill: nodejs-core/rules/libuv-event-loop.md
-  - skill: nodejs-core/rules/profiling-v8.md
+  - research: 55c3ca89 (claude-code/knowledge/Nodejs/compass_artifact_wf-55c3ca89-f0de-43dc-8ffd-8b0f5856e92a_text_markdown.md)
+  - skill: nodejs-core/rules/v8-garbage-collection.md (claude-code/knowledge/Nodejs/nodejs-core/rules/v8-garbage-collection.md)
+  - skill: nodejs-core/rules/v8-hidden-classes.md (claude-code/knowledge/Nodejs/nodejs-core/rules/v8-hidden-classes.md)
+  - skill: nodejs-core/rules/v8-jit-compilation.md (claude-code/knowledge/Nodejs/nodejs-core/rules/v8-jit-compilation.md)
+  - skill: nodejs-core/rules/native-memory.md (claude-code/knowledge/Nodejs/nodejs-core/rules/native-memory.md)
+  - skill: nodejs-core/rules/libuv-event-loop.md (claude-code/knowledge/Nodejs/nodejs-core/rules/libuv-event-loop.md)
+  - skill: nodejs-core/rules/profiling-v8.md (claude-code/knowledge/Nodejs/nodejs-core/rules/profiling-v8.md)
 tier: 3
 triggers: [performance, event loop, v8, gc, garbage collection, hidden classes, inline cache, jit, memory leak, profiling, clinic, 0x, native memory, worker threads, UV_THREADPOOL_SIZE]
 related_skills: [/system-design, /api-design]
