@@ -1,6 +1,6 @@
 // 2026-05-17 (Luiz/dev): RF10 — preview de keywords no output do /init (PRD §Could Haves)
 import { describe, it, expect } from 'bun:test'
-import { formatKnowledgePreview, parseTopKeywords } from './format-knowledge-preview'
+import { formatKnowledgePreview, parseTopKeywords, TOP_N_KEYWORDS } from './format-knowledge-preview'
 import { writeFileSync, mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -42,5 +42,19 @@ describe('format-knowledge-preview (RF10)', () => {
     const keywords = parseTopKeywords('/path/que/nao/existe/INDEX.md', 8)
     expect(keywords).toEqual([])
     expect(formatKnowledgePreview(keywords)).toBe('')
+  })
+
+  it('TOP_N_KEYWORDS exportado e igual a 8 (Wave 5 CS3)', () => {
+    expect(TOP_N_KEYWORDS).toBe(8)
+  })
+
+  it('parseTopKeywords sem topN explícito usa TOP_N_KEYWORDS como default', () => {
+    const tmpDir = mkdtempSync(join(tmpdir(), 'kn-topn-'))
+    const indexPath = join(tmpDir, 'INDEX.md')
+    // 10 keywords únicas para verificar que o default limita em 8
+    writeFileSync(indexPath, `# Index\n\n## Por keyword\n\n| Keyword | Átomos |\n|---|---|\n| a, b, c, d, e, f, g, h, i, j | [atom](./atoms/atom.md) |\n`)
+    const keywords = parseTopKeywords(indexPath)
+    expect(keywords.length).toBe(TOP_N_KEYWORDS)
+    rmSync(tmpDir, { recursive: true, force: true })
   })
 })

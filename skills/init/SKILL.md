@@ -319,59 +319,17 @@ Important: v6.0.0 only **registers** the stack. Knowledge packs (`docs/knowledge
 <!-- 2026-05-16 (Luiz/dev): Plano 02 fase-03 — multi-stack + idempotent default + --refresh-knowledge (CA-04, RF7).
      G2 do plano: Step 3 (state-md-init) acima permanece intacto (CA-10).
      G6 do plano: parseRefreshFlag inline ~10 linhas, sem commander/yargs.
-     DI-4: parseRefreshFlag extraído em skills/init/lib/parse-refresh-flag.ts para testabilidade. -->
+     DI-4: parseRefreshFlag extraído em skills/init/lib/parse-refresh-flag.ts para testabilidade.
+     2026-05-17 (Luiz/dev): Wave 5 D2 — orquestração extraída para lib/run-stack-knowledge-init.ts (testável).
+     Step 3.1 agora é thin caller; toda lógica está no helper com suite de testes própria. -->
 
 ```javascript
+// 2026-05-17 (Luiz/dev): Wave 5 D2 — orquestracao extraida para lib/run-stack-knowledge-init.ts (testavel).
 // DI-06: import direto (GT-04 — bun -e com paths absolutos quebra no Windows).
-const { detectMultiStack } = await import('./lib/detect-multi-stack.ts')
-const { writeStackJson } = await import('./lib/write-stack-json.ts')
-const { copyKnowledge } = await import('./lib/copy-knowledge.ts')
-const { parseRefreshFlag } = await import('./lib/parse-refresh-flag.ts')
-const { writeTelemetryDomainEvent } = await import('../../lib/telemetry-utils.ts')
-
+const { runStackKnowledgeInit } = await import('./lib/run-stack-knowledge-init.ts')
 const targetDir = process.cwd()
 const pluginRoot = process.env.PLUGIN_ROOT ?? import.meta.dir + '/../..'
-
-// G6: parser inline sem dependência nova — RF7 (--refresh-knowledge força overwrite)
-const refresh = parseRefreshFlag(typeof ARGUMENTS === 'string' ? ARGUMENTS : '')
-
-const detection = await detectMultiStack(targetDir)
-const { written: stackJson } = await writeStackJson(targetDir, detection)
-console.log('stack.json written. primary =', stackJson.primary)
-
-const copyResult = await copyKnowledge({ targetDir, pluginRoot, primary: stackJson.primary, refresh })
-console.log(copyResult.message)
-
-// 2026-05-16 (Luiz/dev): RF9 — emitir eventos auxiliares de dominio. DI-6: tipo dedicado.
-// G7: writeTelemetryDomainEvent e silencioso (appendJsonlLine tem try/catch interno) — sem try/catch aqui.
-const nowISO = new Date().toISOString()
-
-writeTelemetryDomainEvent({
-  evento: 'stack_detected',
-  skill_invocada: 'init',
-  timestamp: nowISO,
-  primary: detection.primary,
-  secondary: detection.secondary,
-  anchor_files: detection.anchor_files,
-})
-
-writeTelemetryDomainEvent({
-  evento: 'knowledge_copied',
-  skill_invocada: 'init',
-  timestamp: nowISO,
-  stack: detection.primary,
-  atom_count: copyResult.atomCount,
-  status: copyResult.status,
-})
-
-// 2026-05-17 (Luiz/dev): RF10 preview — top-N keywords ao output user-facing (PRD §Could Haves, Plano 06 fase-05)
-const { parseTopKeywords, formatKnowledgePreview } = await import('./lib/format-knowledge-preview.ts')
-const { join: joinPath } = await import('node:path')
-const indexPathInProject = joinPath(targetDir, '.claude/knowledge/INDEX.md')
-const preview = formatKnowledgePreview(parseTopKeywords(indexPathInProject, 8))
-if (preview) {
-  console.log(preview)
-}
+await runStackKnowledgeInit({ targetDir, pluginRoot, args: typeof ARGUMENTS === 'string' ? ARGUMENTS : '' })
 ```
 
 ---

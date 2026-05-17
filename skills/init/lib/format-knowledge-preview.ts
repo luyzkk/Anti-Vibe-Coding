@@ -2,7 +2,10 @@
 import { existsSync, readFileSync } from 'node:fs'
 
 // G3 deste plano: top-N = 8 mantém output scanable; lista completa polui (~14 átomos × 5 keywords = 70).
-export function parseTopKeywords(indexPath: string, topN: number = 8): string[] {
+// 2026-05-17 (Luiz/dev): Wave 5 CS3 — exportar constante elimina magic number em SKILL.md Step 3 e callers.
+export const TOP_N_KEYWORDS = 8 as const
+
+export function parseTopKeywords(indexPath: string, topN: number = TOP_N_KEYWORDS): string[] {
   if (!existsSync(indexPath)) return []
 
   const content = readFileSync(indexPath, 'utf-8')

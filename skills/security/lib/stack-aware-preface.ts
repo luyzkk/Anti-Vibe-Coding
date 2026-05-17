@@ -12,6 +12,16 @@ export const KNOWLEDGE_INDEX_RELATIVE = '.claude/knowledge/INDEX.md'
 export const PREFACE_MESSAGE =
   'Antes do corpo desta skill, consulte `.claude/knowledge/INDEX.md` para padrões stack-specific deste projeto.'
 
+/**
+ * Returns the stack knowledge preface for the given project.
+ *
+ * @param projectRoot - The absolute path to the project root. The helper resolves
+ *   `.claude/knowledge/INDEX.md` relative to this path. Callers typically pass
+ *   `process.cwd()`, which assumes the skill is invoked from the project directory.
+ *   If `projectRoot` does not contain `.claude/knowledge/INDEX.md`, returns '' silently
+ *   (graceful CA-09 — preface absent does not warn or log).
+ * @returns Empty string if INDEX.md absent (graceful); otherwise PREFACE_MESSAGE.
+ */
 export function getStackKnowledgePreface(projectRoot: string): string {
   const knowledgePath = join(projectRoot, '.claude', 'knowledge', 'INDEX.md')
   return existsSync(knowledgePath) ? PREFACE_MESSAGE : ''
