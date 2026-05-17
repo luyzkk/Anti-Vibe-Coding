@@ -327,6 +327,7 @@ const { detectMultiStack } = await import('./lib/detect-multi-stack.ts')
 const { writeStackJson } = await import('./lib/write-stack-json.ts')
 const { copyKnowledge } = await import('./lib/copy-knowledge.ts')
 const { parseRefreshFlag } = await import('./lib/parse-refresh-flag.ts')
+const { writeTelemetryDomainEvent } = await import('../../lib/telemetry-utils.ts')
 
 const targetDir = process.cwd()
 const pluginRoot = process.env.PLUGIN_ROOT ?? import.meta.dir + '/../..'
@@ -340,6 +341,28 @@ console.log('stack.json written. primary =', stackJson.primary)
 
 const copyResult = await copyKnowledge({ targetDir, pluginRoot, primary: stackJson.primary, refresh })
 console.log(copyResult.message)
+
+// 2026-05-16 (Luiz/dev): RF9 — emitir eventos auxiliares de dominio. DI-6: tipo dedicado.
+// G7: writeTelemetryDomainEvent e silencioso (appendJsonlLine tem try/catch interno) — sem try/catch aqui.
+const nowISO = new Date().toISOString()
+
+writeTelemetryDomainEvent({
+  evento: 'stack_detected',
+  skill_invocada: 'init',
+  timestamp: nowISO,
+  primary: detection.primary,
+  secondary: detection.secondary,
+  anchor_files: detection.anchor_files,
+})
+
+writeTelemetryDomainEvent({
+  evento: 'knowledge_copied',
+  skill_invocada: 'init',
+  timestamp: nowISO,
+  stack: detection.primary,
+  atom_count: copyResult.atomCount,
+  status: copyResult.status,
+})
 ```
 
 ---

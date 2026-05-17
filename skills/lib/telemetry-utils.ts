@@ -1,6 +1,6 @@
 import { appendFileSync, mkdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import type { TelemetryStart, TelemetryEnd, TelemetryEntry, FasePipeline } from './telemetry-types'
+import type { TelemetryStart, TelemetryEnd, TelemetryEntry, TelemetryDomainEvent, FasePipeline } from './telemetry-types'
 
 // G7: lista canonica das 10 skills instrumentadas (D13)
 export const INSTRUMENTED_SKILLS: ReadonlyArray<FasePipeline> = [
@@ -105,6 +105,18 @@ const SKILL_TO_FASE: Record<string, FasePipeline> = {
   'architecture': 'architecture',
   'design-twice': 'design-twice',
   'quick-plan': 'quick-plan',
+}
+
+/**
+ * Append de um evento auxiliar de dominio (stack_detected ou knowledge_copied).
+ * 2026-05-16 (Luiz/dev): RF9 — eventos emitidos pelo /init. DI-6: tipo dedicado (G8).
+ * G7: falha silenciosa garantida por appendJsonlLine (nao adicionar try/catch no callsite).
+ * Nota: nao reutiliza serializeEntry() pois TelemetryDomainEvent nao e subtype de TelemetryEntry
+ * (pair-events.ts acessa timestamp_inicio sem discriminar — TDD gate impede modificar o arquivo).
+ */
+export function writeTelemetryDomainEvent(entry: TelemetryDomainEvent): void {
+  const filePath = computeMonthlyPath()
+  appendJsonlLine(filePath, JSON.stringify(entry) + '\n')
 }
 
 export function inferFasePipeline(skillName: string): FasePipeline | null {

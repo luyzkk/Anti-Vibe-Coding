@@ -41,3 +41,30 @@ export interface TelemetryEnd extends BaseTelemetryEntry {
 }
 
 export type TelemetryEntry = TelemetryStart | TelemetryEnd;
+
+// 2026-05-16 (Luiz/dev): tipos dedicados para eventos auxiliares do /init — RF9.
+// DI-6 (Plano 02 fase-04): tipo dedicado em vez de reusar TelemetryStart/TelemetryEnd (G8).
+// Justificativa: eventos de dominio nao tem duracao_ms, fase_pipeline, timestamp_inicio — campos nao-aplicaveis.
+// Nota de desvio: TelemetryDomainEvent NAO e incluido em TelemetryEntry pois pair-events.ts acessa
+// timestamp_inicio em toda a uniao sem discriminar (TDD gate bloqueia modificar pair-events.ts sem testes).
+// writeTelemetryDomainEvent serializa diretamente com JSON.stringify para manter compatibilidade.
+
+export interface TelemetryStackDetected {
+  evento: "stack_detected";
+  skill_invocada: "init";
+  timestamp: string;            // ISO 8601 UTC
+  primary: string | null;       // matrix folder name ou null (CA-06 — stack nao detectada)
+  secondary: string[];
+  anchor_files: string[];
+}
+
+export interface TelemetryKnowledgeCopied {
+  evento: "knowledge_copied";
+  skill_invocada: "init";
+  timestamp: string;
+  stack: string | null;         // primary que foi (tentou ser) copiado
+  atom_count: number;
+  status: "copied" | "skipped" | "refreshed" | "no-matrix" | "no-source";
+}
+
+export type TelemetryDomainEvent = TelemetryStackDetected | TelemetryKnowledgeCopied;
