@@ -90,13 +90,32 @@ export async function copyKnowledge(opts: CopyKnowledgeOptions): Promise<CopyKno
     }
   }
 
-  // Refresh path: limpar antes de copiar (RF7)
-  if (destExists && refresh) {
+  // Refresh path: limpar antes de copiar (RF7).
+  // 2026-05-17: rm+mkdir são idempotentes — eliminamos a race window TOCTOU (CWE-367).
+  // rm({force:true}) não falha se destDir ausente; mkdir({recursive:true}) não falha se já existe.
+  if (refresh) {
     await fs.rm(destDir, { recursive: true, force: true })
   }
 
   await fs.mkdir(destDir, { recursive: true })
-  const atomCount = await copyTree(sourceDir, destDir)
+
+  let atomCount: number
+  try {
+    atomCount = await copyTree(sourceDir, destDir)
+  } catch (err: unknown) {
+    const e = err as Error
+    if (e.message?.includes('CWE-61')) {
+      // Symlink detectado — limpar destDir parcialmente criado e sinalizar
+      await fs.rm(destDir, { recursive: true, force: true })
+      return {
+        status: 'no-source',
+        atomCount: 0,
+        message: e.message,
+        destDir,
+      }
+    }
+    throw err
+  }
 
   return {
     status: refresh ? 'refreshed' : 'copied',
@@ -111,6 +130,7 @@ export async function copyKnowledge(opts: CopyKnowledgeOptions): Promise<CopyKno
 /**
  * Cópia recursiva mínima. Retorna contagem de arquivos (não diretórios).
  * Usa fs nativo — não reutiliza copy-recursive.ts (contexto de scaffold de templates é diferente).
+ * 2026-05-17: lstat() explícito antes de cada entry — rejeita symlinks (CWE-61).
  */
 async function copyTree(src: string, dest: string): Promise<number> {
   let count = 0
@@ -118,6 +138,14 @@ async function copyTree(src: string, dest: string): Promise<number> {
   for (const entry of entries) {
     const srcPath = path.join(src, entry.name)
     const destPath = path.join(dest, entry.name)
+    // CWE-61: lstat não segue symlinks — detecta o link em si, não o alvo.
+    // Dirent.isFile()/isDirectory() com readdir withFileTypes pode seguir symlinks em algumas plataformas.
+    const stat = await fs.lstat(srcPath)
+    if (stat.isSymbolicLink()) {
+      throw new Error(
+        `Symlink detected in source — abortando por segurança (CWE-61): ${srcPath}`,
+      )
+    }
     if (entry.isDirectory()) {
       await fs.mkdir(destPath, { recursive: true })
       count += await copyTree(srcPath, destPath)
