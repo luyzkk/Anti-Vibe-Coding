@@ -14,7 +14,7 @@ Após v6.3.2 (Stack Knowledge Layer) ser declarada COMPLETED + tagged como relea
 
 Sem disciplina, isso vira ou (a) feature-creep contínuo travando o release ou (b) backlog ignorado que vira débito permanente. O risco real era execução sequencial fix-por-fix em loop, gerando 12-15 commits dispersos sem coesão semântica.
 
-## What Worked
+## Solution
 
 O pattern aplicado teve 4 etapas que se mostraram robustas:
 
@@ -57,7 +57,7 @@ Wave H2 estreitou `MatrixFolder` de `string` para union literal. Test files (`co
 
 **Lição embutida:** quando uma wave envolve **type narrowing**, sempre rodar `bun run typecheck` antes do final commit. Test files são consumers do tipo público — eles quebram primeiro.
 
-## Anti-patterns Avoided
+## Prevention
 
 Coisas que **não fizemos** (e que teriam quebrado o ritmo):
 

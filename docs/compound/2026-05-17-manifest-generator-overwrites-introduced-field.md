@@ -28,7 +28,7 @@ files[relPath] = {
 
 Não há leitura do manifest anterior para preservar `introduced`. O campo `introduced` é injetado **fora** do scanDir (em outro lugar do script que monta a estrutura final de cada entry), sempre com valor `"v" + VERSION` — overwrite total.
 
-## Fix (a aplicar em v6.3.3)
+## Solution
 
 Antes de regenerar entries, ler `plugin-manifest.json` existente. Para cada entry:
 
@@ -58,7 +58,7 @@ Reset do histórico em v6.3.3: rodar `git log --diff-filter=A --name-only` para 
 
 **Sinal de alerta:** se o diff entre 2 versões consecutivas do output mostra mudança em **N** campos quando só **M < N** deveriam ter mudado, há overwrite involuntário.
 
-## Recommendation for Future Plugin Releases
+## Prevention
 
 Antes de bump release (`PLUGIN_VERSION=X.Y.Z bun run scripts/generate-manifest.js`):
 
