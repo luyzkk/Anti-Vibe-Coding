@@ -7,8 +7,8 @@
   "plugins": [
     {
       "name": "anti-vibe-coding",
-      "description": "Plugin de desenvolvimento disciplinado com conhecimentos de programador senior. v6.3.1 — Honesty & Wire-up.",
-      "version": "6.3.1",
+      "description": "Plugin de desenvolvimento disciplinado com conhecimentos de programador senior. v6.3.2 — Stack Knowledge Layer Node.js+TypeScript.",
+      "version": "6.3.2",
       "source": "./",
       "author": {
         "name": "Luiz Felipe"
