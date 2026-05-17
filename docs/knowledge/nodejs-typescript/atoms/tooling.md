@@ -5,7 +5,7 @@ layer: both
 sources:
   - research: 0058a9e6
 tier: 3
-triggers: [tsc, tsx, ts-node, bun, esbuild, biome, eslint, prettier, pnpm, npm, yarn, turborepo, nx, monorepo, watch mode, nodemon, ci cache]
+triggers: [biome, eslint, prettier, tsconfig, strict, noUncheckedIndexedAccess, pnpm, npm, yarn, lockfile, knip, ts-prune, depcheck, husky, lint-staged, lefthook, pre-commit, pre-push, sast, semgrep, codeql]
 related_skills: [/architecture, /infrastructure]
 updated: 2026-05-16
 ---
