@@ -5,7 +5,7 @@ import { join } from 'node:path'
 
 describe('RF11 — audit-trail paths em sources', () => {
   it('todos os 14 átomos têm pelo menos um path absoluto entre parênteses em sources:', () => {
-    const atomsDir = 'docs/knowledge/nodejs-typescript/atoms'
+    const atomsDir = join(import.meta.dir, '..', '..', '..', 'docs/knowledge/nodejs-typescript/atoms')
     const atoms = readdirSync(atomsDir).filter((f) => f.endsWith('.md'))
     expect(atoms.length).toBe(14)
 

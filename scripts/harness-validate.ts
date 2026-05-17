@@ -140,6 +140,7 @@ async function main(): Promise<void> {
     checkAgentContracts(failures), // 2026-05-14 (Luiz/dev): novo — CA-10
     checkV6PathWhitelist(failures), // 2026-05-14 (Luiz/dev): v6.2.0 — CA-v6pw
     checkProfileAwarePreface(failures), // 2026-05-15 (Luiz/dev): Plano 04 fase-03 — CA-07, CA-11
+    checkKnowledgePresence(failures), // 2026-05-17 (Luiz/dev): H1.4 — knowledge INDEX + atom count
   ])
 
   // Consistency check em migration mode: todo slot ausente deve ter plan ativo.
@@ -641,6 +642,63 @@ export async function checkProfileAwarePreface(
       }
     }),
   )
+}
+
+// 2026-05-17 (Luiz/dev): H1.4 — presence + minimum atom count check for docs/knowledge/.
+// Only fires when docs/knowledge/ directory exists (opt-in: projects without a stack init are not penalized).
+// When the dir exists, INDEX.md must be present and atoms/ must contain at least 1 .md file.
+export async function checkKnowledgePresence(
+  failures: Failure[],
+  projectRoot?: string,
+): Promise<void> {
+  const base = projectRoot ?? root
+  const knowledgeDir = path.join(base, 'docs', 'knowledge')
+
+  // If docs/knowledge/ does not exist, skip silently — project may not have run stack init.
+  try {
+    await fs.stat(knowledgeDir)
+  } catch {
+    return
+  }
+
+  // Walk one level to find stack subdirs (e.g. nodejs-typescript/).
+  let stackDirs: string[]
+  try {
+    const entries = await fs.readdir(knowledgeDir, { withFileTypes: true })
+    stackDirs = entries
+      .filter((e) => e.isDirectory())
+      .map((e) => path.join(knowledgeDir, String(e.name)))
+  } catch {
+    return
+  }
+
+  for (const stackDir of stackDirs) {
+    const rel = path.relative(base, stackDir).replace(/\\/g, '/')
+    const indexMd = path.join(stackDir, 'INDEX.md')
+    try {
+      await fs.stat(indexMd)
+    } catch {
+      failures.push({
+        rule: 'knowledge-presence',
+        message: `${rel}/INDEX.md is missing — run stack knowledge init or restore the file`,
+      })
+    }
+
+    const atomsDir = path.join(stackDir, 'atoms')
+    let atomCount = 0
+    try {
+      const atomEntries = await fs.readdir(atomsDir)
+      atomCount = atomEntries.filter((f) => f.endsWith('.md')).length
+    } catch {
+      // atoms/ dir absent — treat as 0
+    }
+    if (atomCount === 0) {
+      failures.push({
+        rule: 'knowledge-presence',
+        message: `${rel}/atoms/ has no .md files — knowledge atoms may have been deleted accidentally`,
+      })
+    }
+  }
 }
 
 // 2026-05-14 (Luiz/dev): guard para permitir import do modulo em testes (Plano 05 fase-01).
