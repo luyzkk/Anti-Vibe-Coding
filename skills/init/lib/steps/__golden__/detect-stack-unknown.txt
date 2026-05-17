@@ -1,0 +1,2 @@
+Detected stack: unknown (via no signal)
+STATE.md created: <abs-path>/docs/STATE.md
