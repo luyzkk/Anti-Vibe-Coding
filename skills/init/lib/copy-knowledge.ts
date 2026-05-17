@@ -1,61 +1,130 @@
-// 2026-05-16 (Luiz/dev): cópia idempotente monostack — Plano 01 fase-03, D14 + CA-02 + CA-04.
-// G2 do plano: STATE.md (escrita por state-md-init.ts) permanece intacta — esta fn é aditiva.
-// G5 do plano: meta SLA ≤100ms (CA-02). Com 1 átomo é trivial; medido em fase-05 E2E.
-// 2026-05-16 (Luiz/dev): path traversal guard — verify-work HIGH #1.
-// `primary` é API pública: futuros consumidores podem alimentar valor lido de stack.json em disco.
-// Validar shape antes de construir sourceRoot evita cpSync recursivo fora de docs/knowledge/.
+// 2026-05-16 (Luiz/dev): contrato final — alinhado com CA-04 (skip idempotente), RF7 (--refresh-knowledge),
+// CA-06 (primary=null → no-matrix, não erro), G10.
+// G2 / DI-2: primary usa nome de pasta do matrix (MatrixFolder), não StackId interno.
+// 2026-05-16 (Luiz/dev): path traversal guard preservado — verify-work HIGH #1 (commit 34347a2).
+// `primary` é API pública: validar shape antes de construir sourceRoot evita cópia fora de docs/knowledge/.
 
-import { cpSync, existsSync, readdirSync } from 'node:fs'
-import { join, resolve, sep } from 'node:path'
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
+import type { MatrixFolder } from './detect-multi-stack'
 
+// Preserva guard do Plano 01 fase-03 (commit 34347a2): rejeita qualquer valor com ../ ou separadores de path.
 const VALID_PRIMARY = /^[a-z0-9_-]+$/i
 
-export type CopyKnowledgeArgs = {
-  projectRoot: string
-  pluginRoot: string
-  primary: string | null
+export type CopyKnowledgeStatus = 'copied' | 'skipped' | 'refreshed' | 'no-matrix' | 'no-source'
+
+export interface CopyKnowledgeResult {
+  status: CopyKnowledgeStatus
+  /** Quantos arquivos foram efetivamente escritos. 0 para skipped/no-matrix/no-source. */
+  atomCount: number
+  /** Mensagem human-readable já formatada para output do /init. */
+  message: string
+  /** Path absoluto de `.claude/knowledge/` no projeto alvo. */
+  destDir: string
 }
 
-export type CopyKnowledgeResult =
-  | { status: 'copied'; atomCount: number; durationMs: number }
-  | { status: 'skipped'; reason: string }
-  | { status: 'noop'; reason: string }
+export interface CopyKnowledgeOptions {
+  targetDir: string
+  pluginRoot: string
+  primary: MatrixFolder | null
+  /** Quando true e .claude/knowledge/ existe, sobrescreve (RF7). Default false (CA-04). */
+  refresh?: boolean
+}
 
-export async function copyKnowledge(args: CopyKnowledgeArgs): Promise<CopyKnowledgeResult> {
-  const { projectRoot, pluginRoot, primary } = args
+export async function copyKnowledge(opts: CopyKnowledgeOptions): Promise<CopyKnowledgeResult> {
+  const { targetDir, pluginRoot, primary, refresh = false } = opts
+  const destDir = path.join(targetDir, '.claude', 'knowledge')
 
+  // G10 / CA-06: primary=null → stack não detectada, não é erro
   if (primary === null) {
-    return { status: 'noop', reason: 'unknown stack (primary=null)' }
+    return {
+      status: 'no-matrix',
+      atomCount: 0,
+      message: 'Stack não detectada. Knowledge não foi copiado.',
+      destDir,
+    }
   }
 
+  // Path traversal guard (preserva fix HIGH #1 — commit 34347a2)
   if (!VALID_PRIMARY.test(primary)) {
-    return { status: 'noop', reason: `invalid primary id (must match ${VALID_PRIMARY.source}): ${primary}` }
+    return {
+      status: 'no-source',
+      atomCount: 0,
+      message: `Matrix '${primary}' tem id inválido (deve casar ${VALID_PRIMARY.source}). Knowledge não foi copiado.`,
+      destDir,
+    }
   }
 
-  const destRoot = join(projectRoot, '.claude', 'knowledge')
-  if (existsSync(destRoot)) {
-    return { status: 'skipped', reason: '.claude/knowledge already exists (use --refresh-knowledge in Plano 02 to force)' }
+  const knowledgeBase = path.resolve(pluginRoot, 'docs', 'knowledge')
+  const sourceDir = path.resolve(knowledgeBase, primary)
+
+  // Defense in depth: garantir que resolve() não escapou (ex: symlink em pluginRoot — improvável mas barato).
+  if (sourceDir !== knowledgeBase && !sourceDir.startsWith(knowledgeBase + path.sep)) {
+    return {
+      status: 'no-source',
+      atomCount: 0,
+      message: `sourceDir escapa docs/knowledge/: ${sourceDir}. Knowledge não foi copiado.`,
+      destDir,
+    }
   }
 
-  const knowledgeBase = resolve(pluginRoot, 'docs', 'knowledge')
-  const sourceRoot = resolve(knowledgeBase, primary)
-  // Defense in depth: ainda que VALID_PRIMARY rejeite `..`, garantir que resolve() não escapou
-  // (ex: symlink em pluginRoot apontando para fora — improvável mas barato de checar).
-  if (sourceRoot !== knowledgeBase && !sourceRoot.startsWith(knowledgeBase + sep)) {
-    return { status: 'noop', reason: `resolved sourceRoot escapes docs/knowledge/: ${sourceRoot}` }
+  const sourceExists = await fs.access(sourceDir).then(() => true).catch(() => false)
+  if (!sourceExists) {
+    return {
+      status: 'no-source',
+      atomCount: 0,
+      message: `Matrix '${primary}' não existe em docs/knowledge/${primary}/. Knowledge não foi copiado.`,
+      destDir,
+    }
   }
-  if (!existsSync(sourceRoot)) {
-    return { status: 'noop', reason: `matrix folder absent: docs/knowledge/${primary}` }
+
+  const destExists = await fs.access(destDir).then(() => true).catch(() => false)
+
+  if (destExists && !refresh) {
+    // 2026-05-16 (Luiz/dev): CA-04 — preserve + inform. Mensagem textual exata do PRD §Edge Cases.
+    return {
+      status: 'skipped',
+      atomCount: 0,
+      message: 'Knowledge já existe em .claude/knowledge/. Use --refresh-knowledge para re-copiar.',
+      destDir,
+    }
   }
 
-  const start = performance.now()
-  cpSync(sourceRoot, destRoot, { recursive: true })
-  const durationMs = performance.now() - start
+  // Refresh path: limpar antes de copiar (RF7)
+  if (destExists && refresh) {
+    await fs.rm(destDir, { recursive: true, force: true })
+  }
 
-  const atomsDir = join(destRoot, 'atoms')
-  const atomCount = existsSync(atomsDir)
-    ? readdirSync(atomsDir).filter((f) => f.endsWith('.md')).length
-    : 0
+  await fs.mkdir(destDir, { recursive: true })
+  const atomCount = await copyTree(sourceDir, destDir)
 
-  return { status: 'copied', atomCount, durationMs }
+  return {
+    status: refresh ? 'refreshed' : 'copied',
+    atomCount,
+    message: refresh
+      ? `Stack detected: ${primary}. Knowledge re-copied: ${atomCount} atoms.`
+      : `Stack detected: ${primary}. Knowledge copied: ${atomCount} atoms.`,
+    destDir,
+  }
+}
+
+/**
+ * Cópia recursiva mínima. Retorna contagem de arquivos (não diretórios).
+ * Usa fs nativo — não reutiliza copy-recursive.ts (contexto de scaffold de templates é diferente).
+ */
+async function copyTree(src: string, dest: string): Promise<number> {
+  let count = 0
+  const entries = await fs.readdir(src, { withFileTypes: true })
+  for (const entry of entries) {
+    const srcPath = path.join(src, entry.name)
+    const destPath = path.join(dest, entry.name)
+    if (entry.isDirectory()) {
+      await fs.mkdir(destPath, { recursive: true })
+      count += await copyTree(srcPath, destPath)
+    } else if (entry.isFile()) {
+      await fs.copyFile(srcPath, destPath)
+      count += 1
+    }
+  }
+  return count
 }

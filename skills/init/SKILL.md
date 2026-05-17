@@ -314,29 +314,32 @@ Important: v6.0.0 only **registers** the stack. Knowledge packs (`docs/knowledge
 
 ---
 
-### Step 3.1 (v6.3.2): Persist stack to `.claude/stack.json` + copy knowledge (Plano 01)
+### Step 3.1 (v6.3.2): Persist stack to `.claude/stack.json` + copy knowledge (Plano 02 fase-03)
 
-<!-- 2026-05-16 (Luiz/dev): Plano 01 fase-03 monostack extension.
+<!-- 2026-05-16 (Luiz/dev): Plano 02 fase-03 — multi-stack + idempotent default + --refresh-knowledge (CA-04, RF7).
      G2 do plano: Step 3 (state-md-init) acima permanece intacto (CA-10).
-     G1 do plano: alias map node-ts → nodejs-typescript em write-stack-json.ts.
-     Plano 02 estende este step para multi-stack, --refresh-knowledge, telemetria. -->
+     G6 do plano: parseRefreshFlag inline ~10 linhas, sem commander/yargs.
+     DI-4: parseRefreshFlag extraído em skills/init/lib/parse-refresh-flag.ts para testabilidade. -->
 
-```bash
-bun run -e "
-import { detectMultiStack } from './lib/detect-multi-stack.ts'
-import { writeStackJson } from './lib/write-stack-json.ts'
-import { copyKnowledge } from './lib/copy-knowledge.ts'
+```javascript
+// DI-06: import direto (GT-04 — bun -e com paths absolutos quebra no Windows).
+const { detectMultiStack } = await import('./lib/detect-multi-stack.ts')
+const { writeStackJson } = await import('./lib/write-stack-json.ts')
+const { copyKnowledge } = await import('./lib/copy-knowledge.ts')
+const { parseRefreshFlag } = await import('./lib/parse-refresh-flag.ts')
 
-const projectRoot = process.cwd()
+const targetDir = process.cwd()
 const pluginRoot = process.env.PLUGIN_ROOT ?? import.meta.dir + '/../..'
 
-const detection = await detectMultiStack(projectRoot)
-const { written: stackJson } = await writeStackJson(projectRoot, detection)
+// G6: parser inline sem dependência nova — RF7 (--refresh-knowledge força overwrite)
+const refresh = parseRefreshFlag(typeof ARGUMENTS === 'string' ? ARGUMENTS : '')
+
+const detection = await detectMultiStack(targetDir)
+const { written: stackJson } = await writeStackJson(targetDir, detection)
 console.log('stack.json written. primary =', stackJson.primary)
 
-const copyResult = await copyKnowledge({ projectRoot, pluginRoot, primary: stackJson.primary })
-console.log('knowledge copy:', copyResult.status)
-"
+const copyResult = await copyKnowledge({ targetDir, pluginRoot, primary: stackJson.primary, refresh })
+console.log(copyResult.message)
 ```
 
 ---
