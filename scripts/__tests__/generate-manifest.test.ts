@@ -6,6 +6,11 @@ import * as crypto from "node:crypto"
 
 const PLUGIN_ROOT = path.join(import.meta.dir, "..", "..")
 const MANIFEST_PATH = path.join(PLUGIN_ROOT, "plugin-manifest.json")
+// 2026-05-17: ler version do package.json em vez de hardcode evita drift a cada bump.
+// Antes era "6.2.0" hardcoded, falhou silenciosamente em e8a9c34 (bump v6.3.1->v6.3.2).
+const EXPECTED_VERSION = JSON.parse(
+  fs.readFileSync(path.join(PLUGIN_ROOT, "package.json"), "utf8"),
+).version as string
 
 /**
  * Testes para generate-manifest.js
@@ -23,8 +28,8 @@ describe("generate-manifest", () => {
     manifest = JSON.parse(raw)
   })
 
-  test("top-level version matches PLUGIN_VERSION=6.2.0", () => {
-    expect(manifest.version).toBe("6.2.0")
+  test("top-level version matches package.json", () => {
+    expect(manifest.version).toBe(EXPECTED_VERSION)
   })
 
   test("generatedAt is a valid ISO string", () => {
@@ -62,9 +67,9 @@ describe("generate-manifest", () => {
     expect(bad.map(([k]) => k)).toEqual([])
   })
 
-  test("all per-file versions are 6.2.0", () => {
+  test("all per-file versions match package.json", () => {
     const versions = [...new Set(Object.values(manifest.files).map((f) => f.version))]
-    expect(versions).toEqual(["6.2.0"])
+    expect(versions).toEqual([EXPECTED_VERSION])
   })
 
   test("all new v6 files have updateStrategy=replace", () => {
