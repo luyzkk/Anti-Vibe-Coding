@@ -3,7 +3,7 @@
 **Plan:** ./PLAN.md
 **Phase:** in-progress
 **Current Plan:** 06/6
-**Last Updated:** 2026-05-16 (Plano 05 COMPLETED — Batch B 5/5 atomos verificados, anti-drift + refined verifier evitaram rework loop)
+**Last Updated:** 2026-05-17 (Plano 06 fases 01-03 executadas em paralelo — 3 atomos tier 3 escritos)
 
 
 
@@ -16,11 +16,11 @@
 | 03 | Skill wire-up — 6 cross-stack skills restantes (stack-aware-preface) | 3 | 3/3 | completed |
 | 04 | Atom Batch A — 5 átomos tier 1 + backend core | 6 | 6/6 | completed |
 | 05 | Atom Batch B — 5 átomos thin/security/testing/arch (+RF8) | 6 | 6/6 | completed |
-| 06 | Atom Batch C + INDEX + Polish — 3 átomos tier 3 + CA-01..10 | 6 | 0/6 | pending (next) |
+| 06 | Atom Batch C + INDEX + Polish — 3 átomos tier 3 + CA-01..10 | 6 | 3/6 | in-progress |
 
 ## Progress Global
 
-Fases done: 25/31 (81%)
+Fases done: 28/31 (90%)
 
 ## Log
 
@@ -52,3 +52,4 @@ Fases done: 25/31 (81%)
 - 2026-05-16: `/verify-work` rodado apos Plano 04 — fresh-context review PASS (PRD coverage, plan vs delivery aligned, zero over-engineering); senior content audit "APROVADO COM NOTAS" (3 atoms 5/5/5/5; state-and-caching 4/5 em senior+operacional — falta cache versioning/negative caching/write-behind; code-smells-catalog 4/4/4/5 — severidades inconsistentes). 2 compound lessons capturadas em `docs/compound/`: `2026-05-16-verifier-protocol-technical-sections-only.md` (DI-5) e `2026-05-16-extrator-subagente-injeta-verdades-fora-do-source.md` (GT-1). Commits `a5bd39b` (memory/state) + `eb88b19` (lessons). Promovido DI-5 e GT-1 do MEMORY.md para nivel durable do repo.
 - 2026-05-16: Plano 05 fase-01..05 executadas em paralelo (5 plan-executor subagentes isolados com **anti-drift clause** do compound lesson 2026-05-16-extrator). 5 atomos criados em `atoms/`: api-design-stack-specific.md thin 90 ln (commit `7cdd406`), security-stack-specific.md thin 90 ln + RF8 primordials inline (commit `191aeec`), testing-strategy.md tier 2 122 ln (commit `baff7ff`), architecture-conventions.md tier 2 144 ln (commit `b529170`), dependencies-supply-chain.md tier 2 119 ln (commit `ceb902b`). Total 565 linhas. Frontmatter 8-fields verbatim. Zero placeholders.
 - 2026-05-16: Plano 05 fase-06 executada (5 plan-verifier subagentes com **refined protocol** do compound lesson 2026-05-16-verifier-protocol — audita APENAS Padroes senior/Anti-padroes/Criterios). **Resultado v1: 5/5 PASS na primeira invocacao** (vs 3/5 do Plano 04 v1). Detalhes: fase-01 5/5, fase-02 5/5 (incluindo claim obrigatoria primordials), fase-03 5/5, fase-04 4/5 (1 WARN — inferencia sobre barrel files), fase-05 4/5 (2 divergencias factuais detectadas: @cyclonedx/cdxgen → @cyclonedx/cyclonedx-npm + license-checker --failOn → --onlyAllow). Rework cirurgico em fase-05 com Edit verbatim do source (commit `2ba03d5`). Auditoria mecanica humana 3/3 OK: 1 thin (security-stack-specific) + 2 tier 2 distintos (testing-strategy + architecture-conventions). Suite global 1066 pass, 11 fail (baseline mantido). **Plano 05 COMPLETED** — Batch B 5/5 atomos aprovados; **lições do Plano 04 aplicadas com sucesso evitaram rework loop** (zero ciclos v2/v3, vs 2+1 do Plano 04). Sizing 7-9h previsto → ~6h real. Desbloqueia Plano 06 (INDEX final consolidado com 10/14 atomos prontos).
+- 2026-05-17: Plano 06 fases 01-03 executadas em paralelo (3 plan-executor isolados, batch 3+0). 3 atomos tier 3 criados em `docs/knowledge/nodejs-typescript/atoms/`: `performance-and-internals.md` (131 ln, 7 patterns V8/libuv/GC/profiling, commit `fb3a3a8`), `operations-and-deploy.md` (120 ln, 6 patterns supervisor/graceful-shutdown/probes/12-factor/migrations, commit `2cc3984`), `tooling.md` (112 ln, 6 patterns biome/tsconfig/hooks/Knip/pnpm/SAST, commit `0b6fb8c`). Total 363 linhas. Anti-drift clause (compound lesson) aplicada agressivamente: fase-01 omitiu simdjson/eval-deopt/try-catch-deopt; fase-02 omitiu pino-final/dumb-init detail; **fase-03 substituiu maioria dos patterns do plano** (tsc/tsx/Bun/Turborepo/Nx/Watch/CI-cache não estavam em wf-0058a9e6 — DEV-1 do Plano 06). Triggers de tooling.md realinhados ao corpo real (commit `249d44a`). harness:validate verde 3/3 (26 required + 202 markdown). Total 13/14 atomos populados (falta INDEX consolidar).
