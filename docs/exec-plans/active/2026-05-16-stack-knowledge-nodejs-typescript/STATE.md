@@ -2,8 +2,8 @@
 
 **Plan:** ./PLAN.md
 **Phase:** in-progress
-**Current Plan:** 05/6
-**Last Updated:** 2026-05-16 (Plano 04 COMPLETED — Batch A 5/5 atomos verificados, DI-5 refina protocolo verifier para Plano 05/06)
+**Current Plan:** 06/6
+**Last Updated:** 2026-05-16 (Plano 05 COMPLETED — Batch B 5/5 atomos verificados, anti-drift + refined verifier evitaram rework loop)
 
 
 
@@ -15,12 +15,12 @@
 | 02 | Init enrichment — multi-stack, idempotent, --refresh-knowledge, telemetria | 5 | 5/5 | completed |
 | 03 | Skill wire-up — 6 cross-stack skills restantes (stack-aware-preface) | 3 | 3/3 | completed |
 | 04 | Atom Batch A — 5 átomos tier 1 + backend core | 6 | 6/6 | completed |
-| 05 | Atom Batch B — 5 átomos thin/security/testing/arch (+RF8) | 6 | 0/6 | pending (next) |
-| 06 | Atom Batch C + INDEX + Polish — 3 átomos tier 3 + CA-01..10 | 6 | 0/6 | pending |
+| 05 | Atom Batch B — 5 átomos thin/security/testing/arch (+RF8) | 6 | 6/6 | completed |
+| 06 | Atom Batch C + INDEX + Polish — 3 átomos tier 3 + CA-01..10 | 6 | 0/6 | pending (next) |
 
 ## Progress Global
 
-Fases done: 19/31 (61%)
+Fases done: 25/31 (81%)
 
 ## Log
 
@@ -49,3 +49,6 @@ Fases done: 19/31 (61%)
 - 2026-05-16: Plano 03 fase-03 executada (E2E `tests/e2e/stack-aware-preface-all-skills.test.ts` 14 asserts cobrindo CA-05+CA-09 nas 7 skills cross-stack, commit `f16d2bd`). E2E importa `getStackKnowledgePreface` real (zero drift). 14 testes passando. Suite global 1066 pass, 11 fail (baseline mantido). **Plano 03 COMPLETED** — 7 skills cross-stack (security + 6) wired ao mesmo contrato `stack-aware-preface`, prontas para CA-01..CA-10 E2E completo em Plano 06 fase-06.
 - 2026-05-16: Plano 04 fase-01..05 executadas em paralelo (5 plan-executor subagentes isolados, batch 3+2). 5 atomos criados em `docs/knowledge/nodejs-typescript/atoms/`: async-concurrency-streams.md (184 ln, 7 patterns, commit `2206788`), error-handling-observability.md (199 ln, 7 patterns + LGPD redact paths cpf/cnpj/pix, commit `c40336a`), data-persistence.md (183 ln, 7 patterns + pgBouncer transaction-mode gotcha + layer:backend, commit `e26cfb2`), state-and-caching.md (141 ln, 4 patterns, commit `33d1e21`), code-smells-catalog.md (151 ln, 11 smells em 5 categorias, commit `d4b126d`). Total 858 linhas escritas. Frontmatter 8-fields verbatim em todos. Zero placeholders.
 - 2026-05-16: Plano 04 fase-06 executada (5 plan-verifier subagentes isolados em paralelo, batch 3+2). Resultado v1: 3 PASS (fase-01 5/5, fase-02 5/5, fase-03 4/5) + 2 FAIL (fase-04 3/5 por "~10% overhead ALS" e "p-memoize singleflight" — drift de extrator; fase-05 3/5 por enum IIFE/tree-shake e meta-anti-pattern "smell vs bug" — drift). Rework cirurgico via plan-executor (commits `7475d7a` state-and-caching alinhado com source `b407bc0c`, `1e34139` code-smells enum corrigido para `--erasableSyntaxOnly` + triage 46/46/8 do source). v2: fase-04 PASS 4/5; fase-05 FAIL 3/5 mas as 2 claims corrigidas passaram — falhas v2 foram editoriais (Quando consultar, Referencias externas). Por G3 do README ("se >=2 atomos falham v1, revisar prompt"), protocolo do verifier refinado (DI-5): auditar APENAS Padroes senior + Anti-padroes + Criterios de decisao. v3 com prompt refinado: fase-05 PASS 5/5. Auditoria mecanica humana (frontmatter/secoes/triggers/lines) 3/3 OK em sample (1 tier-1 async + 1 tier-2 persistence + 1 tier-2 alt smells). Julgamento subjetivo "lem como senior Node+TS" sinalizado pendente para `/verify-work`. **Plano 04 COMPLETED** — Batch A 5/5 atomos aprovados, desbloqueia Plano 06 fase-04 (INDEX) e Plano 05 fase-06 (replicar verifier refinado).
+- 2026-05-16: `/verify-work` rodado apos Plano 04 — fresh-context review PASS (PRD coverage, plan vs delivery aligned, zero over-engineering); senior content audit "APROVADO COM NOTAS" (3 atoms 5/5/5/5; state-and-caching 4/5 em senior+operacional — falta cache versioning/negative caching/write-behind; code-smells-catalog 4/4/4/5 — severidades inconsistentes). 2 compound lessons capturadas em `docs/compound/`: `2026-05-16-verifier-protocol-technical-sections-only.md` (DI-5) e `2026-05-16-extrator-subagente-injeta-verdades-fora-do-source.md` (GT-1). Commits `a5bd39b` (memory/state) + `eb88b19` (lessons). Promovido DI-5 e GT-1 do MEMORY.md para nivel durable do repo.
+- 2026-05-16: Plano 05 fase-01..05 executadas em paralelo (5 plan-executor subagentes isolados com **anti-drift clause** do compound lesson 2026-05-16-extrator). 5 atomos criados em `atoms/`: api-design-stack-specific.md thin 90 ln (commit `7cdd406`), security-stack-specific.md thin 90 ln + RF8 primordials inline (commit `191aeec`), testing-strategy.md tier 2 122 ln (commit `baff7ff`), architecture-conventions.md tier 2 144 ln (commit `b529170`), dependencies-supply-chain.md tier 2 119 ln (commit `ceb902b`). Total 565 linhas. Frontmatter 8-fields verbatim. Zero placeholders.
+- 2026-05-16: Plano 05 fase-06 executada (5 plan-verifier subagentes com **refined protocol** do compound lesson 2026-05-16-verifier-protocol — audita APENAS Padroes senior/Anti-padroes/Criterios). **Resultado v1: 5/5 PASS na primeira invocacao** (vs 3/5 do Plano 04 v1). Detalhes: fase-01 5/5, fase-02 5/5 (incluindo claim obrigatoria primordials), fase-03 5/5, fase-04 4/5 (1 WARN — inferencia sobre barrel files), fase-05 4/5 (2 divergencias factuais detectadas: @cyclonedx/cdxgen → @cyclonedx/cyclonedx-npm + license-checker --failOn → --onlyAllow). Rework cirurgico em fase-05 com Edit verbatim do source (commit `2ba03d5`). Auditoria mecanica humana 3/3 OK: 1 thin (security-stack-specific) + 2 tier 2 distintos (testing-strategy + architecture-conventions). Suite global 1066 pass, 11 fail (baseline mantido). **Plano 05 COMPLETED** — Batch B 5/5 atomos aprovados; **lições do Plano 04 aplicadas com sucesso evitaram rework loop** (zero ciclos v2/v3, vs 2+1 do Plano 04). Sizing 7-9h previsto → ~6h real. Desbloqueia Plano 06 (INDEX final consolidado com 10/14 atomos prontos).
