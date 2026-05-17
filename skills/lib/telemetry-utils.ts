@@ -19,6 +19,11 @@ export const INSTRUMENTED_SKILLS: ReadonlyArray<FasePipeline> = [
 const METRICS_DIR = join('.claude', 'metrics')
 const TELEMETRY_WARN_PREFIX = '[telemetry-warn]'
 
+/** Returns true when telemetry is disabled via env var. Default is enabled (backward-compat). */
+function isTelemetryDisabled(): boolean {
+  return process.env['ANTI_VIBE_TELEMETRY'] === 'off'
+}
+
 /**
  * Computa o path do JSONL para o mes de `now`. NAO cacheia (G3).
  * Formato: `.claude/metrics/YYYY-MM.jsonl`.
@@ -71,6 +76,7 @@ export function appendJsonlLine(filePath: string, line: string): void {
  *   })
  */
 export function writeTelemetryStart(entry: TelemetryStart, baseDir?: string): void {
+  if (isTelemetryDisabled()) return
   const filePath = computeMonthlyPath(new Date(), resolveMetricsDir(baseDir))
   appendJsonlLine(filePath, serializeEntry(entry))
 }
@@ -94,6 +100,7 @@ export function writeTelemetryStart(entry: TelemetryStart, baseDir?: string): vo
  *   })
  */
 export function writeTelemetryEnd(entry: TelemetryEnd, baseDir?: string): void {
+  if (isTelemetryDisabled()) return
   const filePath = computeMonthlyPath(new Date(), resolveMetricsDir(baseDir))
   appendJsonlLine(filePath, serializeEntry(entry))
 }
@@ -123,6 +130,7 @@ const SKILL_TO_FASE: Record<string, FasePipeline> = {
  * (pair-events.ts acessa timestamp_inicio sem discriminar — TDD gate impede modificar o arquivo).
  */
 export function writeTelemetryDomainEvent(entry: TelemetryDomainEvent, baseDir?: string): void {
+  if (isTelemetryDisabled()) return
   const filePath = computeMonthlyPath(new Date(), resolveMetricsDir(baseDir))
   appendJsonlLine(filePath, JSON.stringify(entry) + '\n')
 }

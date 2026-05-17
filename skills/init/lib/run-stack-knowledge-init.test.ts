@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
-import { mkdtempSync, mkdirSync, writeFileSync, existsSync, rmSync, readdirSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, writeFileSync, existsSync, rmSync, readdirSync, readFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { runStackKnowledgeInit } from './run-stack-knowledge-init'
@@ -59,5 +59,42 @@ describe('runStackKnowledgeInit (Wave 5 D2)', () => {
       logger: (line) => captured.push(line),
     })
     expect(result.copyResult.status).toBe('refreshed')
+  })
+
+  // M2.6 — transactional: when copyKnowledge returns no-source, stack.json must not have primary set
+  it('M2.6: copyKnowledge no-source → stack.json primary is null (não inconsistente)', async () => {
+    // Setup: package.json with anchor, but pluginRoot sem source → no-source
+    writeFileSync(join(targetDir, 'package.json'), JSON.stringify({ devDependencies: { typescript: '^5.0.0' } }))
+    const emptyPluginRoot = mkdtempSync(join(tmpdir(), 'empty-plugin-'))
+
+    try {
+      const result = await runStackKnowledgeInit({
+        targetDir,
+        pluginRoot: emptyPluginRoot, // sem docs/knowledge/ → no-source
+        logger: (line) => captured.push(line),
+      })
+
+      expect(result.copyResult.status).toBe('no-source')
+      // stack.json deve existir, mas primary deve ser null
+      const stackJsonPath = join(targetDir, '.claude', 'stack.json')
+      expect(existsSync(stackJsonPath)).toBe(true)
+      const stackJson = JSON.parse(readFileSync(stackJsonPath, 'utf-8'))
+      expect(stackJson.primary).toBeNull()
+    } finally {
+      rmSync(emptyPluginRoot, { recursive: true, force: true })
+    }
+  })
+
+  // M2.4 — Go detection: informative message when go.mod found but no matrix
+  it('M2.4: go.mod detected → emits informative message about matrix unavailability', async () => {
+    writeFileSync(join(targetDir, 'go.mod'), 'module example.com/app\n')
+
+    await runStackKnowledgeInit({
+      targetDir,
+      pluginRoot: PLUGIN_ROOT,
+      logger: (line) => captured.push(line),
+    })
+
+    expect(captured.some(l => l.includes('go') && l.toLowerCase().includes('matrix'))).toBe(true)
   })
 })

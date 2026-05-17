@@ -78,6 +78,21 @@ describe('detectMultiStack', () => {
     // No throw — guard does not fire for valid single-entry (exits early before counts path)
   })
 
+  // M2.4 — Go detection: anchor recognised but no matrix folder available
+  it('returns recognized_no_matrix with go anchor info when only go.mod present (M2.4)', async () => {
+    const dir = await mkProject({ 'go.mod': 'module example.com/app\n' })
+    const result = await detectMultiStack(dir)
+    expect(result.primary).toBeNull()
+    expect(result.recognized_no_matrix).toEqual(['go'])
+  })
+
+  it('recognized_no_matrix is empty when all detected anchors have a matrix folder', async () => {
+    const dir = await mkProject({ 'package.json': '{}' })
+    const result = await detectMultiStack(dir)
+    expect(result.primary).toBe('nodejs-typescript')
+    expect(result.recognized_no_matrix).toEqual([])
+  })
+
   it('completes detection within 500ms even with bounded walk (NFR perf, G4)', async () => {
     const dir = await mkProject({
       'package.json': JSON.stringify({ devDependencies: { typescript: '^5' } }),

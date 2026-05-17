@@ -6,10 +6,12 @@ import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import type { StackId } from './detect-stack'
 import { isMatrixFolder, STACK_ID_TO_MATRIX_FOLDER } from './stack-id-map'
+import type { MatrixFolder } from './stack-id-map'
 
 // Wave 4 D4: STACK_ID_TO_MATRIX_FOLDER moved to stack-id-map.ts (single source of truth).
-
-export type MatrixFolder = 'nodejs-typescript' | 'rails' | 'laravel' | 'python'
+// H2.2: MatrixFolder type moved to stack-id-map.ts (derived from MATRIX_FOLDER_VALUES).
+// Re-exported here for backward compatibility — callers can import from either file.
+export type { MatrixFolder } from './stack-id-map'
 
 export interface MultiStackResult {
   /** Nome de pasta do matrix (`nodejs-typescript`, `rails`, ...) ou `null` se nenhum anchor (CA-06). */
@@ -18,6 +20,12 @@ export interface MultiStackResult {
   secondary: MatrixFolder[]
   /** Paths relativos dos anchor files efetivamente detectados (G5: lista, não mapa). */
   anchor_files: string[]
+  /**
+   * Stack IDs whose anchor was detected but have no matrix folder in v6.3.2 (e.g. 'go').
+   * M2.4: used by runStackKnowledgeInit to emit an informative message instead of silent null.
+   * Optional — callers that construct MultiStackResult directly may omit; defaults to [].
+   */
+  recognized_no_matrix?: string[]
 }
 
 // 2026-05-16 (Luiz/dev): tiebreaker por file count — alinhado com PRD §Mecanismo "Primary = stack com mais arquivos source".
@@ -65,6 +73,12 @@ const ANCHOR_CHECKS: ReadonlyArray<[string, StackId]> = [
   ['composer.json', 'laravel'],
 ]
 
+// M2.4: human-readable labels for StackIds that have no matrix folder yet.
+// Maps StackId → display name shown in informative messages.
+const NO_MATRIX_STACK_LABEL: Partial<Record<StackId, string>> = {
+  'unknown': 'go', // anchor: go.mod → label 'go'
+}
+
 export async function detectMultiStack(targetDir: string): Promise<MultiStackResult> {
   const candidates: Array<{ id: StackId; anchor: string }> = []
 
@@ -78,30 +92,37 @@ export async function detectMultiStack(targetDir: string): Promise<MultiStackRes
   }
 
   if (candidates.length === 0) {
-    return { primary: null, secondary: [], anchor_files: [] }
+    return { primary: null, secondary: [], anchor_files: [], recognized_no_matrix: [] }
   }
 
   // Resolver matrix folders, dedupar
   const matrixCandidates = new Map<string, string>() // matrixFolder → anchor
   const anchor_files: string[] = []
+  const recognized_no_matrix: string[] = []
   for (const { id, anchor } of candidates) {
     anchor_files.push(anchor)
     const folder = STACK_ID_TO_MATRIX_FOLDER[id]
     if (folder && !matrixCandidates.has(folder)) {
       matrixCandidates.set(folder, anchor)
+    } else if (!folder) {
+      // M2.4: anchor detected but no matrix folder — collect display label if known
+      const label = NO_MATRIX_STACK_LABEL[id]
+      if (label && !recognized_no_matrix.includes(label)) {
+        recognized_no_matrix.push(label)
+      }
     }
   }
 
   if (matrixCandidates.size === 0) {
     // Caso: só anchors sem matrix folder (ex: só go.mod em v6.3.2)
-    return { primary: null, secondary: [], anchor_files }
+    return { primary: null, secondary: [], anchor_files, recognized_no_matrix }
   }
 
   const folders = Array.from(matrixCandidates.keys()).filter(isMatrixFolder)
 
   // Single match: primary direto, secondary vazio
   if (folders.length === 1) {
-    return { primary: folders[0], secondary: [], anchor_files }
+    return { primary: folders[0], secondary: [], anchor_files, recognized_no_matrix }
   }
 
   // Multi-match: tiebreaker por file count
@@ -115,10 +136,11 @@ export async function detectMultiStack(targetDir: string): Promise<MultiStackRes
 
   // counts.length === folders.length >= 2 here — guard makes invariant explicit
   if (counts.length < 2) throw new Error(`Expected ≥2 entries in counts, got ${counts.length}`)
-  const [primaryEntry, ...rest] = counts
+  const [primaryEntry, ...rest] = counts as [typeof counts[number], ...typeof counts]
   return {
     primary: primaryEntry.folder,
     secondary: rest.map((r) => r.folder),
     anchor_files,
+    recognized_no_matrix,
   }
 }

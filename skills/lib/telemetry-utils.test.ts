@@ -608,3 +608,50 @@ describe('pipeline-core skills (fase-02 smoke)', () => {
     }
   })
 })
+
+// === M2.3 — ANTI_VIBE_TELEMETRY=off opt-out ===
+describe('ANTI_VIBE_TELEMETRY opt-out (M2.3)', () => {
+  let optoutTmpDir: string
+
+  beforeEach(() => {
+    optoutTmpDir = mkdtempSync(join(tmpdir(), 'telem-optout-'))
+    process.env['ANTI_VIBE_TELEMETRY'] = 'off'
+  })
+
+  afterEach(() => {
+    delete process.env['ANTI_VIBE_TELEMETRY']
+    rmSync(optoutTmpDir, { recursive: true, force: true })
+  })
+
+  test('writeTelemetryStart does not write file when ANTI_VIBE_TELEMETRY=off', () => {
+    writeTelemetryStart(FIXTURE_START, optoutTmpDir)
+    const metricsDir = join(optoutTmpDir, '.claude', 'metrics')
+    expect(existsSync(metricsDir)).toBe(false)
+  })
+
+  test('writeTelemetryEnd does not write file when ANTI_VIBE_TELEMETRY=off', () => {
+    writeTelemetryEnd(FIXTURE_END_SUCCESS, optoutTmpDir)
+    const metricsDir = join(optoutTmpDir, '.claude', 'metrics')
+    expect(existsSync(metricsDir)).toBe(false)
+  })
+
+  test('writeTelemetryDomainEvent does not write file when ANTI_VIBE_TELEMETRY=off', () => {
+    writeTelemetryDomainEvent({
+      evento: 'stack_detected',
+      skill_invocada: 'init',
+      timestamp: new Date().toISOString(),
+      primary: 'nodejs-typescript',
+      secondary: [],
+      anchor_files: ['package.json'],
+    }, optoutTmpDir)
+    const metricsDir = join(optoutTmpDir, '.claude', 'metrics')
+    expect(existsSync(metricsDir)).toBe(false)
+  })
+
+  test('write* resumes writing when env var is absent (backward-compat default on)', () => {
+    delete process.env['ANTI_VIBE_TELEMETRY']
+    writeTelemetryStart(FIXTURE_START, optoutTmpDir)
+    const metricsDir = join(optoutTmpDir, '.claude', 'metrics')
+    expect(existsSync(metricsDir)).toBe(true)
+  })
+})
