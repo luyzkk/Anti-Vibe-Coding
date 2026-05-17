@@ -1,0 +1,2 @@
+Detected stack: nextjs (via package.json#dependencies.next)
+STATE.md created: <abs-path>/docs/STATE.md

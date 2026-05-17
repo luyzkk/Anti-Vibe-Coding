@@ -1,0 +1,2 @@
+Detected stack: node-ts (via package.json#devDependencies.typescript)
+STATE.md created: <abs-path>/docs/STATE.md
