@@ -1,0 +1,2 @@
+Linked via tier: copy-with-hook
+Hook registered in .claude/settings.local.json — CLAUDE.md will re-sync on edits to AGENTS.md
