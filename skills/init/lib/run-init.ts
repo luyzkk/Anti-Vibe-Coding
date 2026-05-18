@@ -5,7 +5,32 @@ import { parseFlags } from './parse-flags'
 import { lazyImport } from './lazy-import'
 import { WriteRecorder } from './dry-run'
 import { createAuditLogWriterForCtx } from './audit-log-writer-factory'
+import { detectCrossUpgrade } from './cross-upgrade-detector'
 import { randomUUID } from 'node:crypto'
+import { readFile } from 'node:fs/promises'
+import path from 'node:path'
+
+async function readPluginVersion(): Promise<string> {
+  try {
+    const pluginJsonPath = path.join(
+      path.dirname(new URL(import.meta.url).pathname),
+      '..', '..', '..', '.claude-plugin', 'plugin.json',
+    )
+    const raw = await readFile(pluginJsonPath, 'utf-8')
+    const parsed = JSON.parse(raw) as { version?: string }
+    if (parsed.version) return parsed.version
+  } catch { /* fall through */ }
+  try {
+    const pkgPath = path.join(
+      path.dirname(new URL(import.meta.url).pathname),
+      '..', '..', '..', 'package.json',
+    )
+    const raw = await readFile(pkgPath, 'utf-8')
+    const parsed = JSON.parse(raw) as { version?: string }
+    if (parsed.version) return parsed.version
+  } catch { /* fall through */ }
+  return '6.4.0'
+}
 
 export type RunInitOptions = {
   /** Permite injetar registry alternativo (tests). Default: registry global. */
@@ -65,6 +90,36 @@ export async function runInit(
   const ctxWithAudit: StepContext = _auditWriter !== null
     ? { ...ctx, flags: { ...ctx.flags, __auditLog: _auditWriter as unknown as boolean } }
     : ctx
+
+  // 2026-05-18 (Luiz/dev): Plano 06 fase-02 — cross-upgrade warning v6.3.x -> v6.4.x.
+  // Lê manifest e CLAUDE.md sem lançar exceção; detectCrossUpgrade decide se avisa.
+  const _manifestVersion = await (async () => {
+    try {
+      const raw = await readFile(
+        path.join(ctxWithAudit.cwd, '.claude', '.anti-vibe-manifest.json'),
+        'utf-8',
+      )
+      return (JSON.parse(raw) as { pluginVersion?: string }).pluginVersion ?? null
+    } catch { return null }
+  })()
+  const _claudeMdLines = await (async () => {
+    try {
+      const raw = await readFile(path.join(ctxWithAudit.cwd, 'CLAUDE.md'), 'utf-8')
+      return raw.split('\n').length
+    } catch { return null }
+  })()
+  const _upgradeWarning = detectCrossUpgrade({
+    manifestPluginVersion: _manifestVersion,
+    currentPluginVersion: await readPluginVersion(),
+    claudeMdLineCount: _claudeMdLines,
+    additiveOptIn: ctxWithAudit.flags['additive-merge'] === true,
+    dryRun: ctxWithAudit.flags['dry-run'] === true,
+  })
+  if (_upgradeWarning !== null) {
+    const noColor = process.env['NO_COLOR'] === '1' || ctxWithAudit.flags['no-color'] === true
+    const msg = noColor ? _upgradeWarning.message : `\x1b[33m${_upgradeWarning.message}\x1b[0m`
+    log(msg)
+  }
 
   // 2026-05-18 (Luiz/dev): PRD D24 — `--rollback` early-return ANTES do registry.
   // D21 — dispatcher imutavel: nenhum step novo, nenhum hook beforeStep.
