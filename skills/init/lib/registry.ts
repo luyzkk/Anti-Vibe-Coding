@@ -45,7 +45,6 @@ export const registry: readonly Step[] = [
   discoverExistingDocsStep,     // 2026-05-18 (Luiz/dev): Plano 03 fase-04 — discover apos secrets-scan; emite lista flagada (D5, SH-02, D6).
   classifyBlocksHybridStep,     // 2026-05-18 (Luiz/dev): Plano 03 fase-06 — classifica heuristica + flagga pendingLlm para Plano 04 fase-02 (D8, SH-03, SH-04).
   proposeMergeBatchStep,        // 2026-05-18 (Luiz/dev): Plano 04 fase-02 — Step 09 agrega JSONs de discovery e emite needsUser com diff (PRD MH-04, D4, G2, G8, G9, G12, G13).
-  applyMergeDestructiveStep,   // 2026-05-18 (Luiz/dev): Plano 04 fase-03 — Step 10 backup + transforma CLAUDE.md + gera docs/DESIGN.md (G1, G8, G9, DI-1).
   moveDocsWithStubStep,         // 2026-05-18 (Luiz/dev): Plano 04 fase-05 — Step 11 itera MoveAction[], chama moveDocWithStub, skipa READMEs e secrets (G3, SH-01, D16).
   migrate0ParseDryRunStep,      // 2026-05-17 (Luiz/dev): plano03 fase-05 — parse --dry-run flag (SKILL.md linha 50, G1).
   migrateAllOrchestrateStep,    // 2026-05-17 (Luiz/dev): plano03 fase-05 — DI-5-1: skipRemaining em dry-run; NO-OP em real mode (PRD CA-03, CA-10).
@@ -54,6 +53,9 @@ export const registry: readonly Step[] = [
   migrate3LessonsStep,          // 2026-05-17 (Luiz/dev): G4 do plano03 fase-04 — best-effort, sem AbortError.
   migrate4DecisionsStep,        // 2026-05-17 (Luiz/dev): G4 do plano03 fase-04 — best-effort, sem AbortError.
   scaffoldFullTreeStep,
+  // 2026-05-18 (Luiz/dev): D23 — apply-merge-destructive BEFORE link-claude-agents. CLAUDE.md
+  // already transformed to mirror <=40 lines when Step 02 creates symlink/hardlink/copy.
+  applyMergeDestructiveStep,   // 2026-05-18 (Luiz/dev): Plano 04 fase-06 (D23) — Step 10 backup + transforma CLAUDE.md + gera docs/DESIGN.md ANTES do link-claude-agents (G1, G8, G9, DI-1).
   linkClaudeAgentsStep,
   detectStackAndRegisterStep,
   persistStackKnowledgeStep,
