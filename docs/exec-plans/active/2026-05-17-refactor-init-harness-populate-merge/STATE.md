@@ -2,7 +2,7 @@
 
 **Plan:** ./PLAN.md
 **Phase:** in-progress
-**Current Plan:** 03/07
+**Current Plan:** 06/07
 **Detailed planning:** Todos os 7 planos detalhados
 **Last Updated:** 2026-05-18
 
@@ -12,15 +12,15 @@
 |-------|------|-------|------|--------|
 | 01 | Fundacao + Discovery do execute-plan | 3 | 3/3 | completed |
 | 02 | Tracer Bullet — Populate Plan Generator | 4 | 4/4 | completed |
-| 03 | Discovery Pipeline (secrets + docs + classifier) | 6 | 0/6 | pending |
-| 04 | Merge Invertido Destrutivo | 7 | 0/7 | pending |
-| 05 | Modos Reversiveis (dry-run + rollback + drift + additive) | 6 | 0/6 | pending |
+| 03 | Discovery Pipeline (secrets + docs + classifier) | 6 | 6/6 | completed |
+| 04 | Merge Invertido Destrutivo | 7 | 7/7 | completed |
+| 05 | Modos Reversiveis (dry-run + rollback + drift + additive) | 6 | 6/6 | completed |
 | 06 | Comunicacao + Observabilidade | 5 | 0/5 | pending |
 | 07 | Aceitacao E2E + Release v6.4.0 | 6 | 0/6 | pending |
 
 ## Progress Global
 
-Fases done: 7/37 (19%)
+Fases done: 26/37 (70%)
 
 ## Log
 
@@ -33,6 +33,7 @@ Fases done: 7/37 (19%)
 - 2026-05-18: **Plano 06 revisado** apos Plano 05 detalhado — todos os 5 TODOs do `plano06/MEMORY.md` marcados como RESOLVIDO. Diff principal: `INIT_SUBAGENT_IDS.detectDrift` corrigido de `'init-detect-drift'` (palpite) para `'init-drift-detect'` (literal canonico fixado em `plano05/fase-03` linha 215/219). Demais ajustes em `plano06/fase-01-audit-log-canonico-novos-steps.md`: (a) tabela "Shapes canonicos de `output_struct`" adicionada com 9 entradas, ancorada nos shapes reais de `DriftReport`/`RollbackResult` do Plano 05; (b) NOVO Passo 4 documentando dry-run audit log suppression via `isDryRun(ctx)` (decisao `plano05/README` linha 38) + test pareado negativo; (c) Gotcha G1 herdado virou "RESOLVIDO" citando linhas exatas do Plano 05. README e MEMORY do plano06 atualizados: tabela "Bloqueadores" mostra status "planejado — Plano 05 detalhado em 2026-05-18" para Step 12 / `lib/rollback.ts` / `dry-run-mode.ts` / `--additive-merge`; gotcha G1 do README reescrito com contratos finais. Tres gotchas cross-plano adicionados ao MEMORY (GT-CROSS-1 a GT-CROSS-3): consistencia de cast em slots de `ctx.flags`, `runId` compartilhado entre `inventory.json` e `agents-log.json`, limitacao conhecida do rollback de `move` (stub residual — sera documentado no CHANGELOG fase-04). Nenhuma divergencia restante entre Plano 05 e Plano 06.
 - 2026-05-18: Plano 07 detalhado via /plan-feature (6 fases, ~4h gross / ~3.5h wall-time com paralelismo fase-01||fase-02 + fase-03||fase-04). Arquivos: README.md (G1-G13) + MEMORY.md + fase-01-fixture-greenfield-v64 (0.5h) + fase-02-fixture-inverted-merge-v64 (0.5h) + fase-03-ca12-e2e-greenfield (1h) + fase-04-ca13-dry-run-parity (1h, **inclui CA-14 audit log assertion**) + fase-05-ca15-performance-test (0.5h) + fase-06-bump-version-v640 (0.5h). Decisoes de revisao: (1) **CA-14 integrado em fase-04** (mesma fixture inverted-merge-v6.4, mesmo runId, mesma execucao real) — evita duplicar setup pesado; PLAN.md nao tinha fase dedicada. (2) **fase-06 vira VERIFICACAO + tag + move pasta**, nao bump destrutivo — commit `5c4e4b2` ja bumpou para 6.4.0; fase reaplica apenas se regrediu. (3) **Snapshot canonico de AGENTS.md** em fase-03 com fallback inline (Opcao A) para nao inflar fixtures. (4) **Mover pasta active/→completed/** como passo final da fase-06 (Plano 07 = ultimo da feature). Friccoes cross-plano para execucao: (F1) CA-05/06/09/10/11 sao ratificados externamente pelos testes pareados dos Planos 02-06, NAO por testes novos no Plano 07. (F2) fase-04 depende do shape exato de `ctx.flags['__dryRunRecorder']` (Plano 05 DI-1 + GT-CROSS-1) — quebra se divergir. (F3) Tag `v6.4.0` criada LOCAL sem push (dev decide). (F4) `compound:check` pode falhar bloqueando release se lessons obsoletas — Plano 06 fase-05 deveria mitigar via `init-rationale.md` atualizado. TODOs herdados consolidados no MEMORY (TODO-HERANCA-1 a 7): caminho harness-validate (fase-03), shape runInit (fase-03/04), cast `__dryRunRecorder` (fase-04), runId condicional (fase-04), CHANGELOG limitacao rollback move (fase-06), compound:check gate (fase-06), reaplicar bump se regrediu (fase-06).
 - 2026-05-18: Execucao iniciada via /execute-plan. Plano 01 marcado in-progress. Dev escolheu opcao 1 (executar Plano 01 inteiro sequencial).
+- 2026-05-18: Plano 03 iniciado (6 fases). Execucao com paralelismo: fase-01||fase-03 → fase-02||fase-05 → fase-04 → fase-06.
 - 2026-05-18: Plano 01 fase-01 concluida. Veredito: GO. Capacidades 1+2 SUPPORTED, capacidade 3 (glossario CH-03) MISSING — workaround via inline no prompt aceito. DI-01 registrada: max paralelos hierarquico=3, flat=5. EXECUTE_PLAN_AUDIT.md criado em plano01/.
 - 2026-05-18: Plano 01 fase-02 concluida. backup-anti-vibe.ts + backup-anti-vibe.test.ts (6/6 testes passam). API canonica: createBackup/readBackupManifest/getLatestBackupDir/computeSha256. DI-2 registrada: readGitSha via fs.readFile (sem child_process). GT-1: pattern grep ajustado para `^export (async function|function|type|const)`. Commit: 0cfd20b.
 - 2026-05-18: Plano 01 fase-03 concluida. lib/rollback.ts (stub) + early-return em run-init.ts + 5 testes novos (2 parse-flags + 2 rollback + 3 integracao). Suite plano01 completa: 21/21 testes passam. registry.ts NAO modificado (D21 satisfeito). Commit: 250b9be. **Plano 01 COMPLETO (3/3 fases).**
@@ -42,3 +43,12 @@ Fases done: 7/37 (19%)
 - 2026-05-18: Plano 02 fase-03 RED+GREEN concluida. Step 91 `generate-populate-plan` + registry entry. Testes: 7/7 passam (4 step + 3 registry). 467 testes na suite plano02 total: 0 falhas. SUBAGENT_ID canonico `init-populate-plan-gen` exportado. Commits: b2a4b3a (RED), 5d02c70 (GREEN). DI-3: --dry-run bypass deferido para Plano 05 fase-01.
 - 2026-05-18: Plano 02 fase-04 RED+GREEN concluida (TRACER BULLET feature-wide). tests/fixtures/greenfield-populate-plan-tracer/ + tests/e2e/greenfield-populate-plan.test.ts (2/2 passam em 711ms). Count baseline: 26 tasks (25 populacao + 1 validate). DI-1 dispensado: scaffoldTemplates cria harness-validate.ts como base file fora do manifest — finalValidation passa em greenfield sem mock. Commits: 3ff29ca (RED), 9af1a19 (GREEN). Regression fix: 043e1a7 (goldens E2E init-cutover-greenfield atualizados com normalizacao de `<DATE>-populate-harness`).
 - 2026-05-18: **Plano 02 COMPLETO (4/4 fases).** Suite completa verde (exit 0, 0 fails). Arquitetura aditiva ao registry validada — Planos 03-06 podem adicionar ramos especificos sem alterar Step 91 ou populate-plan-generator.
+- 2026-05-18: Plano 03 fase-01+03 concluidas (paralelo). secrets-scanner.ts (10/10 testes, DI-1 usedRanges anti-overlap) + discover-existing-docs.ts (7/7 testes). Commits: b41350e, eba3e29.
+- 2026-05-18: Plano 03 fase-02+05 concluidas (paralelo). discovery-store.ts + secretsScanStep (Step 06, registry idx 2) — 14 testes; blocks-classifier.ts + classifier-llm-prompt.md snippet (7 testes, DI-2 readonly spread). Commits: 27a1389, b04216e.
+- 2026-05-18: Plano 03 fase-04 concluida. discoverExistingDocsStep (Step 07, registry idx 3) — 7 testes + perf proxy 50 arquivos < 5s. Commit: 676914b.
+- 2026-05-18: Plano 03 fase-06 concluida. classifyBlocksHybridStep (Step 08, registry idx 4) — pipeline discovery completo (06→07→08). Suite P03 completa: 52/52 pass. Commit: 8f7d476. **Plano 03 COMPLETO (6/6 fases).**
+- 2026-05-18: Plano 04 iniciado (7 fases). Wave 1 paralela: fase-01||fase-02||fase-04||fase-07.
+- 2026-05-18: Plano 04 wave 1 concluida (4/7 fases). design-md-skeleton (98e9a18) + Step 09 propose-merge-batch/merge-proposal-types (92abce6, d65b159) + doc-mover-stub (6f781ee, db4d66e) + SKILL.md rule rewrite (ccdbbf4). 14 testes passam.
+- 2026-05-18: Plano 04 wave 2 concluida (6/7 fases). snippet-resolver + Step 10 apply-merge-destructive + Step 11 move-docs-with-stub + appendToLatestBackup API canônica (DI-2). DI-3: mkdir antes de moveDocWithStub.
+- 2026-05-18: Plano 04 wave 3 concluida (7/7 fases). Registry reorder D23: applyMergeDestructiveStep idx 14, linkClaudeAgentsStep idx 15. G14 investigado: Step 02 usa stubLinker via DI, nao assertions sobre conteudo. 545/545 testes passam. **Plano 04 COMPLETO (7/7 fases).**
+- 2026-05-18: **Plano 05 COMPLETO (6/6 fases).** 576/576 testes passam. Arquivos criados/modificados: `dry-run-mode.ts`, `preview-renderer.ts` + test + golden, `drift-detector.ts` + test, `steps/12-detect-drift-incremental.ts` + test, `steps/02-link-claude-agents.ts` (additive-merge branch), `run-init.ts` (recorder injection + warning), `rollback.ts` (impl completa), `rollback.test.ts`, `assets/snippets/rollback-adr-template.md`. Registry: Step 12 em idx 8 (apos moveDocsWithStub, antes de generatePopulatePlan). TS: 0 erros novos. DI-1 a DI-5 + GT-1 a GT-4 documentados.

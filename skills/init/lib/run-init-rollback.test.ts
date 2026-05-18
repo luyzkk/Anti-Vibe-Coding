@@ -30,10 +30,12 @@ test('runInit without --rollback flag iterates registry normally', async () => {
   expect(result.kind).toBe('ok')
 })
 
-test('runInit with --rollback propagates reason from stub', async () => {
-  const result = await runInit(['--rollback'], { registry: [] })
+// 2026-05-18 (Luiz/dev): Plano 05 fase-04 — stub replaced by real impl. Now returns "no backup found"
+// (no .anti-vibe/backup/ in the default cwd during tests).
+test('runInit with --rollback propagates reason from executeRollback', async () => {
+  const result = await runInit(['--rollback'], { registry: [], cwd: '/tmp' })
   expect(result.kind).toBe('aborted')
   if (result.kind === 'aborted') {
-    expect(result.reason).toContain('Plano 05 fase-04')
+    expect(result.reason).toContain('no backup found')
   }
 })

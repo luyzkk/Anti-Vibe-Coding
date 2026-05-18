@@ -1,0 +1,20 @@
+PROPOSTA DE TRANSFORMACAO (revise antes de aprovar)
+
+CLAUDE.md (existente, 287 linhas):
+  [Bloco: Code Style] -> docs/DESIGN.md (secao Code Style)
+  [Bloco: Tests] -> docs/DESIGN.md (secao Tests)
+  [Bloco: Security] -> docs/SECURITY.md
+  [Bloco: Environment] -> ARCHITECTURE.md (secao Environment)
+CLAUDE.md final: indice 36 linhas espelhado de AGENTS.md
+Backup: .anti-vibe/backup/2026-05-18-143000/CLAUDE.md
+
+Docs existentes (4 arquivos):
+  docs/ARQUITETURA.md -> docs/ARCHITECTURE.md
+  docs/STRIPE_INTEGRATION.md -> docs/references/STRIPE_INTEGRATION.md
+  CONTRIBUTING.md -> docs/references/CONTRIBUTING.md
+  .claude/memory/notes.md -> docs/compound/2026-05-18-notes-import.md (orfao -> references)
+
+README.md: intocavel (read-only)
+
+Secrets detectados:
+  WARN docs/STRIPE_INTEGRATION.md contem 'sk_live_*' — move bloqueado ate aprovacao manual

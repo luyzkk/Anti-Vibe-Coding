@@ -31,5 +31,16 @@ export async function runLinkClaudeStep(
 
 export const linkClaudeAgentsStep: Step = {
   id: 'link-claude-agents',
-  run: (ctx) => runLinkClaudeStep(ctx.cwd),
+  async run(ctx) {
+    // 2026-05-18 (Luiz/dev): Plano 05 fase-05 — SH-09 + D26 + D28 — conserva comportamento v6.3.x.
+    // Steps 09/10 ja early-skiparam (Plano 04 G9); CLAUDE.md nao foi transformado em mirror.
+    // Em modo additive: NAO deletar CLAUDE.md (linkClaudeToAgents faz fs.rm) — preservar original.
+    if (ctx.flags['additive-merge'] === true) {
+      if (ctx.flags['dry-run'] === true) {
+        return { mutated: false, summary: 'dry-run: legacy additive merge would be applied (v6.3.x behavior — CLAUDE.md preserved)' }
+      }
+      return { mutated: true, summary: 'additive-merge: v6.3.x behavior applied (CLAUDE.md preserved, AGENTS.md linked separately)' }
+    }
+    return runLinkClaudeStep(ctx.cwd)
+  },
 }

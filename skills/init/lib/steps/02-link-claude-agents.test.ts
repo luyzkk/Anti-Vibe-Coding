@@ -1,6 +1,11 @@
 import { describe, test, expect } from 'bun:test'
-import { runLinkClaudeStep } from './02-link-claude-agents'
+import { runLinkClaudeStep, linkClaudeAgentsStep } from './02-link-claude-agents'
 import type { LinkResult } from '../symlink-fallback'
+import type { StepContext } from './types'
+
+const mkCtx = (flags: Record<string, unknown> = {}, cwd = '/tmp'): StepContext => ({
+  cwd, args: [], flags: flags as Record<string, boolean | string>,
+})
 
 // 2026-05-17 (Luiz/dev): stub evita mock.module pollution (compound note 2026-05-16).
 // LinkResult shape: { tier, targetPath, hookRegistered } — confirmado em symlink-fallback.ts.
@@ -11,6 +16,25 @@ const stubLinker =
     targetPath: '/tmp/CLAUDE.md',
     hookRegistered: tier === 'copy-with-hook',
   })
+
+describe('linkClaudeAgentsStep (additive-merge branch)', () => {
+  test('with --additive-merge: legacy v6.3.x behavior — returns additive summary', async () => {
+    const report = await linkClaudeAgentsStep.run(mkCtx({ 'additive-merge': true }))
+    expect(report.summary).toMatch(/additive-merge.*v6\.3\.x/)
+    expect(report.mutated).toBe(true)
+  })
+
+  test('with --additive-merge + --dry-run: simulates without mutating', async () => {
+    const report = await linkClaudeAgentsStep.run(mkCtx({ 'additive-merge': true, 'dry-run': true }))
+    expect(report.mutated).toBe(false)
+    expect(report.summary).toMatch(/dry-run/)
+  })
+
+  test('Step 11 does NOT branch on additive-merge flag', async () => {
+    const src = await import('node:fs').then((m) => m.promises.readFile('skills/init/lib/steps/11-move-docs-with-stub.ts', 'utf8'))
+    expect(src).not.toMatch(/additive-merge/)
+  })
+})
 
 describe('linkClaudeAgentsStep', () => {
   test('symlink tier: single log line', async () => {

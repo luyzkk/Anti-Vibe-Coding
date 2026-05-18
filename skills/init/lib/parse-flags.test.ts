@@ -31,4 +31,16 @@ describe('parseFlags', () => {
     expect(result.flags.rollback).toBe(true)
     expect(result.flags['dry-run']).toBe(true)
   })
+
+  // 2026-05-18 (Luiz/dev): Plano 05 fase-05 — confirma reconhecimento de --additive-merge
+  test('parses --additive-merge as boolean true', () => {
+    const parsed = parseFlags(['--additive-merge'])
+    expect(parsed.flags['additive-merge']).toBe(true)
+  })
+
+  test('preserves --additive-merge alongside other flags', () => {
+    const parsed = parseFlags(['--additive-merge', '--dry-run'])
+    expect(parsed.flags['additive-merge']).toBe(true)
+    expect(parsed.flags['dry-run']).toBe(true)
+  })
 })

@@ -7,6 +7,7 @@ import path from 'node:path'
 import { detectProjectName } from '../detect-project-name'
 import { generatePopulatePlan } from '../populate-plan-generator'
 import type { Step } from './types'
+import { isDryRun } from '../dry-run-mode'
 
 /** SH-07 do PRD — subagent_id canonico para Plano 06 fase-01 audit log padronizado. */
 export const SUBAGENT_ID = 'init-populate-plan-gen' as const
@@ -15,7 +16,15 @@ export const SUBAGENT_ID = 'init-populate-plan-gen' as const
 export const generatePopulatePlanStep: Step = {
   id: '91-generate-populate-plan',
   async run(ctx) {
-    // 2026-05-18 (Luiz/dev): TODO Plano 05 fase-01 — bypass de mutacao quando flags['--dry-run'] === true.
+    // 2026-05-18 (Luiz/dev): Plano 05 fase-01 — dry-run bypass: preview sem escrever PLAN.md
+    if (isDryRun(ctx)) {
+      const projectName = detectProjectName(ctx.cwd)
+      const result = await generatePopulatePlan({ cwd: ctx.cwd, projectName })
+      return {
+        mutated: false,
+        summary: `dry-run: would generate populate plan at ${result.relativePath} with ${result.tasks.length} tasks`,
+      }
+    }
 
     const projectName = detectProjectName(ctx.cwd)
 
