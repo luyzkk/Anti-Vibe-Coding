@@ -1,1 +1,30 @@
-# PLACEHOLDER — fase-04 captures actual baseline
+[detect-legacy] Greenfield project — proceeding with scaffold.
+[reuse-discovery]
+[migrate-0-parse-dry-run]
+[migrate-all]
+[migrate-1-backup]
+[migrate-2-planning]
+[migrate-3-lessons]
+[migrate-4-decisions]
+[scaffold-full-tree] Base files: 4
+Tree files: 31 in <NN> ms
+TODO.md ja existe — mantido sem modificacao (G2).
+[scaffold-full-tree] (mutated disk)
+[link-claude-agents] Linked via tier: symlink
+[link-claude-agents] (mutated disk)
+[detect-stack-and-register] Detected stack: node-ts (via package.json#devDependencies.typescript)
+STATE.md updated: <TMP>\docs\STATE.md
+[detect-stack-and-register] (mutated disk)
+stack.json written. primary = nodejs-typescript
+Stack detected: nodejs-typescript. Knowledge copied: 16 atoms.
+Knowledge cobre: type, generic, branded, discriminated, satisfies, ESM, CJS, event loop.
+[persist-stack-and-knowledge]
+[persist-stack-and-knowledge] (mutated disk)
+[customize-architecture] ARCHITECTURE.md customized for node-ts — written: true
+[customize-architecture] (mutated disk)
+[install-gh-files] .github files installed: <TMP>\.github\workflows\harness.yml,<TMP>\.github\pull_request_template.md
+[install-gh-files] (mutated disk)
+[delivery-loop]
+[capabilities-discovery] [capabilities-discovery] skipped — architecture profile not detected. Run /anti-vibe-coding:detect-architecture first.
+[final-validation] Migration validated. Suggested commit: git commit -m 'chore: migrate to anti-vibe-coding v6.0.0'
+Add .planning.v5-backup/ to .gitignore (or delete after confirming all is well).
