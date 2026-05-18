@@ -38,11 +38,14 @@ Formato: sintoma + causa raiz + fix aplicado.
 Armadilhas descobertas que planos futuros ou outros devs devem saber.
 Apenas gotchas que NAO eram obvios antes de implementar.
 
-<!-- Exemplo:
-- **GT-1:** RLS policy com SECURITY DEFINER ignora RLS em triggers
-  - Descoberto em: fase-02
-  - Impacto: queries de service precisam usar service_role, nao anon
--->
+- **GT-1 (fase-04):** `scripts/harness-validate.ts` NAO esta no `TEMPLATE_MANIFEST` (31 entradas), mas `scaffoldTemplates` (chamado pelo Step 01) o cria via `scripts/harness-validate.ts.tpl` como "base file". Resultado: `finalValidationStep` NAO aborta em greenfield — `harness-validate.ts` existe apos o scaffold. Nao e necessario mockar `finalValidationStep` no E2E de greenfield.
+  - Descoberto em: fase-04 (execucao real do E2E)
+  - Impacto: DI-1 planejado (mock de finalValidation) foi dispensado — integracao real funciona.
+  - Golden output confirmou: `[final-validation] Migration validated. Suggested commit: ...` em greenfield.
+
+- **GT-2 (fase-04):** `init-cutover-greenfield.test.ts` (golden tests) falha apos fase-03 porque o golden file nao inclui a linha `[91-generate-populate-plan] Plano de populacao gerado: ...` nem a pasta `{date}-populate-harness/`. Esses testes precisam ter seu golden atualizado (Plano 07 fase-01 ou separado).
+  - Descoberto em: fase-04 (run dos cutover tests)
+  - Impacto: 2 dos 4 tests de `init-cutover-greenfield.test.ts` falham. Nao bloqueiam Plano 02 fase-04, mas devem ser corrigidos antes de merge.
 
 ---
 
@@ -63,7 +66,7 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 4 |
-| Fases concluidas | 3 |
+| Fases concluidas | 4 |
 | Fases com desvio | 1 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
@@ -165,6 +168,27 @@ export async function generatePopulatePlan(input: PopulatePlanInput): Promise<Po
 - `VALIDATE_TASK_BLOCK` literal contem `bun run scripts/harness-validate.ts && bun run scripts/compound-check.ts` (G4).
 - `tasks` array inclui validate task em wave 2 com `targetPath: 'harness-validate'` ao final.
 - **Para fase-03 (Step 91):** `runStep91` recebe `ctx.cwd` + `ctx.projectName`; chama `generatePopulatePlan({ cwd, projectName, clock: () => new Date(), sharedGlossary: undefined })`; escreve `result.planMarkdown` em `path.join(cwd, result.relativePath)`. Criar pasta pai com `mkdir(..., { recursive: true })`.
+
+### Count baseline de tasks no PLAN.md de populacao (snapshot 2026-05-18, fase-04)
+
+- **Tamanho TEMPLATE_MANIFEST:** 31 entradas
+- **Excluidas por filosofia (D14):** 2 (`docs/COMPOUND_ENGINEERING.md`, `docs/PRODUCT_SENSE.md`)
+- **Excluidas por nao-`.md`:** 2 (`scripts/compound-check.ts`, `scripts/new-plan.ts`)
+- **Excluidas por blocklist (README, .github):** 2 (`README.md`, `.github/pull_request_template.md`)
+- **Tasks de populacao emitidas: 25 (wave 1) + 1 validate (wave 2) = 26 total.**
+- Testado via `TEMPLATE_MANIFEST.filter(isPopulatable).length === 25` (desacoplado de literal).
+
+### DI-1 (fase-04): mock de finalValidationStep dispensado
+
+Planejado como workaround para GT-1. Dispensado porque `scaffoldTemplates` (Step 01) cria
+`scripts/harness-validate.ts` como "base file" fora do `TEMPLATE_MANIFEST`. O E2E usa
+a cadeia real sem mock de registry. Integracao completa validada.
+
+### DI-5 (fase-04): askUser injetado no E2E
+
+`deliveryLoopStep` (Step 14) usa `needsUser`. No E2E injetado `askUser: async () => 'N'`
+para comportamento deterministico (recusa Delivery Loop). Sem injecao, o dispatcher skip
+silencioso mas o resultado e o mesmo. Padrao alinhado com `init-cutover-greenfield.test.ts`.
 
 ### Step 91 entregue (fase-03)
 
