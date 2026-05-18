@@ -1,0 +1,5 @@
+backup: created (4 files)
+planning: completed (2 entries, 2 written, 0 skipped)
+lessons: completed (3 entries, 3 written, 0 skipped)
+decisions: completed (2 entries, 2 written, 0 skipped)
+total written: 7
