@@ -13,7 +13,54 @@ Todas as mudanças notáveis do plugin Anti-Vibe Coding serão documentadas aqui
 > Comportamento externo do `/init` preservado byte-a-byte — zero breaking change
 > para projetos consumidores.
 
+### Breaking Changes (Behavior)
+
+> **Atencao:** o comportamento default do `/anti-vibe-coding:init` mudou em projetos com
+> `CLAUDE.md` pre-existente. Esta secao destaca o que mudou comportamentalmente sem
+> quebrar a interface publica (mesmo comando, mesmas flags). Veja
+> [docs/design-docs/ADR-0021-destructive-merge-default.md](docs/design-docs/ADR-0021-destructive-merge-default.md)
+> para o rationale completo.
+
+- **Default merge strategy: aditivo → destrutivo controlado** — em projetos com
+  `CLAUDE.md` > 40 linhas, o `/init` agora propoe (via batch approval `needsUser`)
+  transformacao destrutiva: extrai blocos para `docs/` harness, reduz `CLAUDE.md` a
+  espelho `<= 40 linhas` espelhando `AGENTS.md`, cria backup completo em
+  `.anti-vibe/backup/{timestamp}/` com manifest checksum-validado. Comportamento
+  v6.3.x preservado via flag opt-in `--additive-merge`. Reversibilidade total via
+  `/anti-vibe-coding:init --rollback`.
+- **Regra "merge aditivo" do `skills/init/SKILL.md` substituida** — texto antigo
+  "**NUNCA sobrescrever** — o merge deve ser **aditivo**" foi reescrito para
+  "**NUNCA sobrescrever sem aprovacao explicita + backup recuperavel**", refletindo
+  o sistema real (Step 09 `propose-merge-batch` + Step 10 `apply-merge-destructive` +
+  backup `.anti-vibe/backup/`). Lista de excecoes operacionais documentada em
+  `docs/design-docs/init-rationale.md` seccao "PRD 2026-05-17 — D26/D28".
+- **Registry reorder: Step 10 (`apply-merge-destructive`) antes de Step 02
+  (`link-claude-agents`)** — sequencia mudou para que o symlink/hardlink/copy 3-tier
+  do `link-claude-agents` ja encontre o `CLAUDE.md` no formato espelho final, sem
+  recriacao. Devs que importavam `linkClaudeAgentsStep` diretamente em testes
+  isolados precisam de fixture com `CLAUDE.md` ja `<= 40 linhas` ou rodar
+  Step 10 antes.
+- **Warning runtime amarelo cross-upgrade v6.3.x → v6.4.x** — quando manifest local
+  registra v6.3.x e `CLAUDE.md` ainda tem `> 40 linhas`, dispatcher emite warning PT-BR
+  com sugestao de `--additive-merge`. Aparece UMA vez por run, antes do registry,
+  apenas quando relevante (suprimido em greenfield, dry-run, opt-in explicito).
+
 ### Added
+
+#### Refatoracao /init — Populate Plan + Invert CLAUDE.md Merge + Adapt Existing Docs (PRD 2026-05-17)
+
+- **8 novos steps no registry de `/init`** (`06-secrets-scan`, `07-discover-existing-docs`, `08-classify-blocks-hybrid`, `09-propose-merge-batch`, `10-apply-merge-destructive`, `11-move-docs-with-stub`, `12-detect-drift-incremental`, `91-generate-populate-plan`). Pipeline cobre 4 modos do init (greenfield, migration, legacy v5, already-initiated).
+- **Comando `/anti-vibe-coding:init --rollback`** — early-return no dispatcher; restaura ultimo backup em `.anti-vibe/backup/{latest}/` byte-a-byte validando checksums; registra ADR de rollback em `docs/design-docs/`.
+- **Flag `/init --dry-run`** — cobre todos os novos steps com `mutated: false` e renderiza preview agregado sem mutacao. Parity test em CI compara dry-run output vs run real.
+- **Flag `/init --additive-merge`** — opt-in conservador que preserva comportamento v6.3.x (pula Steps 09/10 destrutivos).
+- **Helpers novos em `skills/init/lib/`** — `backup-anti-vibe.ts`, `secrets-scanner.ts`, `discover-existing-docs.ts`, `blocks-classifier.ts`, `discovery-store.ts`, `doc-mover-stub.ts`, `drift-detector.ts`, `rollback.ts`, `populate-plan-generator.ts`, `cross-upgrade-detector.ts`, `audit-log-writer-factory.ts`, `init-subagent-ids.ts`.
+- **Snippets novos em `skills/init/assets/snippets/`** — `populate-plan-template.md`, `design-md-skeleton.md`, `rollback-adr-template.md`, `classifier-llm-prompt.md`.
+- **PLAN.md de populacao automatico** — Step 91 (`generate-populate-plan`) emite `docs/exec-plans/active/{date}-populate-harness/PLAN.md` com 1+ tasks por arquivo do harness, paralelizaveis via `/execute-plan` wave-based.
+- **Audit log canonico** — `discovery/agents-log.json` recebe entries com `subagent_id` literal centralizado em `INIT_SUBAGENT_IDS` (9 entradas), `input_paths`, `output_struct`, `duration_ms` e `retry_count` em todos os 8 novos steps + comando `--rollback`.
+- **Documentacao formal da breaking-comportamental** — [docs/design-docs/ADR-0021-destructive-merge-default.md](docs/design-docs/ADR-0021-destructive-merge-default.md) + secao `### Breaking Changes (Behavior)` + warning runtime amarelo PT-BR.
+- **Atualizacao do `docs/design-docs/init-rationale.md`** — seccao nova "PRD 2026-05-17 — Refactor /init Harness Populate Merge (D1-D30)" com 30 entries indexadas.
+
+#### Refatoracao Rails-style do `/init` (PRD 2026-05-12)
 
 - **Dispatcher Rails-style** ([skills/init/lib/run-init.ts](skills/init/lib/run-init.ts)) — orquestrador único que carrega `registry` lazy via [skills/init/lib/lazy-import.ts](skills/init/lib/lazy-import.ts) (workaround DI-06/GT-04 para Windows), itera os 17 steps em ordem canônica, captura `AbortError` (gates), honra `skipRemaining` (early-exit) e implementa contrato `needsUser`/`askUser` para steps interativos com anti-loop guard.
 - **Registry contratual** ([skills/init/lib/registry.ts](skills/init/lib/registry.ts)) — `readonly Step[]` ordenado: `detectLegacy → reuseDiscovery → migrate.0/all/1/2/3/4 → scaffoldFullTree → linkClaudeAgents → detectStack → persistStackKnowledge → customizeArchitecture → installGhFiles → deliveryLoop → capabilitiesDiscovery → finalValidation`. Fonte de verdade do runtime; tabela no SKILL.md é apenas documentação.
@@ -27,6 +74,9 @@ Todas as mudanças notáveis do plugin Anti-Vibe Coding serão documentadas aqui
 
 ### Changed
 
+- **Registry reorder: Step 10 antes de Step 02** — `applyMergeDestructiveStep` reposicionado IMEDIATAMENTE antes de `linkClaudeAgentsStep` em `skills/init/lib/registry.ts`. Justificativa em D23 do PRD (PRD 2026-05-17).
+- **Regra "merge aditivo" do `skills/init/SKILL.md` reescrita** (ver `### Breaking Changes (Behavior)`).
+- **Auto-deteccao de cross-upgrade no dispatcher** — `lib/run-init.ts` chama `detectCrossUpgrade` apos `parseFlags` e antes do loop do registry. Warning amarelo PT-BR quando relevante.
 - **`skills/init/SKILL.md` reescrito como manifest declarativo** — 1215 → 86 linhas (CA-09, `<= 200`). Frontmatter preservado byte-idêntico. Corpo: 1 bloco fenced `typescript` único chamando `runInit({ args: process.argv.slice(2), cwd: process.cwd() })`, tabela markdown documentacional dos 17 steps, referências para `init-rationale.md` + 5 `akita-*.md` + `delivery-loop.md`, "Regras Importantes" preservadas literais, `$ARGUMENTS` placeholder mantido (skill loader depende).
 - **Padrão `await import(...)` centralizado** — todos os boundary lazy passam por `lazyImport()` em [skills/init/lib/lazy-import.ts](skills/init/lib/lazy-import.ts). Inline `await import` em ~18 lugares do SKILL.md v6.3.2 substituído por single source helper, documentando DI-06/GT-04 (`bun -e` quebra em paths absolutos no Windows) uma vez só.
 - **Divergência semântica corrigida via cutover** — SKILL.md v6.3.2 linha 174 referenciava `s.reason.includes('source-missing')` mas helper `migrateLessons` retorna `'no lessons-learned.md in backup'` — condicional morta nunca matchava. Step `migrate-3-lessons` usa `report.status === 'skipped'` (predicado funcionalmente correto); cutover remove a condicional quebrada do manifest.
