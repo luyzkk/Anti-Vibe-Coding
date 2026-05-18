@@ -1,0 +1,6 @@
+Migration: partial
+  entries: 1
+  written: 0
+  skipped: 0
+  CONFLICTS: <abs-path>/docs/exec-plans/active/2026-05-12-foo-plan.md
+  Resolve manually (delete from docs/ or rename original) and re-run /init migrate.
