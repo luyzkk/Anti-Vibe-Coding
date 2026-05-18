@@ -4,12 +4,7 @@
 import { migratePlanning } from '../migrate-planning'
 import { AbortError } from './abort-error'
 import type { Step } from './types'
-
-// 2026-05-17 (Luiz/dev): DI-1 herdado de fase-02 — isMigrateMode interno por args[0].
-// Consistente com migrate1BackupStep (fase-02) e reuseDiscoveryStep (Plano 02).
-function isMigrateMode(args: readonly string[]): boolean {
-  return args[0] === 'migrate'
-}
+import { isDryRun, isMigrateMode } from './helpers'
 
 export const migrate2PlanningStep: Step = {
   id: 'migrate-2-planning',
@@ -18,7 +13,7 @@ export const migrate2PlanningStep: Step = {
       return { mutated: false, summary: '' }
     }
 
-    const dryRun = ctx.flags['dry-run'] === true
+    const dryRun = isDryRun(ctx.flags)
     const report = await migratePlanning(ctx.cwd, { dryRun })
 
     // 2026-05-17 (Luiz/dev): wording byte-identico ao SKILL.md linhas 143-146 (PRD R1, G1).

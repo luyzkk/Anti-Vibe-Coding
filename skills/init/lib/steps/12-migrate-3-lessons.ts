@@ -1,11 +1,7 @@
 // skills/init/lib/steps/12-migrate-3-lessons.ts
 import { migrateLessons } from '../migrate-lessons'
 import type { Step } from './types'
-
-// 2026-05-17 (Luiz/dev): DI-1 herdado de fase-02.
-function isMigrateMode(args: readonly string[]): boolean {
-  return args[0] === 'migrate'
-}
+import { isDryRun, isMigrateMode } from './helpers'
 
 export const migrate3LessonsStep: Step = {
   id: 'migrate-3-lessons',
@@ -14,7 +10,7 @@ export const migrate3LessonsStep: Step = {
       return { mutated: false, summary: '' }
     }
 
-    const dryRun = ctx.flags['dry-run'] === true
+    const dryRun = isDryRun(ctx.flags)
     const report = await migrateLessons(ctx.cwd, { dryRun })
 
     // 2026-05-17 (Luiz/dev): wording byte-identico ao SKILL.md linha 172 (PRD R1, G1).

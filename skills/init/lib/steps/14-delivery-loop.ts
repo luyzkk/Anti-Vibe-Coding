@@ -3,13 +3,7 @@ import path from 'node:path'
 import { promises as fs } from 'node:fs'
 import { injectOptionalSection } from '../inject-optional-section'
 import type { Step } from './types'
-
-// 2026-05-17 (Luiz/dev): plugin root resolution copiado de SKILL.md linha 384.
-// O step esta em lib/steps/ (4 niveis abaixo do plugin root).
-// Hierarquia: skills/init/lib/steps/ -> skills/init/lib/ -> skills/init/ -> skills/ -> (root)
-function resolvePluginRoot(stepFileDir: string): string {
-  return process.env.CLAUDE_PLUGIN_ROOT ?? path.join(stepFileDir, '..', '..', '..', '..')
-}
+import { resolvePluginRoot } from './helpers'
 
 export const deliveryLoopStep: Step = {
   id: 'delivery-loop',

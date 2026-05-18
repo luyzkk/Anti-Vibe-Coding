@@ -3,13 +3,7 @@ import { detectV5Legacy } from '../detect-v5-legacy'
 import { backupPlanning } from '../backup-planning'
 import { AbortError } from './abort-error'
 import type { Step } from './types'
-
-// 2026-05-17 (Luiz/dev): DI-1 desta fase — shouldRun interno via inspecao de ctx.args.
-// Modo "migrate" eh detectado por: primeira arg posicional === 'migrate'.
-// Edge case: futuros entrypoints que passam 'migrate' em outra posicao precisam ajustar.
-function isMigrateMode(args: readonly string[]): boolean {
-  return args[0] === 'migrate'
-}
+import { isDryRun, isMigrateMode } from './helpers'
 
 export const migrate1BackupStep: Step = {
   id: 'migrate-1-backup',
@@ -22,7 +16,7 @@ export const migrate1BackupStep: Step = {
 
     // 2026-05-17 (Luiz/dev): dry-run honrado — backupPlanning aceita dryRun: true
     // e retorna status='dry-run' sem tocar disco. PRD CA-03, MH-04.
-    const dryRun = ctx.flags['dry-run'] === true
+    const dryRun = isDryRun(ctx.flags)
 
     const state = await detectV5Legacy(ctx.cwd)
 
