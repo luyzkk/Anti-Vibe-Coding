@@ -1,12 +1,13 @@
 # CLAUDE.md
-# (Fixture v6.4 inverted-merge - gerado por Plano 07 fase-02)
-# 2026-05-18 (Luiz/dev): 287 linhas para CA-13 e CA-14
 
-## Code Style (Akita)
+<!-- 2026-05-18 (Luiz/dev): fixture inverted-merge para CA-13 + CA-14 (Plano 07 fase-02). -->
+<!-- 287 linhas para exercitar classifier, secrets-scan, propose-merge, apply-merge, move-docs. -->
+
+## Code Style for Agents
 
 Convencoes obrigatorias para codigo gerado por IA:
 
-- Nomes grepaveis: use nomes especificos ao dominio. NUNCA: data, handler, process, item, info
+- Nomes grepaveis: use nomes especificos ao dominio. NUNCA: data, handler, process, item
 - Funcoes <= 40 linhas: se ultrapassar, extraia funcao com nome descritivo
 - Arquivos <= 500 linhas: se ultrapassar, divida em modulos com responsabilidade unica
 - SRP obrigatorio: uma funcao, uma responsabilidade. Side effects explicitos e isolados
@@ -15,62 +16,63 @@ Convencoes obrigatorias para codigo gerado por IA:
 ```typescript
 // TS/JS
 // ERRADO
-async function process(data) { ... }
+async function process(data: any) { ... }
 
 // CERTO
-async function chargeSubscriptionRenewal(invoice) { ... }
+async function chargeSubscriptionRenewal(invoice: InvoicePayload): Promise<ChargeResult> { ... }
 ```
 
 ```python
 # Python
 # ERRADO
 def handle(data):
-    pass
+    ...
 
 # CERTO
-def send_overdue_payment_reminder(invoice):
-    pass
+def send_overdue_payment_reminder(invoice: Invoice) -> NotificationResult:
+    ...
 ```
 
 ```ruby
 # Ruby
 # ERRADO
 def process(data)
-  nil
+  ...
 end
 
 # CERTO
 def expire_unpaid_subscription(subscription:)
-  nil
+  ...
 end
 ```
 
-## Comments (Akita)
+## Comments
 
 Escreva o WHY. Nunca o WHAT.
 
 Comente quando:
-- Proveniencia externa: via Stripe docs secao 3.2
-- Decisao nao obvia: usar created_at em vez de updated_at
-- Workaround documentado: SDK retorna 200 em falha silenciosa
-- Referencia a bug: bug #1234: race condition sem lock
+- Proveniencia: via Stripe docs par. 3.2 - idempotency key obrigatorio aqui
+- Decisao nao obvia: usar created_at em vez de updated_at - muda em reindexacoes
+- Workaround: SDK retorna 200 em falha silenciosa (issue hash4821)
+- Referencia a bug: bug hash1234: race condition se chamar sem lock
 - Constraint externo: limite da API: max 100 itens por batch
-- Docstrings em funcoes publicas: sempre - parametros, retorno, excecoes
+- Docstrings em funcoes publicas: sempre - parametros, retorno, excecoes esperadas
 
 NUNCA comente:
-- O que o codigo ja diz: i += 1 (incrementa i)
-- Nomes redundantes acima de funcao de nome identico
-- Codigo comentado morto: delete, o git guarda o historico
+- O que o codigo ja diz: i += 1 - incrementa i
+- Nomes redundantes: calcula total acima de calculateTotal()
+- Codigo comentado (morto): delete, o git guarda o historico
 
-Em refactor por IA: nao podar comentarios do tipo WHY.
+Em refactor por IA: nao podar comentarios do tipo WHY. Se um comentario explicar uma
+decisao ou workaround, ele sobrevive a refatoracao mesmo que o codigo ao redor mude.
 
-## Tests (Akita)
+## Tests
 
 Seguir F.I.R.S.T:
 - Fast: testes unitarios em menos de 50ms cada
-- Independent: sem dependencia de ordem ou estado compartilhado
-- Repeatable: mesmo resultado em qualquer ambiente
-- Self-validating: passa ou falha sem interpretacao manual
+- Independent: sem dependencia de ordem ou estado compartilhado entre testes
+- Repeatable: mesmo resultado em qualquer ambiente (sem clock real, sem rede real)
+- Self-validating: passa ou falha - sem interpretacao manual
 - Timely: escrito ANTES do codigo de producao (TDD)
 
 Cobertura minima:
@@ -79,23 +81,21 @@ Cobertura minima:
 - Branch (condicionais): >= 70%
 
 Testes headless: sem UI real, sem rede real, sem banco real.
-Use mocks/fakes para dependencias externas.
+Nomes: verbo descritivo, sem should. Ex: returns 401 when token expired.
 
-Nomes de teste: verbo descritivo, sem should.
-
-## Dependencies (Akita)
+## Dependencies
 
 Injecao de dependencia via constructor/parameter - nunca instanciar internamente.
 
 ```typescript
 // ERRADO - acoplamento direto, impossivel de testar
 class InvoiceService {
-  private stripe = new Stripe(process.env.STRIPE_KEY_PLACEHOLDER)
+  private stripe = new Stripe(process.env.STRIPE_KEY)
 }
 
 // CERTO - DI via constructor
 class InvoiceService {
-  constructor(private readonly stripe) {}
+  constructor(private readonly stripe: StripeClient) {}
 }
 ```
 
@@ -104,11 +104,11 @@ class InvoiceService {
 # ERRADO
 class InvoiceService:
     def __init__(self):
-        self.stripe = Stripe(os.environ['STRIPE_KEY_PLACEHOLDER'])
+        self.stripe = StripeLib(os.environ.get('STRIPE_KEY'))
 
 # CERTO
 class InvoiceService:
-    def __init__(self, stripe):
+    def __init__(self, stripe: StripeClient):
         self.stripe = stripe
 ```
 
@@ -117,7 +117,7 @@ class InvoiceService:
 # ERRADO
 class InvoiceService
   def initialize
-    @stripe = Stripe::Client.new(ENV['STRIPE_KEY_PLACEHOLDER'])
+    @stripe = Stripe::Client.new(ENV.fetch('STRIPE_KEY'))
   end
 end
 
@@ -131,29 +131,27 @@ end
 
 Servicos externos (banco, APIs, filas) sao sempre injetados.
 
-## Logging (Akita)
+## Logging
 
 JSON estruturado para debug/observabilidade; plain text apenas para CLI output.
 
 ```typescript
 // Debug/observabilidade - JSON estruturado
-logger.info({ event: "invoice.charged", invoiceId, customerId, amountCents })
-logger.error({ event: "stripe.charge.failed", invoiceId, error: err.message })
+logger.info({ event: 'invoice.charged', invoiceId, customerId, amountCents, attempt })
+logger.error({ event: 'stripe.charge.failed', invoiceId, error: err.message, code: err.code })
 
 // CLI output - plain text legivel
-console.log("Charged " + invoiceCount + " invoices")
+console.log('Charged N invoices in Xms')
 ```
 
 ```python
-# Python - structlog ou logging com extra
 import structlog
 log = structlog.get_logger()
-log.info("invoice.charged", invoice_id=invoice_id, customer_id=customer_id)
+log.info('invoice.charged', invoice_id=invoice_id, customer_id=customer_id)
 ```
 
 ```ruby
-# Ruby - structured hash
-Rails.logger.info({ event: "invoice.charged", invoice_id: }.to_json)
+Rails.logger.info({ event: invoice_charged, invoice_id:, customer_id: }.to_json)
 ```
 
 Campos obrigatorios: event (nome do evento), entidade principal (id), resultado.
@@ -161,127 +159,129 @@ Nunca logar: senhas, tokens, PII sem mascaramento, stack traces em producao.
 
 ## Environment Variables
 
-Toda variavel de ambiente deve ser lida uma unica vez, na inicializacao, e validada explicitamente.
-Nunca ler process.env ou ENV dentro de funcoes de dominio - passe como parametro.
-Nunca commitar valores reais - use placeholders descritivos no exemplo abaixo.
+Configurar via .env - nunca hardcodear valores em producao.
 
-```typescript
-// config/env.ts - unica fonte de verdade
-interface AppConfig {
-  databaseUrl: string;
-  apiKey: string;
-  port: number;
-  nodeEnv: 'development' | 'production' | 'test';
-}
+Variaveis esperadas pelo sistema:
 
-function loadConfig(): AppConfig {
-  const databaseUrl = process.env.DATABASE_URL;
-  const apiKey = process.env.API_KEY;
-  const port = process.env.PORT;
-  const nodeEnv = process.env.NODE_ENV;
-
-  if (!databaseUrl) throw new Error('DATABASE_URL is required');
-  if (!apiKey) throw new Error('API_KEY is required');
-
-  return {
-    databaseUrl,
-    apiKey,
-    port: port ? parseInt(port, 10) : 3000,
-    nodeEnv: (nodeEnv as AppConfig['nodeEnv']) || 'development',
-  };
-}
-
-export const config = loadConfig();
-```
-
-Exemplo de .env.example (nunca commitar .env real):
-
-```
+```env
 DATABASE_URL=<<DATABASE_URL>>
-API_KEY=<<API_KEY>>
-PORT=3000
-NODE_ENV=development
-STRIPE_PUBLISHABLE_KEY=<<STRIPE_PUBLISHABLE_KEY>>
 REDIS_URL=<<REDIS_URL>>
 JWT_SECRET=<<JWT_SECRET>>
+SMTP_HOST=<<SMTP_HOST>>
+SMTP_PORT=587
+APP_BASE_URL=<<APP_BASE_URL>>
+NODE_ENV=development
+LOG_LEVEL=info
 ```
 
-Regras para variaveis de ambiente:
-- Nomes em SCREAMING_SNAKE_CASE
-- Valores sensiveis nunca no codigo-fonte - sempre via env
-- Documente cada variavel no .env.example com placeholder <<NOME>>
-- Valide presenca e formato na inicializacao - fail fast se ausente
-- Use bibliotecas como zod para validacao de schema em producao
-- Nunca exponha variaveis de ambiente em logs ou respostas de API
-- Separe configs por ambiente: development, test, production
-- Nunca use valores default para segredos - exija configuracao explicita
-
-Hierarquia de precedencia:
-1. Variaveis de sistema (CI/CD secrets, container env)
-2. Arquivo .env.local (desenvolvimento local, gitignored)
-3. Arquivo .env (defaults nao-sensiveis, pode ser commitado)
-4. Valores hardcoded no codigo apenas para desenvolvimento
+Regras:
+- Nunca commitar .env ao repositorio - apenas .env.example
+- Cada servico le apenas as variaveis que precisa
 
 ## Security Rules
 
-Nunca commitar segredos, tokens, chaves privadas ou senhas no repositorio.
-Nunca logar dados sensiveis: senhas, tokens de acesso, numeros de cartao, CPF/CNPJ.
-Sempre validar e sanitizar inputs externos antes de processar.
-Usar HTTPS em todas as comunicacoes externas - sem fallback para HTTP.
-Manter dependencias atualizadas - checar vulnerabilidades com bun audit regularmente.
-Implementar rate limiting em endpoints publicos para prevenir abuso.
-Usar prepared statements ou ORMs - nunca concatenar SQL com input do usuario.
-Nunca retornar stack traces completas em respostas de producao.
-Revisar permissoes de arquivo: segredos nao devem ser legiveis por outros usuarios.
-Usar variaveis de ambiente para credenciais - nunca hardcodar.
-Implementar CSRF protection em formularios web.
-Validar tipos e tamanhos de upload de arquivo antes de processar.
-
 Autenticacao e autorizacao:
-- Use tokens de sessao com expiracao curta para acesso humano
-- Tokens de API devem ter escopo minimo necessario (principle of least privilege)
-- Revogar tokens comprometidos imediatamente - ter fluxo de revogacao pronto
-- Armazenar hashes de senha com bcrypt ou argon2 - nunca texto puro ou MD5/SHA1
-- Implementar bloqueio de conta apos N tentativas de login falhas
-- MFA obrigatorio para operacoes destrutivas ou acesso a dados sensiveis
 
-Validacao de entrada:
-- Validar content-type em uploads antes de processar o conteudo
-- Limitar tamanho maximo de payload em endpoints REST
-- Rejeitar caracteres especiais em nomes de arquivo recebidos via API
-- Nunca usar eval() ou equivalente com dados de usuario
-- Sanitizar HTML antes de renderizar conteudo gerado pelo usuario
+- JWT: verificar assinatura + expiracao em TODA request autenticada
+- CORS: whitelist explicita - nunca wildcard em producao
+- Rate limiting: aplicar em endpoints de autenticacao e APIs publicas
+- Secrets: nunca logar tokens, senhas ou chaves de API
+- Inputs: validar e sanitizar TODA entrada de usuario antes de processar
+- SQL: usar queries parametrizadas - nunca interpolacao de strings em SQL
+- HTTPS: forcar TLS em producao via HSTS; redirecionar HTTP para HTTPS
 
-Auditoria e rastreabilidade:
-- Logar todas as acoes destrutivas com usuario, timestamp e IP
-- Manter audit trail imutavel para operacoes sensiveis
-- Alertar em acessos fora do padrao (horario, volume, geolocalizacao)
-- Rotacionar chaves de API periodicamente - documentar processo de rotacao
+Sessoes e tokens:
 
-Dependencias e supply chain:
-- Revisar licencas antes de adicionar dependencias em producao
-- Travar versoes exatas em package.json para builds reproduziveis
-- Checar integridade de pacotes com lockfile commitado
-- Evitar dependencias com historico de vulnerabilidades recorrentes
-- Preferir dependencias com manutencao ativa e comunidade grande
+- Expirar tokens de acesso em <= 1h; refresh tokens em <= 7d
+- Invalidar sessoes no logout - nao confiar apenas em expiracao
+- Armazenar tokens em httpOnly cookies em browser (nao localStorage)
 
-Infraestrutura e deploy:
-- Secrets em producao devem viver em secret managers (AWS Secrets Manager, Vault, etc.)
-- Nunca commitar arquivos .env de producao - provisionar via pipeline de CI/CD
-- Containers devem rodar como usuario nao-root sempre que possivel
-- Health checks de aplicacao nao devem expor dados de configuracao ou versoes internas
-- Desabilitar endpoints de debug e introspection em producao
-- Configurar headers de seguranca HTTP: HSTS, CSP, X-Frame-Options
-- Rotacionar credenciais de banco de dados periodicamente - automatizar quando possivel
-- Revisar regras de firewall e grupos de seguranca a cada mudanca de arquitetura
-- Habilitar logs de acesso no load balancer - retencao minima de 90 dias
-- Manter imagens Docker atualizadas - checar CVEs antes de promover para producao
+Auditoria: logar criacao, atualizacao e delecao com userId + timestamp
+Incidentes: manter runbook em docs/SECURITY.md atualizado
 
-Controles de acesso:
-- Principio do menor privilegio em permissoes de banco de dados por servico
-- Separar credenciais de leitura e escrita para servicos que so precisam ler
-- Revogar imediatamente acessos de colaboradores que saem do projeto
-- Auditar permissoes de service accounts trimestralmente
-- Usar roles em vez de usuarios diretamente em infraestrutura cloud
-- IAM least-privilege: nenhum servico deve ter permissao AdministratorAccess
+## Architecture Rules
 
+Separacao de concerns:
+
+- Controllers: recebem request, delegam para service, retornam response
+- Services: logica de negocio - sem acoplamento a framework/HTTP
+- Repositories: persistencia - isolam o banco do service layer
+- DTOs: contratos explicitos de input/output entre camadas
+
+Modulos:
+
+- Coesao alta, acoplamento baixo - cada modulo tem responsabilidade unica
+- Dependencias unidirecionais: camada superior depende da inferior, nunca o contrario
+- Shared kernel: tipos e interfaces em shared/ - sem logica de negocio
+
+Design patterns:
+
+- Repository pattern para acesso a dados
+- Factory para criacao de objetos complexos
+- Strategy para variacoes de algoritmo
+- Observer para eventos de dominio
+
+ADRs: cada decisao arquitetural relevante - formato padrao em docs/design-docs/
+Pipeline: grill-me > write-prd > plan-feature > execute-plan > verify-work
+Review: anti-vibe-review antes de qualquer merge em main
+
+## API Design
+
+REST - convencoes:
+
+- Recursos no plural: /users, /invoices, /products
+- Verbos HTTP corretos: GET (leitura), POST (criacao), PUT/PATCH (atualizacao), DELETE
+- Status codes: 200 OK, 201 Created, 204 No Content, 400 Bad Request, 401 Unauthorized
+- Respostas consistentes: sempre JSON com envelope data, meta, errors
+
+Idempotencia:
+
+- POST com Idempotency-Key header para operacoes criticas
+- PUT e idempotente por definicao - garantir no service layer
+- DELETE: retornar 204 mesmo se recurso ja inexiste
+
+Rate limiting:
+
+- Documentar limites no header X-RateLimit-Limit, X-RateLimit-Remaining
+- Retornar 429 Too Many Requests com Retry-After
+
+Versionamento: via path prefix /v1/, /v2/ - nunca query string
+Paginacao: cursor-based para datasets grandes (evitar OFFSET para N > 10k)
+DTOs: validar com schema explicito (Zod) antes de qualquer processamento
+N+1: proibido em producao - usar eager loading ou DataLoader
+Documentacao: OpenAPI spec em docs/api.yaml - manter atualizado
+
+## Database Rules
+
+Migrations:
+
+- Migrations sempre reversiveis (up + down)
+- Nunca mutar colunas em producao com locking; usar additive migrations
+- Backfill em background job, nunca em migration sincrona
+- Naming: YYYYMMDDHHMMSS_describe_change.ts
+
+Indices:
+
+- Indice em toda FK e campo usado em WHERE/JOIN frequente
+- Indice composto: ordem importa - campo mais seletivo primeiro
+- EXPLAIN ANALYZE antes de qualquer query em tabela > 100k rows
+
+Conexoes:
+
+- Pool de conexoes obrigatorio em producao (min: 2, max: 20 por processo)
+- Health check: /health deve verificar conexao ao banco
+- Read replicas: queries de leitura pesada devem usar replica
+
+## Front-end Rules
+
+- Acessibilidade WCAG 2.0: todos os componentes interativos precisam de aria-* corretos
+- Data fetching: usar TanStack Query - nunca fetch em useEffect
+- State: estado local primeiro; Zustand/Context apenas quando estado e compartilhado
+- Performance: lazy load rotas e componentes pesados; sem waterfall de requests
+- Testes: componentes com Testing Library; evitar selectors frageis (className, id)
+- Imagens: sempre com alt descritivo; lazy load via loading=lazy
+- Forms: validacao client-side com Zod; nunca confiar apenas em validacao client-side
+- CSS: utility classes (Tailwind) preferidas; evitar CSS-in-JS sem necessidade real
+- Bundle: tree-shaking habilitado; verificar bundle size antes de adicionar dependencia
+- Error handling: boundaries de erro em componentes criticos; nunca swallow erros silenciosamente
+- Internacionalizacao: usar i18n library (next-intl, react-i18next) para textos ao usuario

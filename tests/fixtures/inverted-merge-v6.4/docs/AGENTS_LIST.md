@@ -1,22 +1,21 @@
-# Agents List — Plugin Subagents
+# Agents List
 
-13 standalone subagent auditors in `agents/`, invokable from any skill via the Agent tool.
-All agents are read-only unless noted. Default profile is `balanced` unless overridden.
+Available subagent auditors in the anti-vibe-coding plugin.
 
-## Subagent Auditors
+## Auditors
 
-| Agent | Purpose | Default Profile |
-|-------|---------|----------------|
-| tdd-verifier | Verifies TDD compliance (read-only) | balanced |
-| documentation-writer | Creates/updates docs | balanced |
-| lesson-evaluator | Evaluates lesson quality | balanced |
-| security-auditor | Security audit (cryptography, secrets, ReDoS) | balanced |
-| database-analyzer | Query analysis (N+1, indexes, cache) | balanced |
-| api-auditor | Endpoint audit (idempotency, DTOs, REST) | balanced |
-| solid-auditor | Verifies SOLID principles and design patterns | balanced |
-| code-smell-detector | Detects 9 code smells with suggestions | balanced |
-| react-auditor | React component audit (useEffect, memoization) | balanced |
-| infrastructure-auditor | Infra audit (DNS, deploy, Docker, health checks) | balanced |
-| plan-executor | [v5] Executes individual tasks with mandatory TDD | balanced |
-| plan-verifier | [v5] Verifies task output (read-only, JSON output) | balanced |
-| design-explorer | [v5] Architectural proposal with specific constraint | balanced |
+| Agent | Purpose |
+|-------|---------|
+| security-auditor | OWASP Top 10, secrets, ReDoS, sequential IDs |
+| api-auditor | Idempotency, DTOs, REST design, rate limiting |
+| react-auditor | useEffect misuse, stale closures, memoization |
+| solid-auditor | SRP, LSP, Law of Demeter, coupling |
+| code-smell-detector | 9 code smell patterns with refactor suggestions |
+| database-analyzer | N+1 queries, missing indexes, cache config |
+| infrastructure-auditor | Env vars, health checks, Docker, CDN |
+| tdd-verifier | TDD cycle validation (Red-Green-Refactor) |
+| documentation-writer | Smart documentation with project context |
+
+## Usage
+
+Invoke any auditor via `/anti-vibe-coding:<agent-name>`.

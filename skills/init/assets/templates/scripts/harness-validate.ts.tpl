@@ -59,7 +59,8 @@ const AGENTS_REQUIRED_LINKS = [
 // .claude/: runtime/config do Claude Code (settings.json, custom slash commands). Slash commands sao validados pelo loader do CC, nao pelo harness — harness foca em docs/.
 // _legacy-detail/: working notes (PRD/PLAN/STATE/planoXX) preservados ao migrar pastas .planning/<slug>/ para docs/exec-plans/completed/. Links sao historicos relativos a destinos antigos.
 // v5-legacy/: docs v5.x (COMO-ATUALIZAR, IMPLEMENTACAO-VERSIONAMENTO, etc.) preservados em docs/references/v5-legacy/ — links apontam para paths v5 nao mais existentes.
-const SKIP_DIRS = new Set(['node_modules', '.git', '.claude', '.planning', '.planning.v5-backup', 'compound', 'templates', '__fixtures__', 'fixtures', 'snippets', '_legacy-detail', 'v5-legacy'])
+// .anti-vibe/: backup canonico do /init (step 10 apply-merge-destructive) — arquivos originais movidos para backup perdem contexto relativo de links.
+const SKIP_DIRS = new Set(['node_modules', '.git', '.claude', '.anti-vibe', '.planning', '.planning.v5-backup', 'compound', 'templates', '__fixtures__', 'fixtures', 'snippets', '_legacy-detail', 'v5-legacy'])
 const ARCHIVED_SEGMENT = '_archived'
 
 type Failure = { rule: string; message: string }

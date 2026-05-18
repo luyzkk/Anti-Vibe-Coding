@@ -1,15 +1,32 @@
 # Quality Score
 
-Update this document whenever the team materially improves or accepts quality tradeoffs.
+Rubric for evaluating implementation quality in code reviews.
 
-This is a living self-assessment of the plugin, not a merge gate.
+## Scoring Dimensions
 
-| Area | Score | Notes | Next Action |
-| --- | --- | --- | --- |
-| Architecture | B | Clear split between skills/hooks/scripts/lib. | Keep ARCHITECTURE.md current as new skills land. |
-| Testing | B | 690+ tests across 97 files, validators have perf benches. | Add e2e coverage for sync drift-detection edge cases. |
-| Security | B- | Path-traversal boundary in harness-validate link checker. | Add a bun run secrets:scan script. |
-| Reliability | B | All scaffold operations are idempotent (wx flag, hash manifest). | Document failure modes for each fallback tier. |
-| Frontend | n/a | Plugin has no UI surface. | — |
-| Docs | B | 14+ structured docs auto-scaffolded. | Generate per-skill SKILL.md changelog summary when version bumps. |
-| Compound Engineering | B+ | BUG-01..04 captured with Problem/Solution/Prevention. | Trigger lessons-learned for each migration phase. |
+### Correctness (0-25)
+- Tests pass: +10
+- Edge cases covered: +8
+- Error handling complete: +7
+
+### Design (0-25)
+- SRP respected: +8
+- No premature abstraction: +8
+- Readable without comments: +9
+
+### Security (0-25)
+- No hardcoded secrets: +10
+- Input validation at boundaries: +8
+- Auth checks present: +7
+
+### Observability (0-25)
+- Structured logging on critical paths: +10
+- Metrics/tracing hooks: +8
+- Health checks: +7
+
+## Score Thresholds
+
+- 90-100: Ship it
+- 70-89: Minor revision
+- 50-69: Major revision
+- Below 50: Redesign

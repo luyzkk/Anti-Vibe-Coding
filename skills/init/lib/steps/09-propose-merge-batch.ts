@@ -1,4 +1,5 @@
 import type { Step, StepContext, StepReport } from './types'
+import { AbortError } from './abort-error'
 import { readDiscoveryArtifact } from '../discovery-store'
 import type { MergeProposal, MoveAction, BlockedAction } from '../merge-proposal-types'
 import type { ClassifyBlocksHybridResult } from './08-classify-blocks-hybrid'
@@ -83,6 +84,18 @@ export const proposeMergeBatchStep: Step = {
 
   async run(ctx: StepContext): Promise<StepReport> {
     const startMs = performance.now()
+
+    // Second invocation after needsUser — dispatcher sets __interactiveAnswer
+    const interactiveAnswer = ctx.flags['__interactiveAnswer']
+    if (typeof interactiveAnswer === 'string') {
+      if (interactiveAnswer === 'abort') {
+        throw new AbortError('Merge aborted by user.', 1)
+      }
+      if (interactiveAnswer === 'skip') {
+        return { mutated: false, summary: 'init-propose-merge: merge skipped by user' }
+      }
+      return { mutated: false, summary: 'init-propose-merge: merge approved by user' }
+    }
 
     // G9: --additive-merge early-return BEFORE reading artifacts
     if (ctx.flags['additive-merge'] === true) {
