@@ -14,9 +14,11 @@ describe('generatePopulatePlanStep', () => {
       const entries = await fs.readdir(activeDir)
 
       expect(entries).toHaveLength(1)
-      expect(entries[0]).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}Z-populate-harness$/)
+      const entryName = entries[0]
+      if (entryName === undefined) throw new Error('Expected one entry in active dir')
+      expect(entryName).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}Z-populate-harness$/)
 
-      const planPath = path.join(activeDir, entries[0], 'PLAN.md')
+      const planPath = path.join(activeDir, entryName, 'PLAN.md')
       const stat = await fs.stat(planPath)
       expect(stat.isFile()).toBe(true)
     } finally {

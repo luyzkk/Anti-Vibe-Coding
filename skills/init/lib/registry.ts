@@ -17,6 +17,7 @@ import { installGhFilesStep } from './steps/05-install-gh-files'
 import { deliveryLoopStep } from './steps/14-delivery-loop'
 import { capabilitiesDiscoveryStep } from './steps/15-capabilities-discovery'
 import { finalValidationStep } from './steps/90-final-validation'
+import { generatePopulatePlanStep } from './steps/91-generate-populate-plan'
 
 // 2026-05-17 (Luiz/dev): ordem contratual — detect-legacy (gate) -> reuse-discovery (early-exit)
 // -> migrate-0 (parse --dry-run flag) -> migrate-all (dry-run orchestrate, skipRemaining em dry-run)
@@ -49,4 +50,7 @@ export const registry: readonly Step[] = [
   deliveryLoopStep,             // 2026-05-17 (Luiz/dev): plano03 fase-06 — Step 6 interativo via needsUser (PRD D3, CH-01, CA-05).
   capabilitiesDiscoveryStep,    // 2026-05-17 (Luiz/dev): plano03 fase-06 — Step 7 soft-fail (PRD CA-06, G7).
   finalValidationStep,          // 2026-05-17 (Luiz/dev): Step migrate.5 — valida harness apos migracao completa (PRD CA-09).
+  // 2026-05-18 (Luiz/dev): MH-01 do PRD / G7 do plano02 —
+  // Step 91 SEMPRE apos finalValidationStep. Gerar PLAN.md com harness invalido geraria lixo.
+  generatePopulatePlanStep,      // 2026-05-18 (Luiz/dev): '91-generate-populate-plan' — MH-01 / G7: ultima posicao do registry.
 ]
