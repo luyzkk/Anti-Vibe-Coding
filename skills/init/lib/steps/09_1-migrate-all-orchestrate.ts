@@ -2,12 +2,7 @@
 import { orchestrateMigration } from '../migrate-orchestrator'
 import { renderDryRunReport } from '../dry-run-renderer'
 import type { Step } from './types'
-
-// 2026-05-17 (Luiz/dev): DI-1 herdado de fase-02.
-// migrate.0 e migrate.all sao no-op quando args[0] !== 'migrate'.
-function isMigrateMode(args: readonly string[]): boolean {
-  return args[0] === 'migrate'
-}
+import { isDryRun, isMigrateMode } from './helpers'
 
 export const migrateAllOrchestrateStep: Step = {
   id: 'migrate-all',
@@ -16,7 +11,7 @@ export const migrateAllOrchestrateStep: Step = {
       return { mutated: false, summary: '' }
     }
 
-    const dryRun = ctx.flags['dry-run'] === true
+    const dryRun = isDryRun(ctx.flags)
 
     // 2026-05-17 (Luiz/dev): DI-5-1 desta fase — migrate.all SOMENTE roda em dry-run.
     // Em real mode eh NO-OP (migrate.1/2/3/4 individuais fazem o trabalho).

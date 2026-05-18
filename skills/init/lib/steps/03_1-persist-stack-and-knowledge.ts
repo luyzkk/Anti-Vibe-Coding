@@ -1,16 +1,12 @@
 // skills/init/lib/steps/03_1-persist-stack-and-knowledge.ts
-import path from 'node:path'
 import { runStackKnowledgeInit } from '../run-stack-knowledge-init'
 import type { RunStackKnowledgeInitOpts, RunStackKnowledgeInitResult } from '../run-stack-knowledge-init'
 import type { Step } from './types'
+import { resolvePluginRoot } from './helpers'
 
 // 2026-05-17 (Luiz/dev): DI-2 — runner injetavel para testes (sem mock.module).
 // Compound note 2026-05-16-bun-mock-module-pollution.md.
 type StackKnowledgeRunner = (opts: RunStackKnowledgeInitOpts) => Promise<RunStackKnowledgeInitResult>
-
-function resolvePluginRoot(stepFileDir: string): string {
-  return process.env.CLAUDE_PLUGIN_ROOT ?? path.join(stepFileDir, '..', '..', '..', '..')
-}
 
 // 2026-05-17 (Luiz/dev): summary vazia — runStackKnowledgeInit emite seus proprios logs via console.log
 // (Wave 5 D2, confirmado em run-stack-knowledge-init.ts linha 53: logger = console.log por default).

@@ -1,11 +1,7 @@
 // skills/init/lib/steps/13-migrate-4-decisions.ts
 import { migrateDecisions } from '../migrate-decisions'
 import type { Step } from './types'
-
-// 2026-05-17 (Luiz/dev): DI-1 herdado de fase-02.
-function isMigrateMode(args: readonly string[]): boolean {
-  return args[0] === 'migrate'
-}
+import { isDryRun, isMigrateMode } from './helpers'
 
 export const migrate4DecisionsStep: Step = {
   id: 'migrate-4-decisions',
@@ -14,7 +10,7 @@ export const migrate4DecisionsStep: Step = {
       return { mutated: false, summary: '' }
     }
 
-    const dryRun = ctx.flags['dry-run'] === true
+    const dryRun = isDryRun(ctx.flags)
     const report = await migrateDecisions(ctx.cwd, { dryRun })
 
     // 2026-05-17 (Luiz/dev): wording byte-identico ao SKILL.md linha 196 (PRD R1, G1).
