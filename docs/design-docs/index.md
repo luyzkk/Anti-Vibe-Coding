@@ -6,6 +6,10 @@
 - [ADR-0002: Contrato de Subagentes v1](./ADR-0002-subagent-contract.md) — 2026-05-14, active
 - [ADR-0020: Adaptive Coaching Framework (v6.3.0)](./ADR-0020-adaptive-coaching.md) — 2026-05-15, active
 
+## Init Rationale
+
+- [init-rationale.md](./init-rationale.md) — rationale indexado do `/anti-vibe-coding:init` (extraido de SKILL.md inline em 2026-05-17)
+
 ## Canonical Docs
 
 Reference documents that capture the contract or usage pattern for a subsystem. These are
