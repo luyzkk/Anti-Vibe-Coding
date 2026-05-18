@@ -49,6 +49,8 @@
   "docs/design-docs/index.md",
   "docs/exec-plans/",
   "docs/exec-plans/active/",
+  "docs/exec-plans/active/<DATE>-populate-harness/",
+  "docs/exec-plans/active/<DATE>-populate-harness/PLAN.md",
   "docs/exec-plans/active/README.md",
   "docs/exec-plans/completed/",
   "docs/exec-plans/completed/README.md",

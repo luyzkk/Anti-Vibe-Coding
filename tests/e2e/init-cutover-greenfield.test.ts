@@ -63,6 +63,8 @@ function normalizeStdout(text: string, tmpDir: string): string {
     .replace(/in \d+ ms/g, 'in <NN> ms')
     .replace(new RegExp(tmpDir.replace(/\\/g, '\\\\').replace(/\//g, '\\/'), 'g'), '<TMP>')
     .replace(/\d{4}-\d{2}\.jsonl/g, '<YYYY-MM>.jsonl')
+    // 2026-05-18 (Luiz/dev): Plano 02 fase-04 — normaliza pasta populate-harness com timestamp.
+    .replace(/\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}Z-populate-harness/g, '<DATE>-populate-harness')
     .split('\n')
     .map((line) => line.trimEnd())
     .join('\n')
@@ -70,7 +72,12 @@ function normalizeStdout(text: string, tmpDir: string): string {
 
 function normalizeTree(entries: string[]): string[] {
   // 2026-05-17 (Luiz/dev): normaliza .claude/metrics/YYYY-MM.jsonl (data-driven filename).
-  return entries.map((e) => e.replace(/\.claude\/metrics\/\d{4}-\d{2}\.jsonl/, '.claude/metrics/<YYYY-MM>.jsonl'))
+  // 2026-05-18 (Luiz/dev): Plano 02 fase-04 — normaliza pasta populate-harness datada.
+  return entries.map((e) =>
+    e
+      .replace(/\.claude\/metrics\/\d{4}-\d{2}\.jsonl/, '.claude/metrics/<YYYY-MM>.jsonl')
+      .replace(/docs\/exec-plans\/active\/\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}Z-populate-harness/, 'docs/exec-plans/active/<DATE>-populate-harness'),
+  )
 }
 
 describe('E2E cutover — greenfield (CA-01)', () => {
