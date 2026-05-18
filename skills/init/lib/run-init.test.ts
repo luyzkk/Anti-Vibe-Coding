@@ -46,7 +46,10 @@ describe('runInit dispatcher', () => {
       async run(ctx) { captured = ctx.flags; return { mutated: false, summary: '' } },
     }
     await runInit(['--dry-run', '--mode=fast'], { registry: [probe], cwd: '/tmp', log: () => {} })
-    expect(captured).toEqual({ 'dry-run': true, mode: 'fast' })
+    // 2026-05-18 (Luiz/dev): Plano 05 fase-01 — __dryRunRecorder injected alongside user flags.
+    // Use partial match; exact toEqual would break with recorder present.
+    expect(captured?.['dry-run']).toBe(true)
+    expect(captured?.['mode']).toBe('fast')
   })
 
   test('re-throws non-AbortError (bug visibility)', async () => {

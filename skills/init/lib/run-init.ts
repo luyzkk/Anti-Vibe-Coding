@@ -3,6 +3,7 @@ import { AbortError } from './steps/abort-error'
 import type { Step, StepContext, StepResult } from './steps/types'
 import { parseFlags } from './parse-flags'
 import { lazyImport } from './lazy-import'
+import { WriteRecorder } from './dry-run'
 
 export type RunInitOptions = {
   /** Permite injetar registry alternativo (tests). Default: registry global. */
@@ -37,7 +38,13 @@ export async function runInit(
 
   const ctx: StepContext = (() => {
     const { args, flags } = parseFlags(argv)
-    const base: StepContext = { cwd: cwd ?? process.cwd(), args, flags }
+    // 2026-05-18 (Luiz/dev): Plano 05 fase-01 — instancia WriteRecorder UMA vez por run em dry-run.
+    // Steps le via getRecorder(ctx). Compartilhado ao longo do registry para CA-13 parity.
+    const recorder = flags['dry-run'] === true ? new WriteRecorder() : undefined
+    const flagsWithRecorder = recorder !== undefined
+      ? { ...flags, __dryRunRecorder: recorder as unknown as boolean }
+      : flags
+    const base: StepContext = { cwd: cwd ?? process.cwd(), args, flags: flagsWithRecorder }
     if (askUser !== undefined) {
       return { ...base, askUser }
     }
@@ -92,6 +99,16 @@ export async function runInit(
       }
       throw e
     }
+  }
+
+  // 2026-05-18 (Luiz/dev): Plano 05 fase-05 — warning amarelo quando --additive-merge ativo (G10)
+  // Usa log injetado (nao console.warn) para que testes capturem via sink.
+  if (ctx.flags['additive-merge'] === true) {
+    log('')
+    log('WARN: Running in --additive-merge mode (v6.3.x behavior).')
+    log('   Destructive merge skipped. CLAUDE.md preserved as-is.')
+    log('   To migrate later: re-run /anti-vibe-coding:init without --additive-merge.')
+    log('')
   }
 
   return { kind: 'ok', report: { mutated: false, summary: 'all steps completed' } }
