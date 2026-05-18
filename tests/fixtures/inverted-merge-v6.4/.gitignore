@@ -1,0 +1,4 @@
+# 2026-05-18 (Luiz/dev): fixture inverted-merge para CA-13 + CA-14 (Plano 07 fase-04)
+node_modules/
+.DS_Store
+.anti-vibe/
