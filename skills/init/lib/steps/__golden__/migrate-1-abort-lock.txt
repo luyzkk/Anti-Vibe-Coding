@@ -1,0 +1,1 @@
+Backup lock present at /tmp/<fixture>/.planning.v5-backup.lock — another /init may be running. If stale, delete manually and re-run.
