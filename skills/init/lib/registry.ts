@@ -4,6 +4,7 @@ import { detectLegacyStep } from './steps/00-detect-legacy'
 import { reuseDiscoveryStep } from './steps/00_1-reuse-discovery'
 import { secretsScanStep } from './steps/06-secrets-scan'
 import { discoverExistingDocsStep } from './steps/07-discover-existing-docs'
+import { classifyBlocksHybridStep } from './steps/08-classify-blocks-hybrid'
 import { migrate0ParseDryRunStep } from './steps/09-migrate-0-parse-dry-run'
 import { migrateAllOrchestrateStep } from './steps/09_1-migrate-all-orchestrate'
 import { migrate1BackupStep } from './steps/10-migrate-1-backup'
@@ -39,6 +40,7 @@ export const registry: readonly Step[] = [
   reuseDiscoveryStep,           // 2026-05-17 (Luiz/dev): early-exit via skipRemaining quando cache fresh (PRD MH-04, CA-04).
   secretsScanStep,              // 2026-05-18 (Luiz/dev): Plano 03 fase-02 — varre secrets ANTES de qualquer move (D16, SH-01, CA-04).
   discoverExistingDocsStep,     // 2026-05-18 (Luiz/dev): Plano 03 fase-04 — discover apos secrets-scan; emite lista flagada (D5, SH-02, D6).
+  classifyBlocksHybridStep,     // 2026-05-18 (Luiz/dev): Plano 03 fase-06 — classifica heuristica + flagga pendingLlm para Plano 04 fase-02 (D8, SH-03, SH-04).
   migrate0ParseDryRunStep,      // 2026-05-17 (Luiz/dev): plano03 fase-05 — parse --dry-run flag (SKILL.md linha 50, G1).
   migrateAllOrchestrateStep,    // 2026-05-17 (Luiz/dev): plano03 fase-05 — DI-5-1: skipRemaining em dry-run; NO-OP em real mode (PRD CA-03, CA-10).
   migrate1BackupStep,           // 2026-05-17 (Luiz/dev): G4 do plano03 fase-02 — apos migrate-all (agora indice 4).
