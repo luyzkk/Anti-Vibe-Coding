@@ -3,6 +3,56 @@
 Todas as mudanças notáveis do plugin Anti-Vibe Coding serão documentadas aqui.
 
 
+## [6.4.0] - 2026-05-17
+
+> **Minor release — Refatoração Rails-style do `/anti-vibe-coding:init`**
+> SKILL.md reduzido de 1215 para 86 linhas via cutover big-bang para arquitetura
+> manifest + dispatcher. 17 steps modularizados em `skills/init/lib/steps/`,
+> rationale extraído para arquivo dedicado, snippets Akita externalizados, suite
+> E2E prova byte-idempotência greenfield + legacy v5 + 4 edge cases (CA-03/06/07/08).
+> Comportamento externo do `/init` preservado byte-a-byte — zero breaking change
+> para projetos consumidores.
+
+### Added
+
+- **Dispatcher Rails-style** ([skills/init/lib/run-init.ts](skills/init/lib/run-init.ts)) — orquestrador único que carrega `registry` lazy via [skills/init/lib/lazy-import.ts](skills/init/lib/lazy-import.ts) (workaround DI-06/GT-04 para Windows), itera os 17 steps em ordem canônica, captura `AbortError` (gates), honra `skipRemaining` (early-exit) e implementa contrato `needsUser`/`askUser` para steps interativos com anti-loop guard.
+- **Registry contratual** ([skills/init/lib/registry.ts](skills/init/lib/registry.ts)) — `readonly Step[]` ordenado: `detectLegacy → reuseDiscovery → migrate.0/all/1/2/3/4 → scaffoldFullTree → linkClaudeAgents → detectStack → persistStackKnowledge → customizeArchitecture → installGhFiles → deliveryLoop → capabilitiesDiscovery → finalValidation`. Fonte de verdade do runtime; tabela no SKILL.md é apenas documentação.
+- **17 steps modulares** em [skills/init/lib/steps/](skills/init/lib/steps/) — cada step é wrapper sobre helper preservado em `skills/init/lib/*.ts`. Wording byte-idêntico aos `console.log` originais (PRD R1/G1). Convenção de naming `NN-{slug}.ts` (00, 00_1, 01, 02, 03, 03_1, 04, 05, 09, 09_1, 10..13, 14, 15, 90).
+- **Contrato `Step`/`StepReport`/`StepContext`/`AbortError`** ([skills/init/lib/steps/types.ts](skills/init/lib/steps/types.ts), [skills/init/lib/steps/abort-error.ts](skills/init/lib/steps/abort-error.ts)) — interface mínima sem `shouldRun` (steps decidem internamente via `isMigrateMode`); extensões aditivas `skipRemaining?` (Plano 02 fase-06) e `needsUser?`/`askUser?` (Plano 03 fase-06).
+- **DRY helpers** ([skills/init/lib/steps/helpers.ts](skills/init/lib/steps/helpers.ts)) — `isMigrateMode(args)` + `isDryRun(flags)` + `resolvePluginRoot(stepFileDir)` extraídos pós code-smell audit. Magic strings `'dry-run'` e `'migrate'` encapsuladas como constants internas. 6 testes RED/GREEN cobrem os 3 utilitários.
+- **Rationale indexado** em [docs/design-docs/init-rationale.md](docs/design-docs/init-rationale.md) — 34 entradas (DI/GT/CA/R/M/D/Gates + DEV histórico) extraídas dos HTML comments do SKILL.md inline. Cada entrada com `**Consumido por:**` apontando step ou marcando "transversal/histórico". Substitui prosa inline (~1100 linhas) por referência única.
+- **5 snippets Akita** em [skills/init/assets/snippets/](skills/init/assets/snippets/) — `akita-code-style.md`, `akita-comments.md`, `akita-tests.md`, `akita-dependencies.md`, `akita-logging.md`. Extraídos byte-idênticos do apêndice antigo (linhas 1015-1193 do SKILL.md v6.3.2), seguem convenção de `delivery-loop.md` (sem frontmatter, sem H1).
+- **Suite E2E byte-idempotence** ([tests/e2e/init-cutover-greenfield.test.ts](tests/e2e/init-cutover-greenfield.test.ts), [tests/e2e/init-cutover-legacy-v5.test.ts](tests/e2e/init-cutover-legacy-v5.test.ts)) — 8 testes cobrindo CA-01 (greenfield stdout+tree golden), CA-02 (legacy v5 migra planning/lessons/decisions), CA-03 (--dry-run zero mutação), CA-06 (capabilities soft-fail), CA-07 (backup-fail abort, skip-on-win32), CA-08 (Windows tier-3 copy-with-hook). 4 goldens versionados em `tests/e2e/__golden__/`.
+- **Tracer bullet end-to-end** ([tests/e2e/init-tracer-bullet.test.ts](tests/e2e/init-tracer-bullet.test.ts)) — prova que dispatcher + registry + tier-1 symlink funcionam end-to-end (~110ms greenfield).
+
+### Changed
+
+- **`skills/init/SKILL.md` reescrito como manifest declarativo** — 1215 → 86 linhas (CA-09, `<= 200`). Frontmatter preservado byte-idêntico. Corpo: 1 bloco fenced `typescript` único chamando `runInit({ args: process.argv.slice(2), cwd: process.cwd() })`, tabela markdown documentacional dos 17 steps, referências para `init-rationale.md` + 5 `akita-*.md` + `delivery-loop.md`, "Regras Importantes" preservadas literais, `$ARGUMENTS` placeholder mantido (skill loader depende).
+- **Padrão `await import(...)` centralizado** — todos os boundary lazy passam por `lazyImport()` em [skills/init/lib/lazy-import.ts](skills/init/lib/lazy-import.ts). Inline `await import` em ~18 lugares do SKILL.md v6.3.2 substituído por single source helper, documentando DI-06/GT-04 (`bun -e` quebra em paths absolutos no Windows) uma vez só.
+- **Divergência semântica corrigida via cutover** — SKILL.md v6.3.2 linha 174 referenciava `s.reason.includes('source-missing')` mas helper `migrateLessons` retorna `'no lessons-learned.md in backup'` — condicional morta nunca matchava. Step `migrate-3-lessons` usa `report.status === 'skipped'` (predicado funcionalmente correto); cutover remove a condicional quebrada do manifest.
+
+### Fixed (code-smell pós-cutover)
+
+- **DRY violations** identificadas pelo `code-smell-detector` resolvidas: `isMigrateMode()` duplicada em 6 steps + `const dryRun = ctx.flags['dry-run']` duplicada em 6 steps + `resolvePluginRoot()` duplicada em 2 steps — extraídas para `helpers.ts` único. Magic strings `'dry-run'`/`'migrate'` encapsuladas (eliminando ~19 ocorrências literais). Comportamento preservado byte-idêntico — helpers reescrevem expressões literalmente equivalentes.
+
+### Documentation
+
+- **PRD + Plano completos** preservados em [docs/exec-plans/completed/2026-05-17-refactor-init-skill-rails/](docs/exec-plans/completed/2026-05-17-refactor-init-skill-rails/) — 4 planos hierárquicos × 21 fases, MEMORY.md por plano com decisões/gotchas/desvios documentados, STATE.md final marcado `completed`.
+
+### Reservation / Notas
+
+- **Edge case `process.argv` no manifest:** o bloco fenced do SKILL.md usa `process.argv.slice(2)` confiando no `$ARGUMENTS` placeholder. Validação fim-a-fim coberta pela suite E2E + tracer bullet — não há regressão observada nos cenários testados.
+- **Rollback seguro:** `git revert f372117` restaura SKILL.md inline (1215 linhas). Steps modulares continuam funcionais como wrappers — apenas a entrada do skill loader volta ao formato antigo.
+- **CA-07 backup-fail via `chmod 000`** marcado `if (process.platform === 'win32') return` — `chmod` não previne acesso a arquivo no Windows. Tech-debt: rodar em CI Linux para cobertura completa.
+- **19 IDs em `init-rationale.md`** declarados `transversal/histórico` no gate de cross-reference (DI-P04F05-1) — implementação existe no código mas citação por ID específico seria ruído. Cross-reference grep documenta convenção.
+
+### Compatibility
+
+- **Zero breaking change** para projetos consumidores: `/anti-vibe-coding:init` mantém wording, fluxo, arquivos gerados e códigos de saída byte-idênticos a v6.3.2. Suite E2E + golden snapshots provam isto.
+- **Helpers em `skills/init/lib/*.ts` preservados** — nenhuma assinatura mudou. Plugins/scripts externos que importem helpers diretamente continuam funcionando.
+
+---
+
 ## [6.3.2] - 2026-05-17
 
 > **Minor release — Stack Knowledge Layer (Node.js + TypeScript) + hardening security/types**

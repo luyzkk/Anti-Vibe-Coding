@@ -7,8 +7,8 @@
   "plugins": [
     {
       "name": "anti-vibe-coding",
-      "description": "Plugin de desenvolvimento disciplinado com conhecimentos de programador senior. v6.3.2 — Stack Knowledge Layer Node.js+TypeScript.",
-      "version": "6.3.2",
+      "description": "Plugin de desenvolvimento disciplinado com conhecimentos de programador senior. v6.4.0 — Refatoracao Rails-style do /init (manifest + dispatcher + 17 steps modulares).",
+      "version": "6.4.0",
       "source": "./",
       "author": {
         "name": "Luiz Felipe"
