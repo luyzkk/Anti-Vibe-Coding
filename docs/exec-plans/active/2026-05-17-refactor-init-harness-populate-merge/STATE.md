@@ -2,9 +2,9 @@
 
 **Plan:** ./PLAN.md
 **Phase:** in-progress
-**Current Plan:** 06/07
+**Current Plan:** 07/07
 **Detailed planning:** Todos os 7 planos detalhados
-**Last Updated:** 2026-05-18
+**Last Updated:** 2026-05-18 (Plano 06 completed)
 
 ## Progress por Plano
 
@@ -15,12 +15,12 @@
 | 03 | Discovery Pipeline (secrets + docs + classifier) | 6 | 6/6 | completed |
 | 04 | Merge Invertido Destrutivo | 7 | 7/7 | completed |
 | 05 | Modos Reversiveis (dry-run + rollback + drift + additive) | 6 | 6/6 | completed |
-| 06 | Comunicacao + Observabilidade | 5 | 0/5 | pending |
+| 06 | Comunicacao + Observabilidade | 5 | 5/5 | completed |
 | 07 | Aceitacao E2E + Release v6.4.0 | 6 | 0/6 | pending |
 
 ## Progress Global
 
-Fases done: 26/37 (70%)
+Fases done: 31/37 (84%)
 
 ## Log
 
@@ -52,3 +52,4 @@ Fases done: 26/37 (70%)
 - 2026-05-18: Plano 04 wave 2 concluida (6/7 fases). snippet-resolver + Step 10 apply-merge-destructive + Step 11 move-docs-with-stub + appendToLatestBackup API canônica (DI-2). DI-3: mkdir antes de moveDocWithStub.
 - 2026-05-18: Plano 04 wave 3 concluida (7/7 fases). Registry reorder D23: applyMergeDestructiveStep idx 14, linkClaudeAgentsStep idx 15. G14 investigado: Step 02 usa stubLinker via DI, nao assertions sobre conteudo. 545/545 testes passam. **Plano 04 COMPLETO (7/7 fases).**
 - 2026-05-18: **Plano 05 COMPLETO (6/6 fases).** 576/576 testes passam. Arquivos criados/modificados: `dry-run-mode.ts`, `preview-renderer.ts` + test + golden, `drift-detector.ts` + test, `steps/12-detect-drift-incremental.ts` + test, `steps/02-link-claude-agents.ts` (additive-merge branch), `run-init.ts` (recorder injection + warning), `rollback.ts` (impl completa), `rollback.test.ts`, `assets/snippets/rollback-adr-template.md`. Registry: Step 12 em idx 8 (apos moveDocsWithStub, antes de generatePopulatePlan). TS: 0 erros novos. DI-1 a DI-5 + GT-1 a GT-4 documentados.
+- 2026-05-18: **Plano 06 COMPLETO (5/5 fases).** fase-01: `init-subagent-ids.ts` (9 entradas) + `audit-log-writer-factory.ts` + refactor Steps 06/07/08/09/10/11/12/91 + `rollback.ts` — audit log real via `AuditLogWriter.append`, wrapper `logAudit` stub eliminado (grep=0), CA-14 integration test 2/2 pass. fase-02: `cross-upgrade-detector.ts` 7/7 testes + wiring em `run-init.ts` (warning amarelo PT-BR antes do loop). fase-03: `docs/design-docs/ADR-0021-destructive-merge-default.md` (7 secoes, >=8 D-refs). fase-04: `CHANGELOG.md` bloco `### Breaking Changes (Behavior)` + 10 bullets em Added + 3 bullets em Changed (ADR-0021 referenciado 2x). fase-05: `docs/design-docs/init-rationale.md` bloco D1-D30 (30 entries + 30 Consumido por). 16 novos testes pass, todos os entregaveis verificados.
