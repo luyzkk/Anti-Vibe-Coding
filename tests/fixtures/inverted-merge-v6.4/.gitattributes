@@ -1,0 +1,3 @@
+# 2026-05-18 (Luiz/dev): forca LF em todos os arquivos de texto do fixture.
+# wc -l do CLAUDE.md deve retornar 287 em Win/Linux/macOS sem variacao.
+* text eol=lf
