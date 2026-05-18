@@ -1,0 +1,2 @@
+Decisions: completed — wrote: 1
+  core-beliefs.md created from senior-principles.md
