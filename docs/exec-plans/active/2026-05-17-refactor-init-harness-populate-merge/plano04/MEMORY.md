@@ -13,6 +13,16 @@ Formato: o que foi decidido + por que + impacto.
 
 - **DI-1 (fase-01):** Marcadores no skeleton usam `./akita-XXX.md` (mesma pasta) — Step 10 (fase-03) lê snippets diretamente de `skills/init/assets/snippets/` pelo filename. O `../` original no spec era armadilha intencional documentada no fase-01.md — preferir path explícito relativo ao arquivo skeleton. Marcadores literais são strings que o Step 10 busca e resolve independentemente do path relativo ao destino final (`docs/DESIGN.md`).
 
+- **DI-2 (fase-05): `appendToLatestBackup` — API canonica em `backup-anti-vibe.ts`.**
+  - Decisao: função adicionada ao `lib/backup-anti-vibe.ts` (Plano B do G10 nao foi necessario — a API publica foi ESTENDIDA, nao criada como helper local). Assinatura: `appendToLatestBackup({ cwd, entry: { originalPath, backupPath, action } }): Promise<void>`.
+  - Por que: adicionar ao modulo canonico evita duplicar logica de `getLatestBackupDir` + `readBackupManifest` em Step 11. Helper local seria YAGNI dado que a funcao e generica o suficiente para ser reutilizada em Plano 05 (rollback) e Plano 06 (audit log).
+  - sha256 nao e calculado no append por perf (arquivo ja movido do disco antes do append).
+  - Impacto: Plano 05 fase-04 (rollback completo) pode usar `appendToLatestBackup` sem importar helper separado.
+
+- **DI-3 (fase-05): `moveDocWithStub` nao cria diretorios pai.**
+  - Descoberto: `moveDocWithStub` usa `fs.rename` diretamente sem `mkdir`. Step 11 cria o diretorio pai do target com `fs.mkdir({ recursive: true })` ANTES de chamar `moveDocWithStub`.
+  - Impacto: Plano 05 fase-04 (rollback inverso) deve fazer o mesmo ao chamar `moveDocWithStub` no sentido inverso.
+
 <!-- Exemplo:
 - **DI-1:** Usar `upsert` em vez de `insert` para notifications
   - Por que: tabela pode receber duplicatas via webhook retry

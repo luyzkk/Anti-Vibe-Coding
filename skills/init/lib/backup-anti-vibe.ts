@@ -167,6 +167,36 @@ export async function readBackupManifest(backupDir: string): Promise<BackupManif
 }
 
 /**
+ * 2026-05-18 (Luiz/dev): append entry ao manifest do backup mais recente — PRD D29, G10 plano04 fase-05.
+ * Plano B documentado no README do plano04 G10.
+ * sha256 nao e calculado no append por perf (entrada ja movida do disco).
+ */
+export async function appendToLatestBackup(opts: {
+  cwd: string
+  entry: { originalPath: string; backupPath: string; action: 'transform' | 'move' | 'overwrite' }
+}): Promise<void> {
+  const { cwd, entry } = opts
+  const backupDir = await getLatestBackupDir(cwd)
+  if (backupDir === null) return  // nenhum backup ainda — silencioso
+
+  const manifest = await readBackupManifest(backupDir)
+  const newEntry: BackupManifestEntry = {
+    originalPath: entry.originalPath,
+    backupPath: entry.backupPath,
+    sha256: '',  // nao calculado no append por perf
+    action: entry.action,
+  }
+
+  const updated: BackupManifest = {
+    ...manifest,
+    files: [...manifest.files, newEntry],
+  }
+
+  const manifestPath = path.join(backupDir, 'manifest.json')
+  await fs.writeFile(manifestPath, JSON.stringify(updated, null, 2), 'utf8')
+}
+
+/**
  * Cria backup canonico com manifest JSON.
  * G4 idempotencia: se ultimo backup ja contem os mesmos originalPath + sha256,
  * retorna backupDir existente SEM criar pasta nova.
