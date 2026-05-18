@@ -28,3 +28,7 @@ Knowledge cobre: type, generic, branded, discriminated, satisfies, ESM, CJS, eve
 [capabilities-discovery] [capabilities-discovery] skipped — architecture profile not detected. Run /anti-vibe-coding:detect-architecture first.
 [final-validation] Migration validated. Suggested commit: git commit -m 'chore: migrate to anti-vibe-coding v6.0.0'
 Add .planning.v5-backup/ to .gitignore (or delete after confirming all is well).
+[91-generate-populate-plan] Plano de populacao gerado: docs/exec-plans/active/<DATE>-populate-harness/PLAN.md
+Tasks emitidas: 26 (25 populacao + 1 validacao).
+Para popular o harness com analise do repo: /anti-vibe-coding:execute-plan
+[91-generate-populate-plan] (mutated disk)
