@@ -1,0 +1,6 @@
+Migration: partial
+  entries: 12
+  written: 10
+  skipped: 0
+  CONFLICTS: docs/exec-plans/active/2026-05-12-foo/PLAN.md, docs/product-specs/bar.md
+  Resolve manually (delete from docs/ or rename original) and re-run /init migrate.
