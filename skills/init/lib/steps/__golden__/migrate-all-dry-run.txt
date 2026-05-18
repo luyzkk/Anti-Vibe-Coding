@@ -1,0 +1,30 @@
+--- Migration Dry Run ---
+
+Detected v5.x: yes
+Artifacts: planning-dir
+Already migrated: no
+
+Backup: dry-run — 1 files
+
+Planning migration (.planning/ → docs/):
+  entries: 1
+  would write: 0
+  skipped: 1
+
+Lessons migration (lessons-learned.md → docs/compound/):
+  entries: 0
+  would write: 0
+
+Decisions migration (decisions.md → docs/design-docs/ADR-*.md):
+  entries: 0
+  would write: 0
+
+---
+Total files to write: 0
+Total bytes: 0 B
+Backup will go to: .planning.v5-backup/
+Original .planning/ will be deleted after success (backup preserves it).
+
+This is a DRY RUN — no files were created. Re-run without --dry-run to apply.
+
+Re-run without --dry-run to apply.
