@@ -73,6 +73,7 @@ export class AuditLogWriter {
         ...input,
       }
       this.log.entries.push(entry)
+      await fs.mkdir(path.dirname(this.logPath), { recursive: true })
       await fs.writeFile(this.logPath, JSON.stringify(this.log, null, 2), 'utf-8')
     })
     await this.writeChain

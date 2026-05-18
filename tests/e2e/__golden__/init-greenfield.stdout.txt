@@ -1,5 +1,11 @@
 [detect-legacy] Greenfield project — proceeding with scaffold.
 [reuse-discovery]
+[06-secrets-scan] secrets-scan [init-secrets-scan]: 0 arquivos varridos, 0 arquivos com match
+[07-discover-existing-docs] discover-existing-docs [init-discover-existing-docs]: 0 arquivos encontrados (0 bloqueados por secrets) — <NN>ms
+[08-classify-blocks-hybrid] classify-blocks-hybrid [init-classify-blocks]: 0 docs (nenhum discovered)
+[09-propose-merge-batch] init-propose-merge: no transformations needed (greenfield or no existing docs)
+[11-move-docs-with-stub] init-move-docs: no docs to move
+[12-detect-drift-incremental] skipped (only runs in already-initiated mode; current: unknown)
 [migrate-0-parse-dry-run]
 [migrate-all]
 [migrate-1-backup]
@@ -10,6 +16,7 @@
 Tree files: 31 in <NN> ms
 TODO.md ja existe — mantido sem modificacao (G2).
 [scaffold-full-tree] (mutated disk)
+[10-apply-merge-destructive] init-apply-merge: no CLAUDE.md to transform (greenfield)
 [link-claude-agents] Linked via tier: symlink
 [link-claude-agents] (mutated disk)
 [detect-stack-and-register] Detected stack: node-ts (via package.json#devDependencies.typescript)
