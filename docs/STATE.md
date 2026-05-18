@@ -19,6 +19,13 @@
 - `docs/compound/2026-04-21-grep-c-exit-1-quando-zero.md`
 - `docs/compound/2026-03-23-hooks-json-overwrite-bug.md`
 
+## refactor-init-skill-rails
+
+- **status:** concluido
+- **last_updated:** 2026-05-17
+- **resultado:** SKILL.md de 1215 -> 86 linhas. Cutover Rails-style (PRD D1). 17 steps modularizados em `skills/init/lib/steps/`. E2E verde. Rationale em `docs/design-docs/init-rationale.md`. Snippets Akita em `skills/init/assets/snippets/akita-*.md`.
+- **rollback:** `git revert f372117` reverte ao SKILL.md inline.
+
 ## Pending
 
 _Nothing pending._
