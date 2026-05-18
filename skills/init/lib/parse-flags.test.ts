@@ -19,4 +19,16 @@ describe('parseFlags', () => {
     expect(r.args).toEqual([])
     expect(r.flags).toEqual({})
   })
+
+  test('parseFlags recognizes --rollback as boolean flag', () => {
+    const result = parseFlags(['--rollback'])
+    expect(result.args).toEqual([])
+    expect(result.flags.rollback).toBe(true)
+  })
+
+  test('parseFlags --rollback coexists with other flags', () => {
+    const result = parseFlags(['--rollback', '--dry-run'])
+    expect(result.flags.rollback).toBe(true)
+    expect(result.flags['dry-run']).toBe(true)
+  })
 })

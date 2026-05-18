@@ -44,6 +44,13 @@ export async function runInit(
     return base
   })()
 
+  // 2026-05-18 (Luiz/dev): PRD D24 — `--rollback` early-return ANTES do registry.
+  // D21 — dispatcher imutavel: nenhum step novo, nenhum hook beforeStep.
+  if (ctx.flags.rollback === true) {
+    const { runRollback } = await lazyImport(() => import('./rollback'))
+    return runRollback(askUser !== undefined ? { cwd: ctx.cwd, log, askUser } : { cwd: ctx.cwd, log })
+  }
+
   for (const step of reg) {
     try {
       let report = await step.run(ctx)
