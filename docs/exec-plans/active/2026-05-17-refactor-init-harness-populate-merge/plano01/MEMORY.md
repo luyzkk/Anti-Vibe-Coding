@@ -68,7 +68,7 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 3 |
-| Fases concluidas | 2 |
+| Fases concluidas | 3 |
 | Fases com desvio | 0 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
@@ -91,11 +91,14 @@ O subagente do proximo plano le este campo.
   ```
 - **readGitSha usa `fs.readFile`, nao `child_process`** — funciona sem `git` no PATH.
 - **GT-1 (grep check):** A verificacao `grep -E '^export (function|type|const) '` retorna 5 (so tipos) porque as funcoes sao `async function`. O total real de exports e 9 (5 tipos + 4 async functions). O criterio `>= 9` e satisfeito com o pattern correto `^export (async function|function|type|const)`.
-- Confirmacao: registry NAO foi modificado. Stub de rollback nao implementado nesta fase (escopo restrito).
-
-<!-- Campos restantes a preencher durante fases 02-03:
-- Confirmacao de que registry NAO foi modificado e que o stub de rollback esta isolado em `lib/rollback.ts`
--->
+- **Fase-03 concluida:** Stub `runRollback` em `lib/rollback.ts` retorna `{kind:'aborted', code:1, reason:'Rollback not yet implemented (Plano 05 fase-04)'}`. Plano 05 fase-04 substitui APENAS o corpo do stub — `run-init.ts` nao precisa mudar de novo (early-return ja esta em producao).
+- **Confirmacao D21:** `registry.ts` NAO foi modificado (`git diff --stat` retorna vazio). O dispatcher recebe o early-return antes do loop `for (const step of reg)` — registry permanece imutavel.
+- **Assinatura final de `runRollback`:**
+  ```typescript
+  export async function runRollback(opts: RunRollbackOptions): Promise<StepResult>
+  // RunRollbackOptions = { cwd: string, log?: (line: string) => void, askUser?: (...) => Promise<string> }
+  ```
+- **Integracao em run-init.ts:** early-return usa `lazyImport(() => import('./rollback'))`, `ctx.flags.rollback === true` (strict equality), e repassa `askUser` apenas se definido.
 
 ---
 
