@@ -1,4 +1,8 @@
 [
+  ".anti-vibe/",
+  ".anti-vibe/discovery/",
+  ".anti-vibe/discovery/discovered-docs.json",
+  ".anti-vibe/discovery/secrets-scan-result.json",
   ".claude/",
   ".claude/knowledge/",
   ".claude/knowledge/INDEX.md",
@@ -31,6 +35,8 @@
   "CLAUDE.md",
   "README.md",
   "TODO.md",
+  "discovery/",
+  "discovery/agents-log.json",
   "docs/",
   "docs/COMPOUND_ENGINEERING.md",
   "docs/DESIGN.md",

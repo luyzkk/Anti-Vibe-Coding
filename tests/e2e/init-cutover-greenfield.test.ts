@@ -65,6 +65,8 @@ function normalizeStdout(text: string, tmpDir: string): string {
     .replace(/\d{4}-\d{2}\.jsonl/g, '<YYYY-MM>.jsonl')
     // 2026-05-18 (Luiz/dev): Plano 02 fase-04 — normaliza pasta populate-harness com timestamp.
     .replace(/\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}Z-populate-harness/g, '<DATE>-populate-harness')
+    // 2026-05-18 (Luiz/dev): Plano 07 fase-01 fix — normaliza timing "— Xms" dos novos steps 06-12.
+    .replace(/— \d+ms/g, '— <NN>ms')
     .split('\n')
     .map((line) => line.trimEnd())
     .join('\n')
