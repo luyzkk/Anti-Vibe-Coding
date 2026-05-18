@@ -49,4 +49,15 @@ describe('detectLegacyStep', () => {
       }
     }
   })
+
+  // 2026-05-18 (Luiz/dev): Quick Plan /init v6.4.0 fix — bug 1 (cross-upgrade misreported as Greenfield).
+  // Fixture v6-manifest tem .claude/.anti-vibe-manifest.json com pluginVersion 6.3.2 e nao tem
+  // artefatos v5 nem docs/exec-plans/. Antes do fix: retornava "Greenfield" enganoso. Apos: sinaliza cross-upgrade.
+  test('v6.x manifest present without v5 artifacts: returns cross-upgrade summary, no abort', async () => {
+    const report = await detectLegacyStep.run(ctx(path.join(FIX, 'v6-manifest')))
+    expect(report.mutated).toBe(false)
+    expect(report.summary).not.toContain('Greenfield')
+    expect(report.summary).toContain('cross-upgrade')
+    expect(report.summary).toContain('6.3.2')
+  })
 })

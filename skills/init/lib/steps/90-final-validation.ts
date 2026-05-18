@@ -3,11 +3,23 @@
 // Wording byte-identico nas 4 strings criticas (G1 do plano).
 import path from 'node:path'
 import { AbortError } from './abort-error'
+import { isDryRun } from '../dry-run-mode'
 import type { Step } from './types'
 
 export const finalValidationStep: Step = {
   id: 'final-validation',
   async run(ctx) {
+    // 2026-05-18 (Luiz/dev): Quick Plan /init v6.4.0 — dry-run guard.
+    // Step 01 nao escreve scripts/harness-validate.ts em dry-run; spawn falharia com ENOENT
+    // e abortaria o pipeline impedindo o dry-run preview do Step 91. Skip silencioso,
+    // permitindo Step 91 emitir seu proprio preview de PLAN.md.
+    if (isDryRun(ctx)) {
+      return {
+        mutated: false,
+        summary: 'dry-run: harness-validate would run after scaffold (skipped — scripts/harness-validate.ts not present yet)',
+      }
+    }
+
     const scriptPath = path.join(ctx.cwd, 'scripts', 'harness-validate.ts')
     const proc = Bun.spawn(['bun', 'run', scriptPath], {
       cwd: ctx.cwd,

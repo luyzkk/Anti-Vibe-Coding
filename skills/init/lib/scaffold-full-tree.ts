@@ -11,10 +11,20 @@ export type ScaffoldFullTreeOptions = {
   stack: string
   /** Stack ja detectado para preencher {{DETECTED_STACK}} em STATE.md.tpl. Opcional — default 'unknown'. */
   detectedStack?: string
+  /**
+   * 2026-05-18 (Luiz/dev): writer injetavel — Quick Plan /init v6.4.0 fix (dry-run wiring).
+   * Default: fs.writeFile + mkdir reais. Em dry-run: makeWriter({dryRun:true,recorder}).
+   */
+  writeFile?: (dstPath: string, body: string) => Promise<void>
 }
 
 export type ScaffoldFullTreeResult = {
   filesWritten: ReadonlyArray<string>
+  /**
+   * 2026-05-18 (Luiz/dev): Quick Plan /init v6.4.0 fix — bug 3 (overwrite destrutivo).
+   * Arquivos preservados porque ja existiam no targetDir. Guard sempre-ativo.
+   */
+  filesSkipped: ReadonlyArray<string>
   durationMs: number
 }
 
@@ -26,9 +36,25 @@ function renderTemplate(body: string, vars: Record<string, string>): string {
   return out
 }
 
+async function fileExists(p: string): Promise<boolean> {
+  try {
+    await fs.access(p)
+    return true
+  } catch {
+    return false
+  }
+}
+
 export async function scaffoldFullTree(opts: ScaffoldFullTreeOptions): Promise<ScaffoldFullTreeResult> {
   const start = Date.now()
   const filesWritten: string[] = []
+  const filesSkipped: string[] = []
+
+  const defaultWriter = async (dstPath: string, body: string): Promise<void> => {
+    await fs.mkdir(path.dirname(dstPath), { recursive: true })
+    await fs.writeFile(dstPath, body, 'utf8')
+  }
+  const writer = opts.writeFile ?? defaultWriter
 
   // 2026-05-11 (Luiz/dev): {{TODAY}} adicionado para TODO.md.tpl — fase-01 introduziu.
   // 2026-05-11 (Luiz/dev): {{DETECTED_STACK}} adicionado para STATE.md.tpl — fase-06.
@@ -49,16 +75,23 @@ export async function scaffoldFullTree(opts: ScaffoldFullTreeOptions): Promise<S
       const srcPath = path.join(TEMPLATES_ROOT, entry.src)
       const dstPath = path.join(opts.targetDir, entry.dst)
 
-      await fs.mkdir(path.dirname(dstPath), { recursive: true })
+      // 2026-05-18 (Luiz/dev): guard sempre-ativo. Independente de dry-run, NUNCA sobrescrever
+      // arquivo preexistente. Defesa contra cross-upgrade destrutivo (Quick Plan /init v6.4.0).
+      if (await fileExists(dstPath)) {
+        filesSkipped.push(dstPath)
+        return
+      }
+
       const tpl = await fs.readFile(srcPath, 'utf8')
       const rendered = renderTemplate(tpl, vars)
-      await fs.writeFile(dstPath, rendered, 'utf8')
+      await writer(dstPath, rendered)
       filesWritten.push(dstPath)
     }),
   )
 
   return {
     filesWritten,
+    filesSkipped,
     durationMs: Date.now() - start,
   }
 }

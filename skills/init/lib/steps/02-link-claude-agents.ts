@@ -41,6 +41,12 @@ export const linkClaudeAgentsStep: Step = {
       }
       return { mutated: true, summary: 'additive-merge: v6.3.x behavior applied (CLAUDE.md preserved, AGENTS.md linked separately)' }
     }
+    // 2026-05-18 (Luiz/dev): Quick Plan /init v6.4.0 fix — dry-run guard.
+    // Em dry-run, Step 01 nao escreve AGENTS.md no disco — linkClaudeToAgents falharia em fs.access.
+    // Skip operacao real e retornar summary informativo.
+    if (ctx.flags['dry-run'] === true) {
+      return { mutated: false, summary: 'dry-run: CLAUDE.md would be linked to AGENTS.md (tier resolution skipped)' }
+    }
     return runLinkClaudeStep(ctx.cwd)
   },
 }

@@ -20,6 +20,11 @@ export type CustomizeArchitectureOptions = {
   targetDir: string
   stack: DetectedStack
   generatedAt?: Date // injectable for deterministic tests
+  /**
+   * 2026-05-18 (Luiz/dev): writer injetavel — Quick Plan /init v6.4.0 fix (dry-run wiring).
+   * Default: fs.writeFile real. Em dry-run: makeWriter({dryRun:true,recorder}).
+   */
+  writeFile?: (path: string, body: string) => Promise<void>
 }
 
 export type CustomizeArchitectureResult = {
@@ -64,7 +69,8 @@ export async function customizeArchitecture(
   ].join('\n')
 
   const updated = original.replace(STACK_BLOCK_MARKER, blockBody)
-  await fs.writeFile(archPath, updated, 'utf8')
+  const writer = opts.writeFile ?? ((p: string, b: string) => fs.writeFile(p, b, 'utf8'))
+  await writer(archPath, updated)
 
   return { written: true, blockBody }
 }

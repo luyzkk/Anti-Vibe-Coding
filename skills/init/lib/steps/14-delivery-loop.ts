@@ -31,6 +31,12 @@ export const deliveryLoopStep: Step = {
       return { mutated: false, summary: '' }
     }
 
+    // 2026-05-18 (Luiz/dev): Quick Plan /init v6.4.0 fix — dry-run guard.
+    // injectOptionalSection le AGENTS.md; em dry-run Step 01 nao escreveu o arquivo.
+    if (ctx.flags['dry-run'] === true) {
+      return { mutated: false, summary: 'dry-run: Delivery Loop injection would be applied (AGENTS.md not present yet)' }
+    }
+
     // 2026-05-17 (Luiz/dev): wording byte-identico ao SKILL.md linhas 384-396.
     const pluginRoot = resolvePluginRoot(import.meta.dir)
     const snippet = await fs.readFile(

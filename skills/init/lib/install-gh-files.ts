@@ -15,15 +15,29 @@ export type InstallGhFilesResult = {
   filesWritten: ReadonlyArray<string>
 }
 
-export async function installGhFiles(targetDir: string): Promise<InstallGhFilesResult> {
+export type InstallGhFilesOptions = {
+  /**
+   * 2026-05-18 (Luiz/dev): writer injetavel — Quick Plan /init v6.4.0 fix (dry-run wiring).
+   * Default: fs.writeFile + mkdir reais. Em dry-run: makeWriter({dryRun:true,recorder}).
+   */
+  writeFile?: (path: string, body: string) => Promise<void>
+}
+
+export async function installGhFiles(
+  targetDir: string,
+  opts: InstallGhFilesOptions = {},
+): Promise<InstallGhFilesResult> {
   const written: string[] = []
+  const writer = opts.writeFile ?? (async (p: string, b: string) => {
+    await fs.mkdir(path.dirname(p), { recursive: true })
+    await fs.writeFile(p, b, 'utf8')
+  })
 
   for (const rel of FILES_TO_COPY) {
     const src = path.join(STATIC_GH_ROOT, rel)
     const dst = path.join(targetDir, '.github', rel)
-    await fs.mkdir(path.dirname(dst), { recursive: true })
     const body = await fs.readFile(src, 'utf8')
-    await fs.writeFile(dst, body, 'utf8')
+    await writer(dst, body)
     written.push(dst)
   }
 
