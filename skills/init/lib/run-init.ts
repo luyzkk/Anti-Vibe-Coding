@@ -29,7 +29,7 @@ async function readPluginVersion(): Promise<string> {
     const parsed = JSON.parse(raw) as { version?: string }
     if (parsed.version) return parsed.version
   } catch { /* fall through */ }
-  return '6.4.0'
+  return '6.4.1'
 }
 
 export type RunInitOptions = {
