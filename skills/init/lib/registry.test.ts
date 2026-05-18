@@ -4,6 +4,7 @@ import { proposeMergeBatchStep } from './steps/09-propose-merge-batch'
 import { classifyBlocksHybridStep } from './steps/08-classify-blocks-hybrid'
 import { applyMergeDestructiveStep } from './steps/10-apply-merge-destructive'
 import { moveDocsWithStubStep } from './steps/11-move-docs-with-stub'
+import { linkClaudeAgentsStep } from './steps/02-link-claude-agents'
 
 describe('registry', () => {
   test('all step ids are unique', () => {
@@ -28,9 +29,11 @@ describe('registry', () => {
     expect(i09).toBe(i08 + 1)
   })
 
-  test('positions move-docs-with-stub immediately after apply-merge-destructive', () => {
+  test('positions apply-merge-destructive IMMEDIATELY BEFORE link-claude-agents (D23 reorder)', () => {
     const i10 = registry.indexOf(applyMergeDestructiveStep)
-    const i11 = registry.indexOf(moveDocsWithStubStep)
-    expect(i11).toBe(i10 + 1)
+    const i02 = registry.indexOf(linkClaudeAgentsStep)
+    expect(i10).toBeGreaterThan(-1)
+    expect(i02).toBeGreaterThan(-1)
+    expect(i10).toBe(i02 - 1)
   })
 })

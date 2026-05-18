@@ -76,7 +76,7 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 7 |
-| Fases concluidas | 0 |
+| Fases concluidas | 6 |
 | Fases com desvio | 0 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
@@ -87,6 +87,35 @@ Se nada mudou, manter vazio (bom sinal).
 
 Informacoes que o proximo plano (Plano 05) PRECISA saber antes de comecar.
 O subagente do proximo plano le este campo.
+
+### fase-06: Registry reorder D23 (Step 10 antes Step 02)
+
+**Testes do Step 02 (link-claude-agents) ajustados em fase-06:**
+- `skills/init/lib/steps/02-link-claude-agents.test.ts`: NENHUM ajuste necessario. O step usa `stubLinker` via DI e nao faz assertions sobre conteudo de `CLAUDE.md`. Isolamento correto — o step 02 e responsavel apenas pelo mecanismo de link (symlink/hardlink/copy), nao pelo conteudo transformado.
+- Investigacao G14: ausencia de quebra e justificada pelo design DI do step. Nenhum cenario faltando.
+
+**Posicao final do registry apos reorder D23 (region Steps 09-11 e 02):**
+```
+indice 5:  proposeMergeBatchStep        (Step 09)
+indice 6:  moveDocsWithStubStep         (Step 11)
+indice 7:  migrate0ParseDryRunStep
+indice 8:  migrateAllOrchestrateStep
+indice 9:  migrate1BackupStep
+indice 10: migrate2PlanningStep
+indice 11: migrate3LessonsStep
+indice 12: migrate4DecisionsStep
+indice 13: scaffoldFullTreeStep
+indice 14: applyMergeDestructiveStep   (Step 10) <-- D23: movido aqui
+indice 15: linkClaudeAgentsStep        (Step 02)
+indice 16: detectStackAndRegisterStep
+...
+```
+
+**Decisao sobre reorder D23:**
+- Apenas Step 10 (`applyMergeDestructiveStep`) foi movido. Steps 09 (`proposeMergeBatchStep`) e 11 (`moveDocsWithStubStep`) ficaram em seus indices originais (5 e 6, respectivamente).
+- Rationale D23: `apply-merge-destructive` reescreve CLAUDE.md para mirror <=40 linhas ANTES que `link-claude-agents` crie o symlink/hardlink/copy 3-tier. Isso garante que o Step 02 ja encontra CLAUDE.md no formato espelho ao criar o link.
+- Assertion registry.test.ts removida: `'positions move-docs-with-stub immediately after apply-merge-destructive'` (conflitava com D23).
+- Assertion registry.test.ts adicionada: `'positions apply-merge-destructive IMMEDIATELY BEFORE link-claude-agents (D23 reorder)'` — verifica `indexOf(applyMergeDestructiveStep) === indexOf(linkClaudeAgentsStep) - 1`.
 
 <!-- A preencher durante execucao:
 
