@@ -11,6 +11,13 @@ export type StepContext = {
   args: readonly string[]
   /** Flags parseadas em formato declarativo. Dispatcher decide o shape final. */
   flags: Readonly<Record<string, boolean | string>>
+  /**
+   * 2026-05-17 (Luiz/dev): injetado pelo dispatcher para steps interativos.
+   * Steps NAO chamam askUser diretamente — eles RETORNAM `needsUser` no report.
+   * O dispatcher faz a chamada e re-invoca o step com a resposta. PRD D3, CH-01.
+   * Default: undefined (testes podem stubar).
+   */
+  askUser?: (prompt: string, options: readonly string[]) => Promise<string>
 }
 
 /**
@@ -26,6 +33,16 @@ export type StepReport = {
   mutated: boolean
   summary: string
   skipRemaining?: boolean
+  /**
+   * 2026-05-17 (Luiz/dev): contrato `needs-user` (PRD D3, CH-01).
+   * Step sinaliza ao dispatcher que precisa de input do usuario. Dispatcher pausa,
+   * chama ctx.askUser, popula ctx.flags['__interactiveAnswer'] e re-invoca o step.
+   * NUNCA setar AMBOS needsUser E skipRemaining (G6 do plano).
+   */
+  needsUser?: {
+    readonly prompt: string
+    readonly options: readonly string[]
+  }
 }
 
 /**
