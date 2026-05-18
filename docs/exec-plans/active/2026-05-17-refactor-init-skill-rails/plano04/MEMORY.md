@@ -107,6 +107,7 @@ O subagente do proximo plano le este campo.
 
 Nenhum plano sucessor — este eh o ultimo plano da feature. Notas de fechamento:
 
+- **2026-05-17 — cutover concluido pelo Plano 04:** os steps de todos os planos agora executam pelo dispatcher `skills/init/lib/run-init.ts`. `SKILL.md` reescrito como manifest (86 linhas). Rationale extraido para `docs/design-docs/init-rationale.md`. Snippets Akita em `skills/init/assets/snippets/akita-*.md`. E2E goldens em `tests/e2e/__golden__/init-{greenfield,legacy-v5}.{stdout.txt,tree.json}`.
 - **Feature concluida 2026-05-17:** `refactor-init-skill-rails` entregou o cutover Rails-style completo.
 - **Rollback seguro:** `git revert f372117` reverte o SKILL.md ao formato inline (1215 linhas). Steps permanecem funcionais — sao wrappers sobre helpers existentes.
 - **Licoes para capturar via `/lessons-learned`:**
