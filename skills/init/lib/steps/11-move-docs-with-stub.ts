@@ -12,6 +12,9 @@ import { appendToLatestBackup } from '../backup-anti-vibe'
 import type { Step, StepContext, StepReport } from './types'
 import type { ClassifyOutput } from '../blocks-classifier'
 import type { SecretsScanResult } from './06-secrets-scan'
+import { INIT_SUBAGENT_IDS } from '../init-subagent-ids'
+import type { AuditLogWriter } from '../audit-log'
+import { isDryRun } from '../dry-run-mode'
 
 // ---------------------------------------------------------------------------
 // Internal types
@@ -40,6 +43,7 @@ export const moveDocsWithStubStep: Step = {
   id: '11-move-docs-with-stub',
 
   async run(ctx: StepContext): Promise<StepReport> {
+    const startMs = performance.now()
     // 1. Ler classification-result (mappings + orphans)
     const classifyResult = await readDiscoveryArtifact<ClassifyOutput>(ctx.cwd, 'classification-result')
 
@@ -136,6 +140,19 @@ export const moveDocsWithStubStep: Step = {
         skipped.push(candidate.source)
       }
     }
+
+    const writer = isDryRun(ctx) ? undefined : (ctx.flags['__auditLog'] as AuditLogWriter | undefined)
+    await writer?.append({
+      subagent_id: INIT_SUBAGENT_IDS.moveDocs,
+      input_paths: [ctx.cwd],
+      output_struct: {
+        movedCount: moved.length,
+        stubsCreated: moved.length,
+        linksRewritten: 0,
+      },
+      duration_ms: Math.round(performance.now() - startMs),
+      retry_count: 0,
+    })
 
     // 7. Return
     return {

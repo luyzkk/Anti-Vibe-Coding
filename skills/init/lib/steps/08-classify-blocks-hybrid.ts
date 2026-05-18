@@ -7,6 +7,9 @@ import {
 } from '../blocks-classifier'
 import type { DiscoveredDocWithFlags } from './07-discover-existing-docs'
 import { readDiscoveryArtifact, writeDiscoveryArtifact } from '../discovery-store'
+import { INIT_SUBAGENT_IDS } from '../init-subagent-ids'
+import type { AuditLogWriter } from '../audit-log'
+import { isDryRun } from '../dry-run-mode'
 
 export type ClassifyBlocksHybridResult = {
   readonly subagent_id: 'init-classify-blocks'
@@ -42,6 +45,14 @@ export const classifyBlocksHybridStep: Step = {
 
     const artifact = await readDiscoveryArtifact<DiscoveredDocsArtifact>(ctx.cwd, 'discovered-docs')
     if (artifact === null || artifact.docs.length === 0) {
+      const writer = isDryRun(ctx) ? undefined : (ctx.flags['__auditLog'] as AuditLogWriter | undefined)
+      await writer?.append({
+        subagent_id: INIT_SUBAGENT_IDS.classifyBlocks,
+        input_paths: [ctx.cwd],
+        output_struct: { classifiedCount: 0, byCategory: {}, pendingLlmRefinement: false },
+        duration_ms: Math.round(performance.now() - startedAt),
+        retry_count: 0,
+      })
       return {
         mutated: false,
         summary: 'classify-blocks-hybrid [init-classify-blocks]: 0 docs (nenhum discovered)',
@@ -72,6 +83,24 @@ export const classifyBlocksHybridStep: Step = {
 
     const noWrite = ctx.flags['dry-run'] === true
     await writeDiscoveryArtifact(ctx.cwd, 'classification-result', result, { noWrite })
+
+    const byCategory: Record<string, number> = {}
+    for (const m of out.mappings) {
+      byCategory[m.target] = (byCategory[m.target] ?? 0) + 1
+    }
+
+    const writer = isDryRun(ctx) ? undefined : (ctx.flags['__auditLog'] as AuditLogWriter | undefined)
+    await writer?.append({
+      subagent_id: INIT_SUBAGENT_IDS.classifyBlocks,
+      input_paths: [ctx.cwd],
+      output_struct: {
+        classifiedCount: out.mappings.length,
+        byCategory,
+        pendingLlmRefinement: pendingLlmRefinement.length > 0,
+      },
+      duration_ms: result.durationMs,
+      retry_count: 0,
+    })
 
     const confidenceCounts = countConfidence(out.mappings)
     return {

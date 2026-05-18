@@ -4,6 +4,8 @@ import type { Step, StepContext } from './types'
 import { detectDrift, DRIFT_REPORT_FILENAME } from '../drift-detector'
 import { isDryRun } from '../dry-run-mode'
 import { writeDiscoveryArtifact } from '../discovery-store'
+import { INIT_SUBAGENT_IDS } from '../init-subagent-ids'
+import type { AuditLogWriter } from '../audit-log'
 
 // 2026-05-18 (Luiz/dev): ADAPTAR conforme convencao em plano01/MEMORY.md — como ctx.mode eh
 // propagado. Leitura defensiva via ctx.flags['__initMode'] ou ctx.flags['mode'].
@@ -15,6 +17,7 @@ function getInitMode(ctx: StepContext): string | undefined {
 export const detectDriftIncrementalStep: Step = {
   id: '12-detect-drift-incremental',
   async run(ctx) {
+    const startMs = performance.now()
     const mode = getInitMode(ctx)
     if (mode !== 'already-initiated') {
       return {
@@ -36,8 +39,19 @@ export const detectDriftIncrementalStep: Step = {
 
     await writeDiscoveryArtifact(ctx.cwd, DRIFT_REPORT_FILENAME, report)
 
-    // 2026-05-18 (Luiz/dev): subagent_id literal init-drift-detect — Plano 06 fase-01 conecta
-    // ao AuditLogWriter. Por enquanto o literal aparece no summary para grepability.
+    const writer = ctx.flags['__auditLog'] as AuditLogWriter | undefined
+    await writer?.append({
+      subagent_id: INIT_SUBAGENT_IDS.detectDrift,
+      input_paths: [ctx.cwd],
+      output_struct: {
+        summary: report.summary,
+        fileCount: Object.keys(report.byFile).length,
+        reportPath: null,
+      },
+      duration_ms: Math.round(performance.now() - startMs),
+      retry_count: 0,
+    })
+
     return {
       mutated: true,
       summary: `init-drift-detect: placeholder=${report.summary.placeholder}, populated=${report.summary.populated}, drift=${report.summary.drift}`,
