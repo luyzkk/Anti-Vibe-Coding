@@ -2,6 +2,8 @@
 import type { Step } from './steps/types'
 import { detectLegacyStep } from './steps/00-detect-legacy'
 import { reuseDiscoveryStep } from './steps/00_1-reuse-discovery'
+import { migrate0ParseDryRunStep } from './steps/09-migrate-0-parse-dry-run'
+import { migrateAllOrchestrateStep } from './steps/09_1-migrate-all-orchestrate'
 import { migrate1BackupStep } from './steps/10-migrate-1-backup'
 import { migrate2PlanningStep } from './steps/11-migrate-2-planning'
 import { migrate3LessonsStep } from './steps/12-migrate-3-lessons'
@@ -15,9 +17,12 @@ import { installGhFilesStep } from './steps/05-install-gh-files'
 import { finalValidationStep } from './steps/90-final-validation'
 
 // 2026-05-17 (Luiz/dev): ordem contratual — detect-legacy (gate) -> reuse-discovery (early-exit)
-// -> scaffold-full-tree (Step 1) -> link-claude-agents (Step 2).
-// G4 do plano02: ordem reflete flow atual do SKILL.md linha por linha.
+// -> migrate-0 (parse --dry-run flag) -> migrate-all (dry-run orchestrate, skipRemaining em dry-run)
+// -> migrate.1/2/3/4 (real mode) -> scaffold-full-tree (Step 1) -> link-claude-agents (Step 2).
+// G4 do plano02+03: ordem reflete flow atual do SKILL.md linha por linha.
 // reuseDiscovery ANTES do scaffold — se cache fresh, sai com skipRemaining sem executar steps adiante.
+// migrate-all: em --dry-run retorna skipRemaining=true (mapeia process.exit(0) SKILL.md linha 74, DI-5-1).
+//   Em real mode: NO-OP — migrate.1/2/3/4 individuais fazem o trabalho.
 // link DEPOIS de scaffold — AGENTS.md precisa existir para o link/copia.
 // Step 3 -> Step 3.1, sequencial.
 // detect-stack-and-register escreve STATE.md; persist-stack-and-knowledge le STATE.md indireto via runStackKnowledgeInit.
@@ -26,18 +31,18 @@ import { finalValidationStep } from './steps/90-final-validation'
 // final-validation: ULTIMA — porta Step migrate.5, valida harness apos toda mutacao.
 export const registry: readonly Step[] = [
   detectLegacyStep,
-  reuseDiscoveryStep,        // 2026-05-17 (Luiz/dev): early-exit via skipRemaining quando cache fresh (PRD MH-04, CA-04).
-  // 2026-05-17 (Luiz/dev): G4 do plano03 — migrate-0/migrate-all inseridos em fase-05 (indices 2-3).
-  // migrate1BackupStep em posicao provisoria (indice 2 agora, sera 4 apos fase-05 inserir migrate-0/all).
-  migrate1BackupStep,
-  migrate2PlanningStep,        // 2026-05-17 (Luiz/dev): G4 do plano03 fase-03 — apos migrate1BackupStep (provisorio, reordenado em fase-05).
-  migrate3LessonsStep,         // 2026-05-17 (Luiz/dev): G4 do plano03 fase-04 — best-effort, sem AbortError.
-  migrate4DecisionsStep,       // 2026-05-17 (Luiz/dev): G4 do plano03 fase-04 — best-effort, sem AbortError.
+  reuseDiscoveryStep,           // 2026-05-17 (Luiz/dev): early-exit via skipRemaining quando cache fresh (PRD MH-04, CA-04).
+  migrate0ParseDryRunStep,      // 2026-05-17 (Luiz/dev): plano03 fase-05 — parse --dry-run flag (SKILL.md linha 50, G1).
+  migrateAllOrchestrateStep,    // 2026-05-17 (Luiz/dev): plano03 fase-05 — DI-5-1: skipRemaining em dry-run; NO-OP em real mode (PRD CA-03, CA-10).
+  migrate1BackupStep,           // 2026-05-17 (Luiz/dev): G4 do plano03 fase-02 — apos migrate-all (agora indice 4).
+  migrate2PlanningStep,         // 2026-05-17 (Luiz/dev): G4 do plano03 fase-03 — apos migrate1BackupStep.
+  migrate3LessonsStep,          // 2026-05-17 (Luiz/dev): G4 do plano03 fase-04 — best-effort, sem AbortError.
+  migrate4DecisionsStep,        // 2026-05-17 (Luiz/dev): G4 do plano03 fase-04 — best-effort, sem AbortError.
   scaffoldFullTreeStep,
   linkClaudeAgentsStep,
   detectStackAndRegisterStep,
   persistStackKnowledgeStep,
   customizeArchitectureStep,
-  installGhFilesStep,        // 2026-05-17 (Luiz/dev): D14 — sempre apos customize-architecture (PRD CA-01).
-  finalValidationStep,       // 2026-05-17 (Luiz/dev): Step migrate.5 — valida harness apos migracao completa (PRD CA-09).
+  installGhFilesStep,           // 2026-05-17 (Luiz/dev): D14 — sempre apos customize-architecture (PRD CA-01).
+  finalValidationStep,          // 2026-05-17 (Luiz/dev): Step migrate.5 — valida harness apos migracao completa (PRD CA-09).
 ]
