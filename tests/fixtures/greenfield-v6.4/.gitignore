@@ -1,0 +1,5 @@
+# 2026-05-18 (Luiz/dev): fixture greenfield para CA-12 E2E (Plano 07 fase-03)
+# Nao versionar artefatos gerados pelo /anti-vibe-coding:init dentro do fixture.
+node_modules/
+.DS_Store
+.anti-vibe/
