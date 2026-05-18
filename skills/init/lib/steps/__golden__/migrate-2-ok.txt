@@ -1,0 +1,4 @@
+Migration: completed
+  entries: 1
+  written: 1
+  skipped: 0
