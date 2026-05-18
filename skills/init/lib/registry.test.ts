@@ -2,6 +2,8 @@ import { describe, expect, test } from 'bun:test'
 import { registry } from './registry'
 import { proposeMergeBatchStep } from './steps/09-propose-merge-batch'
 import { classifyBlocksHybridStep } from './steps/08-classify-blocks-hybrid'
+import { applyMergeDestructiveStep } from './steps/10-apply-merge-destructive'
+import { moveDocsWithStubStep } from './steps/11-move-docs-with-stub'
 
 describe('registry', () => {
   test('all step ids are unique', () => {
@@ -24,5 +26,11 @@ describe('registry', () => {
     const i08 = registry.indexOf(classifyBlocksHybridStep)
     const i09 = registry.indexOf(proposeMergeBatchStep)
     expect(i09).toBe(i08 + 1)
+  })
+
+  test('positions move-docs-with-stub immediately after apply-merge-destructive', () => {
+    const i10 = registry.indexOf(applyMergeDestructiveStep)
+    const i11 = registry.indexOf(moveDocsWithStubStep)
+    expect(i11).toBe(i10 + 1)
   })
 })
