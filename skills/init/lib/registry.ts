@@ -14,6 +14,8 @@ import { detectStackAndRegisterStep } from './steps/03-detect-stack-and-register
 import { persistStackKnowledgeStep } from './steps/03_1-persist-stack-and-knowledge'
 import { customizeArchitectureStep } from './steps/04-customize-architecture'
 import { installGhFilesStep } from './steps/05-install-gh-files'
+import { deliveryLoopStep } from './steps/14-delivery-loop'
+import { capabilitiesDiscoveryStep } from './steps/15-capabilities-discovery'
 import { finalValidationStep } from './steps/90-final-validation'
 
 // 2026-05-17 (Luiz/dev): ordem contratual — detect-legacy (gate) -> reuse-discovery (early-exit)
@@ -44,5 +46,7 @@ export const registry: readonly Step[] = [
   persistStackKnowledgeStep,
   customizeArchitectureStep,
   installGhFilesStep,           // 2026-05-17 (Luiz/dev): D14 — sempre apos customize-architecture (PRD CA-01).
+  deliveryLoopStep,             // 2026-05-17 (Luiz/dev): plano03 fase-06 — Step 6 interativo via needsUser (PRD D3, CH-01, CA-05).
+  capabilitiesDiscoveryStep,    // 2026-05-17 (Luiz/dev): plano03 fase-06 — Step 7 soft-fail (PRD CA-06, G7).
   finalValidationStep,          // 2026-05-17 (Luiz/dev): Step migrate.5 — valida harness apos migracao completa (PRD CA-09).
 ]
