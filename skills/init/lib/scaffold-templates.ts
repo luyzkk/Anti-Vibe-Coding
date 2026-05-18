@@ -9,14 +9,40 @@ export type ScaffoldOptions = {
   templatesDir: string
   projectName: string
   stack: string
+  /**
+   * 2026-05-18 (Luiz/dev): writer injetavel — Quick Plan /init v6.4.0 fix (dry-run wiring).
+   * Default: fs.writeFile + mkdir reais. Em dry-run: makeWriter({dryRun:true,recorder}).
+   */
+  writeFile?: (dstPath: string, body: string) => Promise<void>
 }
 
 export type ScaffoldResult = {
   filesWritten: string[]
+  /**
+   * 2026-05-18 (Luiz/dev): Quick Plan /init v6.4.0 fix — bug 2 (overwrite destrutivo).
+   * Arquivos preservados porque ja existiam no targetDir. Guard sempre-ativo.
+   */
+  filesSkipped: string[]
+}
+
+async function fileExists(p: string): Promise<boolean> {
+  try {
+    await fs.access(p)
+    return true
+  } catch {
+    return false
+  }
 }
 
 export async function scaffoldTemplates(opts: ScaffoldOptions): Promise<ScaffoldResult> {
   const filesWritten: string[] = []
+  const filesSkipped: string[] = []
+
+  const defaultWriter = async (dstPath: string, body: string): Promise<void> => {
+    await fs.mkdir(path.dirname(dstPath), { recursive: true })
+    await fs.writeFile(dstPath, body, 'utf8')
+  }
+  const writer = opts.writeFile ?? defaultWriter
 
   const pairs: ReadonlyArray<readonly [string, string]> = [
     ['AGENTS.md.tpl', 'AGENTS.md'],
@@ -29,6 +55,13 @@ export async function scaffoldTemplates(opts: ScaffoldOptions): Promise<Scaffold
   for (const [src, dst] of pairs) {
     const srcPath = path.join(opts.templatesDir, src)
     const dstPath = path.join(opts.targetDir, dst)
+
+    // 2026-05-18 (Luiz/dev): guard sempre-ativo. Independente de dry-run, NUNCA sobrescrever
+    // arquivo preexistente. Defesa contra cross-upgrade destrutivo (Quick Plan /init v6.4.0).
+    if (await fileExists(dstPath)) {
+      filesSkipped.push(dstPath)
+      continue
+    }
 
     // 2026-05-11 (Luiz/dev): + {{TODAY}} para alinhar com scaffoldFullTree — Plano 02 fase-02.
     const today = new Date().toISOString().slice(0, 10)
@@ -43,11 +76,9 @@ export async function scaffoldTemplates(opts: ScaffoldOptions): Promise<Scaffold
       .replaceAll('{{FRAMEWORK}}', 'TBD')
       .replaceAll('{{DATABASE}}', 'TBD')
 
-    // Criar diretorio pai se nao existir (necessario para scripts/)
-    await fs.mkdir(path.dirname(dstPath), { recursive: true })
-    await fs.writeFile(dstPath, rendered, 'utf8')
+    await writer(dstPath, rendered)
     filesWritten.push(dstPath)
   }
 
-  return { filesWritten }
+  return { filesWritten, filesSkipped }
 }

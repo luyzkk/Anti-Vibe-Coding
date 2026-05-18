@@ -6,6 +6,7 @@ import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { scaffoldFullTree } from './scaffold-full-tree'
 import { TEMPLATE_MANIFEST } from './template-manifest'
+import { WriteRecorder, makeWriter } from './dry-run'
 
 const FIXTURE_DIR = path.join(import.meta.dir, '__fixtures__', 'tree')
 
@@ -57,9 +58,52 @@ describe('scaffoldFullTree', () => {
     expect(result.durationMs).toBeLessThan(1000)
   })
 
-  it('is idempotent — re-running overwrites without error', async () => {
+  // 2026-05-18 (Luiz/dev): Quick Plan /init v6.4.0 fix — bug 3 (re-run sobrescrevia tudo).
+  // Antes: filesWritten === TEMPLATE_MANIFEST.length em re-run (overwrite cego).
+  // Apos: filesSkipped === TEMPLATE_MANIFEST.length, filesWritten vazio.
+  it('preserves all existing files on re-run (no-overwrite guard)', async () => {
     await scaffoldFullTree({ targetDir: FIXTURE_DIR, projectName: 'p', stack: 'unknown' })
     const second = await scaffoldFullTree({ targetDir: FIXTURE_DIR, projectName: 'p', stack: 'unknown' })
-    expect(second.filesWritten.length).toBe(TEMPLATE_MANIFEST.length)
+    expect(second.filesWritten.length).toBe(0)
+    expect(second.filesSkipped.length).toBe(TEMPLATE_MANIFEST.length)
+  })
+
+  // 2026-05-18 (Luiz/dev): Quick Plan /init v6.4.0 fix — preserva README.md customizado.
+  it('preserves preexisting README.md instead of overwriting', async () => {
+    const readmePath = path.join(FIXTURE_DIR, 'README.md')
+    const sentinel = '# User Custom README\n\nMy own content, do not touch.\n'
+    await fs.writeFile(readmePath, sentinel, 'utf8')
+
+    const result = await scaffoldFullTree({
+      targetDir: FIXTURE_DIR,
+      projectName: 'p',
+      stack: 'unknown',
+    })
+
+    const preserved = await fs.readFile(readmePath, 'utf8')
+    expect(preserved).toBe(sentinel)
+    expect(result.filesSkipped).toContain(readmePath)
+    expect(result.filesWritten).not.toContain(readmePath)
+  })
+
+  // 2026-05-18 (Luiz/dev): Quick Plan /init v6.4.0 fix — dry-run nao toca disco.
+  // makeWriter com dryRun:true + recorder redireciona writes p/ memoria. Zero fs.writeFile reais.
+  it('respects injected writer in dry-run mode (zero fs.writeFile reais)', async () => {
+    const recorder = new WriteRecorder()
+    const writer = makeWriter({ dryRun: true, recorder })
+
+    const result = await scaffoldFullTree({
+      targetDir: FIXTURE_DIR,
+      projectName: 'p',
+      stack: 'unknown',
+      writeFile: writer,
+    })
+
+    expect(recorder.count()).toBe(TEMPLATE_MANIFEST.length)
+    expect(result.filesWritten.length).toBe(TEMPLATE_MANIFEST.length)
+
+    // Verifica que nenhum arquivo realmente foi escrito em disco (fixture continua vazia)
+    const entries = await fs.readdir(FIXTURE_DIR)
+    expect(entries.length).toBe(0)
   })
 })

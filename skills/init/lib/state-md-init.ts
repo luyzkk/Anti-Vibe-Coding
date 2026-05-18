@@ -22,9 +22,18 @@ export type WriteStackResult = {
  * const result = await writeStackToStateMd('/path/to/project', { id: 'nextjs', signalSource: '...' })
  * console.log(result.status) // 'updated' | 'created'
  */
+export type WriteStackOptions = {
+  /**
+   * 2026-05-18 (Luiz/dev): writer injetavel — Quick Plan /init v6.4.0 fix (dry-run wiring).
+   * Default: fs.writeFile real. Em dry-run: makeWriter({dryRun:true,recorder}).
+   */
+  writeFile?: (path: string, body: string) => Promise<void>
+}
+
 export async function writeStackToStateMd(
   targetDir: string,
   stack: DetectedStack,
+  opts: WriteStackOptions = {},
 ): Promise<WriteStackResult> {
   const filePath = path.join(targetDir, STATE_MD_PATH_REL)
 
@@ -51,8 +60,11 @@ export async function writeStackToStateMd(
     ? replaced
     : replaced.replace(/(^## Resources\s*$)/m, `$1\n\n- detected_stack: ${stack.id}`)
 
-  await fs.mkdir(path.dirname(filePath), { recursive: true })
-  await fs.writeFile(filePath, finalBody, 'utf8')
+  const writer = opts.writeFile ?? (async (p: string, b: string) => {
+    await fs.mkdir(path.dirname(p), { recursive: true })
+    await fs.writeFile(p, b, 'utf8')
+  })
+  await writer(filePath, finalBody)
 
   return { status, path: filePath }
 }

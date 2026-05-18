@@ -27,6 +27,16 @@ export async function runPersistStackKnowledgeStep(
 export const persistStackKnowledgeStep: Step = {
   id: 'persist-stack-and-knowledge',
   async run(ctx) {
+    // 2026-05-18 (Luiz/dev): Quick Plan /init v6.4.0 fix — dry-run guard (escopo estendido).
+    // runStackKnowledgeInit orquestra writeStackJson + copyKnowledge + emitStackKnowledgeEvents
+    // + fs.writeFile inline (patch stack.json). Threadar writer pela cadeia toda eh refactor grande;
+    // guard no step preserva o no-write contract de dry-run sem mexer nos helpers.
+    if (ctx.flags['dry-run'] === true) {
+      return {
+        mutated: false,
+        summary: 'dry-run: stack.json + knowledge atoms + metrics would be persisted (orchestrator skipped)',
+      }
+    }
     return runPersistStackKnowledgeStep(ctx)
   },
 }

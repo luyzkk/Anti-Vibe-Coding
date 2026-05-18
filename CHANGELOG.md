@@ -3,6 +3,51 @@
 Todas as mudanças notáveis do plugin Anti-Vibe Coding serão documentadas aqui.
 
 
+## [6.4.1] - 2026-05-18
+
+> **Patch release — Correções no `/anti-vibe-coding:init` v6.4.x**
+> Três bugs descobertos via Quick Plan inline, mais duas regressões adjacentes
+> corrigidas durante validação. Sem mudança de comportamento público; apenas
+> reforços de contrato de dry-run e idempotência.
+
+### Fixed
+
+- **Cross-upgrade misreport (Step `detect-legacy`)** — projetos com manifest
+  `pluginVersion 6.x` já existente eram reportados como `Greenfield`. Adicionada
+  branch via `readManifest()`: agora emite summary `v6.x manifest detected
+  (pluginVersion=X) — cross-upgrade mode, scaffold will preserve existing files.`
+  ([skills/init/lib/steps/00-detect-legacy.ts](skills/init/lib/steps/00-detect-legacy.ts))
+- **Scaffold overwrite de arquivos preexistentes** — `scaffoldTemplates` e
+  `scaffoldFullTree` sobrescreviam `package.json`, `README.md` e demais arquivos
+  da raiz em re-runs. Adicionado guard `fileExists()` antes de cada `writeFile`
+  (defesa em profundidade, independente de modo); novos campos `filesSkipped`
+  expõem o que foi preservado.
+- **Dry-run leak (escrita real em `--dry-run`)** — Steps 01/03/03_1/04/05 escreviam
+  ~50 arquivos em disco mesmo com `--dry-run`. Wiring de `makeWriter(getDryRunMode(ctx))`
+  em todos os helpers mutating; guards de skip nos steps que dependem de arquivos
+  scaffolded (02, 04, 14). Verificado em smoke: `find` retorna apenas o fixture
+  original após `runInit(['--dry-run'])`.
+
+### Fixed (regressões adjacentes)
+
+- **Step 03_1 `persist-stack-and-knowledge`** — orquestrador escrevia 19 arquivos
+  (`.claude/stack.json`, 16 knowledge atoms, INDEX.md, metrics JSONL) em dry-run.
+  Guard no wrapper preserva o no-write contract sem refactor da cadeia
+  `writeStackJson → copyKnowledge → emitStackKnowledgeEvents`.
+- **Step 90 `final-validation`** — spawn de `bun run scripts/harness-validate.ts`
+  abortava em dry-run (arquivo não escrito pelo Step 01), impedindo o preview do
+  Step 91. Guard de skip em dry-run permite Step 91 emitir seu próprio preview.
+
+### Internal
+
+- Helpers `scaffold-templates`, `scaffold-full-tree`, `customize-architecture`,
+  `install-gh-files`, `state-md-init` ganharam DI opcional `writeFile?` (default:
+  `fs.writeFile + mkdir`). Habilita testes determinísticos e composição com
+  `WriteRecorder` sem dependência cíclica.
+- Fixture `skills/init/lib/steps/__fixtures__/v6-manifest/` para cobrir cross-upgrade
+  no test red.
+
+
 ## [6.4.0] - 2026-05-17
 
 > **Minor release — Refatoração Rails-style do `/anti-vibe-coding:init`**
