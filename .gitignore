@@ -28,3 +28,6 @@ discovery/*.json
 .claude/stack.json
 .claude/knowledge/
 .claude/.anti-vibe-manifest.json
+
+# Test run artifacts (E2E migration test output — não versionado)
+tests/fixtures/__legacy-v5-e2e-run/

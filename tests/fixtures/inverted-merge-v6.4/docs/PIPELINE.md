@@ -1,23 +1,34 @@
-# Pipeline — Anti-Vibe Coding Plugin v6
+# Pipeline
 
-The plugin provides a linear pipeline connecting skills in sequence. Each skill works standalone;
-the pipeline is a shortcut, not a requirement.
+The anti-vibe-coding plugin enforces XP discipline for AI-assisted development.
 
-## Skill Pipeline
+## Flow
 
 ```
-grill-me -> write-prd -> plan-feature -> execute-plan -> verify-work -> iterate
+/grill-me → /write-prd → /plan-feature → /execute-plan → /verify-work → iterate
 ```
 
-- **grill-me** — ruthless pre-implementation interview; surfaces assumptions and edge cases
-- **write-prd** — interactive feature specification; output: PRD.md in a dated folder
-- **plan-feature** — hierarchical plan with semantic complexity analysis
-- **execute-plan** — plan execution with memory and interactive transitions
-- **verify-work** — post-execution audit (harness:validate, compound:check, tests, lint)
-- **iterate** — post-deploy cycle: incident response + defensive hardening
+### Phase 1: Grill Me
 
-Post-deploy cycle (v5.2+): `verify-work -> iterate` — regression fixes and hardening in production.
+Before writing code, the AI interviews the developer to surface hidden constraints,
+define acceptance criteria, and identify risks. Output: a structured spec.
 
-## Artifact Structure (v6)
+### Phase 2: Write PRD
 
-Each PRD lives in its own dated folder. Plans are generated on demand.
+Converts the interview output into a formal Product Requirements Document with
+CAs (Acceptance Criteria), non-goals, and technical constraints.
+
+### Phase 3: Plan Feature
+
+Breaks the PRD into execution plans with vertical slices, wave-based subagent
+execution, and clear exit criteria per phase.
+
+### Phase 4: Execute Plan
+
+Wave-based execution with subagents. Each wave is independent; gates between waves
+prevent partial states from propagating.
+
+### Phase 5: Verify Work
+
+Post-implementation audit comparing actual output against PRD CAs. Catches drift,
+missing coverage, and quality regressions.

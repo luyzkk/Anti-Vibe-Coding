@@ -1,20 +1,30 @@
-# Product Sense — Why This Plugin Exists
+# Product Sense
 
-## Problem
+Guidelines for when to push back on requirements.
 
-AI-assisted coding without discipline produces "vibe code" — features without architecture,
-tests written after code, lessons lost in chat history.
+## When to Push Back
 
-## Solution
+### Complexity Without Clear Value
+If a feature requires >3 days of implementation but the user impact is unclear,
+surface the tradeoff: "This adds complexity — what decision does it enable?"
 
-A Claude Code plugin that enforces:
-1. Plan before code (grill-me -> write-prd -> plan-feature)
-2. Test before implement (TDD adaptive levels: guided/assisted/direct)
-3. Capture lessons after merge (compound notes with YAML frontmatter)
-4. Validate mechanically (harness:validate, compound:check)
+### Premature Optimization
+Avoid building for scale until the problem actually exists. Don't design for
+10M users when there are 100.
 
-## Non-Goals
+### Unclear Acceptance Criteria
+Never start building without answerable CAs. Ask: "How do we know this is done?"
 
-- Replace human judgment
-- Block experimentation (hooks are suggestive by default)
-- Force one architecture (/detect-architecture adapts)
+## When NOT to Push Back
+
+- Legal/compliance requirements: implement first, optimize later
+- Security fixes: no negotiation on critical vulnerabilities
+- Explicit user research: if there is data, trust the data
+
+## The Two-Question Test
+
+Before any feature, ask:
+1. What user pain does this solve?
+2. How will we measure success?
+
+If either is unanswerable, surface to stakeholders before starting.
