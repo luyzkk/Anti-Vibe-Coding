@@ -9,6 +9,9 @@ import path from 'node:path'
 import { createBackup } from '../backup-anti-vibe'
 import { resolveSnippetIncludes } from '../snippet-resolver'
 import type { Step, StepContext, StepReport } from './types'
+import { INIT_SUBAGENT_IDS } from '../init-subagent-ids'
+import type { AuditLogWriter } from '../audit-log'
+import { isDryRun } from '../dry-run-mode'
 
 // Resolve skeleton path relativo ao arquivo compilado (import.meta.dir = lib/steps/)
 const SNIPPETS_DIR = path.join(import.meta.dir, '..', '..', 'assets', 'snippets')
@@ -82,6 +85,8 @@ export const applyMergeDestructiveStep: Step = {
   id: '10-apply-merge-destructive',
 
   async run(ctx: StepContext): Promise<StepReport> {
+    const startMs = performance.now()
+
     // G9: --additive-merge early-return ANTES de qualquer leitura
     if (ctx.flags['additive-merge'] === true) {
       return {
@@ -145,6 +150,19 @@ export const applyMergeDestructiveStep: Step = {
     const designPath = path.join(docsDir, 'DESIGN.md')
     await fs.writeFile(designPath, designContent, 'utf8')
     await fs.writeFile(claudePath, CLAUDE_MIRROR_TEMPLATE, 'utf8')
+
+    const writer = isDryRun(ctx) ? undefined : (ctx.flags['__auditLog'] as AuditLogWriter | undefined)
+    await writer?.append({
+      subagent_id: INIT_SUBAGENT_IDS.applyMerge,
+      input_paths: [ctx.cwd],
+      output_struct: {
+        backupDir: backupResult.backupDir,
+        transformedFiles: ['CLAUDE.md', 'docs/DESIGN.md'],
+        extractedToDesign: akitaBlocks.length,
+      },
+      duration_ms: Math.round(performance.now() - startMs),
+      retry_count: 0,
+    })
 
     return {
       mutated: true,

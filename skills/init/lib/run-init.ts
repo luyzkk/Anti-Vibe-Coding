@@ -4,6 +4,8 @@ import type { Step, StepContext, StepResult } from './steps/types'
 import { parseFlags } from './parse-flags'
 import { lazyImport } from './lazy-import'
 import { WriteRecorder } from './dry-run'
+import { createAuditLogWriterForCtx } from './audit-log-writer-factory'
+import { randomUUID } from 'node:crypto'
 
 export type RunInitOptions = {
   /** Permite injetar registry alternativo (tests). Default: registry global. */
@@ -51,35 +53,54 @@ export async function runInit(
     return base
   })()
 
+  // 2026-05-18 (Luiz/dev): D19 — instancia AuditLogWriter UMA vez por run e injeta em ctx.
+  // Steps consomem via ctx.flags['__auditLog'] sem mudar a assinatura de Step.run(ctx).
+  // 'no-audit-log' flag opt-out para CI/testes deterministicos (parseFlags strip o '--').
+  const _runId = randomUUID()
+  const _auditWriter = createAuditLogWriterForCtx(
+    ctx.cwd,
+    _runId,
+    { disabled: ctx.flags['no-audit-log'] === true },
+  )
+  const ctxWithAudit: StepContext = _auditWriter !== null
+    ? { ...ctx, flags: { ...ctx.flags, __auditLog: _auditWriter as unknown as boolean } }
+    : ctx
+
   // 2026-05-18 (Luiz/dev): PRD D24 — `--rollback` early-return ANTES do registry.
   // D21 — dispatcher imutavel: nenhum step novo, nenhum hook beforeStep.
-  if (ctx.flags.rollback === true) {
+  if (ctxWithAudit.flags.rollback === true) {
     const { runRollback } = await lazyImport(() => import('./rollback'))
-    return runRollback(askUser !== undefined ? { cwd: ctx.cwd, log, askUser } : { cwd: ctx.cwd, log })
+    const rollbackOpts = {
+      cwd: ctx.cwd,
+      log,
+      ...(askUser !== undefined ? { askUser } : {}),
+      ...(_auditWriter !== null ? { auditWriter: _auditWriter } : {}),
+    }
+    return runRollback(rollbackOpts)
   }
 
   for (const step of reg) {
     try {
-      let report = await step.run(ctx)
+      let report = await step.run(ctxWithAudit)
 
       // 2026-05-17 (Luiz/dev): contrato needsUser (PRD D3, CH-01, G6 do plano).
       // Ordem: checar needsUser PRIMEIRO (pode mudar o report), depois skipRemaining no report final.
       // Anti-loop guard: re-invoca step UMA UNICA VEZ. Se segunda chamada tambem retorna needsUser,
       // eh bug do step — lanca Error generica (NAO AbortError, pois nao eh comportamento esperado).
       if (report.needsUser !== undefined) {
-        if (ctx.askUser !== undefined) {
-          const answer = await ctx.askUser(report.needsUser.prompt, report.needsUser.options)
+        if (ctxWithAudit.askUser !== undefined) {
+          const answer = await ctxWithAudit.askUser(report.needsUser.prompt, report.needsUser.options)
           // 2026-05-17 (Luiz/dev): propagar resposta via ctx.flags. Chave __interactiveAnswer reservada.
           // Cada step interativo le de ctx.flags['__interactiveAnswer'] na segunda invocacao.
-          const ctxWithAnswer: StepContext = ctx.askUser !== undefined
-            ? { ...ctx, flags: { ...ctx.flags, __interactiveAnswer: answer }, askUser: ctx.askUser }
-            : { ...ctx, flags: { ...ctx.flags, __interactiveAnswer: answer } }
+          const ctxWithAnswer: StepContext = ctxWithAudit.askUser !== undefined
+            ? { ...ctxWithAudit, flags: { ...ctxWithAudit.flags, __interactiveAnswer: answer }, askUser: ctxWithAudit.askUser }
+            : { ...ctxWithAudit, flags: { ...ctxWithAudit.flags, __interactiveAnswer: answer } }
           report = await step.run(ctxWithAnswer)
           if (report.needsUser !== undefined) {
             throw new Error(`Step "${step.id}" returned needsUser twice — anti-loop guard tripped.`)
           }
         }
-        // Se ctx.askUser nao estiver injetado: skip interacao (comportamento defensive em prod).
+        // Se ctxWithAudit.askUser nao estiver injetado: skip interacao (comportamento defensive em prod).
       }
 
       log(`[${step.id}] ${report.summary}`)
@@ -103,7 +124,7 @@ export async function runInit(
 
   // 2026-05-18 (Luiz/dev): Plano 05 fase-05 — warning amarelo quando --additive-merge ativo (G10)
   // Usa log injetado (nao console.warn) para que testes capturem via sink.
-  if (ctx.flags['additive-merge'] === true) {
+  if (ctxWithAudit.flags['additive-merge'] === true) {
     log('')
     log('WARN: Running in --additive-merge mode (v6.3.x behavior).')
     log('   Destructive merge skipped. CLAUDE.md preserved as-is.')

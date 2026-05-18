@@ -3,6 +3,10 @@ import { readDiscoveryArtifact } from '../discovery-store'
 import type { MergeProposal, MoveAction, BlockedAction } from '../merge-proposal-types'
 import type { ClassifyBlocksHybridResult } from './08-classify-blocks-hybrid'
 import type { SecretsScanResult } from './06-secrets-scan'
+import { renderMergePreview, type MergePreview } from '../preview-renderer'
+import { INIT_SUBAGENT_IDS } from '../init-subagent-ids'
+import type { AuditLogWriter } from '../audit-log'
+import { isDryRun } from '../dry-run-mode'
 
 function buildMergeProposal(
   classifyResult: ClassifyBlocksHybridResult | null,
@@ -53,34 +57,33 @@ function isEmptyProposal(proposal: MergeProposal): boolean {
   )
 }
 
-function buildDiffText(proposal: MergeProposal): string {
-  const lines: string[] = []
-  if (proposal.transforms.length > 0) {
-    lines.push(`Transforms (${proposal.transforms.length}):`)
-    for (const t of proposal.transforms) {
-      lines.push(`  [transform] ${t.source} → ${t.target}`)
-    }
+// 2026-05-18 (Luiz/dev): Plano 05 fase-02 — converte MergeProposal para MergePreview (renderer unificado CA-07 + CA-13)
+function buildPreviewFromProposal(proposal: MergeProposal): MergePreview {
+  return {
+    claudeMd: {
+      originalLines: 0,
+      finalLines: 36,
+      akitaBlocks: proposal.transforms.map((t) => ({ title: t.source, target: t.target })),
+    },
+    docMoves: proposal.moves.map((m) => ({
+      from: m.source,
+      to: m.target,
+      action: m.orphan ? 'reference' : 'move',
+    })),
+    blockedBySecrets: proposal.blocked.map((b) => ({
+      path: b.source,
+      reason: `${b.secretKind} detected — move blocked`,
+    })),
+    backupTimestamp: '(pending)',
   }
-  if (proposal.moves.length > 0) {
-    lines.push(`Moves (${proposal.moves.length}):`)
-    for (const m of proposal.moves) {
-      const tag = m.orphan ? ' [orphan]' : ''
-      lines.push(`  [move${tag}] ${m.source} → ${m.target}`)
-    }
-  }
-  if (proposal.blocked.length > 0) {
-    lines.push(`Blocked (${proposal.blocked.length}):`)
-    for (const b of proposal.blocked) {
-      lines.push(`  [blocked] ${b.source} (${b.secretKind})`)
-    }
-  }
-  return lines.join('\n')
 }
 
 export const proposeMergeBatchStep: Step = {
   id: '09-propose-merge-batch',
 
   async run(ctx: StepContext): Promise<StepReport> {
+    const startMs = performance.now()
+
     // G9: --additive-merge early-return BEFORE reading artifacts
     if (ctx.flags['additive-merge'] === true) {
       return {
@@ -102,37 +105,58 @@ export const proposeMergeBatchStep: Step = {
 
     // G13: greenfield — empty proposal, no needsUser
     if (isEmptyProposal(proposal)) {
+      const writer = isDryRun(ctx) ? undefined : (ctx.flags['__auditLog'] as AuditLogWriter | undefined)
+      await writer?.append({
+        subagent_id: INIT_SUBAGENT_IDS.proposeMerge,
+        input_paths: [ctx.cwd],
+        output_struct: {
+          claudeMdReduction: { fromLines: 0, toLines: 0 },
+          docMovesCount: 0,
+          blockedBySecretsCount: 0,
+        },
+        duration_ms: Math.round(performance.now() - startMs),
+        retry_count: 0,
+      })
       return {
         mutated: false,
         summary: 'init-propose-merge: no transformations needed (greenfield or no existing docs)',
       }
     }
 
-    const diffText = buildDiffText(proposal)
+    // 2026-05-18 (Luiz/dev): Plano 05 fase-02 — UNICA fonte de string de preview (CA-07 + CA-13)
+    const preview = buildPreviewFromProposal(proposal)
+    const renderedPreview = renderMergePreview(preview)
+
+    const durationMs = Math.round(performance.now() - startMs)
+    const writer = isDryRun(ctx) ? undefined : (ctx.flags['__auditLog'] as AuditLogWriter | undefined)
+    await writer?.append({
+      subagent_id: INIT_SUBAGENT_IDS.proposeMerge,
+      input_paths: [ctx.cwd],
+      output_struct: {
+        claudeMdReduction: { fromLines: 0, toLines: 0 },
+        docMovesCount: proposal.moves.length,
+        blockedBySecretsCount: proposal.blocked.length,
+      },
+      duration_ms: durationMs,
+      retry_count: 0,
+    })
 
     // G8: --dry-run uses console.log instead of needsUser
     if (ctx.flags['dry-run'] === true) {
-      console.log('[init-propose-merge dry-run]\n' + diffText)
+      console.log('[init-propose-merge dry-run]\n' + renderedPreview)
       return {
         mutated: false,
         summary: `init-propose-merge: dry-run — ${proposal.moves.length} moves, ${proposal.transforms.length} transforms, ${proposal.blocked.length} blocked (noop)`,
       }
     }
 
-    // G2: single needsUser with aggregated diff
-    const promptLines = [
-      'init-propose-merge: The following operations will be applied to merge existing docs into the harness:\n',
-      diffText,
-      '\nApply these changes?',
-      // TODO CH-02 — ver detalhe por arquivo (Plano 05 fase-02 ou v6.5+)
-    ]
-
+    // G2: single needsUser with aggregated diff — mesmo renderer (CA-13 parity)
     return {
       mutated: false,
       summary: `init-propose-merge: ${proposal.moves.length} moves, ${proposal.transforms.length} transforms, ${proposal.blocked.length} blocked — awaiting user confirmation`,
       needsUser: {
-        prompt: promptLines.join('\n'),
-        // TODO CH-02 — ver detalhe por arquivo (Plano 05 fase-02 ou v6.5+)
+        prompt: renderedPreview,
+        // TODO CH-02 — ver detalhe por arquivo (v6.5+)
         options: ['apply', 'skip', 'abort'],
       },
     }

@@ -1,6 +1,9 @@
 import type { Step, StepContext, StepReport } from './types'
 import { discoverExistingDocs, type DiscoveredDoc } from '../discover-existing-docs'
 import { readDiscoveryArtifact, writeDiscoveryArtifact } from '../discovery-store'
+import { INIT_SUBAGENT_IDS } from '../init-subagent-ids'
+import type { AuditLogWriter } from '../audit-log'
+import { isDryRun } from '../dry-run-mode'
 
 export type DiscoveredDocWithFlags = DiscoveredDoc & {
   readonly blockedBySecret: boolean
@@ -50,6 +53,18 @@ export const discoverExistingDocsStep: Step = {
 
     const noWrite = ctx.flags['dry-run'] === true
     await writeDiscoveryArtifact(ctx.cwd, 'discovered-docs', result, { noWrite })
+
+    const writer = isDryRun(ctx) ? undefined : (ctx.flags['__auditLog'] as AuditLogWriter | undefined)
+    await writer?.append({
+      subagent_id: INIT_SUBAGENT_IDS.discoverDocs,
+      input_paths: [ctx.cwd],
+      output_struct: {
+        candidateCount: docs.length,
+        scannedRoots: ['', 'docs', '.claude'],
+      },
+      duration_ms: durationMs,
+      retry_count: 0,
+    })
 
     return {
       mutated: false,

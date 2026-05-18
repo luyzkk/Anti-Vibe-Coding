@@ -3,6 +3,9 @@ import { promises as fs } from 'node:fs'
 import type { Step, StepContext, StepReport } from './types'
 import { scanSecrets, type SecretMatch } from '../secrets-scanner'
 import { writeDiscoveryArtifact } from '../discovery-store'
+import { INIT_SUBAGENT_IDS } from '../init-subagent-ids'
+import type { AuditLogWriter } from '../audit-log'
+import { isDryRun } from '../dry-run-mode'
 
 export type SecretsScanFileEntry = {
   readonly relativePath: string
@@ -65,7 +68,7 @@ export const secretsScanStep: Step = {
   id: '06-secrets-scan',
 
   async run(ctx: StepContext): Promise<StepReport> {
-    const startedAt = Date.now()
+    const startMs = performance.now()
     const files = await listCandidateFiles(ctx.cwd)
     const blocked: SecretsScanFileEntry[] = []
 
@@ -82,11 +85,23 @@ export const secretsScanStep: Step = {
       subagent_id: 'init-secrets-scan',
       scannedCount: files.length,
       blockedFiles: blocked,
-      durationMs: Date.now() - startedAt,
+      durationMs: Math.round(performance.now() - startMs),
     }
 
     const noWrite = ctx.flags['dry-run'] === true
     await writeDiscoveryArtifact(ctx.cwd, 'secrets-scan-result', result, { noWrite })
+
+    const writer = isDryRun(ctx) ? undefined : (ctx.flags['__auditLog'] as AuditLogWriter | undefined)
+    await writer?.append({
+      subagent_id: INIT_SUBAGENT_IDS.secretsScan,
+      input_paths: [ctx.cwd],
+      output_struct: {
+        matchCount: blocked.length,
+        blockedFiles: blocked.map((b) => b.relativePath),
+      },
+      duration_ms: result.durationMs,
+      retry_count: 0,
+    })
 
     return {
       mutated: false,

@@ -10,6 +10,8 @@ import {
   type BackupManifestEntry,
 } from './backup-anti-vibe'
 import type { StepResult } from './steps/types'
+import { INIT_SUBAGENT_IDS } from './init-subagent-ids'
+import type { AuditLogWriter } from './audit-log'
 
 export type RollbackResult = {
   readonly restored: ReadonlyArray<string>
@@ -211,6 +213,8 @@ export type RunRollbackOptions = {
   readonly cwd: string
   readonly log?: (line: string) => void
   readonly askUser?: (prompt: string, options: readonly string[]) => Promise<string>
+  /** 2026-05-18 (Luiz/dev): Plano 06 fase-01 — writer injetado pelo dispatcher para CA-14. */
+  readonly auditWriter?: AuditLogWriter
 }
 
 /**
@@ -218,11 +222,26 @@ export type RunRollbackOptions = {
  * Delega para executeRollback e adapta RollbackResult para StepResult.
  */
 export async function runRollback(opts: RunRollbackOptions): Promise<StepResult> {
+  const startMs = performance.now()
   const log = opts.log ?? console.log
   const execOpts: ExecuteRollbackOptions = opts.askUser !== undefined
     ? { cwd: opts.cwd, log, askUser: opts.askUser }
     : { cwd: opts.cwd, log }
   const result = await executeRollback(execOpts)
+
+  await opts.auditWriter?.append({
+    subagent_id: INIT_SUBAGENT_IDS.rollback,
+    input_paths: [opts.cwd],
+    output_struct: {
+      restoredCount: result.restored.length,
+      errorCount: result.errors.length,
+      userCancelled: result.userCancelled,
+      adrPath: result.adrPath,
+      backupDir: result.backupDir,
+    },
+    duration_ms: Math.round(performance.now() - startMs),
+    retry_count: 0,
+  })
 
   if (result.userCancelled) {
     log('[rollback] cancelled by user.')
