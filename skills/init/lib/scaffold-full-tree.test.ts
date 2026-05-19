@@ -86,6 +86,18 @@ describe('scaffoldFullTree', () => {
     expect(result.filesWritten).not.toContain(readmePath)
   })
 
+  // 2026-05-19 (Luiz/dev): MH-03 — CODE_STYLE.md presente no scaffold greenfield.
+  it('creates docs/CODE_STYLE.md as part of scaffold-full-tree', async () => {
+    await scaffoldFullTree({
+      targetDir: FIXTURE_DIR,
+      projectName: 'fixture-app',
+      stack: 'unknown',
+    })
+
+    const stat = await fs.stat(path.join(FIXTURE_DIR, 'docs/CODE_STYLE.md'))
+    expect(stat.isFile()).toBe(true)
+  })
+
   // 2026-05-18 (Luiz/dev): Quick Plan /init v6.4.0 fix — dry-run nao toca disco.
   // makeWriter com dryRun:true + recorder redireciona writes p/ memoria. Zero fs.writeFile reais.
   it('respects injected writer in dry-run mode (zero fs.writeFile reais)', async () => {

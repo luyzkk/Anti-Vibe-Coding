@@ -36,6 +36,11 @@ export const TEMPLATE_MANIFEST: ReadonlyArray<TemplateEntry> = [
   { src: 'docs/RELIABILITY.md.tpl',                dst: 'docs/RELIABILITY.md',                required: true,  category: 'canon-andre'          },
   { src: 'docs/SECURITY.md.tpl',                   dst: 'docs/SECURITY.md',                   required: true,  category: 'canon-andre'          },
   { src: 'docs/COMPOUND_ENGINEERING.md.tpl',       dst: 'docs/COMPOUND_ENGINEERING.md',       required: true,  category: 'anti-vibe-extension'  },
+  // 2026-05-19 (Luiz/dev): Plano 02 fase-01 — CODE_STYLE.md destino do Akita-style
+  // (Bug E, MH-06, CA-08). Separa code-style de DESIGN.md (Design System visual).
+  // Categoria anti-vibe-extension pois nao faz parte dos 22 docs canonicos do Andre Prado (DT-09).
+  // D1 do CONTEXT.md: nome canonico = docs/CODE_STYLE.md.
+  { src: 'docs/CODE_STYLE.md.tpl',                 dst: 'docs/CODE_STYLE.md',                 required: true,  category: 'anti-vibe-extension'  },
 
   // Camada 2: design-docs/
   { src: 'docs/design-docs/index.md.tpl',          dst: 'docs/design-docs/index.md',          required: true,  category: 'canon-andre'          },

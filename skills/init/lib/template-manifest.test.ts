@@ -24,9 +24,18 @@ describe('TEMPLATE_MANIFEST', () => {
     expect(canon.length).toBe(22)
   })
 
-  it('has exactly 9 anti-vibe-extension entries', () => {
+  it('has exactly 10 anti-vibe-extension entries', () => {
     const ext = TEMPLATE_MANIFEST.filter((e) => e.category === 'anti-vibe-extension')
-    expect(ext.length).toBe(9)
+    expect(ext.length).toBe(10)
+  })
+
+  // 2026-05-19 (Luiz/dev): MH-03 — entry CODE_STYLE.md presente no manifest.
+  it('contains CODE_STYLE.md entry as anti-vibe-extension', () => {
+    const entry = TEMPLATE_MANIFEST.find((e) => e.dst === 'docs/CODE_STYLE.md')
+    expect(entry).toBeDefined()
+    expect(entry?.category).toBe('anti-vibe-extension')
+    expect(entry?.required).toBe(true)
+    expect(entry?.src).toBe('docs/CODE_STYLE.md.tpl')
   })
 
   it('no entry is missing required field', () => {
