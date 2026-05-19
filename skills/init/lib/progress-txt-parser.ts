@@ -1,4 +1,5 @@
 // skills/init/lib/progress-txt-parser.ts
+import { MAX_SLUG_LENGTH, formatEntryIndex } from './compound-imported-constants'
 
 /**
  * Entrada compound extraida de `.claude/progress.txt`.
@@ -8,7 +9,7 @@
  *                Default `'gotcha'` quando ausente.
  * - `title`: heading sem o prefixo `### ` e sem o `[Categoria]`.
  * - `body`: linhas entre este heading e o proximo `### ` (ou EOF), preservando markdown bruto.
- * - `slug`: kebab-case do title, truncado a 60 chars.
+ * - `slug`: kebab-case do title, truncado a MAX_SLUG_LENGTH chars.
  */
 export type ProgressEntry = {
   index: number
@@ -30,7 +31,7 @@ function kebab(input: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
-    .slice(0, 60)
+    .slice(0, MAX_SLUG_LENGTH)
     .replace(/-+$/g, '')
 }
 
@@ -55,7 +56,7 @@ export function parseProgressTxt(content: string): ProgressEntry[] {
       category: current.category,
       title: current.title,
       body: current.bodyLines.join('\n').replace(/\s+$/g, ''),
-      slug: kebab(current.title) || `entry-${String(index).padStart(4, '0')}`,
+      slug: kebab(current.title) || `entry-${formatEntryIndex(index)}`,
     })
   }
 

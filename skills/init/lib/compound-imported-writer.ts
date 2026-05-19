@@ -2,6 +2,12 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import type { ProgressEntry } from './progress-txt-parser'
+import {
+  OUTPUT_DIR_SUBPATH,
+  formatEntryIndex,
+  quoteYamlString,
+  redactSecrets,
+} from './compound-imported-constants'
 
 export type CompoundImportedResult = {
   filesWritten: string[]
@@ -10,19 +16,20 @@ export type CompoundImportedResult = {
 
 function renderEntry(entry: ProgressEntry, today: string, sourceRel: string): string {
   const tags = ['imported', entry.category]
+  const safeBody = redactSecrets(entry.body)
   return [
     '---',
-    `title: "${entry.title.replace(/"/g, '\\"')}"`,
-    `category: ${entry.category}`,
-    `tags: [${tags.join(', ')}]`,
+    `title: ${quoteYamlString(entry.title)}`,
+    `category: ${quoteYamlString(entry.category)}`,
+    `tags: [${tags.map(quoteYamlString).join(', ')}]`,
     `created: ${today}`,
     `source: ${sourceRel} linha ${String(entry.sourceLineNumber)}`,
     '---',
     '',
     '## Problem',
     '',
-    entry.body.trim().length > 0
-      ? entry.body.trim()
+    safeBody.trim().length > 0
+      ? safeBody.trim()
       : '_(imported sem corpo — revisar manualmente)_',
     '',
     '## Solution',
@@ -54,7 +61,7 @@ function renderIndex(entries: ProgressEntry[], today: string, sourceRel: string)
     '',
   ]
   for (const e of entries) {
-    const slug = `${String(e.index).padStart(4, '0')}-${e.slug}`
+    const slug = `${formatEntryIndex(e.index)}-${e.slug}`
     lines.push(
       `- [\`${slug}.md\`](./${slug}.md) — ${e.title} _(${sourceRel} linha ${String(e.sourceLineNumber)})_`,
     )
@@ -73,14 +80,14 @@ export async function writeCompoundImported(
   entries: ProgressEntry[],
   opts: { targetDir: string; sourcePath: string },
 ): Promise<CompoundImportedResult> {
-  const outDir = path.join(opts.targetDir, 'docs', 'compound', '_imported')
+  const outDir = path.join(opts.targetDir, OUTPUT_DIR_SUBPATH)
   await fs.mkdir(outDir, { recursive: true })
 
   const today = new Date().toISOString().slice(0, 10)
   const filesWritten: string[] = []
 
   for (const entry of entries) {
-    const slug = `${String(entry.index).padStart(4, '0')}-${entry.slug}`
+    const slug = `${formatEntryIndex(entry.index)}-${entry.slug}`
     const dest = path.join(outDir, `${slug}.md`)
     await fs.writeFile(dest, renderEntry(entry, today, opts.sourcePath), 'utf-8')
     filesWritten.push(dest)
