@@ -1,0 +1,24 @@
+# Progress - Licoes Aprendidas e Gotchas
+
+Este arquivo documenta bugs corrigidos, gotchas descobertos e padroes importantes.
+
+---
+
+### [Processo] TDD: commit RED DEVE preceder commit GREEN mesmo em fases triviais
+**Contexto:** Feature Caixas Escolares. Auditoria pos-execucao detectou ordem invertida.
+**Erro:** Em fases percebidas como triviais, o subagente pulou commit separado de RED.
+**Solucao:** TODA fase com mudanca de comportamento DEVE ter 2 commits — test (RED) e feat (GREEN).
+
+---
+
+## Gotchas Conhecidos
+
+### 1. UPSERT com numero_controle_pncp
+**Contexto:** Sincronizacao de dados do PNCP para Supabase
+**Erro:** INSERT duplicado causava erro de unique constraint
+**Solucao:** Usar `ON CONFLICT (...) DO UPDATE` para operacoes idempotentes
+
+### 2. Rate Limit da API PNCP
+**Contexto:** Chamadas em lote
+**Erro:** HTTP 429 apos muitas chamadas
+**Solucao:** Implementar delay de 600ms entre requisicoes
