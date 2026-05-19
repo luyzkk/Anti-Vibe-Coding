@@ -49,6 +49,16 @@ describe('registry', () => {
     expect(ids).not.toContain('12-detect-drift-incremental')
   })
 
+  // 2026-05-19 (Luiz/dev): Plano 05 fase-02 — Step 13 apos backup pre-6.5.0 e antes do scaffold (MH-10, CA-05).
+  test('13-import-progress-txt comes after 00_3-backup-pre-6_5_0 and before scaffold-full-tree', () => {
+    const ids = registry.map(s => s.id)
+    const backupIdx = ids.indexOf('00_3-backup-pre-6_5_0')
+    const importIdx = ids.indexOf('13-import-progress-txt')
+    const scaffoldIdx = ids.indexOf('scaffold-full-tree')
+    expect(importIdx).toBeGreaterThan(backupIdx)
+    expect(importIdx).toBeLessThan(scaffoldIdx)
+  })
+
   // 2026-05-19 (Luiz/dev): backup deve rodar ANTES do scaffold mutativo (decisao DI-N MEMORY.md).
   // Nota: scaffold step id e 'scaffold-full-tree' (sem prefixo numerico no id).
   test('10-backup-pre-mutation comes before scaffold-full-tree', () => {
