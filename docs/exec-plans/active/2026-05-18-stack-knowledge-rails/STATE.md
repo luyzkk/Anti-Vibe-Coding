@@ -3,9 +3,9 @@
 **Plan:** ./PLAN.md
 **PRD:** ./PRD.md
 **CONTEXT:** ./CONTEXT.md
-**Phase:** ready-for-merge (CA-08 humano pendente Luiz)
-**Current Plan:** 03/3 (Planos 01-03 fases concluidas; CA-08 humano action-cable-and-realtime pendente)
-**Last Updated:** 2026-05-19 (Plano 03 — 10/10 fases done; feature v6.3.3 ready-for-merge bloqueado apenas em CA-08 humano)
+**Phase:** completed
+**Current Plan:** 03/3 — DONE
+**Last Updated:** 2026-05-19 (CA-08 humano aprovado por Luiz — feature v6.3.3 completed)
 
 ## Status Final (v6.3.3)
 
@@ -13,7 +13,7 @@
 - [x] Plano 02 — completed em 2026-05-19 (Batch A+B parcial, 9/9 fases)
 - [x] Plano 03 — completed em 2026-05-19 (Batch C + INDEX + RF11 + E2E + hardening, 10/10 fases)
 
-**Pendencia bloqueante para PR:** CA-08 audit humano de `docs/knowledge/rails/atoms/action-cable-and-realtime.md` por Luiz (D19 — nao delegavel). Cross-check contra wf-1d48ebbc, wf-3e82e3be, wf-a0aa55c4, deep-research-report (1).md, rails-stack-conventions/SKILL.md. Assinar abaixo na tabela "Audit Humano CA-08" e mudar Phase para `completed`.
+**CA-08 humano:** Aprovado por Luiz em 2026-05-19 — action-cable-and-realtime T3. Feature v6.3.3 pronta para PR.
 
 ## Progress por Plano
 
@@ -33,7 +33,7 @@ Fases done: 25/25 (100%) — feature pronta para merge apos CA-08 humano.
 |---|---|---|---|---|
 | active-record-fundamentals | T1 | 02/09 | approved | 2026-05-18 |
 | action-view-and-hotwire | T2 | 02/09 | approved | 2026-05-18 |
-| action-cable-and-realtime | T3 | 03/07 | pending | — |
+| action-cable-and-realtime | T3 | 03/07 | approved | 2026-05-19 |
 
 ## Audit Humano CA-08 (Plano 02 — aprovado por Luiz em 2026-05-18)
 
