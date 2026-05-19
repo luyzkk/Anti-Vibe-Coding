@@ -22,3 +22,8 @@ Este arquivo documenta bugs corrigidos, gotchas descobertos e padroes importante
 **Contexto:** Chamadas em lote
 **Erro:** HTTP 429 apos muitas chamadas
 **Solucao:** Implementar delay de 600ms entre requisicoes
+
+### 3. Timeout em consultas lentas
+**Contexto:** Queries com JOIN em tabelas grandes
+**Erro:** Statement timeout apos 30s em producao
+**Solucao:** Adicionar indice composto e paginar resultados com cursor
