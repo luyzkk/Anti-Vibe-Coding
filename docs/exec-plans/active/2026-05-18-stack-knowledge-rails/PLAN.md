@@ -162,7 +162,18 @@ Fases planejadas:
 - **Piloto:** 108 linhas / 5 H2 / 9 frontmatter fields / rails_versions=['>=7.1'] valido.
 - **Dedup:** 6 pares auditados, decisao uniforme (manter sem sufixo, deletar copy/v2 em Plano03 fase-09).
 
+### Plano 02 — Batch A T1 + Batch B parcial T2 (2026-05-18)
 
+- **8 atomos extraidos** em 3 batches paralelos (fases 01-03 / 04-05 / 06-08) via subagentes isolados — sizing real ~7-8h paralelo (estimado 14-16h sequencial).
+- **Verifier refined batch:** 8/8 PASS (1 subagente paralelo por atomo, 5 claims auditadas cada). Taxa global **40/40 = 100%** rastreabilidade (meta D12 era >=80%). Replica exatamente a taxa do piloto Plano 01 fase-06.
+- **Audit humano CA-08:** 2/2 OK — `active-record-fundamentals` (T1) + `action-view-and-hotwire` (T2) aprovados por Luiz em 2026-05-18 (3/3 claims cross-check rastreaveis em ambos).
+- **Linhas:** 1100 total / 8 atomos (media 137 ln; max 198 — rspec-and-minitest com D21 dual snippets). Nenhum atingiu hard cap 200.
+- **Anti-drift retornou dividendos:** 4 cortes documentados (AR Encryption, Turbo Stream broadcast, Russian doll syntax, parallelize TDD) — fontes nao sustentavam claims. Confirmado por Luiz como decisao correta. Reservados para v6.3.4+.
+- **GT batch1 (DI-Plano02):** specs listavam sources inexistentes (`PATTERNS.md`, `PITFALLS.md`, `BACKENDS.md`, `REVIEW_CHECKLIST.md`) em pastas que so tem `SKILL.md` + `references/`. Subagentes corrigiram via Glob+ls antes de fixar frontmatter. Spec do Plano 03 deve evitar listar paths sem `ls` previo.
+- **Compass artifacts removidos por irrelevancia (grep zero matches):** wf-9d10f3ac (API Design, nao caching/migrations), wf-fd78fcce (sem termos seguranca), wf-61b9b080 (sem TDD). Substituidos: wf-8afc0f40 (segurança 90 matches), wf-a0aa55c4 (Brakeman 38 matches), wf-1d48ebbc (HTTP caching), wf-cb73df7d (TDD 201 matches).
+- **Decisao validada D7:** API-only mode como secao scaffolding embedded (6 H2 em vez de 5) nao confundiu o verifier — protocolo refined explicitamente exclui essa secao do audit.
+- **Decisao validada D21:** rspec-and-minitest framework-agnostic com snippets duplos por pattern (sem secoes separadas) — verifier auditou pattern statement como claim, snippets como ilustracao.
+- **Decisao validada D13:** `rails_versions` opcional. Atomos mainstream usam `['>=7.1']`; Solid Queue/Solid Cache contextualizados como Rails 8+ no corpo (sem split de atomo). Plano 03 `deployment-with-kamal` usara `['>=8.0']`.
 
 ---
 
