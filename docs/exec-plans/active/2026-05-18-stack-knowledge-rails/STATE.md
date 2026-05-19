@@ -3,9 +3,17 @@
 **Plan:** ./PLAN.md
 **PRD:** ./PRD.md
 **CONTEXT:** ./CONTEXT.md
-**Phase:** in-progress
-**Current Plan:** 03/3 (Planos 01-02 concluidos)
-**Last Updated:** 2026-05-19 (Plano 03 — fases 01-08 done; CA-08 action-cable audit humano pendente Luiz; fase-09 E2E next)
+**Phase:** ready-for-merge (CA-08 humano pendente Luiz)
+**Current Plan:** 03/3 (Planos 01-03 fases concluidas; CA-08 humano action-cable-and-realtime pendente)
+**Last Updated:** 2026-05-19 (Plano 03 — 10/10 fases done; feature v6.3.3 ready-for-merge bloqueado apenas em CA-08 humano)
+
+## Status Final (v6.3.3)
+
+- [x] Plano 01 — completed em 2026-05-19 (Tracer Bullet, 6/6 fases)
+- [x] Plano 02 — completed em 2026-05-19 (Batch A+B parcial, 9/9 fases)
+- [x] Plano 03 — completed em 2026-05-19 (Batch C + INDEX + RF11 + E2E + hardening, 10/10 fases)
+
+**Pendencia bloqueante para PR:** CA-08 audit humano de `docs/knowledge/rails/atoms/action-cable-and-realtime.md` por Luiz (D19 — nao delegavel). Cross-check contra wf-1d48ebbc, wf-3e82e3be, wf-a0aa55c4, deep-research-report (1).md, rails-stack-conventions/SKILL.md. Assinar abaixo na tabela "Audit Humano CA-08" e mudar Phase para `completed`.
 
 ## Progress por Plano
 
@@ -13,11 +21,11 @@
 |-------|------|-------|------|--------|
 | 01 | Tracer Bullet — dedup + schema + multi-stack contract + piloto + E2E | 6 | 6/6 | done |
 | 02 | Batch A T1 + Batch B parcial T2 + verifier + audit humano | 9 | 9/9 | done |
-| 03 | Batch C + INDEX + RF11 + E2E completo + hardening leve | 10 | 8/10 | in-progress |
+| 03 | Batch C + INDEX + RF11 + E2E completo + hardening leve | 10 | 10/10 | done |
 
 ## Progress Global
 
-Fases done: 23/25 (92%)
+Fases done: 25/25 (100%) — feature pronta para merge apos CA-08 humano.
 
 ## Audit Humano CA-08 (D14, D19)
 
@@ -77,6 +85,8 @@ Subagente entregou `plano01/dedup-report.md` com achado transversal: todos os 6 
 - 2026-05-19: fase-06 concluida (INDEX final D9). `docs/knowledge/rails/INDEX.md` 81 linhas (cap 100), 7 secoes "Para /skill" cross-stack + 3 secoes "Por Tier" (T1=6, T2=6, T3=2). 14 atomos cobertos, cada slug aparece >=2x. harness:validate PASS. Commit 9e4b7e0.
 - 2026-05-19: fase-07 concluida (verifier refined paralelo, 5 subagentes Fork). **5/5 verifiers PASS** (>=80% claims rastreaveis): performance-and-tuning 93% (28/30), deployment-with-kamal 97% (29/30), action-cable-and-realtime 96.8% (30/31), action-mailer-and-mailbox 100% (23/23), active-storage 91% (20/22 — CVE claims 100% sourced). DI-1 registrado em plano03/MEMORY.md. **CA-08 D14/D19: audit humano de action-cable-and-realtime PENDENTE — bloqueia STATE final mas nao fase-09/10.**
 - 2026-05-19: fase-08 concluida (RF11 warning Rails legado <7.1). TDD RED+GREEN: 13/13 tests PASS (8 existentes + 5 novos), zero regressao Node E2E. `extractRailsVersionWarning` em format-knowledge-preview.ts + integracao no caller run-stack-knowledge-init.ts (warnings?: string[] additive). Commit b7ee301.
+- 2026-05-19: fase-09 concluida (E2E completo CA-01..CA-11). Criados 5 fixtures (rails-modern-8x, sinatra-no-rails, rails-legacy-70, monorepo-rails-node, node-only) + tests/e2e/stack-knowledge-rails-full.test.ts com 10 tests (CA-08 humano excluido). BUG-1 (CRLF active-storage.md) e BUG-2 (tracer-bullet CA-03 desatualizado) corrigidos. CA-02 perf ~18ms (folga ~11x do limite D24 200ms). Commits f8f7ffb + a7e87f0.
+- 2026-05-19: fase-10 concluida (hardening leve + RF12 polish). 2 auditores em paralelo sobre delta ~10 linhas (D15): security-auditor 0 HIGH + 2 MEDIUM + 1 LOW; code-smell-detector 0 CRITICAL + 2 MEDIUM + 3 LOW. Todos MEDIUM registrados como TODO v6.3.4+ (severity Q2 nao bloqueia merge). RF12 polish: BUG-3 fixado adicionando `## Por keyword` (14 rows) ao Rails INDEX.md. INDEX agora 98 linhas (cap 100). Suite cheia bun test exit=0 (zero regressoes). **Plano 03 completed — 10/10 fases.** Feature v6.3.3 ready-for-merge apos CA-08 humano de Luiz.
 
 ## Verifier refined report (Plano 01 fase-06 — 2026-05-19)
 

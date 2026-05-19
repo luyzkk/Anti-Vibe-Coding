@@ -70,12 +70,18 @@ Formato: o que foi decidido + por que + impacto.
 Bugs encontrados durante implementacao e como foram resolvidos.
 Formato: sintoma + causa raiz + fix aplicado.
 
-<!-- Exemplo (a preencher durante /execute-plan):
-- **BUG-1:** Verifier de action-mailer-and-mailbox marca claim de ActionText como "nao encontrada"
-  - Causa: ActionText absorvido sem fonte dedicada — extrator pegou conhecimento prévio
-  - Fix: re-extrair com fonte explícita de rails-stack-conventions (seção rich text)
-  - Fase afetada: fase-04
--->
+- **BUG-1:** `active-storage.md` falhou validator regex `/^---\n/` no harness:validate
+  - Causa: arquivo escrito com line endings CRLF (Windows default) — regex esperava LF
+  - Fix: conversão CRLF→LF via Python script (10597→10472 bytes)
+  - Fase afetada: fase-09 (descoberto durante content audit)
+- **BUG-2:** Tracer-bullet CA-03 falhava após v6.3.3 — assertion esperava "não foi copiado" (v6.3.2)
+  - Causa: contrato v6.3.2 (Rails sem knowledge) mudou em v6.3.3 (15 atomos copiados)
+  - Fix: atualizar assertion para `output.toMatch(/copied/i)` + checar INDEX.md exists
+  - Fase afetada: fase-09 (descoberto rodando suite completa)
+- **BUG-3:** RF12 preview não emitia para Rails — INDEX.md sem seção "Por keyword"
+  - Causa: `parseTopKeywords()` lê tabela `## Por keyword` (formato Node) — Rails INDEX só tinha "Por Skill" e "Por Tier"
+  - Fix: adicionar seção `## Por keyword` no Rails INDEX.md com 14 rows (1 por atomo, top keywords agregados)
+  - Fase afetada: fase-10 (verificação RF12)
 
 ---
 
@@ -84,11 +90,40 @@ Formato: sintoma + causa raiz + fix aplicado.
 Armadilhas descobertas que planos futuros ou outros devs devem saber.
 Apenas gotchas que NAO eram obvios antes de implementar.
 
-<!-- Exemplo (a preencher durante /execute-plan):
-- **GT-1:** Fixture tests/fixtures/rails-legacy-70 precisa de Gemfile.lock mock (não real)
-  - Descoberto em: fase-08
-  - Impacto: detector não exige Gemfile.lock, mas E2E test fica determinístico só com lock estável
--->
+- **GT-1:** Arquivos markdown gerados no Windows tendem a CRLF — validator regex `/^---\n/` precisa LF
+  - Descoberto em: fase-09 (BUG-1)
+  - Impacto: rodar `git config core.autocrlf input` no projeto OU criar pre-commit hook que normaliza
+  - Para v6.3.4+: validator poderia aceitar tanto `\n` quanto `\r\n` (regex `/^---\r?\n/`)
+- **GT-2:** `detectMultiStack` trata Gemfile presence como Rails anchor mesmo sem `gem 'rails'`
+  - Descoberto em: fase-09 (Sinatra-only fixture vira primary=rails)
+  - Impacto: fixtures de stacks ruby-mas-não-Rails (Sinatra, Hanami, Roda) precisam usar `detectStack` em testes, não `runStackKnowledgeInit`
+  - Para v6.3.4+: refinar Rails anchor para exigir `gem 'rails'` no Gemfile (não só presença do Gemfile)
+- **GT-3:** INDEX.md cap "≤100 linhas" mede via `wc -l` (newlines) mas testes usam `split('\n').length`
+  - Descoberto em: fase-10 (CA-01 falhou em 101 quando wc=100)
+  - Impacto: para passar CA-01, garantir wc -l ≤ 99 (split gives 100 com trailing newline)
+- **GT-4:** Auditor security/code-smell flags `readFileSync` síncrono em fluxo async (run-stack-knowledge-init.ts:105)
+  - Descoberto em: fase-10 (hardening)
+  - Impacto: refatorar para `fs.promises.readFile` em v6.3.4+ (mantém pattern do M1.1 da v6.3.2)
+
+## Findings de Auditores (fase-10 hardening leve)
+
+Apenas delta v6.3.3 auditado (D15 — não Node full hardening):
+
+### security-auditor
+- **0 HIGH** — pronto para merge sem rework
+- **2 MEDIUM:**
+  - `run-stack-knowledge-init.ts:105` — `readFileSync(gemfilePath, 'utf8')` sem size limit (DoS risk teórico se Gemfile >100MB). Trato em v6.3.4+ via `fs.stat` + limit 1MB.
+  - `atoms-frontmatter-validator.ts:15` — regex `[\s\S]*?` lazy sem closing delimiter guard. ReDoS teórico em frontmatter malformado. Trato em v6.3.4+ via regex bounded ou yaml.parse.
+- **1 LOW:** sync I/O em função async (mesmo readFileSync acima) — already GT-4.
+
+### code-smell-detector
+- **0 CRITICAL**
+- **2 MEDIUM:**
+  - `format-knowledge-preview.ts:85` — magic numbers `7`/`1` inline (`major < 7 || (major === 7 && minor < 1)`). Refatorar para constantes `MIN_SUPPORTED_RAILS_MAJOR=7` / `MIN_SUPPORTED_RAILS_MINOR=1` em v6.3.4+.
+  - Duplicate regex Rails detection: `format-knowledge-preview.ts:78` e `detect-stack.ts:98` ambos detectam `gem 'rails'`. Considerar extrair `parseRailsVersion()` em util compartilhado em v6.3.4+.
+- **3 LOW (sem ação):** nested conditionals em `run-stack-knowledge-init.ts:102`, primitive obsession em `REQUIRED_FIELDS` array do validator, regex literals espalhados.
+
+**Decisão de triage:** Todos MEDIUM são <10min cada, mas não bloqueiam merge (severity Q2 da rubrica). Registrados em `TODO.md` raiz como follow-ups v6.3.4+. LOW vira GT-4 acima.
 
 ---
 
@@ -121,21 +156,40 @@ Se nada mudou, manter vazio (bom sinal).
 
 ## Notas para Planos Seguintes
 
-Informacoes que o proximo plano PRECISA saber antes de comecar.
-O subagente do proximo plano le este campo.
+Último plano da feature v6.3.3 — não há "próximo plano". Notas aqui alimentam `/lessons-learned`, v6.3.4+ e próximas stacks (Python, Go).
 
-<!-- Este é o último plano da feature v6.3.3 — não há "próximo plano".
-Notas aqui viram input para:
-1. /lessons-learned na fase de captura compound pós-merge
-2. v6.3.4+ (Rails knowledge expansion) — backlog de conteúdo excedente que estourou cap 200
-3. Próximas stacks (Python, Go) reaproveitando padrão de hardening leve (D15)
+### Release Notes — v6.3.3 (Stack Knowledge Layer — Rails)
 
-Candidatos a registrar ao final da execução:
-- Lista de patterns recortados por estourar cap 200 (input v6.3.4+)
-- Decisão final de tier de active-storage (DI-2) — pode virar compound se padrão for útil para outras stacks
-- Falsos-positivos do verifier que exigiram refinement do protocolo — input para refinar lesson 2026-05-16-verifier-protocol-technical-sections-only.md
-- Tempo real gasto em hardening leve (D15) vs Node hardening completo — métrica para próximas stacks decidirem intensidade
--->
+**Conteúdo entregue:**
+- 14 átomos Rails-native em `docs/knowledge/rails/atoms/` cobrindo Active Record (fundamentals + migrations), Action Pack (controller, routing, view, hotwire), Solid Trifecta (Queue/Cache/Cable), security (CSRF/Brakeman), performance, deployment com Kamal, ActiveStorage, ActionMailer/Mailbox, conventions/Zeitwerk, RSpec/Minitest
+- `docs/knowledge/rails/INDEX.md` com 3 layouts: Por Skill (7 skills cross-stack), Por Tier (T1×6, T2×6, T3×2), Por keyword (RF12)
+- Schema `rails_versions` opcional no frontmatter (audit trail de compat por padrão)
+- Warning RF11 para projetos Rails legados (<7.1)
+- E2E suite 11 testes em `tests/e2e/stack-knowledge-rails-full.test.ts` + tracer-bullet atualizado para v6.3.3 (10 testes)
+
+**Decisões importantes:**
+- DI-2 (RF13): active-storage promovido T3→T2 — CVE-2025-24293 (CVSS 9.8) + direct uploads + signed URLs justificam Tier 2
+- D15 hardening leve: 2 auditores sobre delta ~10 linhas (não 6 como Node v6.3.2)
+- D22 multi-stack contract reaproveitado integralmente da v6.3.2 (zero refactor)
+- D24 perf SLA: ≤200ms para copyKnowledge (relaxado de 100ms para Windows cold I/O)
+- D25 hard cap 200 linhas por atomo — todos respeitados (maior: rspec-and-minitest 198 linhas)
+
+**Reuso 100%:** runStackKnowledgeInit, copyKnowledge, getStackKnowledgePreface, telemetria. Próxima stack adiciona só `docs/knowledge/{stack}/` e entrada no stack-id-map.
+
+**Pendências antes do merge:**
+- [ ] CA-08 audit humano de `action-cable-and-realtime.md` por Luiz (D19 — não pode ser delegado). Read atom + cross-check com fontes (wf-1d48ebbc, wf-3e82e3be, wf-a0aa55c4, deep-research-report, rails-stack-conventions/SKILL.md) e assinar STATE.md global
+
+**Backlog v6.3.4+:**
+- 2 MEDIUM security findings (readFileSync sem size limit, regex lazy sem closing guard) — ambos teóricos
+- 2 MEDIUM code-smell findings (magic numbers 7/1, duplicate regex Rails detection)
+- Refinar Rails anchor: exigir `gem 'rails'` no Gemfile, não só presença (GT-2)
+- Validator regex aceitar CRLF (BUG-1 / GT-1)
+- Atom splits: nenhum estourou D25 (não há backlog de patterns excedentes)
+
+**Inputs para `/lessons-learned`:**
+- Compound candidato: hardening leve (D15) sobre delta pequeno foi efetivo — 0 HIGH em 10 linhas auditadas vs Node v6.3.2 que rodou 6 auditores em 2 rodadas
+- Anti-drift compound (2026-05-16) aplicado em verifier-refined Batch C — 5/5 atomos PASS first-try
+- Métrica wall-clock: 5 verifiers + 1 RF11 spawned em paralelo (fork) ~15min vs sequencial estimado 60min
 
 ---
 
