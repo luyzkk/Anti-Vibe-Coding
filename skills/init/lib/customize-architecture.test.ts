@@ -1,5 +1,6 @@
 // 2026-05-11 (Luiz/dev): testes parametricos cobrem cada stack id.
 // Plano 02 fase-03. Atende PRD M3, CA-19, CA-20, CA-21.
+// 2026-05-18 (Luiz/dev): D22 multi-stack contract — fixtures usam novo shape (Plano 01 fase-03).
 
 import { describe, it, expect, afterEach } from 'bun:test'
 import { promises as fs } from 'node:fs'
@@ -30,18 +31,20 @@ async function setup(stack: DetectedStack): Promise<void> {
   )
 }
 
+// 2026-05-18 (Luiz/dev): D22 — fixtures com novo shape { primary, secondary, signalSource, anchorFiles }
 const cases: ReadonlyArray<{ stack: DetectedStack; expectedSubstring: string }> = [
-  { stack: { id: 'nextjs', signalSource: 'package.json#dependencies.next' }, expectedSubstring: 'Next.js framework detected' },
-  { stack: { id: 'rails',  signalSource: 'Gemfile#gem "rails"' },            expectedSubstring: 'Rails framework detected' },
-  { stack: { id: 'node-ts', signalSource: 'package.json#devDependencies.typescript' }, expectedSubstring: 'Node.js + TypeScript' },
-  { stack: { id: 'unknown', signalSource: 'no signal' },                     expectedSubstring: 'document the stack manually' },
+  { stack: { primary: 'nextjs',   secondary: [], signalSource: 'package.json#dependencies.next',           anchorFiles: ['package.json'] }, expectedSubstring: 'Next.js framework detected' },
+  { stack: { primary: 'rails',    secondary: [], signalSource: 'Gemfile#gem "rails"',                      anchorFiles: ['Gemfile'] },       expectedSubstring: 'Rails framework detected' },
+  { stack: { primary: 'node-ts',  secondary: [], signalSource: 'package.json#devDependencies.typescript',  anchorFiles: ['package.json'] }, expectedSubstring: 'Node.js + TypeScript' },
+  { stack: { primary: null,       secondary: [], signalSource: 'no signal',                                anchorFiles: [] },               expectedSubstring: 'document the stack manually' },
 ]
 
 describe('customizeArchitecture', () => {
   afterEach(async () => { await fs.rm(FIXTURE, { recursive: true, force: true }) })
 
   for (const { stack, expectedSubstring } of cases) {
-    it(`writes "${expectedSubstring}" for stack ${stack.id}`, async () => {
+    // 2026-05-18 (Luiz/dev): label usa stack.primary ?? 'unknown' (D22)
+    it(`writes "${expectedSubstring}" for stack ${stack.primary ?? 'unknown'}`, async () => {
       await setup(stack)
       const result = await customizeArchitecture({
         targetDir: FIXTURE,
@@ -62,7 +65,7 @@ describe('customizeArchitecture', () => {
     await fs.writeFile(path.join(FIXTURE, 'ARCHITECTURE.md'), '# Architecture\n\n(no marker)\n', 'utf8')
     const result = await customizeArchitecture({
       targetDir: FIXTURE,
-      stack: { id: 'nextjs', signalSource: 'test' },
+      stack: { primary: 'nextjs', secondary: [], signalSource: 'test', anchorFiles: [] },
     })
     expect(result.written).toBe(false)
   })

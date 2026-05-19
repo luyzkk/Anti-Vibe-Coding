@@ -1,4 +1,5 @@
 // skills/init/lib/steps/04-customize-architecture.ts
+// 2026-05-18 (Luiz/dev): D22 multi-stack contract — usa stack.primary ?? 'unknown' (Plano 01 fase-03).
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { customizeArchitecture } from '../customize-architecture'
@@ -18,13 +19,15 @@ export const customizeArchitectureStep: Step = {
     const dryRun = isDryRun(ctx)
     // Em dry-run, Step 01 nao escreve ARCHITECTURE.md em disco — helper lancaria ENOENT (G2).
     // Skip antecipado quando arquivo nao existe + dry-run, mantendo wording compatible.
+    // 2026-05-18 (Luiz/dev): D22 — stackLabel para mensagens de log
+    const stackLabel = stack.primary ?? 'unknown'
     if (dryRun) {
       const archPath = path.join(ctx.cwd, 'ARCHITECTURE.md')
       const exists = await fs.access(archPath).then(() => true).catch(() => false)
       if (!exists) {
         return {
           mutated: false,
-          summary: `dry-run: ARCHITECTURE.md would be customized for ${stack.id} (file not present yet)`,
+          summary: `dry-run: ARCHITECTURE.md would be customized for ${stackLabel} (file not present yet)`,
         }
       }
     }
@@ -36,8 +39,8 @@ export const customizeArchitectureStep: Step = {
     })
 
     // 2026-05-17 (Luiz/dev): wording byte-identico ao SKILL.md linha 349 (PRD R1, G1).
-    // Em-dash U+2014 entre stack.id e "written". NAO alterar.
-    const summary = `ARCHITECTURE.md customized for ${stack.id} \u2014 written: ${result.written}`
+    // Em-dash U+2014 entre stackLabel e "written". NAO alterar.
+    const summary = `ARCHITECTURE.md customized for ${stackLabel} \u2014 written: ${result.written}`
     return { mutated: result.written && !dryRun, summary }
   },
 }

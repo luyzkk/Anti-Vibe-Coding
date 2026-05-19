@@ -33,8 +33,10 @@ export function isMatrixFolder(s: unknown): s is MatrixFolder {
 }
 
 /**
- * Maps each StackId to its matrix folder name, or null for stacks without a matrix (e.g. 'unknown').
+ * Maps each StackId to its matrix folder name, or null for stacks without a matrix.
  * Single source of truth — previously lived in detect-multi-stack.ts (Wave 4 D4 consolidation).
+ * 2026-05-18 (Luiz/dev): D22 — 'unknown' preservado em StackId para detect-multi-stack.ts (go.mod).
+ * DetectedStack.primary usa Exclude<StackId, 'unknown'> | null — nunca 'unknown' como valor primario.
  */
 export const STACK_ID_TO_MATRIX_FOLDER: Record<StackId, string | null> = {
   'node-ts': 'nodejs-typescript',
@@ -42,5 +44,5 @@ export const STACK_ID_TO_MATRIX_FOLDER: Record<StackId, string | null> = {
   'rails': 'rails',
   'laravel': 'laravel',
   'python': 'python',
-  'unknown': null, // sentinel "do not copy" (CA-06)
+  'unknown': null, // sentinel "do not copy" (CA-06) — go.mod via detect-multi-stack.ts
 }

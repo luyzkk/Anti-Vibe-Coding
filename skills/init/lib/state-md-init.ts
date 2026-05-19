@@ -1,6 +1,8 @@
 // 2026-05-11 (Luiz/dev): grava detected_stack em docs/STATE.md.
 // Plano 02 fase-06 — atende CA-19/20/21.
 // Defensivo: funciona mesmo se docs/STATE.md nao existir ainda (skeleton minimo).
+// 2026-05-18 (Luiz/dev): D22 multi-stack contract — usa stack.primary ?? 'unknown' (Plano 01 fase-03).
+// CA-10 regressao: STATE.md preserva StackId interno (node-ts, rails, etc), nao matrix folder.
 
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
@@ -19,7 +21,7 @@ export type WriteStackResult = {
  * Nao cria `docs/knowledge/` — escopo D37 respeitado.
  *
  * @example
- * const result = await writeStackToStateMd('/path/to/project', { id: 'nextjs', signalSource: '...' })
+ * const result = await writeStackToStateMd('/path/to/project', { primary: 'nextjs', ... })
  * console.log(result.status) // 'updated' | 'created'
  */
 export type WriteStackOptions = {
@@ -37,6 +39,10 @@ export async function writeStackToStateMd(
 ): Promise<WriteStackResult> {
   const filePath = path.join(targetDir, STATE_MD_PATH_REL)
 
+  // 2026-05-18 (Luiz/dev): D22 — primary null representa fallback (antigo 'unknown').
+  // Preservar string 'unknown' na saida para compatibilidade com consumers de STATE.md (CA-10).
+  const stackLabel = stack.primary ?? 'unknown'
+
   let body: string
   let status: WriteStackResult['status']
 
@@ -52,13 +58,13 @@ export async function writeStackToStateMd(
   // Substituicao idempotente — regex captura linha "- detected_stack: <qualquer>"
   const replaced = body.replace(
     /^- detected_stack:.*$/m,
-    `- detected_stack: ${stack.id}`,
+    `- detected_stack: ${stackLabel}`,
   )
 
   // Se a linha nao existia (template editado a mao), append em ## Resources.
-  const finalBody = replaced.includes(`detected_stack: ${stack.id}`)
+  const finalBody = replaced.includes(`detected_stack: ${stackLabel}`)
     ? replaced
-    : replaced.replace(/(^## Resources\s*$)/m, `$1\n\n- detected_stack: ${stack.id}`)
+    : replaced.replace(/(^## Resources\s*$)/m, `$1\n\n- detected_stack: ${stackLabel}`)
 
   const writer = opts.writeFile ?? (async (p: string, b: string) => {
     await fs.mkdir(path.dirname(p), { recursive: true })

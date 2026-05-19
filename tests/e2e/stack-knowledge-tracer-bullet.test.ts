@@ -79,7 +79,8 @@ describe('stack-knowledge tracer bullet (Plano 01 fase-05)', () => {
   // CA-02 — happy path Node+TS
   it('CA-02: writes .claude/stack.json with primary nodejs-typescript and copies knowledge in ≤100ms', async () => {
     const stack = await detectStack(project)
-    expect(stack.id).toBe('node-ts')
+    // 2026-05-18 (Luiz/dev): D22 multi-stack contract — usa stack.primary (Plano 01 fase-03)
+    expect(stack.primary).toBe('node-ts')
 
     // 2026-05-16 (Luiz/dev): Plano 02 fase-02 — writeStackJson now receives MultiStackResult.
     const multiResult = await detectMultiStack(project)

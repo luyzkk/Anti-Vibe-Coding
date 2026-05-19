@@ -1,4 +1,5 @@
 // skills/init/lib/steps/03-detect-stack-and-register.ts
+// 2026-05-18 (Luiz/dev): D22 multi-stack contract — usa stack.primary ?? 'unknown' (Plano 01 fase-03).
 import { detectStack } from '../detect-stack'
 import { writeStackToStateMd } from '../state-md-init'
 import { getDryRunMode, isDryRun } from '../dry-run-mode'
@@ -16,8 +17,10 @@ export const detectStackAndRegisterStep: Step = {
 
     // 2026-05-17 (Luiz/dev): wording byte-identico ao SKILL.md linhas 305-308 (PRD R1, G1).
     // Template literal equivale ao console.log do SKILL.md (sem espaco extra antes de ')').
+    // 2026-05-18 (Luiz/dev): D22 — primary null vira 'unknown' na mensagem (compat. com consumers).
+    const stackLabel = stack.primary ?? 'unknown'
     const lines = [
-      `Detected stack: ${stack.id} (via ${stack.signalSource})`,
+      `Detected stack: ${stackLabel} (via ${stack.signalSource})`,
       `STATE.md ${result.status}: ${result.path}`,
     ]
     return { mutated: !dryRun, summary: lines.join('\n') }
