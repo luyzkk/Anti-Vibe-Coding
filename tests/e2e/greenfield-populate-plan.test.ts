@@ -58,9 +58,10 @@ describe('greenfield populate-plan tracer (CA-01)', () => {
     // 1) Existe a pasta {date}-populate-harness/ em docs/exec-plans/active/
     const activeDir = path.join(cwd, 'docs', 'exec-plans', 'active')
     const entries = await fs.readdir(activeDir)
-    // 2026-05-18 (Luiz/dev): regex tolera mtime — evita flakiness por timestamp (G5).
+    // 2026-05-19 (Luiz/dev): Plano 05 fase-04 — regex atualizado para date-only format.
+    // Plano 03 fase-04 DI: slug usa YYYY-MM-DD (sem hora), nao ISO timestamp.
     const populateDirs = entries.filter(e =>
-      /^\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}Z-populate-harness$/.test(e)
+      /^\d{4}-\d{2}-\d{2}-populate-harness$/.test(e)
     )
     expect(populateDirs).toHaveLength(1)
 
@@ -68,31 +69,40 @@ describe('greenfield populate-plan tracer (CA-01)', () => {
     const planPath = path.join(activeDir, populateDirs[0]!, 'PLAN.md')
     const planContent = await fs.readFile(planPath, 'utf8')
 
-    // 3) Count de `### Task: Populate \`` >= numero de arquivos populaveis do TEMPLATE_MANIFEST.
-    // 2026-05-18 (Luiz/dev): desacoplado do literal numerico (G9 do plano).
+    // 2026-05-19 (Luiz/dev): Plano 05 fase-04 — assertions atualizadas para renderer v2 (Plano 03 fase-03).
+    // v2 usa tabela de fases em PLAN.md (index) + arquivos individuais fase-NN-*.md.
+    // Nao tem mais `### Task: Populate`, `<!-- wave:`, nem `### Task: Validate Harness`.
+
+    // 3) Tabela de fases no PLAN.md tem linhas para cada doc populavel.
+    // Formato v2: `| NN | \`doc\` | [fase-NN-slug.md](./...) | aberta |`
     const expectedTaskCount = TEMPLATE_MANIFEST.filter(e => isPopulatable(e.dst)).length
-    const taskOccurrences = (planContent.match(/### Task: Populate `/g) ?? []).length
-    expect(taskOccurrences).toBe(expectedTaskCount)
-    // Sanity: manifest atual tem 25 arquivos populaveis.
+    const tableRows = (planContent.match(/^\| \d{2} \|/gm) ?? []).length
+    expect(tableRows).toBe(expectedTaskCount)
+    // Sanity: manifest atual tem 25+ arquivos populaveis.
     expect(expectedTaskCount).toBeGreaterThanOrEqual(20)
 
-    // 4) Filosoficos NAO aparecem como tasks.
-    expect(planContent).not.toContain('### Task: Populate `docs/COMPOUND_ENGINEERING.md`')
-    expect(planContent).not.toContain('### Task: Populate `docs/PRODUCT_SENSE.md`')
+    // 4) Filosoficos NAO aparecem na tabela.
+    expect(planContent).not.toContain('`docs/COMPOUND_ENGINEERING.md`')
+    expect(planContent).not.toContain('`docs/PRODUCT_SENSE.md`')
 
     // 5) README NAO aparece.
-    expect(planContent).not.toContain('### Task: Populate `README.md`')
+    expect(planContent).not.toContain('`README.md`')
 
-    // 6) Ultima task eh validate harness (literal).
-    expect(planContent).toContain('### Task: Validate Harness')
-    expect(planContent).toContain('bun run scripts/harness-validate.ts && bun run scripts/compound-check.ts')
+    // 6) PLAN.md v2 tem glossario de instrucoes LLM (nao Task: Validate Harness).
+    // Individual fase files existem — verificar que pasta tem fase-NN-*.md files.
+    const populateFolder = path.join(activeDir, populateDirs[0]!)
+    const phaseFiles = (await fs.readdir(populateFolder)).filter(f => f.startsWith('fase-'))
+    expect(phaseFiles.length).toBe(expectedTaskCount)
+    // Verificar que 'Como executar' esta presente no PLAN.md.
+    expect(planContent).toContain('Como executar')
 
-    // 7) Wave markers presentes.
-    expect(planContent).toContain('<!-- wave: 1')
-    expect(planContent).toContain('<!-- wave: 2')
+    // 7) PLAN.md v2 nao usa wave markers (estrutura de fases ja e o suficiente).
+    // Este check verifica que o formato v2 nao tem artefatos do v1.
+    expect(planContent).not.toContain('<!-- wave:')
 
-    // 8) Sem `## Glossario Compartilhado` (greenfield = sharedGlossary undefined).
+    // 8) Sem `## Glossario Compartilhado` (removido no v2; novo nome e 'Glossario de Instrucoes LLM').
     expect(planContent).not.toContain('## Glossario Compartilhado')
+    expect(planContent).toContain('Glossario de Instrucoes LLM')
   }, 60_000)  // 60s timeout — RNF-01 (<30s) + margem para CI lento.
 
   test('init does NOT invoke /anti-vibe-coding:execute-plan automatically (G1 / D3)', async () => {

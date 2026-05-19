@@ -1,11 +1,11 @@
 [detect-legacy] Greenfield project — proceeding with scaffold.
 [reuse-discovery]
-[06-secrets-scan] secrets-scan [init-secrets-scan]: 0 arquivos varridos, 0 arquivos com match
-[07-discover-existing-docs] discover-existing-docs [init-discover-existing-docs]: 0 arquivos encontrados (0 bloqueados por secrets) — <NN>ms
-[08-classify-blocks-hybrid] classify-blocks-hybrid [init-classify-blocks]: 0 docs (nenhum discovered)
-[09-propose-merge-batch] init-propose-merge: no transformations needed (greenfield or no existing docs)
-[11-move-docs-with-stub] init-move-docs: no docs to move
-[12-detect-drift-incremental] skipped (only runs in already-initiated mode; current: unknown)
+[00_2-reentry-guard] greenfield: no manifest at .claude/.anti-vibe-manifest.json
+[00_3-backup-pre-6_5_0] skipped (reentry mode is not re-populate)
+[13-import-progress-txt] imported 3 gotchas -> docs/compound/_imported/ (+ INDEX.md)
+[13-import-progress-txt] (mutated disk)
+[06-secrets-scan] secrets-scan [init-secrets-scan]: 4 arquivos varridos, 0 arquivos com match
+[10-backup-pre-mutation] init-backup: CLAUDE.md ausente, skip
 [migrate-0-parse-dry-run]
 [migrate-all]
 [migrate-1-backup]
@@ -13,10 +13,9 @@
 [migrate-3-lessons]
 [migrate-4-decisions]
 [scaffold-full-tree] Base files: 4
-Tree files: 31 in <NN> ms
+Tree files: 32 in <NN> ms
 TODO.md ja existe — mantido sem modificacao (G2).
 [scaffold-full-tree] (mutated disk)
-[10-apply-merge-destructive] init-apply-merge: no CLAUDE.md to transform (greenfield)
 [link-claude-agents] Linked via tier: symlink
 [link-claude-agents] (mutated disk)
 [detect-stack-and-register] Detected stack: node-ts (via package.json#devDependencies.typescript)
@@ -33,9 +32,17 @@ Knowledge cobre: type, generic, branded, discriminated, satisfies, ESM, CJS, eve
 [install-gh-files] (mutated disk)
 [delivery-loop]
 [capabilities-discovery] [capabilities-discovery] skipped — architecture profile not detected. Run /anti-vibe-coding:detect-architecture first.
-[final-validation] Migration validated. Suggested commit: git commit -m 'chore: migrate to anti-vibe-coding v6.0.0'
-Add .planning.v5-backup/ to .gitignore (or delete after confirming all is well).
-[91-generate-populate-plan] Plano de populacao gerado: docs/exec-plans/active/<DATE>-populate-harness/PLAN.md
-Tasks emitidas: 26 (25 populacao + 1 validacao).
-Para popular o harness com analise do repo: /anti-vibe-coding:execute-plan
+[91-generate-populate-plan] Plano de populacao gerado: docs/exec-plans/active/<DATE>-populate-harness
+Fases emitidas: 26 (1 por doc canonico).
+Stack detectado: node-ts (package.json#devDependencies.typescript).
+Discovery: 51 docs existentes amostrados.
+Para popular o harness com analise do repo: /anti-vibe-coding:execute-plan docs/exec-plans/active/<DATE>-populate-harness
 [91-generate-populate-plan] (mutated disk)
+[final-validation] validator: 0 warnings — scaffold canonico intacto
+
+Harness scaffold criado. Plano populate em docs/exec-plans/active/<DATE>-populate-harness/PLAN.md
+
+Proximo passo: rode /anti-vibe-coding:execute-plan docs/exec-plans/active/<DATE>-populate-harness/PLAN.md
+para a IA popular cada doc canonico lendo o codigo real. Revise via PR antes de fechar cada fase.
+
+Opcional: /anti-vibe-coding:detect-architecture para Modo Dual nas skills estruturantes.
