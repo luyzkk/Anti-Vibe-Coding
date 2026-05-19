@@ -1,0 +1,6 @@
+{
+  "name": "monorepo-rails-node-fixture",
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
