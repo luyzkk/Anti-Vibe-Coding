@@ -99,4 +99,76 @@ describe('writeCompoundImported', () => {
     expect(content).toContain('linha 7')
     expect(content).toContain('linha 14')
   })
+
+  // 2026-05-19 (Luiz/dev): hardening fase-01 — YAML injection + secrets redaction.
+  it('quotes category with colon-space so YAML stays valid', async () => {
+    const entry: ProgressEntry = {
+      index: 1,
+      sourceLineNumber: 1,
+      category: 'process: critical',
+      title: 'Edge case',
+      body: 'x',
+      slug: 'edge-case',
+    }
+    const { filesWritten } = await writeCompoundImported([entry], {
+      targetDir: tmp,
+      sourcePath: '.claude/progress.txt',
+    })
+    const content = await fs.readFile(filesWritten[0] ?? '', 'utf-8')
+    expect(content).toContain('category: "process: critical"')
+    expect(content).not.toMatch(/^category: process: critical$/m)
+  })
+
+  it('escapes commas and brackets in tag values', async () => {
+    const entry: ProgressEntry = {
+      index: 1,
+      sourceLineNumber: 1,
+      category: 'foo, bar',
+      title: 'Comma in tag',
+      body: 'x',
+      slug: 'comma-in-tag',
+    }
+    const { filesWritten } = await writeCompoundImported([entry], {
+      targetDir: tmp,
+      sourcePath: '.claude/progress.txt',
+    })
+    const content = await fs.readFile(filesWritten[0] ?? '', 'utf-8')
+    expect(content).toContain('tags: ["imported", "foo, bar"]')
+  })
+
+  it('redacts GitHub PAT tokens in entry body before writing', async () => {
+    const entry: ProgressEntry = {
+      index: 1,
+      sourceLineNumber: 1,
+      category: 'gotcha',
+      title: 'leaked token',
+      body: 'GITHUB_TOKEN=ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 was committed',
+      slug: 'leaked-token',
+    }
+    const { filesWritten } = await writeCompoundImported([entry], {
+      targetDir: tmp,
+      sourcePath: '.claude/progress.txt',
+    })
+    const content = await fs.readFile(filesWritten[0] ?? '', 'utf-8')
+    expect(content).not.toContain('ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
+    expect(content).toContain('[REDACTED]')
+  })
+
+  it('redacts OpenAI-style sk- secrets in entry body', async () => {
+    const entry: ProgressEntry = {
+      index: 1,
+      sourceLineNumber: 1,
+      category: 'gotcha',
+      title: 'api key',
+      body: 'export OPENAI_KEY=sk-abc123DEF456ghi789JKL012mno345PQR678stu901VWX_ABCDEFG',
+      slug: 'api-key',
+    }
+    const { filesWritten } = await writeCompoundImported([entry], {
+      targetDir: tmp,
+      sourcePath: '.claude/progress.txt',
+    })
+    const content = await fs.readFile(filesWritten[0] ?? '', 'utf-8')
+    expect(content).not.toContain('sk-abc123DEF456ghi789JKL012mno345PQR678stu901VWX_ABCDEFG')
+    expect(content).toContain('[REDACTED]')
+  })
 })
