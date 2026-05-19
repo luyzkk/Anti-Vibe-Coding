@@ -1,6 +1,10 @@
 // tests/e2e/ca13-dry-run-parity.test.ts
 // 2026-05-18 (Luiz/dev): CA-13 + CA-14 do PRD refactor-init-harness-populate-merge.
 // Parity entre dry-run (zero mutacoes) e real-run (backup manifest) + ordem canonica de audit log.
+// 2026-05-19 (Luiz/dev): Plano 01 fase-05 — describe.skip: assumia Steps 07/08/09/10-apply-merge/11
+// do registry antigo (inverted-merge-v6.4 fixture + mandatoryOrder com discoverDocs/classifyBlocks/
+// proposeMerge/moveDocs/applyMerge removidos no Plano 01 fases 02-04).
+// Plano 05 fase-04 reescreve este E2E para o fluxo LLM-driven novo.
 
 import { describe, it, expect, beforeAll, afterAll } from 'bun:test'
 import { promises as fs } from 'node:fs'
@@ -17,7 +21,7 @@ async function safeCleanup(p: string): Promise<void> {
   try { await fs.rm(p, { recursive: true, force: true }) } catch { /* G12 — Windows handle leak */ }
 }
 
-describe('CA-13 dry-run parity + CA-14 audit log canonica (inverted-merge-v6.4)', () => {
+describe.skip('CA-13 dry-run parity + CA-14 audit log canonica (inverted-merge-v6.4)', () => {
   let tmpDry: string
   let tmpReal: string
   let dryRunFilesAfter: string[]
