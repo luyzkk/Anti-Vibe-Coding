@@ -4,20 +4,20 @@
 **PRD:** ./PRD.md
 **CONTEXT:** ./CONTEXT.md
 **Phase:** in-progress
-**Current Plan:** 01/3
-**Last Updated:** 2026-05-19 (fase-05)
+**Current Plan:** 02/3 (Plano 01 concluido)
+**Last Updated:** 2026-05-19 (Plano 01 concluido)
 
 ## Progress por Plano
 
 | Plano | Nome | Fases | Done | Status |
 |-------|------|-------|------|--------|
-| 01 | Tracer Bullet — dedup + schema + multi-stack contract + piloto + E2E | 6 | 5/6 | in-progress |
+| 01 | Tracer Bullet — dedup + schema + multi-stack contract + piloto + E2E | 6 | 6/6 | done |
 | 02 | Batch A T1 + Batch B parcial T2 + verifier + audit humano | 9 | 0/9 | pending |
 | 03 | Batch C + INDEX + RF11 + E2E completo + hardening leve | 10 | 0/10 | pending |
 
 ## Progress Global
 
-Fases done: 5/25 (20%)
+Fases done: 6/25 (24%)
 
 ## Audit Humano CA-08 (D14, D19)
 
@@ -56,6 +56,17 @@ Subagente entregou `plano01/dedup-report.md` com achado transversal: todos os 6 
 - 2026-05-18: fase-03 concluida (refactor detectStack -> contrato D22 multi-stack). DetectedStack agora exporta `{ primary, secondary, signalSource, anchorFiles }`. Probes rodam todas (nao mais break-on-first) para popular `secondary`. StackId mantem 'unknown' (constraint inter-arquivo de detect-multi-stack.ts), mas `DetectedStack.primary` e tipado `Exclude<StackId, 'unknown'> | null` — invariante D22 enforced por tipos. 10 call sites atualizados (customize-architecture, state-md-init, steps/03+04, stack-id-map, e2e tracer). 12/12 detect-stack tests passam (8 adaptados + 4 novos CA-02/CA-07/CA-03/CA-21). bun test global exit=0 (zero regressoes). Precedence Rails vs Node-TS via fixture minima (sem typescript no devDeps) — Opcao C.
 - 2026-05-19: fase-04 concluida (regression coverage detector Rails sobre D22). 4 test cases novos adicionados a detect-stack.test.ts: CA-06 Gemfile vazio (no crash + anchorFiles contem Gemfile), Rails legado 7.0 (classifica como rails, warning fica em RF11), robustez D10 (gem rails indentado em group block), zero falso-positivo (gem 'rails-erb' NAO matcha). **Nenhuma mudanca em detect-stack.ts** — regex `/^\s*gem\s+["']rails["']/m` ja estava correto. G1 do plano confirmado: RF3 foi regression coverage, nao nova implementacao. 16/16 detect-stack tests passam.
 - 2026-05-19: fase-05 concluida (piloto rails-conventions-and-magic via subagente extrator). Atom criado em `docs/knowledge/rails/atoms/rails-conventions-and-magic.md` (108 linhas, 5 H2, 9 frontmatter fields, rails_versions=['>=7.1']). Anti-drift clause aplicada verbatim do compound 2026-05-16. Subagente reportou todas as claims rastreaveis aos 3 sources (SKILL.md + 2 compass artifacts). `validateAtomFrontmatter` retorna `{ valid: true, errors: [] }`. 6/6 schema tests continuam verdes. INDEX.md skeleton criado com nota de provisoriedade (INDEX final D9 fica em Plano 03 fase-06).
+- 2026-05-19: fase-06 concluida (verifier refined + E2E tracer). Verifier subagente auditou 38 claims tecnicas, 38/38 rastreaveis (100% — meta D12 era >=80%). Report em `plano01/verifier-report-fase06.md`. E2E tracer test `tests/e2e/stack-knowledge-rails-tracer.test.ts` cobre CA-02 (perf), CA-09 (graceful degradation), CA-11 (regressao Node) + regression frontmatter — 4/4 passam. CA-02 medido: avg 6.97ms / max 10.39ms (5 amostras, 1 atomo) — folga ~20x do limite D24 (200ms). PLAN.md Validation Log atualizado com entry "Plano 01 — Tracer Bullet". **Plano 01 concluido (6/6 fases).** Arquitetura validada — Plano 02 pode escalar para 13 atomos restantes com seguranca.
+
+## Verifier refined report (Plano 01 fase-06 — 2026-05-19)
+
+- **Total de claims auditadas:** 38 (secoes Padroes senior + Anti-padroes + Criterios de decisao)
+- **Rastreaveis:** 38 (100%)
+- **Nao-rastreaveis:** 0
+- **Taxa de fidelidade:** 100% (meta D12: >=80%)
+- **Decisao:** APROVADO — fase-06 avancou para E2E com piloto validado.
+- **Citacoes verificadas:** Xavier Noria (wf-3e82e3be linha ~171), Manrubia (wf-3e82e3be linha ~418), Bryan Helmkamp (wf-0deebe76 linha ~221), DHH sobre DI (wf-0deebe76 linha ~279 / R035).
+- **Report completo:** `plano01/verifier-report-fase06.md`.
 
 ## Detector Rails — regression coverage (Plano 01 fase-04)
 
