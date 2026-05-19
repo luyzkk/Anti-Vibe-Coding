@@ -1,22 +1,48 @@
 // 2026-05-11 (Luiz/dev): heuristica de stack — D7, M3, CA-07/08/19/20/21.
 // v6.0.0 SO REGISTRA o stack — knowledge packs (D5, D19) ficam para v6.1+ (D37).
 // Plano 02 fase-06.
+// 2026-05-18 (Luiz/dev): D22 multi-stack contract — RF3 + CA-07 + CA-06. Plano 01 fase-03.
 
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 
+// 2026-05-18 (Luiz/dev): D22 multi-stack contract. 'unknown' preservado em StackId para
+// compatibilidade com detect-multi-stack.ts (usa como placeholder interno para go.mod).
+// DetectedStack.primary usa Exclude<StackId, 'unknown'> | null — 'unknown' nunca aparece
+// como primary; o fallback e representado por null. Plano 01 fase-03.
 export type StackId = 'nextjs' | 'node-ts' | 'rails' | 'laravel' | 'python' | 'unknown'
 
+/**
+ * Contrato multi-stack D22. Substitui o shape single-stack { id, signalSource }.
+ *
+ * `primary` usa Exclude<StackId, 'unknown'> | null para garantir que 'unknown'
+ * nunca apareca como primary — o fallback e null. StackId ainda inclui 'unknown'
+ * para compatibilidade com detect-multi-stack.ts (placeholder interno para go.mod).
+ *
+ * @example Projeto Rails puro
+ * { primary: 'rails', secondary: [], signalSource: 'Gemfile#gem "rails"', anchorFiles: ['Gemfile'] }
+ *
+ * @example Monorepo Next+Rails
+ * { primary: 'nextjs', secondary: ['rails'], signalSource: 'package.json#dependencies.next', anchorFiles: ['package.json', 'Gemfile'] }
+ *
+ * @example Sem sinal (fallback)
+ * { primary: null, secondary: [], signalSource: 'no signal', anchorFiles: [] }
+ */
 export type DetectedStack = {
-  id: StackId
-  /**
-   * Origem do sinal — para registrar em STATE.md.
-   * Ex: "package.json#dependencies.next".
-   */
+  /** Stack primaria (null quando nenhum probe bate). Nunca 'unknown' — use null. */
+  primary: Exclude<StackId, 'unknown'> | null
+  /** Stacks secundarias detectadas em monorepo. Vazio se single-stack. */
+  secondary: Exclude<StackId, 'unknown'>[]
+  /** Origem do sinal primario para STATE.md (ex: "package.json#dependencies.next") */
   signalSource: string
+  /** Manifests encontrados — usado por telemetria CA-06 mesmo no fallback */
+  anchorFiles: string[]
 }
 
-type Probe = (dir: string) => Promise<DetectedStack | null>
+// Probe interno (tipo privado — nao faz parte da API publica).
+// Probes nunca retornam 'unknown' — esse valor e placeholder no dominio de detect-multi-stack.ts.
+type ProbeResult = { id: Exclude<StackId, 'unknown'>; signalSource: string }
+type Probe = (dir: string) => Promise<ProbeResult | null>
 
 /**
  * Le JSON de arquivo, retorna null em caso de erro (arquivo ausente, JSON invalido).
@@ -94,25 +120,82 @@ const probePython: Probe = async (dir) => {
 }
 
 /**
- * Ordem importa (G6): primeiro match positivo vence.
+ * Ordem importa (G6): primeiro match positivo vira primary.
  * nextjs antes de node-ts porque todo Next.js project tambem tem typescript em devDeps.
  * rails, laravel, python sao independentes entre si mas vem depois do JS/TS.
+ * 2026-05-18 (Luiz/dev): ordem preservada da v6.0 — nao reordenar sem DI registrado.
  */
 const PROBES: ReadonlyArray<Probe> = [probeNextjs, probeNodeTs, probeRails, probeLaravel, probePython]
 
+// 2026-05-18 (Luiz/dev): manifests que contam para telemetria CA-06 mesmo sem probe positivo
+const MANIFEST_FILES: ReadonlyArray<string> = [
+  'package.json',
+  'Gemfile',
+  'composer.json',
+  'pyproject.toml',
+  'requirements.txt',
+]
+
 /**
- * Detecta o stack do projeto em `targetDir` via heuristica de manifests.
- * Retorna `{ id: 'unknown', signalSource: 'no signal' }` se nenhum manifest for reconhecido.
+ * Coleta manifests presentes no diretorio para telemetria CA-06.
+ * Independente dos probes — retorna lista mesmo quando nenhum probe bate.
+ */
+async function collectAnchorFiles(dir: string): Promise<string[]> {
+  const found: string[] = []
+  for (const file of MANIFEST_FILES) {
+    try {
+      await fs.access(path.join(dir, file))
+      found.push(file)
+    } catch {
+      // ausente — ignora
+    }
+  }
+  return found
+}
+
+/**
+ * Detecta o(s) stack(s) do projeto em `targetDir` via heuristica de manifests.
+ *
+ * Roda TODOS os probes (nao para no primeiro hit) para detectar stacks secundarias
+ * em monorepos. Primary = primeiro probe positivo na ordem de PROBES.
+ *
+ * Retorna `primary: null` se nenhum manifest for reconhecido (antigo `id: 'unknown'`).
+ * `anchorFiles` listados mesmo no fallback — visibilidade para telemetria CA-06.
  * Erros de I/O sao engolidos — heuristica nunca deve quebrar `/init`.
  *
- * @example
- * const stack = await detectStack('/path/to/project')
- * console.log(stack.id) // 'nextjs'
+ * @example Single stack
+ * const stack = await detectStack('/path/to/rails-project')
+ * // { primary: 'rails', secondary: [], signalSource: 'Gemfile#gem "rails"', anchorFiles: ['Gemfile'] }
+ *
+ * @example Monorepo Next.js + Rails
+ * const stack = await detectStack('/path/to/monorepo')
+ * // { primary: 'nextjs', secondary: ['rails'], signalSource: 'package.json#dependencies.next', anchorFiles: ['package.json', 'Gemfile'] }
+ *
+ * @example Sem sinal
+ * const stack = await detectStack('/path/to/empty')
+ * // { primary: null, secondary: [], signalSource: 'no signal', anchorFiles: [] }
  */
 export async function detectStack(targetDir: string): Promise<DetectedStack> {
+  // 2026-05-18 (Luiz/dev): D22 — roda TODOS probes, nao para no primeiro hit
+  const anchorFiles = await collectAnchorFiles(targetDir)
+
+  const hits: ProbeResult[] = []
   for (const probe of PROBES) {
     const result = await probe(targetDir)
-    if (result) return result
+    if (result) hits.push(result)
   }
-  return { id: 'unknown', signalSource: 'no signal' }
+
+  // Primary = primeiro hit na ordem de PROBES (preserva precedencia historica)
+  const first = hits[0]
+  if (!first) {
+    return { primary: null, secondary: [], signalSource: 'no signal', anchorFiles }
+  }
+
+  const secondary = hits.slice(1).map((h) => h.id)
+  return {
+    primary: first.id,
+    secondary,
+    signalSource: first.signalSource,
+    anchorFiles,
+  }
 }

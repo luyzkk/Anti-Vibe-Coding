@@ -1,19 +1,28 @@
 // 2026-05-11 (Luiz/dev): customiza ARCHITECTURE.md com stack detectado.
 // Plano 02 fase-03. Atende PRD M3, CA-19, CA-20, CA-21.
+// 2026-05-18 (Luiz/dev): D22 multi-stack contract — usa stack.primary (Plano 01 fase-03).
 
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
-import type { DetectedStack } from './detect-stack'
+import type { DetectedStack, StackId } from './detect-stack'
 
 const STACK_BLOCK_MARKER = '<!-- INIT:STACK_BLOCK -->'
 
-const STACK_PRESENTATION: Record<DetectedStack['id'], { display: string; note: string }> = {
+// 2026-05-18 (Luiz/dev): Record keyed por Exclude<StackId, 'unknown'> — 'unknown' nao e um
+// stack primario valido em D22 (primary=null representa fallback). Fallback tratado via getPresentation().
+const STACK_PRESENTATION: Record<Exclude<StackId, 'unknown'>, { display: string; note: string }> = {
   nextjs:    { display: 'Next.js',                note: 'Next.js framework detected via package.json (D7).' },
   'node-ts': { display: 'Node.js + TypeScript',   note: 'Node.js + TypeScript detected via package.json (D7).' },
   rails:     { display: 'Ruby on Rails',           note: 'Rails framework detected via Gemfile (D7).' },
   laravel:   { display: 'Laravel (deferred)',      note: 'PHP+Laravel detected. Knowledge pack ships in v6.x.' },
   python:    { display: 'Python (deferred)',        note: 'Python detected via pyproject.toml/requirements.txt. Knowledge pack ships in v6.x.' },
-  unknown:   { display: 'unknown',                 note: 'No supported stack detected — please document the stack manually.' },
+}
+
+const UNKNOWN_PRESENTATION = { display: 'unknown', note: 'No supported stack detected — please document the stack manually.' }
+
+function getPresentation(primary: Exclude<StackId, 'unknown'> | null): { display: string; note: string } {
+  if (primary === null) return UNKNOWN_PRESENTATION
+  return STACK_PRESENTATION[primary]
 }
 
 export type CustomizeArchitectureOptions = {
@@ -54,7 +63,8 @@ export async function customizeArchitecture(
     return { written: false, blockBody: '' }
   }
 
-  const presentation = STACK_PRESENTATION[opts.stack.id]
+  // 2026-05-18 (Luiz/dev): usa stack.primary (D22) — null mapeia para unknown presentation
+  const presentation = getPresentation(opts.stack.primary)
   const generatedAt = (opts.generatedAt ?? new Date()).toISOString().slice(0, 10)
 
   const blockBody = [
