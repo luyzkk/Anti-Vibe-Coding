@@ -43,6 +43,12 @@ describe('registry', () => {
     expect(ids).not.toContain('10-apply-merge-destructive')
   })
 
+  // 2026-05-19 (Luiz/dev): Plano 04 fase-05 — Step 12 removido (gate coberto por 00_2-reentry-guard).
+  test('12-detect-drift-incremental is NOT present in registry', () => {
+    const ids = registry.map(s => s.id)
+    expect(ids).not.toContain('12-detect-drift-incremental')
+  })
+
   // 2026-05-19 (Luiz/dev): backup deve rodar ANTES do scaffold mutativo (decisao DI-N MEMORY.md).
   // Nota: scaffold step id e 'scaffold-full-tree' (sem prefixo numerico no id).
   test('10-backup-pre-mutation comes before scaffold-full-tree', () => {
