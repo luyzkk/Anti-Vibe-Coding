@@ -3,7 +3,6 @@ import type { Step } from './steps/types'
 import { detectLegacyStep } from './steps/00-detect-legacy'
 import { reuseDiscoveryStep } from './steps/00_1-reuse-discovery'
 import { secretsScanStep } from './steps/06-secrets-scan'
-import { discoverExistingDocsStep } from './steps/07-discover-existing-docs'
 import { classifyBlocksHybridStep } from './steps/08-classify-blocks-hybrid'
 import { proposeMergeBatchStep } from './steps/09-propose-merge-batch'
 import { applyMergeDestructiveStep } from './steps/10-apply-merge-destructive'
@@ -45,7 +44,8 @@ export const registry: readonly Step[] = [
   detectLegacyStep,
   reuseDiscoveryStep,           // 2026-05-17 (Luiz/dev): early-exit via skipRemaining quando cache fresh (PRD MH-04, CA-04).
   secretsScanStep,              // 2026-05-18 (Luiz/dev): Plano 03 fase-02 — varre secrets ANTES de qualquer move (D16, SH-01, CA-04).
-  discoverExistingDocsStep,     // 2026-05-18 (Luiz/dev): Plano 03 fase-04 — discover apos secrets-scan; emite lista flagada (D5, SH-02, D6).
+  // 2026-05-19 (Luiz/dev): Plano 01 fase-02 — Step 07 (discover-existing-docs) removido.
+  // MH-04 PRD novo: discovery semantico vira responsabilidade do Step 91 LLM-driven (Plano 03 fase-01).
   classifyBlocksHybridStep,     // 2026-05-18 (Luiz/dev): Plano 03 fase-06 — classifica heuristica + flagga pendingLlm para Plano 04 fase-02 (D8, SH-03, SH-04).
   proposeMergeBatchStep,        // 2026-05-18 (Luiz/dev): Plano 04 fase-02 — Step 09 agrega JSONs de discovery e emite needsUser com diff (PRD MH-04, D4, G2, G8, G9, G12, G13).
   moveDocsWithStubStep,         // 2026-05-18 (Luiz/dev): Plano 04 fase-05 — Step 11 itera MoveAction[], chama moveDocWithStub, skipa READMEs e secrets (G3, SH-01, D16).
