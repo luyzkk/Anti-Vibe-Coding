@@ -2,7 +2,7 @@
 
 **Feature:** init-llm-driven-harness-population
 **Iniciado:** 2026-05-19
-**Status:** em andamento
+**Status:** concluido (5/5 fases)
 
 ---
 
@@ -102,11 +102,25 @@ Se nada mudou, manter vazio (bom sinal).
 Informacoes que o proximo plano PRECISA saber antes de comecar.
 O subagente do proximo plano le este campo.
 
-<!-- Exemplo:
-- Tabela `notifications` criada com RLS — usar service_role para queries internas
-- Tipo `Notification` exportado de `src/types/notifications.ts`
-- Hook `useNotifications` disponivel em `src/hooks/use-notifications.ts`
--->
+**Artefatos novos disponiveis (input para Plano 05):**
+- `skills/init/lib/semver-compare.ts` — `compareSemver(a, b): -1 | 0 | 1` (numeric split, nao lexicografico).
+- `skills/init/lib/steps/00_2-reentry-guard.ts` — `reentryGuardStep` ja registrado. Le `.claude/.anti-vibe-manifest.json` e seta `ctx.flags['__reentryMode']` em `'greenfield' | 're-populate'`. Aborta com codigo 0 quando manifest >= 6.5.0 (recomenda `/sync` / `/update`).
+- `skills/init/lib/steps/00_3-backup-pre-6_5_0.ts` — `backupPre650Step` ja registrado. So copia quando `__reentryMode === 're-populate'`. Backup em `docs/_legacy/pre-6.5.0/<source-name>[-<ISO>]/`. Idempotente via suffix de timestamp.
+- `skills/init/lib/validator-allowlist.ts` — exports: `buildAllowlistFromTemplateManifest()`, `isAllowed(relPath, allowlist)`, `groupWarnings(unallowed)`, `RUNTIME_GLOB_PREFIXES`. Use para qualquer validacao adicional pos-scaffold.
+- `skills/init/lib/steps/90-final-validation.ts` — REESCRITO. Modo warning (nunca aborta), try/catch defensivo externo. Step 91 ja roda ANTES (CA-07 convergencia comprovada).
+
+**Removido (verificar grep antes de assumir presenca):**
+- Step 12 `detect-drift-incremental` + `drift-detector.ts/.test.ts` DELETADOS. Discovery union perdeu `'drift-report'` artifact.
+- Plano 05 fase-04 ao regenerar golden `init-greenfield.stdout.txt`: NAO incluir linha `[12-detect-drift-incremental]`.
+
+**Pendencias herdadas (candidatas a Plano 05 ou plano futuro):**
+- `skills/init/lib/init-subagent-ids.ts:18` — entrada `detectDrift` ficou orfa apos remocao do Step 12. String constant, nao quebra build. Sugerido limpar junto da reescrita do init-subagent-ids ou em plano de housekeeping.
+- `tests/e2e/greenfield-populate-plan.test.ts:65` (pre-existente, herdado de Plano 03) — regex `populateDirs` ainda espera formato ISO timestamp. Plano 05 fase-04 reescreve.
+
+**Gotchas registrados (releitura obrigatoria para Plano 05):**
+- `fs.cp(src, dst, { recursive, filter })` REJEITA quando `dst` esta dentro de `src` ANTES do filter ser avaliado. Padrao adotado: copiar para tmpdir externo (filter funciona la), depois `fs.rename` para destino interno (com fallback `fs.cp + rm` cross-filesystem). Ver DI-Plano04-fase02-fscp-subdir.
+- TDD RED real exige stubs minimos do alvo antes de implementar GREEN, senao o teste falha por "Cannot find module" (compilation), nao por assertion. Ver DI-Plano04-fase01-red-state.
+- `AntiVibeManifest.pluginVersion` typed como `string` (required) mas legacy manifests omitem. Para inspecao runtime safe: `(manifest as Record<string, unknown>)['pluginVersion']`. Ver DI-Plano04-fase01-pluginVersion-runtime.
 
 ---
 
