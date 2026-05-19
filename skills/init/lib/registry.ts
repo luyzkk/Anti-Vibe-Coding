@@ -3,6 +3,7 @@ import type { Step } from './steps/types'
 import { detectLegacyStep } from './steps/00-detect-legacy'
 import { reuseDiscoveryStep } from './steps/00_1-reuse-discovery'
 import { reentryGuardStep } from './steps/00_2-reentry-guard'
+import { backupPre650Step } from './steps/00_3-backup-pre-6_5_0'
 import { secretsScanStep } from './steps/06-secrets-scan'
 import { backupPreMutationStep } from './steps/10-backup-pre-mutation'
 import { detectDriftIncrementalStep } from './steps/12-detect-drift-incremental'
@@ -42,6 +43,7 @@ export const registry: readonly Step[] = [
   detectLegacyStep,
   reuseDiscoveryStep,           // 2026-05-17 (Luiz/dev): early-exit via skipRemaining quando cache fresh (PRD MH-04, CA-04).
   reentryGuardStep,             // 2026-05-19 (Luiz/dev): Plano 04 fase-01 — gate de reentrada (MH-07, CA-04, CA-09).
+  backupPre650Step,             // 2026-05-19 (Luiz/dev): Plano 04 fase-02 — backup pre-6.5.0 antes de mutacao (MH-07, CA-03).
   secretsScanStep,              // 2026-05-18 (Luiz/dev): Plano 03 fase-02 — varre secrets ANTES de qualquer move (D16, SH-01, CA-04).
   // 2026-05-19 (Luiz/dev): Plano 01 fase-04 — Step 10 (backup-pre-mutation) leve.
   // PRD MH-05 / D3 CONTEXT: arquivo renomeado via git mv preservando linhagem.
