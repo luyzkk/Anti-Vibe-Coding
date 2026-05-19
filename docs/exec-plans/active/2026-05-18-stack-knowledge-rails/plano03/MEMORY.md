@@ -11,17 +11,57 @@
 Decisoes tomadas durante execucao que nao estavam no PRD ou plano.
 Formato: o que foi decidido + por que + impacto.
 
-<!-- Exemplo (a preencher durante /execute-plan):
-- **DI-1:** Veredito final de fase-07 (verifier refined Batch C + audit humano action-cable-and-realtime)
-  - O que: PASS/FAIL global do Batch C
-  - Por que: gate de qualidade — bloqueia fase-08 se reprovado
-  - Impacto: se FAIL, retrabalho da fase do átomo + re-verifier (mesma fase reroda)
+- **DI-1: Veredito Batch C (verifier refined + audit humano CA-08 PENDENTE)**
+  - **O que:** PASS global do verifier sobre 5/5 atomos do Batch C; audit humano CA-08 de `action-cable-and-realtime` PENDENTE — requer Luiz.
+  - **Por que:** gate de qualidade obrigatorio antes da fase-10 (hardening + RF12). Audit humano CA-08 nao pode ser delegado (D19 explicito).
+  - **Detalhes (verifier refined paralelo, 5 subagentes):**
+    - performance-and-tuning: PASS (28/30 claims, 93%) — 2 PARCIAIS sao expansoes editoriais corretas (blow-up cardinalidade preload, callbacks bypass insert_all)
+    - deployment-with-kamal: PASS (29/30 claims, 97%) — 1 NAO: recomendacao Capistrano para Rails 7.x sem Docker e adicao editorial nao traceavel as 4 fontes listadas
+    - action-cable-and-realtime: PASS (30/31 claims, 96.8%) — 1 PARCIAL: mecanismo race condition de after_commit (rule RAILS-HOTWIRE-001 confirmada, texto explicativo nao verbatim). **CA-08 D14/D19: audit humano de Luiz pendente.**
+    - action-mailer-and-mailbox: PASS (23/23 claims, 100%) — 2 inferencias razoaveis (ingress aberto sem credenciais, gem active_storage_validations nao nomeado mas comportamento confirmado)
+    - active-storage: PASS (20/22 claims, 91%) — 2 PARCIAIS: gem active_storage_validations nao nomeado em wf-8afc0f40 (so `marcel`); rails_blob_url com expires_in: 1.hour nao verbatim. **CVE claims (CVE-2022-21831, CVE-2025-24293, CVSS 9.8, versoes patched) 100% traceaveis.**
+  - **Impacto:**
+    - Fase-10 (hardening + RF12) PODE prosseguir — qualidade do conteudo aprovada pelo verifier.
+    - Marcar Plano 03 COMPLETE bloqueado ate Luiz fazer audit humano de action-cable-and-realtime (CA-08 D14, D19 — D19 explicito que nao pode ser delegado).
+  - **Acao Luiz:** quando puder, Read `docs/knowledge/rails/atoms/action-cable-and-realtime.md` + cross-check com fontes (wf-1d48ebbc, wf-3e82e3be, wf-a0aa55c4, deep-research-report (1).md, rails-stack-conventions/SKILL.md) e assinar `Aprovado por Luiz em YYYY-MM-DD` no STATE.md global da feature.
 
-- **DI-2:** Tier final de active-storage (RF13 — flag de revisão)
-  - O que: T3 mantido OU T2 promovido
-  - Por que: avaliação empírica do átomo escrito em fase-05 contra critério (apps modernas vs niche)
-  - Impacto: frontmatter `tier:` atualizado no átomo + INDEX em fase-06 reflete decisão
--->
+- **DI-2 (RF13):** active-storage promovido T3 → T2 (decisao auto em modo continuo)
+  - O que: tier=2 no frontmatter de docs/knowledge/rails/atoms/active-storage.md
+  - Por que: o atomo cobre os 3 criterios de promocao T2 definidos em fase-05 spec:
+    (1) signed URLs (CVE-2025-24293 CVSS 9.8 mitigation)
+    (2) direct uploads com CORS (padrao critico para qualquer app com UGC)
+    (3) variants + libvips + named-presets (CVE-2022-21831 mitigation)
+    Apps modernas Rails com upload de arquivo enfrentam esses problemas no dia 1.
+  - Impacto: INDEX (fase-06) lista active-storage em "Por Tier > T2" + agrupa em /security e /api-design sections.
+
+---
+
+## Findings do Verifier Refined (Batch C — fase-07)
+
+### Verifier refined — performance-and-tuning (T2)
+**Veredito:** PASS (28/30 = 93%). Fontes (4): rails-expert/SKILL.md, references/active-record.md, rails-code-review/REVIEW_CHECKLIST.md, compass wf-0deebe76.
+**Parciais (2):** "blow-up cardinalidade preload" (inferencia editorial sobre preload=subquery), "insert_all bypassa callbacks" (REVIEW_CHECKLIST lista mas nao detalha bypass).
+**Acao:** Nenhuma — parciais sao expansoes editoriais corretas, nao fabricacoes.
+
+### Verifier refined — deployment-with-kamal (T2)
+**Veredito:** PASS (29/30 = 97%). Fontes (4): upgrade-7.2-to-8.0.md, upgrade-8.0-to-8.1.md, compass wf-3e82e3be, wf-1d48ebbc.
+**Sem fonte (1):** "Capistrano como alternativa legada para Rails 7.x sem Docker" — nenhuma das 4 fontes nomeia Capistrano explicitamente.
+**Acao:** Aceitar (D16 reference editorial — Capistrano e fato conhecido Rails, mas claim deveria ter source ou ser removida). Considerar para v6.3.4 fix.
+
+### Verifier refined — action-cable-and-realtime (T3) — **CA-08 PENDENTE**
+**Veredito:** PASS (30/31 = 96.8%). Fontes (5): rails-stack-conventions/SKILL.md, compass wf-3e82e3be, wf-1d48ebbc, wf-a0aa55c4, deep-research-report (1).md.
+**Parcial (1):** "race condition broadcast antes commit" — rule RAILS-HOTWIRE-001 confirmada (`after_commit` obrigatorio), texto mecanico de race condition nao verbatim na fonte.
+**Audit humano CA-08:** PENDENTE — Luiz deve assinar STATE.md global apos cross-check pessoal.
+
+### Verifier refined — action-mailer-and-mailbox (T3)
+**Veredito:** PASS (23/23 = 100%). Fontes (4): rails-guides/action_mailer_basics.md, action_mailbox_basics.md, action_text_overview.md, rails-expert/SKILL.md.
+**Inferencias razoaveis (2):** "ingress aberto sem credenciais" (cada provider exige credentials → endpoint aberto e consequencia logica), "texto simples sem ActionText" (NOTE sobre join overhead suporta inferencia).
+**Acao:** Nenhuma — todos os claims sao traceaveis com inferencia minima.
+
+### Verifier refined — active-storage (T2 promovido RF13)
+**Veredito:** PASS (20/22 = 91%). CVE claims 100% sourced. Fontes (3): rails-guides/active_storage_overview.md, compass wf-8afc0f40 (RAILS-SEC-090/091/095), wf-a0aa55c4 (RAILS-SEC-006).
+**Parciais (2):** "gem active_storage_validations" (wf-8afc0f40 RAILS-SEC-091 so cita `marcel`), "rails_blob_url(blob, expires_in: 1.hour)" (source mostra rails_blob_path + expires_in em CDN, nao essa combinacao exata).
+**Acao:** Aceitar — sao APIs Rails publicas corretas; gem active_storage_validations e wrapper comum em prod. Considerar source adicional na v6.3.4.
 
 ---
 

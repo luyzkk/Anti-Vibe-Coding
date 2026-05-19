@@ -6,7 +6,7 @@ sources:
   - claude-code/knowledge/Rails/rails-guides/references/active_storage_overview.md
   - claude-code/knowledge/Rails/compass_artifact_wf-8afc0f40-76b2-414c-bc2c-d344997397e4_text_markdown.md
   - claude-code/knowledge/Rails/compass_artifact_wf-a0aa55c4-3acc-47fc-9d85-f573bafc27b0_text_markdown.md
-tier: 3
+tier: 2
 triggers: [active storage, file upload, has_one_attached, has_many_attached, variants, direct upload, signed url, S3, content type validation, file size limit, purge, blob, image processing, libvips, ActiveStorage]
 related_skills: [/api-design, /security, /infrastructure]
 updated: 2026-05-19

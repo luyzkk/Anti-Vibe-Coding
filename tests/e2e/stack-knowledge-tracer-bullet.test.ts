@@ -128,8 +128,9 @@ describe('stack-knowledge tracer bullet (Plano 01 fase-05)', () => {
 // 2026-05-16 (Luiz/dev): edge cases — CA-03/CA-06/CA-07/CA-10 + NFR perf.
 // Plano 02 fase-05: extensão do E2E com fixtures isolados em tests/fixtures/stack-knowledge/.
 describe('stack-knowledge E2E — edge cases (Plano 02 fase-05)', () => {
-  // 2026-05-16 (Luiz/dev): CA-03 — Rails puro: primary=rails, no-source pq docs/knowledge/rails não existe em v6.3.2.
-  it('CA-03: Rails puro grava primary=rails, secondary=[], knowledge NÃO copiado (no-source)', async () => {
+  // 2026-05-19 (Luiz/dev): CA-03 atualizado para v6.3.3 — Rails knowledge agora existe (14 atomos + INDEX)
+  // e e copiada quando primary=rails. Em v6.3.2 retornava no-source; em v6.3.3 retorna copied.
+  it('CA-03: Rails puro grava primary=rails, secondary=[], knowledge Rails copiado (v6.3.3)', async () => {
     const dir = await cloneFixture('rails-only')
     try {
       const { output } = await runInit(dir)
@@ -138,15 +139,10 @@ describe('stack-knowledge E2E — edge cases (Plano 02 fase-05)', () => {
       expect(stackJson!.primary).toBe('rails')
       expect(stackJson!.secondary).toEqual([])
       expect(stackJson!.anchor_files).toEqual(['Gemfile'])
-      // 2026-05-16 (Luiz/dev): em v6.3.2 não existe docs/knowledge/rails/ → copy-knowledge retorna no-source
       expect(output).toContain('rails')
-      expect(output).toMatch(/não foi copiado/i)
-      // Garantia: pasta knowledge/ NÃO foi criada (ou foi criada mas vazia)
-      const knowledgeExists = await fs.access(path.join(dir, '.claude', 'knowledge')).then(() => true).catch(() => false)
-      if (knowledgeExists) {
-        const entries = await fs.readdir(path.join(dir, '.claude', 'knowledge'))
-        expect(entries).toHaveLength(0)
-      }
+      expect(output).toMatch(/copied/i)
+      const indexExists = await fs.access(path.join(dir, '.claude', 'knowledge', 'INDEX.md')).then(() => true).catch(() => false)
+      expect(indexExists).toBe(true)
     } finally {
       await fs.rm(dir, { recursive: true, force: true })
     }

@@ -5,7 +5,7 @@
 **CONTEXT:** ./CONTEXT.md
 **Phase:** in-progress
 **Current Plan:** 03/3 (Planos 01-02 concluidos)
-**Last Updated:** 2026-05-18 (Plano 02 concluido — Batch A+B parcial aprovado, transicao para Plano 03)
+**Last Updated:** 2026-05-19 (Plano 03 — fases 01-08 done; CA-08 action-cable audit humano pendente Luiz; fase-09 E2E next)
 
 ## Progress por Plano
 
@@ -13,11 +13,11 @@
 |-------|------|-------|------|--------|
 | 01 | Tracer Bullet — dedup + schema + multi-stack contract + piloto + E2E | 6 | 6/6 | done |
 | 02 | Batch A T1 + Batch B parcial T2 + verifier + audit humano | 9 | 9/9 | done |
-| 03 | Batch C + INDEX + RF11 + E2E completo + hardening leve | 10 | 0/10 | pending |
+| 03 | Batch C + INDEX + RF11 + E2E completo + hardening leve | 10 | 8/10 | in-progress |
 
 ## Progress Global
 
-Fases done: 15/25 (60%)
+Fases done: 23/25 (92%)
 
 ## Audit Humano CA-08 (D14, D19)
 
@@ -69,6 +69,14 @@ Subagente entregou `plano01/dedup-report.md` com achado transversal: todos os 6 
 - 2026-05-18: Batch 2 concluido (fases 04-05 paralelas via 2 subagentes). security-csrf-and-brakeman 129 ln (6 H2 com API-only; wf-fd78fcce removido 0 matches, substituido por wf-8afc0f40 [90 matches segurança] + wf-a0aa55c4 [38 matches Brakeman CI]). rspec-and-minitest 198 ln — proximo do cap mas dentro do limite (5 H2, D21 framework-agnostic com 5 patterns + snippets duplos RSpec/Minitest cada, sem secoes separadas; wf-61b9b080 removido 0 matches TDD, wf-cb73df7d mantido 201 matches). Anti-drift agressivo virou padrao do batch.
 - 2026-05-18: Batch 3 concluido (fases 06-08 paralelas via 3 subagentes). active-job-and-solid-queue 142 ln (5 H2, Rails 8+ contextualizado no corpo via Solid Queue patterns; rails_versions=['>=7.1']). action-view-and-hotwire 127 ln (5 H2, CA-08 flagged T2). caching-with-rails 120 ln (5 H2, Solid Cache pattern Rails 8+ no corpo, wf-9d10f3ac removido — 0 matches caching; wf-1d48ebbc adicionado). Path errors no spec capturados: rails-stack-conventions/BACKENDS.md inexistente → rails-background-jobs/BACKENDS.md. Anti-drift cortou claims plausiveis: Russian doll caching syntax, parallelize workers TDD. Todos: 9 fields valido, harness:validate pass, 6/6 schema tests verde. **8/9 fases done — pronto para fase-09 (verifier batch + audit humano CA-08).**
 - 2026-05-18: fase-09 concluida (verifier refined batch + audit humano CA-08). **8/8 verifiers PASS** (5/5 cada — 40/40 claims rastreaveis = 100%, meta D12 era >=80%). Relatorios em `tmp/verifier-batch-rails-02/{slug}-report.md` (nao commitados — audit trail). Audit humano CA-08: Luiz aprovou os 2 atomos flagged (`active-record-fundamentals` T1 + `action-view-and-hotwire` T2) em 2026-05-18 — 3/3 claims cross-check rastreaveis em ambos. **Plano 02 concluido (9/9 fases).** Batch A T1 + Batch B parcial T2 aprovado. Desbloqueia Plano 03 fase-01..05 (Batch C) + fase-06 (INDEX). Verifier validou que anti-drift agressivo + protocolo refined replicam fidelidade do piloto (100% taxa, igual a fase-06 Plano 01).
+- 2026-05-19: /execute-plan retomado para Plano 03. Status=in-progress. Estrategia: Batch C T2 (2 paralelos) + Batch C T3 (3 paralelos) + INDEX sequencial + RF11/verifier paralelo + E2E sequencial + hardening final. Approved by Auto mode + padrao Plano 02.
+- 2026-05-19: Batch C T2 concluido (fases 01-02 paralelas). performance-and-tuning 147 ln (7 patterns, anti-drift cortou bullet/puma/jemalloc/scout_apm/skylight/GC/YJIT — nao rastreaveis as 4 fontes confirmadas). deployment-with-kamal 120 ln (6 patterns, anti-drift cortou bin/kamal commands explicitos, traefik internals, boot/drain timeouts — sources: rails-upgrade-7.2-to-8.0, 8.0-to-8.1, compass wf-3e82e3be, wf-1d48ebbc). Padrao Plano 02 GT (sources spec listava paths inexistentes — PATTERNS.md, BACKENDS.md) confirmado e mitigado via Glob.
+- 2026-05-19: Batch C T3 concluido (fases 03-05 paralelas). action-cable-and-realtime 120 ln (5 patterns — anti-drift cortou auth/reject_unauthorized, lifecycle/stop_all_streams, namespace prefix, threshold >100 subs, N+1 subscribers; CA-08 audit pendente). action-mailer-and-mailbox 146 ln (6 patterns incluindo ActionText D16 absorvido em sub-secao 5 ln rastreavel a action_text_overview.md; cortou email_id idempotency, batch BCC, HMAC explicito). active-storage 125 ln (6 patterns incluindo CVE-2022-21831/CVE-2025-24293 named-presets mitigation; sources: action_storage_overview, compass wf-8afc0f40 RAILS-SEC-090, wf-a0aa55c4 RAILS-SEC-006; tier:3 inicial — RF13 decision pendente).
+- 2026-05-19: 14/14 atomos populados (1 piloto + 8 Plano 02 + 5 Batch C). bun run harness:validate PASS (26 required + 226 markdown). Pronto para fase-06 (INDEX) apos RF13.
+- 2026-05-19: RF13 (DI-2) decidido em modo auto: active-storage promovido T3 → T2 — cobre 3 criterios de promocao da spec fase-05 (signed URLs + CVE-2025-24293, direct uploads com CORS, variants + CVE-2022-21831). Frontmatter `tier:` atualizado.
+- 2026-05-19: fase-06 concluida (INDEX final D9). `docs/knowledge/rails/INDEX.md` 81 linhas (cap 100), 7 secoes "Para /skill" cross-stack + 3 secoes "Por Tier" (T1=6, T2=6, T3=2). 14 atomos cobertos, cada slug aparece >=2x. harness:validate PASS. Commit 9e4b7e0.
+- 2026-05-19: fase-07 concluida (verifier refined paralelo, 5 subagentes Fork). **5/5 verifiers PASS** (>=80% claims rastreaveis): performance-and-tuning 93% (28/30), deployment-with-kamal 97% (29/30), action-cable-and-realtime 96.8% (30/31), action-mailer-and-mailbox 100% (23/23), active-storage 91% (20/22 — CVE claims 100% sourced). DI-1 registrado em plano03/MEMORY.md. **CA-08 D14/D19: audit humano de action-cable-and-realtime PENDENTE — bloqueia STATE final mas nao fase-09/10.**
+- 2026-05-19: fase-08 concluida (RF11 warning Rails legado <7.1). TDD RED+GREEN: 13/13 tests PASS (8 existentes + 5 novos), zero regressao Node E2E. `extractRailsVersionWarning` em format-knowledge-preview.ts + integracao no caller run-stack-knowledge-init.ts (warnings?: string[] additive). Commit b7ee301.
 
 ## Verifier refined report (Plano 01 fase-06 — 2026-05-19)
 
