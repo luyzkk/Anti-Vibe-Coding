@@ -3,6 +3,7 @@
 ## Read Before Major Changes
 
 - [ARCHITECTURE.md](./ARCHITECTURE.md): system boundaries, layering, and ownership.
+- [docs/CODE_STYLE.md](./docs/CODE_STYLE.md): code style and conventions for agents (companion to DESIGN.md).
 - [docs/PLANS.md](./docs/PLANS.md): when to open an execution plan and how to keep it current.
 - [docs/PRODUCT_SENSE.md](./docs/PRODUCT_SENSE.md): users, outcomes, product tradeoffs, and non-goals.
 - [docs/QUALITY_SCORE.md](./docs/QUALITY_SCORE.md): current quality bar and the biggest gaps.
