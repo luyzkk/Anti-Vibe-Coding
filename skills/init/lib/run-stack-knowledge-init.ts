@@ -6,10 +6,10 @@ import { writeStackJson } from './write-stack-json'
 import { copyKnowledge } from './copy-knowledge'
 import type { CopyKnowledgeResult } from './copy-knowledge'
 import { parseRefreshFlag } from './parse-refresh-flag'
-import { parseTopKeywords, formatKnowledgePreview, TOP_N_KEYWORDS } from './format-knowledge-preview'
+import { parseTopKeywords, formatKnowledgePreview, TOP_N_KEYWORDS, extractRailsVersionWarning } from './format-knowledge-preview'
 import { emitStackKnowledgeEvents } from './emit-stack-knowledge-events'
 import { join } from 'node:path'
-import { promises as fs } from 'node:fs'
+import { promises as fs, existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 
 export interface RunStackKnowledgeInitOpts {
@@ -45,6 +45,8 @@ export interface RunStackKnowledgeInitResult {
   stackJsonMessage: string
   copyResult: CopyKnowledgeResult
   previewEmitted: boolean
+  /** RF11: warnings emitidos durante o init (ex: Rails legado <7.1). Additive — consumers antigos ignoram. */
+  warnings?: string[]
 }
 
 export async function runStackKnowledgeInit(opts: RunStackKnowledgeInitOpts, ctx?: RunStackKnowledgeInitContext): Promise<RunStackKnowledgeInitResult> {
@@ -95,5 +97,15 @@ export async function runStackKnowledgeInit(opts: RunStackKnowledgeInitOpts, ctx
     previewEmitted = true
   }
 
-  return { stackPrimary: stackJson.primary, stackJsonMessage, copyResult, previewEmitted }
+  // 2026-05-18 (Luiz/dev): RF11 — propagar warning Rails legado no resultado
+  const warnings: string[] = []
+  if (stackJson.primary === 'rails') {
+    const gemfilePath = path.join(targetDir, 'Gemfile')
+    if (existsSync(gemfilePath)) {
+      const warning = extractRailsVersionWarning(readFileSync(gemfilePath, 'utf8'))
+      if (warning) warnings.push(warning)
+    }
+  }
+
+  return { stackPrimary: stackJson.primary, stackJsonMessage, copyResult, previewEmitted, ...(warnings.length > 0 ? { warnings } : {}) }
 }

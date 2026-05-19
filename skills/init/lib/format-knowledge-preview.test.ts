@@ -1,7 +1,8 @@
 // 2026-05-17 (Luiz/dev): RF10 — preview de keywords no output do /init (PRD §Could Haves)
 // M1.1 (2026-05-17): parseTopKeywords agora async — testes migrados para await.
-import { describe, it, expect } from 'bun:test'
-import { formatKnowledgePreview, parseTopKeywords, TOP_N_KEYWORDS } from './format-knowledge-preview'
+// 2026-05-18 (Luiz/dev): RF11 — warning Rails legado <7.1, alinhado com D23 + CA-04
+import { describe, it, expect, test } from 'bun:test'
+import { formatKnowledgePreview, parseTopKeywords, TOP_N_KEYWORDS, extractRailsVersionWarning } from './format-knowledge-preview'
 import { writeFileSync, mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -84,5 +85,33 @@ describe('format-knowledge-preview (RF10)', () => {
     const keywords = await parseTopKeywords(indexPath, Infinity)
     expect(keywords.length).toBe(50)
     rmSync(tmpDir, { recursive: true, force: true })
+  })
+})
+
+describe('extractRailsVersionWarning (RF11)', () => {
+  test('Rails 7.0 (~> 7.0) retorna warning', () => {
+    const gemfile = "source 'https://rubygems.org'\ngem 'rails', '~> 7.0'\n"
+    expect(extractRailsVersionWarning(gemfile)).toBe(
+      '⚠️ Knowledge Rails cobre 7.1+. Alguns padrões podem não se aplicar.',
+    )
+  })
+
+  test('Rails 8.0 (~> 8.0) retorna null (não há warning)', () => {
+    const gemfile = "gem 'rails', '~> 8.0'\n"
+    expect(extractRailsVersionWarning(gemfile)).toBeNull()
+  })
+
+  test('Rails 7.1 (>= 7.1) retorna null (limite inferior do suportado)', () => {
+    const gemfile = "gem 'rails', '>= 7.1'\n"
+    expect(extractRailsVersionWarning(gemfile)).toBeNull()
+  })
+
+  test('Gemfile sem gem rails retorna null', () => {
+    const gemfile = "gem 'sinatra'\n"
+    expect(extractRailsVersionWarning(gemfile)).toBeNull()
+  })
+
+  test('Gemfile vazio retorna null', () => {
+    expect(extractRailsVersionWarning('')).toBeNull()
   })
 })
