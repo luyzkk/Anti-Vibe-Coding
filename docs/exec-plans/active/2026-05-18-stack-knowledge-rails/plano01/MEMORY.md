@@ -2,7 +2,7 @@
 
 **Feature:** Stack Knowledge Layer — Rails (v6.3.3)
 **Iniciado:** 2026-05-18
-**Status:** em andamento
+**Status:** concluido (6/6 fases)
 
 ---
 
@@ -85,10 +85,12 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 6 |
-| Fases concluidas | 5 |
+| Fases concluidas | 6 |
 | Fases com desvio | 0 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
+| CA-02 perf (medido) | avg 6.97ms / max 10.39ms (1 atomo) — folga ~20x do limite D24 (200ms) |
+| Verifier refined taxa | 100% (38/38 claims rastreaveis) |
 
 ---
 
@@ -114,7 +116,11 @@ O subagente do proximo plano le este campo.
 
 - **Anti-drift prompt:** ja validado em fase-05 (piloto). Bloco verbatim (REGRA DE FIDELIDADE + Liberdade explicita + HARD CAPS + ENTREGAVEIS) deve ser copiado para extratores dos Planos 02/03 sem modificacao. Subagente reportou que a regra foi seguida e omitiu claims plausiveis-mas-nao-rastreaveis (ex: overhead quantitativo de Zeitwerk, DRY como tema isolado).
 
-- **Verifier refined:** pendente — fase-06 deste plano. Plano 02/03 reutilizam.
+- **Verifier refined:** ja validado em fase-06 (38/38 claims rastreaveis, 100% — meta era >=80%). Bloco verbatim (TECHNICAL CLAIMS vs ATOM-STRUCTURAL METADATA) deve ser copiado para verifier de Planos 02/03 sem modificacao. Subagente seguiu protocolo refined corretamente: auditou Padroes senior + Anti-padroes + Criterios de decisao; ignorou Quando consultar + Referencias externas. Report em `plano01/verifier-report-fase06.md`.
+
+- **E2E perf baseline (CA-02):** avg 6.97ms / max 10.39ms (5 amostras, 1 atomo). Limite D24 = 200ms; extrapolacao linear para 14 atomos ~98ms (ainda dentro de SLA). Plano 03 fase-09 estende para set completo e mede com warm cache vs cold I/O.
+
+- **Plano 02 pode comecar:** arquitetura validada (detector D22 + schema rails_versions + piloto anti-drift + verifier refined). 13 atomos restantes seguem o mesmo padrao: extrair via subagente com prompt anti-drift verbatim + verifier auditando apenas secoes tecnicas.
 
 - **E2E baseline:** pendente — sera medido em fase-06 (D24 target ≤200ms com 1 atomo). Plano 03 fase-09 estende para o set completo.
 

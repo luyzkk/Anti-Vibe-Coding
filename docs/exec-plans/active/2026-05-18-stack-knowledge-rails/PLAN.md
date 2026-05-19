@@ -148,7 +148,21 @@ Fases planejadas:
 
 ## Validation Log
 
-(preenchido durante execução via /execute-plan e /verify-work)
+### Plano 01 — Tracer Bullet (2026-05-19)
+
+- `bun test tests/e2e/stack-knowledge-rails-tracer.test.ts` -> **4 passed, 0 failed**
+- `bun test skills/init/lib/detect-stack.test.ts` -> **16 passed, 0 failed** (8 originais + 4 D22 fase-03 + 4 regression fase-04)
+- `bun test skills/init/lib/atoms-frontmatter-schema.test.ts` -> **6 passed, 0 failed**
+- `bun test` global -> **EXIT=0** (zero regressoes)
+- **CA-02 measured:** durationMs medio 6.97ms / max 10.39ms (5 amostras, 1 atomo) — folga ~20x do limite D24 (200ms). Extrapolacao linear para 14 atomos ~98ms (ainda dentro de SLA).
+- **CA-09:** preface vazio confirmado quando `.claude/knowledge/` ausente.
+- **CA-11:** Node atoms continuam sendo copiados em projeto TS puro (sem Gemfile) — `type-system-idioms.md` presente, `rails-conventions-and-magic.md` ausente como esperado.
+- **Verifier refined:** taxa 100% claims rastreaveis (38/38 — meta >=80% D12). Report em `plano01/verifier-report-fase06.md`.
+- **Anti-drift clause + verifier refined protocol** aplicados como regression desde Plano01 (D12) — prompts dos subagentes contiveram blocos verbatim dos compound lessons 2026-05-16-{extrator-subagente-injeta-verdades-fora-do-source,verifier-protocol-technical-sections-only}.md.
+- **Piloto:** 108 linhas / 5 H2 / 9 frontmatter fields / rails_versions=['>=7.1'] valido.
+- **Dedup:** 6 pares auditados, decisao uniforme (manter sem sufixo, deletar copy/v2 em Plano03 fase-09).
+
+
 
 ---
 
