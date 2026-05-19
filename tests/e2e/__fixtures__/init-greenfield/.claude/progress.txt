@@ -1,0 +1,10 @@
+# Progress fixture - 3 gotchas para E2E
+
+### [Armadilha] Foo
+**Contexto:** test fixture
+
+### [Processo] Bar
+**Solucao:** test
+
+### Baz numerico
+body

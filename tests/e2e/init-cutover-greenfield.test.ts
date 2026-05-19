@@ -58,15 +58,19 @@ async function readTreeSorted(root: string): Promise<string[]> {
 // - Paths absolutos (tmpDir) — STATE.md, .github files, etc.
 // - `.claude/metrics/YYYY-MM.jsonl` — basename com data atual
 // - Trailing spaces em linhas com summary vazio (dispatcher emite `[id] ` com espaco extra)
+// 2026-05-19 (Luiz/dev): Plano 05 fase-04 — atualizado para date-only format (YYYY-MM-DD-populate-harness).
+// Plano 03 fase-04 DI-Plano03-fase04-datepathsafe: slug usa YYYY-MM-DD (sem hora), nao ISO timestamp.
 function normalizeStdout(text: string, tmpDir: string): string {
   return text
     .replace(/in \d+ ms/g, 'in <NN> ms')
     .replace(new RegExp(tmpDir.replace(/\\/g, '\\\\').replace(/\//g, '\\/'), 'g'), '<TMP>')
     .replace(/\d{4}-\d{2}\.jsonl/g, '<YYYY-MM>.jsonl')
-    // 2026-05-18 (Luiz/dev): Plano 02 fase-04 — normaliza pasta populate-harness com timestamp.
-    .replace(/\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}Z-populate-harness/g, '<DATE>-populate-harness')
+    // date-only format: YYYY-MM-DD-populate-harness (Plano 03 fase-04)
+    .replace(/\d{4}-\d{2}-\d{2}-populate-harness/g, '<DATE>-populate-harness')
     // 2026-05-18 (Luiz/dev): Plano 07 fase-01 fix — normaliza timing "— Xms" dos novos steps 06-12.
     .replace(/— \d+ms/g, '— <NN>ms')
+    // 2026-05-19 (Luiz/dev): Plano 05 fase-04 — normaliza timestamps ISO em _imported filenames.
+    .replace(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/g, '<TIMESTAMP>')
     .split('\n')
     .map((line) => line.trimEnd())
     .join('\n')
@@ -74,11 +78,12 @@ function normalizeStdout(text: string, tmpDir: string): string {
 
 function normalizeTree(entries: string[]): string[] {
   // 2026-05-17 (Luiz/dev): normaliza .claude/metrics/YYYY-MM.jsonl (data-driven filename).
-  // 2026-05-18 (Luiz/dev): Plano 02 fase-04 — normaliza pasta populate-harness datada.
+  // 2026-05-19 (Luiz/dev): Plano 05 fase-04 — atualizado para date-only format + _imported timestamps.
   return entries.map((e) =>
     e
       .replace(/\.claude\/metrics\/\d{4}-\d{2}\.jsonl/, '.claude/metrics/<YYYY-MM>.jsonl')
-      .replace(/docs\/exec-plans\/active\/\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}Z-populate-harness/, 'docs/exec-plans/active/<DATE>-populate-harness'),
+      .replace(/docs\/exec-plans\/active\/\d{4}-\d{2}-\d{2}-populate-harness/, 'docs/exec-plans/active/<DATE>-populate-harness')
+      .replace(/docs\/compound\/_imported\/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z-/, 'docs/compound/_imported/<TIMESTAMP>-'),
   )
 }
 
@@ -94,11 +99,8 @@ describe('E2E cutover — greenfield (CA-01)', () => {
     await rm(tmpDir, { recursive: true, force: true })
   })
 
-  // 2026-05-19 (Luiz/dev): Plano 01 fase-05 — test.skip: golden tree/stdout referenciam
-  // steps 07/08/09/10-apply-merge/11 removidos no Plano 01 fases 02-04.
-  // Golden snapshot em tests/e2e/__golden__/init-greenfield.{tree.json,stdout.txt} precisa
-  // ser regenerado. Plano 05 fase-04 reescreve estes testes para o fluxo LLM-driven novo.
-  test.skip('greenfield init generates expected file tree matching golden', async () => {
+  // 2026-05-19 (Luiz/dev): Plano 05 fase-04 — golden regenerado. test.skip removido.
+  test('greenfield init generates expected file tree matching golden', async () => {
     await captureLog(() =>
       runInit([], {
         cwd: tmpDir,
@@ -115,9 +117,8 @@ describe('E2E cutover — greenfield (CA-01)', () => {
     expect(tree).toEqual(expectedTree)
   })
 
-  // 2026-05-19 (Luiz/dev): Plano 01 fase-05 — test.skip: golden stdout referencia steps removidos.
-  // Plano 05 fase-04 regenera golden e reescreve este teste.
-  test.skip('greenfield init produces stdout matching golden (normalized)', async () => {
+  // 2026-05-19 (Luiz/dev): Plano 05 fase-04 — golden regenerado. test.skip removido.
+  test('greenfield init produces stdout matching golden (normalized)', async () => {
     const { lines } = await captureLog(() =>
       runInit([], {
         cwd: tmpDir,
@@ -205,5 +206,16 @@ describe('E2E cutover — greenfield (CA-01)', () => {
     const settingsPath = path.join(tmpDir, '.claude', 'settings.local.json')
     const settings = JSON.parse(await fs.readFile(settingsPath, 'utf8')) as unknown
     expect(JSON.stringify(settings)).toContain('PostToolUse')
+  })
+
+  // 2026-05-19 (Luiz/dev): Plano 05 fase-04 — CA-01: populate-harness/PLAN.md aparece na tree.
+  test('greenfield init produces populate-harness PLAN.md (CA-01)', async () => {
+    const { result } = await captureLog(() =>
+      runInit([], { cwd: tmpDir, log: () => {}, askUser: async () => 'N' }),
+    )
+    expect((result as { kind: string }).kind).toBe('ok')
+    const tree = await readTreeSorted(tmpDir)
+    const planEntry = tree.find((t) => t.includes('populate-harness') && t.endsWith('PLAN.md'))
+    expect(planEntry, 'expected populate-harness/PLAN.md in tree').toBeDefined()
   })
 })

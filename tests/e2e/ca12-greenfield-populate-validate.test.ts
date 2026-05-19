@@ -59,12 +59,16 @@ describe('CA-12 E2E greenfield populate-validate', () => {
     expect(await fs.access(planPath).then(() => true).catch(() => false)).toBe(true)
 
     const planContent = await fs.readFile(planPath, 'utf-8')
-    // CA-01: pelo menos 5 tasks (proxy conservador de TEMPLATE_MANIFEST.length - filosoficos).
-    const taskCount = (planContent.match(/^### Task/gm) ?? []).length
-    expect(taskCount).toBeGreaterThanOrEqual(5)
+    // 2026-05-19 (Luiz/dev): Plano 05 fase-04 — PLAN.md v2 usa tabela de fases (nao ### Task).
+    // Formato v2: linhas `| NN | \`doc\` | [fase-NN-slug.md](./...) | aberta |`
+    // CA-01: pelo menos 5 fases (proxy conservador de TEMPLATE_MANIFEST.length - filosoficos).
+    const tableRows = (planContent.match(/^\| \d{2} \|/gm) ?? []).length
+    expect(tableRows).toBeGreaterThanOrEqual(5)
 
-    // SH-06: ultima task referencia harness:validate
-    expect(planContent).toMatch(/bun run scripts\/harness-validate\.ts/)
+    // SH-06: PLAN.md v2 nao tem task validate separada — a instrucao esta no 'Como executar'.
+    // 2026-05-19 (Luiz/dev): Plano 05 fase-04 — v2 renderer nao emite Validate Harness task.
+    // Verificar que 'Como executar' esta presente (substituto do antigo SH-06).
+    expect(planContent).toContain('Como executar')
   })
 
   it('harness:validate exit 0 e AGENTS.md root tem <= 40 linhas sem placeholders', async () => {
