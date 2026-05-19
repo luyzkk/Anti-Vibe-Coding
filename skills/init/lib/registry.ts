@@ -3,7 +3,7 @@ import type { Step } from './steps/types'
 import { detectLegacyStep } from './steps/00-detect-legacy'
 import { reuseDiscoveryStep } from './steps/00_1-reuse-discovery'
 import { secretsScanStep } from './steps/06-secrets-scan'
-import { applyMergeDestructiveStep } from './steps/10-apply-merge-destructive'
+import { backupPreMutationStep } from './steps/10-backup-pre-mutation'
 import { detectDriftIncrementalStep } from './steps/12-detect-drift-incremental'
 import { migrate0ParseDryRunStep } from './steps/09-migrate-0-parse-dry-run'
 import { migrateAllOrchestrateStep } from './steps/09_1-migrate-all-orchestrate'
@@ -41,6 +41,13 @@ export const registry: readonly Step[] = [
   detectLegacyStep,
   reuseDiscoveryStep,           // 2026-05-17 (Luiz/dev): early-exit via skipRemaining quando cache fresh (PRD MH-04, CA-04).
   secretsScanStep,              // 2026-05-18 (Luiz/dev): Plano 03 fase-02 — varre secrets ANTES de qualquer move (D16, SH-01, CA-04).
+  // 2026-05-19 (Luiz/dev): Plano 01 fase-04 — Step 10 (backup-pre-mutation) leve.
+  // PRD MH-05 / D3 CONTEXT: arquivo renomeado via git mv preservando linhagem.
+  // Roda ANTES de qualquer mutacao do scaffold (copia CLAUDE.md raiz para docs/_legacy/CLAUDE.md.bak).
+  // Plano 02 fase-03 expande logica (outros docs raiz, manifest do backup).
+  // DI-Plano01-fase04-reposition: movido de antes de linkClaudeAgentsStep (posicao D23/Plano04)
+  // para logo apos secretsScanStep — backup deve ocorrer ANTES de qualquer scaffold mutativo.
+  backupPreMutationStep,
   // 2026-05-19 (Luiz/dev): Plano 01 fase-02 — Step 07 (discover-existing-docs) removido.
   // MH-04 PRD novo: discovery semantico vira responsabilidade do Step 91 LLM-driven (Plano 03 fase-01).
   // 2026-05-19 (Luiz/dev): Plano 01 fase-03 — Steps 08 (classify-blocks-hybrid),
@@ -55,9 +62,6 @@ export const registry: readonly Step[] = [
   migrate3LessonsStep,          // 2026-05-17 (Luiz/dev): G4 do plano03 fase-04 — best-effort, sem AbortError.
   migrate4DecisionsStep,        // 2026-05-17 (Luiz/dev): G4 do plano03 fase-04 — best-effort, sem AbortError.
   scaffoldFullTreeStep,
-  // 2026-05-18 (Luiz/dev): D23 — apply-merge-destructive BEFORE link-claude-agents. CLAUDE.md
-  // already transformed to mirror <=40 lines when Step 02 creates symlink/hardlink/copy.
-  applyMergeDestructiveStep,   // 2026-05-18 (Luiz/dev): Plano 04 fase-06 (D23) — Step 10 backup + transforma CLAUDE.md + gera docs/DESIGN.md ANTES do link-claude-agents (G1, G8, G9, DI-1).
   linkClaudeAgentsStep,
   detectStackAndRegisterStep,
   persistStackKnowledgeStep,
