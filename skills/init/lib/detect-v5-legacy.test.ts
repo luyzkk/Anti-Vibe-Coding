@@ -69,4 +69,80 @@ describe('detectV5Legacy', () => {
     expect(state.paths['decisions']).toContain('decisions.md')
     expect(path.isAbsolute(state.paths['decisions'] ?? '')).toBe(true)
   })
+
+  // 2026-05-18 (Luiz/dev): Quick Plan init v6.4.x bug 1 — projetos v5 reais vivem em .claude/.
+  describe('.claude/ scanning (bug 1)', () => {
+    it('detects .claude/decisions.md, senior-principles.md, architecture-profile.md, PROJECT_MAP.md', async () => {
+      await fs.mkdir(path.join(FIXTURE, '.claude'), { recursive: true })
+      await fs.writeFile(path.join(FIXTURE, '.claude', 'decisions.md'), 'x', 'utf8')
+      await fs.writeFile(path.join(FIXTURE, '.claude', 'senior-principles.md'), 'x', 'utf8')
+      await fs.writeFile(path.join(FIXTURE, '.claude', 'architecture-profile.md'), 'x', 'utf8')
+      await fs.writeFile(path.join(FIXTURE, '.claude', 'PROJECT_MAP.md'), 'x', 'utf8')
+
+      const state = await detectV5Legacy(FIXTURE)
+      expect(state.isLegacy).toBe(true)
+      expect(state.artifacts).toContain('claude-decisions')
+      expect(state.artifacts).toContain('claude-senior-principles')
+      expect(state.artifacts).toContain('claude-architecture-profile')
+      expect(state.artifacts).toContain('claude-project-map')
+    })
+
+    it('detects .claude/plans, tasks, knowledge, rules, prompts dirs when populated', async () => {
+      for (const d of ['plans', 'tasks', 'knowledge', 'rules', 'prompts']) {
+        await fs.mkdir(path.join(FIXTURE, '.claude', d), { recursive: true })
+        await fs.writeFile(path.join(FIXTURE, '.claude', d, 'item.md'), 'x', 'utf8')
+      }
+      const state = await detectV5Legacy(FIXTURE)
+      expect(state.artifacts).toEqual(
+        expect.arrayContaining([
+          'claude-plans-dir',
+          'claude-tasks-dir',
+          'claude-knowledge-dir',
+          'claude-rules-dir',
+          'claude-prompts-dir',
+        ]),
+      )
+    })
+
+    it('does NOT count empty .claude/plans/ as legacy', async () => {
+      await fs.mkdir(path.join(FIXTURE, '.claude', 'plans'), { recursive: true })
+      const state = await detectV5Legacy(FIXTURE)
+      expect(state.isLegacy).toBe(false)
+    })
+
+    it('detects .claude/.anti-vibe-manifest.json.backup-v5.* as smoking gun', async () => {
+      await fs.mkdir(path.join(FIXTURE, '.claude'), { recursive: true })
+      await fs.writeFile(
+        path.join(FIXTURE, '.claude', '.anti-vibe-manifest.json.backup-v5.2-20251010'),
+        '{}',
+        'utf8',
+      )
+      const state = await detectV5Legacy(FIXTURE)
+      expect(state.isLegacy).toBe(true)
+      expect(state.artifacts).toContain('claude-manifest-v5-backup')
+    })
+
+    it('detects .claude/.anti-vibe-manifest.json with pluginVersion 5.x', async () => {
+      await fs.mkdir(path.join(FIXTURE, '.claude'), { recursive: true })
+      await fs.writeFile(
+        path.join(FIXTURE, '.claude', '.anti-vibe-manifest.json'),
+        JSON.stringify({ pluginVersion: '5.2.1' }),
+        'utf8',
+      )
+      const state = await detectV5Legacy(FIXTURE)
+      expect(state.isLegacy).toBe(true)
+      expect(state.artifacts).toContain('claude-manifest-v5')
+    })
+
+    it('does NOT flag .claude/.anti-vibe-manifest.json with pluginVersion 6.x', async () => {
+      await fs.mkdir(path.join(FIXTURE, '.claude'), { recursive: true })
+      await fs.writeFile(
+        path.join(FIXTURE, '.claude', '.anti-vibe-manifest.json'),
+        JSON.stringify({ pluginVersion: '6.3.2' }),
+        'utf8',
+      )
+      const state = await detectV5Legacy(FIXTURE)
+      expect(state.artifacts).not.toContain('claude-manifest-v5')
+    })
+  })
 })

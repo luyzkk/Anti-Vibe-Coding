@@ -60,4 +60,21 @@ describe('detectLegacyStep', () => {
     expect(report.summary).toContain('cross-upgrade')
     expect(report.summary).toContain('6.3.2')
   })
+
+  // 2026-05-18 (Luiz/dev): Quick Plan init v6.4.x bug 1 — projeto v5 com layout .claude/.
+  // Antes do fix: detector ignorava .claude/ → cairia em Greenfield (errado).
+  // Apos fix: detectV5Legacy sinaliza isLegacy=true via claude-decisions + claude-manifest-v5.
+  test('claude-legacy (.claude/ only, no root v5 files): aborts with code 1', async () => {
+    try {
+      await detectLegacyStep.run(ctx(path.join(FIX, 'claude-legacy')))
+      throw new Error('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(AbortError)
+      if (e instanceof AbortError) {
+        expect(e.code).toBe(1)
+        expect(e.reason).toContain('claude-decisions')
+        expect(e.reason).toContain('claude-manifest-v5')
+      }
+    }
+  })
 })
