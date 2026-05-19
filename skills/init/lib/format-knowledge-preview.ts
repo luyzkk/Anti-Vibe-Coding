@@ -72,3 +72,18 @@ export function formatKnowledgePreview(keywords: string[]): string {
   if (keywords.length === 0) return ''
   return `Knowledge cobre: ${keywords.join(', ')}.`
 }
+
+// 2026-05-18 (Luiz/dev): RF11 — warning quando Gemfile declara Rails <7.1
+// Razão: PRD CA-04 + D23 (risk resolution pre-exec) — knowledge cobre 7.1+
+const RAILS_VERSION_RX = /^\s*gem\s+['"]rails['"]\s*,\s*['"][~^>=<]*\s*(\d+)\.(\d+)/m
+
+export function extractRailsVersionWarning(gemfileContent: string): string | null {
+  const m = RAILS_VERSION_RX.exec(gemfileContent)
+  if (!m) return null
+  const major = Number(m[1])
+  const minor = Number(m[2])
+  if (major < 7 || (major === 7 && minor < 1)) {
+    return '⚠️ Knowledge Rails cobre 7.1+. Alguns padrões podem não se aplicar.'
+  }
+  return null
+}
