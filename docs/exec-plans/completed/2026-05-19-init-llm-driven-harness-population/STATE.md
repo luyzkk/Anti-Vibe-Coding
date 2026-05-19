@@ -1,8 +1,8 @@
 # State: Init LLM-Driven Harness Population (Trilha 2)
 
 **Plan:** ./PLAN.md
-**Phase:** in-progress
-**Current Plan:** 05/5 (Plano 04 completo — pronto para Plano 05)
+**Phase:** completed
+**Current Plan:** 05/5 (todos os planos completos)
 **Last Updated:** 2026-05-19
 
 ## Progress por Plano
@@ -13,11 +13,11 @@
 | 02 | Scaffold expandido + Backup pre-mutacao | 3 | 3/3 | completed |
 | 03 | Gerador LLM-driven do PLAN populate | 5 | 5/5 | completed |
 | 04 | Reentrada + Validator allowlist + Audit Step 12 | 5 | 5/5 | completed |
-| 05 | Progress.txt import + SKILL.md + E2E | 4 | 0/4 | pending |
+| 05 | Progress.txt import + SKILL.md + E2E | 4 | 4/4 | completed |
 
 ## Progress Global
 
-Fases done: 18/22 (82%)
+Fases done: 22/22 (100%)
 
 ## Log
 
@@ -52,3 +52,9 @@ Fases done: 18/22 (82%)
 - 2026-05-19: Plano 04 fase-04 completa — commit d5550c5. Step 90 (`final-validation`) ganhou try/catch defensivo externo — qualquer erro de IO degrada para `{ mutated: false, summary: 'validator: skipped due to IO error (...)' }`. 2 testes novos: "never throws (docs/ ausente)" + "CA-07 warning nao gera AbortError". E2E em `run-init.test.ts`: CA-07 convergencia comprovada (Step 91 PLAN.md persistido mesmo com warning). 0 regressoes.
 - 2026-05-19: Plano 04 fase-05 completa — commit 91a256c. CAMINHO A (REMOCAO) de Step 12. Deletados: `skills/init/lib/steps/12-detect-drift-incremental.ts/.test.ts` + `skills/init/lib/drift-detector.ts/.test.ts`. Modificados: `registry.ts` (import + entrada removidos), `registry.test.ts` (assertion `not.toContain('12-detect-drift-incremental')`), `discovery-store.ts` (union `'drift-report'` removido). 0 callers externos confirmados via grep. Orfa nao limpa: `init-subagent-ids.ts` entrada `detectDrift` (string constant — fora de escopo, candidata a plano futuro).
 - 2026-05-19: **Plano 04 COMPLETO** (5/5 fases). Reentry guard + backup pre-6.5.0 + validator allowlist warning-mode + Step 12 removido. CA-03/04/06/07/09 + MH-07/08 validados. Suite final: 644 pass, 1 fail (PRE-EXISTENTE — `greenfield-populate-plan.test.ts:65` regex datepath, ja documentado para Plano 05 fase-04), 0 regressoes desta feature. Pronto para Plano 05 (Progress.txt + SKILL.md + E2E + golden regen).
+- 2026-05-19: Plano 05 fase-01 completa — commits 89f21fe (RED) + 93bd5a4 (GREEN). `progress-txt-parser.ts` exporta `parseProgressTxt(content)` + tipo `ProgressEntry`. Fixture `tests/fixtures/progress-txt-licitar.txt` com 4 entradas sanitizadas. 7 testes pass. Suite lib: 638 pass, 1 skip, 0 fail. GT-Plano05-fase01-tdd-gate: hook tdd-gate.cjs exige .test.ts criado ANTES do stub.
+- 2026-05-19: Plano 05 fase-03 completa — commits f32e262 (RED) + cbcb9ce (GREEN). SKILL.md linhas 78-87 substituidas. `run-init.ts` ganha bloco de 7 linhas (mensagem final apos additive-merge warning). Step 91 seta `ctx.flags['__populatePlanPath']` no success path. Snapshot test 2 pass. DI: cast `as Record<string, boolean | string>` necessario para `ctx.flags` (Readonly).
+- 2026-05-19: Plano 05 fase-02 completa — commits cb3942f (RED writer) + 650076d (RED step) + 1186ef0 (GREEN). `compound-imported-writer.ts` (5 testes) + `steps/13-import-progress-txt.ts` (3 testes) + registry wired. Posicao: `backupPre650Step -> importProgressTxtStep -> secretsScanStep -> ...`. Allowlist ja contemplava `docs/compound/_imported/` (Plano 04 fase-03). Suite init: 660 pass, 1 skip, 0 fail.
+- 2026-05-19: Plano 05 fase-04 completa — commit 7e2cc3e. `init-tracer-bullet.test.ts` reescrito (dispatcher-based via runInit). Golden files regenerados: stdout (42 linhas vs 41) + tree (110 entries vs 84). Fixture greenfield ganhou `.claude/progress.txt` (3 entradas). `init-cutover-greenfield.test.ts`: 2 test.skip removidos + 1 assertion CA-01. `greenfield-populate-plan.test.ts` linha 63 regex corrigida (date-only). `ca12-greenfield-populate-validate.test.ts` atualizado para v2. `ca13-dry-run-parity.test.ts` mantido `describe.skip` (DEV-P05F04-ca13 — fora de escopo). Suite E2E: 65 pass, 8 skip, 0 fail. Suite total: exit 0.
+- 2026-05-19: **Plano 05 COMPLETO** (4/4 fases). MH-09/MH-10 + CA-05/CA-10/CA-11 entregues. Progress.txt importavel + SKILL.md final message + E2E tracer-bullet sob dispatcher + goldens regenerados.
+- 2026-05-19: **FEATURE COMPLETA** (22/22 fases em 5 planos). Trilha 2 init-llm-driven-harness-population entregue. Pronto para movimentar para `docs/exec-plans/completed/` + SUMMARY.md + sugerir `/iterate`.
