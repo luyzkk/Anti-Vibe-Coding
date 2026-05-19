@@ -11,13 +11,13 @@
 
 | Plano | Nome | Fases | Done | Status |
 |-------|------|-------|------|--------|
-| 01 | Tracer Bullet — dedup + schema + multi-stack contract + piloto + E2E | 6 | 1/6 | in-progress |
+| 01 | Tracer Bullet — dedup + schema + multi-stack contract + piloto + E2E | 6 | 2/6 | in-progress |
 | 02 | Batch A T1 + Batch B parcial T2 + verifier + audit humano | 9 | 0/9 | pending |
 | 03 | Batch C + INDEX + RF11 + E2E completo + hardening leve | 10 | 0/10 | pending |
 
 ## Progress Global
 
-Fases done: 1/25 (4%)
+Fases done: 2/25 (8%)
 
 ## Audit Humano CA-08 (D14, D19)
 
@@ -52,3 +52,4 @@ Subagente entregou `plano01/dedup-report.md` com achado transversal: todos os 6 
 - 2026-05-18: Ajuste estrutural concluido (Opcao B — edits cirurgicos). Plano01: 5→6 fases (~9.5-11.5h) com nova fase-03 (refactor multi-stack D22); fase-04 regression detector sobre novo contrato; fase-06 E2E aplica D24 perf 200ms. Plano03: 9→10 fases (~12.5-14.5h) com nova fase-08 (RF11 standalone per D23); fase-09 E2E mantem CA-04 GREEN imediato + D24 perf 200ms; fase-10 hardening cobre D25 hard cap. PLAN.md tabela Decisoes Aplicadas atualizada com D22/D23/D24/D25. Total: 23→25 fases (~36-42h). Pronto para /execute-plan.
 - 2026-05-18: /execute-plan iniciado. Plano 01 status=in-progress. Spawn plan-executor para fase-01 (dedup audit, content-only).
 - 2026-05-18: fase-01 concluida. Subagente entregou dedup-report.md com 6 pares auditados. Achado transversal: conteudo 100% identico (diff -r exit 0 para todos); mtime e o unico discriminador. Recomendacao uniforme aprovada por Luiz: manter sem sufixo, deletar copy/v2 (delecao fisica em Plano 03 fase-09).
+- 2026-05-18: fase-02 concluida (TDD RED+GREEN). Cenario A confirmado (no helper existente — atoms-rf11-audit usa validacao inline). Criado skills/init/lib/atoms-frontmatter-validator.ts (~86 linhas, regex puro, sem libs). Criado atoms-frontmatter-schema.test.ts (6 testes) + 2 fixtures Rails dummy + stub atoms-frontmatter-validator.test.ts (TDD gate). 6/6 schema tests + 1/1 rf11 regression verde. Typecheck limpo no arquivo novo (4 erros pre-existentes em outros arquivos seguem).
