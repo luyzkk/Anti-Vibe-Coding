@@ -4,28 +4,35 @@
 **PRD:** ./PRD.md
 **CONTEXT:** ./CONTEXT.md
 **Phase:** in-progress
-**Current Plan:** 02/3 (Plano 01 concluido)
-**Last Updated:** 2026-05-19 (Plano 01 concluido)
+**Current Plan:** 03/3 (Planos 01-02 concluidos)
+**Last Updated:** 2026-05-18 (Plano 02 concluido — Batch A+B parcial aprovado, transicao para Plano 03)
 
 ## Progress por Plano
 
 | Plano | Nome | Fases | Done | Status |
 |-------|------|-------|------|--------|
 | 01 | Tracer Bullet — dedup + schema + multi-stack contract + piloto + E2E | 6 | 6/6 | done |
-| 02 | Batch A T1 + Batch B parcial T2 + verifier + audit humano | 9 | 0/9 | pending |
+| 02 | Batch A T1 + Batch B parcial T2 + verifier + audit humano | 9 | 9/9 | done |
 | 03 | Batch C + INDEX + RF11 + E2E completo + hardening leve | 10 | 0/10 | pending |
 
 ## Progress Global
 
-Fases done: 6/25 (24%)
+Fases done: 15/25 (60%)
 
 ## Audit Humano CA-08 (D14, D19)
 
 | Átomo | Tier | Plano/Fase | Status | Aprovação Luiz |
 |---|---|---|---|---|
-| active-record-fundamentals | T1 | 02/09 | pending | — |
-| action-view-and-hotwire | T2 | 02/09 | pending | — |
+| active-record-fundamentals | T1 | 02/09 | approved | 2026-05-18 |
+| action-view-and-hotwire | T2 | 02/09 | approved | 2026-05-18 |
 | action-cable-and-realtime | T3 | 03/07 | pending | — |
+
+## Audit Humano CA-08 (Plano 02 — aprovado por Luiz em 2026-05-18)
+
+| Átomo | Tier | Aprovado por Luiz em | Notas |
+|-------|------|---------------------|-------|
+| active-record-fundamentals | T1 | 2026-05-18 | OK — 3/3 claims cross-check rastreadas (verifier auditou 5/5 contra rails-code-review/REVIEW_CHECKLIST.md + rails-expert/SKILL.md + rails-stack-conventions/SKILL.md) |
+| action-view-and-hotwire | T2 | 2026-05-18 | OK — 3/3 claims cross-check rastreadas (verifier auditou 5/5 contra form_helpers.md + layouts_and_rendering.md + working_with_javascript_in_rails.md + compass wf-a0aa55c4) |
 
 ## Dedup Decisions (Plano01 fase-01 — aprovado por Luiz em 2026-05-18)
 
@@ -57,6 +64,11 @@ Subagente entregou `plano01/dedup-report.md` com achado transversal: todos os 6 
 - 2026-05-19: fase-04 concluida (regression coverage detector Rails sobre D22). 4 test cases novos adicionados a detect-stack.test.ts: CA-06 Gemfile vazio (no crash + anchorFiles contem Gemfile), Rails legado 7.0 (classifica como rails, warning fica em RF11), robustez D10 (gem rails indentado em group block), zero falso-positivo (gem 'rails-erb' NAO matcha). **Nenhuma mudanca em detect-stack.ts** — regex `/^\s*gem\s+["']rails["']/m` ja estava correto. G1 do plano confirmado: RF3 foi regression coverage, nao nova implementacao. 16/16 detect-stack tests passam.
 - 2026-05-19: fase-05 concluida (piloto rails-conventions-and-magic via subagente extrator). Atom criado em `docs/knowledge/rails/atoms/rails-conventions-and-magic.md` (108 linhas, 5 H2, 9 frontmatter fields, rails_versions=['>=7.1']). Anti-drift clause aplicada verbatim do compound 2026-05-16. Subagente reportou todas as claims rastreaveis aos 3 sources (SKILL.md + 2 compass artifacts). `validateAtomFrontmatter` retorna `{ valid: true, errors: [] }`. 6/6 schema tests continuam verdes. INDEX.md skeleton criado com nota de provisoriedade (INDEX final D9 fica em Plano 03 fase-06).
 - 2026-05-19: fase-06 concluida (verifier refined + E2E tracer). Verifier subagente auditou 38 claims tecnicas, 38/38 rastreaveis (100% — meta D12 era >=80%). Report em `plano01/verifier-report-fase06.md`. E2E tracer test `tests/e2e/stack-knowledge-rails-tracer.test.ts` cobre CA-02 (perf), CA-09 (graceful degradation), CA-11 (regressao Node) + regression frontmatter — 4/4 passam. CA-02 medido: avg 6.97ms / max 10.39ms (5 amostras, 1 atomo) — folga ~20x do limite D24 (200ms). PLAN.md Validation Log atualizado com entry "Plano 01 — Tracer Bullet". **Plano 01 concluido (6/6 fases).** Arquitetura validada — Plano 02 pode escalar para 13 atomos restantes com seguranca.
+- 2026-05-18: /execute-plan retomado para Plano 02. Status=in-progress. Estrategia: 3 batches paralelos (fases 01-03 / 04-05 / 06-08) + fase-09 sequencial (verifier batch + audit humano CA-08). Aprovado por Luiz.
+- 2026-05-18: Batch 1 concluido (fases 01-03 paralelas via 3 subagentes). active-record-fundamentals 129 ln (5 H2, CA-08 flagged, cortes anti-drift: AR Encryption + Multiple DBs nao rastreaveis), active-record-migrations-safety 121 ln (5 H2, 7 patterns + 4 anti-patterns), action-controller-and-routing 134 ln (6 H2 com API-only secao D7). Todos: frontmatter 9 campos valido, harness:validate pass, 6/6 schema tests verde. GT comum: specs de fase listavam sources inexistentes (PATTERNS.md, PITFALLS.md, BACKENDS.md em pastas que so tem SKILL.md + references/); subagentes corrigiram via Glob antes de escrever frontmatter.
+- 2026-05-18: Batch 2 concluido (fases 04-05 paralelas via 2 subagentes). security-csrf-and-brakeman 129 ln (6 H2 com API-only; wf-fd78fcce removido 0 matches, substituido por wf-8afc0f40 [90 matches segurança] + wf-a0aa55c4 [38 matches Brakeman CI]). rspec-and-minitest 198 ln — proximo do cap mas dentro do limite (5 H2, D21 framework-agnostic com 5 patterns + snippets duplos RSpec/Minitest cada, sem secoes separadas; wf-61b9b080 removido 0 matches TDD, wf-cb73df7d mantido 201 matches). Anti-drift agressivo virou padrao do batch.
+- 2026-05-18: Batch 3 concluido (fases 06-08 paralelas via 3 subagentes). active-job-and-solid-queue 142 ln (5 H2, Rails 8+ contextualizado no corpo via Solid Queue patterns; rails_versions=['>=7.1']). action-view-and-hotwire 127 ln (5 H2, CA-08 flagged T2). caching-with-rails 120 ln (5 H2, Solid Cache pattern Rails 8+ no corpo, wf-9d10f3ac removido — 0 matches caching; wf-1d48ebbc adicionado). Path errors no spec capturados: rails-stack-conventions/BACKENDS.md inexistente → rails-background-jobs/BACKENDS.md. Anti-drift cortou claims plausiveis: Russian doll caching syntax, parallelize workers TDD. Todos: 9 fields valido, harness:validate pass, 6/6 schema tests verde. **8/9 fases done — pronto para fase-09 (verifier batch + audit humano CA-08).**
+- 2026-05-18: fase-09 concluida (verifier refined batch + audit humano CA-08). **8/8 verifiers PASS** (5/5 cada — 40/40 claims rastreaveis = 100%, meta D12 era >=80%). Relatorios em `tmp/verifier-batch-rails-02/{slug}-report.md` (nao commitados — audit trail). Audit humano CA-08: Luiz aprovou os 2 atomos flagged (`active-record-fundamentals` T1 + `action-view-and-hotwire` T2) em 2026-05-18 — 3/3 claims cross-check rastreaveis em ambos. **Plano 02 concluido (9/9 fases).** Batch A T1 + Batch B parcial T2 aprovado. Desbloqueia Plano 03 fase-01..05 (Batch C) + fase-06 (INDEX). Verifier validou que anti-drift agressivo + protocolo refined replicam fidelidade do piloto (100% taxa, igual a fase-06 Plano 01).
 
 ## Verifier refined report (Plano 01 fase-06 — 2026-05-19)
 
