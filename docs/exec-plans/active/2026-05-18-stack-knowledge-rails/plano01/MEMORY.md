@@ -65,6 +65,10 @@ Apenas gotchas que NAO eram obvios antes de implementar.
 
 - **GT-7 (fase-04):** Detector Rails ja era zero-falso-positivo desde o inicio. A regex `["']rails["']` exige aspas FECHANDO logo apos `rails` — `gem 'rails-erb'` nao matcha porque o char apos `rails` e `-`, nao quote. Nao perder tempo "endurecendo" a regex em features futuras se ja existir; primeiro escrever o test e ver se ja passa (5 minutos vs 1 hora de refactor desnecessario).
 
+- **GT-8 (fase-05):** Hard cap de 200 linhas no atomo cabe FOLGADAMENTE quando o subagente segue a anti-drift clause. Piloto saiu com 108 linhas (~54% do cap) cobrindo CoC/Zeitwerk/ActiveSupport/metaprogramming/Concerns. Indicador implicito: se um T1 transversal estourar 200 linhas, provavel sintoma de drift (subagente injetando conhecimento alem do source). Verifier refined em fase-06 deve manter o cap absoluto — nao "permitir" 220 sob nenhuma justificativa.
+
+- **GT-9 (fase-05):** SKILL.md canonico (`rails-stack-conventions`) e ESCOPADO a "PostgreSQL + Hotwire + Tailwind stack" — pratico, nao conceitual. Cobertura T1 transversal (CoC, DRY, Zeitwerk, ActiveSupport, metaprogramming) vem majoritariamente dos COMPASS ARTIFACTS, nao do SKILL. Implicacao: ao planejar atomos T1 futuros, priorizar compass artifacts como source primario quando o topico for arquitetural/conceitual; SKILL packages sao melhores para T2-T3 (camada de implementacao com naming/wiring especifico).
+
 ---
 
 ## Desvios do Plano
@@ -81,7 +85,7 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 6 |
-| Fases concluidas | 4 |
+| Fases concluidas | 5 |
 | Fases com desvio | 0 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
@@ -108,7 +112,9 @@ O subagente do proximo plano le este campo.
 
 - **Detector Rails:** regex `gem 'rails'` continua em `skills/init/lib/detect-stack.ts` (probe rails). Contrato D22 ja entregue na fase-03: `DetectedStack { primary: Exclude<StackId,'unknown'> | null, secondary: StackId[], signalSource: string, anchorFiles: string[] }`. Probes rodam todas (nao mais break-on-first). Plano 02 pode importar e usar diretamente.
 
-- **Anti-drift + verifier refined:** pendente — sera consolidado em fase-05 (extrator) e fase-06 (verifier) deste plano. Plano 02/03 copiam o prompt verbatim apos validacao.
+- **Anti-drift prompt:** ja validado em fase-05 (piloto). Bloco verbatim (REGRA DE FIDELIDADE + Liberdade explicita + HARD CAPS + ENTREGAVEIS) deve ser copiado para extratores dos Planos 02/03 sem modificacao. Subagente reportou que a regra foi seguida e omitiu claims plausiveis-mas-nao-rastreaveis (ex: overhead quantitativo de Zeitwerk, DRY como tema isolado).
+
+- **Verifier refined:** pendente — fase-06 deste plano. Plano 02/03 reutilizam.
 
 - **E2E baseline:** pendente — sera medido em fase-06 (D24 target ≤200ms com 1 atomo). Plano 03 fase-09 estende para o set completo.
 

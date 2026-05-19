@@ -5,19 +5,19 @@
 **CONTEXT:** ./CONTEXT.md
 **Phase:** in-progress
 **Current Plan:** 01/3
-**Last Updated:** 2026-05-19 (fase-04)
+**Last Updated:** 2026-05-19 (fase-05)
 
 ## Progress por Plano
 
 | Plano | Nome | Fases | Done | Status |
 |-------|------|-------|------|--------|
-| 01 | Tracer Bullet — dedup + schema + multi-stack contract + piloto + E2E | 6 | 4/6 | in-progress |
+| 01 | Tracer Bullet — dedup + schema + multi-stack contract + piloto + E2E | 6 | 5/6 | in-progress |
 | 02 | Batch A T1 + Batch B parcial T2 + verifier + audit humano | 9 | 0/9 | pending |
 | 03 | Batch C + INDEX + RF11 + E2E completo + hardening leve | 10 | 0/10 | pending |
 
 ## Progress Global
 
-Fases done: 4/25 (16%)
+Fases done: 5/25 (20%)
 
 ## Audit Humano CA-08 (D14, D19)
 
@@ -55,6 +55,7 @@ Subagente entregou `plano01/dedup-report.md` com achado transversal: todos os 6 
 - 2026-05-18: fase-02 concluida (TDD RED+GREEN). Cenario A confirmado (no helper existente — atoms-rf11-audit usa validacao inline). Criado skills/init/lib/atoms-frontmatter-validator.ts (~86 linhas, regex puro, sem libs). Criado atoms-frontmatter-schema.test.ts (6 testes) + 2 fixtures Rails dummy + stub atoms-frontmatter-validator.test.ts (TDD gate). 6/6 schema tests + 1/1 rf11 regression verde. Typecheck limpo no arquivo novo (4 erros pre-existentes em outros arquivos seguem).
 - 2026-05-18: fase-03 concluida (refactor detectStack -> contrato D22 multi-stack). DetectedStack agora exporta `{ primary, secondary, signalSource, anchorFiles }`. Probes rodam todas (nao mais break-on-first) para popular `secondary`. StackId mantem 'unknown' (constraint inter-arquivo de detect-multi-stack.ts), mas `DetectedStack.primary` e tipado `Exclude<StackId, 'unknown'> | null` — invariante D22 enforced por tipos. 10 call sites atualizados (customize-architecture, state-md-init, steps/03+04, stack-id-map, e2e tracer). 12/12 detect-stack tests passam (8 adaptados + 4 novos CA-02/CA-07/CA-03/CA-21). bun test global exit=0 (zero regressoes). Precedence Rails vs Node-TS via fixture minima (sem typescript no devDeps) — Opcao C.
 - 2026-05-19: fase-04 concluida (regression coverage detector Rails sobre D22). 4 test cases novos adicionados a detect-stack.test.ts: CA-06 Gemfile vazio (no crash + anchorFiles contem Gemfile), Rails legado 7.0 (classifica como rails, warning fica em RF11), robustez D10 (gem rails indentado em group block), zero falso-positivo (gem 'rails-erb' NAO matcha). **Nenhuma mudanca em detect-stack.ts** — regex `/^\s*gem\s+["']rails["']/m` ja estava correto. G1 do plano confirmado: RF3 foi regression coverage, nao nova implementacao. 16/16 detect-stack tests passam.
+- 2026-05-19: fase-05 concluida (piloto rails-conventions-and-magic via subagente extrator). Atom criado em `docs/knowledge/rails/atoms/rails-conventions-and-magic.md` (108 linhas, 5 H2, 9 frontmatter fields, rails_versions=['>=7.1']). Anti-drift clause aplicada verbatim do compound 2026-05-16. Subagente reportou todas as claims rastreaveis aos 3 sources (SKILL.md + 2 compass artifacts). `validateAtomFrontmatter` retorna `{ valid: true, errors: [] }`. 6/6 schema tests continuam verdes. INDEX.md skeleton criado com nota de provisoriedade (INDEX final D9 fica em Plano 03 fase-06).
 
 ## Detector Rails — regression coverage (Plano 01 fase-04)
 
@@ -68,3 +69,19 @@ Cobertura adicionada nesta fase (todos passam direto, sem alterar detector):
 - Zero falso-positivo: substring `gem 'rails-erb'` nao matcha (closing quote enforced pela regex)
 
 Nenhuma mudanca em `detect-stack.ts` foi necessaria.
+
+## Piloto extraido (Plano 01 fase-05 — 2026-05-19)
+
+- **Atomo:** `docs/knowledge/rails/atoms/rails-conventions-and-magic.md`
+- **Linhas:** 108 (cap ≤200 confirmado)
+- **H2:** 5 cabecalhos (Quando consultar / Padroes senior / Anti-padroes / Criterios de decisao / Referencias externas)
+- **Frontmatter:** 9 campos validos (`validateAtomFrontmatter` retorna `{ valid: true, errors: [] }`)
+- **rails_versions:** `['>=7.1']` (cobre 7.1+ e 8.x — coerente com D1 do CONTEXT)
+- **Fonte canonica skill package:** `claude-code/knowledge/Rails/rails-stack-conventions/SKILL.md`
+- **Compass artifacts consumidos:**
+  - `claude-code/knowledge/Rails/compass_artifact_wf-0deebe76-e4fd-426f-889d-0698b640ee56_text_markdown.md` (Idiomatismo Senior em Rails)
+  - `claude-code/knowledge/Rails/compass_artifact_wf-3e82e3be-3396-46a9-b6f7-bcdca87f7661_text_markdown.md` (Arquitetura e Organizacao Senior em Rails)
+- **Anti-drift clause aplicada no prompt:** confirmado verbatim do compound lesson 2026-05-16-extrator-subagente-injeta-verdades-fora-do-source.md (REGRA DE FIDELIDADE + Liberdade explicita)
+- **Citacoes rastreaveis:** Xavier Noria (Zeitwerk), Manrubia (37signals concerns), DHH (DI not virtue), Bryan Helmkamp (concerns em uma classe) — todas com fonte literal.
+- **INDEX skeleton:** `docs/knowledge/rails/INDEX.md` criado com nota de provisoriedade (INDEX final D9 fica em Plano 03 fase-06).
+- **Proximo passo:** verifier refined + E2E tracer em fase-06.
