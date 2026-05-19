@@ -63,6 +63,8 @@ Apenas gotchas que NAO eram obvios antes de implementar.
 
 - **GT-6 (fase-03):** `bun tsc --noEmit` com argumentos de arquivos individuais retorna `TS1343 (import.meta)` falsos. Use sempre `bun tsc --noEmit` sem args (deixa o tsconfig do projeto cuidar de `module: esnext`).
 
+- **GT-7 (fase-04):** Detector Rails ja era zero-falso-positivo desde o inicio. A regex `["']rails["']` exige aspas FECHANDO logo apos `rails` — `gem 'rails-erb'` nao matcha porque o char apos `rails` e `-`, nao quote. Nao perder tempo "endurecendo" a regex em features futuras se ja existir; primeiro escrever o test e ver se ja passa (5 minutos vs 1 hora de refactor desnecessario).
+
 ---
 
 ## Desvios do Plano
@@ -79,7 +81,7 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 6 |
-| Fases concluidas | 3 |
+| Fases concluidas | 4 |
 | Fases com desvio | 0 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |

@@ -106,4 +106,42 @@ describe('detectStack', () => {
     expect(r.primary).toBeNull()
     expect(r.anchorFiles).toEqual([])
   })
+
+  // 2026-05-19 (Luiz/dev): Plano01 fase-04 — regression coverage detector Rails sobre D22 — RF3 + CA-03 + CA-06 + D10
+  it('CA-06 Gemfile vazio: nao crashea, primary=null, anchorFiles inclui Gemfile', async () => {
+    await fs.writeFile(path.join(FIXTURE, 'Gemfile'), '', 'utf8')
+    const r = await detectStack(FIXTURE)
+    expect(r.primary).toBeNull()
+    expect(r.anchorFiles).toContain('Gemfile')
+  })
+
+  it('Rails legado: Gemfile com gem "rails", "~> 7.0" ainda classifica como rails (warning de versao fica em RF11/Plano03)', async () => {
+    await fs.writeFile(
+      path.join(FIXTURE, 'Gemfile'),
+      "source 'https://rubygems.org'\ngem 'rails', '~> 7.0'\n",
+      'utf8',
+    )
+    const r = await detectStack(FIXTURE)
+    expect(r.primary).toBe('rails')
+  })
+
+  it('robustez D10: gem rails indentado dentro de bloco group ainda matcha', async () => {
+    await fs.writeFile(
+      path.join(FIXTURE, 'Gemfile'),
+      "source 'https://rubygems.org'\ngroup :default do\n  gem 'rails', '~> 8.0'\nend\n",
+      'utf8',
+    )
+    const r = await detectStack(FIXTURE)
+    expect(r.primary).toBe('rails')
+  })
+
+  it('zero falso-positivo: gem "rails-erb" (substring) NAO classifica como rails', async () => {
+    await fs.writeFile(
+      path.join(FIXTURE, 'Gemfile'),
+      "source 'https://rubygems.org'\ngem 'rails-erb', '~> 1.0'\ngem 'sinatra'\n",
+      'utf8',
+    )
+    const r = await detectStack(FIXTURE)
+    expect(r.primary).toBeNull()
+  })
 })
