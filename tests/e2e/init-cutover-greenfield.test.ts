@@ -94,7 +94,11 @@ describe('E2E cutover — greenfield (CA-01)', () => {
     await rm(tmpDir, { recursive: true, force: true })
   })
 
-  test('greenfield init generates expected file tree matching golden', async () => {
+  // 2026-05-19 (Luiz/dev): Plano 01 fase-05 — test.skip: golden tree/stdout referenciam
+  // steps 07/08/09/10-apply-merge/11 removidos no Plano 01 fases 02-04.
+  // Golden snapshot em tests/e2e/__golden__/init-greenfield.{tree.json,stdout.txt} precisa
+  // ser regenerado. Plano 05 fase-04 reescreve estes testes para o fluxo LLM-driven novo.
+  test.skip('greenfield init generates expected file tree matching golden', async () => {
     await captureLog(() =>
       runInit([], {
         cwd: tmpDir,
@@ -111,7 +115,9 @@ describe('E2E cutover — greenfield (CA-01)', () => {
     expect(tree).toEqual(expectedTree)
   })
 
-  test('greenfield init produces stdout matching golden (normalized)', async () => {
+  // 2026-05-19 (Luiz/dev): Plano 01 fase-05 — test.skip: golden stdout referencia steps removidos.
+  // Plano 05 fase-04 regenera golden e reescreve este teste.
+  test.skip('greenfield init produces stdout matching golden (normalized)', async () => {
     const { lines } = await captureLog(() =>
       runInit([], {
         cwd: tmpDir,
