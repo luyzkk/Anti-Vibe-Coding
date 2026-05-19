@@ -3,10 +3,7 @@ import type { Step } from './steps/types'
 import { detectLegacyStep } from './steps/00-detect-legacy'
 import { reuseDiscoveryStep } from './steps/00_1-reuse-discovery'
 import { secretsScanStep } from './steps/06-secrets-scan'
-import { classifyBlocksHybridStep } from './steps/08-classify-blocks-hybrid'
-import { proposeMergeBatchStep } from './steps/09-propose-merge-batch'
 import { applyMergeDestructiveStep } from './steps/10-apply-merge-destructive'
-import { moveDocsWithStubStep } from './steps/11-move-docs-with-stub'
 import { detectDriftIncrementalStep } from './steps/12-detect-drift-incremental'
 import { migrate0ParseDryRunStep } from './steps/09-migrate-0-parse-dry-run'
 import { migrateAllOrchestrateStep } from './steps/09_1-migrate-all-orchestrate'
@@ -46,9 +43,10 @@ export const registry: readonly Step[] = [
   secretsScanStep,              // 2026-05-18 (Luiz/dev): Plano 03 fase-02 — varre secrets ANTES de qualquer move (D16, SH-01, CA-04).
   // 2026-05-19 (Luiz/dev): Plano 01 fase-02 — Step 07 (discover-existing-docs) removido.
   // MH-04 PRD novo: discovery semantico vira responsabilidade do Step 91 LLM-driven (Plano 03 fase-01).
-  classifyBlocksHybridStep,     // 2026-05-18 (Luiz/dev): Plano 03 fase-06 — classifica heuristica + flagga pendingLlm para Plano 04 fase-02 (D8, SH-03, SH-04).
-  proposeMergeBatchStep,        // 2026-05-18 (Luiz/dev): Plano 04 fase-02 — Step 09 agrega JSONs de discovery e emite needsUser com diff (PRD MH-04, D4, G2, G8, G9, G12, G13).
-  moveDocsWithStubStep,         // 2026-05-18 (Luiz/dev): Plano 04 fase-05 — Step 11 itera MoveAction[], chama moveDocWithStub, skipa READMEs e secrets (G3, SH-01, D16).
+  // 2026-05-19 (Luiz/dev): Plano 01 fase-03 — Steps 08 (classify-blocks-hybrid),
+  // 09 (propose-merge-batch) e 11 (move-docs-with-stub) removidos. PRD MH-04 / D1:
+  // mapeamento N -> M de docs vira responsabilidade da LLM via plano populate
+  // gerado pelo Step 91 (reescrito no Plano 03).
   detectDriftIncrementalStep,   // 2026-05-18 (Luiz/dev): Plano 05 fase-03 — Step 12 drift detection (already-initiated only, D7, SH-05, CA-05).
   migrate0ParseDryRunStep,      // 2026-05-17 (Luiz/dev): plano03 fase-05 — parse --dry-run flag (SKILL.md linha 50, G1).
   migrateAllOrchestrateStep,    // 2026-05-17 (Luiz/dev): plano03 fase-05 — DI-5-1: skipRemaining em dry-run; NO-OP em real mode (PRD CA-03, CA-10).
