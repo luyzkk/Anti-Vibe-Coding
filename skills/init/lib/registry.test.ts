@@ -12,15 +12,16 @@ describe('registry', () => {
     expect(new Set(ids).size).toBe(ids.length)
   })
 
-  test('91-generate-populate-plan is the last step', () => {
-    expect(registry.at(-1)?.id).toBe('91-generate-populate-plan')
+  // 2026-05-19 (Luiz/dev): MH-01 / CA-07 — Step 91 deve PRECEDER Step 90 (Bug C).
+  test('final-validation is the last step', () => {
+    expect(registry.at(-1)?.id).toBe('final-validation')
   })
 
-  test('91-generate-populate-plan comes after final-validation', () => {
+  test('91-generate-populate-plan comes BEFORE final-validation', () => {
     const finalIdx = registry.findIndex(s => s.id === 'final-validation')
     const populateIdx = registry.findIndex(s => s.id === '91-generate-populate-plan')
-    expect(finalIdx).toBeGreaterThanOrEqual(0)
-    expect(populateIdx).toBeGreaterThan(finalIdx)
+    expect(populateIdx).toBeGreaterThanOrEqual(0)
+    expect(finalIdx).toBeGreaterThan(populateIdx)
   })
 
   test('positions propose-merge-batch immediately after classify-blocks-hybrid', () => {
