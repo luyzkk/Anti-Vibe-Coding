@@ -66,10 +66,12 @@ describe('generatePopulatePlanV2', () => {
   it('NEVER calls fetch / network (G3 — pure render)', async () => {
     const originalFetch = globalThis.fetch
     let called = false
+    // Double-cast: arrow fn incompatible com `typeof fetch` diretamente (TS2352).
+    // `as unknown as typeof fetch` e a forma idiomatica para mocks de funcoes builtin.
     globalThis.fetch = (() => {
       called = true
       throw new Error('should not fetch')
-    }) as typeof fetch
+    }) as unknown as typeof fetch
     try {
       await generatePopulatePlanV2({
         cwd: '/tmp/fake',
