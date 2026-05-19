@@ -5,7 +5,6 @@ export type DiscoveryArtifactName =
   | 'secrets-scan-result'
   | 'discovered-docs'
   | 'classification-result'
-  | 'drift-report'
 
 export type DiscoveryWriteOptions = {
   readonly noWrite?: boolean

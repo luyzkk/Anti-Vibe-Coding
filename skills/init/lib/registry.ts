@@ -6,7 +6,6 @@ import { reentryGuardStep } from './steps/00_2-reentry-guard'
 import { backupPre650Step } from './steps/00_3-backup-pre-6_5_0'
 import { secretsScanStep } from './steps/06-secrets-scan'
 import { backupPreMutationStep } from './steps/10-backup-pre-mutation'
-import { detectDriftIncrementalStep } from './steps/12-detect-drift-incremental'
 import { migrate0ParseDryRunStep } from './steps/09-migrate-0-parse-dry-run'
 import { migrateAllOrchestrateStep } from './steps/09_1-migrate-all-orchestrate'
 import { migrate1BackupStep } from './steps/10-migrate-1-backup'
@@ -58,7 +57,6 @@ export const registry: readonly Step[] = [
   // 09 (propose-merge-batch) e 11 (move-docs-with-stub) removidos. PRD MH-04 / D1:
   // mapeamento N -> M de docs vira responsabilidade da LLM via plano populate
   // gerado pelo Step 91 (reescrito no Plano 03).
-  detectDriftIncrementalStep,   // 2026-05-18 (Luiz/dev): Plano 05 fase-03 — Step 12 drift detection (already-initiated only, D7, SH-05, CA-05).
   migrate0ParseDryRunStep,      // 2026-05-17 (Luiz/dev): plano03 fase-05 — parse --dry-run flag (SKILL.md linha 50, G1).
   migrateAllOrchestrateStep,    // 2026-05-17 (Luiz/dev): plano03 fase-05 — DI-5-1: skipRemaining em dry-run; NO-OP em real mode (PRD CA-03, CA-10).
   migrate1BackupStep,           // 2026-05-17 (Luiz/dev): G4 do plano03 fase-02 — apos migrate-all (agora indice 4).
