@@ -38,7 +38,9 @@ import { generatePopulatePlanStep } from './steps/91-generate-populate-plan'
 // detect-stack-and-register escreve STATE.md; persist-stack-and-knowledge le STATE.md indireto via runStackKnowledgeInit.
 // Step 4: customizeArchitecture re-detecta stack e customiza ARCHITECTURE.md (PRD CA-01).
 // Step 5: installGhFiles — D14 sempre roda, apos customize-architecture (PRD CA-01).
-// final-validation: ULTIMA — porta Step migrate.5, valida harness apos toda mutacao.
+// 2026-05-19 (Luiz/dev): MH-01 do PRD novo — Step 91 (generate-populate-plan) ANTES de
+// Step 90 (final-validation). PLAN.md sai mesmo se Step 90 emitir warning (Bug C resolvido).
+// Step 90 continua sendo ultima execucao (diagnostico nao-bloqueante).
 export const registry: readonly Step[] = [
   detectLegacyStep,
   reuseDiscoveryStep,           // 2026-05-17 (Luiz/dev): early-exit via skipRemaining quando cache fresh (PRD MH-04, CA-04).
@@ -65,8 +67,9 @@ export const registry: readonly Step[] = [
   installGhFilesStep,           // 2026-05-17 (Luiz/dev): D14 — sempre apos customize-architecture (PRD CA-01).
   deliveryLoopStep,             // 2026-05-17 (Luiz/dev): plano03 fase-06 — Step 6 interativo via needsUser (PRD D3, CH-01, CA-05).
   capabilitiesDiscoveryStep,    // 2026-05-17 (Luiz/dev): plano03 fase-06 — Step 7 soft-fail (PRD CA-06, G7).
-  finalValidationStep,          // 2026-05-17 (Luiz/dev): Step migrate.5 — valida harness apos migracao completa (PRD CA-09).
-  // 2026-05-18 (Luiz/dev): MH-01 do PRD / G7 do plano02 —
-  // Step 91 SEMPRE apos finalValidationStep. Gerar PLAN.md com harness invalido geraria lixo.
-  generatePopulatePlanStep,      // 2026-05-18 (Luiz/dev): '91-generate-populate-plan' — MH-01 / G7: ultima posicao do registry.
+  // 2026-05-19 (Luiz/dev): MH-01 / CA-07 do PRD init-llm-driven-harness-population —
+  // Step 91 ANTES do Step 90. Bug C: Step 90 abortando deixava Step 91 sem rodar.
+  // PLAN.md e output principal da init; validation e diagnostico nao-bloqueante.
+  generatePopulatePlanStep,     // 2026-05-19 (Luiz/dev): '91-generate-populate-plan' — emite PLAN.md antes do validator.
+  finalValidationStep,          // 2026-05-19 (Luiz/dev): Step 90 — agora ULTIMA posicao, modo warning sera Plano 04 fase-04.
 ]
