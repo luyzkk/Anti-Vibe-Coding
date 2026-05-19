@@ -1,12 +1,23 @@
 #!/bin/bash
 # 2026-05-12 (Luiz/dev): atualizado para v6.0.0 — adicionados paths AGENTS.md, ARCHITECTURE.md, scripts/, .github/, tests/fixtures/
+# 2026-05-18 (Luiz/dev): defaults sincronizados com layout atual — PLUGIN_DEV aponta para
+# Anti-Vibe-Coding (era "Claude code/anti-vibe-coding" pre-flatten); PLUGIN_GLOBAL deriva
+# a versao do plugin-manifest.json em vez de pinar em 6.0.0.
 # Idempotente: rodar 2x produz mesmo resultado.
 # POSIX-compatible: testado em Git Bash Windows + macOS + Linux.
 
 set -u  # erro em var nao-definida; mas NAO -e (queremos tolerar falhas de cp em paths opcionais)
 
-PLUGIN_DEV="${PLUGIN_DEV:-f:/Projetos/Claude code/anti-vibe-coding}"
-PLUGIN_GLOBAL="${PLUGIN_GLOBAL:-/c/Users/luizf/.claude/plugins/cache/local-plugins/anti-vibe-coding/6.0.0}"
+PLUGIN_DEV="${PLUGIN_DEV:-/f/Projetos/Anti-Vibe-Coding}"
+
+# Deriva versao do manifest do dev para evitar drift (era hard-coded em 6.0.0).
+if [ -z "${PLUGIN_GLOBAL:-}" ]; then
+  if [ -f "$PLUGIN_DEV/plugin-manifest.json" ]; then
+    PLUGIN_VERSION=$(grep -m1 '"version"' "$PLUGIN_DEV/plugin-manifest.json" | sed -E 's/.*"version"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/')
+  fi
+  PLUGIN_VERSION="${PLUGIN_VERSION:-6.4.1}"
+  PLUGIN_GLOBAL="/c/Users/luizf/.claude/plugins/cache/local-plugins/anti-vibe-coding/$PLUGIN_VERSION"
+fi
 
 echo "========================================="
 echo "Sincronizando Plugin para Cache Global"
