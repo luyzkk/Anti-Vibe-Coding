@@ -1,5 +1,5 @@
 // 2026-05-18 (Luiz/dev): resolve {{include: ./path.md}} markers em conteudo markdown.
-// Usado pelo Step 10 (apply-merge-destructive) para expandir design-md-skeleton.md.
+// Step 10 (apply-merge-destructive) foi removido no Plano 01 fase-03; este helper ficou orfao.
 // DI-1: marcadores usam caminhos relativos com ./; baseDir eh a pasta do skeleton.
 
 import { promises as fs } from 'node:fs'

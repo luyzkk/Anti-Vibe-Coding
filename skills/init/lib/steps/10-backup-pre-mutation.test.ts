@@ -1,43 +1,69 @@
-// 2026-05-19 (Luiz/dev): Plano 01 fase-04 — testes minimos do backup-pre-mutation.
-// Cobertura completa (manifest, multiplos docs, edge cases) e do Plano 02 fase-03.
-import { describe, expect, test } from 'bun:test'
+// 2026-05-19 (Luiz/dev): testes da nova logica leve do Step 10 (MH-05).
+// Substitui suite antiga (applyMergeDestructive) — deletar `10-apply-merge-destructive.test.ts`.
+
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import os from 'node:os'
 import { backupPreMutationStep } from './10-backup-pre-mutation'
+import type { StepContext } from './types'
 
-async function mkTmp(): Promise<string> {
-  const base = path.join(import.meta.dir, '..', '..', '..', '..', '.tmp', `bpm-${Date.now()}`)
-  await fs.mkdir(base, { recursive: true })
-  return base
+async function mkTempProject(files: Record<string, string> = {}): Promise<string> {
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'avc-step10-'))
+  for (const [relPath, content] of Object.entries(files)) {
+    const fullPath = path.join(tmpDir, relPath)
+    await fs.mkdir(path.dirname(fullPath), { recursive: true })
+    await fs.writeFile(fullPath, content, 'utf8')
+  }
+  return tmpDir
 }
 
-describe('10-backup-pre-mutation (esqueleto minimo)', () => {
-  test('copies CLAUDE.md raiz to docs/_legacy/CLAUDE.md.bak when present', async () => {
-    const cwd = await mkTmp()
-    await fs.writeFile(path.join(cwd, 'CLAUDE.md'), '# legacy content', 'utf8')
+function ctxFor(cwd: string, flags: Record<string, boolean | string> = {}): StepContext {
+  return { cwd, args: [], flags }
+}
 
-    const report = await backupPreMutationStep.run({ cwd, args: [], flags: {} })
-    expect(report.mutated).toBe(true)
+describe('backupPreMutationStep', () => {
+  let tmpDir: string
 
-    const backup = await fs.readFile(path.join(cwd, 'docs/_legacy/CLAUDE.md.bak'), 'utf8')
-    expect(backup).toBe('# legacy content')
+  afterEach(async () => {
+    if (tmpDir) await fs.rm(tmpDir, { recursive: true, force: true })
   })
 
-  test('skips silently when no CLAUDE.md raiz', async () => {
-    const cwd = await mkTmp()
-    const report = await backupPreMutationStep.run({ cwd, args: [], flags: {} })
+  it('copies CLAUDE.md to docs/_legacy/CLAUDE.md.bak when CLAUDE.md exists', async () => {
+    tmpDir = await mkTempProject({ 'CLAUDE.md': '# old content' })
+
+    const report = await backupPreMutationStep.run(ctxFor(tmpDir))
+
+    expect(report.mutated).toBe(true)
+    expect(report.summary).toContain('CLAUDE.md -> docs/_legacy/CLAUDE.md.bak')
+
+    const bak = await fs.readFile(path.join(tmpDir, 'docs/_legacy/CLAUDE.md.bak'), 'utf8')
+    expect(bak).toBe('# old content')
+  })
+
+  it('skips silently when CLAUDE.md is absent (greenfield)', async () => {
+    tmpDir = await mkTempProject() // sem CLAUDE.md
+
+    const report = await backupPreMutationStep.run(ctxFor(tmpDir))
+
     expect(report.mutated).toBe(false)
     expect(report.summary).toContain('skip')
+
+    const legacyExists = await fs.access(path.join(tmpDir, 'docs/_legacy')).then(() => true).catch(() => false)
+    expect(legacyExists).toBe(false)
   })
 
-  test('dry-run: nao escreve nada', async () => {
-    const cwd = await mkTmp()
-    await fs.writeFile(path.join(cwd, 'CLAUDE.md'), '# anything', 'utf8')
+  it('respects --dry-run (no copy)', async () => {
+    tmpDir = await mkTempProject({ 'CLAUDE.md': '# something' })
 
-    const report = await backupPreMutationStep.run({ cwd, args: ['--dry-run'], flags: { 'dry-run': true } })
+    const report = await backupPreMutationStep.run(ctxFor(tmpDir, { 'dry-run': true }))
+
     expect(report.mutated).toBe(false)
+    expect(report.summary).toContain('dry-run')
 
-    const legacyExists = await fs.access(path.join(cwd, 'docs/_legacy')).then(() => true).catch(() => false)
-    expect(legacyExists).toBe(false)
+    const bakExists = await fs.access(path.join(tmpDir, 'docs/_legacy/CLAUDE.md.bak'))
+      .then(() => true)
+      .catch(() => false)
+    expect(bakExists).toBe(false)
   })
 })
