@@ -1,58 +1,60 @@
 // skills/init/lib/steps/90-final-validation.test.ts
-// 2026-05-17 (Luiz/dev): 2 cenarios — success (exit 0), failure (exit !=0 throws AbortError).
-// TDD: RED first. PRD CA-09.
-import { describe, test, expect, afterEach } from 'bun:test'
-import { mkdtemp, rm, mkdir, writeFile } from 'node:fs/promises'
+// 2026-05-19 (Luiz/dev): RED — allowlist-mode. Plano 04 fase-03.
+// Substitui testes antigos (harness-validate spawn + AbortError).
+import { describe, it, expect, afterEach } from 'bun:test'
+import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import os from 'node:os'
 import { finalValidationStep } from './90-final-validation'
-import { AbortError } from './abort-error'
 
-const ctx = (cwd: string) => ({
-  cwd,
-  args: [] as readonly string[],
-  flags: {} as Readonly<Record<string, boolean | string>>,
-})
-
-async function setupTmp(scriptBody: string): Promise<string> {
-  const dir = await mkdtemp(path.join(os.tmpdir(), 'validate-test-'))
-  await mkdir(path.join(dir, 'scripts'), { recursive: true })
-  await writeFile(path.join(dir, 'scripts', 'harness-validate.ts'), scriptBody)
-  return dir
+async function makeFixture(extras: readonly string[]): Promise<string> {
+  const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'val-allowlist-'))
+  await fs.mkdir(path.join(cwd, 'docs/design-docs'), { recursive: true })
+  await fs.writeFile(path.join(cwd, 'docs/STATE.md'), '# state')
+  await fs.writeFile(path.join(cwd, 'docs/design-docs/index.md'), '# index')
+  for (const rel of extras) {
+    const abs = path.join(cwd, rel)
+    await fs.mkdir(path.dirname(abs), { recursive: true })
+    await fs.writeFile(abs, '# extra')
+  }
+  return cwd
 }
 
-describe('finalValidationStep', () => {
-  let tmpDir: string
+describe('finalValidationStep (allowlist mode)', () => {
+  let cwd: string
+
   afterEach(async () => {
-    if (tmpDir) await rm(tmpDir, { recursive: true, force: true })
+    if (cwd) await fs.rm(cwd, { recursive: true, force: true })
   })
 
-  test('success (exit 0): returns summary with commit suggestion', async () => {
-    tmpDir = await setupTmp('process.exit(0)\n')
-    const r = await finalValidationStep.run(ctx(tmpDir))
-    expect(r.mutated).toBe(false)
-    const lines = r.summary.split('\n')
-    expect(lines[0]).toBe(
-      "Migration validated. Suggested commit: git commit -m 'chore: migrate to anti-vibe-coding v6.0.0'",
-    )
-    expect(lines[1]).toBe('Add .planning.v5-backup/ to .gitignore (or delete after confirming all is well).')
+  it('reports 0 warnings when only canonical docs exist', async () => {
+    cwd = await makeFixture([])
+    const report = await finalValidationStep.run({ cwd, args: [], flags: {} })
+    expect(report.summary).toContain('0 warnings')
   })
 
-  test('failure (exit non-zero): throws AbortError with rollback reason', async () => {
-    tmpDir = await setupTmp('process.exit(2)\n')
-    try {
-      await finalValidationStep.run(ctx(tmpDir))
-      throw new Error('should have thrown')
-    } catch (e) {
-      expect(e).toBeInstanceOf(AbortError)
-      if (e instanceof AbortError) {
-        expect(e.code).toBe(2)
-        const lines = e.reason.split('\n')
-        expect(lines[0]).toBe('WARN: harness:validate failed after migration. Inspect output above.')
-        expect(lines[1]).toBe(
-          'Backup is at .planning.v5-backup/ — to roll back: git revert HEAD && cp -r .planning.v5-backup/.planning ./',
-        )
-      }
+  it('CA-06 Bug A: groups ~179 spurious paths into <= 5 warning groups', async () => {
+    const extras: string[] = []
+    for (let i = 0; i < 179; i++) {
+      extras.push(`docs/custom/file-${i}.md`)
     }
+    cwd = await makeFixture(extras)
+    const report = await finalValidationStep.run({ cwd, args: [], flags: {} })
+    const match = /(\d+) warnings/.exec(report.summary)
+    expect(match).not.toBeNull()
+    const warnings = Number(match![1])
+    expect(warnings).toBeLessThanOrEqual(5)
+  })
+
+  it('does not warn on runtime paths under docs/exec-plans/active/', async () => {
+    cwd = await makeFixture(['docs/exec-plans/active/2026-05-19-foo/PLAN.md'])
+    const report = await finalValidationStep.run({ cwd, args: [], flags: {} })
+    expect(report.summary).toContain('0 warnings')
+  })
+
+  it('ignores docs/_legacy (backup pre-6.5.0)', async () => {
+    cwd = await makeFixture(['docs/_legacy/pre-6.5.0/anything.md'])
+    const report = await finalValidationStep.run({ cwd, args: [], flags: {} })
+    expect(report.summary).toContain('0 warnings')
   })
 })
