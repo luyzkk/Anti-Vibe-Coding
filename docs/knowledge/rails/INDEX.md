@@ -2,9 +2,7 @@
 
 # Rails Knowledge — Index
 
-Knowledge senior Rails-native (Rails 7.1+/8.x). 14 atomos cobrindo Active Record, Action Pack, Hotwire, Solid Trifecta, deployment com Kamal, security, performance e testing.
-
-Skills cross-stack consomem este INDEX via `getStackKnowledgePreface()` antes do corpo generico — agente segue o roteamento aqui e abre o atomo Rails relevante em UMA leitura.
+Knowledge senior Rails-native (Rails 7.1+/8.x). 14 atomos cobrindo Active Record, Action Pack, Hotwire, Solid Trifecta, Kamal, security, performance e testing. Skills cross-stack consomem este INDEX via `getStackKnowledgePreface()` antes do corpo generico.
 
 ---
 
@@ -77,5 +75,24 @@ Skills cross-stack consomem este INDEX via `getStackKnowledgePreface()` antes do
 - `action-mailer-and-mailbox` — outbound mailer, inbound mailbox routing, ActionText absorvido
 
 ---
+
+## Por keyword
+
+| Keyword | Átomos |
+|---|---|
+| active record, N+1, includes, callbacks, scopes | [active-record-fundamentals](./atoms/active-record-fundamentals.md) |
+| migration, zero downtime, strong_migrations | [active-record-migrations-safety](./atoms/active-record-migrations-safety.md) |
+| controller, routing, strong params, before_action | [action-controller-and-routing](./atoms/action-controller-and-routing.md) |
+| hotwire, turbo, stimulus, view caching | [action-view-and-hotwire](./atoms/action-view-and-hotwire.md) |
+| background job, solid queue, sidekiq, idempotency | [active-job-and-solid-queue](./atoms/active-job-and-solid-queue.md) |
+| caching, solid cache, fragment caching, russian doll | [caching-with-rails](./atoms/caching-with-rails.md) |
+| security, CSRF, Brakeman, mass-assignment, CSP | [security-csrf-and-brakeman](./atoms/security-csrf-and-brakeman.md) |
+| file upload, signed url, direct upload, variants | [active-storage](./atoms/active-storage.md) |
+| deployment, kamal, docker, healthcheck | [deployment-with-kamal](./atoms/deployment-with-kamal.md) |
+| websocket, realtime, action cable, broadcasts | [action-cable-and-realtime](./atoms/action-cable-and-realtime.md) |
+| action mailer, action text, mailer preview, ingress | [action-mailer-and-mailbox](./atoms/action-mailer-and-mailbox.md) |
+| rspec, minitest, factory_bot, system test, capybara | [rspec-and-minitest](./atoms/rspec-and-minitest.md) |
+| Zeitwerk, ActiveSupport, conventions, metaprogramming | [rails-conventions-and-magic](./atoms/rails-conventions-and-magic.md) |
+| performance, EXPLAIN, find_each, counter_cache, load_async | [performance-and-tuning](./atoms/performance-and-tuning.md) |
 
 Cobertura Rails 7.1+/8.x. Padroes Rails-8-exclusivos marcados com `rails_versions: ['>=8.0']` no frontmatter do atomo (Solid Queue, Solid Cache, Solid Cable, Kamal 2 default).
