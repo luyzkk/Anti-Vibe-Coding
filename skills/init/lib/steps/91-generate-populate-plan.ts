@@ -82,6 +82,12 @@ export const generatePopulatePlanStep: Step = {
       retry_count: 0,
     })
 
+    // 2026-05-19 (Luiz/dev): Plano 05 fase-03 — CA-11. Propaga path para o dispatcher
+    // via ctx.flags (mutable em runtime — Readonly e apenas TypeScript compile-time).
+    // run-init.ts le apos o loop para emitir mensagem final ao usuario.
+    ;(ctx.flags as Record<string, boolean | string>)['__populatePlanPath'] =
+      `${plan.relativeFolderPath}/PLAN.md`
+
     const summary = [
       `Plano de populacao gerado: ${plan.relativeFolderPath}`,
       `Fases emitidas: ${plan.phases.length} (1 por doc canonico).`,

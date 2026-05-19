@@ -79,9 +79,17 @@ $ARGUMENTS
 
 Apresentar ao usuario UMA mensagem (nao executar):
 
-> Plugin v6.x inicializado. Sugestao: rode `/anti-vibe-coding:detect-architecture` para
-> classificar este projeto em 1 dos 5 perfis arquiteturais e ativar o Modo Dual nas skills
-> estruturantes.
+> Harness scaffold criado. Plano populate em `{populatePlanPath}`.
+>
+> Proximo passo: rode `/anti-vibe-coding:execute-plan {populatePlanPath}`
+> para a IA popular cada doc canonico lendo o codigo real. Cada fase = 1 doc canonico.
+> Revise via PR antes de fechar a fase.
+>
+> Opcional: `/anti-vibe-coding:detect-architecture` para classificar o projeto em 1 dos 5
+> perfis arquiteturais (ativa Modo Dual nas skills estruturantes).
 
-NAO invocar `/anti-vibe-coding:detect-architecture` automaticamente (respeita
-`feedback_suggest_dont_execute.md` — IA sugere, usuario decide).
+Substituir `{populatePlanPath}` pelo valor real emitido pelo Step 91
+(`docs/exec-plans/active/{YYYY-MM-DD}-populate-harness/PLAN.md`).
+
+NAO invocar `/anti-vibe-coding:execute-plan` nem `/anti-vibe-coding:detect-architecture`
+automaticamente (respeita `feedback_suggest_dont_execute.md` — IA sugere, usuario decide).

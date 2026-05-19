@@ -187,5 +187,21 @@ export async function runInit(
     log('')
   }
 
+  // 2026-05-19 (Luiz/dev): Plano 05 fase-03 — mensagem final CA-11.
+  // `__populatePlanPath` e setado por Step 91 em ctx.flags apos escrever o plano populate.
+  // Mensagem sugestiva — nunca invoca automaticamente (feedback_suggest_dont_execute.md).
+  const populatePlanPath = typeof ctxWithAudit.flags['__populatePlanPath'] === 'string'
+    ? ctxWithAudit.flags['__populatePlanPath']
+    : null
+  if (populatePlanPath !== null) {
+    log('')
+    log(`Harness scaffold criado. Plano populate em ${populatePlanPath}`)
+    log('')
+    log(`Proximo passo: rode /anti-vibe-coding:execute-plan ${populatePlanPath}`)
+    log('para a IA popular cada doc canonico lendo o codigo real. Revise via PR antes de fechar cada fase.')
+    log('')
+    log('Opcional: /anti-vibe-coding:detect-architecture para Modo Dual nas skills estruturantes.')
+  }
+
   return { kind: 'ok', report: { mutated: false, summary: 'all steps completed' } }
 }
