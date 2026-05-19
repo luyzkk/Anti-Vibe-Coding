@@ -99,4 +99,44 @@ describe('applyMergeDestructiveStep', () => {
     expect(report.mutated).toBe(false)
     expect(report.summary).toContain('init-apply-merge')
   })
+
+  // 2026-05-18 (Luiz/dev): Quick Plan init v6.4.x bug 2 — regex inglês-only perdia projetos pt-BR.
+  test('extracts Akita blocks from pt-BR CLAUDE.md headings (with and without accents)', async () => {
+    const ptLines = [
+      '# CLAUDE.md',
+      '',
+      '## Código',
+      '',
+      'Escreva código limpo.',
+      '',
+      '## Comentários',
+      '',
+      'Use comentários descritivos.',
+      '',
+      '## Testes',
+      '',
+      'Cubra logica com testes.',
+      '',
+      '## Dependencias',
+      '',
+      'Use dependencias estaveis.',
+      '',
+      '## Observabilidade',
+      '',
+      'Logue erros com contexto.',
+      '',
+    ]
+    while (ptLines.length < 300) ptLines.push(`// padding ${ptLines.length}`)
+    await fs.writeFile(path.join(tmp, 'CLAUDE.md'), ptLines.join('\n'), 'utf8')
+
+    await applyMergeDestructiveStep.run({ cwd: tmp, args: [], flags: {} })
+    const design = await fs.readFile(path.join(tmp, 'docs', 'DESIGN.md'), 'utf8')
+
+    // Headings pt-BR (originais do projeto) devem aparecer como subsecoes ### em DESIGN.md
+    expect(design).toContain('### Código')
+    expect(design).toContain('### Comentários')
+    expect(design).toContain('### Testes')
+    expect(design).toContain('### Dependencias')
+    expect(design).toContain('### Observabilidade')
+  })
 })

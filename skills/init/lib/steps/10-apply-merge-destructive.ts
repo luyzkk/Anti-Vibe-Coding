@@ -33,8 +33,11 @@ const CLAUDE_MIRROR_TEMPLATE = `# CLAUDE.md
 Leia AGENTS.md primeiro. Para code style detalhado, leia docs/DESIGN.md.
 `
 
-// Keywords para identificar blocos Akita no CLAUDE.md original
-const AKITA_HEADING_REGEX = /code.?style|comments?|tests?|dependenc|logging|observability/i
+// Keywords para identificar blocos Akita no CLAUDE.md original.
+// 2026-05-18 (Luiz/dev): pt-BR adicionado (Quick Plan init v6.4.x bug 2). Inclui formas com e sem
+// acento porque CLAUDE.md em campo aparece nas duas variantes (ex: "Codigo" e "Código").
+const AKITA_HEADING_REGEX =
+  /code.?style|comments?|tests?|dependenc|logging|observability|c[óo]digo|coment[áa]rios?|testes?|depend[êe]ncias?|observabilidade/i
 
 type AkitaBlock = {
   readonly heading: string
