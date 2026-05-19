@@ -56,12 +56,13 @@ const EXCLUDED_FROM_POPULATION = new Set([
 // Prefixos excluidos por padrao
 const EXCLUDED_PATTERNS = [/^\.github\//, /^scripts\//]
 
-/**
- * Converte Date para string path-safe (sem `:`, sem milissegundos).
- * Ex: 2026-05-18T14:30:00.000Z -> 2026-05-18T14-30-00Z
- */
+// 2026-05-19 (Luiz/dev): Plano 03 fase-04 DI-Plano03-fase04-datepathsafe —
+// Ajustado de `YYYY-MM-DDT...Z` para `YYYY-MM-DD` para compatibilidade com
+// /execute-plan glob (docs/exec-plans/active/YYYY-MM-DD-*/).
+// Slug antigo `2026-05-19T10-00-00Z-populate-harness` nao batia o glob.
+// Slug novo `2026-05-19-populate-harness` bate.
 function datePathSafe(now: Date): string {
-  return now.toISOString().replace(/[:.]/g, '-').replace(/-\d{3}Z$/, 'Z')
+  return now.toISOString().slice(0, 10)
 }
 
 /**
