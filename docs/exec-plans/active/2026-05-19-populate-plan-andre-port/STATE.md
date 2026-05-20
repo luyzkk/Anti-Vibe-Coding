@@ -1,8 +1,8 @@
 # State: Portar a estrutura de populate-plan do Andre para `/init`
 
 **Plan:** ./PLAN.md
-**Phase:** in-progress
-**Current Plan:** 05/5 (Plano 04 concluido — pronto para Plano 05)
+**Phase:** completed
+**Current Plan:** 05/5 (todos os planos concluidos — PRD fechado)
 **Last Updated:** 2026-05-20
 
 ## Progress por Plano
@@ -13,11 +13,11 @@
 | 02 | MH-2 PLAN.md / fase.md templates estilo Andre | 4 | 4/4 | completed |
 | 03 | MH-3 Instrucoes imperativas | 3 | 3/3 | completed |
 | 04 | MH-4 Discovery `(stack-id + doc-canonico) -> paths` | 3 | 3/3 | completed |
-| 05 | Gate completo + SH + compound + goldens | 6 | 0/6 | pending |
+| 05 | Gate completo + SH + compound + goldens | 6 | 6/6 | completed |
 
 ## Progress Global
 
-Fases done: 13/19 (68%)
+Fases done: 19/19 (100%)
 
 ## Log
 
@@ -34,3 +34,5 @@ Fases done: 13/19 (68%)
 - 2026-05-20: Plano 04 fase-01 executado via /execute-plan (subagente plan-executor). NEXTJS_CANDIDATES expandido de 6 para 14 chaves (+8 docs canonicos: AGENTS.md, CLAUDE.md, docs/PRODUCT_SENSE.md, docs/PLANS.md, docs/QUALITY_SCORE.md, docs/STATE.md, docs/design-docs/core-beliefs.md, README.md). NEXTJS_SUPABASE_EXTRA.SECURITY: 4 paths; NEXTJS_SUPABASE_EXTRA.RELIABILITY: 4 paths (CA-02 mecanico ok). GENERIC_CANDIDATES recebe README.md + docs/PRODUCT_SENSE.md. 3 stubs novos no fixture nextjs-supabase: src/lib/supabase/client.ts, supabase/migrations/20260519000000_init.sql, supabase/functions/hello/index.ts (8 arquivos no total no fixture). tests/fixtures/stack-aware/README.md criado. 3 novos it's (SEC >=3 reais, REL >=3 reais, 8 docs novos no map). 8/8 verde em stack-aware-input-paths.test.ts. Typecheck: apenas 3 erros GT-01 pre-existentes (sem novos). Suite completa sem regressao nova (7 fails identicos ao baseline pre-fase). Commit: `a26e94f`.
 - 2026-05-20: Plano 04 fase-02 executado via /execute-plan (subagente plan-executor). RAILS_CANDIDATES expandido de 4 para 12 chaves (+8 docs canonicos). NODE_TS_CANDIDATES expandido de 2 para 12 chaves (+8 docs + SECURITY + RELIABILITY que nao existiam antes). Paths derivados de scaffold padrao de cada stack — sem inventar. 2 novos it's: Rails 6 docs novos + Node-TS 6 docs novos. 10/10 verde em stack-aware-input-paths.test.ts. Typecheck: apenas 3 erros GT-01 pre-existentes. Suite completa: 7 fails identicos ao baseline (zero regressao nova). Commit: `beb8a85` (inclui MEMORY.md update no mesmo commit).
 - 2026-05-20: Plano 04 fase-03 executado via /execute-plan (subagente plan-executor). 2 asserts novos no parity test: CA-02 (Next.js+Supabase >= 3 paths reais em ARCH/SEC/REL) e CA-05 (stack null gera plano completo >= 12 fases com inputsCode vazio + nota explicita). Imports `path` + `stackAwareInputPaths` movidos para topo (DI-Plano04-fase03-imports-toplevel). RED simulado mentalmente (com fase-01/fase-02 mergeadas GREEN era imediato — DI-Plano04-fase03-red-validado-manualmente registrado). 8/8 verde em populate-plan-parity.test.ts. Typecheck: 3 erros GT-01. Suite completa: 7 fails baseline (zero regressao). Commit: `f0ec8db`. **Plano 04 COMPLETO (3/3 fases). Parity test agora com 8 asserts: 2 MH-1 + 2 CA-03 + 2 CA-06 + 2 CA-02/CA-05.**
+- 2026-05-20: Plano 05 fases 01-05 executadas (golden snapshot CA-08, LARAVEL+PYTHON SH-2, Lessons seeds SH-3, audit log SH-4, PIPELINE.md + compound SH-1). 10/10 parity tests, 3 GT-01 baseline. Parity test com 10 asserts. `docs/compound/2026-05-19-never-diminish-andre.md` criado.
+- 2026-05-20: Plano 05 fase-06 executado. Bug corrigido: `90-final-validation.ts` gate path errado (`.claude/knowledge/{stack}/INDEX.md` vs real `.claude/knowledge/INDEX.md`). Goldens regenerados: stdout (31 fases, Discovery 52, +step 13_1) + tree (+.claude/CLAUDE.md, fases 04-31). 5/5 init-cutover-greenfield. Suite: 3 fails baseline pre-existentes (CA-12 + greenfield-populate-plan CA-01 — nao desta feature). **PRD populate-plan-andre-port COMPLETO (19/19 fases, todos os CAs cobertos).**

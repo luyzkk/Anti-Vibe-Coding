@@ -2,7 +2,7 @@
 
 **Feature:** populate-plan-andre-port
 **Iniciado:** 2026-05-19
-**Status:** em execucao (fase-03 concluida)
+**Status:** completed (6/6 fases)
 
 ---
 
@@ -53,6 +53,18 @@ Formato: o que foi decidido + por que + impacto.
 - **DI-Plano05-fase04-empty-map-treated:** Map vazio em `computeAuditCoverage` retorna `{ docsCoveredByStack: 0, docsWithoutCodeEvidence: 0 }` em vez de throw.
   - Por que: decisao defensiva — em runtime, `stackAwareInputPaths()` nunca produz Map vazio (sempre tem >= 1 key do `GENERIC_CANDIDATES`). Se Map vazio aparecer, e bug upstream — retornar 0/0 e sinalizar via audit log sem crash.
   - Impacto: helper trata `map.size === 0` como erro upstream silencioso. Comentario JSDoc explica contrato. G7 do README do Plano 05.
+
+- **DI-Plano05-fase06-fixture-knowledge-stub:** Estrategia A (colocar stub em `.claude/knowledge/nodejs-typescript/INDEX.md` na fixture init-greenfield) foi descartada — `.claude/knowledge/` com conteudo e detectada como artefato v5 pelo `detect-v5-legacy.ts`, causando abort do init em vez de fix. Causa raiz real identificada: gate no `90-final-validation.ts` com path errado.
+  - Por que: o gate verificava `.claude/knowledge/{stack}/INDEX.md` mas `copyKnowledge` copia para `.claude/knowledge/INDEX.md` (sem subdiretorio). Fix direto: corrigir o gate.
+  - Impacto: fixture greenfield permaneceu com apenas `.gitkeep` e `.claude/progress.txt` — sem stub.
+
+- **DI-Plano05-fase06-regen-mecanismo:** Cenario B usado para regen dos goldens — script descartavel em `F:/tmp/regen-golden.mjs` e `F:/tmp/regen-tree.mjs` (fora do repo, bypassa TDD gate do hook). Output raw capturado em `tests/e2e/__golden__/_raw_stdout.txt` e normalizado com as mesmas funcoes do test. Ambos scripts deletados apos uso.
+  - Por que: test helper nao suporta `UPDATE_GOLDENS` flag (confirmado via grep). Script em `tmp/` do repo acionou TDD gate.
+  - Impacto: goldens gerados via duas corridas isoladas (stdout e tree em separado) para evitar problemas de normalizacao de paths Windows.
+
+- **DI-Plano05-fase06-diff-esperado:** Diffs validados entre golden.bak e golden.new:
+  - stdout: +linha `[13_1-migrate-knowledge-path] skipped: not in re-populate mode` (PRD knowledge-path-cutover), `Tree files: 32→33`, `Fases emitidas: 26→31` (Plano 01 fase-01 CanonicalDoc expandido), `Discovery: 51→52` (novo compound doc no repo).
+  - tree: +`.claude/CLAUDE.md` (link step), fases `fase-04..26` renumeradas/expandidas para `fase-04..31` (+5 novos: README, ARCHITECTURE, AGENTS, CLAUDE.md, e PRODUCT_SENSE renumerado). Todos diffs rastreados a Plano 01 fase-01 + PRD knowledge-path-cutover.
 
 - **DI-Plano05-fase04-MIN_EXPECTED_PHASES-const:** constante `MIN_EXPECTED_PHASES = 12` exportada do helper (nao inline no Step 91).
   - Por que: single source of truth — se PRD futuro mudar minimo de 12 para outro valor, muda em 1 lugar. Step 91 ja tem assertion defensiva `< 10` (linha 46) — gate antigo mais permissivo. `MIN_EXPECTED_PHASES = 12` e o gate de observabilidade mais estrito (SH-4).
@@ -117,14 +129,23 @@ Exemplo:
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 6 |
-| Fases concluidas | 4 |
+| Fases concluidas | 6 |
 | Fases com desvio | 0 |
-| Bugs encontrados | 0 |
+| Bugs encontrados | 1 (gate path mismatch — corrigido em fase-06) |
 | Retries necessarios | 0 |
 
 ---
 
 ## Notas para Planos Seguintes
+
+### Apos fase-06 (goldens + bugfix gate — ENCERRADO)
+
+- **`tests/e2e/__golden__/init-greenfield.stdout.txt` e `init-greenfield.tree.json` regenerados:** refletem output do init greenfield com todos os Planos 01-05 aplicados. 5/5 testes em `init-cutover-greenfield.test.ts` passando.
+- **Bug corrigido:** `90-final-validation.ts` gate verificava path errado (`.claude/knowledge/{stack}/INDEX.md`). Fix: verificar `.claude/knowledge/INDEX.md` — consistente com onde `copyKnowledge` efetivamente grava e com `run-stack-knowledge-init.ts` linha 103.
+- **MEMORY.md auto-memory limpo:** nota "Golden snapshot precisa regeneracao (Plano 05 fase-04)" substituida por nota de fechamento em `C:\Users\luizf\.claude\projects\F--Projetos-Anti-Vibe-Coding\memory\MEMORY.md`.
+- **PRD `populate-plan-andre-port` completo:** 4 Must Haves + 4 Should Haves + 8 CAs cobertos. Suite final: 5/5 greenfield, 10/10 parity, 3 fails baseline pre-existentes (nao desta feature).
+
+---
 
 ### Apos fase-05 (PIPELINE.md + compound note — SH-1)
 

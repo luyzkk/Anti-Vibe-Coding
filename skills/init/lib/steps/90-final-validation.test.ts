@@ -109,7 +109,9 @@ describe('90-final-validation: knowledge checks', () => {
     await fs.rm(tmpDir, { recursive: true, force: true })
   })
 
-  test('primary check: throws AbortError when stack detected but .claude/knowledge/{stack}/INDEX.md absent', async () => {
+  test('primary check: throws AbortError when stack detected but .claude/knowledge/INDEX.md absent', async () => {
+    // 2026-05-20 (Luiz/dev): corrigido path — copyKnowledge copia para .claude/knowledge/INDEX.md
+    // (sem subdiretorio da stack). Gate deve verificar .claude/knowledge/INDEX.md.
     await fs.mkdir(path.join(tmpDir, '.claude'), { recursive: true })
     await fs.writeFile(
       path.join(tmpDir, '.claude', 'stack.json'),
@@ -122,8 +124,10 @@ describe('90-final-validation: knowledge checks', () => {
     })
   })
 
-  test('primary check: passes when stack detected and INDEX.md present', async () => {
-    await fs.mkdir(path.join(tmpDir, '.claude', 'knowledge', 'nodejs-typescript'), {
+  test('primary check: passes when stack detected and INDEX.md present at .claude/knowledge/INDEX.md', async () => {
+    // 2026-05-20 (Luiz/dev): copyKnowledge copia conteudo de knowledge/{stack}/ para .claude/knowledge/
+    // diretamente — INDEX.md fica em .claude/knowledge/INDEX.md, nao em subdiretorio.
+    await fs.mkdir(path.join(tmpDir, '.claude', 'knowledge'), {
       recursive: true,
     })
     await fs.writeFile(
@@ -131,7 +135,7 @@ describe('90-final-validation: knowledge checks', () => {
       JSON.stringify({ primary: 'nodejs-typescript' }),
     )
     await fs.writeFile(
-      path.join(tmpDir, '.claude', 'knowledge', 'nodejs-typescript', 'INDEX.md'),
+      path.join(tmpDir, '.claude', 'knowledge', 'INDEX.md'),
       '# Index',
     )
 
