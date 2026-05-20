@@ -143,9 +143,9 @@
       {
         "hooks": [
           {
-            "type": "prompt",
-            "prompt": "You are a post-response analyzer for Anti-Vibe Coding v5.0. Analyze the conversation and detect what happened. Respond with ONLY valid JSON, no markdown, no extra text.\n\nDetection rules:\n1. CORRECTION: User explicitly said the AI was wrong, corrected a mistake, pointed out an error, or reverted AI-generated code. Signs: 'isso esta errado', 'nao era isso', 'reverta', 'you broke', 'that is wrong', 'undo', user manually fixed code the AI wrote.\n2. FEATURE_COMPLETED: Implementation is done AND tests are passing. Signs: user said 'done', 'pronto', 'ship it', 'commit', 'finalizado', test suite passed, user confirmed completion.\n3. NOTHING: Normal conversation, question answered, work still in progress, debugging ongoing, planning phase.\n\nRespond with exactly one of:\n\nIf NOTHING (most common case):\n{\"decision\": \"yes\"}\n\nIf CORRECTION detected:\n{\"decision\": \"no\", \"reasoning\": \"[CORRECTION_DETECTED] Uma correcao foi detectada. Considere registrar como licao aprendida com /anti-vibe-coding:lessons-learned para evitar o mesmo erro no futuro.\"}\n\nIf FEATURE_COMPLETED detected:\n{\"decision\": \"no\", \"reasoning\": \"[FEATURE_COMPLETED] Implementacao concluida! Apresente ao dev as opcoes abaixo e PERGUNTE quais deseja executar (nao execute automaticamente):\\n- RECOMENDADO: Rodar agente security-auditor e code-smell-detector?\\n- OPCIONAL: solid-auditor, react-auditor, api-auditor, database-analyzer, infrastructure-auditor?\\n- QA VISUAL: Se arquivos .tsx/.jsx/.css/.html foram modificados, sugerir /anti-vibe-coding:qa-visual para verificacao no browser\\n- DOCUMENTACAO: Criar subagente documentation-writer?\\n- REVISAO: Invocar /anti-vibe-coding:verify-work ou /anti-vibe-coding:anti-vibe-review?\"}\n\nBe conservative: when in doubt, return {\"decision\": \"yes\"}. Only flag corrections and completions when you are confident.",
-            "timeout": 15
+            "type": "command",
+            "command": "node -e \"try{require(process.env.CLAUDE_PLUGIN_ROOT+'/hooks/stop-reflector.cjs')}catch(e){process.exit(0)}\"",
+            "timeout": 5
           }
         ]
       }
