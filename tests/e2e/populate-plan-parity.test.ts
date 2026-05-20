@@ -4,10 +4,11 @@
 //   - Plano 03 fase-03: cada LLM_INSTRUCTION imperativa (CA-06).
 //   - Plano 04 fase-03: paths reais por stack (CA-02, CA-05).
 //   - Plano 05 fase-01: golden snapshot (CA-08).
+//   - Plano 05 fase-03: Lessons Captured pre-populadas (SH-3).
 // Decisao DI-Plano01-fase02-isolated-call: chama generatePopulatePlanV2 direto, sem runInit,
 // para evitar abort do Step 90 (V6.6.0 knowledge gate). Integracao end-to-end fica em Plano 05.
 
-import { describe, expect, test } from 'bun:test'
+import { describe, expect, it, test } from 'bun:test'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import {
@@ -336,6 +337,50 @@ describe('populate-plan parity (gate "nunca diminuir")', () => {
     }
     // Pelo menos 1 fase deve emitir a nota — caso contrario, renderer regrediu.
     expect(fasesComNota.length).toBeGreaterThanOrEqual(1)
+  })
+
+  // 2026-05-19 (Luiz/dev): Plano 05 fase-03 do PRD populate-plan-andre-port (SH-3).
+  // Sub-assert: PLAN.md gerado tem Lessons pre-populadas. Tolerancia: >= 4 das 6
+  // porque /execute-plan pode ter editado/removido algumas em projetos no meio do ciclo.
+  it('PLAN.md tem Lessons Captured pre-populadas (SH-3)', async () => {
+    const cwd = path.resolve('tests/fixtures/stack-aware/nextjs-supabase')
+    const stackPaths = await stackAwareInputPaths(cwd, 'nextjs')
+    const plan = await generatePopulatePlanV2({
+      cwd,
+      projectName: 'fixture-nextjs-supabase',
+      manifest: [],
+      stackPaths,
+      clock: () => new Date('2026-05-19T00:00:00Z'),
+    })
+
+    // Identifica bloco Lessons Captured no PLAN.md gerado.
+    // OBS: pos-Plano 02 fase-03, planIndexMarkdown vem do tpl com 11 secoes Andre — incluindo Lessons.
+    const lessonsMatch = plan.planIndexMarkdown.match(
+      /## Lessons Captured([\s\S]*?)(?=\n## |\Z)/,
+    )
+    expect(
+      lessonsMatch,
+      'PLAN.md gerado nao contem secao "## Lessons Captured". Verifique PLAN.md.tpl ' +
+      'em skills/init/assets/templates/exec-plan/. PRD secao MH-2 + SH-3.',
+    ).not.toBeNull()
+
+    const lessonsBlock = lessonsMatch![1] ?? ''
+
+    // Conta bullets (linhas iniciando com `- ` apos o header).
+    const bullets = (lessonsBlock.match(/^- /gm) ?? []).length
+    expect(
+      bullets,
+      `Lessons Captured tem ${bullets} bullets pre-populadas (esperado >= 4). ` +
+      `Verifique PLAN.md.tpl — bloco deve ter 6 seeds com comentario "remover apos customizacao real". ` +
+      `PRD secao SH-3.`,
+    ).toBeGreaterThanOrEqual(4)
+
+    // Confirma data-marker do comentario HTML alertando que sao seeds.
+    expect(
+      lessonsBlock,
+      'Lessons Captured nao tem comentario HTML data-marcado. Esperado: ' +
+      '`<!-- 2026-05-19 ... seeds — remover apos primeira customizacao real ...-->`. PRD secao SH-3.',
+    ).toContain('seeds')
   })
 
   // 2026-05-20 (Luiz/dev): Plano 05 fase-01 do PRD populate-plan-andre-port (CA-08).
