@@ -13,6 +13,7 @@ import { migrate1BackupStep } from './steps/10-migrate-1-backup'
 import { migrate2PlanningStep } from './steps/11-migrate-2-planning'
 import { migrate3LessonsStep } from './steps/12-migrate-3-lessons'
 import { migrate4DecisionsStep } from './steps/13-migrate-4-decisions'
+import { migrateKnowledgePathStep } from './steps/13_1-migrate-knowledge-path'
 import { scaffoldFullTreeStep } from './steps/01-scaffold-full-tree'
 import { linkClaudeAgentsStep } from './steps/02-link-claude-agents'
 import { detectStackAndRegisterStep } from './steps/03-detect-stack-and-register'
@@ -65,6 +66,7 @@ export const registry: readonly Step[] = [
   migrate2PlanningStep,         // 2026-05-17 (Luiz/dev): G4 do plano03 fase-03 — apos migrate1BackupStep.
   migrate3LessonsStep,          // 2026-05-17 (Luiz/dev): G4 do plano03 fase-04 — best-effort, sem AbortError.
   migrate4DecisionsStep,        // 2026-05-17 (Luiz/dev): G4 do plano03 fase-04 — best-effort, sem AbortError.
+  migrateKnowledgePathStep,     // 2026-05-20 (Luiz/dev): D7.A.1 do PRD knowledge-path-cutover — migra docs/knowledge/legacy-claude-knowledge → docs/_legacy/knowledge/ (SH-03, CA-08, CA-09).
   scaffoldFullTreeStep,
   linkClaudeAgentsStep,
   detectStackAndRegisterStep,
