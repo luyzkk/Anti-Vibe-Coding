@@ -12,12 +12,16 @@ import type { StackId } from './detect-stack'
  * Subset de `TEMPLATE_MANIFEST.dst` filtrado por populaveis.
  * Em v1, lista estatica; futuro: gerar deste `TEMPLATE_MANIFEST.filter(isPopulatable).map(e => e.dst)`.
  */
+// 2026-05-19 (Luiz/dev): D5 do PRD populate-plan-andre-port — PRODUCT_SENSE e README entram
+// no contrato de docs canonicos. Plano 04 (MH-4) adiciona paths reais por stack.
 export type CanonicalDoc =
   | 'AGENTS.md'
   | 'ARCHITECTURE.md'
   | 'CLAUDE.md'
+  | 'README.md'
   | 'docs/DESIGN.md'
   | 'docs/FRONTEND.md'
+  | 'docs/PRODUCT_SENSE.md'
   | 'docs/SECURITY.md'
   | 'docs/RELIABILITY.md'
   | 'docs/PLANS.md'

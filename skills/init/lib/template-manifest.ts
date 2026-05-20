@@ -85,6 +85,15 @@ export const TEMPLATE_MANIFEST: ReadonlyArray<TemplateEntry> = [
   // sao required pelo harness-validate full. Adicionados aqui para tracer regression pass.
   { src: 'README.md.tpl',                          dst: 'README.md',                          required: true,  category: 'anti-vibe-extension'  },
   { src: '.github/pull_request_template.md.tpl',   dst: '.github/pull_request_template.md',   required: true,  category: 'anti-vibe-extension'  },
+
+  // 2026-05-19 (Luiz/dev): D6 do PRD populate-plan-andre-port (Plano 01 fase-01) — ARCHITECTURE.md,
+  // AGENTS.md e .claude/CLAUDE.md sao docs canonicos do contrato Harness do Andre (espelhados).
+  // Sem opt-out: alguns agents externos so leem AGENTS.md, outros so CLAUDE.md, ambos devem coexistir.
+  // ARCHITECTURE/AGENTS sao canon-andre (estao no contrato Harness original).
+  // .claude/CLAUDE.md e anti-vibe-extension (Andre nao tem `.claude/` no harness).
+  { src: 'ARCHITECTURE.md.tpl',                    dst: 'ARCHITECTURE.md',                    required: true,  category: 'canon-andre'          },
+  { src: 'AGENTS.md.tpl',                          dst: 'AGENTS.md',                          required: true,  category: 'canon-andre'          },
+  { src: '.claude/CLAUDE.md.tpl',                  dst: '.claude/CLAUDE.md',                  required: true,  category: 'anti-vibe-extension'  },
 ]
 
 export const TEMPLATES_ROOT = path.join(import.meta.dir, '..', 'assets', 'templates')

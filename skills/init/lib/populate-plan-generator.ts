@@ -56,11 +56,13 @@ export type PopulatePlanOutputV2 = {
 
 // --- Filtro de populaveis (exportado para reuso em testes e callers) ---
 
-// 2026-05-19 (Luiz/dev): preservado do gerador v1 — D14 do PRD mantem filosoficos sem populate.
-const EXCLUDED_FROM_POPULATION_V2 = new Set<string>([
+// 2026-05-19 (Luiz/dev): D5 do PRD populate-plan-andre-port — reverte D14 do PRD anterior.
+// PRODUCT_SENSE.md e README.md voltam para populate (Andre tem ambos ricos no harness).
+// COMPOUND_ENGINEERING.md fica de fora: meta-doc filosofico do processo, sem codigo a referenciar.
+// Build quebra (parity test, Plano 01 fase-02) se alguem readicionar entry — CA-04 do PRD.
+// `export` adicionado para tests/e2e/populate-plan-parity.test.ts inspecionar (Plano 01 fase-02).
+export const EXCLUDED_FROM_POPULATION_V2 = new Set<string>([
   'docs/COMPOUND_ENGINEERING.md',
-  'docs/PRODUCT_SENSE.md',
-  'README.md',
 ])
 const EXCLUDED_PATTERNS_V2: ReadonlyArray<RegExp> = [/^\.github\//, /^scripts\//]
 
