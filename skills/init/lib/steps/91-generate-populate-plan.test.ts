@@ -101,6 +101,55 @@ describe('generatePopulatePlanStep — E2E orquestracao', () => {
     expect(result.summary).toContain('populate-harness')
     expect(result.summary).toContain('/anti-vibe-coding:execute-plan')
   })
+
+  // 2026-05-19 (Luiz/dev): Plano 05 fase-04 do PRD populate-plan-andre-port (SH-4).
+  // Helper local — captura appends do AuditLogWriter mockado.
+  type CapturedAppend = {
+    subagent_id: string
+    output_struct: Record<string, unknown>
+  }
+  function makeMockAuditWriter(captured: CapturedAppend[]) {
+    return {
+      async append(entry: CapturedAppend) {
+        captured.push(entry)
+      },
+    }
+  }
+
+  it('audit log emite docsCoveredByStack >= 4 em Next.js+Supabase fixture (SH-4)', async () => {
+    await copyRecursive(NEXTJS_SUPABASE_FIXTURE, tmpCwd)
+    const captured: CapturedAppend[] = []
+    const ctx: StepContext = {
+      cwd: tmpCwd,
+      args: [],
+      // 2026-05-19 (Luiz/dev): flag __auditLog injetada pelo init dispatcher em runtime.
+      // Mockamos aqui para inspecionar output_struct sem precisar abrir log do filesystem.
+      flags: { __auditLog: makeMockAuditWriter(captured) as unknown as boolean },
+    }
+    const result = await generatePopulatePlanStep.run(ctx)
+    expect(result.mutated).toBe(true)
+    expect(captured.length).toBeGreaterThan(0)
+
+    const struct = captured[0]!.output_struct
+    expect(struct.docsCoveredByStack).toBeDefined()
+    expect(struct.docsCoveredByStack).toBeGreaterThanOrEqual(4)
+    expect(struct.docsWithoutCodeEvidence).toBeDefined()
+  })
+
+  it('audit log emite phasesCreatedVsExpected.minExpected = 12 (CA-01 + SH-4)', async () => {
+    const captured: CapturedAppend[] = []
+    const ctx: StepContext = {
+      cwd: tmpCwd,
+      args: [],
+      flags: { __auditLog: makeMockAuditWriter(captured) as unknown as boolean },
+    }
+    await generatePopulatePlanStep.run(ctx)
+    expect(captured.length).toBeGreaterThan(0)
+    const struct = captured[0]!.output_struct
+    const phasesExp = struct.phasesCreatedVsExpected as { created: number; minExpected: number }
+    expect(phasesExp.minExpected).toBe(12)
+    expect(phasesExp.created).toBeGreaterThanOrEqual(12)
+  })
 })
 
 async function copyRecursive(src: string, dest: string): Promise<void> {

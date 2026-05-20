@@ -46,6 +46,18 @@ Formato: o que foi decidido + por que + impacto.
   - Por que: gate quer detectar quando o tpl foi readicionado vazio (regressao de template), nao quando o projeto customizou organicamente 1-2 bullets. Fixture greenfield sempre tera 6 na pratica — `>= 4` da margem para refator futuro do tpl.
   - Impacto: parity test agora tem 10 asserts (9 anteriores + 1 SH-3). Importa `it` de `bun:test` (adicionado ao import existente).
 
+- **DI-Plano05-fase04-helper-isolado:** criamos `populate-plan-coverage.ts` como helper isolado em vez de inlinear a logica diretamente em `91-generate-populate-plan.ts`.
+  - Por que: helper testavel sem precisar instanciar o Step 91 completo (mockar `AuditLogWriter` continua possivel, mas isolacao da logica de contagem e mais limpa). 6 unit tests cobrem todos os cenarios sem overhead de fixture.
+  - Impacto: `computeAuditCoverage(stackPaths, plan)` exportado publicamente — pode ser reutilizado por outros callers em iteracoes futuras.
+
+- **DI-Plano05-fase04-empty-map-treated:** Map vazio em `computeAuditCoverage` retorna `{ docsCoveredByStack: 0, docsWithoutCodeEvidence: 0 }` em vez de throw.
+  - Por que: decisao defensiva — em runtime, `stackAwareInputPaths()` nunca produz Map vazio (sempre tem >= 1 key do `GENERIC_CANDIDATES`). Se Map vazio aparecer, e bug upstream — retornar 0/0 e sinalizar via audit log sem crash.
+  - Impacto: helper trata `map.size === 0` como erro upstream silencioso. Comentario JSDoc explica contrato. G7 do README do Plano 05.
+
+- **DI-Plano05-fase04-MIN_EXPECTED_PHASES-const:** constante `MIN_EXPECTED_PHASES = 12` exportada do helper (nao inline no Step 91).
+  - Por que: single source of truth — se PRD futuro mudar minimo de 12 para outro valor, muda em 1 lugar. Step 91 ja tem assertion defensiva `< 10` (linha 46) — gate antigo mais permissivo. `MIN_EXPECTED_PHASES = 12` e o gate de observabilidade mais estrito (SH-4).
+  - Impacto: 2 testes em `91-generate-populate-plan.test.ts` asseguram que `phasesCreatedVsExpected.minExpected` seja sempre 12 (CA-01).
+
 ---
 
 ## Bugs Descobertos
@@ -99,7 +111,7 @@ Exemplo:
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 6 |
-| Fases concluidas | 3 |
+| Fases concluidas | 4 |
 | Fases com desvio | 0 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
@@ -107,6 +119,15 @@ Exemplo:
 ---
 
 ## Notas para Planos Seguintes
+
+### Apos fase-04 (audit log com metricas de cobertura — SH-4)
+
+- **`populate-plan-coverage.ts` criado em `skills/init/lib/`:** exporta `computeAuditCoverage(stackPaths, plan)` + `MIN_EXPECTED_PHASES = 12`. 6 unit tests verdes (5 isolados + 1 integration com fixture nextjs-supabase).
+- **Step 91 agora emite 3 campos novos no `output_struct`:** `docsCoveredByStack`, `docsWithoutCodeEvidence`, `phasesCreatedVsExpected`. Campos anteriores (`planFolder`, `phaseCount`, `filesWritten`, `warnings`, `stackPrimary`, `discoveryEntries`) inalterados.
+- **7 testes passando em `91-generate-populate-plan.test.ts`:** 5 pre-existentes + 2 novos SH-4. `makeMockAuditWriter` captura appends via `ctx.flags['__auditLog']`.
+- **Proxima fase (fase-05):** ver plano 05 — E2E skipados + cleanup de MEMORY.md raiz.
+
+---
 
 ### Apos fase-03 (Lessons Captured pre-populadas — SH-3)
 
