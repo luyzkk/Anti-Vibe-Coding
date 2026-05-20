@@ -1,6 +1,7 @@
 import { describe, test, expect } from 'bun:test'
 import { runPersistStackKnowledgeStep, persistStackKnowledgeStep } from './03_1-persist-stack-and-knowledge'
 import type { RunStackKnowledgeInitOpts, RunStackKnowledgeInitResult } from '../run-stack-knowledge-init'
+import type { StackKnowledgeRunner } from './03_1-persist-stack-and-knowledge'
 
 // 2026-05-17 (Luiz/dev): DEV-1 — stub usa RunStackKnowledgeInitResult real:
 // { stackPrimary, stackJsonMessage, copyResult, previewEmitted }.
@@ -49,5 +50,83 @@ describe('persistStackKnowledgeStep', () => {
     const r = await persistStackKnowledgeStep.run(ctx)
     expect(r.mutated).toBe(false)
     expect(r.summary).toContain('dry-run')
+  })
+})
+
+// 2026-05-20 (Luiz/dev): D5.B.2 do PRD knowledge-path-cutover — refresh automatico em re-populate
+describe('persistStackKnowledgeStep refresh behavior', () => {
+  test('passes refresh=true to runner when __reentryMode is re-populate', async () => {
+    let capturedOpts: RunStackKnowledgeInitOpts | undefined
+    const mockRunner: StackKnowledgeRunner = async (opts) => {
+      capturedOpts = opts
+      return {
+        stackPrimary: 'nextjs',
+        stackJsonMessage: 'stack.json written. primary = nextjs',
+        copyResult: { status: 'refreshed', atomCount: 3, message: 'refreshed', destDir: '/tmp/.claude/knowledge' },
+        previewEmitted: false,
+      }
+    }
+
+    await runPersistStackKnowledgeStep(
+      {
+        cwd: '/tmp/project',
+        args: [],
+        flags: { '__reentryMode': 're-populate' },
+      },
+      mockRunner,
+      '/tmp/plugin',
+    )
+
+    expect(capturedOpts?.refresh).toBe(true)
+  })
+
+  test('passes refresh=false to runner when __reentryMode is NOT re-populate (greenfield)', async () => {
+    let capturedOpts: RunStackKnowledgeInitOpts | undefined
+    const mockRunner: StackKnowledgeRunner = async (opts) => {
+      capturedOpts = opts
+      return {
+        stackPrimary: 'nextjs',
+        stackJsonMessage: 'stack.json written. primary = nextjs',
+        copyResult: { status: 'copied', atomCount: 3, message: 'copied', destDir: '/tmp/.claude/knowledge' },
+        previewEmitted: false,
+      }
+    }
+
+    await runPersistStackKnowledgeStep(
+      {
+        cwd: '/tmp/project',
+        args: [],
+        flags: {},
+      },
+      mockRunner,
+      '/tmp/plugin',
+    )
+
+    expect(capturedOpts?.refresh).toBe(false)
+  })
+
+  test('passes refresh=false when __reentryMode is greenfield (explicit)', async () => {
+    let capturedOpts: RunStackKnowledgeInitOpts | undefined
+    const mockRunner: StackKnowledgeRunner = async (opts) => {
+      capturedOpts = opts
+      return {
+        stackPrimary: 'nextjs',
+        stackJsonMessage: 'stack.json written. primary = nextjs',
+        copyResult: { status: 'copied', atomCount: 3, message: 'copied', destDir: '/tmp/.claude/knowledge' },
+        previewEmitted: false,
+      }
+    }
+
+    await runPersistStackKnowledgeStep(
+      {
+        cwd: '/tmp/project',
+        args: [],
+        flags: { '__reentryMode': 'greenfield' },
+      },
+      mockRunner,
+      '/tmp/plugin',
+    )
+
+    expect(capturedOpts?.refresh).toBe(false)
   })
 })

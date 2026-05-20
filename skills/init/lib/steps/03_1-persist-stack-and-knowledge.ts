@@ -6,7 +6,7 @@ import { resolvePluginRoot } from './helpers'
 
 // 2026-05-17 (Luiz/dev): DI-2 — runner injetavel para testes (sem mock.module).
 // Compound note 2026-05-16-bun-mock-module-pollution.md.
-type StackKnowledgeRunner = (opts: RunStackKnowledgeInitOpts) => Promise<RunStackKnowledgeInitResult>
+export type StackKnowledgeRunner = (opts: RunStackKnowledgeInitOpts) => Promise<RunStackKnowledgeInitResult>
 
 // 2026-05-17 (Luiz/dev): summary vazia — runStackKnowledgeInit emite seus proprios logs via console.log
 // (Wave 5 D2, confirmado em run-stack-knowledge-init.ts linha 53: logger = console.log por default).
@@ -15,12 +15,16 @@ type StackKnowledgeRunner = (opts: RunStackKnowledgeInitOpts) => Promise<RunStac
 // ctx.args.join(' ') re-junta array em string; limite: args com espacos internos perdem quoting.
 // Para --refresh-knowledge (sem espaco), ok. Documentado para futuros args posicionais.
 export async function runPersistStackKnowledgeStep(
-  ctx: { cwd: string; args: readonly string[] },
+  ctx: { cwd: string; args: readonly string[]; flags?: Record<string, unknown> },
   runner: StackKnowledgeRunner = runStackKnowledgeInit,
   pluginRootOverride?: string,
 ): Promise<{ mutated: boolean; summary: string }> {
   const pluginRoot = pluginRootOverride ?? resolvePluginRoot(import.meta.dir)
-  await runner({ targetDir: ctx.cwd, pluginRoot, args: ctx.args.join(' ') })
+  // 2026-05-20 (Luiz/dev): D5.B.2 do PRD knowledge-path-cutover — refresh quando re-populate.
+  // Greenfield (flags ausente ou __reentryMode !== 're-populate') usa false (CA-07).
+  // --refresh-knowledge CLI continua ortogonal (parseRefreshFlag em run-stack-knowledge-init).
+  const refresh = ctx.flags?.['__reentryMode'] === 're-populate'
+  await runner({ targetDir: ctx.cwd, pluginRoot, args: ctx.args.join(' '), refresh })
   return { mutated: true, summary: '' }
 }
 
