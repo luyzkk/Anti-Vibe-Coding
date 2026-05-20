@@ -31,14 +31,18 @@ describe('generatePopulatePlanV2', () => {
     }
   })
 
-  it('PLAN.md index contains glossario + phase table', async () => {
+  // 2026-05-19 (Luiz/dev): Plano 02 fase-03 — tpl novo (canon Andre) nao tem Glossario.
+  // As 10 secoes Andre + Observability sao validadas em tests/e2e/populate-plan-parity.test.ts
+  // (Plano 02 fase-04). Aqui validamos so que a tabela de fases foi injetada e que o titulo do
+  // plano usa o projectName.
+  it('PLAN.md index contains phase table and project name (post-MH-2)', async () => {
     const result = await generatePopulatePlanV2({
       cwd: '/tmp/fake',
       projectName: 'test-project',
       clock: () => FIXED_DATE,
     })
-    expect(result.planIndexMarkdown).toContain('## Glossario de Instrucoes LLM')
     expect(result.planIndexMarkdown).toContain('| Fase | Doc canonico | Arquivo | Status |')
+    expect(result.planIndexMarkdown).toContain('Populate Harness — test-project')
   })
 
   // 2026-05-19 (Luiz/dev): Plano 01 fase-03 — flip do assert apos D5 do PRD populate-plan-andre-port.
