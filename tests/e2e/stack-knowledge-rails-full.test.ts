@@ -15,7 +15,7 @@ import { validateAtomFrontmatter } from '../../skills/init/lib/atoms-frontmatter
 import { getStackKnowledgePreface } from '../../skills/security/lib/stack-aware-preface'
 
 const pluginRoot = join(import.meta.dir, '..', '..')
-const RAILS_MATRIX = join(pluginRoot, 'docs/knowledge/rails')
+const RAILS_MATRIX = join(pluginRoot, 'knowledge/rails')
 const FIXTURES_DIR = join(import.meta.dir, '__fixtures__')
 
 // Helper: copies fixture into a fresh tmpdir, returns tmpdir path.

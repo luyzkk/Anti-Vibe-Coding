@@ -3,6 +3,106 @@
 Todas as mudanças notáveis do plugin Anti-Vibe Coding serão documentadas aqui.
 
 
+## [6.5.1] - 2026-05-19
+
+> **Patch release — Bug fix: upgrade v5→v6.5**
+> Corrige bug crítico onde `/init` abortava em projetos v5 antes do reentry-guard
+> ter chance de sinalizar `re-populate` mode. Sem essa correção, o caminho de
+> upgrade documentado no CLAUDE.md ("reentry-guard auto-detecta manifest <6.5.0
+> e re-popula") ficava bloqueado.
+
+### Fixed
+
+- **`/init` em projetos v5 não chegava aos migrate steps** —
+  `detectLegacyStep` (Step 00) abortava com `AbortError` para qualquer projeto
+  contendo artefatos v5 (planning-dir, lessons-learned, decisions, .claude/),
+  antes do `reentryGuardStep` (Step 00_2) rodar e setar
+  `ctx.flags['__reentryMode'] = 're-populate'`. Fix em duas partes:
+  1. Reordenação do `registry` ([skills/init/lib/registry.ts](skills/init/lib/registry.ts)) —
+     `reentryGuardStep` agora roda ANTES de `detectLegacyStep`.
+  2. `detectLegacyStep` ([skills/init/lib/steps/00-detect-legacy.ts](skills/init/lib/steps/00-detect-legacy.ts))
+     respeita `ctx.flags['__reentryMode'] === 're-populate'` e retorna summary
+     `re-populate mode active` sem abortar, deixando o pipeline seguir aos
+     migrate-* steps.
+
+### Testing
+
+- 3 testes adicionados em `00-detect-legacy.test.ts`:
+  - `__reentryMode='re-populate'` não aborta em v5 artifacts (claude-legacy fixture).
+  - `__reentryMode='re-populate'` não aborta mesmo com partial migration.
+  - `__reentryMode='greenfield'` ainda aborta (não pula detecção indevidamente).
+- 1 teste de ordenação em `registry.test.ts` — garante reentryGuard < detectLegacy.
+- Golden file `tests/e2e/__golden__/init-greenfield.stdout.txt` atualizado para
+  refletir nova ordem de execução (linhas 1–3).
+
+
+## [6.5.0] - 2026-05-19
+
+> **Minor release — LLM-driven harness population + hardening trimestre**
+> `/init` agora scaffolda harness vazio e gera plano populate que IA executa via
+> `/execute-plan`, lendo código real em vez de templates genéricos. Inclui
+> reentry-guard automático para manifests <6.5.0 e múltiplos fixes de segurança
+> (ReDoS, DoS, CRLF) extraídos do TODO.md.
+
+### Added
+
+- **LLM-driven harness population** (Planos 01–05) — `/init` em greenfield agora
+  scaffolda apenas a estrutura (TODO.md, AGENTS.md, ARCHITECTURE.md, harness
+  docs) e gera `docs/exec-plans/active/YYYY-MM-DD-populate-harness/PLAN.md`. A
+  IA executa o plano lendo código real e populando cada doc canônico via PR.
+  Substitui templates one-shot por iteração revisável.
+- **Reentry-guard (`Step 00_2`)** — manifest `pluginVersion < 6.5.0` ou ausente
+  dispara `__reentryMode=re-populate`; manifest `>= 6.5.0` aborta com mensagem
+  do PRD. Detecta upgrade silencioso via `compareSemver`.
+- **Backup pré-mutação (`Step 10`, ex-`apply-merge-destructive`)** — copia
+  CLAUDE.md preexistente para `docs/_legacy/CLAUDE.md.bak.{timestamp}` antes
+  do scaffold sobrescrever. Reposicionado no registry para logo após
+  secrets-scan (não depende mais de AGENTS.md).
+- **`rails-anchor` lib compartilhada** ([skills/init/lib/rails-anchor.ts](skills/init/lib/rails-anchor.ts)) —
+  exporta `RAILS_GEMFILE_ANCHOR_RX`, `parseRailsAnchor`, `isLegacyRailsVersion`,
+  `MIN_SUPPORTED_RAILS_MAJOR=7`, `MIN_SUPPORTED_RAILS_MINOR=1`. Elimina duplicate
+  regex entre `detect-stack.ts` e `format-knowledge-preview.ts`.
+
+### Removed
+
+- Steps `07-discover-existing-docs`, `08-classify-blocks-hybrid`,
+  `09-propose-merge-batch`, `11-move-docs-with-stub`, `12-detect-drift-incremental`
+  (Plano 01) — substituídos pelo fluxo LLM-driven.
+- Libs órfãs: `blocks-classifier`, `doc-mover-stub`, `merge-proposal-types`,
+  `preview-renderer`, `discover-existing-docs`, `drift-detector`.
+
+### Security / Hardening (TODO.md L15–L20)
+
+- **CRLF-resilient frontmatter regex** — `/^---\r?\n[\s\S]*?\r?\n---\r?\n*/`
+  em [scripts/harness-validate.ts:493](scripts/harness-validate.ts#L493),
+  `.tpl:240`, [skills/init/lib/compound-writer.ts:74](skills/init/lib/compound-writer.ts#L74),
+  [skills/lib/exec-plan-reader.ts:40](skills/lib/exec-plan-reader.ts#L40).
+  Defense-in-depth — normalize step continua presente.
+- **ReDoS guard em `atoms-frontmatter-validator`** — regex lazy `[\s\S]*?`
+  substituída por `indexOf`-based scan linear (sem backtracking). Aceita CRLF
+  como bonus.
+- **Gemfile size cap (DoS guard)** — `run-stack-knowledge-init.ts:101-117`
+  agora usa `fs.promises.stat` + check `≤1MB` antes de `fs.promises.readFile`
+  (eliminou `readFileSync` sync I/O em fluxo async).
+- **state-md tests isolados** — `hooks/state-md-hook.test.cjs` e
+  `skills/lib/state-md-generator.test.ts` copiam fixture para `os.tmpdir()`
+  no `beforeEach` (elimina GT-01 working-tree drift). Validado 3 runs
+  consecutivos.
+- **YAML injection + secrets redaction em compound-imported-writer** — `quoteYamlString`
+  + 8 regex patterns (`ghp_`, `gho_`, `ghs_`, `github_pat_`, `sk-`, `AKIA`,
+  `xox[abprs]-`, `Bearer ...`) aplicados antes de escrever
+  `docs/compound/_imported/`.
+
+### Lessons Captured
+
+- `2026-05-19-tdd-gate-needs-stub-first.md` — TDD hook bloqueia Write
+  impl-first; criar `.test.ts` + stub antes da implementação.
+- `2026-05-19-fs-cp-rejects-dst-inside-src.md` — `fs.cp` valida `ERR_FS_CP_EINVAL`
+  antes do filter; destino dentro do source falha mesmo com filter exclusivo.
+- `2026-05-19-crlf-breaks-frontmatter-regex.md` — validators rejeitavam
+  arquivos Windows; aceitar `\r?\n` em validator regex.
+
+
 ## [6.4.1] - 2026-05-18
 
 > **Patch release — Correções no `/anti-vibe-coding:init` v6.4.x**
@@ -155,8 +255,8 @@ Todas as mudanças notáveis do plugin Anti-Vibe Coding serão documentadas aqui
 
 ### Added
 
-- **14 átomos sênior Node+TS** em [docs/knowledge/nodejs-typescript/atoms/](docs/knowledge/nodejs-typescript/atoms/) — `async-concurrency-streams`, `type-system-idioms`, `error-handling-observability`, `state-and-caching`, `data-persistence`, `api-design-stack-specific`, `testing-strategy`, `security-stack-specific` (inclui primordials RF8), `code-smells-catalog`, `architecture-conventions`, `dependencies-supply-chain`, `performance-and-internals`, `operations-and-deploy`, `tooling`. Cada átomo: 5 seções (Quando consultar / Padrões sênior / Anti-padrões / Critérios de decisão / Referências externas), cap 200 ln, frontmatter 8 campos verbatim, audit-trail-paths nos `sources:` (RF11).
-- **INDEX final consolidado** em [docs/knowledge/nodejs-typescript/INDEX.md](docs/knowledge/nodejs-typescript/INDEX.md) — 61 ln, mapas Por keyword / Por layer / Por tier / Como consultar.
+- **14 átomos sênior Node+TS** em [knowledge/nodejs-typescript/atoms/](knowledge/nodejs-typescript/atoms/) — `async-concurrency-streams`, `type-system-idioms`, `error-handling-observability`, `state-and-caching`, `data-persistence`, `api-design-stack-specific`, `testing-strategy`, `security-stack-specific` (inclui primordials RF8), `code-smells-catalog`, `architecture-conventions`, `dependencies-supply-chain`, `performance-and-internals`, `operations-and-deploy`, `tooling`. Cada átomo: 5 seções (Quando consultar / Padrões sênior / Anti-padrões / Critérios de decisão / Referências externas), cap 200 ln, frontmatter 8 campos verbatim, audit-trail-paths nos `sources:` (RF11).
+- **INDEX final consolidado** em [knowledge/nodejs-typescript/INDEX.md](knowledge/nodejs-typescript/INDEX.md) — 61 ln, mapas Por keyword / Por layer / Por tier / Como consultar.
 - **`/init` multi-stack detection** ([skills/init/lib/detect-multi-stack.ts](skills/init/lib/detect-multi-stack.ts)) — detecta `primary` + `secondary[]` + `anchor_files[]` via file-extension tiebreaker; suporta `nodejs-typescript`, `rails`, `python`, `laravel`.
 - **`.claude/stack.json` schema** ([skills/init/lib/write-stack-json.ts](skills/init/lib/write-stack-json.ts)) — `primary | null`, `secondary[]`, `anchor_files[]`, `detected_at` ISO 8601 UTC; atomic write via tmp+rename.
 - **`copyKnowledge` discriminated union 5-status** ([skills/init/lib/copy-knowledge.ts](skills/init/lib/copy-knowledge.ts)) — `copied | skipped | refreshed | no-matrix | no-source`; path traversal guard via `VALID_PRIMARY` regex + `resolve()` defense-in-depth + (v6.3.2 hardening) symlink reject via `lstat()`.

@@ -16,8 +16,8 @@ import { writeStackJson } from '../../skills/init/lib/write-stack-json'
 import { copyKnowledge } from '../../skills/init/lib/copy-knowledge'
 
 const PLUGIN_ROOT = join(import.meta.dir, '..', '..')
-const ATOMS_DIR = join(PLUGIN_ROOT, 'docs/knowledge/nodejs-typescript/atoms')
-const INDEX_PATH = join(PLUGIN_ROOT, 'docs/knowledge/nodejs-typescript/INDEX.md')
+const ATOMS_DIR = join(PLUGIN_ROOT, 'knowledge/nodejs-typescript/atoms')
+const INDEX_PATH = join(PLUGIN_ROOT, 'knowledge/nodejs-typescript/INDEX.md')
 
 const EXPECTED_FRONTMATTER_FIELDS = [
   'topic',
@@ -31,7 +31,7 @@ const EXPECTED_FRONTMATTER_FIELDS = [
 ] as const
 
 describe('CA-01: 14 átomos + INDEX válidos', () => {
-  it('docs/knowledge/nodejs-typescript/atoms/ contém exatamente 14 átomos', () => {
+  it('knowledge/nodejs-typescript/atoms/ contém exatamente 14 átomos', () => {
     const atoms = readdirSync(ATOMS_DIR).filter((f) => f.endsWith('.md'))
     expect(atoms.length).toBe(14)
   })
