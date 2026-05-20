@@ -2,7 +2,7 @@
 
 **Plan:** ./PLAN.md
 **Phase:** in-progress
-**Current Plan:** 03/5 (Plano 03 em andamento — fase-02/3 done)
+**Current Plan:** 04/5 (Plano 03 concluido — pronto para Plano 04)
 **Last Updated:** 2026-05-20
 
 ## Progress por Plano
@@ -11,13 +11,13 @@
 |-------|------|-------|------|--------|
 | 01 | MH-1 Lista completa de docs (Tracer Bullet) | 3 | 3/3 | completed |
 | 02 | MH-2 PLAN.md / fase.md templates estilo Andre | 4 | 4/4 | completed |
-| 03 | MH-3 Instrucoes imperativas | 3 | 2/3 | in-progress |
+| 03 | MH-3 Instrucoes imperativas | 3 | 3/3 | completed |
 | 04 | MH-4 Discovery `(stack-id + doc-canonico) -> paths` | 3 | 0/3 | pending |
 | 05 | Gate completo + SH + compound + goldens | 6 | 0/6 | pending |
 
 ## Progress Global
 
-Fases done: 9/19 (47%)
+Fases done: 10/19 (53%)
 
 ## Log
 
@@ -30,3 +30,4 @@ Fases done: 9/19 (47%)
 - 2026-05-20: Plano 02 executado via /execute-plan (4 fases completas). PLAN.md.tpl (11 H2 + 3 opcionais), fase.md.tpl (6 marcadores), renderer async lendo tpls, 2 parity asserts CA-03 adicionados (total 4 asserts ativos). 10/10 testes verdes (6 generator + 4 parity). DESCOBERTO: trabalho do Plano 01 estava em stash@{0}, nao committed — recuperado seletivamente e 3 commits retroativos criados (`e1f1a32`, `c8bde21`, `2f028dd`) antes de prosseguir Plano 02. Stash@{0} intacto. Commits Plano 02: `d5c78f9`, `98b103d`, `fc55b4a`, `778decb`.
 - 2026-05-20: Plano 03 fase-01 executado via /execute-plan (subagente plan-executor). ImperativeInstruction interface + formatImperativeInstruction + isImperativeInstruction exportados de populate-plan-generator.ts. Novo imperative-instruction.test.ts com 12 testes (1 render + 1 happy guard + 10 test.each invalidos). RED confirmado por import error. GREEN: 22/22 verde (12 novos + 6 generator + 4 parity). Typecheck: 3 erros GT-01 pre-existentes (sem novos). Commit: `84c14d5`. LLM_INSTRUCTIONS / DEFAULT_INSTRUCTION / llmInstructionFor / renderLLMInstructionBlock intactos (sao fase-02 e fase-03).
 - 2026-05-20: Plano 03 fase-02 executado via /execute-plan (subagente plan-executor). LLM_INSTRUCTIONS tipo mudou para Record<string, ImperativeInstruction> + exportado; 12 entries reescritas em 4 lotes de 3 com typecheck entre lotes (DI-Plano03-fase02-batch-size). Brecha "mantenha o template" matada em QUALITY_SCORE.md. llmInstructionFor retorna ImperativeInstruction. renderLLMInstructionBlock chama formatImperativeInstruction (heading preservado). DEFAULT_INSTRUCTION_LEGACY_TODO_PHASE_03 provisorio adicionado (fase-03 deleta). PopulatePlanPhase.instrucaoLLM cascade-updated para ImperativeInstruction. test.each(Object.entries(LLM_INSTRUCTIONS)) adicionado em populate-plan-generator.test.ts. 34/34 verde (12 + 18 + 4). Typecheck: apenas 3 erros GT-01 pre-existentes. Commit: `69234d3`.
+- 2026-05-20: Plano 03 fase-03 executado via /execute-plan (subagente plan-executor). DEFAULT_INSTRUCTION reescrita como `export const DEFAULT_INSTRUCTION: ImperativeInstruction` (secoes Goal/Inputs/Output — formato Andre canonico). DEFAULT_INSTRUCTION_LEGACY_TODO_PHASE_03 + string antigo DELETADOS (zero matches). 2 sub-asserts CA-06 adicionados em parity test (every LLM_INSTRUCTION entry + DEFAULT_INSTRUCTION sao ImperativeInstruction validos). RED validado manualmente: fontes:[] em ARCHITECTURE.md + em DEFAULT_INSTRUCTION ambos produziram mensagem educativa. 36/36 verde (12 + 18 + 6). Typecheck: apenas 3 erros GT-01 pre-existentes. Commits: `fa7b2d4` (feat) + `9253312` (MEMORY). **Plano 03 COMPLETO (3/3 fases). Parity test agora com 6 asserts: 2 MH-1 + 2 CA-03 + 2 CA-06.**
