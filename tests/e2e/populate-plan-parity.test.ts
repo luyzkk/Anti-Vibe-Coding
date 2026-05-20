@@ -11,6 +11,13 @@ import {
   generatePopulatePlanV2,
   EXCLUDED_FROM_POPULATION_V2,
 } from '../../skills/init/lib/populate-plan-generator'
+// 2026-05-19 (Luiz/dev): Plano 03 fase-03 do PRD populate-plan-andre-port (MH-3 / CA-06).
+// Imports do generator para validar contrato `ImperativeInstruction` no parity test.
+import {
+  DEFAULT_INSTRUCTION,
+  isImperativeInstruction,
+  LLM_INSTRUCTIONS,
+} from '../../skills/init/lib/populate-plan-generator'
 // 2026-05-19 (Luiz/dev): Plano 02 fase-04 do PRD populate-plan-andre-port (MH-2 / CA-03).
 // Fonte canonica das 10 secoes base — drift entre array e tpl quebra os testes abaixo.
 import { EXEC_PLAN_SECTIONS_FULL } from '../../skills/lib/exec-plan-sections'
@@ -135,5 +142,53 @@ describe('populate-plan parity (gate "nunca diminuir")', () => {
     }
 
     expect(violacoes).toEqual([])
+  })
+
+  test('every LLM_INSTRUCTION entry is a valid ImperativeInstruction (CA-06)', () => {
+    // 2026-05-19 (Luiz/dev): gate "nunca diminuir" para o map de instrucoes. Adicionar nova
+    // entry sem `fontes` especificas / `secoes` obrigatorias / `honestidade` quebra build.
+    const violacoes: Array<{ key: string; reason: string }> = []
+
+    for (const [key, instr] of Object.entries(LLM_INSTRUCTIONS)) {
+      if (!isImperativeInstruction(instr)) {
+        // Diagnose qual elemento falhou — mensagem util.
+        let reason = 'estrutura invalida'
+        if (typeof instr !== 'object' || instr === null) reason = 'nao e objeto'
+        else {
+          const obj = instr as Record<string, unknown>
+          if (!Array.isArray(obj.fontes) || obj.fontes.length === 0) reason = '`fontes` ausente ou vazio'
+          else if (!Array.isArray(obj.secoes) || obj.secoes.length === 0) reason = '`secoes` ausente ou vazio'
+          else if (typeof obj.honestidade !== 'string' || obj.honestidade.length === 0) reason = '`honestidade` ausente ou vazio'
+        }
+        violacoes.push({ key, reason })
+      }
+    }
+
+    if (violacoes.length > 0) {
+      throw new Error(
+        `[parity gate "nunca diminuir" — CA-06] LLM_INSTRUCTIONS contem entries que NAO satisfazem ImperativeInstruction:\n` +
+        violacoes.map(v => `  - LLM_INSTRUCTIONS['${v.key}']: ${v.reason}`).join('\n') +
+        `\n\nAjuste em skills/init/lib/populate-plan-generator.ts.\n` +
+        `Schema obrigatorio (3 elementos): { fontes: string[]; secoes: string[]; honestidade: string }.\n` +
+        `Sem brecha "se nao houver, mantenha template" — ver ${PRD_LINK} CA-06.\n`,
+      )
+    }
+
+    expect(violacoes).toEqual([])
+  })
+
+  test('DEFAULT_INSTRUCTION is a valid ImperativeInstruction (CA-06)', () => {
+    // 2026-05-19 (Luiz/dev): default e fallback quando doc canonico NAO tem entry. Tem que
+    // satisfazer o mesmo contrato — senao a brecha volta pela porta dos fundos.
+    if (!isImperativeInstruction(DEFAULT_INSTRUCTION)) {
+      throw new Error(
+        `[parity gate "nunca diminuir" — CA-06] DEFAULT_INSTRUCTION em ` +
+        `skills/init/lib/populate-plan-generator.ts NAO satisfaz ImperativeInstruction.\n` +
+        `Schema obrigatorio: { fontes: string[]; secoes: string[]; honestidade: string }.\n` +
+        `Ver ${PRD_LINK} CA-06.\n`,
+      )
+    }
+
+    expect(isImperativeInstruction(DEFAULT_INSTRUCTION)).toBe(true)
   })
 })
