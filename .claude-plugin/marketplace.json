@@ -1,5 +1,6 @@
 {
   "name": "local-plugins",
+  "version": "6.6.0",
   "description": "Local development marketplace for Anti-Vibe Coding plugin",
   "owner": {
     "name": "Luiz Felipe"
@@ -7,8 +8,8 @@
   "plugins": [
     {
       "name": "anti-vibe-coding",
-      "description": "Plugin de desenvolvimento disciplinado com conhecimentos de programador senior. v6.4.1 — patch: dry-run leak fix, scaffold no-overwrite guard, cross-upgrade misreport.",
-      "version": "6.4.1",
+      "description": "Plugin de desenvolvimento disciplinado com conhecimentos de programador senior. v6.5.1 — Bug fix: reentry-guard roda ANTES de detect-legacy (corrige upgrade v5->v6.5). v6.5.0 — LLM-driven harness population: /init scaffolda harness vazio + plano populate, IA popula docs canonicos lendo codigo real.",
+      "version": "6.6.0",
       "source": "./",
       "author": {
         "name": "Luiz Felipe"
