@@ -3,10 +3,12 @@
 //   - Plano 02 fase-04: 11 secoes obrigatorias do PLAN.md (CA-03).
 //   - Plano 03 fase-03: cada LLM_INSTRUCTION imperativa (CA-06).
 //   - Plano 04 fase-03: paths reais por stack (CA-02, CA-05).
+//   - Plano 05 fase-01: golden snapshot (CA-08).
 // Decisao DI-Plano01-fase02-isolated-call: chama generatePopulatePlanV2 direto, sem runInit,
 // para evitar abort do Step 90 (V6.6.0 knowledge gate). Integracao end-to-end fica em Plano 05.
 
 import { describe, expect, test } from 'bun:test'
+import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import {
   generatePopulatePlanV2,
@@ -31,6 +33,49 @@ const FIXED_DATE = new Date('2026-05-19T10:00:00.000Z')
 
 const PRD_LINK =
   'docs/exec-plans/active/2026-05-19-populate-plan-andre-port/PRD.md (CA-01, CA-04, D5)'
+
+// 2026-05-20 (Luiz/dev): Plano 05 fase-01 — CA-08. Golden snapshot do plano populate.
+// Convencao: UPDATE_GOLDENS=1 regrava; sem flag, diff quebra build.
+// Mesmo mecanismo de tests/e2e/init-cutover-greenfield.test.ts.
+const GOLDEN_PATH = path.resolve('tests/e2e/__golden__/populate-plan-andre-parity.md')
+
+function normalizeLineEndings(content: string): string {
+  return content.replace(/\r\n/g, '\n').trimEnd()
+}
+
+async function assertMatchesGolden(actual: string, goldenPath: string): Promise<void> {
+  const actualN = normalizeLineEndings(actual)
+  if (process.env.UPDATE_GOLDENS === '1') {
+    await fs.writeFile(goldenPath, actualN + '\n')
+    return
+  }
+  const golden = normalizeLineEndings(await fs.readFile(goldenPath, 'utf-8'))
+  // Golden contem linhas estruturais minimas. Cada linha nao-vazia (excluindo blocos de
+  // comentario HTML inteiros) deve estar presente no actual (substring match — toleramos
+  // variacoes de conteudo em volta).
+  // G-golden-includes-not-equals: usar includes, nao ===. Decisao consciente: golden e contrato
+  // de estrutura, nao de conteudo.
+  // 2026-05-20 (Luiz/dev): DI-Plano05-fase01-comment-filter — filtra blocos HTML completos
+  // (<!-- ... -->) para que o cabecalho descritivo do golden nao vire assertion.
+  const stripped = golden.replace(/<!--[\s\S]*?-->/g, '')
+  const goldenLines = stripped.split('\n').filter(l => l.trim().length > 0)
+  const missing: string[] = []
+  for (const line of goldenLines) {
+    if (!actualN.includes(line.trim())) {
+      missing.push(line.trim())
+    }
+  }
+  if (missing.length > 0) {
+    throw new Error(
+      `[parity gate "nunca diminuir" — CA-08] Golden snapshot diverge — ${missing.length} marcador(es) ausente(s) no output:\n` +
+      missing.slice(0, 5).map(m => `  - ${m}`).join('\n') +
+      (missing.length > 5 ? `\n  ...+${missing.length - 5} mais` : '') +
+      `\n\nSe a mudanca e intencional, rode: UPDATE_GOLDENS=1 bun test tests/e2e/populate-plan-parity.test.ts\n` +
+      `Apos regen, o diff aparece no PR e exige aprovacao humana explicita (CA-08).\n` +
+      `Ref: ${PRD_LINK}, CA-08.\n`,
+    )
+  }
+}
 
 // Lista enumerada em CA-01 do PRD — mantem reference visivel para mensagens de erro.
 const CA_01_REQUIRED_DOCS: ReadonlyArray<string> = [
@@ -291,5 +336,27 @@ describe('populate-plan parity (gate "nunca diminuir")', () => {
     }
     // Pelo menos 1 fase deve emitir a nota — caso contrario, renderer regrediu.
     expect(fasesComNota.length).toBeGreaterThanOrEqual(1)
+  })
+
+  // 2026-05-20 (Luiz/dev): Plano 05 fase-01 do PRD populate-plan-andre-port (CA-08).
+  // Golden snapshot — estrutura minima do plano populate gerado para fixture Next.js+Supabase.
+  // Gate: diff sem UPDATE_GOLDENS=1 quebra build. Regen exige aprovacao humana no PR.
+  // Fixture: tests/fixtures/stack-aware/nextjs-supabase/ (stubs adicionados em Plano 04 fase-01).
+  test('matches golden snapshot (CA-08)', async () => {
+    const fixture = path.join(import.meta.dir, '..', 'fixtures', 'stack-aware', 'nextjs-supabase')
+    const stackPaths = await stackAwareInputPaths(fixture, 'nextjs')
+    const plan = await generatePopulatePlanV2({
+      cwd: fixture,
+      projectName: 'fixture-nextjs-supabase',
+      manifest: [],
+      stackPaths,
+      clock: () => new Date('2026-05-19T00:00:00Z'),
+    })
+    // Concatena plan index + estrutura minima de fase (primeira) — golden cobre apenas marcadores
+    // estruturais, nao todas as fases. Helper assertMatchesGolden usa includes por linha.
+    const firstPhaseKey = Array.from(plan.phaseFiles.keys())[0]!
+    const firstPhase = plan.phaseFiles.get(firstPhaseKey) ?? ''
+    const combined = plan.planIndexMarkdown + '\n---\n## Estrutura minima de fase (qualquer fase)\n\n' + firstPhase
+    await assertMatchesGolden(combined, GOLDEN_PATH)
   })
 })
