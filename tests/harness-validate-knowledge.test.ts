@@ -1,4 +1,4 @@
-// 2026-05-17 (Luiz/dev): H1.4 — harness deve detectar ausencia de docs/knowledge/ INDEX.md.
+// 2026-05-17 (Luiz/dev): H1.4 — harness deve detectar ausencia de knowledge/ INDEX.md.
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
@@ -16,11 +16,11 @@ describe('checkKnowledgePresence', () => {
     await fs.rm(FIXTURE, { recursive: true, force: true })
   })
 
-  it('passa quando docs/knowledge/nodejs-typescript/INDEX.md existe com >= 1 atomo', async () => {
-    const atomsDir = path.join(FIXTURE, 'docs/knowledge/nodejs-typescript/atoms')
+  it('passa quando knowledge/nodejs-typescript/INDEX.md existe com >= 1 atomo', async () => {
+    const atomsDir = path.join(FIXTURE, 'knowledge/nodejs-typescript/atoms')
     await fs.mkdir(atomsDir, { recursive: true })
     await fs.writeFile(
-      path.join(FIXTURE, 'docs/knowledge/nodejs-typescript/INDEX.md'),
+      path.join(FIXTURE, 'knowledge/nodejs-typescript/INDEX.md'),
       '# Index\n',
       'utf8',
     )
@@ -32,7 +32,7 @@ describe('checkKnowledgePresence', () => {
   })
 
   it('falha quando INDEX.md esta ausente', async () => {
-    const atomsDir = path.join(FIXTURE, 'docs/knowledge/nodejs-typescript/atoms')
+    const atomsDir = path.join(FIXTURE, 'knowledge/nodejs-typescript/atoms')
     await fs.mkdir(atomsDir, { recursive: true })
     await fs.writeFile(path.join(atomsDir, 'atom-001.md'), '# Atom\n', 'utf8')
 
@@ -44,10 +44,10 @@ describe('checkKnowledgePresence', () => {
   })
 
   it('falha quando atoms/ nao tem arquivos .md', async () => {
-    const atomsDir = path.join(FIXTURE, 'docs/knowledge/nodejs-typescript/atoms')
+    const atomsDir = path.join(FIXTURE, 'knowledge/nodejs-typescript/atoms')
     await fs.mkdir(atomsDir, { recursive: true })
     await fs.writeFile(
-      path.join(FIXTURE, 'docs/knowledge/nodejs-typescript/INDEX.md'),
+      path.join(FIXTURE, 'knowledge/nodejs-typescript/INDEX.md'),
       '# Index\n',
       'utf8',
     )
@@ -59,7 +59,7 @@ describe('checkKnowledgePresence', () => {
     expect(failures[0]?.message).toContain('atoms')
   })
 
-  it('passes silently when docs/knowledge/ does not exist (stack nao inicializado)', async () => {
+  it('passes silently when knowledge/ does not exist (stack nao inicializado)', async () => {
     // Projetos sem stack knowledge nao devem ser penalizados.
     const failures: Array<{ rule: string; message: string }> = []
     await checkKnowledgePresence(failures, FIXTURE)

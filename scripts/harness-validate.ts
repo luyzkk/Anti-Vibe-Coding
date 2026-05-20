@@ -486,9 +486,11 @@ async function checkMarkdownFiles(files: ReadonlyArray<string>, failures: Failur
       // BUG-08-04: agents/*.md tem HTML comment entre frontmatter e H1 — strip leading comments/blank tambem.
       // Normalize CRLF -> LF first; alguns SKILL.md no Windows tem line endings mistos e o
       // regex de frontmatter so casa com \n puro (descoberto durante extensao do H1 skill check).
+      // 2026-05-19 (Luiz/dev): regex aceita \r?\n como defense-in-depth caso normalize step seja
+      // removido/alterado no futuro (TODO.md L20, ref docs/compound/2026-05-19-crlf-breaks-frontmatter-regex.md).
       const normalized = content.replace(/\r\n/g, '\n')
       const stripped = normalized
-        .replace(/^---\n[\s\S]*?\n---\n*/, '')   // remove frontmatter YAML
+        .replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n*/, '')   // remove frontmatter YAML
         .replace(/^(?:<!--[\s\S]*?-->\s*)+/, '') // remove HTML comments lideres
         .replace(/^\s+/, '')                       // remove leading whitespace
 
@@ -646,17 +648,19 @@ export async function checkProfileAwarePreface(
   )
 }
 
-// 2026-05-17 (Luiz/dev): H1.4 — presence + minimum atom count check for docs/knowledge/.
-// Only fires when docs/knowledge/ directory exists (opt-in: projects without a stack init are not penalized).
+// 2026-05-17 (Luiz/dev): H1.4 — presence + minimum atom count check for knowledge/.
+// Only fires when knowledge/ directory exists (opt-in: projects without a stack init are not penalized).
 // When the dir exists, INDEX.md must be present and atoms/ must contain at least 1 .md file.
 export async function checkKnowledgePresence(
   failures: Failure[],
   projectRoot?: string,
 ): Promise<void> {
   const base = projectRoot ?? root
-  const knowledgeDir = path.join(base, 'docs', 'knowledge')
+  // 2026-05-20 (Luiz/dev): D1/MH-05 do PRD knowledge-path-cutover — docs/knowledge/ → knowledge/
+  // (AR-05: harness-validate.ts e o segundo validador, distinto do Step 90 runtime).
+  const knowledgeDir = path.join(base, 'knowledge')
 
-  // If docs/knowledge/ does not exist, skip silently — project may not have run stack init.
+  // If knowledge/ does not exist, skip silently — project may not have run stack init.
   try {
     await fs.stat(knowledgeDir)
   } catch {

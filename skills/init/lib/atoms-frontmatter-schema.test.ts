@@ -112,7 +112,7 @@ describe('atom frontmatter schema — rails_versions optional', () => {
 describe('atom frontmatter schema — fixture combinada Node + Rails', () => {
   it('CA-10: valida 14 átomos Node existentes + 2 átomos Rails dummy juntos (100% pass)', () => {
     // 2026-05-18 (Luiz/dev): regression combinada — schema estendido NÃO quebra átomos Node existentes
-    const nodeAtomsDir = join(import.meta.dir, '..', '..', '..', 'docs/knowledge/nodejs-typescript/atoms')
+    const nodeAtomsDir = join(import.meta.dir, '..', '..', '..', 'knowledge/nodejs-typescript/atoms')
     const railsFixtureDir = join(import.meta.dir, '__fixtures__', 'rails-atoms-dummy')
 
     const nodeAtoms = require('node:fs').readdirSync(nodeAtomsDir).filter((f: string) => f.endsWith('.md'))

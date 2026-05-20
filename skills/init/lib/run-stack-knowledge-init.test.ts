@@ -3,6 +3,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, existsSync, rmSync, readdirSync,
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { runStackKnowledgeInit } from './run-stack-knowledge-init'
+import { AbortError } from './steps/abort-error'
 
 const PLUGIN_ROOT = join(import.meta.dir, '..', '..', '..')
 
@@ -61,25 +62,22 @@ describe('runStackKnowledgeInit (Wave 5 D2)', () => {
     expect(result.copyResult.status).toBe('refreshed')
   })
 
-  // M2.6 — transactional: when copyKnowledge returns no-source, stack.json must not have primary set
-  it('M2.6: copyKnowledge no-source → stack.json primary is null (não inconsistente)', async () => {
-    // Setup: package.json with anchor, but pluginRoot sem source → no-source
+  // M2.6 — primary detectada + matrix ausente → AbortError bloqueante (SH-01, fase-05 cutover)
+  // Antes da fase-05: copyKnowledge retornava no-source e patch nullificava primary em stack.json.
+  // Apos fase-05: primary != null + matrix ausente lanca AbortError (nao retorna no-source).
+  it('M2.6: primary detectado + matrix ausente → AbortError lançado (SH-01 cutover behavior)', async () => {
+    // Setup: package.json com TypeScript → primary=nodejs-typescript, pluginRoot sem knowledge/
     writeFileSync(join(targetDir, 'package.json'), JSON.stringify({ devDependencies: { typescript: '^5.0.0' } }))
     const emptyPluginRoot = mkdtempSync(join(tmpdir(), 'empty-plugin-'))
 
     try {
-      const result = await runStackKnowledgeInit({
-        targetDir,
-        pluginRoot: emptyPluginRoot, // sem docs/knowledge/ → no-source
-        logger: (line) => captured.push(line),
-      })
-
-      expect(result.copyResult.status).toBe('no-source')
-      // stack.json deve existir, mas primary deve ser null
-      const stackJsonPath = join(targetDir, '.claude', 'stack.json')
-      expect(existsSync(stackJsonPath)).toBe(true)
-      const stackJson = JSON.parse(readFileSync(stackJsonPath, 'utf-8'))
-      expect(stackJson.primary).toBeNull()
+      await expect(
+        runStackKnowledgeInit({
+          targetDir,
+          pluginRoot: emptyPluginRoot, // sem knowledge/ → AbortError (primary != null)
+          logger: (line) => captured.push(line),
+        }),
+      ).rejects.toThrow(AbortError)
     } finally {
       rmSync(emptyPluginRoot, { recursive: true, force: true })
     }
