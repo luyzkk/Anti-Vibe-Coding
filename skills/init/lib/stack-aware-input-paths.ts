@@ -86,6 +86,49 @@ const NEXTJS_CANDIDATES: StackCandidates = {
     '.prettierrc',
     'tsconfig.json',
   ],
+  // 2026-05-20 (Luiz/dev): Plano 04 fase-01 do PRD populate-plan-andre-port (MH-4 / CA-02).
+  // 8 docs canonicos adicionados para Next.js. Paths sao do scaffold padrao Next.js — nao inventar.
+  // `exists: false` aceito em greenfield (renderer marca _nao encontrado_).
+  'AGENTS.md': [
+    'README.md',
+    'package.json',
+    'CLAUDE.md',
+  ],
+  'CLAUDE.md': [
+    'AGENTS.md',
+    'README.md',
+    'package.json',
+  ],
+  'docs/PRODUCT_SENSE.md': [
+    'README.md',
+    'src/app/page.tsx',
+    'package.json',
+  ],
+  'docs/PLANS.md': [
+    'docs/exec-plans/active/',
+    'docs/exec-plans/completed/',
+  ],
+  'docs/QUALITY_SCORE.md': [
+    '.github/workflows/',
+    '.github/pull_request_template.md',
+    'package.json',
+  ],
+  'docs/STATE.md': [
+    'package.json',
+    'docs/exec-plans/active/',
+  ],
+  'docs/design-docs/core-beliefs.md': [
+    'CLAUDE.md',
+    'docs/CODE_STYLE.md',
+    'README.md',
+  ],
+  'README.md': [
+    'package.json',
+    'src/app/page.tsx',
+    'next.config.js',
+    'next.config.mjs',
+    'next.config.ts',
+  ],
 }
 
 // 2026-05-19 (Luiz/dev): Next.js + Supabase merge — Supabase tem paths proprios sobre Next.js base.
@@ -102,10 +145,16 @@ const NEXTJS_SUPABASE_EXTRA: StackCandidates = {
     'supabase/migrations/',
     'src/lib/supabase/server.ts',
     'supabase/config.toml',
+    // 2026-05-20 (Luiz/dev): Plano 04 fase-01 — entry adicionada para CA-02 mecanico.
+    'src/lib/supabase/client.ts',
   ],
   'docs/RELIABILITY.md': [
     'supabase/functions/',
     'supabase/migrations/',
+    // 2026-05-20 (Luiz/dev): Plano 04 fase-01 — entries adicionadas para CA-02 mecanico
+    // (RELIABILITY precisa de >= 3 paths reais).
+    'supabase/config.toml',
+    'src/lib/supabase/server.ts',
   ],
 }
 
@@ -155,6 +204,19 @@ const GENERIC_CANDIDATES: StackCandidates = {
     'Gemfile',
     'composer.json',
     'pyproject.toml',
+  ],
+  // 2026-05-20 (Luiz/dev): Plano 04 fase-01 — entries genericas para README e PRODUCT_SENSE.
+  // Subset minimo — Plano 05 fase-02 (SH-2 Laravel + Python) pode estender se aparecerem novos
+  // paths-scaffold por linguagem.
+  'README.md': [
+    'package.json',
+    'Gemfile',
+    'composer.json',
+    'pyproject.toml',
+  ],
+  'docs/PRODUCT_SENSE.md': [
+    'README.md',
+    'package.json',
   ],
 }
 

@@ -44,4 +44,40 @@ describe('stackAwareInputPaths', () => {
     const paths = arch.map(p => p.path)
     expect(paths).not.toContain('supabase/migrations/')
   })
+
+  // 2026-05-20 (Luiz/dev): Plano 04 fase-01 do PRD populate-plan-andre-port (MH-4 / CA-02).
+  // CA-02 ja cobria ARCHITECTURE — espelhamos para SECURITY e RELIABILITY com mesmo limite.
+  it('returns Next.js + Supabase paths with >= 3 reais em SECURITY (CA-02)', async () => {
+    const result = await stackAwareInputPaths(path.join(FIXTURES, 'nextjs-supabase'), 'nextjs')
+    const sec = result.get('docs/SECURITY.md') ?? []
+    const real = sec.filter(p => p.exists)
+    expect(real.length).toBeGreaterThanOrEqual(3)
+  })
+
+  it('returns Next.js + Supabase paths with >= 3 reais em RELIABILITY (CA-02)', async () => {
+    const result = await stackAwareInputPaths(path.join(FIXTURES, 'nextjs-supabase'), 'nextjs')
+    const rel = result.get('docs/RELIABILITY.md') ?? []
+    const real = rel.filter(p => p.exists)
+    expect(real.length).toBeGreaterThanOrEqual(3)
+  })
+
+  it('cobre 8 docs canonicos novos em NEXTJS_CANDIDATES (MH-4 expansion)', async () => {
+    const result = await stackAwareInputPaths(path.join(FIXTURES, 'nextjs-supabase'), 'nextjs')
+    const docsCobertos = Array.from(result.keys())
+    // 2026-05-20 (Luiz/dev): Plano 04 fase-01 — cobertura de 8 docs novos. Plano 01 ja adicionou
+    // PRODUCT_SENSE e README ao CanonicalDoc; aqui validamos que entries existem no map.
+    const docsEsperados = [
+      'AGENTS.md',
+      'CLAUDE.md',
+      'docs/PRODUCT_SENSE.md',
+      'docs/PLANS.md',
+      'docs/QUALITY_SCORE.md',
+      'docs/STATE.md',
+      'docs/design-docs/core-beliefs.md',
+      'README.md',
+    ] as const
+    for (const doc of docsEsperados) {
+      expect(docsCobertos).toContain(doc)
+    }
+  })
 })
