@@ -15,8 +15,9 @@ if [ -z "${PLUGIN_GLOBAL:-}" ]; then
   if [ -f "$PLUGIN_DEV/plugin-manifest.json" ]; then
     PLUGIN_VERSION=$(grep -m1 '"version"' "$PLUGIN_DEV/plugin-manifest.json" | sed -E 's/.*"version"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/')
   fi
-  # 2026-05-20 (Luiz/dev): D6 do PRD knowledge-path-cutover — bump 6.5.1 → 6.6.0
-  PLUGIN_VERSION="${PLUGIN_VERSION:-6.6.0}"
+  # 2026-05-20 (Luiz/dev): D6 do PRD knowledge-path-cutover — bump 6.5.1 → 6.6.0.
+  # Patch 6.6.1: alinhamento de boundary tests do reentry-guard (verify-work).
+  PLUGIN_VERSION="${PLUGIN_VERSION:-6.6.1}"
   PLUGIN_GLOBAL="/c/Users/luizf/.claude/plugins/cache/local-plugins/anti-vibe-coding/$PLUGIN_VERSION"
 fi
 

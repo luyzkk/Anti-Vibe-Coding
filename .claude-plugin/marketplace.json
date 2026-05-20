@@ -1,6 +1,6 @@
 {
   "name": "local-plugins",
-  "version": "6.6.0",
+  "version": "6.6.1",
   "description": "Local development marketplace for Anti-Vibe Coding plugin",
   "owner": {
     "name": "Luiz Felipe"
@@ -8,8 +8,8 @@
   "plugins": [
     {
       "name": "anti-vibe-coding",
-      "description": "Plugin de desenvolvimento disciplinado com conhecimentos de programador senior. v6.5.1 — Bug fix: reentry-guard roda ANTES de detect-legacy (corrige upgrade v5->v6.5). v6.5.0 — LLM-driven harness population: /init scaffolda harness vazio + plano populate, IA popula docs canonicos lendo codigo real.",
-      "version": "6.6.0",
+      "description": "Plugin de desenvolvimento disciplinado com conhecimentos de programador senior. v6.6.1 — Test fix: reentry-guard boundary tests alinhados ao threshold 6.6.0 (regressao do bump 6.5.1->6.6.0 capturada via /verify-work). v6.6.0 — Knowledge path cutover: docs/knowledge/ -> knowledge/ (runtime asset fora de docs/), sync-to-global.sh distribui knowledge/ com check bloqueante, refresh automatico em re-populate, migracao v5 e validator pos-init.",
+      "version": "6.6.1",
       "source": "./",
       "author": {
         "name": "Luiz Felipe"

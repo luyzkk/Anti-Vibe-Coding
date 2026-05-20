@@ -1,6 +1,6 @@
 {
-  "version": "6.6.0",
-  "generatedAt": "2026-05-19T22:00:00.000Z",
+  "version": "6.6.1",
+  "generatedAt": "2026-05-20T00:00:00.000Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -179,7 +179,7 @@
     },
     "todo-pick": {
       "path": "skills/todo-pick/",
-      "version": "6.6.0",
+      "version": "6.6.1",
       "introduced": "v6.5.0",
       "description": "Lista micro-débito do TODO.md e puxa 1 item por vez para correção. Sub-comandos: --skip {n} marca como skipped, --remove {n} deleta linha com confirmação."
     },
