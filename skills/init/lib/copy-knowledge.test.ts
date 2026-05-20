@@ -10,10 +10,11 @@ function setupFixtureSync(): { targetDir: string; pluginRoot: string } {
   const root = mkdtempSync(join(tmpdir(), 'copy-knowledge-'))
   const pluginRoot = join(root, 'plugin')
   const targetDir = join(root, 'project')
-  // simula matrix: docs/knowledge/nodejs-typescript/{INDEX.md, atoms/pilot.md}
-  mkdirSync(join(pluginRoot, 'docs', 'knowledge', 'nodejs-typescript', 'atoms'), { recursive: true })
-  writeFileSync(join(pluginRoot, 'docs', 'knowledge', 'nodejs-typescript', 'INDEX.md'), '# INDEX')
-  writeFileSync(join(pluginRoot, 'docs', 'knowledge', 'nodejs-typescript', 'atoms', 'pilot.md'), '---\ntopic: pilot\n---\n')
+  // 2026-05-20 (Luiz/dev): D1 do PRD knowledge-path-cutover — fixture usa knowledge/ (nao docs/knowledge/)
+  // simula matrix: knowledge/nodejs-typescript/{INDEX.md, atoms/pilot.md}
+  mkdirSync(join(pluginRoot, 'knowledge', 'nodejs-typescript', 'atoms'), { recursive: true })
+  writeFileSync(join(pluginRoot, 'knowledge', 'nodejs-typescript', 'INDEX.md'), '# INDEX')
+  writeFileSync(join(pluginRoot, 'knowledge', 'nodejs-typescript', 'atoms', 'pilot.md'), '---\ntopic: pilot\n---\n')
   mkdirSync(targetDir, { recursive: true })
   return { targetDir, pluginRoot }
 }
@@ -92,7 +93,15 @@ describe('copyKnowledge — idempotência + refresh', () => {
     // VALID_PRIMARY rejeita '../etc' → noop/no-source antes de tocar disco
     const result = await copyKnowledge({ targetDir, pluginRoot, primary: '../etc' as 'rails' })
     // Comportamento esperado: guard rejeita → status no-source (invalid primary)
-    expect(['no-source', 'no-matrix']).toContain(result.status)
+    expect(result.status).toBe('no-source')
+    expect(result.message).toContain('^[a-z0-9_-]+$') // VALID_PRIMARY.source deve aparecer na mensagem (sem flags)
+    expect(existsSync(join(targetDir, '.claude', 'knowledge'))).toBe(false)
+  })
+
+  // 2026-05-20 (Luiz/dev): D9/CA-13 do PRD knowledge-path-cutover — path traversal guard via slash separator
+  it('returns no-source for primary with slash separator (CA-13)', async () => {
+    const result = await copyKnowledge({ targetDir, pluginRoot, primary: 'foo/bar' as 'rails' })
+    expect(result.status).toBe('no-source')
     expect(existsSync(join(targetDir, '.claude', 'knowledge'))).toBe(false)
   })
 
@@ -112,8 +121,9 @@ describe('copyKnowledge security hardening (Wave 1)', () => {
   beforeEach(() => {
     pluginRoot = mkdtempSync(join(tmpdir(), 'plugin-'))
     targetDir = mkdtempSync(join(tmpdir(), 'target-'))
+    // 2026-05-20 (Luiz/dev): D1 do PRD knowledge-path-cutover — fixture usa knowledge/ (nao docs/knowledge/)
     // fake stack matrix folder
-    const matrixDir = join(pluginRoot, 'docs/knowledge/nodejs-typescript')
+    const matrixDir = join(pluginRoot, 'knowledge/nodejs-typescript')
     mkdirSync(matrixDir, { recursive: true })
     writeFileSync(join(matrixDir, 'INDEX.md'), '# Test')
     mkdirSync(join(matrixDir, 'atoms'), { recursive: true })
@@ -129,7 +139,7 @@ describe('copyKnowledge security hardening (Wave 1)', () => {
     // plant symlink pointing outside pluginRoot
     const outsideFile = join(tmpdir(), 'outside-secret.txt')
     writeFileSync(outsideFile, 'secret')
-    const symlinkPath = join(pluginRoot, 'docs/knowledge/nodejs-typescript/atoms/evil-link.md')
+    const symlinkPath = join(pluginRoot, 'knowledge/nodejs-typescript/atoms/evil-link.md')
     try {
       symlinkSync(outsideFile, symlinkPath)
     } catch (err: unknown) {
@@ -180,7 +190,7 @@ describe('copyKnowledge security hardening (Wave 1)', () => {
   it('M1.4: symlink error message does not contain absolute pluginRoot path', async () => {
     const outsideFile = join(tmpdir(), 'outside-secret-m14.txt')
     writeFileSync(outsideFile, 'secret')
-    const symlinkPath = join(pluginRoot, 'docs/knowledge/nodejs-typescript/atoms/evil-link-m14.md')
+    const symlinkPath = join(pluginRoot, 'knowledge/nodejs-typescript/atoms/evil-link-m14.md')
     try {
       symlinkSync(outsideFile, symlinkPath)
     } catch (err: unknown) {

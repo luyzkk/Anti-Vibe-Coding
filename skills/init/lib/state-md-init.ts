@@ -18,7 +18,8 @@ export type WriteStackResult = {
 /**
  * Atualiza (ou cria) `docs/STATE.md` no `targetDir` com `detected_stack: <id>`.
  * Idempotente: segunda chamada com mesmo stack produz conteudo identico.
- * Nao cria `docs/knowledge/` — escopo D37 respeitado.
+ * Nao cria `knowledge/` — escopo D37 respeitado.
+ * 2026-05-20 (Luiz/dev): D1 do PRD knowledge-path-cutover — path atualizado (docs/knowledge/ → knowledge/)
  *
  * @example
  * const result = await writeStackToStateMd('/path/to/project', { primary: 'nextjs', ... })
