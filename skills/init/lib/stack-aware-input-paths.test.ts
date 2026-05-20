@@ -80,4 +80,45 @@ describe('stackAwareInputPaths', () => {
       expect(docsCobertos).toContain(doc)
     }
   })
+
+  // 2026-05-20 (Luiz/dev): Plano 04 fase-02 do PRD populate-plan-andre-port (MH-4).
+  // Cobertura analoga ao test de fase-01 — cada stack expoe os 8 docs novos canonicos.
+  it('Rails cobre 6 docs canonicos novos em RAILS_CANDIDATES', async () => {
+    const result = await stackAwareInputPaths(path.join(FIXTURES, 'rails'), 'rails')
+    const docsCobertos = Array.from(result.keys())
+    const docsEsperados = [
+      'AGENTS.md',
+      'CLAUDE.md',
+      'docs/PRODUCT_SENSE.md',
+      'docs/PLANS.md',
+      'docs/QUALITY_SCORE.md',
+      'docs/STATE.md',
+      'docs/design-docs/core-beliefs.md',
+      'README.md',
+    ] as const
+    for (const doc of docsEsperados) {
+      expect(docsCobertos).toContain(doc)
+    }
+  })
+
+  it('Node-TS cobre 6 docs canonicos novos em NODE_TS_CANDIDATES', async () => {
+    // 2026-05-20 (Luiz/dev): nao temos fixture node-ts dedicado — reusamos `empty` com
+    // primary='node-ts'. `exists` ficara `false` em todos os paths (sem arquivos no fixture).
+    // O teste valida apenas COBERTURA DE KEYS, nao existencia de arquivos.
+    const result = await stackAwareInputPaths(path.join(FIXTURES, 'empty'), 'node-ts')
+    const docsCobertos = Array.from(result.keys())
+    const docsEsperados = [
+      'AGENTS.md',
+      'CLAUDE.md',
+      'docs/PRODUCT_SENSE.md',
+      'docs/PLANS.md',
+      'docs/QUALITY_SCORE.md',
+      'docs/STATE.md',
+      'docs/design-docs/core-beliefs.md',
+      'README.md',
+    ] as const
+    for (const doc of docsEsperados) {
+      expect(docsCobertos).toContain(doc)
+    }
+  })
 })
