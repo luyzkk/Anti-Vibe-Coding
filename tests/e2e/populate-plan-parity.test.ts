@@ -11,6 +11,9 @@ import {
   generatePopulatePlanV2,
   EXCLUDED_FROM_POPULATION_V2,
 } from '../../skills/init/lib/populate-plan-generator'
+// 2026-05-19 (Luiz/dev): Plano 02 fase-04 do PRD populate-plan-andre-port (MH-2 / CA-03).
+// Fonte canonica das 10 secoes base — drift entre array e tpl quebra os testes abaixo.
+import { EXEC_PLAN_SECTIONS_FULL } from '../../skills/lib/exec-plan-sections'
 
 const FIXED_DATE = new Date('2026-05-19T10:00:00.000Z')
 
@@ -72,5 +75,65 @@ describe('populate-plan parity (gate "nunca diminuir")', () => {
     }
 
     expect(readicionados).toEqual([])
+  })
+
+  test('PLAN.md gerado contem as 11 secoes obrigatorias (10 Andre + Observability) — CA-03', async () => {
+    const result = await generatePopulatePlanV2({
+      cwd: '/tmp/fake',
+      projectName: 'parity-test',
+      clock: () => FIXED_DATE,
+    })
+
+    const required = [...EXEC_PLAN_SECTIONS_FULL, 'Observability']
+    const ausentes = required.filter(sec =>
+      !new RegExp(`^## ${sec}\\s*$`, 'm').test(result.planIndexMarkdown),
+    )
+
+    if (ausentes.length > 0) {
+      throw new Error(
+        `[parity gate "nunca diminuir" — CA-03] Secoes obrigatorias ausentes do PLAN.md gerado:\n` +
+        ausentes.map(s => `  - ## ${s}`).join('\n') +
+        `\n\nSe removida propositalmente, atualize ${PRD_LINK} CA-03 + o template:\n` +
+        `  skills/init/assets/templates/exec-plan/PLAN.md.tpl\n` +
+        `Fonte canonica das 10 primeiras: skills/lib/exec-plan-sections.ts (EXEC_PLAN_SECTIONS_FULL).\n` +
+        `Observability e melhoria nossa (D1 do PRD) — manter ate ser explicitamente removida.\n`,
+      )
+    }
+
+    expect(ausentes).toEqual([])
+  })
+
+  test('PLAN.md tem 3 opcionais ausentes OU marcadas como <!-- opcional --> (CA-03)', async () => {
+    const result = await generatePopulatePlanV2({
+      cwd: '/tmp/fake',
+      projectName: 'parity-test',
+      clock: () => FIXED_DATE,
+    })
+
+    // 2026-05-19 (Luiz/dev): CA-03 do PRD — opcionais NAO podem aparecer como H2 com corpo
+    // vazio. Aceitavel: ausentes OU `<!-- opcional: NOME ... -->`. Falha se `## NOME` aparecer
+    // sem o comentario correspondente.
+    const opcionais = ['Follow-up Plans', 'Final Report', 'Pre-GO']
+    const violacoes: string[] = []
+
+    for (const opt of opcionais) {
+      const hasH2 = new RegExp(`^## ${opt}\\s*$`, 'm').test(result.planIndexMarkdown)
+      const hasComment = new RegExp(`<!--\\s*opcional:[^>]*${opt}`, 'm').test(result.planIndexMarkdown)
+      // Violacao: tem H2 sem ser marcada como comentario (vazou para o output).
+      if (hasH2 && !hasComment) {
+        violacoes.push(opt)
+      }
+    }
+
+    if (violacoes.length > 0) {
+      throw new Error(
+        `[parity gate "nunca diminuir" — CA-03] Opcionais vazaram para o PLAN.md como H2 sem marcacao:\n` +
+        violacoes.map(s => `  - ## ${s} (deveria ser <!-- opcional: ${s} ... --> ou ausente)`).join('\n') +
+        `\n\nAjuste ${PRD_LINK} CA-03 + o template:\n` +
+        `  skills/init/assets/templates/exec-plan/PLAN.md.tpl\n`,
+      )
+    }
+
+    expect(violacoes).toEqual([])
   })
 })
