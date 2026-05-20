@@ -3,7 +3,8 @@
 // Substitui spawn de harness-validate por walk em docs/ + allowlist derivada de TEMPLATE_MANIFEST.
 // Modo warning: nao lanca AbortError. Fase-04: try/catch defensivo para IO errors (CA-07 convergencia).
 // 2026-05-20 (Luiz/dev): D8.C do PRD knowledge-path-cutover — 2 checks pos-init adicionados.
-// Check primario (bloqueante): stack detectada sem .claude/knowledge/{stack}/INDEX.md → AbortError.
+// Check primario (bloqueante): stack detectada sem .claude/knowledge/INDEX.md → AbortError.
+// copyKnowledge copia conteudo de knowledge/{stack}/ diretamente para .claude/knowledge/ (sem subdir).
 // Check secundario (warning nao-bloqueante): docs/knowledge/ orfao → console.warn sunset v7.0.0.
 // AR-05: este e o Step 90 runtime validator. harness-validate.ts ja foi atualizado no Plano 01 fase-06.
 import { promises as fs } from 'node:fs'
@@ -49,13 +50,16 @@ export async function runFinalValidationChecks(cwd: string): Promise<void> {
     }
 
     if (primary !== null) {
-      const indexPath = path.join(cwd, '.claude', 'knowledge', primary, 'INDEX.md')
+      // 2026-05-20 (Luiz/dev): copyKnowledge copia conteudo de knowledge/{stack}/ diretamente
+      // para .claude/knowledge/ — INDEX.md fica em .claude/knowledge/INDEX.md, sem subdiretorio.
+      // Consistente com run-stack-knowledge-init.ts linha 103 (leitura do preview).
+      const indexPath = path.join(cwd, '.claude', 'knowledge', 'INDEX.md')
       const indexExists = await fs.access(indexPath).then(() => true).catch(() => false)
       if (!indexExists) {
         throw new AbortError({
           code: 1,
           reason:
-            `Stack detectada (${primary}) mas .claude/knowledge/${primary}/INDEX.md ausente. ` +
+            `Stack detectada (${primary}) mas .claude/knowledge/INDEX.md ausente. ` +
             `Re-rode /anti-vibe-coding:init ou verifique a matrix no plugin.`,
         })
       }

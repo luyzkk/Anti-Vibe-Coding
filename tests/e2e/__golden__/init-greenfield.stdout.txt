@@ -12,8 +12,9 @@
 [migrate-2-planning]
 [migrate-3-lessons]
 [migrate-4-decisions]
+[13_1-migrate-knowledge-path] skipped: not in re-populate mode
 [scaffold-full-tree] Base files: 4
-Tree files: 32 in <NN> ms
+Tree files: 33 in <NN> ms
 TODO.md ja existe — mantido sem modificacao (G2).
 [scaffold-full-tree] (mutated disk)
 [link-claude-agents] Linked via tier: symlink
@@ -33,9 +34,9 @@ Knowledge cobre: type, generic, branded, discriminated, satisfies, ESM, CJS, eve
 [delivery-loop]
 [capabilities-discovery] [capabilities-discovery] skipped — architecture profile not detected. Run /anti-vibe-coding:detect-architecture first.
 [91-generate-populate-plan] Plano de populacao gerado: docs/exec-plans/active/<DATE>-populate-harness
-Fases emitidas: 26 (1 por doc canonico).
+Fases emitidas: 31 (1 por doc canonico).
 Stack detectado: node-ts (package.json#devDependencies.typescript).
-Discovery: 51 docs existentes amostrados.
+Discovery: 52 docs existentes amostrados.
 Para popular o harness com analise do repo: /anti-vibe-coding:execute-plan docs/exec-plans/active/<DATE>-populate-harness
 [91-generate-populate-plan] (mutated disk)
 [final-validation] validator: 0 warnings — scaffold canonico intacto
