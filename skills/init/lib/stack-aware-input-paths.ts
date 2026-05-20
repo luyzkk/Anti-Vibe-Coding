@@ -179,6 +179,47 @@ const RAILS_CANDIDATES: StackCandidates = {
     '.rubocop.yml',
     'Gemfile',
   ],
+  // 2026-05-20 (Luiz/dev): Plano 04 fase-02 do PRD populate-plan-andre-port (MH-4).
+  // Paths do scaffold `rails new` — sem inventar paths customizados.
+  'AGENTS.md': [
+    'README.md',
+    'Gemfile',
+    'CLAUDE.md',
+  ],
+  'CLAUDE.md': [
+    'AGENTS.md',
+    'README.md',
+    'Gemfile',
+  ],
+  'docs/PRODUCT_SENSE.md': [
+    'README.md',
+    'config/routes.rb',
+    'Gemfile',
+  ],
+  'docs/PLANS.md': [
+    'docs/exec-plans/active/',
+    'docs/exec-plans/completed/',
+  ],
+  'docs/QUALITY_SCORE.md': [
+    '.github/workflows/',
+    '.github/pull_request_template.md',
+    'Gemfile',
+  ],
+  'docs/STATE.md': [
+    'Gemfile.lock',
+    'docs/exec-plans/active/',
+    'config/application.rb',
+  ],
+  'docs/design-docs/core-beliefs.md': [
+    'CLAUDE.md',
+    'docs/CODE_STYLE.md',
+    'README.md',
+  ],
+  'README.md': [
+    'Gemfile',
+    'config/routes.rb',
+    'bin/rails',
+  ],
 }
 
 const NODE_TS_CANDIDATES: StackCandidates = {
@@ -193,6 +234,57 @@ const NODE_TS_CANDIDATES: StackCandidates = {
     '.eslintrc.json',
     'eslint.config.js',
     '.prettierrc',
+  ],
+  // 2026-05-20 (Luiz/dev): Plano 04 fase-02 do PRD populate-plan-andre-port (MH-4).
+  // Paths do scaffold `bun init` / `npm init` — sem inventar paths customizados.
+  // SECURITY e RELIABILITY acrescentados aqui (nao existiam em NODE_TS_CANDIDATES antes).
+  'AGENTS.md': [
+    'README.md',
+    'package.json',
+    'CLAUDE.md',
+  ],
+  'CLAUDE.md': [
+    'AGENTS.md',
+    'README.md',
+    'package.json',
+  ],
+  'docs/PRODUCT_SENSE.md': [
+    'README.md',
+    'package.json',
+  ],
+  'docs/PLANS.md': [
+    'docs/exec-plans/active/',
+    'docs/exec-plans/completed/',
+  ],
+  'docs/QUALITY_SCORE.md': [
+    '.github/workflows/',
+    '.github/pull_request_template.md',
+    'package.json',
+  ],
+  'docs/STATE.md': [
+    'package.json',
+    'docs/exec-plans/active/',
+  ],
+  'docs/design-docs/core-beliefs.md': [
+    'CLAUDE.md',
+    'docs/CODE_STYLE.md',
+    'README.md',
+  ],
+  'docs/SECURITY.md': [
+    // 2026-05-20 (Luiz/dev): Node-TS generico nao tem middleware/auth scaffold —
+    // dependency tree fica como fonte real. Renderer marca `exists: false` em
+    // greenfield se .env.example nao existe.
+    '.env.example',
+    'package.json',
+  ],
+  'docs/RELIABILITY.md': [
+    'package.json',
+    'tsconfig.json',
+  ],
+  'README.md': [
+    'package.json',
+    'tsconfig.json',
+    'src/index.ts',
   ],
 }
 
