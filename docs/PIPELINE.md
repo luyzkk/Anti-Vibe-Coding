@@ -87,3 +87,73 @@ Re-runs are idempotent: human-edited files and active plans are preserved.
 AI Judge suggested for features with 3+ slices or critical areas (auth, financial).
 
 See `docs/PLANS.md` for plan template details. See `AGENTS.md` for workflow overview.
+
+---
+
+## Step 91 — Populate Plan (init skill internal)
+
+Apos `/anti-vibe-coding:init` rodar Steps 01-90, **Step 91 (`91-generate-populate-plan`)** emite um plano executavel
+que dispara a populacao dos docs canonicos (ARCHITECTURE, AGENTS, README, PRODUCT_SENSE,
+QUALITY_SCORE, SECURITY, RELIABILITY, DESIGN, FRONTEND, PLANS, CODE_STYLE, STATE,
+design-docs/core-beliefs, .claude/CLAUDE.md).
+
+```
+init Step 91 (puro — zero LLM)
+        |
+        |  emite docs/exec-plans/active/{date}-populate-harness/PLAN.md
+        |  + fase-XX-{slug}.md (1 fase por doc canonico)
+        v
+/anti-vibe-coding:execute-plan (1 subagent por fase — paralelo)
+        |
+        |  cada subagent le Inputs (codigo + docs), gera doc canonico
+        v
+PR review humano + merge
+```
+
+### Contrato do PLAN.md gerado
+
+`skills/init/assets/templates/exec-plan/PLAN.md.tpl` define **11 secoes obrigatorias**:
+Goal / Scope / Assumptions / Risks / Execution Steps / Review Checklist / Validation Log /
+Compound Opportunity / Lessons Captured / Exit Criteria / Observability.
+
+Mais 3 opcionais (Follow-up Plans / Final Report / Pre-GO) marcadas com `<!-- opcional -->`
+quando vazias.
+
+### Contrato das instrucoes LLM (`LLM_INSTRUCTIONS`)
+
+Cada doc canonico tem entry em `LLM_INSTRUCTIONS` (em `populate-plan-generator.ts`) seguindo
+o tipo `ImperativeInstruction = { fontes: string[]; secoes: string[]; honestidade: string }`.
+
+Tres elementos obrigatorios por entry:
+1. **Fontes:** lista especifica de arquivos a ler.
+2. **Secoes:** sub-secoes obrigatorias do output.
+3. **Honestidade:** frase do tipo "Cada afirmacao rastreia um arquivo lido. Quando nao rastreia, marca `TODO(<contexto>):`."
+
+Validado por `isImperativeInstruction()` em runtime e no parity test (CA-06 do PRD).
+
+### Discovery `(stack-id + doc-canonico) -> paths`
+
+`skills/init/lib/stack-aware-input-paths.ts` mapeia cada doc canonico aos paths candidatos por
+stack detectado. Paths validados via `fs.access` (mitiga LLM-hallucination).
+
+Stacks cobertos: Next.js, Next.js+Supabase, Rails, Node-TS, Laravel, Python. Fallback generico
+para `unknown`/`null`.
+
+### Gate "nunca diminuir"
+
+`tests/e2e/populate-plan-parity.test.ts` impede regressao mecanica:
+- `plan.phases.length >= 12` (CA-01).
+- `EXCLUDED_FROM_POPULATION_V2` nao contem PRODUCT_SENSE/README (MH-1 + D5).
+- Cada `LLM_INSTRUCTION` satisfaz contrato imperativo (CA-06).
+- Next.js+Supabase tem >= 3 paths reais em SECURITY/ARCHITECTURE/RELIABILITY (CA-02).
+- PLAN.md gerado tem as 11 secoes obrigatorias (CA-03).
+- Golden `tests/e2e/__golden__/populate-plan-andre-parity.md` bate (CA-08).
+
+Compound: `docs/compound/2026-05-19-never-diminish-andre.md` captura a regra durable
+("gate de paridade deve ser teste, nao doc").
+
+### Observability
+
+Step 91 emite audit log com:
+- `phaseCount`, `filesWritten`, `warnings`, `stackPrimary`, `discoveryEntries`.
+- `docsCoveredByStack`, `docsWithoutCodeEvidence`, `phasesCreatedVsExpected` (SH-4 — `populate-plan-coverage.ts`).
