@@ -126,7 +126,7 @@ Se nada mudou, manter vazio (bom sinal).
 | Fases com desvio | 0 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
-| Commits Plano 03 | 3 (84c14d5, 69234d3, ver hash abaixo apos commit) |
+| Commits Plano 03 | 3 (84c14d5, 69234d3, fa7b2d4) |
 
 ---
 
