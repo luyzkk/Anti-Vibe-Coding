@@ -93,3 +93,24 @@ anti-vibe-coding/
             ├── audit-log.ts
             └── prompts/              ← explorer.md, reconciler.md, compound.md
 ```
+
+## Conventions
+
+### Convencao: `docs/` vs Runtime Assets
+
+> Registrado em: 2026-05-20 — PRD knowledge-path-cutover (D1, D2). Decisao confirmada pos-merge.
+
+`docs/` e **dog-food humano** — metadocumentacao do plugin (exec-plans, compound notes, design-docs,
+ADRs). `sync-to-global.sh` propositalmente NAO copia `docs/` para o cache global.
+
+**Runtime assets** (consumidos por skills durante `/init` no projeto alvo) DEVEM viver **fora de `docs/`**:
+
+| Diretorio | Tipo | Distribuivel? |
+|-----------|------|---------------|
+| `knowledge/` | Matrix por stack (atoms) consumida por `copy-knowledge.ts` | Sim (`sync-to-global.sh` copia) |
+| `skills/` | Skills (commands) do plugin | Sim |
+| `hooks/` | Hooks do plugin | Sim |
+| `agents/` | Subagent prompts | Sim |
+| `docs/` | Metadocumentacao interna | **Nao** |
+
+Se um novo asset for criado e precisar chegar ao projeto alvo via `/init`, ele NAO deve ficar em `docs/`.
