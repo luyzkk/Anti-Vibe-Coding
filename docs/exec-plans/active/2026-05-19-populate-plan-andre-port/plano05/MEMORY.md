@@ -58,6 +58,12 @@ Formato: o que foi decidido + por que + impacto.
   - Por que: single source of truth — se PRD futuro mudar minimo de 12 para outro valor, muda em 1 lugar. Step 91 ja tem assertion defensiva `< 10` (linha 46) — gate antigo mais permissivo. `MIN_EXPECTED_PHASES = 12` e o gate de observabilidade mais estrito (SH-4).
   - Impacto: 2 testes em `91-generate-populate-plan.test.ts` asseguram que `phasesCreatedVsExpected.minExpected` seja sempre 12 (CA-01).
 
+- **DI-Plano05-fase05-pipeline-final-section:** secao "Step 91" inserida no FINAL do `docs/PIPELINE.md`, apos `## Init Modes` (ultima secao pre-existente). Razao: Step 91 e parte do `init` skill, nao do pipeline principal — manter visualmente separado do fluxo grill-me → write-prd → ... → iterate.
+
+- **DI-Plano05-fase05-compound-frontmatter:** shape de frontmatter copiado de `docs/compound/2026-05-16-extrator-subagente-injeta-verdades-fora-do-source.md` (4 campos: title, category, tags, created). `compound:check` exige secoes `## Problem`, `## Solution`, `## Prevention` — spec da fase usava `## Rule` que e sinonimo conceitual. Secao renomeada para `## Prevention` para satisfazer o validator, conteudo intacto.
+
+- **DI-Plano05-fase05-pontos-gaps:** secao "Pontos do plugin onde a regra deve ser aplicada" do compound enumera 3 gaps (init-greenfield golden reativar testes skipados, subagent-contract golden de output por subagent_id, stack-knowledge format parity test). Sao seeds para iteracoes futuras — nao bloqueiam merge deste PRD.
+
 ---
 
 ## Bugs Descobertos
@@ -119,6 +125,15 @@ Exemplo:
 ---
 
 ## Notas para Planos Seguintes
+
+### Apos fase-05 (PIPELINE.md + compound note — SH-1)
+
+- **`docs/PIPELINE.md` atualizado com secao "Step 91":** diagrama ASCII + 5 subsecoes (Contrato PLAN.md, Contrato LLM_INSTRUCTIONS, Discovery, Gate "nunca diminuir", Observability). Secao adicionada como append no final — nao toca fluxo principal `grill-me → ... → iterate`.
+- **`docs/compound/2026-05-19-never-diminish-andre.md` criado:** frontmatter com 4 campos (title/category/tags/created), 5 secoes (Problem/Solution/Prevention/Evidencia/Pontos gaps). `bun run compound:check` valida sem erros.
+- **Regra durable capturada:** "gate de paridade deve ser teste mecanico, nao comentario nem doc". 3 gaps futuros enumerados na secao "Pontos do plugin".
+- **Proxima fase (fase-06):** E2E skipados + cleanup de MEMORY.md raiz (ver spec de fase-06).
+
+---
 
 ### Apos fase-04 (audit log com metricas de cobertura — SH-4)
 
