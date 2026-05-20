@@ -366,22 +366,31 @@ export const LLM_INSTRUCTIONS: Record<string, ImperativeInstruction> = {
   },
 }
 
-const DEFAULT_INSTRUCTION =
-  'Leia os inputs (docs candidatos + codigo). Sintetize o conteudo deste doc canonico com base na ' +
-  'verdade do projeto. Zero placeholder. Se nao houver evidencia suficiente, marque `needsUser` e ' +
-  'pergunte ao dev no PR.'
-
-// 2026-05-19 (Luiz/dev): Plano 03 fase-02 — DEFAULT ainda em formato antigo, sera reescrito
-// em fase-03 como ImperativeInstruction. Cast provisorio aceito porque fase-03 e o passo
-// imediatamente seguinte e fecha o ciclo MH-3.
-const DEFAULT_INSTRUCTION_LEGACY_TODO_PHASE_03: ImperativeInstruction = {
-  fontes: ['(provisorio — fase-03 reescreve)'],
-  secoes: ['(provisorio — fase-03 reescreve)'],
-  honestidade: 'Provisorio. Fase-03 do Plano 03 reescreve com o conteudo final.',
+// 2026-05-19 (Luiz/dev): Plano 03 fase-03 do PRD populate-plan-andre-port (MH-3 / CA-06).
+// Default conservador: aplicado quando o doc canonico NAO tem entry no map. `fontes` minimos
+// universais; `secoes` no formato Andre canonico (Goal / Inputs / Output); honestidade
+// padrao. NAO ha brecha tipo "se nao houver evidencia, marque needsUser e siga" — `needsUser`
+// e sinal de bloqueio + `TODO(<contexto>):` obrigatorio na saida.
+export const DEFAULT_INSTRUCTION: ImperativeInstruction = {
+  fontes: [
+    'package.json',
+    'README.md (se existir)',
+    'docs/** (qualquer doc candidato relacionado ao destino)',
+    'src/** ou skills/** (codigo principal)',
+  ],
+  secoes: [
+    'Goal',
+    'Inputs',
+    'Output',
+  ],
+  honestidade:
+    'Cada afirmacao rastreia um arquivo lido. Quando nao rastreia, marca `TODO(<contexto>):`. ' +
+    'Sem evidencia suficiente: flag `needsUser` + nao gerar conteudo especulativo. ' +
+    'Honestidade > marketing.',
 }
 
 function llmInstructionFor(dst: string): ImperativeInstruction {
-  return LLM_INSTRUCTIONS[dst] ?? DEFAULT_INSTRUCTION_LEGACY_TODO_PHASE_03
+  return LLM_INSTRUCTIONS[dst] ?? DEFAULT_INSTRUCTION
 }
 
 // --- Heuristica docs-candidatos -> doc-canonico ---

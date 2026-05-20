@@ -2,7 +2,8 @@
 
 **Feature:** populate-plan-andre-port
 **Iniciado:** 2026-05-19
-**Status:** em andamento
+**Concluido:** 2026-05-20
+**Status:** completed
 
 **Bloqueadores ja resolvidos:** Plano 01 (lista canonica completa, `EXCLUDED_FROM_POPULATION_V2`
 reduzido, `tests/e2e/populate-plan-parity.test.ts` com 2 asserts MH-1 ativos). Plano 03 roda
@@ -58,6 +59,36 @@ Formato: o que foi decidido + por que + impacto.
   para `ImperativeInstruction` (linha 56, comentario 2026-05-19). Cascata obrigatoria:
   `renderLLMInstructionBlock` aceita `ImperativeInstruction` e chama `formatImperativeInstruction`.
 
+- **DI-Plano03-fase03-default-final:** `DEFAULT_INSTRUCTION` reescrito como `ImperativeInstruction` exportado.
+  Snippet do objeto final:
+  ```typescript
+  export const DEFAULT_INSTRUCTION: ImperativeInstruction = {
+    fontes: [
+      'package.json',
+      'README.md (se existir)',
+      'docs/** (qualquer doc candidato relacionado ao destino)',
+      'src/** ou skills/** (codigo principal)',
+    ],
+    secoes: ['Goal', 'Inputs', 'Output'],
+    honestidade:
+      'Cada afirmacao rastreia um arquivo lido. Quando nao rastreia, marca `TODO(<contexto>):`. ' +
+      'Sem evidencia suficiente: flag `needsUser` + nao gerar conteudo especulativo. ' +
+      'Honestidade > marketing.',
+  }
+  ```
+  `DEFAULT_INSTRUCTION` string antigo e `DEFAULT_INSTRUCTION_LEGACY_TODO_PHASE_03` deletados.
+  `llmInstructionFor` usa `LLM_INSTRUCTIONS[dst] ?? DEFAULT_INSTRUCTION`.
+
+- **DI-Plano03-fase03-export-confirmado:** `LLM_INSTRUCTIONS` exportado desde fase-02 (linha 157).
+  Fase-03 apenas confirmou — nenhuma mudanca adicional de export necessaria.
+
+- **DI-Plano03-fase03-red-validado:** RED mutation validado manualmente (Passo 8 do doc):
+  - RED 1: comentar `fontes: []` em `ARCHITECTURE.md` → teste `every LLM_INSTRUCTION entry` falhou
+    com mensagem `LLM_INSTRUCTIONS['ARCHITECTURE.md']: \`fontes\` ausente ou vazio`. Correto.
+  - RED 2: `fontes: []` em `DEFAULT_INSTRUCTION` → teste `DEFAULT_INSTRUCTION is a valid...` falhou
+    com mensagem apontando o schema obrigatorio e link CA-06. Correto.
+  - Ambos restaurados. Suite cheia: 6 pass, 0 fail.
+
 ---
 
 ## Bugs Descobertos
@@ -91,10 +122,11 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 3 |
-| Fases concluidas | 2 |
+| Fases concluidas | 3 |
 | Fases com desvio | 0 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
+| Commits Plano 03 | 3 (84c14d5, 69234d3, ver hash abaixo apos commit) |
 
 ---
 
@@ -143,6 +175,41 @@ O subagente do proximo plano le este campo.
   - `tests/e2e/populate-plan-parity.test.ts`: 4 pass (sem mudanca — fase-03 estende).
 
 - **`export const LLM_INSTRUCTIONS`** confirmado em linha 157 — fase-03 nao precisa adicionar export.
+
+### Apos fase-03 (estado final do Plano 03)
+
+- **Parity test: 6 asserts ativos** em `tests/e2e/populate-plan-parity.test.ts`:
+  1. `plano gerado contem >= 12 fases cobrindo lista CA-01` (MH-1, Plano 01)
+  2. `EXCLUDED_FROM_POPULATION_V2 nao readiciona PRODUCT_SENSE nem README (CA-04)` (MH-1, Plano 01)
+  3. `PLAN.md gerado contem as 11 secoes obrigatorias (10 Andre + Observability) — CA-03` (CA-03, Plano 02)
+  4. `PLAN.md tem 3 opcionais ausentes OU marcadas como <!-- opcional --> (CA-03)` (CA-03, Plano 02)
+  5. `every LLM_INSTRUCTION entry is a valid ImperativeInstruction (CA-06)` (CA-06, Plano 03)
+  6. `DEFAULT_INSTRUCTION is a valid ImperativeInstruction (CA-06)` (CA-06, Plano 03)
+
+- **Path de import no parity test:** `'../../skills/init/lib/populate-plan-generator'` (relativo, 2 niveis de `tests/e2e/`).
+
+- **API publica exportada de `populate-plan-generator.ts`** (relevante para Plano 05 fase-01):
+  - `export interface ImperativeInstruction`
+  - `export function formatImperativeInstruction`
+  - `export function isImperativeInstruction`
+  - `export const LLM_INSTRUCTIONS` (12 chaves)
+  - `export const DEFAULT_INSTRUCTION`
+
+- **12 chaves de `LLM_INSTRUCTIONS`** (em ordem):
+  `ARCHITECTURE.md`, `docs/FRONTEND.md`, `docs/SECURITY.md`, `docs/RELIABILITY.md`,
+  `docs/DESIGN.md`, `docs/CODE_STYLE.md`, `docs/QUALITY_SCORE.md`, `docs/PLANS.md`,
+  `docs/STATE.md`, `docs/design-docs/core-beliefs.md`, `AGENTS.md`, `CLAUDE.md`.
+
+- **`DEFAULT_INSTRUCTION.secoes`** final: `['Goal', 'Inputs', 'Output']` (formato Andre canonico).
+
+- **Testes apos fase-03 (total: 36 pass):**
+  - `tests/e2e/populate-plan-parity.test.ts`: 6 pass (4 anteriores + 2 CA-06 novos).
+  - `skills/init/lib/populate-plan-generator.test.ts`: 18 pass (sem mudanca).
+  - `skills/init/lib/imperative-instruction.test.ts`: 12 pass (sem mudanca).
+
+- **Plano 05 fase-01** pode importar diretamente `DEFAULT_INSTRUCTION`, `LLM_INSTRUCTIONS`,
+  `isImperativeInstruction` de `populate-plan-generator.ts` — sem necessidade de re-exportar
+  via arquivo intermediario.
 
 ---
 
