@@ -2,7 +2,7 @@
 
 **Plan:** ./PLAN.md
 **Phase:** in-progress
-**Current Plan:** 04/5 (Plano 03 concluido — pronto para Plano 04)
+**Current Plan:** 05/5 (Plano 04 concluido — pronto para Plano 05)
 **Last Updated:** 2026-05-20
 
 ## Progress por Plano
@@ -12,12 +12,12 @@
 | 01 | MH-1 Lista completa de docs (Tracer Bullet) | 3 | 3/3 | completed |
 | 02 | MH-2 PLAN.md / fase.md templates estilo Andre | 4 | 4/4 | completed |
 | 03 | MH-3 Instrucoes imperativas | 3 | 3/3 | completed |
-| 04 | MH-4 Discovery `(stack-id + doc-canonico) -> paths` | 3 | 0/3 | pending |
+| 04 | MH-4 Discovery `(stack-id + doc-canonico) -> paths` | 3 | 3/3 | completed |
 | 05 | Gate completo + SH + compound + goldens | 6 | 0/6 | pending |
 
 ## Progress Global
 
-Fases done: 10/19 (53%)
+Fases done: 13/19 (68%)
 
 ## Log
 
@@ -31,3 +31,6 @@ Fases done: 10/19 (53%)
 - 2026-05-20: Plano 03 fase-01 executado via /execute-plan (subagente plan-executor). ImperativeInstruction interface + formatImperativeInstruction + isImperativeInstruction exportados de populate-plan-generator.ts. Novo imperative-instruction.test.ts com 12 testes (1 render + 1 happy guard + 10 test.each invalidos). RED confirmado por import error. GREEN: 22/22 verde (12 novos + 6 generator + 4 parity). Typecheck: 3 erros GT-01 pre-existentes (sem novos). Commit: `84c14d5`. LLM_INSTRUCTIONS / DEFAULT_INSTRUCTION / llmInstructionFor / renderLLMInstructionBlock intactos (sao fase-02 e fase-03).
 - 2026-05-20: Plano 03 fase-02 executado via /execute-plan (subagente plan-executor). LLM_INSTRUCTIONS tipo mudou para Record<string, ImperativeInstruction> + exportado; 12 entries reescritas em 4 lotes de 3 com typecheck entre lotes (DI-Plano03-fase02-batch-size). Brecha "mantenha o template" matada em QUALITY_SCORE.md. llmInstructionFor retorna ImperativeInstruction. renderLLMInstructionBlock chama formatImperativeInstruction (heading preservado). DEFAULT_INSTRUCTION_LEGACY_TODO_PHASE_03 provisorio adicionado (fase-03 deleta). PopulatePlanPhase.instrucaoLLM cascade-updated para ImperativeInstruction. test.each(Object.entries(LLM_INSTRUCTIONS)) adicionado em populate-plan-generator.test.ts. 34/34 verde (12 + 18 + 4). Typecheck: apenas 3 erros GT-01 pre-existentes. Commit: `69234d3`.
 - 2026-05-20: Plano 03 fase-03 executado via /execute-plan (subagente plan-executor). DEFAULT_INSTRUCTION reescrita como `export const DEFAULT_INSTRUCTION: ImperativeInstruction` (secoes Goal/Inputs/Output — formato Andre canonico). DEFAULT_INSTRUCTION_LEGACY_TODO_PHASE_03 + string antigo DELETADOS (zero matches). 2 sub-asserts CA-06 adicionados em parity test (every LLM_INSTRUCTION entry + DEFAULT_INSTRUCTION sao ImperativeInstruction validos). RED validado manualmente: fontes:[] em ARCHITECTURE.md + em DEFAULT_INSTRUCTION ambos produziram mensagem educativa. 36/36 verde (12 + 18 + 6). Typecheck: apenas 3 erros GT-01 pre-existentes. Commits: `fa7b2d4` (feat) + `9253312` (MEMORY). **Plano 03 COMPLETO (3/3 fases). Parity test agora com 6 asserts: 2 MH-1 + 2 CA-03 + 2 CA-06.**
+- 2026-05-20: Plano 04 fase-01 executado via /execute-plan (subagente plan-executor). NEXTJS_CANDIDATES expandido de 6 para 14 chaves (+8 docs canonicos: AGENTS.md, CLAUDE.md, docs/PRODUCT_SENSE.md, docs/PLANS.md, docs/QUALITY_SCORE.md, docs/STATE.md, docs/design-docs/core-beliefs.md, README.md). NEXTJS_SUPABASE_EXTRA.SECURITY: 4 paths; NEXTJS_SUPABASE_EXTRA.RELIABILITY: 4 paths (CA-02 mecanico ok). GENERIC_CANDIDATES recebe README.md + docs/PRODUCT_SENSE.md. 3 stubs novos no fixture nextjs-supabase: src/lib/supabase/client.ts, supabase/migrations/20260519000000_init.sql, supabase/functions/hello/index.ts (8 arquivos no total no fixture). tests/fixtures/stack-aware/README.md criado. 3 novos it's (SEC >=3 reais, REL >=3 reais, 8 docs novos no map). 8/8 verde em stack-aware-input-paths.test.ts. Typecheck: apenas 3 erros GT-01 pre-existentes (sem novos). Suite completa sem regressao nova (7 fails identicos ao baseline pre-fase). Commit: `a26e94f`.
+- 2026-05-20: Plano 04 fase-02 executado via /execute-plan (subagente plan-executor). RAILS_CANDIDATES expandido de 4 para 12 chaves (+8 docs canonicos). NODE_TS_CANDIDATES expandido de 2 para 12 chaves (+8 docs + SECURITY + RELIABILITY que nao existiam antes). Paths derivados de scaffold padrao de cada stack — sem inventar. 2 novos it's: Rails 6 docs novos + Node-TS 6 docs novos. 10/10 verde em stack-aware-input-paths.test.ts. Typecheck: apenas 3 erros GT-01 pre-existentes. Suite completa: 7 fails identicos ao baseline (zero regressao nova). Commit: `beb8a85` (inclui MEMORY.md update no mesmo commit).
+- 2026-05-20: Plano 04 fase-03 executado via /execute-plan (subagente plan-executor). 2 asserts novos no parity test: CA-02 (Next.js+Supabase >= 3 paths reais em ARCH/SEC/REL) e CA-05 (stack null gera plano completo >= 12 fases com inputsCode vazio + nota explicita). Imports `path` + `stackAwareInputPaths` movidos para topo (DI-Plano04-fase03-imports-toplevel). RED simulado mentalmente (com fase-01/fase-02 mergeadas GREEN era imediato — DI-Plano04-fase03-red-validado-manualmente registrado). 8/8 verde em populate-plan-parity.test.ts. Typecheck: 3 erros GT-01. Suite completa: 7 fails baseline (zero regressao). Commit: `f0ec8db`. **Plano 04 COMPLETO (3/3 fases). Parity test agora com 8 asserts: 2 MH-1 + 2 CA-03 + 2 CA-06 + 2 CA-02/CA-05.**
