@@ -29,7 +29,8 @@ async function readPluginVersion(): Promise<string> {
     const parsed = JSON.parse(raw) as { version?: string }
     if (parsed.version) return parsed.version
   } catch { /* fall through */ }
-  return '6.4.1'
+  // 2026-05-20 (Luiz/dev): D6 do PRD knowledge-path-cutover — fallback version bump 6.5.1 → 6.6.0
+  return '6.6.0'
 }
 
 export type RunInitOptions = {

@@ -15,7 +15,8 @@ if [ -z "${PLUGIN_GLOBAL:-}" ]; then
   if [ -f "$PLUGIN_DEV/plugin-manifest.json" ]; then
     PLUGIN_VERSION=$(grep -m1 '"version"' "$PLUGIN_DEV/plugin-manifest.json" | sed -E 's/.*"version"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/')
   fi
-  PLUGIN_VERSION="${PLUGIN_VERSION:-6.4.1}"
+  # 2026-05-20 (Luiz/dev): D6 do PRD knowledge-path-cutover — bump 6.5.1 → 6.6.0
+  PLUGIN_VERSION="${PLUGIN_VERSION:-6.6.0}"
   PLUGIN_GLOBAL="/c/Users/luizf/.claude/plugins/cache/local-plugins/anti-vibe-coding/$PLUGIN_VERSION"
 fi
 
@@ -118,6 +119,46 @@ if [ -f "$PLUGIN_GLOBAL/AGENTS.md" ]; then
     fi
   fi
   cd - > /dev/null || true
+fi
+
+echo ""
+
+# 2026-05-19 (Luiz/dev): pin do installed_plugins.json — evita Claude Code carregar versao
+# antiga quando o installPath registrado nao corresponde a versao recem-sincronizada.
+# Bug observado: cache tinha 6.5.0 e 6.5.1, mas installed_plugins.json apontava para 6.4.1
+# (pasta inexistente); Claude Code fez fallback para 6.5.0 em vez da nova 6.5.1.
+INSTALLED_PLUGINS="/c/Users/luizf/.claude/plugins/installed_plugins.json"
+if [ -f "$INSTALLED_PLUGINS" ]; then
+  # Detectar versao atualmente pinada para anti-vibe-coding@local-plugins
+  PINNED_VERSION=$(grep -A4 '"anti-vibe-coding@local-plugins"' "$INSTALLED_PLUGINS" \
+    | grep '"version"' | head -1 \
+    | sed -E 's/.*"version"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/')
+  if [ "$PINNED_VERSION" != "$PLUGIN_VERSION" ]; then
+    echo "Pinando installed_plugins.json: $PINNED_VERSION -> $PLUGIN_VERSION"
+    # Substitui SOMENTE no bloco anti-vibe-coding (linhas com installPath e version logo apos a chave)
+    # Usa Python para edicao precisa do JSON (evita sed frageis com paths Windows-style).
+    if command -v python >/dev/null 2>&1; then
+      python -c "
+import json, sys
+p = r'$INSTALLED_PLUGINS'
+with open(p, 'r', encoding='utf-8') as f: data = json.load(f)
+entry = data['plugins'].get('anti-vibe-coding@local-plugins', [])
+if entry:
+  entry[0]['installPath'] = r'C:\\\\Users\\\\luizf\\\\.claude\\\\plugins\\\\cache\\\\local-plugins\\\\anti-vibe-coding\\\\$PLUGIN_VERSION'
+  entry[0]['version'] = '$PLUGIN_VERSION'
+  from datetime import datetime, timezone
+  entry[0]['lastUpdated'] = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.000Z')
+with open(p, 'w', encoding='utf-8') as f: json.dump(data, f, indent=2); f.write('\n')
+print('  + installed_plugins.json pinned to $PLUGIN_VERSION')
+"
+    else
+      echo "  ! python nao disponivel — pin manual necessario em $INSTALLED_PLUGINS"
+    fi
+  else
+    echo "installed_plugins.json ja pinado em $PLUGIN_VERSION (skip)"
+  fi
+else
+  echo "  - installed_plugins.json nao encontrado (skip pin)"
 fi
 
 echo ""
