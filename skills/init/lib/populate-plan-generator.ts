@@ -4,9 +4,34 @@
 // G3 do README: ZERO chamada de LLM aqui — apenas renderiza estrutura para subagent consumir.
 
 import path from 'node:path'
+import { promises as fs } from 'node:fs'
 import { TEMPLATE_MANIFEST, type TemplateEntry } from './template-manifest'
 import type { DiscoveryManifestEntry } from './discovery-manifest-light'
 import type { StackAwareInputPaths, CanonicalDoc } from './stack-aware-input-paths'
+// 2026-05-19 (Luiz/dev): Plano 02 fase-03 do PRD populate-plan-andre-port (MH-2) —
+// renderer passa a ler tpls de assets/templates/exec-plan/. Step 91 continua PURO
+// (apenas FS read + replace). G3 do README do Plano 02: ordem das 10 secoes base do
+// PLAN.md.tpl deve casar com EXEC_PLAN_SECTIONS_FULL (validado em fase-04 via parity).
+import { EXEC_PLAN_SECTIONS_FULL } from '../../lib/exec-plan-sections'
+
+// 2026-05-19 (Luiz/dev): Plano 02 fase-03 — leitura de tpl + injecao de vars.
+// G1 do README do Plano 02: TEMPLATES_ROOT em template-manifest.ts:90 ja existe e aponta
+// para skills/init/assets/templates/. Sub-pasta exec-plan/ foi criada em fase-01/fase-02.
+// Por isso compomos o path aqui sem duplicar a constante.
+const TPL_DIR = path.join(import.meta.dir, '..', 'assets', 'templates', 'exec-plan')
+
+async function readTpl(filename: string): Promise<string> {
+  return fs.readFile(path.join(TPL_DIR, filename), 'utf-8')
+}
+
+// 2026-05-19 (Luiz/dev): mustache-style replace. Sem regex — `replaceAll` literal evita
+// colisao com `{` ou `}` no value. G5 do README do Plano 02.
+function applyVars(tpl: string, vars: Record<string, string>): string {
+  return Object.entries(vars).reduce(
+    (acc, [k, v]) => acc.replaceAll(`{{${k}}}`, v),
+    tpl,
+  )
+}
 
 // 2026-05-19 (Luiz/dev): Plano 03 fase-04 DI-Plano03-fase04-datepathsafe —
 // Ajustado de `YYYY-MM-DDT...Z` para `YYYY-MM-DD` para compatibilidade com
@@ -194,80 +219,59 @@ function docToSlug(dst: string): string {
     .toLowerCase()
 }
 
-function renderPhase(phase: PopulatePlanPhase): string {
-  return [
-    `# Fase ${String(phase.fase).padStart(2, '0')}: Popular \`${phase.docCanonico}\``,
-    '',
-    `**Doc canonico:** \`${phase.docCanonico}\``,
-    `**Subagente:** harness-populator`,
-    '',
-    '---',
-    '',
-    renderInputsDocsBlock(phase.inputsDocs),
-    '',
-    renderInputsCodeBlock(phase.inputsCode),
-    '',
-    renderLLMInstructionBlock(phase.instrucaoLLM),
-    '',
-    renderDoneCriteriaBlock(),
-  ].join('\n')
+// 2026-05-19 (Luiz/dev): Plano 02 fase-03 — antes: string literal hardcoded. Agora le
+// fase.md.tpl e injeta {{INPUTS_DOCS_BLOCK}}, etc via applyVars. Ordem dos blocos
+// preservada (G local da fase-02). renderPhase agora e async — caller (generatePopulatePlanV2)
+// faz await; assinatura externa de generatePopulatePlanV2 inalterada.
+async function renderPhase(phase: PopulatePlanPhase): Promise<string> {
+  const tpl = await readTpl('fase.md.tpl')
+  return applyVars(tpl, {
+    FASE_NUM: String(phase.fase).padStart(2, '0'),
+    DOC_CANONICO: phase.docCanonico,
+    INPUTS_DOCS_BLOCK: renderInputsDocsBlock(phase.inputsDocs),
+    INPUTS_CODE_BLOCK: renderInputsCodeBlock(phase.inputsCode),
+    INSTRUCAO_LLM_BLOCK: renderLLMInstructionBlock(phase.instrucaoLLM),
+    CRITERIO_DONE_BLOCK: renderDoneCriteriaBlock(),
+  })
 }
 
-// --- Glossario e indice ---
+// --- Indice do plano ---
 
-function renderGlossarioV2(): string {
-  return [
-    '## Glossario de Instrucoes LLM',
-    '',
-    '- **`needsUser`**: subagent encontrou ambiguidade que humano deve resolver (ex: doc orfao ' +
-      'sem destino canonico obvio). Emite mensagem no PR, nao quebra build.',
-    '- **`Inputs (docs candidatos)`**: lista heuristica de paths do `discovery-manifest`. ' +
-      'Subagent CONFIRMA relevancia antes de usar — pode pular irrelevantes.',
-    '- **`Inputs (codigo)`**: paths reais validados via `fs.access`. Paths marcados como ' +
-      '_nao encontrado_ podem ter sido movidos/renomeados; verificar antes de citar no doc final.',
-    '- **`Criterio done`**: humano valida via PR review. Sem gate automatico bloqueante.',
-    '',
-  ].join('\n')
-}
-
-function renderPlanIndex(
+// 2026-05-19 (Luiz/dev): Plano 02 fase-03 — le PLAN.md.tpl e injeta:
+//   {{PROJECT_NAME}}, {{DATE}}, {{PHASES_TABLE}}.
+// Glossario e secao "Como executar" do output antigo NAO existem no tpl novo (canon Andre).
+// Testes em populate-plan-generator.test.ts que checavam "Glossario" mudaram para
+// asserts da tabela de fases + projectName (ver Passo 7 do fase-03 doc).
+async function renderPlanIndex(
   phases: ReadonlyArray<PopulatePlanPhase>,
   projectName: string,
   dateStr: string,
-): string {
+): Promise<string> {
+  const header = '| Fase | Doc canonico | Arquivo | Status |\n|------|--------------|---------|--------|'
   const rows = phases
     .map(p => {
       const file = `fase-${String(p.fase).padStart(2, '0')}-${docToSlug(p.docCanonico)}.md`
       return `| ${String(p.fase).padStart(2, '0')} | \`${p.docCanonico}\` | [${file}](./${file}) | aberta |`
     })
     .join('\n')
-  return [
-    `# Plan: Populate Harness — ${projectName}`,
-    '',
-    `**Generated by:** /anti-vibe-coding:init (Step 91-generate-populate-plan)`,
-    `**Date:** ${dateStr}`,
-    `**Status:** active`,
-    '',
-    '---',
-    '',
-    renderGlossarioV2(),
-    '---',
-    '',
-    '## Fases',
-    '',
-    '| Fase | Doc canonico | Arquivo | Status |',
-    '|------|--------------|---------|--------|',
-    rows,
-    '',
-    '---',
-    '',
-    '## Como executar',
-    '',
-    '`/anti-vibe-coding:execute-plan` despacha 1 subagent por fase (paralelo).',
-    'Cada subagent le inputs declarados, gera conteudo do doc canonico, e escreve.',
-    'Revise via diff/PR. Aprove ou rejeite por fase.',
-    '',
-  ].join('\n')
+  const phasesTable = `${header}\n${rows}`
+
+  const tpl = await readTpl('PLAN.md.tpl')
+
+  // 2026-05-19 (Luiz/dev): Plano 02 fase-03 G3 — sanity check em runtime de que as 10 secoes
+  // base do tpl batem com EXEC_PLAN_SECTIONS_FULL. NAO quebra build — apenas log. Parity test
+  // (fase-04) e o gate real. Esse aviso ajuda o dev a perceber drift cedo, durante /init.
+  for (const sec of EXEC_PLAN_SECTIONS_FULL) {
+    if (!new RegExp(`^## ${sec}\\s*$`, 'm').test(tpl)) {
+      console.warn(`[populate-plan-generator] PLAN.md.tpl missing canonical section: ${sec}`)
+    }
+  }
+
+  return applyVars(tpl, {
+    PROJECT_NAME: projectName,
+    DATE: dateStr,
+    PHASES_TABLE: phasesTable,
+  })
 }
 
 // --- Funcao publica v2 ---
@@ -296,14 +300,19 @@ export async function generatePopulatePlanV2(
     }
   })
 
-  const phaseFiles = new Map<string, string>()
-  for (const phase of phases) {
-    const file = `fase-${String(phase.fase).padStart(2, '0')}-${docToSlug(phase.docCanonico)}.md`
-    phaseFiles.set(file, renderPhase(phase))
-  }
+  // 2026-05-19 (Luiz/dev): Plano 02 fase-03 — paraleliza leituras de fase.md.tpl (>= 12 reads).
+  // readTpl e idempotente; FS cache do OS deduplica. Sem race em writes (apenas reads).
+  const phaseFilesEntries = await Promise.all(
+    phases.map(async phase => {
+      const file = `fase-${String(phase.fase).padStart(2, '0')}-${docToSlug(phase.docCanonico)}.md`
+      const content = await renderPhase(phase)
+      return [file, content] as const
+    }),
+  )
+  const phaseFiles = new Map<string, string>(phaseFilesEntries)
 
   const dateStr = now.toISOString().slice(0, 10)
-  const planIndexMarkdown = renderPlanIndex(phases, input.projectName, dateStr)
+  const planIndexMarkdown = await renderPlanIndex(phases, input.projectName, dateStr)
 
   const dateSafe = datePathSafe(now)
   const relativeFolderPath = `docs/exec-plans/active/${dateSafe}-populate-harness`
