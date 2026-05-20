@@ -121,4 +121,62 @@ describe('stackAwareInputPaths', () => {
       expect(docsCobertos).toContain(doc)
     }
   })
+
+  // 2026-05-19 (Luiz/dev): Plano 05 fase-02 do PRD populate-plan-andre-port (SH-2).
+  // Cobertura minima de Laravel e Python — sem CA-02 (CA-02 escopo eh Next.js+Supabase only).
+
+  it('returns Laravel-specific paths when primary is laravel', async () => {
+    const result = await stackAwareInputPaths(path.join(FIXTURES, 'empty'), 'laravel')
+    const arch = result.get('ARCHITECTURE.md') ?? []
+    // Esperado: paths Laravel-especificos (composer.json, app/, routes/), nao paths Rails ou genericos.
+    const paths = arch.map(p => p.path)
+    expect(paths).toContain('composer.json')
+    expect(paths).toContain('app/Http/Controllers/')
+    expect(paths).toContain('routes/web.php')
+    // NAO deve conter paths Rails (Gemfile, app/controllers/) — esses sao do RAILS_CANDIDATES.
+    expect(paths).not.toContain('Gemfile')
+  })
+
+  it('Laravel cobre >= 8 docs canonicos (SH-2 cobertura minima)', async () => {
+    const result = await stackAwareInputPaths(path.join(FIXTURES, 'empty'), 'laravel')
+    const docsCobertos = Array.from(result.keys())
+    // 2026-05-19 (Luiz/dev): SH-2 requer cobertura significativa, nao exaustiva.
+    // 4 docs base + extensoes (AGENTS, CLAUDE, README, PRODUCT_SENSE) = >= 8 esperado.
+    expect(docsCobertos.length).toBeGreaterThanOrEqual(8)
+    // Docs core esperados
+    expect(docsCobertos).toContain('ARCHITECTURE.md')
+    expect(docsCobertos).toContain('docs/SECURITY.md')
+    expect(docsCobertos).toContain('docs/RELIABILITY.md')
+    expect(docsCobertos).toContain('docs/CODE_STYLE.md')
+  })
+
+  it('returns Python-specific paths when primary is python', async () => {
+    const result = await stackAwareInputPaths(path.join(FIXTURES, 'empty'), 'python')
+    const arch = result.get('ARCHITECTURE.md') ?? []
+    const paths = arch.map(p => p.path)
+    expect(paths).toContain('pyproject.toml')
+    expect(paths).toContain('src/')
+    // NAO deve conter manage.py (Django) nem wsgi.py (assumindo framework) — G5 do README plano 05.
+    expect(paths).not.toContain('manage.py')
+    expect(paths).not.toContain('wsgi.py')
+  })
+
+  it('Python cobre >= 8 docs canonicos (SH-2 cobertura minima)', async () => {
+    const result = await stackAwareInputPaths(path.join(FIXTURES, 'empty'), 'python')
+    const docsCobertos = Array.from(result.keys())
+    expect(docsCobertos.length).toBeGreaterThanOrEqual(8)
+    expect(docsCobertos).toContain('ARCHITECTURE.md')
+    expect(docsCobertos).toContain('docs/SECURITY.md')
+    expect(docsCobertos).toContain('docs/RELIABILITY.md')
+    expect(docsCobertos).toContain('docs/CODE_STYLE.md')
+  })
+
+  it('Laravel e Python NAO caem em GENERIC_CANDIDATES (pickStaticMap branch)', async () => {
+    // GENERIC_CANDIDATES tem apenas ARCHITECTURE.md hoje. Se Laravel/Python caissem em GENERIC,
+    // result.size seria 1. Apos SH-2, sao 8+.
+    const laravel = await stackAwareInputPaths(path.join(FIXTURES, 'empty'), 'laravel')
+    const python = await stackAwareInputPaths(path.join(FIXTURES, 'empty'), 'python')
+    expect(laravel.size).toBeGreaterThan(1)
+    expect(python.size).toBeGreaterThan(1)
+  })
 })
