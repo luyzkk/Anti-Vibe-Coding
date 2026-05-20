@@ -7,6 +7,7 @@
 // para evitar abort do Step 90 (V6.6.0 knowledge gate). Integracao end-to-end fica em Plano 05.
 
 import { describe, expect, test } from 'bun:test'
+import path from 'node:path'
 import {
   generatePopulatePlanV2,
   EXCLUDED_FROM_POPULATION_V2,
@@ -21,6 +22,10 @@ import {
 // 2026-05-19 (Luiz/dev): Plano 02 fase-04 do PRD populate-plan-andre-port (MH-2 / CA-03).
 // Fonte canonica das 10 secoes base — drift entre array e tpl quebra os testes abaixo.
 import { EXEC_PLAN_SECTIONS_FULL } from '../../skills/lib/exec-plan-sections'
+// 2026-05-20 (Luiz/dev): Plano 04 fase-03 do PRD populate-plan-andre-port (MH-4 / CA-02, CA-05).
+// Decisao DI-Plano04-fase03-imports-toplevel: imports movidos para topo (nao dynamic) —
+// sem isolamento de contexto necessario aqui, top-level e mais legivel e consistente.
+import { stackAwareInputPaths } from '../../skills/init/lib/stack-aware-input-paths'
 
 const FIXED_DATE = new Date('2026-05-19T10:00:00.000Z')
 
@@ -190,5 +195,101 @@ describe('populate-plan parity (gate "nunca diminuir")', () => {
     }
 
     expect(isImperativeInstruction(DEFAULT_INSTRUCTION)).toBe(true)
+  })
+
+  // 2026-05-20 (Luiz/dev): Plano 04 fase-03 do PRD populate-plan-andre-port (MH-4 / CA-02).
+  // CA-02: stack-aware-input-paths cobre >= 3 paths reais em ARCHITECTURE/SECURITY/RELIABILITY
+  // quando primary='nextjs' + sinal Supabase. Reusa fixture `tests/fixtures/stack-aware/nextjs-supabase`
+  // (stubs adicionados em Plano 04 fase-01). Se alguem reverter fase-01 ou fase-02 (remover entries
+  // do map ou stubs do fixture), este teste quebra listando o doc afetado e linkando o PRD.
+  test('Next.js+Supabase: >= 3 paths reais em ARCH/SEC/REL (CA-02)', async () => {
+    const fixture = path.join(import.meta.dir, '..', 'fixtures', 'stack-aware', 'nextjs-supabase')
+    const stackPaths = await stackAwareInputPaths(fixture, 'nextjs')
+
+    const result = await generatePopulatePlanV2({
+      cwd: fixture,
+      projectName: 'parity-ca02',
+      stackPaths,
+      clock: () => FIXED_DATE,
+    })
+
+    const docsCriticos = ['ARCHITECTURE.md', 'docs/SECURITY.md', 'docs/RELIABILITY.md'] as const
+    const reportadoMenos = docsCriticos
+      .map(doc => {
+        const phase = result.phases.find(p => p.docCanonico === doc)
+        const real = phase?.inputsCode.filter(p => p.exists) ?? []
+        return { doc, count: real.length }
+      })
+      .filter(x => x.count < 3)
+
+    if (reportadoMenos.length > 0) {
+      throw new Error(
+        `[parity gate "nunca diminuir" / CA-02] Next.js+Supabase nao atinge 3 paths reais:\n` +
+        reportadoMenos.map(x => `  - ${x.doc}: ${x.count} reais (esperado >= 3)`).join('\n') +
+        `\n\nVerificar:\n` +
+        `  1. Entries em skills/init/lib/stack-aware-input-paths.ts (NEXTJS_SUPABASE_EXTRA + NEXTJS_CANDIDATES).\n` +
+        `  2. Stubs em tests/fixtures/stack-aware/nextjs-supabase/ (Plano 04 fase-01 do PRD).\n` +
+        `\nRef: ${PRD_LINK}, CA-02.\n`,
+      )
+    }
+
+    expect(reportadoMenos).toEqual([])
+  })
+
+  // 2026-05-20 (Luiz/dev): Plano 04 fase-03 do PRD populate-plan-andre-port (MH-4 / CA-05).
+  // CA-05: stack `null` (unknown) ainda gera plano completo. Cada fase tem `inputsCode` vazio
+  // (ou apenas paths `exists: false`) + nota explicita. Build NAO falha.
+  // Fixture `tests/fixtures/stack-aware/empty/` tem zero arquivos reais — fs.access falha em tudo.
+  test('stack null: plano completo com Inputs vazios + nota (CA-05)', async () => {
+    const fixture = path.join(import.meta.dir, '..', 'fixtures', 'stack-aware', 'empty')
+    const stackPaths = await stackAwareInputPaths(fixture, null)
+
+    const result = await generatePopulatePlanV2({
+      cwd: fixture,
+      projectName: 'parity-ca05',
+      stackPaths,
+      clock: () => FIXED_DATE,
+    })
+
+    // CA-05.a: plano gerado com >= 12 fases mesmo sem stack detectado.
+    expect(result.phases.length).toBeGreaterThanOrEqual(12)
+
+    // CA-05.b: cada fase ou tem inputsCode vazio, ou paths todos com exists:false.
+    // "Stack nao detectado" sinaliza ausencia de evidencia de codigo — nao sinaliza falha.
+    const fasesFalhas: string[] = []
+    for (const phase of result.phases) {
+      const realCount = phase.inputsCode.filter(p => p.exists).length
+      if (realCount > 0) {
+        // Stack null nao deveria retornar paths reais — sinal de bug do GENERIC_CANDIDATES.
+        fasesFalhas.push(`${phase.docCanonico}: ${realCount} paths com exists=true (esperado 0)`)
+      }
+    }
+
+    if (fasesFalhas.length > 0) {
+      throw new Error(
+        `[parity gate "nunca diminuir" / CA-05] stack null produziu paths reais (deveria 0):\n` +
+        fasesFalhas.map(s => `  - ${s}`).join('\n') +
+        `\n\nGENERIC_CANDIDATES em skills/init/lib/stack-aware-input-paths.ts deveria emitir paths\n` +
+        `que NAO existem no fixture tests/fixtures/stack-aware/empty/.\n` +
+        `Se fixture cresceu (Plano 05?), confirmar que stubs de empty foram preservados.\n` +
+        `Ref: ${PRD_LINK}, CA-05.\n`,
+      )
+    }
+
+    // CA-05.c: renderer emite nota explicita quando inputsCode esta vazio.
+    // renderInputsCodeBlock retorna "_(Nenhum path candidato para este doc no stack detectado.)_"
+    // quando entries.length === 0. Verificar que PELO MENOS UMA fase no plano tem a nota.
+    // Frase canonica (G2 do plano): "_(Nenhum path candidato" — Plano 05 fase-01 canoniciza no golden.
+    const fasesComNota: string[] = []
+    for (const [, content] of result.phaseFiles.entries()) {
+      if (
+        content.includes('_(Nenhum path candidato') ||
+        content.includes('_(candidato nao encontrado')
+      ) {
+        fasesComNota.push('ok')
+      }
+    }
+    // Pelo menos 1 fase deve emitir a nota — caso contrario, renderer regrediu.
+    expect(fasesComNota.length).toBeGreaterThanOrEqual(1)
   })
 })

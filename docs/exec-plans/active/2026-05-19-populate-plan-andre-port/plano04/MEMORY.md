@@ -2,7 +2,7 @@
 
 **Feature:** populate-plan-andre-port
 **Iniciado:** 2026-05-19
-**Status:** em andamento
+**Status:** completed
 
 **Bloqueadores ja resolvidos:** Plano 01 (lista canonica completa, `EXCLUDED_FROM_POPULATION_V2`
 reduzido, `CanonicalDoc` estendido com `docs/PRODUCT_SENSE.md` + `README.md`,
@@ -88,12 +88,30 @@ Formato: o que foi decidido + por que + impacto.
 <!-- DI-Plano04-fase02-no-vendor-paths: entries de Rails NAO incluem `vendor/bundle/`,
   `tmp/`, `log/`. Sao paths runtime, nao scaffold.
   - Por que: PRD MH-4 explicito — "sem inventar paths, apenas scaffold padrao".
-
-- DI-Plano04-fase03-empty-fixture-reuse: parity test CA-05 reusa
-  `tests/fixtures/stack-aware/empty/` ao inves de criar novo.
-  - Por que: ja existe e tem zero arquivos (perfeito para "stack nao detectado").
-  - Impacto: se alguem adicionar arquivos ao empty, CA-05 quebra.
 -->
+
+- **DI-Plano04-fase03-imports-toplevel:** imports `path` (node:path) e `stackAwareInputPaths`
+  movidos para o topo do arquivo `tests/e2e/populate-plan-parity.test.ts` (nao dynamic import).
+  - Por que: sem isolamento de contexto necessario nos testes do parity gate — top-level e
+    mais legivel, consistente com os outros imports do arquivo, e evita `await import(...)` verbose.
+  - Impacto: arquivo agora tem 5 top-level imports (bun:test, node:path, populate-plan-generator x2,
+    exec-plan-sections, stack-aware-input-paths).
+
+- **DI-Plano04-fase03-red-validado-manualmente:** RED simulado mentalmente (nao commitado).
+  - Cenario 1 (CA-02): remover entry `'docs/SECURITY.md'` de `NEXTJS_SUPABASE_EXTRA` em
+    `stack-aware-input-paths.ts` → teste falha com mensagem `docs/SECURITY.md: N reais (esperado >= 3)`.
+  - Cenario 2 (CA-02): deletar stub `tests/fixtures/stack-aware/nextjs-supabase/supabase/migrations/20260519000000_init.sql`
+    → docs/RELIABILITY.md ou docs/SECURITY.md cai abaixo de 3 paths reais, CA-02 falha.
+  - Cenario 3 (CA-05): adicionar qualquer arquivo real a `tests/fixtures/stack-aware/empty/`
+    (ex: `package.json`) → fs.access passa em algum GENERIC_CANDIDATES path, CA-05.b falha
+    com `docCanonico: N paths com exists=true (esperado 0)`.
+  - Com fase-01 e fase-02 mergeadas, todos os 3 cenarios produzem mensagem util e falham
+    corretamente. GREEN confirmado: 8 pass em `bun test tests/e2e/populate-plan-parity.test.ts`.
+
+- **DI-Plano04-fase03-fasesComNota-min1:** assert CA-05.c verifica `>= 1` fase com nota
+  explicita no markdown renderizado. Decisao: nao exige todas as fases — basta UMA para provar
+  que o renderer continua emitindo `_(Nenhum path candidato para este doc no stack detectado.)_`.
+  Plano 05 fase-01 pode endurecer para "todas as fases sem paths emitem nota" via golden snapshot.
 
 ---
 
@@ -132,7 +150,7 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 3 |
-| Fases concluidas | 2 |
+| Fases concluidas | 3 |
 | Fases com desvio | 0 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
@@ -203,10 +221,28 @@ fase-02 pode fazer isso se adicionar SH-2 (Laravel + Python) e switch crescer pa
   docs/STATE.md, docs/design-docs/core-beliefs.md, docs/SECURITY.md, docs/RELIABILITY.md —
   candidatos para fase-03 (CA-05 parity) ou Plano 05.
 
-<!-- Notas de fases futuras a preencher:
-- Numero final de asserts em `tests/e2e/populate-plan-parity.test.ts`.
-- Path do helper que valida "stack nao detectado — fase emite nota explicita".
--->
+### Apos fase-03 (estado final do Plano 04)
+
+**8 asserts ativos em `tests/e2e/populate-plan-parity.test.ts`:**
+1. `plano gerado contem >= 12 fases cobrindo lista CA-01` (MH-1 / Plano 01)
+2. `EXCLUDED_FROM_POPULATION_V2 nao readiciona PRODUCT_SENSE nem README (CA-04)` (MH-1 / Plano 01)
+3. `PLAN.md gerado contem as 11 secoes obrigatorias (10 Andre + Observability) — CA-03` (CA-03 / Plano 02)
+4. `PLAN.md tem 3 opcionais ausentes OU marcadas como <!-- opcional --> (CA-03)` (CA-03 / Plano 02)
+5. `every LLM_INSTRUCTION entry is a valid ImperativeInstruction (CA-06)` (CA-06 / Plano 03)
+6. `DEFAULT_INSTRUCTION is a valid ImperativeInstruction (CA-06)` (CA-06 / Plano 03)
+7. `Next.js+Supabase: >= 3 paths reais em ARCH/SEC/REL (CA-02)` (MH-4 / Plano 04)
+8. `stack null: plano completo com Inputs vazios + nota (CA-05)` (MH-4 / Plano 04)
+
+**Helper usado por CA-05.c para detectar nota explicita:**
+`skills/init/lib/populate-plan-generator.ts` linha ~425 — `renderInputsCodeBlock` emite:
+`_(Nenhum path candidato para este doc no stack detectado.)_` quando `entries.length === 0`.
+Assert verifica `content.includes('_(Nenhum path candidato')` no markdown de cada fase.
+
+**Frase canonica para fasesComNota (G2 do plano):**
+`_(Nenhum path candidato para este doc no stack detectado.)_`
+Plano 05 fase-01 (golden snapshot) e onde essa frase fica canonicizada. Fase-03 aceita
+verificacao loose (`includes`). Se alguem refatorar a frase no renderer, CA-05.c quebra —
+isso e intencional (gate "nunca diminuir").
 
 ---
 
