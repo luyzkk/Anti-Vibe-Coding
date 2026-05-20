@@ -39,8 +39,8 @@ describe('reentryGuardStep', () => {
     expect(report.summary).toContain('greenfield')
   })
 
-  it('aborts when manifest pluginVersion >= 6.5.0', async () => {
-    await writeManifest(cwd, '6.5.0')
+  it('aborts when manifest pluginVersion >= 6.6.0', async () => {
+    await writeManifest(cwd, '6.6.0')
     const flags: Record<string, string | boolean> = {}
     let caught: unknown
     try {
@@ -52,12 +52,12 @@ describe('reentryGuardStep', () => {
     expect((caught as AbortError).reason).toContain('/sync')
   })
 
-  it('signals re-populate when manifest pluginVersion < 6.5.0', async () => {
-    await writeManifest(cwd, '6.4.1')
+  it('signals re-populate when manifest pluginVersion < 6.6.0', async () => {
+    await writeManifest(cwd, '6.5.1')
     const flags: Record<string, string | boolean> = {}
     const report = await reentryGuardStep.run({ cwd, args: [], flags })
     expect(flags['__reentryMode']).toBe('re-populate')
-    expect(report.summary).toContain('6.4.1')
+    expect(report.summary).toContain('6.5.1')
   })
 
   it('signals re-populate when pluginVersion field is absent in manifest', async () => {
@@ -68,12 +68,12 @@ describe('reentryGuardStep', () => {
     expect(report.summary).toContain('re-populate')
   })
 
-  it('CA-09: two greenfield runs — second aborts as v6.5.0+ reentry', async () => {
+  it('CA-09: two greenfield runs — second aborts as v6.6.0+ reentry', async () => {
     const flagsFirst: Record<string, string | boolean> = {}
     await reentryGuardStep.run({ cwd, args: [], flags: flagsFirst })
     expect(flagsFirst['__reentryMode']).toBe('greenfield')
 
-    await writeManifest(cwd, '6.5.0')
+    await writeManifest(cwd, '6.6.0')
     const flagsSecond: Record<string, string | boolean> = {}
     let caught: unknown
     try {
