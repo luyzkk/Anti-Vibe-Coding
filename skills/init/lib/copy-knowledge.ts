@@ -55,7 +55,9 @@ export async function copyKnowledge(opts: CopyKnowledgeOptions): Promise<CopyKno
     }
   }
 
-  const knowledgeBase = path.resolve(pluginRoot, 'docs', 'knowledge')
+  // 2026-05-20 (Luiz/dev): D1/D2 do PRD knowledge-path-cutover — runtime asset em knowledge/
+  // (nao docs/knowledge/). docs/ = dog-food nao distribuivel; knowledge/ = distribuivel via sync.
+  const knowledgeBase = path.resolve(pluginRoot, 'knowledge')
   const sourceDir = path.resolve(knowledgeBase, primary)
 
   // Defense in depth: garantir que resolve() não escapou (ex: symlink em pluginRoot — improvável mas barato).
