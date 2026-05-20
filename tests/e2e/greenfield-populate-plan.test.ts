@@ -11,16 +11,15 @@ import os from 'node:os'
 import path from 'node:path'
 import { runInit } from '../../skills/init/lib/run-init'
 import { TEMPLATE_MANIFEST } from '../../skills/init/lib/template-manifest'
+// 2026-05-19 (Luiz/dev): Plano 01 fase-03 — single source of truth.
+// Importa EXCLUDED do generator em vez de duplicar local (CLAUDE.md global: "Uma fonte de verdade").
+// Sincronizado com D5 do PRD populate-plan-andre-port: so COMPOUND_ENGINEERING permanece excluido.
+import { EXCLUDED_FROM_POPULATION_V2 as EXCLUDED_FROM_POPULATION } from '../../skills/init/lib/populate-plan-generator'
 
 const FIXTURE_DIR = path.join(import.meta.dir, '..', 'fixtures', 'greenfield-populate-plan-tracer')
 
-// Replicar exatamente os filtros de populate-plan-generator.ts para calcular expected.
-// Desacoplado do literal numerico — se TEMPLATE_MANIFEST crescer, test permanece valido (G9).
-const EXCLUDED_FROM_POPULATION = new Set([
-  'docs/COMPOUND_ENGINEERING.md',
-  'docs/PRODUCT_SENSE.md',
-  'README.md',
-])
+// Replicar EXCLUDED_PATTERNS do generator (regex; nao exportado pois usado so internamente).
+// Se padrao crescer no generator, replicar aqui — desacoplado do literal numerico.
 const EXCLUDED_PATTERNS = [/^\.github\//, /^scripts\//]
 
 function isPopulatable(dst: string): boolean {

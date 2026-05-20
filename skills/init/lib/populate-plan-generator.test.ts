@@ -41,16 +41,21 @@ describe('generatePopulatePlanV2', () => {
     expect(result.planIndexMarkdown).toContain('| Fase | Doc canonico | Arquivo | Status |')
   })
 
-  it('does NOT include excluded files (D14 PRD — filosoficos)', async () => {
+  // 2026-05-19 (Luiz/dev): Plano 01 fase-03 — flip do assert apos D5 do PRD populate-plan-andre-port.
+  // D14 do PRD anterior excluia PRODUCT_SENSE e README. D5 do PRD novo reverte: so COMPOUND_ENGINEERING
+  // fica de fora (meta-doc filosofico, sem codigo a referenciar). PRODUCT_SENSE e README voltam.
+  it('exclui apenas docs filosoficos (D5 PRD — so COMPOUND_ENGINEERING)', async () => {
     const result = await generatePopulatePlanV2({
       cwd: '/tmp/fake',
       projectName: 'test-project',
       clock: () => FIXED_DATE,
     })
     const docs = result.phases.map(p => p.docCanonico)
+    // Excluido (meta-documentacao do processo — sem codigo a referenciar):
     expect(docs).not.toContain('docs/COMPOUND_ENGINEERING.md')
-    expect(docs).not.toContain('docs/PRODUCT_SENSE.md')
-    expect(docs).not.toContain('README.md')
+    // Reincluidos (D5 do PRD — Andre tem ambos ricos no harness):
+    expect(docs).toContain('docs/PRODUCT_SENSE.md')
+    expect(docs).toContain('README.md')
   })
 
   it('relativeFolderPath uses path-safe date (no colons)', async () => {
