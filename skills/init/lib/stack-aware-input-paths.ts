@@ -288,6 +288,132 @@ const NODE_TS_CANDIDATES: StackCandidates = {
   ],
 }
 
+// 2026-05-19 (Luiz/dev): Plano 05 fase-02 do PRD populate-plan-andre-port (SH-2).
+// Paths sao do scaffold padrao `composer create-project laravel/laravel` (versao 11.x).
+// NAO incluir convencoes de equipe (Modules/, app/Services/, app/Repositories/) —
+// G4 do README do plano 05.
+const LARAVEL_CANDIDATES: StackCandidates = {
+  'ARCHITECTURE.md': [
+    'composer.json',
+    'app/Http/Controllers/',
+    'app/Models/',
+    'app/Providers/',
+    'config/app.php',
+    'routes/web.php',
+    'routes/api.php',
+    'bootstrap/app.php',
+  ],
+  'docs/SECURITY.md': [
+    'app/Http/Middleware/',
+    'app/Http/Kernel.php',
+    'config/auth.php',
+    'config/cors.php',
+    '.env.example',
+    'routes/web.php',
+  ],
+  'docs/RELIABILITY.md': [
+    'database/migrations/',
+    'app/Console/Commands/',
+    'app/Jobs/',
+    'config/database.php',
+    'config/queue.php',
+    'config/logging.php',
+  ],
+  'docs/CODE_STYLE.md': [
+    'composer.json',
+    'phpunit.xml',
+    '.php-cs-fixer.php',
+    'pint.json',
+  ],
+  'docs/FRONTEND.md': [
+    'resources/views/',
+    'resources/js/',
+    'resources/css/',
+    'vite.config.js',
+    'webpack.mix.js',
+  ],
+  'docs/DESIGN.md': [
+    'resources/views/',
+    'resources/css/',
+    'public/css/',
+  ],
+  'AGENTS.md': [
+    'composer.json',
+    'README.md',
+    'CLAUDE.md',
+  ],
+  'CLAUDE.md': [
+    'composer.json',
+    'README.md',
+    'AGENTS.md',
+  ],
+  'README.md': [
+    'composer.json',
+    'routes/web.php',
+    'app/Http/Controllers/',
+  ],
+  'docs/PRODUCT_SENSE.md': [
+    'README.md',
+    'composer.json',
+    'resources/views/',
+  ],
+}
+
+// 2026-05-19 (Luiz/dev): Plano 05 fase-02 do PRD populate-plan-andre-port (SH-2).
+// Paths neutros (sem assumir Django/Flask/FastAPI). Scaffolds referencia:
+// - `poetry new my-app` (cria src/{pkg}/ e tests/)
+// - `cookiecutter pypackage` (estrutura similar)
+// Frameworks especificos viram PYTHON_DJANGO_EXTRA/PYTHON_FASTAPI_EXTRA em iteracao futura
+// (G5 do README do plano 05).
+const PYTHON_CANDIDATES: StackCandidates = {
+  'ARCHITECTURE.md': [
+    'pyproject.toml',
+    'setup.py',
+    'setup.cfg',
+    'src/',
+    'app/',
+    'main.py',
+    '__init__.py',
+  ],
+  'docs/SECURITY.md': [
+    'pyproject.toml',
+    '.env.example',
+    'requirements.txt',
+  ],
+  'docs/RELIABILITY.md': [
+    'tests/',
+    'alembic/versions/',
+    'logging.conf',
+    'Makefile',
+  ],
+  'docs/CODE_STYLE.md': [
+    'pyproject.toml',
+    '.flake8',
+    '.pre-commit-config.yaml',
+    'tox.ini',
+    'ruff.toml',
+  ],
+  'AGENTS.md': [
+    'pyproject.toml',
+    'README.md',
+    'CLAUDE.md',
+  ],
+  'CLAUDE.md': [
+    'pyproject.toml',
+    'README.md',
+    'AGENTS.md',
+  ],
+  'README.md': [
+    'pyproject.toml',
+    'setup.py',
+    'requirements.txt',
+  ],
+  'docs/PRODUCT_SENSE.md': [
+    'README.md',
+    'pyproject.toml',
+  ],
+}
+
 // Generico — usado quando primary === null
 const GENERIC_CANDIDATES: StackCandidates = {
   'ARCHITECTURE.md': [
@@ -364,15 +490,16 @@ function mergeCandidates(...maps: StackCandidates[]): StackCandidates {
 
 /**
  * Seleciona o mapa estatico de candidatos pelo stack primario detectado.
- * laravel, python, unknown e null caem no GENERIC_CANDIDATES.
+ * unknown e null caem no GENERIC_CANDIDATES.
+ * 2026-05-19 (Luiz/dev): Plano 05 fase-02 — Laravel e Python agora tem mapas dedicados (SH-2).
  */
 function pickStaticMap(primary: StackId | null): StackCandidates {
   switch (primary) {
     case 'nextjs': return NEXTJS_CANDIDATES
     case 'rails': return RAILS_CANDIDATES
     case 'node-ts': return NODE_TS_CANDIDATES
-    case 'laravel':
-    case 'python':
+    case 'laravel': return LARAVEL_CANDIDATES
+    case 'python': return PYTHON_CANDIDATES
     case 'unknown':
     case null:
     default:

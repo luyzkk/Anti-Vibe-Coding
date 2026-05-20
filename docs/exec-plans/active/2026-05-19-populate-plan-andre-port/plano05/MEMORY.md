@@ -26,11 +26,17 @@ Formato: o que foi decidido + por que + impacto.
 - **DI-Plano05-fase01-regressao-validada-manualmente:** regressao simulada via `fakeExcluded` com `docs/PRODUCT_SENSE.md` confirmou que o teste de `EXCLUDED_FROM_POPULATION_V2` quebra com mensagem contendo `MH-1`-equivalente e link ao PRD. Nao foi necessario editar/reverter o arquivo de producao — validacao foi via bun eval.
   - Por que: evitar risco de esquecer de reverter mudanca em codigo de producao.
 
-<!--
-- **DI-Plano05-fase02-laravel-paths:** `LARAVEL_CANDIDATES` cobre 10 paths do scaffold padrao laravel/laravel sem incluir Modules/ nem app/Services/
-  - Por que: G4 do README — paths de convencao de equipe nao sao scaffold padrao
-  - Impacto: cobertura conservadora, projetos Laravel com convencoes diferentes caem em `exists: false` para alguns docs (aceitavel — renderer marca _nao encontrado_)
--->
+- **DI-Plano05-fase02-laravel-paths:** `LARAVEL_CANDIDATES` cobre 10 docs canonicos do scaffold padrao laravel/laravel (composer create-project, versao 11.x). Sem `Modules/`, `app/Services/`, `app/Repositories/` (convencoes de equipe — G4 do README).
+  - Por que: G4 do README — paths de convencao de equipe nao sao scaffold padrao.
+  - Impacto: cobertura conservadora, projetos Laravel com convencoes diferentes caem em `exists: false` para alguns docs (aceitavel — renderer marca _nao encontrado_). `docs/PLANS.md`, `docs/QUALITY_SCORE.md`, `docs/STATE.md`, `docs/design-docs/core-beliefs.md` excluidos (docs de processo sem evidencia natural no framework).
+
+- **DI-Plano05-fase02-python-neutral:** `PYTHON_CANDIDATES` cobre 8 docs canonicos com paths neutros (sem `manage.py`, sem `wsgi.py`, sem `app.py`). Referencia: `poetry new` e `cookiecutter pypackage`.
+  - Por que: G5 do README plano 05 — nao assumir Django/Flask/FastAPI. Frameworks especificos viram `PYTHON_DJANGO_EXTRA`/`PYTHON_FASTAPI_EXTRA` em iteracao futura (mesmo padrao de `NEXTJS_SUPABASE_EXTRA`).
+  - Impacto: projetos Python generico bem cobertos; projetos framework-especifico tem cobertura parcial ate que EXTRA seja adicionado.
+
+- **DI-Plano05-fase02-pickstaticmap-7cases:** switch `pickStaticMap` passou de 5 cases para 7 cases (`nextjs`, `rails`, `node-ts`, `laravel`, `python`, `unknown`, `null/default`). Continua legivel.
+  - Por que: G3 do plano — 7 cases nao justifica refator para hash map ainda. CLAUDE.md global preconiza hash map sobre switch, mas 7 e enxuto.
+  - Impacto: refator para `Record<StackId | 'null', StackCandidates>` vira Could Have quando 8o stack aparecer (registrado em "Notas para Planos Seguintes").
 
 ---
 
@@ -85,7 +91,7 @@ Exemplo:
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 6 |
-| Fases concluidas | 1 |
+| Fases concluidas | 2 |
 | Fases com desvio | 0 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
@@ -93,6 +99,15 @@ Exemplo:
 ---
 
 ## Notas para Planos Seguintes
+
+### Apos fase-02 (LARAVEL + PYTHON candidates — SH-2)
+
+- **`LARAVEL_CANDIDATES` e `PYTHON_CANDIDATES` adicionados em `skills/init/lib/stack-aware-input-paths.ts`:** 10 docs cobertos no Laravel, 8 no Python. Ambos tem cobertura >= 8 keys (ARCHITECTURE, SECURITY, RELIABILITY, CODE_STYLE, AGENTS, CLAUDE, README, PRODUCT_SENSE).
+- **`pickStaticMap()` agora tem 7 cases:** `laravel` e `python` saem do `GENERIC_CANDIDATES` e usam seus mapas dedicados. Comentario datado `2026-05-19 (Luiz/dev)` no JSDoc do switch.
+- **15 testes passando em `skills/init/lib/stack-aware-input-paths.test.ts`:** 10 pre-existentes + 5 novos (2 Laravel + 2 Python + 1 anti-regression). Nenhum CA-02 para Laravel/Python (escopo original e Next.js+Supabase only).
+- **Proxima fase (fase-03):** conforme roadmap do plano 05 — ver `fase-03-*.md`.
+
+---
 
 ### Apos fase-01 (golden snapshot — CA-08)
 
