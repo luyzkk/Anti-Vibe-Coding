@@ -2,11 +2,12 @@
 // 2026-05-19 (Luiz/dev): RED — allowlist-mode. Plano 04 fase-03.
 // fase-04: +2 testes — never throws + CA-07 no AbortError instance.
 // Substitui testes antigos (harness-validate spawn + AbortError).
-import { describe, it, expect, afterEach } from 'bun:test'
+// 2026-05-20 (Luiz/dev): D8.C do PRD knowledge-path-cutover — 2 checks pos-init (fase-03).
+import { describe, test, it, expect, beforeEach, afterEach } from 'bun:test'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import os from 'node:os'
-import { finalValidationStep } from './90-final-validation'
+import { finalValidationStep, runFinalValidationChecks } from './90-final-validation'
 
 async function makeFixture(extras: readonly string[]): Promise<string> {
   const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'val-allowlist-'))
@@ -91,6 +92,89 @@ describe('finalValidationStep (allowlist mode)', () => {
     if (thrown) {
       const { AbortError } = await import('./abort-error')
       expect(thrownError instanceof AbortError).toBe(false)
+    }
+  })
+})
+
+describe('90-final-validation: knowledge checks', () => {
+  // 2026-05-20 (Luiz/dev): D8.C do PRD knowledge-path-cutover — CA-11 + CA-12.
+  // AR-05: Step 90 final-validation eh o alvo; harness-validate.ts ja foi atualizado no Plano 01 fase-06.
+  let tmpDir: string
+
+  beforeEach(async () => {
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'final-validation-'))
+  })
+
+  afterEach(async () => {
+    await fs.rm(tmpDir, { recursive: true, force: true })
+  })
+
+  test('primary check: throws AbortError when stack detected but .claude/knowledge/{stack}/INDEX.md absent', async () => {
+    await fs.mkdir(path.join(tmpDir, '.claude'), { recursive: true })
+    await fs.writeFile(
+      path.join(tmpDir, '.claude', 'stack.json'),
+      JSON.stringify({ primary: 'nodejs-typescript' }),
+    )
+
+    await expect(runFinalValidationChecks(tmpDir)).rejects.toMatchObject({
+      name: 'AbortError',
+      reason: expect.stringContaining('nodejs-typescript'),
+    })
+  })
+
+  test('primary check: passes when stack detected and INDEX.md present', async () => {
+    await fs.mkdir(path.join(tmpDir, '.claude', 'knowledge', 'nodejs-typescript'), {
+      recursive: true,
+    })
+    await fs.writeFile(
+      path.join(tmpDir, '.claude', 'stack.json'),
+      JSON.stringify({ primary: 'nodejs-typescript' }),
+    )
+    await fs.writeFile(
+      path.join(tmpDir, '.claude', 'knowledge', 'nodejs-typescript', 'INDEX.md'),
+      '# Index',
+    )
+
+    // Nao deve lancar AbortError — resolves normalmente
+    await runFinalValidationChecks(tmpDir)
+  })
+
+  test('primary check: skipped when no stack.json (stack not detected — not an error)', async () => {
+    // Nao deve lancar — stack nao detectada nao e erro
+    await runFinalValidationChecks(tmpDir)
+  })
+
+  test('secondary check: emits WARN when docs/knowledge/ orphan exists (non-blocking)', async () => {
+    await fs.mkdir(path.join(tmpDir, 'docs', 'knowledge'), { recursive: true })
+    await fs.writeFile(path.join(tmpDir, 'docs', 'knowledge', 'README.md'), '# orphan')
+    const originalWarn = console.warn
+    const warns: string[] = []
+    console.warn = (...args: unknown[]) => {
+      warns.push(args.join(' '))
+    }
+
+    try {
+      // Nao deve lancar — check secundario e nao-bloqueante
+      await runFinalValidationChecks(tmpDir)
+      expect(warns.some((w) => w.includes('docs/knowledge/'))).toBe(true)
+      expect(warns.some((w) => w.includes('v7.0.0'))).toBe(true)
+    } finally {
+      console.warn = originalWarn
+    }
+  })
+
+  test('secondary check: no WARN when docs/knowledge/ absent', async () => {
+    const originalWarn = console.warn
+    const warns: string[] = []
+    console.warn = (...args: unknown[]) => {
+      warns.push(args.join(' '))
+    }
+
+    try {
+      await runFinalValidationChecks(tmpDir)
+      expect(warns.filter((w) => w.includes('docs/knowledge/'))).toHaveLength(0)
+    } finally {
+      console.warn = originalWarn
     }
   })
 })
