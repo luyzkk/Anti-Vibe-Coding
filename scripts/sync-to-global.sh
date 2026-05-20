@@ -162,18 +162,32 @@ if [ -f "$INSTALLED_PLUGINS" ]; then
     # Substitui SOMENTE no bloco anti-vibe-coding (linhas com installPath e version logo apos a chave)
     # Usa Python para edicao precisa do JSON (evita sed frageis com paths Windows-style).
     if command -v python >/dev/null 2>&1; then
+      # 2026-05-20 (Luiz/dev): Patch 6.6.1 — Python on Windows doesn't resolve POSIX paths
+      # like /c/Users/...; convert to Windows path via cygpath when available, else fallback.
+      if command -v cygpath >/dev/null 2>&1; then
+        INSTALLED_PLUGINS_WIN=$(cygpath -w "$INSTALLED_PLUGINS")
+        CACHE_DIR_WIN=$(cygpath -w "$PLUGIN_GLOBAL")
+      else
+        INSTALLED_PLUGINS_WIN="$INSTALLED_PLUGINS"
+        CACHE_DIR_WIN="$PLUGIN_GLOBAL"
+      fi
+      # Export for python subshell to read via os.environ (avoids string escaping bugs).
+      export INSTALLED_PLUGINS_WIN CACHE_DIR_WIN PLUGIN_VERSION
       python -c "
-import json, sys
-p = r'$INSTALLED_PLUGINS'
-with open(p, 'r', encoding='utf-8') as f: data = json.load(f)
+import json, os
+from datetime import datetime, timezone
+p = os.environ['INSTALLED_PLUGINS_WIN']
+with open(p, 'r', encoding='utf-8') as f:
+    data = json.load(f)
 entry = data['plugins'].get('anti-vibe-coding@local-plugins', [])
 if entry:
-  entry[0]['installPath'] = r'C:\\\\Users\\\\luizf\\\\.claude\\\\plugins\\\\cache\\\\local-plugins\\\\anti-vibe-coding\\\\$PLUGIN_VERSION'
-  entry[0]['version'] = '$PLUGIN_VERSION'
-  from datetime import datetime, timezone
-  entry[0]['lastUpdated'] = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.000Z')
-with open(p, 'w', encoding='utf-8') as f: json.dump(data, f, indent=2); f.write('\n')
-print('  + installed_plugins.json pinned to $PLUGIN_VERSION')
+    entry[0]['installPath'] = os.environ['CACHE_DIR_WIN']
+    entry[0]['version'] = os.environ['PLUGIN_VERSION']
+    entry[0]['lastUpdated'] = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.000Z')
+with open(p, 'w', encoding='utf-8') as f:
+    json.dump(data, f, indent=2)
+    f.write('\n')
+print('  + installed_plugins.json pinned to', os.environ['PLUGIN_VERSION'])
 "
     else
       echo "  ! python nao disponivel — pin manual necessario em $INSTALLED_PLUGINS"
