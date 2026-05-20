@@ -65,7 +65,8 @@ export async function copyKnowledge(opts: CopyKnowledgeOptions): Promise<CopyKno
     return {
       status: 'no-source',
       atomCount: 0,
-      message: `sourceDir escapa docs/knowledge/: ${sourceDir}. Knowledge não foi copiado.`,
+      // 2026-05-20 (Luiz/dev): D9 do PRD knowledge-path-cutover — mensagem atualizada para knowledge/ (nao docs/knowledge/)
+      message: `sourceDir escapa knowledge/: ${sourceDir}. Knowledge não foi copiado.`,
       destDir,
     }
   }
@@ -75,7 +76,8 @@ export async function copyKnowledge(opts: CopyKnowledgeOptions): Promise<CopyKno
     return {
       status: 'no-source',
       atomCount: 0,
-      message: `Matrix '${primary}' não existe em docs/knowledge/${primary}/. Knowledge não foi copiado.`,
+      // 2026-05-20 (Luiz/dev): D1/D9 do PRD knowledge-path-cutover — path base mudou para knowledge/
+      message: `Matrix '${primary}' não existe em knowledge/${primary}/. Knowledge não foi copiado.`,
       destDir,
     }
   }
