@@ -13,6 +13,7 @@ import type { Step } from './types'
 import { isDryRun } from '../dry-run-mode'
 import { INIT_SUBAGENT_IDS } from '../init-subagent-ids'
 import type { AuditLogWriter } from '../audit-log'
+import { computeAuditCoverage } from '../populate-plan-coverage'
 
 /** SH-07 do PRD — subagent_id canonico para Plano 06 fase-01 audit log padronizado. */
 export const SUBAGENT_ID = 'init-populate-plan-gen' as const
@@ -65,6 +66,10 @@ export const generatePopulatePlanStep: Step = {
     // Step 5: materializa pasta em disco
     const writeResult = await writePopulatePlanFolder(plan, ctx.cwd)
 
+    // 2026-05-19 (Luiz/dev): Plano 05 fase-04 do PRD populate-plan-andre-port (SH-4).
+    // 3 metricas adicionais no audit log para observabilidade da cobertura.
+    const coverage = computeAuditCoverage(stackPaths, plan)
+
     // Audit log: registra evento com contagens (SH-07 + MH-01)
     const writer = ctx.flags['__auditLog'] as AuditLogWriter | undefined
     await writer?.append({
@@ -77,6 +82,10 @@ export const generatePopulatePlanStep: Step = {
         warnings: writeResult.warnings.length,
         stackPrimary: stack.primary ?? 'none',
         discoveryEntries: discovery.entries.length,
+        // 2026-05-19 (Luiz/dev): Plano 05 fase-04 — campos SH-4.
+        docsCoveredByStack: coverage.docsCoveredByStack,
+        docsWithoutCodeEvidence: coverage.docsWithoutCodeEvidence,
+        phasesCreatedVsExpected: coverage.phasesCreatedVsExpected,
       },
       duration_ms: Math.round(performance.now() - startMs),
       retry_count: 0,
