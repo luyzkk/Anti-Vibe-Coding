@@ -3,6 +3,31 @@
 Todas as mudanças notáveis do plugin Anti-Vibe Coding serão documentadas aqui.
 
 
+## [6.6.1] - 2026-05-20
+
+> **Patch release — Test fix do reentry-guard boundary**
+> Captura via `/verify-work` pos-merge do 6.6.0 detectou que os boundary tests de
+> `00_2-reentry-guard.test.ts` ainda referenciavam `6.5.0` apos o bump do threshold
+> para `6.6.0`. Fix de uma linha em 2 testes. Sem mudancas de runtime.
+
+### Fixed
+
+- **`00_2-reentry-guard.test.ts` alinhado ao threshold 6.6.0** (`KNOWLEDGE_PATH_CUTOVER_VERSION`).
+  Antes: testes usavam fixture `pluginVersion: '6.5.0'` esperando `AbortError`, mas
+  a constante de producao migrou para `'6.6.0'` — comportamento real eh `re-populate`
+  para manifests `< 6.6.0`. Resultado: 2 testes falhando silenciosamente pos-merge.
+  Fix: trocar fixture para `'6.6.0'` (boundary que aborta) e `'6.5.1'` (< boundary, re-populate).
+  Lição: bump de constante de threshold exige update de fixtures de boundary nos testes correspondentes.
+
+### Changed
+
+- Versao 6.6.0 → 6.6.1 propagada em `package.json`, `.claude-plugin/plugin.json`,
+  `.claude-plugin/marketplace.json`, `plugin-manifest.json`, `tests/repo-structure/version-bump.test.ts`,
+  `skills/init/lib/run-init.ts` fallback e `scripts/sync-to-global.sh` default.
+  `KNOWLEDGE_PATH_CUTOVER_VERSION` em `00_2-reentry-guard.ts` permanece em `'6.6.0'`
+  (threshold de re-populate, semantica diferente da versao do plugin).
+
+
 ## [6.6.0] - 2026-05-20
 
 > **Minor release — Knowledge Path Cutover (docs/knowledge → knowledge/)**
