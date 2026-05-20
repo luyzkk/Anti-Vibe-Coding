@@ -81,7 +81,19 @@ do Andre exige docs vivos, nao templates genericos.
 
 ## Lessons Captured
 
-<!-- preencher ao /iterate: links para docs/compound/*.md gerados a partir desta execucao. -->
+<!--
+2026-05-19 (Luiz/dev): Plano 05 fase-03 do PRD populate-plan-andre-port (SH-3).
+6 licoes genericas pre-populadas extraidas do plano referencia do Andre +
+compound notes consolidadas. Sao seeds — remover ou substituir apos primeira
+customizacao real do projeto (subagente do /execute-plan confirma ou edita).
+-->
+
+- **Anti-pattern detectado:** heuristica e LLM podem ambos errar pelo mesmo motivo se o input mecanico (lista de docs canonicos no TEMPLATE_MANIFEST ou EXCLUDED) estiver errado. Validar lista de docs primeiro, antes de qualquer melhoria de qualidade na geracao.
+- **Principio universal — copy-then-improve:** ao portar de ferramenta validada externa (Andre, libs maduras), copiar literalmente primeiro, melhorar em cima. Nunca "adaptar para baixo".
+- **Padrao compound:** gate "nunca diminuir" deve ser TESTE, nao doc — docs decaem, testes nao. Aplicar a qualquer ponto onde paridade com referencia importa.
+- **Trade-off:** instrucoes imperativas (Fontes + Secoes + Honestidade) custam mais tokens no /execute-plan, mas o principio "nunca diminuir" precede custo. Documentar qualquer recusa futura de imperatividade.
+- **Honestidade > marketing:** cada afirmacao no doc canonico rastreia a um arquivo lido. Quando nao rastreia, marca `TODO(<contexto>):`. Doc com placeholder generico degrada todo o pipeline downstream.
+- **Audit antes de scaling cobertura:** Step 91 emite contagens (docsCobertos, docsSemEvidencia, fasesCriadas vs esperadas) antes de qualquer expansao — observabilidade primeiro, cobertura depois.
 
 ## Exit Criteria
 

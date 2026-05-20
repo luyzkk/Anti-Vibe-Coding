@@ -2,7 +2,7 @@
 
 **Feature:** populate-plan-andre-port
 **Iniciado:** 2026-05-19
-**Status:** em execucao (fase-01 concluida)
+**Status:** em execucao (fase-03 concluida)
 
 ---
 
@@ -37,6 +37,14 @@ Formato: o que foi decidido + por que + impacto.
 - **DI-Plano05-fase02-pickstaticmap-7cases:** switch `pickStaticMap` passou de 5 cases para 7 cases (`nextjs`, `rails`, `node-ts`, `laravel`, `python`, `unknown`, `null/default`). Continua legivel.
   - Por que: G3 do plano — 7 cases nao justifica refator para hash map ainda. CLAUDE.md global preconiza hash map sobre switch, mas 7 e enxuto.
   - Impacto: refator para `Record<StackId | 'null', StackCandidates>` vira Could Have quando 8o stack aparecer (registrado em "Notas para Planos Seguintes").
+
+- **DI-Plano05-fase03-lessons-seeds:** 6 licoes genericas pre-populadas em `## Lessons Captured` do `PLAN.md.tpl` com comentario HTML data-marcado `2026-05-19 (Luiz/dev): ... Sao seeds — remover ou substituir apos primeira customizacao real`. Subagente do `/execute-plan` deve revisar e substituir conforme contexto do projeto especifico.
+  - Por que: SH-3 do PRD + `feedback_copy-then-improve` aplicado a si mesmo — projetos novos iniciam com licoes ja capturadas em vez de placeholder vazio.
+  - Impacto: `PLAN.md` gerado por Step 91 agora inclui 6 bullets acionaveis. Golden snapshot regenerado para refletir a mudanca.
+
+- **DI-Plano05-fase03-parity-tolerancia:** sub-assert SH-3 no `populate-plan-parity.test.ts` usa `>= 4 bullets`, nao `>= 6`. Tolerancia de 2 customizacoes ja realizadas em projetos no meio do ciclo de vida.
+  - Por que: gate quer detectar quando o tpl foi readicionado vazio (regressao de template), nao quando o projeto customizou organicamente 1-2 bullets. Fixture greenfield sempre tera 6 na pratica — `>= 4` da margem para refator futuro do tpl.
+  - Impacto: parity test agora tem 10 asserts (9 anteriores + 1 SH-3). Importa `it` de `bun:test` (adicionado ao import existente).
 
 ---
 
@@ -91,7 +99,7 @@ Exemplo:
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 6 |
-| Fases concluidas | 2 |
+| Fases concluidas | 3 |
 | Fases com desvio | 0 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
@@ -99,6 +107,15 @@ Exemplo:
 ---
 
 ## Notas para Planos Seguintes
+
+### Apos fase-03 (Lessons Captured pre-populadas — SH-3)
+
+- **`## Lessons Captured` em `skills/init/assets/templates/exec-plan/PLAN.md.tpl` tem 6 seeds pre-populados:** Anti-pattern, copy-then-improve, Padrao compound, Trade-off tokens, Honestidade > marketing, Audit antes de scaling. Comentario HTML data-marcado (`2026-05-19 (Luiz/dev)`) sinaliza que sao seeds.
+- **10 testes passando em `tests/e2e/populate-plan-parity.test.ts`:** 9 pre-existentes + 1 novo SH-3. Import `it` adicionado ao import de `bun:test`. Typecheck limpo (3 GT-01 baseline inalterados).
+- **Golden snapshot `tests/e2e/__golden__/populate-plan-andre-parity.md` regenerado:** agora reflete as 6 licoes na secao Lessons Captured (linhas 155-160 do golden).
+- **Proxima fase (fase-04):** ver plano 05 — E2E skipados + cleanup de MEMORY.md raiz.
+
+---
 
 ### Apos fase-02 (LARAVEL + PYTHON candidates — SH-2)
 
