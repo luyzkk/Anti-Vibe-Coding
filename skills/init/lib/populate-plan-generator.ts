@@ -100,6 +100,53 @@ export function isPopulatable(entry: TemplateEntry): boolean {
 
 // --- Mapa de instrucoes LLM por doc canonico ---
 
+// 2026-05-19 (Luiz/dev): Plano 03 fase-01 do PRD populate-plan-andre-port (MH-3 / CA-06).
+// Schema imperativo: cada instrucao LLM exige fontes especificas + secoes obrigatorias +
+// frase de honestidade. Sem brecha tipo "se nao houver, mantenha template".
+export interface ImperativeInstruction {
+  fontes: string[]
+  secoes: string[]
+  honestidade: string
+}
+
+// 2026-05-19 (Luiz/dev): renderer puro. NAO emite o heading `### Instrucao LLM` — esse
+// heading e adicionado por `renderLLMInstructionBlock` (G1 do Plano 03). Esta funcao
+// produz apenas o corpo: 3 blocos markdown.
+export function formatImperativeInstruction(instr: ImperativeInstruction): string {
+  const fontes = instr.fontes.map(f => `- ${f}`).join('\n')
+  const secoes = instr.secoes.map(s => `- ${s}`).join('\n')
+  return [
+    '**Fontes:**',
+    fontes,
+    '',
+    '**Secoes obrigatorias do output:**',
+    secoes,
+    '',
+    instr.honestidade,
+  ].join('\n')
+}
+
+// 2026-05-19 (Luiz/dev): runtime guard. Usado em fase-03 no parity test
+// (`tests/e2e/populate-plan-parity.test.ts`) para assert CA-06 — toda entry do map
+// `LLM_INSTRUCTIONS` deve satisfazer este predicado.
+export function isImperativeInstruction(input: unknown): input is ImperativeInstruction {
+  if (typeof input !== 'object' || input === null) return false
+  const candidate = input as Record<string, unknown>
+
+  const fontes = candidate.fontes
+  if (!Array.isArray(fontes) || fontes.length === 0) return false
+  if (!fontes.every(f => typeof f === 'string' && f.length > 0)) return false
+
+  const secoes = candidate.secoes
+  if (!Array.isArray(secoes) || secoes.length === 0) return false
+  if (!secoes.every(s => typeof s === 'string' && s.length > 0)) return false
+
+  const honestidade = candidate.honestidade
+  if (typeof honestidade !== 'string' || honestidade.length === 0) return false
+
+  return true
+}
+
 // 2026-05-19 (Luiz/dev): instrucoes LLM por doc canonico. Adicionar entry quando novo doc
 // for adicionado ao TEMPLATE_MANIFEST. Default cobre docs nao mapeados.
 // CLAUDE.md global rule: preferir hash maps sobre switch-case.
