@@ -3,6 +3,55 @@
 Todas as mudanças notáveis do plugin Anti-Vibe Coding serão documentadas aqui.
 
 
+## [6.6.0] - 2026-05-20
+
+> **Minor release — Knowledge Path Cutover (docs/knowledge → knowledge/)**
+> Runtime assets do plugin agora vivem em `knowledge/` na raiz (fora de `docs/`),
+> corrigindo o bug onde `/init` emitia warning "Knowledge não foi copiado" ao rodar
+> contra o cache global (`~/.claude/plugins/cache/`). Inclui refresh automático de
+> atoms em re-populate, migração de artefatos v5 e validator pós-init com dois níveis.
+
+### Changed
+
+- **Path cutover `docs/knowledge/` → `knowledge/`** —
+  `docs/knowledge/` era runtime asset coabitando com metadocumentação do plugin (dog-food não
+  distribuível). Movido para `knowledge/` na raiz via `git mv` com linhagem git preservada
+  (`git log --follow knowledge/{stack}/INDEX.md` mostra histórico completo).
+  `sync-to-global.sh` agora copia `knowledge/` para o cache global e valida presença de
+  `nodejs-typescript/INDEX.md` E `rails/INDEX.md` pós-sync (exit 1 se incompleto).
+
+- **Refresh automático de atoms em re-populate** —
+  Quando `/init` roda em modo re-populate (`manifest pluginVersion < 6.6.0` ou re-run
+  explícito) e `.claude/knowledge/` já existe no projeto alvo, os atoms são sobrescritos com
+  o conteúdo atual da matrix do plugin. Elimina drift entre versões silencioso.
+  **Atenção:** re-populate sobrescreve `.claude/knowledge/` integralmente. Customizações
+  locais devem viver em `.claude/knowledge/_overrides/` (convenção a estabelecer em PRD futuro).
+
+- **Migração automática de artefatos init-v5** —
+  Projetos que rodaram `/init` v5 têm `docs/knowledge/legacy-claude-knowledge/`. Em modo
+  re-populate, o novo step `13_1-migrate-knowledge-path` move esse artefato para
+  `docs/_legacy/knowledge/` (agrupa com `docs/_legacy/pre-6.5.0/`). Guard de colisão:
+  aborta com mensagem clara se destino já existe (migração manual necessária).
+
+### Added
+
+- **Validator pós-init com 2 níveis** (`Step 90 final-validation`):
+  - Check primário (bloqueante): stack detectada sem `.claude/knowledge/{stack}/INDEX.md` → `AbortError`.
+  - Check secundário (warning, sunset v7.0.0): `docs/knowledge/` órfão remanescente → `console.warn`
+    não-bloqueante com instrução de re-run.
+- **Constante `KNOWLEDGE_PATH_CUTOVER_VERSION = '6.6.0'`** inline em `00_2-reentry-guard.ts` —
+  threshold de re-populate atualizado de `6.5.0` para `6.6.0`.
+
+### Fixed
+
+- **Warning "Knowledge não foi copiado" em cache global** — causa raiz era `sync-to-global.sh`
+  não copiar `docs/knowledge/` (por design: `docs/` é dog-food não distribuível). Resolvido com
+  path cutover para `knowledge/` fora de `docs/`.
+- **`copy-knowledge.ts` promove warning para `AbortError`** quando stack detectada mas matrix
+  ausente no plugin (`primary !== null` E `sourceDir` ausente). Antes: warning não-bloqueante
+  que permitia init completar com `.claude/knowledge/` vazio, silenciosamente quebrando skills downstream.
+
+
 ## [6.5.1] - 2026-05-19
 
 > **Patch release — Bug fix: upgrade v5→v6.5**
