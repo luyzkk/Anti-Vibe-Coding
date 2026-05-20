@@ -9,8 +9,12 @@ import { parseRefreshFlag } from './parse-refresh-flag'
 import { parseTopKeywords, formatKnowledgePreview, TOP_N_KEYWORDS, extractRailsVersionWarning } from './format-knowledge-preview'
 import { emitStackKnowledgeEvents } from './emit-stack-knowledge-events'
 import { join } from 'node:path'
-import { promises as fs, existsSync, readFileSync } from 'node:fs'
+import { promises as fs } from 'node:fs'
 import path from 'node:path'
+
+// 2026-05-19 (Luiz/dev): TODO.md L16 — Gemfile size cap (DoS defensiva).
+// 1MB cobre 99.9% dos Gemfiles reais; acima disso provavelmente nao e Gemfile valido.
+const GEMFILE_MAX_BYTES = 1_048_576
 
 export interface RunStackKnowledgeInitOpts {
   targetDir: string
@@ -29,6 +33,10 @@ export interface RunStackKnowledgeInitOpts {
    * (single-user, sequential invocations). No lock is implemented.
    */
   logger?: (line: string) => void
+  // 2026-05-20 (Luiz/dev): D5.B.2 do PRD knowledge-path-cutover — refresh automatico em re-populate.
+  // Quando true, copyKnowledge sobrescreve .claude/knowledge/ existente (elimina drift).
+  // Greenfield omite — default false (CA-07). Ortogonal a --refresh-knowledge CLI (parseRefreshFlag).
+  refresh?: boolean
 }
 
 /**
@@ -53,7 +61,10 @@ export async function runStackKnowledgeInit(opts: RunStackKnowledgeInitOpts, ctx
   // ctx.logger takes precedence; opts.logger is the backward-compat path; console.log is the default.
   const { targetDir, pluginRoot, args = '' } = opts
   const logger = ctx?.logger ?? opts.logger ?? console.log
-  const refresh = parseRefreshFlag(args)
+  // 2026-05-20 (Luiz/dev): D5.B.2 do PRD knowledge-path-cutover — propaga refresh do caller.
+  // OR: --refresh-knowledge CLI (parseRefreshFlag) OU reentry re-populate (opts.refresh).
+  // Ambos os caminhos sao igualmente validos para trigger; nenhum cancela o outro.
+  const refresh = (opts.refresh ?? false) || parseRefreshFlag(args)
   const detection = await detectMultiStack(targetDir)
   const { written: stackJson } = await writeStackJson(targetDir, detection)
   const stackJsonMessage = `stack.json written. primary = ${stackJson.primary}`
@@ -98,12 +109,21 @@ export async function runStackKnowledgeInit(opts: RunStackKnowledgeInitOpts, ctx
   }
 
   // 2026-05-18 (Luiz/dev): RF11 — propagar warning Rails legado no resultado
+  // 2026-05-19 (Luiz/dev): TODO.md L16 — async I/O + size cap. Stat antes de ler;
+  // ENOENT vira no-op silencioso (Gemfile pode nao existir mesmo com primary=rails se houver bug
+  // upstream — nao queremos quebrar o init por isso). Gemfile maior que GEMFILE_MAX_BYTES e ignorado.
   const warnings: string[] = []
   if (stackJson.primary === 'rails') {
     const gemfilePath = path.join(targetDir, 'Gemfile')
-    if (existsSync(gemfilePath)) {
-      const warning = extractRailsVersionWarning(readFileSync(gemfilePath, 'utf8'))
-      if (warning) warnings.push(warning)
+    try {
+      const stat = await fs.stat(gemfilePath)
+      if (stat.isFile() && stat.size <= GEMFILE_MAX_BYTES) {
+        const gemfileContent = await fs.readFile(gemfilePath, 'utf8')
+        const warning = extractRailsVersionWarning(gemfileContent)
+        if (warning) warnings.push(warning)
+      }
+    } catch {
+      // Arquivo ausente ou nao-acessivel — sem warning (decisao silenciosa, RF11 e best-effort)
     }
   }
 
