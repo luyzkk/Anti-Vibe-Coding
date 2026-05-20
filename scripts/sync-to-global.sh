@@ -84,6 +84,29 @@ copy_dir_if_exists "$PLUGIN_DEV/scripts" "$PLUGIN_GLOBAL/scripts" "scripts/"
 copy_dir_if_exists "$PLUGIN_DEV/.github" "$PLUGIN_GLOBAL/.github" ".github/"
 copy_dir_if_exists "$PLUGIN_DEV/tests/fixtures" "$PLUGIN_GLOBAL/tests/fixtures" "tests/fixtures/"
 
+# --- Runtime assets (v6.6.0+) ---
+# 2026-05-20 (Luiz/dev): D1/D4 do PRD knowledge-path-cutover — knowledge/ e runtime asset
+# consumido por /init (copy-knowledge.ts). NAO e dog-food: deve ser distribuido. docs/knowledge/
+# foi o path original; agora vive em knowledge/ na raiz (git mv preservou linhagem).
+copy_dir_if_exists "$PLUGIN_DEV/knowledge" "$PLUGIN_GLOBAL/knowledge" "knowledge/"
+
+# --- Pos-sync sanity check: ambas stacks canonicas devem estar presentes ---
+# 2026-05-20 (Luiz/dev): D4/AR-02 do PRD knowledge-path-cutover — CH-02 promovido para MH-03.
+# Verifica AMBAS stacks (nodejs-typescript E rails) para detectar drift assimetrico.
+# CA-04 (exit 1 se nodejs-typescript ausente) + CA-16 (exit 1 se rails ausente).
+KNOWLEDGE_SYNC_OK=true
+for _kstack in "nodejs-typescript" "rails"; do
+  if [ ! -f "$PLUGIN_GLOBAL/knowledge/$_kstack/INDEX.md" ]; then
+    echo "ERRO: Sync incompleto — knowledge/$_kstack/INDEX.md ausente no cache global."
+    KNOWLEDGE_SYNC_OK=false
+  fi
+done
+
+if [ "$KNOWLEDGE_SYNC_OK" = "false" ]; then
+  echo "Sync abortado — corrija knowledge/ e re-execute sync-to-global.sh"
+  exit 1
+fi
+
 # --- Arquivos da raiz (v5 + v6) ---
 copy_file_if_exists "$PLUGIN_DEV/CLAUDE.md"             "$PLUGIN_GLOBAL/CLAUDE.md"             "CLAUDE.md"
 copy_file_if_exists "$PLUGIN_DEV/senior-principles.md"  "$PLUGIN_GLOBAL/senior-principles.md"  "senior-principles.md (legacy shim)"
