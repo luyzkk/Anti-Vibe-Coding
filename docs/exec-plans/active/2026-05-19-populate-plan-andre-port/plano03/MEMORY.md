@@ -35,12 +35,28 @@ Formato: o que foi decidido + por que + impacto.
   no bun v1.3.9 com formato `test.each([[label, input], ...])('%s', ...)`. 12 testes passaram
   (1 render + 1 happy + 10 invalidos). Sem necessidade de fallback para 10 testes explicitos (G5).
 
-<!-- Exemplos para fases seguintes:
-- **DI-Plano03-fase02-batch-size:** 12 entries refatoradas em 4 lotes de 3 (rodando typecheck
-  entre lotes).
-- **DI-Plano03-fase03-export-llm-instructions:** `LLM_INSTRUCTIONS` recebe `export` em
-  fase-03 (estava `const` privado).
--->
+- **DI-Plano03-fase02-export-llm-instructions:** decidiu opcao (a) do Passo 6 do doc —
+  `export` adicionado em fase-02 ja (linha 157). Facilita o test.each interno desta fase e
+  simplifica fase-03 (passo "adicionar export" some, sobra apenas o import no parity test).
+  Grep confirmou: nenhum consumer externo importava `LLM_INSTRUCTIONS` anteriormente (era
+  `const` privado sem callers externos no source).
+
+- **DI-Plano03-fase02-batch-size:** 12 entries refatoradas em 4 lotes de 3 (rodando
+  `bun run typecheck` entre lotes). Particao:
+  - Lote 1: `ARCHITECTURE.md`, `docs/FRONTEND.md`, `docs/SECURITY.md`.
+  - Lote 2: `docs/RELIABILITY.md`, `docs/DESIGN.md`, `docs/CODE_STYLE.md`.
+  - Lote 3: `docs/QUALITY_SCORE.md`, `docs/PLANS.md`, `docs/STATE.md`.
+  - Lote 4: `docs/design-docs/core-beliefs.md`, `AGENTS.md`, `CLAUDE.md`.
+  Nenhum lote precisou de retorno.
+
+- **DI-Plano03-fase02-default-provisorio:** `DEFAULT_INSTRUCTION_LEGACY_TODO_PHASE_03`
+  adicionado em linha 377 (logo apos `DEFAULT_INSTRUCTION` string original na linha 368).
+  `DEFAULT_INSTRUCTION` string MANTIDO intocado ao lado (fase-03 deleta). `llmInstructionFor`
+  retorna `ImperativeInstruction` e usa o LEGACY como fallback.
+
+- **DI-Plano03-fase02-phase-type:** `PopulatePlanPhase.instrucaoLLM` tipo mudou de `string`
+  para `ImperativeInstruction` (linha 56, comentario 2026-05-19). Cascata obrigatoria:
+  `renderLLMInstructionBlock` aceita `ImperativeInstruction` e chama `formatImperativeInstruction`.
 
 ---
 
@@ -75,7 +91,7 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 3 |
-| Fases concluidas | 1 |
+| Fases concluidas | 2 |
 | Fases com desvio | 0 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
@@ -106,7 +122,27 @@ O subagente do proximo plano le este campo.
 - **`bun run lint` NAO existe como script** (herdado do Plano 02 MEMORY). Typecheck via `bun run typecheck`.
   3 erros GT-01 pre-existentes (nao introduzidos): `lazy-import.test.ts` (TS2307) e `subagent-contract.ts` (TS2305/TS2339).
 
-<!-- Notas adicionais para fases seguintes sao preenchidas conforme execucao -->
+### Apos fase-02
+
+- **12 chaves do map `LLM_INSTRUCTIONS`** (em ordem no arquivo):
+  `ARCHITECTURE.md`, `docs/FRONTEND.md`, `docs/SECURITY.md`, `docs/RELIABILITY.md`,
+  `docs/DESIGN.md`, `docs/CODE_STYLE.md`, `docs/QUALITY_SCORE.md`, `docs/PLANS.md`,
+  `docs/STATE.md`, `docs/design-docs/core-beliefs.md`, `AGENTS.md`, `CLAUDE.md`.
+
+- **`DEFAULT_INSTRUCTION` string (linha 368)** mantida intocada para fase-03 reescrever.
+  `DEFAULT_INSTRUCTION_LEGACY_TODO_PHASE_03` (linha 377) e o fallback provisorio de
+  `llmInstructionFor`. Fase-03 deleta o LEGACY e reescreve o DEFAULT como
+  `ImperativeInstruction` com `fontes`/`secoes` reais.
+
+- **`PopulatePlanPhase.instrucaoLLM`** agora e `ImperativeInstruction` (nao mais `string`).
+  Fase-03 nao precisa mudar o tipo — ja e correto.
+
+- **Testes apos fase-02:**
+  - `populate-plan-generator.test.ts`: 18 pass (6 originais + 12 do test.each).
+  - `imperative-instruction.test.ts`: 12 pass (sem mudanca).
+  - `tests/e2e/populate-plan-parity.test.ts`: 4 pass (sem mudanca — fase-03 estende).
+
+- **`export const LLM_INSTRUCTIONS`** confirmado em linha 157 — fase-03 nao precisa adicionar export.
 
 ---
 

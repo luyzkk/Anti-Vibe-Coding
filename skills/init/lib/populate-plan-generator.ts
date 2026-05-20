@@ -53,7 +53,9 @@ export type PopulatePlanPhase = {
   readonly docCanonico: string
   readonly inputsDocs: ReadonlyArray<string>
   readonly inputsCode: ReadonlyArray<{ path: string; exists: boolean; note?: string }>
-  readonly instrucaoLLM: string
+  // 2026-05-19 (Luiz/dev): Plano 03 fase-02 — tipo mudou de string para ImperativeInstruction
+  // (MH-3 / CA-06). renderLLMInstructionBlock chama formatImperativeInstruction internamente.
+  readonly instrucaoLLM: ImperativeInstruction
   readonly criterioDone: string
 }
 
@@ -150,53 +152,218 @@ export function isImperativeInstruction(input: unknown): input is ImperativeInst
 // 2026-05-19 (Luiz/dev): instrucoes LLM por doc canonico. Adicionar entry quando novo doc
 // for adicionado ao TEMPLATE_MANIFEST. Default cobre docs nao mapeados.
 // CLAUDE.md global rule: preferir hash maps sobre switch-case.
-const LLM_INSTRUCTIONS: Record<string, string> = {
-  'ARCHITECTURE.md':
-    'Leia os inputs (docs candidatos + codigo). Sintetize a arquitetura REAL do projeto: ' +
-    'dominios, modulos compartilhados, integracoes externas. Cada afirmacao deve apontar para ' +
-    'um arquivo/pasta do repo. Zero placeholder generico. Se um input nao tem destino obvio ' +
-    'neste doc, sugira consolidacao em outro canonico e marque `needsUser` (DQ2 do CONTEXT).',
-  'docs/FRONTEND.md':
-    'Documente a arquitetura de UI real: rotas, layouts, componentes compartilhados, sistema de ' +
-    'design vivo. Referencie cada componente por path. Se houver Tailwind config, extraia tokens ' +
-    'principais (cores, spacing, typography) e cite o arquivo.',
-  'docs/SECURITY.md':
-    'Auth (provider, fluxo), CORS, secrets (onde, como gerenciar), RLS / authz. Cada item deve ' +
-    'citar arquivo (middleware, policy, env.example). Se Supabase: enumere policies de migrations. ' +
-    'Se algum aspecto critico (auth, secrets) nao tem evidencia no codigo, marque `needsUser`.',
-  'docs/RELIABILITY.md':
-    'Error boundaries, retries, observabilidade (logs, traces, metrics), backups. Cite arquivos de ' +
-    'config e libs. Sem speculation — apenas o que esta no codigo. Para edge functions ou jobs, ' +
-    'enumere com path + responsabilidade.',
-  'docs/DESIGN.md':
-    'Design System visual: tokens (cores, tipografia, spacing), componentes base, padroes de ' +
-    'composicao. Extrair de tailwind.config + globals.css + components/ui. NAO documentar regras ' +
-    'de codigo aqui (vao em CODE_STYLE.md).',
-  'docs/CODE_STYLE.md':
-    'Regras de estilo de codigo: convencoes de nomes, organizacao de arquivos, padroes que o time ' +
-    'segue. Inputs: snippets `akita-*.md` (se existirem), `.eslintrc`/`eslint.config`, `.prettierrc`. ' +
-    'Codigo real do projeto e a fonte da verdade — extrair padroes implicitos.',
-  'docs/QUALITY_SCORE.md':
-    'Rubrica de score de PR review. Pode comecar do template canonico + adaptar pesos para a ' +
-    'realidade do time. Se nao houver historico de PR review, mantenha o template e adicione ' +
-    'TODO `// preencher apos 5 PR reviews`.',
-  'docs/PLANS.md':
-    'Indice de planos exec ativos + estado de cada um. Listar pastas em `docs/exec-plans/active/`. ' +
-    'Sem speculation — so o que esta no FS.',
-  'docs/STATE.md':
-    'Snapshot do estado atual: versao do plugin, ultima init rodada, stack detectado. Maior parte ' +
-    'preenchida pelo Step 03 (detect-stack-and-register) — esta fase confirma e amplia se houver ' +
-    'contexto novo (ex: PRD ativo, plano em execucao).',
-  'docs/design-docs/core-beliefs.md':
-    'Principios senior do projeto: arquitetura padrao, seguranca por default, qualidade nao-negociavel. ' +
-    'Se progress.txt tem gotchas que ascendem a principios, promover (DQ5 do CONTEXT). Caso contrario, ' +
-    'usar templates do plugin + adaptar nomes ao time.',
-  'AGENTS.md':
-    'Index do que cada agente/skill lendo este projeto deve saber. Listar docs canonicos com 1 linha ' +
-    'cada explicando quando ler. CLAUDE.md mirror este conteudo.',
-  'CLAUDE.md':
-    'Mirror canonico de AGENTS.md (alguns agents leem CLAUDE.md, outros AGENTS.md). Mesmo conteudo, ' +
-    'mesmo formato. Em alteracoes futuras: atualizar AMBOS.',
+// 2026-05-19 (Luiz/dev): Plano 03 fase-02 do PRD populate-plan-andre-port (MH-3 / CA-06).
+// Cada entry exige `ImperativeInstruction` — TS error guia a refatoracao das 12 entries.
+export const LLM_INSTRUCTIONS: Record<string, ImperativeInstruction> = {
+  // 2026-05-19 (Luiz/dev): exemplo canonico de PRD MH-3. As `secoes` espelham o ARCHITECTURE.md
+  // real deste plugin (secao "Convencao: docs/ vs Runtime Assets" foi o gabarito).
+  'ARCHITECTURE.md': {
+    fontes: [
+      'docs/ARCHITECTURE.md candidato (se existir)',
+      'package.json (entry points, scripts)',
+      'tsconfig.json (paths, includes)',
+      'src/** ou skills/** (modulos principais)',
+      'README.md (visao macro do projeto)',
+    ],
+    secoes: [
+      'Convencao docs/ vs Runtime Assets',
+      'Modulos compartilhados',
+      'Integracoes externas',
+      'Decisoes obrigatorias (ADRs ativas)',
+    ],
+    honestidade:
+      'Cada afirmacao rastreia um arquivo lido. Quando nao rastreia, marca `TODO(<contexto>):`. ' +
+      'Honestidade > marketing.',
+  },
+  'docs/FRONTEND.md': {
+    fontes: [
+      'app/**',
+      'src/components/**',
+      'tailwind.config.{ts,js}',
+      'globals.css',
+      'src/lib/design-tokens.ts (se existir)',
+      'src/styles/**',
+    ],
+    secoes: [
+      'Rotas e layouts',
+      'Componentes compartilhados',
+      'Sistema de design (tokens)',
+      'Convencoes de estilo (Tailwind / CSS-in-JS)',
+    ],
+    honestidade:
+      'Cada afirmacao rastreia um arquivo lido. Quando nao rastreia, marca `TODO(<contexto>):`. ' +
+      'Honestidade > marketing.',
+  },
+  'docs/SECURITY.md': {
+    fontes: [
+      'middleware.ts',
+      'src/lib/auth/**',
+      'supabase/migrations/**',
+      '.env.example',
+      'next.config.{ts,js} (CORS / headers)',
+      'policies de RLS',
+    ],
+    secoes: [
+      'Autenticacao (provider, fluxo)',
+      'Autorizacao (RBAC / RLS)',
+      'Secrets',
+      'CORS / headers',
+      'Auditoria',
+    ],
+    honestidade:
+      'Cada afirmacao rastreia um arquivo lido. Quando nao rastreia, marca `TODO(<contexto>):`. ' +
+      'Honestidade > marketing.',
+  },
+  'docs/RELIABILITY.md': {
+    fontes: [
+      'error-boundaries/**',
+      'src/lib/observability/**',
+      '*.config.{ts,js} de logger (Pino/Winston)',
+      'vercel.json / wrangler.toml (jobs/crons)',
+      'src/app/api/** para retries',
+    ],
+    secoes: [
+      'Error boundaries (UI + API)',
+      'Observabilidade (logs / traces / metricas)',
+      'Retries e timeouts',
+      'Backups e recovery',
+    ],
+    honestidade:
+      'Cada afirmacao rastreia um arquivo lido. Quando nao rastreia, marca `TODO(<contexto>):`. ' +
+      'Honestidade > marketing.',
+  },
+  'docs/DESIGN.md': {
+    fontes: [
+      'tailwind.config.{ts,js}',
+      'globals.css',
+      'components/ui/**',
+      'src/styles/tokens.css',
+      'figma-export.json (se existir)',
+    ],
+    secoes: [
+      'Tokens (cores, tipografia, spacing)',
+      'Componentes base',
+      'Padroes de composicao',
+      'Regras visuais (NAO regras de codigo — codigo vai em CODE_STYLE.md)',
+    ],
+    honestidade:
+      'Cada afirmacao rastreia um arquivo lido. Quando nao rastreia, marca `TODO(<contexto>):`. ' +
+      'Honestidade > marketing.',
+  },
+  'docs/CODE_STYLE.md': {
+    fontes: [
+      '.eslintrc* / eslint.config.{ts,js}',
+      '.prettierrc*',
+      'tsconfig.json',
+      'snippets/akita-*.md (se existirem)',
+      'src/** (padroes implicitos)',
+    ],
+    secoes: [
+      'Convencoes de nomes',
+      'Organizacao de arquivos',
+      'Padroes de codigo (do ESLint + implicitos)',
+      'Anti-patterns proibidos',
+    ],
+    honestidade:
+      'Cada afirmacao rastreia um arquivo lido. Quando nao rastreia, marca `TODO(<contexto>):`. ' +
+      'Honestidade > marketing.',
+  },
+  'docs/QUALITY_SCORE.md': {
+    fontes: [
+      'docs/QUALITY_SCORE.md candidato (se existir)',
+      'historico de PR review em .git/',
+      'docs/exec-plans/completed/** (lessons)',
+      'docs/compound/**',
+    ],
+    secoes: [
+      'Strengths',
+      'Gaps',
+      'Priorities',
+      'TODOs com contexto rastreavel',
+    ],
+    honestidade:
+      'Cada afirmacao rastreia um arquivo lido. Quando nao rastreia, marca `TODO(<contexto>):`. ' +
+      'Honestidade > marketing.',
+  },
+  'docs/PLANS.md': {
+    fontes: [
+      'docs/exec-plans/active/**',
+      'docs/exec-plans/completed/**',
+      'docs/exec-plans/*.md (indices)',
+      'package.json (scripts harness/compound)',
+    ],
+    secoes: [
+      'Planos ativos (status + ETA)',
+      'Planos completos recentes',
+      'Bloqueios atuais',
+    ],
+    honestidade:
+      'Cada afirmacao rastreia um arquivo lido. Quando nao rastreia, marca `TODO(<contexto>):`. ' +
+      'Honestidade > marketing.',
+  },
+  'docs/STATE.md': {
+    fontes: [
+      'package.json (versao do plugin)',
+      'docs/exec-plans/active/** (plano em execucao)',
+      'tests/fixtures/v6-state-fixture/docs/STATE.md (template)',
+      'output do Step 03 (detect-stack-and-register)',
+    ],
+    secoes: [
+      'Versao do plugin',
+      'Stack detectado',
+      'Ultima init',
+      'Planos ativos relevantes',
+    ],
+    honestidade:
+      'Cada afirmacao rastreia um arquivo lido. Quando nao rastreia, marca `TODO(<contexto>):`. ' +
+      'Honestidade > marketing.',
+  },
+  'docs/design-docs/core-beliefs.md': {
+    fontes: [
+      'docs/design-docs/core-beliefs.md candidato',
+      'progress.txt (gotchas elevaveis)',
+      'docs/compound/**',
+      'CLAUDE.md global do dev',
+    ],
+    secoes: [
+      'Arquitetura padrao',
+      'Seguranca por default',
+      'Qualidade nao-negociavel',
+      'Anti-patterns proibidos',
+    ],
+    honestidade:
+      'Cada afirmacao rastreia um arquivo lido. Quando nao rastreia, marca `TODO(<contexto>):`. ' +
+      'Honestidade > marketing.',
+  },
+  'AGENTS.md': {
+    fontes: [
+      'lista canonica de docs em docs/',
+      'CLAUDE.md candidato',
+      '.claude/agents/** (se houver subagentes registrados)',
+      'package.json (skills declaradas no manifest)',
+    ],
+    secoes: [
+      'Index de docs canonicos (com 1 linha cada)',
+      'Quando ler cada um',
+      'Subagentes / skills declarados',
+    ],
+    honestidade:
+      'Cada afirmacao rastreia um arquivo lido. Quando nao rastreia, marca `TODO(<contexto>):`. ' +
+      'Honestidade > marketing.',
+  },
+  'CLAUDE.md': {
+    fontes: [
+      'AGENTS.md recem-gerado (mirror)',
+      'mesma lista canonica de docs',
+    ],
+    secoes: [
+      'Mirror canonico de AGENTS.md (mesmo conteudo, mesmo formato)',
+      'Em alteracoes futuras: atualizar AMBOS (AGENTS.md + CLAUDE.md)',
+    ],
+    honestidade:
+      'Cada afirmacao rastreia um arquivo lido. Quando nao rastreia, marca `TODO(<contexto>):`. ' +
+      'Honestidade > marketing.',
+  },
 }
 
 const DEFAULT_INSTRUCTION =
@@ -204,8 +371,17 @@ const DEFAULT_INSTRUCTION =
   'verdade do projeto. Zero placeholder. Se nao houver evidencia suficiente, marque `needsUser` e ' +
   'pergunte ao dev no PR.'
 
-function llmInstructionFor(dst: string): string {
-  return LLM_INSTRUCTIONS[dst] ?? DEFAULT_INSTRUCTION
+// 2026-05-19 (Luiz/dev): Plano 03 fase-02 — DEFAULT ainda em formato antigo, sera reescrito
+// em fase-03 como ImperativeInstruction. Cast provisorio aceito porque fase-03 e o passo
+// imediatamente seguinte e fecha o ciclo MH-3.
+const DEFAULT_INSTRUCTION_LEGACY_TODO_PHASE_03: ImperativeInstruction = {
+  fontes: ['(provisorio — fase-03 reescreve)'],
+  secoes: ['(provisorio — fase-03 reescreve)'],
+  honestidade: 'Provisorio. Fase-03 do Plano 03 reescreve com o conteudo final.',
+}
+
+function llmInstructionFor(dst: string): ImperativeInstruction {
+  return LLM_INSTRUCTIONS[dst] ?? DEFAULT_INSTRUCTION_LEGACY_TODO_PHASE_03
 }
 
 // --- Heuristica docs-candidatos -> doc-canonico ---
@@ -248,8 +424,10 @@ function renderInputsCodeBlock(
   return `### Inputs (codigo)\n\n${list}\n`
 }
 
-function renderLLMInstructionBlock(instruction: string): string {
-  return `### Instrucao LLM\n\n${instruction}\n`
+// 2026-05-19 (Luiz/dev): chama `formatImperativeInstruction` (fase-01) para renderizar o
+// corpo. O heading `### Instrucao LLM` continua aqui — G1 do Plano 03.
+function renderLLMInstructionBlock(instruction: ImperativeInstruction): string {
+  return `### Instrucao LLM\n\n${formatImperativeInstruction(instruction)}\n`
 }
 
 function renderDoneCriteriaBlock(): string {

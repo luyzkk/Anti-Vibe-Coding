@@ -2,8 +2,14 @@
 // Plano 03 fase-05: v1 (generatePopulatePlan) removida — este e o unico arquivo de teste do modulo.
 // Clock injetado para determinismo (regra CLAUDE.md global).
 
-import { describe, it, expect } from 'bun:test'
-import { generatePopulatePlanV2 } from './populate-plan-generator'
+import { describe, it, expect, test } from 'bun:test'
+// 2026-05-19 (Luiz/dev): Plano 03 fase-02 — importa LLM_INSTRUCTIONS e isImperativeInstruction
+// para o test.each de contrato (precondicao do assert CA-06 de fase-03 no parity test).
+import {
+  generatePopulatePlanV2,
+  isImperativeInstruction,
+  LLM_INSTRUCTIONS,
+} from './populate-plan-generator'
 
 const FIXED_DATE = new Date('2026-05-19T10:00:00.000Z')
 
@@ -71,6 +77,15 @@ describe('generatePopulatePlanV2', () => {
     expect(result.relativeFolderPath).not.toContain(':')
     expect(result.relativeFolderPath).toMatch(/docs\/exec-plans\/active\/.+-populate-harness$/)
   })
+
+  // 2026-05-19 (Luiz/dev): Plano 03 fase-02 — cada entry do map precisa satisfazer o guard
+  // (precondicao do assert CA-06 de fase-03 no parity test).
+  test.each(Object.entries(LLM_INSTRUCTIONS))(
+    'LLM_INSTRUCTIONS[%s] satisfies isImperativeInstruction',
+    (_key, instr) => {
+      expect(isImperativeInstruction(instr)).toBe(true)
+    },
+  )
 
   it('NEVER calls fetch / network (G3 — pure render)', async () => {
     const originalFetch = globalThis.fetch
