@@ -7,6 +7,7 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import type { MatrixFolder } from './detect-multi-stack'
+import { AbortError } from './steps/abort-error'
 
 // Preserva guard do Plano 01 fase-03 (commit 34347a2): rejeita qualquer valor com ../ ou separadores de path.
 const VALID_PRIMARY = /^[a-z0-9_-]+$/i
@@ -73,13 +74,14 @@ export async function copyKnowledge(opts: CopyKnowledgeOptions): Promise<CopyKno
 
   const sourceExists = await fs.access(sourceDir).then(() => true).catch(() => false)
   if (!sourceExists) {
-    return {
-      status: 'no-source',
-      atomCount: 0,
-      // 2026-05-20 (Luiz/dev): D1/D9 do PRD knowledge-path-cutover — path base mudou para knowledge/
-      message: `Matrix '${primary}' não existe em knowledge/${primary}/. Knowledge não foi copiado.`,
-      destDir,
-    }
+    // 2026-05-20 (Luiz/dev): D4/SH-01 do PRD knowledge-path-cutover — AbortError bloqueante.
+    // primary != null (stack detectada) + matrix ausente = erro critico: /init nao pode continuar
+    // sem knowledge atoms (skills downstream receberiam guidance generica).
+    // Distinto de CA-13 (path traversal VALID_PRIMARY) que permanece como no-source.
+    throw new AbortError({
+      code: 1,
+      reason: `Matrix '${primary}' não encontrada em knowledge/${primary}/. Re-sincronize o plugin: sync-to-global.sh`,
+    })
   }
 
   const destExists = await fs.access(destDir).then(() => true).catch(() => false)

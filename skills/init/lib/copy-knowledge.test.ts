@@ -4,7 +4,10 @@ import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
 import { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { promises as fsp } from 'node:fs'
 import { copyKnowledge } from './copy-knowledge'
+import { AbortError } from './steps/abort-error'
+import type { MatrixFolder } from './detect-multi-stack'
 
 function setupFixtureSync(): { targetDir: string; pluginRoot: string } {
   const root = mkdtempSync(join(tmpdir(), 'copy-knowledge-'))
@@ -80,12 +83,13 @@ describe('copyKnowledge — idempotência + refresh', () => {
     expect(existsSync(join(targetDir, '.claude', 'knowledge'))).toBe(false)
   })
 
-  it('returns status=no-source when matrix folder for primary does not exist (CA-03)', async () => {
+  // 2026-05-20 (Luiz/dev): D4/SH-01 do PRD knowledge-path-cutover — CA-03 promovido para CA-10.
+  // primary detectado + matrix ausente agora lanca AbortError (nao retorna no-source silencioso).
+  it('throws AbortError when matrix folder for primary does not exist (CA-10)', async () => {
     // 'rails' folder não existe no pluginRoot de fixture
-    const result = await copyKnowledge({ targetDir, pluginRoot, primary: 'rails' })
-    expect(result.status).toBe('no-source')
-    expect(result.atomCount).toBe(0)
-    expect(result.message).toContain('rails')
+    await expect(
+      copyKnowledge({ targetDir, pluginRoot, primary: 'rails' as MatrixFolder })
+    ).rejects.toThrow(AbortError)
   })
 
   // 2026-05-16 (Luiz/dev): path traversal guard — preserva fix HIGH #1 do verify-work (commit 34347a2).
@@ -108,6 +112,32 @@ describe('copyKnowledge — idempotência + refresh', () => {
   it('destDir is always returned (no-matrix case)', async () => {
     const result = await copyKnowledge({ targetDir, pluginRoot, primary: null })
     expect(result.destDir).toBe(join(targetDir, '.claude', 'knowledge'))
+  })
+})
+
+// 2026-05-20 (Luiz/dev): D4/SH-01 do PRD knowledge-path-cutover — AbortError quando primary != null
+// mas matrix ausente no plugin. Antes retornava 'no-source' (warning silencioso); agora lanca AbortError.
+describe('AbortError when detected stack has no matrix (CA-10)', () => {
+  it('throws AbortError when primary is valid but sourceDir does not exist', async () => {
+    const tmpPlugin = await fsp.mkdtemp(join(tmpdir(), 'ck-test-'))
+    // Criar knowledge/ mas SEM subpasta rails/
+    await fsp.mkdir(join(tmpPlugin, 'knowledge', 'nodejs-typescript'), { recursive: true })
+    await fsp.writeFile(join(tmpPlugin, 'knowledge', 'nodejs-typescript', 'INDEX.md'), '')
+
+    const targetDir = await fsp.mkdtemp(join(tmpdir(), 'ck-target-'))
+
+    try {
+      await expect(
+        copyKnowledge({
+          targetDir,
+          pluginRoot: tmpPlugin,
+          primary: 'rails' as MatrixFolder,
+        })
+      ).rejects.toThrow(AbortError)
+    } finally {
+      await fsp.rm(tmpPlugin, { recursive: true, force: true })
+      await fsp.rm(targetDir, { recursive: true, force: true })
+    }
   })
 })
 
