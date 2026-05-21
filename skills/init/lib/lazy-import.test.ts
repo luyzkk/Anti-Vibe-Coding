@@ -12,6 +12,9 @@ describe('lazyImport', () => {
   test('propagates import errors', async () => {
     // 2026-05-17 (Luiz/dev): forca erro com path inexistente — sem barras invertidas para
     // nao confundir o resolver; o objetivo eh comportamento do helper, nao do FS.
+    // 2026-05-20 (Luiz/dev): @ts-expect-error intencional — modulo nao existe por design,
+    // tipo TS2307 e o sinal de "import deve falhar em runtime" (resolver-quick-plan).
+    // @ts-expect-error intentional missing module — tests lazyImport error propagation
     await expect(lazyImport(() => import('./does-not-exist-xyz'))).rejects.toThrow()
   })
 
