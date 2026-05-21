@@ -1,5 +1,9 @@
 // 2026-05-14 (Luiz/dev): Tipos espelham agents/_contract/v1.schema.json — alinhado com PRD §Decisoes #5
-import Ajv, { type AnySchema, type ValidateFunction } from 'ajv'
+// 2026-05-20 (Luiz/dev): ajv 6.15.0 transitivo (nao direto em package.json) — `AnySchema` so existe em ajv 7+,
+// `instancePath` so existe em ajv 7+ (era `dataPath` em 6.x). Mantemos os nomes ajv 7+ por intencao do autor
+// (paths comparam contra JSON Pointer `/payload` etc) — em runtime, ajv 6 retorna undefined em `instancePath`,
+// fallback `?? ''` cobre. Para suprimir os 2 erros TS sem mudar runtime: ts-ignore localizados.
+import Ajv, { type ValidateFunction } from 'ajv'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
 
@@ -192,7 +196,8 @@ try {
 }
 
 const ajv = new Ajv({ allErrors: true })
-const validateSchema: ValidateFunction = ajv.compile(schemaJson as AnySchema)
+// 2026-05-20 (Luiz/dev): cast `as object` em vez de `as AnySchema` (so existe em ajv 7+).
+const validateSchema: ValidateFunction = ajv.compile(schemaJson as object)
 
 const VALID_LIFECYCLE_STATUSES: ReadonlySet<string> = new Set(['complete', 'needs_retry', 'needs_human', 'blocked'])
 
@@ -243,7 +248,9 @@ export function validateContract(parsed: unknown): ValidationResult {
   const schemaOk = validateSchema(parsed)
   if (!schemaOk && validateSchema.errors) {
     for (const e of validateSchema.errors) {
-      const instancePath = e.instancePath ?? ''
+      // 2026-05-20 (Luiz/dev): `instancePath` so existe em ajv 7+. Em 6.x, runtime retorna undefined.
+      // Fallback `?? ''` cobre. Type cast `as { instancePath?: string }` para silenciar TS2339.
+      const instancePath = (e as { instancePath?: string }).instancePath ?? ''
       const keyword = e.keyword ?? ''
 
       if (keyword === 'required') {
