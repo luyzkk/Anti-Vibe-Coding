@@ -71,7 +71,8 @@ const AGENTS_REQUIRED_LINKS = [
 // v5-legacy/: docs v5.x (COMO-ATUALIZAR, IMPLEMENTACAO-VERSIONAMENTO, etc.) preservados em docs/references/v5-legacy/ — links apontam para paths v5 (scripts/*.js, hooks/*.json) nao mais existentes.
 // exec-plans/: artefatos de planejamento (PRD, planoXX/fase-*.md) — links relativos ao repo root mas interpretados relativo ao path profundo; falsos positivos inevitaveis. Required-files check usa path direto (nao crawl).
 // .anti-vibe/: backup canonico do /init (step 10 apply-merge-destructive) — arquivos originais movidos para backup perdem contexto relativo de links.
-const SKIP_DIRS = new Set(['node_modules', '.git', '.claude', '.anti-vibe', '.planning', '.planning.v5-backup', 'claude-code', 'compound', 'templates', '__fixtures__', 'fixtures', 'snippets', '_legacy-detail', 'v5-legacy', 'exec-plans'])
+// __golden__/: snapshots de output esperado (NAO docs reais) — paths internos sao representacoes literais do output, nao referencias navegaveis. Plano resolver-caveats-populate-plan-andre 2026-05-20.
+const SKIP_DIRS = new Set(['node_modules', '.git', '.claude', '.anti-vibe', '.planning', '.planning.v5-backup', 'claude-code', 'compound', 'templates', '__fixtures__', 'fixtures', '__golden__', 'snippets', '_legacy-detail', 'v5-legacy', 'exec-plans'])
 const ARCHIVED_SEGMENT = '_archived'
 
 // Inline — harness-validate é script standalone sem imports externos.
