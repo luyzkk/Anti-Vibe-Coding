@@ -2,8 +2,8 @@
 
 **Plan:** ./PLAN.md
 **Phase:** in-progress
-**Current Plan:** 04/5
-**Last Updated:** 2026-05-21 (Plano 03 concluido 3/3)
+**Current Plan:** 05/5
+**Last Updated:** 2026-05-21 (Plano 04 fase-05 concluida — Plano 04 COMPLETED)
 
 ## Progress por Plano
 
@@ -12,12 +12,12 @@
 | 01 | Foundation + Tracer + Cleanup | 6 | 6/6 | completed |
 | 02 | Step 3 (secrets-scan) + Step 4 (migrate + manifest) + Shared Schema | 4 | 4/4 | completed |
 | 03 | Step 5 (scaffold-and-link) + Step 6 (install-gh-files) | 3 | 3/3 | completed |
-| 04 | Step 7: Generate Populate Plans (CORE) | 5 | 0/5 | planned (detalhado) |
+| 04 | Step 7: Generate Populate Plans (CORE) | 5 | 5/5 | completed |
 | 05 | Steps 8-10 + harness-validate + E2E final | 5 | 0/5 | planned (detalhado) |
 
 ## Progress Global
 
-Fases done: 13/23 (57%)
+Fases done: 18/23 (78%)
 
 ## Log
 
@@ -141,3 +141,48 @@ Fases done: 13/23 (57%)
 - 2026-05-21: **Plano 03 (Step 5 + Step 6) CONCLUIDO 3/3 fases.** Steps 5-6 reais no pipeline.
   CA-01 (placeholders + .github/), CA-02 (.claude/CLAUDE.md byte-identico), CA-08 (re-run skip)
   validados ponta-a-ponta. Plano 04 desbloqueado.
+- 2026-05-21: Plano 04 fase-04 (step-07-real + DR-2 + registry wire) concluida. Stub do Plano 01
+  fase-04 substituido em `skills/init/lib/steps/07-generate-populate-plans.ts` por step real:
+  `AbortError code=20` (DR-2) com `ABORT_MESSAGE_NO_STACK` wording exato de 3 linhas;
+  invoca `generatePopulatePlans({cwd, stack})`; summary 4-linhas NFR Observabilidade
+  (`init-07: ... / Legacy artifacts found / Docs skipped / Output:`); `mutated: true`.
+  Registry wire stub→real, loop de stubs em registry.test.ts atualizado de `i=6..9` para
+  `i=7..9`. 12 testes novos do step + 3 testes do registry + zero regressao fases 02/03 (37
+  testes pre-existentes verdes). Commit 1c1d155.
+- 2026-05-21: Plano 04 fase-03 (generator-pipeline) concluida. `generatePopulatePlans(opts)`
+  exportada de `populate-plan-generator.ts` — pipeline orquestrador que itera as 16 entries,
+  combina `buildWavesForDoc` (Wave 1) com Wave 2 baseada em `sectionsToWrite`, renderiza via
+  `renderAndrePlan` e escreve em `docs/exec-plans/active/{date}-populate-{slug}/PLAN.md`.
+  Manifest leitura graceful (ENOENT/malformado/Zod-invalido → null silencioso). 18 testes
+  verdes (8 fase-01 + 10 fase-03), 16 pastas geradas em fixture tmp, CA-04 + CA-07 + D10 +
+  NFR perf (<2s) validados. DI-Plano04-fase03-found-literal-true: schema usa `found: z.literal(true)`,
+  fixture corrigida. Commit 51b0a32.
+- 2026-05-21: Plano 04 fase-02 (instructions-table-16-docs) concluida. `skills/init/lib/populate-instructions-table.ts`
+  criado com `DocInstruction` type, `POPULATE_INSTRUCTIONS_BY_DOC` (16 entries D18 — 12 baseline +
+  4 AVC extras), `buildWavesForDoc(doc, stack)` stack-aware (node-ts/nextjs vs rails com fallback default)
+  e `docToSlug(dst)` canonico. 19 testes verdes (135 expect). DI-Plano04-fase02-stackid-node-ts:
+  spec usava `'nodejs-typescript'`, StackId real e `'node-ts'` — corrigido. `'nextjs'` mapeado
+  explicitamente. Typecheck exit 0 com non-null assertions nos testes. Commit ca4f5f9.
+- 2026-05-21: Plano 04 fase-01 (andre-template-renderer) concluida. `skills/init/lib/populate-plan-generator.ts`
+  reescrito do zero (569 → 139 linhas) — renderer puro V3 com `renderAndrePlan` + `extractH2Sections` +
+  tipo `AndrePlanInput`. 8 testes verdes (snapshot das 10 secoes CA-07). Cleanup teve escopo expandido
+  (DEV-01): Step 91 (`91-generate-populate-plan.ts`) NAO havia sido deletado em Plano 01 fase-05 —
+  removido aqui, 5 dependentes adaptados (registry.smoke.test.ts ids v7, run-init.test.ts CA-07 test.skip,
+  imperative-instruction.test.ts/greenfield-populate-plan/populate-plan-parity describe.skip).
+  Typecheck exit 0. Commits: ef6814b (cleanup, 10 deletados + 5 modificados) e ad12f84 (impl).
+- 2026-05-21: Plano 04 fase-05 (e2e-fixtures-and-acceptance) concluida. 3 fixtures greenfield
+  criadas (`v7-populate-node` com package.json+typescript, `v7-populate-rails` com Gemfile+rails,
+  `v7-populate-no-stack` empty). Helper `copyFixtureToTmp` em `tests/e2e/__fixtures__/v7-populate-helpers.ts`
+  (TDD gate forcou criar `.test.ts` primeiro — 2 testes de helper de bonus). 8 testes e2e
+  em 3 arquivos (`init-v7-populate-plans-{node,rails,no-stack}.test.ts`) validando: 16 PLAN.md
+  gerados em `docs/exec-plans/active/*-populate-*/` (CA-01), paths stack-aware Rails
+  `app/views`/`app/assets` em FRONTEND.md (CA-04), 10 secoes H2 canonicas em todos os
+  16 plans (CA-07), abort code=20 com wording exato quando stack nao detectada (DR-2).
+  DI-Plano04-fase05-runInit-returns-not-throws: spec original usava try/catch que nunca acionaria
+  expectation — `runInit` captura AbortError e retorna `{ kind: 'aborted', code, reason }`.
+  Testes ajustados. Zero regressao (tracer-bullet 3 testes + step-07 unit 12 testes verdes).
+  Typecheck exit 0. Commit 0a23a9c.
+- 2026-05-21: **Plano 04 (Step 7 CORE) CONCLUIDO 5/5 fases.** Step 7 real gera 16 PLAN.md
+  Andre format (10 secoes H2), stack-aware (Rails app/views vs Node-TS src/components), aborta
+  com code=20 quando stack=null (DR-2 fechado). Pipeline tem agora 7 reais + 3 stubs.
+  Plano 05 desbloqueado (Steps 8-10 + harness-validate + acceptance final CA-01..CA-09).
