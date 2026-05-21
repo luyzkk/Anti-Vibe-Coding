@@ -14,7 +14,7 @@ describe('registry v7 (Plano 01 fase-04)', () => {
     expect(ids).toEqual([
       'reentry-gate',
       'detect-legacy-and-stack',
-      'secrets-scan',
+      '03-secrets-scan',
       'migrate-planning-and-manifest',
       'scaffold-and-link',
       'install-gh-files',
@@ -25,10 +25,10 @@ describe('registry v7 (Plano 01 fase-04)', () => {
     ])
   })
 
-  test('Steps 1-2 sao reais; Steps 3-10 sao stubs (summary contem "stub")', async () => {
-    // Steps reais (indices 0, 1): summary nao tem palavra "stub"
-    // Stubs (indices 2-9): summary contem "stub"
-    for (let i = 2; i < 10; i++) {
+  test('Steps 1-4 sao reais; Steps 5-10 sao stubs (summary contem "stub")', async () => {
+    // Steps reais (indices 0-3): summary nao tem palavra "stub"
+    // Stubs (indices 4-9): summary contem "stub"
+    for (let i = 4; i < 10; i++) {
       const ctx = { cwd: process.cwd(), args: [], flags: {} } as any
       const report = await registry[i]!.run(ctx)
       expect(report.summary).toContain('stub')

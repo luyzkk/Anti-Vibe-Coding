@@ -46,7 +46,7 @@ describe('init v7 tracer bullet (Plano 01 fase-06)', () => {
     expect(stepIds).toEqual([
       'reentry-gate',
       'detect-legacy-and-stack',
-      'secrets-scan',
+      '03-secrets-scan',
       'migrate-planning-and-manifest',
       'scaffold-and-link',
       'install-gh-files',
