@@ -33,6 +33,15 @@ function applyVars(tpl: string, vars: Record<string, string>): string {
   )
 }
 
+// 2026-05-20 (Luiz/dev): Quick plan resolver-caveats-populate-plan-andre — strip do
+// HTML comment LEADING dos tpls (PLAN.md.tpl + fase.md.tpl). Esses blocos sao docstring
+// para o dev que edita o tpl, NAO para o output gerado. Sem strip, harness:validate
+// quebra H1 check do PLAN.md gerado (comment lider impede strip do frontmatter via
+// regex `^---\r?\n...`). CA-12 #2 do PRD populate-plan-andre-port.
+function stripLeadingHtmlComment(content: string): string {
+  return content.replace(/^(?:<!--[\s\S]*?-->\s*)+/, '')
+}
+
 // 2026-05-19 (Luiz/dev): Plano 03 fase-04 DI-Plano03-fase04-datepathsafe —
 // Ajustado de `YYYY-MM-DDT...Z` para `YYYY-MM-DD` para compatibilidade com
 // /execute-plan glob (docs/exec-plans/active/YYYY-MM-DD-*/).
@@ -458,7 +467,7 @@ function docToSlug(dst: string): string {
 // preservada (G local da fase-02). renderPhase agora e async — caller (generatePopulatePlanV2)
 // faz await; assinatura externa de generatePopulatePlanV2 inalterada.
 async function renderPhase(phase: PopulatePlanPhase): Promise<string> {
-  const tpl = await readTpl('fase.md.tpl')
+  const tpl = stripLeadingHtmlComment(await readTpl('fase.md.tpl'))
   return applyVars(tpl, {
     FASE_NUM: String(phase.fase).padStart(2, '0'),
     DOC_CANONICO: phase.docCanonico,
@@ -490,7 +499,7 @@ async function renderPlanIndex(
     .join('\n')
   const phasesTable = `${header}\n${rows}`
 
-  const tpl = await readTpl('PLAN.md.tpl')
+  const tpl = stripLeadingHtmlComment(await readTpl('PLAN.md.tpl'))
 
   // 2026-05-19 (Luiz/dev): Plano 02 fase-03 G3 — sanity check em runtime de que as 10 secoes
   // base do tpl batem com EXEC_PLAN_SECTIONS_FULL. NAO quebra build — apenas log. Parity test
