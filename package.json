@@ -14,7 +14,8 @@
     "preface:simulate": "bun run scripts/preface-simulate.ts",
     "state:regenerate": "bun run skills/lib/state-md-generator.ts $PWD",
     "prepare": "husky",
-    "agents:contract": "bun test skills/lib/subagent-contract.test.ts"
+    "agents:contract": "bun test skills/lib/subagent-contract.test.ts",
+    "test:grep-deleted-steps": "bun scripts/grep-deleted-steps.ts"
   },
   "devDependencies": {
     "@types/bun": "^1.1.0",
