@@ -81,27 +81,35 @@ describe('greenfield populate-plan tracer (CA-01)', () => {
     expect(expectedTaskCount).toBeGreaterThanOrEqual(20)
 
     // 4) Filosoficos NAO aparecem na tabela.
+    // 2026-05-20 (Luiz/dev): quick-plan resolver-caveats-populate-plan-andre — atualizado para D5
+    // do PRD populate-plan-andre-port (Plano 01 fase-01): PRODUCT_SENSE.md e README.md SAIRAM do
+    // EXCLUDED — agora aparecem no plano. So COMPOUND_ENGINEERING.md permanece filosofico.
     expect(planContent).not.toContain('`docs/COMPOUND_ENGINEERING.md`')
-    expect(planContent).not.toContain('`docs/PRODUCT_SENSE.md`')
 
-    // 5) README NAO aparece.
-    expect(planContent).not.toContain('`README.md`')
+    // 5) README e PRODUCT_SENSE agora APARECEM (CA-01 do PRD populate-plan-andre-port).
+    expect(planContent).toContain('`README.md`')
+    expect(planContent).toContain('`docs/PRODUCT_SENSE.md`')
 
-    // 6) PLAN.md v2 tem glossario de instrucoes LLM (nao Task: Validate Harness).
-    // Individual fase files existem — verificar que pasta tem fase-NN-*.md files.
+    // 6) PLAN.md v2 — fase files individuais existem na pasta.
+    // 2026-05-20 (Luiz/dev): quick-plan resolver-caveats-populate-plan-andre — atualizado para
+    // formato Andre canonico do Plano 02 fase-01 do PRD populate-plan-andre-port. "Como executar"
+    // e "Glossario de Instrucoes LLM" foram REMOVIDOS — tpl agora usa 11 secoes Andre.
     const populateFolder = path.join(activeDir, populateDirs[0]!)
     const phaseFiles = (await fs.readdir(populateFolder)).filter(f => f.startsWith('fase-'))
     expect(phaseFiles.length).toBe(expectedTaskCount)
-    // Verificar que 'Como executar' esta presente no PLAN.md.
-    expect(planContent).toContain('Como executar')
+    // Sections canonicas do PLAN.md.tpl (Plano 02 fase-01).
+    expect(planContent).toContain('## Goal')
+    expect(planContent).toContain('## Execution Steps')
+    expect(planContent).toContain('## Exit Criteria')
 
     // 7) PLAN.md v2 nao usa wave markers (estrutura de fases ja e o suficiente).
     // Este check verifica que o formato v2 nao tem artefatos do v1.
     expect(planContent).not.toContain('<!-- wave:')
 
-    // 8) Sem `## Glossario Compartilhado` (removido no v2; novo nome e 'Glossario de Instrucoes LLM').
+    // 8) Sem markers obsoletos do v1 (`Glossario Compartilhado`) nem da iteracao intermediaria
+    // (`Como executar`, `Glossario de Instrucoes LLM`) — formato canonico Andre.
     expect(planContent).not.toContain('## Glossario Compartilhado')
-    expect(planContent).toContain('Glossario de Instrucoes LLM')
+    expect(planContent).not.toContain('Como executar')
   }, 60_000)  // 60s timeout — RNF-01 (<30s) + margem para CI lento.
 
   test('init does NOT invoke /anti-vibe-coding:execute-plan automatically (G1 / D3)', async () => {

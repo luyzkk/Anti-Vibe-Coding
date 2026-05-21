@@ -65,10 +65,14 @@ describe('CA-12 E2E greenfield populate-validate', () => {
     const tableRows = (planContent.match(/^\| \d{2} \|/gm) ?? []).length
     expect(tableRows).toBeGreaterThanOrEqual(5)
 
-    // SH-06: PLAN.md v2 nao tem task validate separada — a instrucao esta no 'Como executar'.
-    // 2026-05-19 (Luiz/dev): Plano 05 fase-04 — v2 renderer nao emite Validate Harness task.
-    // Verificar que 'Como executar' esta presente (substituto do antigo SH-06).
-    expect(planContent).toContain('Como executar')
+    // SH-06: PLAN.md v2 nao tem task validate separada — instrucao esta na secao Execution Steps.
+    // 2026-05-20 (Luiz/dev): quick-plan resolver-caveats-populate-plan-andre — atualizado para
+    // formato Andre canonico do Plano 02 fase-01 do PRD populate-plan-andre-port (11 secoes:
+    // Goal, Scope, Assumptions, Risks, Execution Steps, Review Checklist, Validation Log,
+    // Compound Opportunity, Lessons Captured, Exit Criteria, Observability). "Como executar"
+    // foi removido — assert canonico verifica presenca de "Execution Steps" + "Exit Criteria".
+    expect(planContent).toContain('## Execution Steps')
+    expect(planContent).toContain('## Exit Criteria')
   })
 
   it('harness:validate exit 0 e AGENTS.md root tem <= 40 linhas sem placeholders', async () => {
