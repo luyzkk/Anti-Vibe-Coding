@@ -3,6 +3,88 @@
 Todas as mudanças notáveis do plugin Anti-Vibe Coding serão documentadas aqui.
 
 
+## [7.0.0] - 2026-05-21
+
+> **Major release — init-refactor-v7: pipeline 17 → 10 steps + dry-run removido + DR-2 abort**
+>
+> Refatoracao estrutural do `/anti-vibe-coding:init`. Pipeline canonico de 10 steps com
+> contratos explicitos, gates de re-entrada, abort codes documentados e cobertura E2E
+> "contrato vivo" (CA-01..CA-09 + NFR). 23/23 fases concluidas, 29 commits, 5 planos.
+> Pasta: `docs/exec-plans/completed/2026-05-20-init-refactor-v7/`.
+
+### Breaking changes
+
+- **D4 — modo `--dry-run` REMOVIDO de todos os steps.** A flag nao e mais reconhecida.
+  Comportamento dry-run vivia em ~15 lugares (writers, isDryRun, makeWriter, WriteRecorder)
+  e gerava bugs silenciosos. Caminho unico: writes reais sempre.
+- **Pipeline reescrito (17 → 10 steps):** Steps 07/08/09/11/14/15/91 deletados ou
+  consolidados. Novo registry canonico (`skills/init/lib/registry.ts`):
+  1. `reentry-gate` — DR-1, abort code=10 se `.claude/legacy-manifest.json` presente
+  2. `detect-legacy-and-stack` — combinado (era 2 steps)
+  3. `03-secrets-scan` — gate de segredos
+  4. `migrate-planning-and-manifest` — v5/v6 -> v7 inline
+  5. `05-scaffold-and-link` — scaffoldFullTree + linkClaudeToAgents (combinado)
+  6. `06-install-gh-files` — .github/ files com skip-if-exists
+  7. `generate-populate-plans` — CORE: gera populate-harness com 16 plans
+  8. `08-delivery-loop` — pergunta Linear interativa (DOUBLE SPACE preservado, G3)
+  9. `09-copy-knowledge` — copia knowledge/{stack}/ para .claude/knowledge/
+  10. `10-final-validation` — D8.C: abort code=1 se stack detected mas INDEX.md ausente
+- **DR-2: greenfield stack=null aborta com code=20.** Antes: soft-fail em
+  `capabilities-discovery`. Agora: `generate-populate-plans` aborta com mensagem
+  "Stack not detected — run /anti-vibe-coding:detect-architecture before /init".
+- **`runInit` retorna `{ kind: 'completed' | 'aborted', code?, reason? }`** ao inves
+  de lancar AbortError. Consumidores devem narrowizar pelo `kind`.
+- **`StepContext.legacy?`/`stack?` ainda opcionais** (DV-4 nao endurecida — Steps 8-10
+  nao precisam de `ctx.stack` direto).
+
+### Added
+
+- **`skills/init/lib/steps/08-delivery-loop.ts`** (real, portado do 14-delivery-loop.ts
+  com D4 strippado). Plano 05 fase-01.
+- **`skills/init/lib/steps/09-copy-knowledge.ts`** (real, com DI-2 runner injetavel
+  para evitar bun mock.module pollution). Plano 05 fase-02.
+- **`skills/init/lib/steps/10-final-validation.ts`** (real, D8.C preservado, exports
+  `runFinalValidationChecks` + `walkDocs`). Plano 05 fase-03.
+- **`tests/e2e/init-v7-final-acceptance.test.ts`** — contrato vivo CA-01..CA-09 + NFR
+  perf (greenfield <30s; observado ~735ms — 40x abaixo do limite). 10/10 pass.
+- **`scripts/grep-deleted-steps.ts`** — gate CA-09 cross-platform que falha se
+  qualquer step deletado for re-importado (`scaffoldFullTreeStep` excluido — DEV-02).
+- **`tests/e2e/__fixtures__/v7-with-claude-md/`** + **`v7-with-legacy/`** — fixtures
+  para testes da acceptance suite.
+- **Abort codes documentados:** 1 (final-validation gate), 10 (reentry-gate),
+  11 (legacy migrate), 20 (DR-2 stack=null).
+- **`docs/CODE_STYLE.md` + `.claude/CLAUDE.md`** adicionados ao `REQUIRED_FILES` do
+  harness-validate (RF-12 anti-vibe extension).
+
+### Removed
+
+- **`skills/init/lib/steps/14-delivery-loop.ts`** (portado para `08-delivery-loop.ts`).
+- **`skills/init/lib/steps/90-final-validation.ts`** (portado para `10-final-validation.ts`).
+- **`tests/e2e/ca13-dry-run-parity.test.ts`** (D4 — obsoleto).
+- **Steps 07/08/09/11/15/91 do pipeline antigo** (consolidados em 10 steps novos).
+
+### Fixed
+
+- **CHANGELOG.md broken-links:** 2 refs ao deletado `skills/init/lib/steps/00-detect-legacy.ts`
+  convertidas para backtick (eram broken-link no `harness:validate`).
+- **9 testes E2E obsoletos** marcados com `test.skip` + nota apontando para
+  `init-v7-final-acceptance.test.ts`:
+  * `init-cutover-greenfield.test.ts` (4): goldens nao se aplicam apos DR-2.
+  * `ca12-greenfield-populate-validate.test.ts` (2 + path fix).
+  * `ca15-performance.test.ts` (describe.skip): D4 removeu --dry-run.
+  * `init-cutover-legacy-v5.test.ts` (1): code=1 substituido por code=20.
+  * `init-tracer-bullet.test.ts` (1): substituido por `init-v7-tracer-bullet.test.ts`.
+
+### Testing
+
+- **e2e:** 84 pass / 14 skip / 0 fail (98 tests across 21 files, 2.33s).
+- **acceptance suite:** 10/10 pass (3.15s).
+- **harness:validate:** exit 0 (28 required + 295 .md OK).
+- **typecheck:** clean.
+- **grep-deleted-steps:** zero matches (gate verde).
+- **version-bump:** 4/4 pass (todos os 4 JSONs principais em 7.0.0).
+
+
 ## [6.7.0] - 2026-05-20
 
 > **Minor release — populate-plan-andre-port + gate path drift fix + caveats cleanup**
