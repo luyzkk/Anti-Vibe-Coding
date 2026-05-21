@@ -1,0 +1,5 @@
+{
+  "name": "v7-greenfield",
+  "version": "0.0.0",
+  "devDependencies": { "typescript": "^5" }
+}
