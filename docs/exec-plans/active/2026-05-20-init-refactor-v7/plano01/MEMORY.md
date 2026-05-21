@@ -59,6 +59,14 @@ Classificado como GAP-01 (nova cobertura necessaria em Plano 02, nao perda).
 - Por que: comportamento muda de "importar" para "referenciar" (D8 analogia para progress.txt).
 - Impacto: Plano 02 precisa escrever teste novo para "progress.txt detectado → entry no manifest".
 
+### DI-Plano01-fase03-abort-code-10
+
+`AbortError.code = 10` reservado para re-entry blocks. Codes em uso:
+- `1`, `2` — legacy-scanner v6.7 (sera deletado em fase-05)
+- `10` — re-entry (NOVO, esta fase — `01-reentry-gate.ts`)
+Step e puro (read-only via `fs.stat`): sem imports de detect-stack, sem writes.
+Mensagem aponta `/init:refresh when available (D13, post-v7)` — sem prometer a flag hoje.
+
 ---
 
 ## Bugs Descobertos
