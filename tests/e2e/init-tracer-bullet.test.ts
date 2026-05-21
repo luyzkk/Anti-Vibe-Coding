@@ -37,7 +37,10 @@ describe('E2E tracer bullet — runInit dispatcher (CA-10, R5)', () => {
     await rm(cwd, { recursive: true, force: true })
   })
 
-  it('greenfield: runInit emits scaffold + PLAN.md + warning-mode validator + final message', async () => {
+  // 2026-05-21 (Luiz/dev): init-refactor-v7 — greenfield aborta DR-2 code=20 antes de gerar
+  // populate-harness/PLAN.md. Cobertura tracer-bullet equivalente vive em
+  // `tests/e2e/init-v7-tracer-bullet.test.ts` (fixture com stack pre-detectada).
+  it.skip('greenfield: runInit emits scaffold + PLAN.md + warning-mode validator + final message', async () => {
     const overallStart = Date.now()
 
     const { lines, result } = await captureLog(() =>

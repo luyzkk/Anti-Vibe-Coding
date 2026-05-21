@@ -180,7 +180,7 @@ Todas as mudanças notáveis do plugin Anti-Vibe Coding serão documentadas aqui
   `ctx.flags['__reentryMode'] = 're-populate'`. Fix em duas partes:
   1. Reordenação do `registry` ([skills/init/lib/registry.ts](skills/init/lib/registry.ts)) —
      `reentryGuardStep` agora roda ANTES de `detectLegacyStep`.
-  2. `detectLegacyStep` ([skills/init/lib/steps/00-detect-legacy.ts](skills/init/lib/steps/00-detect-legacy.ts))
+  2. `detectLegacyStep` (`skills/init/lib/steps/00-detect-legacy.ts` — deletado em init-refactor-v7)
      respeita `ctx.flags['__reentryMode'] === 're-populate'` e retorna summary
      `re-populate mode active` sem abortar, deixando o pipeline seguir aos
      migrate-* steps.
@@ -276,7 +276,7 @@ Todas as mudanças notáveis do plugin Anti-Vibe Coding serão documentadas aqui
   `pluginVersion 6.x` já existente eram reportados como `Greenfield`. Adicionada
   branch via `readManifest()`: agora emite summary `v6.x manifest detected
   (pluginVersion=X) — cross-upgrade mode, scaffold will preserve existing files.`
-  ([skills/init/lib/steps/00-detect-legacy.ts](skills/init/lib/steps/00-detect-legacy.ts))
+  (`skills/init/lib/steps/00-detect-legacy.ts` — deletado em init-refactor-v7)
 - **Scaffold overwrite de arquivos preexistentes** — `scaffoldTemplates` e
   `scaffoldFullTree` sobrescreviam `package.json`, `README.md` e demais arquivos
   da raiz em re-runs. Adicionado guard `fileExists()` antes de cada `writeFile`
