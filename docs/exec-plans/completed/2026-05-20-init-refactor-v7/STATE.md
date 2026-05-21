@@ -1,9 +1,10 @@
 # State: Refatoracao do /anti-vibe-coding:init (v7)
 
 **Plan:** ./PLAN.md
-**Phase:** in-progress
-**Current Plan:** 05/5
-**Last Updated:** 2026-05-21 (Plano 04 fase-05 concluida — Plano 04 COMPLETED)
+**Phase:** completed
+**Current Plan:** 05/5 (final)
+**Last Updated:** 2026-05-21 (Plano 05 fase-05 concluida — **PRD init-refactor-v7 COMPLETED**)
+**completedAt:** 2026-05-21
 
 ## Progress por Plano
 
@@ -13,11 +14,11 @@
 | 02 | Step 3 (secrets-scan) + Step 4 (migrate + manifest) + Shared Schema | 4 | 4/4 | completed |
 | 03 | Step 5 (scaffold-and-link) + Step 6 (install-gh-files) | 3 | 3/3 | completed |
 | 04 | Step 7: Generate Populate Plans (CORE) | 5 | 5/5 | completed |
-| 05 | Steps 8-10 + harness-validate + E2E final | 5 | 0/5 | planned (detalhado) |
+| 05 | Steps 8-10 + harness-validate + E2E final | 5 | 5/5 | completed |
 
 ## Progress Global
 
-Fases done: 18/23 (78%)
+Fases done: 23/23 (100%) ✓
 
 ## Log
 
@@ -186,3 +187,52 @@ Fases done: 18/23 (78%)
   Andre format (10 secoes H2), stack-aware (Rails app/views vs Node-TS src/components), aborta
   com code=20 quando stack=null (DR-2 fechado). Pipeline tem agora 7 reais + 3 stubs.
   Plano 05 desbloqueado (Steps 8-10 + harness-validate + acceptance final CA-01..CA-09).
+- 2026-05-21: Plano 05 fase-01 (step-08-delivery-loop-real) concluida. `08-delivery-loop.ts` real
+  portado de `14-delivery-loop.ts` sem dry-run guard (D4). Contrato `needsUser` (PRD D3/CH-01)
+  preservado: 1a invocacao retorna `{mutated:false, needsUser:{...}}` sem tocar disco
+  (CA-06), 2a invocacao com 'y' injeta secao via `injectOptionalSection`. Prompt wording
+  byte-identico (G3 — DOUBLE SPACE antes de `[y/N]`). 7 testes verdes. registry.test.ts loop
+  de stubs atualizado i=7..9 → i=8..9. Commit b68e528.
+- 2026-05-21: Plano 05 fase-02 (step-09-copy-knowledge-real) concluida em paralelo com
+  fase-03/04. `09-copy-knowledge.ts` real implementando logica de stack-knowledge sem dry-run
+  (D4). DI-Plano05-fase02-runner-injetavel-MANTIDO confirmada — `runner: StackKnowledgeRunner`
+  opcional (default `runStackKnowledgeInit`) evita mock.module pollution. RF-11 (G4): stack=null
+  → summary `'skipped (no stack detected)'`, NAO aborta. reentry mode `re-populate` →
+  `refresh=true` propagado. 5 testes verdes. Commit b337602.
+- 2026-05-21: Plano 05 fase-03 (step-10-final-validation-real) concluida em paralelo com
+  fase-02/04. `10-final-validation.ts` real portado de `90-final-validation.ts` sem dry-run
+  (D4). D8.C preservado byte-identico (G5): stack detectada sem `.claude/knowledge/INDEX.md`
+  → `AbortError code=1` com wording literal. `runFinalValidationChecks(cwd)` e `walkDocs`
+  re-exportadas com mesma assinatura (DI-Plano05-fase03-runFinalValidationChecks-mantido-export).
+  Modo WARNING geral para outros checks (orphan `docs/knowledge/` apenas console.warn — G6).
+  8 testes verdes. Commit e771388.
+- 2026-05-21: Plano 05 fase-04 (harness-validate-update) concluida em paralelo com fase-02/03.
+  `scripts/harness-validate.ts` REQUIRED_FILES de 26 → 28 entries (RF-12): adicionado
+  `'docs/CODE_STYLE.md'` (apos COMPOUND_ENGINEERING) e `'.claude/CLAUDE.md'` (final). G7
+  preservado — `AGENTS_REQUIRED_LINKS` nao tocado. 2 testes RF-12 verdes (RED → GREEN).
+  Pre-existente fora do escopo: harness:validate exit !=0 por CHANGELOG.md links + version
+  drift no plugin-manifest. Commit 96cf082.
+- 2026-05-21: Plano 05 fase-05 (registry-wire + e2e final + cleanup) concluida. **CA-01..CA-09
+  + NFR perf TODOS VERDES** (10/10 testes em `tests/e2e/init-v7-final-acceptance.test.ts`):
+  CA-01 16 PLAN.md + 4 AVC + 2 .github, CA-02 .claude/CLAUDE.md byte-identico,
+  CA-03 legacy-manifest com entries, CA-04 Rails FRONTEND com app/views + app/assets,
+  CA-05 greenfield manifest.legacy=[], CA-06 delivery-loop pergunta ANTES de mutar,
+  CA-07 10 H2 canonicas em todos os 16 plans, CA-08 re-run abort code=10 (gate),
+  CA-09 grep-deleted-steps OK zero matches, NFR perf <30s (~735ms — 40x abaixo do limite).
+  3 fixtures criadas: `v7-with-claude-md`, `v7-with-legacy`, reuso de `v7-populate-{node,rails,no-stack}`.
+  `scripts/grep-deleted-steps.ts` + `test:grep-deleted-steps` em package.json.
+  Cleanup commit separado: deletados `14-delivery-loop.ts`, `90-final-validation.ts`,
+  `ca13-dry-run-parity.test.ts`. DI-Plano05-fase05-runInit-returns-not-throws CONFIRMADA
+  em CA-08 (kind='aborted', code=10 em vez de try/catch). DI-Plano05-fase05-scaffoldFullTreeStep-excluido
+  do grep pattern (e export vivo em 01-scaffold-full-tree.ts, nao deletado). Pre-existente fora
+  do escopo: harness:validate exit !=0 por CHANGELOG.md links + workspace .claude/CLAUDE.md
+  artifact local. Commits f34bbd8 (feat) + 06b0962 (chore).
+- 2026-05-21: **Plano 05 (Steps 8-10 + harness-validate + E2E final) CONCLUIDO 5/5 fases.**
+- 2026-05-21: **PRD init-refactor-v7 COMPLETED — 23/23 fases ✓.** Pipeline init v7 com 10 steps
+  reais ponta-a-ponta (01-reentry-gate, 02-detect-legacy-and-stack, 03-secrets-scan,
+  04-migrate-planning-and-manifest, 05-scaffold-and-link, 06-install-gh-files,
+  07-generate-populate-plans, 08-delivery-loop, 09-copy-knowledge, 10-final-validation).
+  Acceptance suite `tests/e2e/init-v7-final-acceptance.test.ts` cobre CA-01..CA-09 + NFR
+  como contrato vivo. Grep-gate de regressao bloqueia re-introducao de IDs deletados.
+  Init Node greenfield em ~735ms (NFR <30s). Status: shipped. Proximo passo: /verify-work
+  pos-implementacao + destilacao de licoes via /lessons-learned.
