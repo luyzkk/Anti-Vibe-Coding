@@ -106,7 +106,7 @@ Sem desvio material — a contagem 18 estava correta apos adicionar `00-detect-l
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 6 |
-| Fases concluidas | 1 |
+| Fases concluidas | 5 (fase-06 sera 2a passada pos-delete) |
 | Fases com desvio | 0 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
@@ -116,6 +116,9 @@ Sem desvio material — a contagem 18 estava correta apos adicionar `00-detect-l
 | Steps 100% obsoletos | 10 |
 | Steps com behaviors a portar | 8 |
 | Gaps de cobertura nova | 2 (GAP-01, GAP-02 — nao bloqueantes) |
+| Steps deletados em fase-05 | 18 (.ts + .test.ts = 36 arquivos) |
+| Typecheck apos delete | 0 erros |
+| Falhas pre-existentes na suite | 12 (identicas antes e depois do delete) |
 
 ---
 
@@ -168,6 +171,51 @@ Sem desvio material — a contagem 18 estava correta apos adicionar `00-detect-l
 15-capabilities-discovery.ts + .test.ts
 ```
 
+### Para Plano 01 fase-06 (2a passada — tracer pos-delete)
+
+- Tracer `tests/e2e/init-v7-tracer-bullet.test.ts` ja estava verde apos delete (3 pass, 0 fail).
+- fase-06 2a passada confirma formalmente o estado verde pos-delete para encerrar Plano 01.
+
+### Arquivos antigos MANTIDOS no disco (Planos 02-05 deletam ao implementar novos)
+
+- `skills/init/lib/steps/01-scaffold-full-tree.ts` — vira Step 5 no Plano 03
+- `skills/init/lib/steps/02-link-claude-agents.ts` — vira parte do Step 5 no Plano 03
+- `skills/init/lib/steps/05-install-gh-files.ts` — vira Step 6 no Plano 03
+- `skills/init/lib/steps/14-delivery-loop.ts` — vira Step 8 no Plano 05
+- `skills/init/lib/steps/90-final-validation.ts` — vira Step 10 no Plano 05
+- `skills/init/lib/steps/91-generate-populate-plan.ts` — vira Step 7 no Plano 04 (total reescrita)
+
+### Libs orfas candidatas a delete (Plano 05 final ou Plano 04)
+
+- `skills/init/lib/state-md-init.ts` — chamada por `03-detect-stack-and-register` (deletado). STATE.md vira plano populate (D11/Plano 04). Confirmar zero callers apos Plano 04.
+- `skills/init/lib/dry-run.ts` — Plano 05 final remove (nao tem callers apos delete dos steps migrate)
+- `skills/init/lib/dry-run-mode.ts` — idem
+- `skills/init/lib/snippet-resolver.ts` — identificada como orfa em DI-Plano01-fase04. Confirmar com grep antes de deletar.
+- `skills/init/lib/backup-anti-vibe.ts` — idem (orfa apos reescrita do Step 10)
+
+### Decisoes fase-05 (DI-Plano01-fase05)
+
+#### DI-Plano01-fase05-orphans-clean
+
+Apos delete dos 18 steps: grep por imports orfaos em `skills/`, `tests/`, `scripts/` retornou ZERO hits.
+Nem por path (`from '.*steps/00-detect-legacy'`) nem por identificador (`detectLegacyStep` etc).
+Nenhum `test.skip` necessario — suite estava limpa.
+
+#### DI-Plano01-fase05-preexisting-failures
+
+12 falhas pre-existentes na suite (confirmado por `bun test` antes e apos — contagem identica).
+Sao testes e2e antigos que cobrem behaviors do pipeline v6.7 ja removidos por D3/D4/D5:
+- `tests/e2e/init-cutover-legacy-v5.test.ts`: "detect-legacy gate aborts dispatcher" (CA-02) — abort foi removido (D3)
+- `tests/e2e/init-tracer-bullet.test.ts`: "greenfield: runInit emits scaffold + PLAN.md..." — cobre pipeline v6.7 completo
+- `tests/e2e/init-cutover-greenfield.test.ts`: "stdout matching golden", "capabilities-discovery soft-fails" (CA-06 — D5)
+- `tests/e2e/ca12-populate-validate.test.ts` e similares — cobrem behaviors de planos nao implementados ainda
+Todos sao input para Plano 05 fase-final (reescrita das e2e para pipeline v7).
+
+#### DI-Plano01-fase05-typecheck-clean
+
+`bun run typecheck` (tsc --noEmit) retornou exit 0 apos delete. Zero erros de tipo.
+Todos os imports dos steps deletados eram internos aos proprios arquivos deletados — sem vazamento.
+
 ---
 
-<!-- Atualizado automaticamente durante fase-01 em 2026-05-21 -->
+<!-- Atualizado durante fase-05 em 2026-05-21 -->
