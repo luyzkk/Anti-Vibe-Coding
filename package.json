@@ -1,6 +1,6 @@
 {
   "name": "anti-vibe-coding",
-  "version": "6.6.1",
+  "version": "6.7.0",
   "type": "module",
   "scripts": {
     "test": "bun run scripts/run-tests.ts",

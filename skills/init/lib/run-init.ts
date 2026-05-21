@@ -31,7 +31,8 @@ async function readPluginVersion(): Promise<string> {
   } catch { /* fall through */ }
   // 2026-05-20 (Luiz/dev): D6 do PRD knowledge-path-cutover — fallback version bump 6.5.1 → 6.6.0.
   // Patch 6.6.1: alinhamento de boundary tests do reentry-guard (verify-work).
-  return '6.6.1'
+  // Minor 6.7.0: populate-plan-andre-port (Andre harness format) + gate path drift fix + caveats cleanup.
+  return '6.7.0'
 }
 
 export type RunInitOptions = {

@@ -1,6 +1,6 @@
 {
   "name": "local-plugins",
-  "version": "6.6.1",
+  "version": "6.7.0",
   "description": "Local development marketplace for Anti-Vibe Coding plugin",
   "owner": {
     "name": "Luiz Felipe"
@@ -8,8 +8,8 @@
   "plugins": [
     {
       "name": "anti-vibe-coding",
-      "description": "Plugin de desenvolvimento disciplinado com conhecimentos de programador senior. v6.6.1 — Test fix: reentry-guard boundary tests alinhados ao threshold 6.6.0 (regressao do bump 6.5.1->6.6.0 capturada via /verify-work). v6.6.0 — Knowledge path cutover: docs/knowledge/ -> knowledge/ (runtime asset fora de docs/), sync-to-global.sh distribui knowledge/ com check bloqueante, refresh automatico em re-populate, migracao v5 e validator pos-init.",
-      "version": "6.6.1",
+      "description": "Plugin de desenvolvimento disciplinado com conhecimentos de programador senior. v6.7.0 — Minor release: populate-plan-andre-port. Porta a estrutura de populate-plan do harness do Andre para /init. PLAN.md.tpl com 11 secoes (Goal/Scope/Assumptions/Risks/Execution Steps/Review Checklist/Validation Log/Compound Opportunity/Lessons Captured/Exit Criteria/Observability) + fase.md.tpl + LLM_INSTRUCTIONS imperativas (Fontes/Secoes/Honestidade) + discovery (stack-id, doc-canonico) -> paths em 6 stacks. Gate 'nunca diminuir' via parity test + golden snapshot + audit log expandido (docsCoveredByStack/docsWithoutCodeEvidence/phasesCreatedVsExpected). Bug fix: 90-final-validation gate path drift (init abortava em greenfield ha 7 semanas). Saneamento total: 0 fails, 0 erros TS, harness:validate exit 0.",
+      "version": "6.7.0",
       "source": "./",
       "author": {
         "name": "Luiz Felipe"
