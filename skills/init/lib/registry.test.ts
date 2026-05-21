@@ -26,17 +26,22 @@ describe('registry v7 (Plano 01 fase-04)', () => {
     ])
   })
 
-  test('Steps 1-8 sao reais; Steps 9-10 sao stubs (summary contem "stub")', async () => {
-    // 2026-05-21 (Luiz/dev): Plano 03 fase-03 — Steps 5-6 agora reais; loop atualizado.
-    // 2026-05-21 (Luiz/dev): Plano 04 fase-04 — Step 7 agora real; loop atualizado para i=7..9.
-    // 2026-05-21 (Luiz/dev): Plano 05 fase-01 — Step 8 agora real; loop atualizado para i=8..9.
-    // Steps reais (indices 0-7): summary nao tem palavra "stub"
-    // Stubs (indices 8-9): summary contem "stub"
-    for (let i = 8; i < 10; i++) {
-      const ctx = { cwd: process.cwd(), args: [], flags: {} } as any
-      const report = await registry[i]!.run(ctx)
-      expect(report.summary).toContain('stub')
-      expect(report.mutated).toBe(false)
-    }
+  test('todos os 10 steps sao reais (nenhum summary contem "stub")', async () => {
+    // 2026-05-21 (Luiz/dev): Plano 05 fase-05 — Steps 9-10 agora reais; loop de stubs removido.
+    // Steps 1-7 nao precisam de mock (nao tocam disco no cwd de producao para este check).
+    // Steps 8, 9, 10 retornam sem erro mesmo sem ctx completo (defensivos).
+    // Step 8 (delivery-loop) sem __interactiveAnswer retorna needsUser — summary e ''.
+    // Step 9 (copy-knowledge) roda runner real — summary indica stack detectada.
+    // Step 10 (final-validation) roda em cwd = process.cwd() — sem stack.json = sem abort.
+    const ctx = { cwd: process.cwd(), args: [], flags: {} } as any
+    const step8 = registry[7]!
+    const step9 = registry[8]!
+    const step10 = registry[9]!
+    const r8 = await step8.run(ctx)
+    const r9 = await step9.run(ctx)
+    const r10 = await step10.run(ctx)
+    expect(r8.summary).not.toContain('stub')
+    expect(r9.summary).not.toContain('stub')
+    expect(r10.summary).not.toContain('stub')
   })
 })
