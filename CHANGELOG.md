@@ -3,6 +3,92 @@
 Todas as mudanças notáveis do plugin Anti-Vibe Coding serão documentadas aqui.
 
 
+## [6.7.0] - 2026-05-20
+
+> **Minor release — populate-plan-andre-port + gate path drift fix + caveats cleanup**
+>
+> Porta a estrutura de populate-plan do harness-engineering do Andre para o `/init` do plugin.
+> Inclui correcao de bug critico no `90-final-validation` gate que abortava silenciosamente
+> o init em greenfield ha ~7 semanas, e saneamento total de debt (0 fails de teste, 0 erros
+> TS, 0 broken-links no harness:validate — primeira vez em ~7 semanas que a suite esta 100% verde).
+
+### Added
+
+- **PLAN.md.tpl + fase.md.tpl** em `skills/init/assets/templates/exec-plan/` com 11 secoes
+  obrigatorias do formato Andre canonico (Goal, Scope, Assumptions, Risks, Execution Steps,
+  Review Checklist, Validation Log, Compound Opportunity, Lessons Captured, Exit Criteria,
+  Observability) + 3 opcionais marcadas como `<!-- opcional -->`. Renderer agora le `.tpl`
+  + injeta variaveis via `applyVars`.
+- **`LLM_INSTRUCTIONS` imperativas**: tipo `ImperativeInstruction { fontes, secoes, honestidade }`
+  + helpers `formatImperativeInstruction()`, `isImperativeInstruction()`. 12 entries por doc
+  canonico + `DEFAULT_INSTRUCTION` — sem brechas tipo "se nao houver, mantenha template".
+- **`LARAVEL_CANDIDATES` + `PYTHON_CANDIDATES`** em `stack-aware-input-paths.ts` (SH-2).
+  `pickStaticMap()` expandido de 5 para 7 cases. Total: 6 stacks cobertos (Next.js +
+  Next.js+Supabase, Rails, Node-TS, Laravel, Python + fallback generico).
+- **`populate-plan-coverage.ts`** + audit log expandido no Step 91: `docsCoveredByStack`,
+  `docsWithoutCodeEvidence`, `phasesCreatedVsExpected` (SH-4 — observability primeiro).
+- **Gate "nunca diminuir" mecanico**: `tests/e2e/populate-plan-parity.test.ts` com 10 asserts
+  cobrindo CA-01 (>=12 fases), CA-04 (EXCLUDED nao readiciona), CA-03 (11 secoes), CA-06
+  (instrucoes imperativas), CA-02 (>=3 paths reais Next.js+Supabase), CA-05 (stack null),
+  CA-07 (mensagens claras), CA-08 (golden snapshot diff humano).
+- **Golden snapshot**: `tests/e2e/__golden__/populate-plan-andre-parity.md` — regen via
+  `UPDATE_GOLDENS=1` exige aprovacao humana no PR.
+- **Compound notes** capturadas: `docs/compound/2026-05-19-never-diminish-andre.md` (paridade
+  via teste, nao via doc) + `docs/compound/2026-05-20-validation-gate-path-drift.md` (gate
+  path drift 7 semanas silencioso).
+- **`docs/PIPELINE.md`** ganhou secao "Step 91 — Populate Plan (init skill internal)" com
+  diagrama ASCII + 5 subsecoes (contrato PLAN.md, contrato LLM_INSTRUCTIONS, discovery,
+  gate, observability).
+- **Lessons Captured pre-populadas** em `PLAN.md.tpl` (6 seeds: Anti-pattern, copy-then-improve,
+  Padrao compound, Trade-off, Honestidade, Audit antes de scaling) com comentario data-marcado
+  "remover apos primeira customizacao real".
+
+### Fixed
+
+- **Bug critico: `90-final-validation.ts` gate path drift.** Step 90 verificava
+  `.claude/knowledge/{stack}/INDEX.md` mas `copyKnowledge` copia o conteudo de
+  `knowledge/{stack}/` DIRETAMENTE para `.claude/knowledge/` (sem subdir). `/init` greenfield
+  abortava silenciosamente em qualquer projeto com stack detectavel desde commit `feb7975`
+  (~7 semanas). Descoberto acidentalmente durante regen de goldens no Plano 05 fase-06.
+  Capturado em compound note + contract test.
+- **Renderer do populate-plan emitia HTML comment docstring no output.** `PLAN.md.tpl` tem
+  bloco `<!-- ... -->` nas linhas 1-16 (instrucao para devs editando o tpl). Renderer fazia
+  `applyVars(tpl, ...)` sem strip — comment lider impedia validator de fazer strip do
+  frontmatter (regex `^---\r?\n...`), quebrando H1 check do `harness:validate`. Fix via
+  helper `stripLeadingHtmlComment()` aplicado em PLAN.md.tpl + fase.md.tpl.
+- **3 fails baseline herdados** (`CA-12 #1`, `CA-12 #2`, `tracer CA-01`): asserts contra
+  formato antigo ("Como executar", "Glossario de Instrucoes LLM") removido no Plano 02
+  fase-01. Tests atualizados para sections canonicas Andre (Goal/Execution Steps/Exit Criteria)
+  + PRODUCT_SENSE/README agora APARECEM (D5 do PRD — Plano 01 fase-01).
+- **3 erros GT-01 typecheck pre-existentes** (lazy-import.test.ts + subagent-contract.ts):
+  `@ts-expect-error` para import literal intencional em lazy-import; cast `as object` em vez
+  de `as AnySchema` (so existe ajv 7+, projeto tem 6.15.0 transitivo); type assert
+  `{instancePath?:string}` no error object.
+- **62 broken-links em `harness:validate`**: `tests/e2e/__golden__/populate-plan-andre-parity.md`
+  contem paths-literais (representacoes textuais do output esperado, NAO links navegaveis).
+  Adicionado `__golden__` a `SKIP_DIRS` do validator.
+- **Stash@{0} duplicado** de commit `8355829`: droppado apos confirmar via `stash show -p`.
+- **Wonts/14-populate-plan-andre-port.md** com link para `active/` (PRD ja em `completed/`):
+  link corrigido.
+
+### Changed
+
+- Versao 6.6.1 → 6.7.0 propagada em `package.json`, `.claude-plugin/plugin.json`,
+  `.claude-plugin/marketplace.json`, `plugin-manifest.json`, `tests/repo-structure/version-bump.test.ts`,
+  `skills/init/lib/run-init.ts` fallback e `scripts/sync-to-global.sh` default.
+- `NEXTJS_CANDIDATES` expandido de 6 para 14 chaves (+8 docs canonicos). `RAILS_CANDIDATES`
+  e `NODE_TS_CANDIDATES` espelhados (12 chaves cada). `NEXTJS_SUPABASE_EXTRA.SECURITY/RELIABILITY`
+  ganham 4 paths cada (CA-02 mecanico).
+- `EXCLUDED_FROM_POPULATION_V2` reduzido a `docs/COMPOUND_ENGINEERING.md` (D5 do PRD —
+  PRODUCT_SENSE/README sairam do filtro).
+- `CanonicalDoc` type expandido em `stack-aware-input-paths.ts` (+5 docs novos).
+- `TEMPLATE_MANIFEST` ganha entries para `ARCHITECTURE.md`, `AGENTS.md`, `.claude/CLAUDE.md`
+  (D6 — obrigatorio sem opt-out).
+- `init-greenfield.stdout.txt` golden regenerado: 26→31 fases, Discovery 51→52, +step
+  `13_1-migrate-knowledge-path`.
+- `init-greenfield.tree.json` golden regenerado: +`.claude/CLAUDE.md`, fases 04-31 expandidas.
+
+
 ## [6.6.1] - 2026-05-20
 
 > **Patch release — Test fix do reentry-guard boundary**

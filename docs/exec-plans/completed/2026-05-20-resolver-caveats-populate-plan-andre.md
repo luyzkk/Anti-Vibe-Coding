@@ -1,8 +1,9 @@
 ---
 title: "Resolver 4 caveats herdados/introduzidos pelo PRD populate-plan-andre-port"
 mode: quick
-status: active
+status: completed
 created: 2026-05-20
+completedAt: 2026-05-20
 project: anti-vibe-coding
 ---
 
@@ -50,15 +51,13 @@ FORA do escopo:
 
 ## Validation Log
 
-(preencher durante execucao)
-
-- Step 1: 
-- Step 2: 
-- Step 3: 
-- Step 4: 
-- Step 5: 
-- Step 6: 
-- Step 7: 
+- Step 1: diagnostico completo via `bun test` + leitura de arquivos. CA-12 #2 root cause = HTML comment lider em PLAN.md.tpl bloqueia regex de frontmatter strip do validator. CA-12 #1 + tracer = asserts contra sections obsoletas ("Como executar"/"Glossario") removidas pelo Plano 02 fase-01. PRODUCT_SENSE/README agora aparecem no plano (D5 do PRD).
+- Step 2: `lazy-import.test.ts:15` ganhou `@ts-expect-error intentional missing module`. `bun run typecheck` removeu TS2307. Commit: `a263649`.
+- Step 3: `subagent-contract.ts` — removido import `AnySchema` (so existe em ajv 7+, projeto tem 6.15.0 transitivo); cast `schemaJson as object`; type assert `(e as {instancePath?:string})`. Tests rodavam ok (31/31) pois `?? ''` cobria runtime, era so erro de tipo. Commit: `a263649`.
+- Step 4: SKIP_DIRS em `scripts/harness-validate.ts` ganhou `'__golden__'`. wonts/14-populate-plan-andre-port.md tinha link para `active/` (PRD ja em completed/) — corrigido. Commit: `1482ec9`.
+- Step 5: helper `stripLeadingHtmlComment()` em `populate-plan-generator.ts` aplicado em PLAN.md.tpl + fase.md.tpl antes de applyVars. ca12 e tracer atualizados para asserts canonicos Andre (Goal/Execution Steps/Exit Criteria + PRODUCT_SENSE/README presentes). Commit: `1787aac`.
+- Step 6: `git restore tests/fixtures/v6-state-fixture/docs/STATE.md` (timestamp non-deterministico de previous test run). `git stash drop stash@{0}` (duplicata de commit `8355829` confirmada via `stash show -p`). 3 stashes restantes (nao relacionados).
+- Step 7: 4 commits atomicos. `bun test`/`typecheck`/`harness:validate`/`compound:check` todos exit 0 — primeira vez 100% verde em ~7 semanas.
 
 ## Compound Opportunity
 
