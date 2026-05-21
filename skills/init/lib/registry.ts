@@ -22,7 +22,7 @@ export const registry: readonly Step[] = [
   migratePlanningAndManifestStep, // Step 4 — REAL (Plano 02 fase-03)
   scaffoldAndLinkStep,            // Step 5 — REAL (Plano 03 fase-01)
   installGhFilesStep,             // Step 6 — REAL (Plano 03 fase-02)
-  generatePopulatePlansStep,      // Step 7 — STUB (Plano 04, CORE)
+  generatePopulatePlansStep,      // Step 7 — REAL (Plano 04 fase-04)
   deliveryLoopStep,               // Step 8 — STUB (Plano 05)
   copyKnowledgeStep,              // Step 9 — STUB (Plano 05)
   finalValidationStep,            // Step 10 — STUB (Plano 05)
