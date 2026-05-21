@@ -25,6 +25,7 @@ const REQUIRED_FILES = [
   'docs/RELIABILITY.md',
   'docs/SECURITY.md',
   'docs/COMPOUND_ENGINEERING.md',
+  'docs/CODE_STYLE.md', // 2026-05-21 (Luiz/dev): RF-12 anti-vibe extension (Plano 05 fase-04)
   'docs/STATE.md',
   'docs/design-docs/index.md',
   'docs/design-docs/core-beliefs.md',
@@ -36,6 +37,7 @@ const REQUIRED_FILES = [
   'docs/references/README.md',
   'scripts/harness-validate.ts',
   'scripts/compound-check.ts',
+  '.claude/CLAUDE.md', // 2026-05-21 (Luiz/dev): RF-12 anti-vibe extension (Plano 05 fase-04)
 ] as const
 
 const AGENTS_MAX_LINES = 40
