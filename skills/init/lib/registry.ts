@@ -18,8 +18,8 @@ import { finalValidationStep } from './steps/10-final-validation'
 export const registry: readonly Step[] = [
   reentryGateStep,                // Step 1 — REAL (Plano 01 fase-03, DV-3)
   detectLegacyAndStackStep,       // Step 2 — REAL (Plano 01 fase-02)
-  secretsScanStep,                // Step 3 — STUB (Plano 02, DV-1)
-  migratePlanningAndManifestStep, // Step 4 — STUB (Plano 02)
+  secretsScanStep,                // Step 3 — REAL (Plano 02 fase-02)
+  migratePlanningAndManifestStep, // Step 4 — REAL (Plano 02 fase-03)
   scaffoldAndLinkStep,            // Step 5 — STUB (Plano 03)
   installGhFilesStep,             // Step 6 — STUB (Plano 03)
   generatePopulatePlansStep,      // Step 7 — STUB (Plano 04, CORE)
