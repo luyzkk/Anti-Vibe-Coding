@@ -99,8 +99,11 @@ describe('E2E cutover — greenfield (CA-01)', () => {
     await rm(tmpDir, { recursive: true, force: true })
   })
 
-  // 2026-05-19 (Luiz/dev): Plano 05 fase-04 — golden regenerado. test.skip removido.
-  test('greenfield init generates expected file tree matching golden', async () => {
+  // 2026-05-21 (Luiz/dev): init-refactor-v7 — greenfield agora aborta com code=20 (DR-2)
+  // quando stack=null. Goldens nao podem ser regenerados sem `/anti-vibe-coding:detect-architecture`
+  // pre-rodado. Cobertura equivalente vive em `tests/e2e/init-v7-final-acceptance.test.ts`
+  // (CA-01..CA-09 + NFR). Estes 2 testes ficam skipados ate decidirmos golden v7 vs delecao.
+  test.skip('greenfield init generates expected file tree matching golden', async () => {
     await captureLog(() =>
       runInit([], {
         cwd: tmpDir,
@@ -117,8 +120,8 @@ describe('E2E cutover — greenfield (CA-01)', () => {
     expect(tree).toEqual(expectedTree)
   })
 
-  // 2026-05-19 (Luiz/dev): Plano 05 fase-04 — golden regenerado. test.skip removido.
-  test('greenfield init produces stdout matching golden (normalized)', async () => {
+  // 2026-05-21 (Luiz/dev): init-refactor-v7 — ver nota acima. Skip ate decisao sobre golden v7.
+  test.skip('greenfield init produces stdout matching golden (normalized)', async () => {
     const { lines } = await captureLog(() =>
       runInit([], {
         cwd: tmpDir,
@@ -131,7 +134,9 @@ describe('E2E cutover — greenfield (CA-01)', () => {
     expect(normalizeStdout(stdout, tmpDir)).toBe(normalizeStdout(expectedStdout, '<TMP>'))
   })
 
-  test('capabilities-discovery soft-fails when architecture profile absent (CA-06)', async () => {
+  // 2026-05-21 (Luiz/dev): init-refactor-v7 — capabilities-discovery step deletado em Plano 05 fase-04.
+  // O fluxo LLM-driven nao tem mais soft-fail por arquitetura ausente; gate atual e DR-2 (abort code=20).
+  test.skip('capabilities-discovery soft-fails when architecture profile absent (CA-06)', async () => {
     // 2026-05-17 (Luiz/dev): fixture greenfield nao tem .anti-vibe/architecture-profile.json
     // -> readArchitectureProfile retorna null -> step retorna wording de skip.
     // GT-P04F04-1: wording exato observado via inspeção de 15-capabilities-discovery.ts linha 23:
@@ -208,8 +213,9 @@ describe('E2E cutover — greenfield (CA-01)', () => {
     expect(JSON.stringify(settings)).toContain('PostToolUse')
   })
 
-  // 2026-05-19 (Luiz/dev): Plano 05 fase-04 — CA-01: populate-harness/PLAN.md aparece na tree.
-  test('greenfield init produces populate-harness PLAN.md (CA-01)', async () => {
+  // 2026-05-21 (Luiz/dev): init-refactor-v7 — greenfield aborta com code=20 (DR-2) antes de
+  // gerar populate-harness. Cobertura equivalente: `init-v7-final-acceptance.test.ts` CA-05.
+  test.skip('greenfield init produces populate-harness PLAN.md (CA-01)', async () => {
     const { result } = await captureLog(() =>
       runInit([], { cwd: tmpDir, log: () => {}, askUser: async () => 'N' }),
     )

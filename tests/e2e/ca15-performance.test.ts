@@ -11,7 +11,10 @@ import { runInit } from '../../skills/init/lib/run-init'
 const TOTAL_FILES = 500
 const PERF_BUDGET_MS = 120_000 // 120s — CA-15 do PRD
 
-describe('CA-15 performance test — init --dry-run < 120s em 500 .md', () => {
+// 2026-05-21 (Luiz/dev): init-refactor-v7 D4 deletou modo --dry-run inteiramente.
+// Side-channel `.anti-vibe ausente = dry-run OK` nao se aplica mais. Cobertura de
+// performance vive em `init-v7-final-acceptance.test.ts` NFR (greenfield <30s).
+describe.skip('CA-15 performance test — init --dry-run < 120s em 500 .md', () => {
   let tmp: string
 
   beforeAll(async () => {
