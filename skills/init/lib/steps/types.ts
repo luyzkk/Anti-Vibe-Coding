@@ -1,4 +1,6 @@
 // skills/init/lib/steps/types.ts
+import type { DetectedStack } from '../detect-stack'
+import type { LegacyState } from '../detect-v5-legacy'
 
 /**
  * Contexto compartilhado entregue a todo step pelo dispatcher.
@@ -18,6 +20,15 @@ export type StepContext = {
    * Default: undefined (testes podem stubar).
    */
   askUser?: (prompt: string, options: readonly string[]) => Promise<string>
+  /**
+   * 2026-05-21 (Luiz/dev): Plano 01 fase-02 — populados pelo Step 2 (detect-legacy-and-stack).
+   * Opcionais nesta fase para nao quebrar stubs dos outros 8 steps (DV-4).
+   * Plano 02 endurece para obrigatorios apos Step 4 escrever o manifest.
+   * ctx.legacy: resultado de detectV5Legacy() — isLegacy, artifacts, paths.
+   * ctx.stack: resultado de detectStack() — primary, secondary, signalSource, anchorFiles.
+   */
+  legacy?: LegacyState
+  stack?: DetectedStack
 }
 
 /**
