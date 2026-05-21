@@ -26,11 +26,12 @@ describe('registry v7 (Plano 01 fase-04)', () => {
     ])
   })
 
-  test('Steps 1-6 sao reais; Steps 7-10 sao stubs (summary contem "stub")', async () => {
+  test('Steps 1-7 sao reais; Steps 8-10 sao stubs (summary contem "stub")', async () => {
     // 2026-05-21 (Luiz/dev): Plano 03 fase-03 — Steps 5-6 agora reais; loop atualizado.
-    // Steps reais (indices 0-5): summary nao tem palavra "stub"
-    // Stubs (indices 6-9): summary contem "stub"
-    for (let i = 6; i < 10; i++) {
+    // 2026-05-21 (Luiz/dev): Plano 04 fase-04 — Step 7 agora real; loop atualizado para i=7..9.
+    // Steps reais (indices 0-6): summary nao tem palavra "stub"
+    // Stubs (indices 7-9): summary contem "stub"
+    for (let i = 7; i < 10; i++) {
       const ctx = { cwd: process.cwd(), args: [], flags: {} } as any
       const report = await registry[i]!.run(ctx)
       expect(report.summary).toContain('stub')
