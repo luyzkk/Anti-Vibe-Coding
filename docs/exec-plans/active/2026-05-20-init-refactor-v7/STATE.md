@@ -2,8 +2,8 @@
 
 **Plan:** ./PLAN.md
 **Phase:** in-progress
-**Current Plan:** 03/5
-**Last Updated:** 2026-05-21 (Plano 02 concluido 4/4)
+**Current Plan:** 04/5
+**Last Updated:** 2026-05-21 (Plano 03 concluido 3/3)
 
 ## Progress por Plano
 
@@ -11,13 +11,13 @@
 |-------|------|-------|------|--------|
 | 01 | Foundation + Tracer + Cleanup | 6 | 6/6 | completed |
 | 02 | Step 3 (secrets-scan) + Step 4 (migrate + manifest) + Shared Schema | 4 | 4/4 | completed |
-| 03 | Step 5 (scaffold-and-link) + Step 6 (install-gh-files) | 3 | 0/3 | planned (detalhado) |
+| 03 | Step 5 (scaffold-and-link) + Step 6 (install-gh-files) | 3 | 3/3 | completed |
 | 04 | Step 7: Generate Populate Plans (CORE) | 5 | 0/5 | planned (detalhado) |
 | 05 | Steps 8-10 + harness-validate + E2E final | 5 | 0/5 | planned (detalhado) |
 
 ## Progress Global
 
-Fases done: 10/23 (43%)
+Fases done: 13/23 (57%)
 
 ## Log
 
@@ -124,3 +124,20 @@ Fases done: 10/23 (43%)
 - 2026-05-21: **Plano 02 (Step 3 + Step 4 + Shared Schema) CONCLUIDO 4/4 fases.** Steps 3-4
   reais no pipeline. `skills/_shared/legacy-manifest-schema.ts` disponivel para Planos 04 e 05.
   Plano 03 desbloqueado.
+- 2026-05-21: Plano 03 fase-01 (step5-scaffold-and-link-real) concluida em paralelo com fase-02.
+  `05-scaffold-and-link.ts` real criado: invoca `scaffoldFullTree` + `linkClaudeToAgents` sem dry-run.
+  id: '05-scaffold-and-link'. 5 testes passando (id, greenfield, re-run CA-08, CA-02 byte-identico,
+  D4 meta-test). DI: comentario `makeWriter` causou falha no meta-test D4 — removido. Commit 1160c89.
+- 2026-05-21: Plano 03 fase-02 (step6-install-gh-files-real) concluida em paralelo com fase-01.
+  `06-install-gh-files.ts` real criado: envolve `installGhFiles` com skip-if-exists guard no step.
+  id: '06-install-gh-files'. 5 testes passando (id, greenfield, re-run, preserva-custom, D4).
+  Lib `install-gh-files.ts` NAO modificada (DI-Plano03-fase02-install-gh-skip-policy opcao a).
+  Commit d92f4b1.
+- 2026-05-21: Plano 03 fase-03 (registry-wire + e2e) concluida. registry.ts comentarios atualizados
+  (Steps 5-6 REAIS). registry.test.ts corrigido (IDs 05-scaffold-and-link / 06-install-gh-files,
+  loop stub i=6). Tracer corrigido (R6 — 2 IDs atualizados). `tests/e2e/init-v7-scaffold-and-gh.test.ts`
+  criado (4 testes: registry order, CA-01, CA-02, CA-08). DI: type guard adicionado para strict TS.
+  Commit f9d645a.
+- 2026-05-21: **Plano 03 (Step 5 + Step 6) CONCLUIDO 3/3 fases.** Steps 5-6 reais no pipeline.
+  CA-01 (placeholders + .github/), CA-02 (.claude/CLAUDE.md byte-identico), CA-08 (re-run skip)
+  validados ponta-a-ponta. Plano 04 desbloqueado.
