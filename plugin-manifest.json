@@ -87,6 +87,12 @@
       "introduced": "v7.1.0",
       "description": "Fluxo disciplinado de resposta a incidentes pós-deploy. Raw logs → hipótese → regression test (ANTES do fix) → fix → commit. Cada fix vem com regression test — hardening é hábito, não fase."
     },
+    "incremental-implementation": {
+      "path": "skills/incremental-implementation/",
+      "version": "7.1.0",
+      "introduced": "v7.1.0",
+      "description": "Guia de implementação incremental: divide features em incrementos verificáveis, evitando big-bang delivery e integração tardia."
+    },
     "infrastructure": {
       "path": "skills/infrastructure/",
       "version": "7.1.0",
