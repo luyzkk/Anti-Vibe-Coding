@@ -19,3 +19,11 @@ External references used in plugin design and auditing.
 ## Claude Code Plugin Development
 - [Claude Code Documentation](https://docs.anthropic.com/claude-code) — Official docs
 - [Anti-Vibe Coding Workshop](https://github.com/luizkk) — Origin workshop (Andrej Karpathy-inspired)
+
+## Seeds Disponíveis
+
+Checklists operacionais para uso durante implementação:
+
+- [Security Checklist](./security-checklist.md) — OWASP Top 10, autenticação, autorização, headers HTTP
+- [Accessibility Checklist](./accessibility-checklist.md) — WCAG 2.0 AA, navegação por teclado, ARIA
+- [Testing Patterns](./testing-patterns.md) — Bun/TypeScript, AAA, naming conventions, mocks
