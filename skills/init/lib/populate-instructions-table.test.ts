@@ -119,3 +119,57 @@ describe('docToSlug', () => {
     expect(docToSlug(input)).toBe(expected)
   })
 })
+
+// 2026-05-21 (Luiz/dev): Plano 01 fase-02 — valida que 16 docs tem todos os campos novos.
+describe('POPULATE_INSTRUCTIONS_BY_DOC — FasePlanInput v1 ext fields', () => {
+  test('has exactly 16 entries (D18 baseline)', () => {
+    expect(POPULATE_INSTRUCTIONS_BY_DOC.size).toBe(16)
+  })
+
+  test('every entry has all 6 new fields populated', () => {
+    for (const [doc, instr] of POPULATE_INSTRUCTIONS_BY_DOC.entries()) {
+      expect(instr.guidanceFile, `${doc}: guidanceFile`).toBeTruthy()
+      expect(instr.detectionSignals, `${doc}: detectionSignals`).toBeDefined()
+      expect(instr.mustCover, `${doc}: mustCover`).toBeDefined()
+      expect(instr.linkTargets, `${doc}: linkTargets`).toBeDefined()
+      expect(instr.validationCommand, `${doc}: validationCommand`).toBeTruthy()
+      expect(instr.dependsOn, `${doc}: dependsOn`).toBeDefined()
+    }
+  })
+
+  test('guidanceFile path follows convention skills/init/assets/populate-guidance/{slug}.md', () => {
+    for (const [doc, instr] of POPULATE_INSTRUCTIONS_BY_DOC.entries()) {
+      const expectedSlug = docToSlug(doc)
+      const expectedPath = `skills/init/assets/populate-guidance/${expectedSlug}.md`
+      expect(instr.guidanceFile, `${doc}: guidanceFile`).toBe(expectedPath)
+    }
+  })
+
+  test('mustCover keys are a subset of sectionsToWrite (sanity)', () => {
+    for (const [doc, instr] of POPULATE_INSTRUCTIONS_BY_DOC.entries()) {
+      const sections = new Set(instr.sectionsToWrite)
+      for (const key of Object.keys(instr.mustCover)) {
+        expect(sections.has(key), `${doc}: mustCover key "${key}" not in sectionsToWrite`).toBe(true)
+      }
+    }
+  })
+
+  test('stackVariants when present uses only allowed keys (rails/nextjs/node-ts)', () => {
+    const allowed = new Set(['rails', 'nextjs', 'node-ts'])
+    for (const [doc, instr] of POPULATE_INSTRUCTIONS_BY_DOC.entries()) {
+      if (!instr.stackVariants) continue
+      for (const key of Object.keys(instr.stackVariants)) {
+        expect(allowed.has(key), `${doc}: invalid stackVariants key "${key}"`).toBe(true)
+      }
+    }
+  })
+
+  test('dependsOn entries reference real docs in the map', () => {
+    const docPaths = new Set(POPULATE_INSTRUCTIONS_BY_DOC.keys())
+    for (const [doc, instr] of POPULATE_INSTRUCTIONS_BY_DOC.entries()) {
+      for (const dep of instr.dependsOn) {
+        expect(docPaths.has(dep), `${doc}: dependsOn references unknown "${dep}"`).toBe(true)
+      }
+    }
+  })
+})
