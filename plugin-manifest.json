@@ -27,6 +27,12 @@
       "introduced": "v7.1.0",
       "description": "Detecta configurações espalhadas (strings hardcoded, valores duplicados) e executa migração disciplinada para uma única fonte de verdade. Fluxo: detectar → mapear → centralizar → substituir usos → verificar."
     },
+    "code-simplification": {
+      "path": "skills/code-simplification/",
+      "version": "7.1.0",
+      "introduced": "v7.1.0",
+      "description": "Guia de simplificação de código: identifica over-engineering, duplicação e complexidade desnecessária, aplicando padrões de simplificação por linguagem."
+    },
     "consultant": {
       "path": "skills/consultant/",
       "version": "7.1.0",
