@@ -20,6 +20,7 @@ import { renderFasePlan, type FasePlanInput, type Wave } from './render-fase-pla
 import { renderPopulateHarnessPRD } from './populate-harness-prd-template'
 import { renderPopulateHarnessContext } from './populate-harness-context-template'
 import { renderPopulateHarnessPlanOverview } from './populate-harness-plan-overview'
+import { renderPopulateHarnessState } from './populate-harness-state-template'
 
 /** Extrai linhas H2 do markdown. Util para verificar secoes (CA-07). */
 export function extractH2Sections(markdown: string): string[] {
@@ -105,6 +106,7 @@ export type GenerateResultV2 = {
   readonly prdPath: string
   readonly contextPath: string
   readonly planPath: string
+  readonly statePath: string
   readonly fasePlans: ReadonlyArray<GeneratedFasePlan>
   readonly stackPrimary: NonNullable<DetectedStack['primary']>
   readonly legacyArtifactsFound: number
@@ -178,11 +180,17 @@ export async function generatePopulatePlans(opts: GenerateOpts): Promise<Generat
   const planAbs = path.join(folderAbs, 'PLAN.md')
   await fs.writeFile(planAbs, planContent, 'utf-8')
 
+  // 4. STATE.md (CA-01 do PRD — execute-plan consome)
+  const stateContent = renderPopulateHarnessState({ dateSlug, stackPrimary, totalFases: fasePlans.length })
+  const stateAbs = path.join(folderAbs, 'STATE.md')
+  await fs.writeFile(stateAbs, stateContent, 'utf-8')
+
   return {
     folderPath: folderRel,
     prdPath: path.posix.join(folderRel, 'PRD.md'),
     contextPath: path.posix.join(folderRel, 'CONTEXT.md'),
     planPath: path.posix.join(folderRel, 'PLAN.md'),
+    statePath: path.posix.join(folderRel, 'STATE.md'),
     fasePlans,
     stackPrimary,
     legacyArtifactsFound,
