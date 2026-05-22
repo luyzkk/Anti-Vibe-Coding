@@ -55,6 +55,30 @@ Se a resposta ainda for vaga (ex: "quero adicionar autenticacao"), explorar o co
 
 ---
 
+## Passo 1.5 — Formular Hipótese com Confiança
+
+ANTES de fazer qualquer pergunta, declarar internamente (pode mostrar ao dev):
+
+```
+HYPOTHESIS: {hipótese sobre o que o dev realmente quer — 1 frase}
+CONFIDENCE: {N}% — {motivo da incerteza, o que falta saber}
+```
+
+Regras:
+- Começar com confiança HONESTA (normalmente 20-40% antes de perguntar)
+- Se confiança > 70%, verificar: consegue predizer as respostas das próximas 3 perguntas? Se não, o número está inflado
+- A hipótese força comprometimento com um modelo mental — as perguntas testam essa hipótese
+
+Nas perguntas do Passo 3, adicionar GUESS ao final de cada uma:
+
+```
+GUESS: {sua hipótese para a resposta desta pergunta específica, com razão}
+```
+
+O GUESS expõe o modelo mental do entrevistador. Dev que discorda do GUESS ativa uma correção mais rica do que um simples "sim/não".
+
+---
+
 ## Passo 2 — Explorar Codebase para Contexto
 
 Antes de perguntar, usar as ferramentas disponíveis para entender:
@@ -314,6 +338,26 @@ Se o dev disser NAO: encerrar normalmente. O CONTEXT.md continua disponivel para
 8. Intensidade proporcional a complexidade da feature.
 9. Sempre oferecer learn point ao final.
 10. Sempre sugerir proximo passo ao final.
+
+---
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Já entendo o suficiente para começar" | Assumir entendimento sem validar é a fonte mais comum de retrabalho. O custo de uma pergunta é zero; o custo de uma semana de código errado não é. |
+| "O usuário sabe o que quer" | Usuários descrevem soluções, não problemas. O trabalho do entrevistador é escavar até o problema real por baixo da solução proposta. |
+| "Fazer muitas perguntas vai irritar o dev" | Um dev irritado por perguntas prefere isso a um agente que entrega a coisa errada. Clareza é respeito. |
+| "Posso inferir o contexto do nome do projeto" | Nomes de projeto são rótulos, não specs. Dois projetos com o mesmo nome podem ter arquiteturas e restrições completamente diferentes. |
+
+## Red Flags
+
+- Código sendo gerado durante o grill-me (entrevista não concluída)
+- Perguntas genéricas sem referência ao codebase ou contexto específico do dev
+- Aceitar "sei lá, você decide" sem forçar uma escolha com trade-offs explícitos
+- Avançar para implementação com confiança < 70% sem registrar as incertezas
+- Hipótese não declarada antes de fazer perguntas (modelo mental oculto)
+- Perguntas que confirmam o que o agente já assumiu em vez de testarem a hipótese
 
 ---
 
