@@ -54,7 +54,7 @@ describe('generatePopulatePlans — hierarchy output (ADR-0022)', () => {
     expect(folderStat.isDirectory()).toBe(true)
   })
 
-  test('folder contains PRD.md, CONTEXT.md, PLAN.md, and 16 fase-NN-*.md', async () => {
+  test('folder contains PRD.md, CONTEXT.md, PLAN.md, STATE.md, and 16 fase-NN-*.md', async () => {
     const result = await generatePopulatePlans({
       cwd: tmpDir,
       stack: NODE_STACK,
@@ -67,9 +67,25 @@ describe('generatePopulatePlans — hierarchy output (ADR-0022)', () => {
     expect(entries).toContain('PRD.md')
     expect(entries).toContain('CONTEXT.md')
     expect(entries).toContain('PLAN.md')
+    expect(entries).toContain('STATE.md')
 
     const faseFiles = entries.filter(e => /^fase-\d{2}-.+\.md$/.test(e))
     expect(faseFiles.length).toBe(16)
+  })
+
+  test('CA-01: STATE.md is generated with Phase: planned and execute-plan consumable shape', async () => {
+    const result = await generatePopulatePlans({
+      cwd: tmpDir,
+      stack: NODE_STACK,
+      clock: FIXED_CLOCK,
+    })
+
+    expect(result.statePath).toBe('docs/exec-plans/active/2026-05-21-populate-harness/STATE.md')
+    const stateContent = await fs.readFile(path.join(tmpDir, result.statePath), 'utf-8')
+    expect(stateContent).toContain('# State: Populate Harness')
+    expect(stateContent).toContain('**Phase:** planned')
+    expect(stateContent).toContain('Fases done: 0/16 (0%)')
+    expect(stateContent).toContain('stack node-ts')
   })
 
   test('each fase-NN-*.md uses FasePlanInput v1 (renders Final Report Contract)', async () => {
