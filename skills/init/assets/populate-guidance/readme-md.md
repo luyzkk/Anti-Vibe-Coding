@@ -14,6 +14,10 @@ O publico primario eh um engenheiro novo no projeto que nunca viu o codebase ant
 
 Curto. Acionavel. Top-to-bottom executavel sem fluxo paralelo. Se o leitor precisa abrir 3 abas para entender o Quick Start, voce escreveu demais. A voz eh imperativa e direta: "instale as dependencias", "rode o servidor", "abra no browser". Sem filosofia, sem historia.
 
+## Artefatos existentes — prioridade no Wave 1
+
+Wave 1 do fase de execucao lista artefatos pre-existentes (`Scan existing artifact ...`) ANTES dos paths de codigo. Esses artefatos sao fontes de alta prioridade — contem conhecimento senior ja documentado no repo (auditorias, ADRs, compound notes, gotchas, rules). Leia-os PRIMEIRO. Conteudo derivado de artefatos existentes vira citacao inline ou base de secao no doc final. Se um artefato nao existir no projeto-alvo, a instrucao `skip silently if absent` se aplica — marque `TODO(<owner/context needed>): ...` apenas quando a informacao seria critica e nao ha substituto.
+
 ## Sinais a procurar no codebase
 
 - `package.json` scripts (`dev`, `start`, `test`, `build`) — fonte da verdade dos comandos. Nao invente comandos que nao estao nesses scripts.

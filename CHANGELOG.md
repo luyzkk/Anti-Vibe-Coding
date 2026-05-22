@@ -3,6 +3,65 @@
 Todas as mudanças notáveis do plugin Anti-Vibe Coding serão documentadas aqui.
 
 
+## [7.1.0] - 2026-05-22
+
+> **Minor release — populate-quality-v1: Wave 1 lê artefatos existentes + guidance permissiva**
+>
+> Corrige o gap qualitativo entre outputs do `/init` e do harness original do Andre Prado.
+> Causa raiz identificada via tracer-bullet: LLM ignorava auditorias, gotchas, ADRs e compound
+> notes já documentados no repo — gerava docs genéricos em vez de absorver conhecimento senior
+> pré-existente. Wave 1 de todas as 16 fases do populate-harness agora escaneia esses artefatos
+> ANTES de grepar código. Guidance de SECURITY reescrita com tom permissivo. Resultado validado
+> em projeto real: `docs/SECURITY.md` gerado passou a absorver `SECURITY_AUDIT_2026-02-20.md`,
+> invariants do `.claude/CLAUDE.md`, compliance LGPD/PCI DSS e threat model — fechando o gap
+> vs harness original do Andre.
+
+### Added
+
+- **`EXISTING_DOCS_TO_SCAN_BY_DOC`** em `skills/init/lib/populate-instructions-table.ts`:
+  mapa com 16 entradas (um por doc canônico) definindo artefatos pré-existentes a escanear
+  antes do grep de código. Tipos cobertos por entrada: auditorias de segurança
+  (`SECURITY_AUDIT*.md`), gotchas (`.claude/progress.txt`), ADRs (`docs/DECISIONS.md`,
+  `docs/design-docs/ADR-*.md`), compound notes, rules (`.claude/rules/*.md`), runbooks,
+  bugs ativos, débitos técnicos e product docs.
+- **`## Artefatos existentes — prioridade no Wave 1`** adicionado a todos os 15 guidance
+  files em `skills/init/assets/populate-guidance/` (exceto `docs-security-md.md` que tem
+  seção mais completa). Instrui a LLM a tratar artefatos pré-existentes como fontes de alta
+  prioridade e derivar citações inline deles.
+
+### Changed
+
+- **`buildWavesForDoc`** em `populate-instructions-table.ts`: Wave 1 agora prepende itens de
+  `EXISTING_DOCS_TO_SCAN_BY_DOC` (`Scan existing artifact ... if present (skip silently if
+  absent)`) antes dos paths de código stack-specific. Ordem: artefatos existentes → código.
+- **`skills/init/assets/populate-guidance/docs-security-md.md`**: tom invertido de restritivo
+  para permissivo. `**Cubra:**`/`**NÃO escreva:**` substituídos por `**Espera-se cobrir, na
+  profundidade que o código sustenta:**`. Seção `## Anti-patterns` com hard-NÃO removida.
+  Adicionada seção `## Compliance, retenção e ameaças (quando aplicável)` que convida detalhe
+  de LGPD/PCI/HIPAA quando o código sustenta. Nova seção `## Documentos existentes a
+  inspecionar (ANTES de grepar código)` com 6 categorias e regra "cada H2 do SECURITY.md
+  final deve ser informado por pelo menos UM artefato existente quando ele existir".
+- **Entrada `docs/SECURITY.md`** em `POPULATE_INSTRUCTIONS_BY_DOC`: `scopeIn` expandido com
+  `Compliance posture (LGPD, PCI DSS, GDPR, BCB, etc.) when the project carries it` e `Threat
+  model summary when sensitivity warrants it`. `scopeOut` afunilado — removido `Compliance
+  audit artifacts (SOC2, ISO)`, mantido só `Internal pentest findings still unpatched`.
+  `reviewChecklist`/`exitCriteria` — OWASP hardcoded substituído por cobertura proporcional
+  ao que o projeto realmente faz.
+
+### Testing
+
+- **Feature tests:** 36 pass / 0 fail (populate-instructions-table, populate-guidance-drift,
+  populate-guidance-files, populate-plan-generator).
+- **e2e:** 84 pass / 14 skip / 0 fail (98 tests, 21 files). 2-4 flakes de timing CA-02
+  Windows I/O cold start são pré-existentes, não-regressão.
+- **Validação real (tracer-bullet):** `docs/SECURITY.md` gerado em projeto Carreirarte
+  absorveu `SECURITY_AUDIT_2026-02-20.md` (achados C1-H6-M7), invariants do `.claude/CLAUDE.md`
+  (8 Critical Invariants), compliance LGPD art.10 + PCI DSS SAQ A-EP, threat model com 4
+  vetores e Pendências Conhecidas honestas — fechando gap qualitativo vs harness Andre Prado.
+- **version-bump:** 4/4 JSONs atualizados para 7.1.0 (package.json, plugin.json,
+  marketplace.json, plugin-manifest.json).
+
+
 ## [7.0.0] - 2026-05-21
 
 > **Major release — init-refactor-v7: pipeline 17 → 10 steps + dry-run removido + DR-2 abort**

@@ -14,6 +14,10 @@ O publico primario sao contribuidores (humanos e agentes) que precisam decidir s
 
 Reflexivo e ancorado em exemplos concretos do proprio projeto. "Quando o requisito tem menos de 3 exemplos de uso real, peca exemplos antes de codificar" eh bom. "Sempre pense no usuario" eh ruim — vago ao ponto de ser inutil. Cada principio deve ter um exemplo do tipo "isso aconteceu no projeto X e o resultado foi Y".
 
+## Artefatos existentes — prioridade no Wave 1
+
+Wave 1 do fase de execucao lista artefatos pre-existentes (`Scan existing artifact ...`) ANTES dos paths de codigo. Esses artefatos sao fontes de alta prioridade — contem conhecimento senior ja documentado no repo (auditorias, ADRs, compound notes, gotchas, rules). Leia-os PRIMEIRO. Conteudo derivado de artefatos existentes vira citacao inline ou base de secao no doc final. Se um artefato nao existir no projeto-alvo, a instrucao `skip silently if absent` se aplica — marque `TODO(<owner/context needed>): ...` apenas quando a informacao seria critica e nao ha substituto.
+
 ## Sinais a procurar no codebase
 
 Este doc NAO eh derivado do codigo — eh sintese de valores do time. Os sinais abaixo ajudam a descobrir contexto historico:

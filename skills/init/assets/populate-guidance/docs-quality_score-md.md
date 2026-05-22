@@ -14,6 +14,10 @@ O publico primario sao revisores de PR — humanos e agentes — que precisam de
 
 Objetivo e ancorado em exemplos concretos. Uma dimensao de scoring sem exemplos de 1/5 e 5/5 eh subjetiva demais para ser util. "Alta manutenibilidade" nao significa nada sem "Alta manutenibilidade = funcao de menos de 30 linhas, nome de variavel autoexplicativo, zero `any` em TypeScript". O tom deve ser de um guia de calibracao, nao de uma aspiracao.
 
+## Artefatos existentes — prioridade no Wave 1
+
+Wave 1 do fase de execucao lista artefatos pre-existentes (`Scan existing artifact ...`) ANTES dos paths de codigo. Esses artefatos sao fontes de alta prioridade — contem conhecimento senior ja documentado no repo (auditorias, ADRs, compound notes, gotchas, rules). Leia-os PRIMEIRO. Conteudo derivado de artefatos existentes vira citacao inline ou base de secao no doc final. Se um artefato nao existir no projeto-alvo, a instrucao `skip silently if absent` se aplica — marque `TODO(<owner/context needed>): ...` apenas quando a informacao seria critica e nao ha substituto.
+
 ## Sinais a procurar no codebase
 
 - `review:` em issues ou PRs no historico — indica que o projeto ja tem um processo de revisao com criterios implicitos. Esses criterios devem tornar-se explicitos aqui.

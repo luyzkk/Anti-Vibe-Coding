@@ -284,15 +284,15 @@ export const POPULATE_INSTRUCTIONS_BY_DOC: ReadonlyMap<string, DocInstruction> =
   }],
 
   ['docs/SECURITY.md', {
-    goal: 'Document the security posture: auth flow, secret management, dependency hygiene, input validation, and OWASP top-10 coverage.',
-    scopeIn: ['Auth flow', 'Secret storage and rotation', 'Input validation strategy', 'Dependency scanning setup', 'CSP and security headers'],
-    scopeOut: ['Pentest reports', 'Compliance audit artifacts (SOC2, ISO)', 'Business logic (lives in ARCHITECTURE.md)'],
+    goal: 'Document the security posture as it exists in the codebase: auth flow, secret management, input validation, dependency hygiene, security headers, and any compliance or threat-model context the project actually carries.',
+    scopeIn: ['Auth flow', 'Secret storage and rotation', 'Input validation strategy', 'Dependency scanning setup', 'CSP and security headers', 'Compliance posture (LGPD, PCI DSS, GDPR, BCB, etc.) when the project carries it', 'Threat model summary when sensitivity warrants it'],
+    scopeOut: ['Internal pentest findings still unpatched (keep confidential)', 'Business logic unrelated to security (lives in ARCHITECTURE.md)', 'Aspirational future work (lives in docs/PLANS.md)'],
     assumptions: ['.env.example exists or will be created', 'Project has auth if applicable', 'Dependency scanner is configured or planned'],
     risks: [{ risk: 'Auth logic spread across middleware, handlers, and controllers', mitigation: 'Wave 1 maps ALL auth touchpoints before writing to avoid gaps' }],
     sectionsToWrite: ['Auth Flow', 'Secret Management', 'Input Validation', 'Dependencies', 'Headers and CSP'],
-    reviewChecklist: ['No secret values in markdown', 'All claims link to code', 'OWASP top-10 has explicit coverage statement', 'No placeholder text'],
+    reviewChecklist: ['No secret values in markdown', 'Every claim links to code or to a real config file', 'Coverage matches what the project does (OWASP, compliance, threat model — only what is relevant)', 'No placeholder text'],
     compoundOpportunity: 'Security incident root causes and surprising vulnerability patterns belong in docs/compound/ as security gotchas.',
-    exitCriteria: ['harness:validate passes', 'OWASP top-10 has explicit coverage statement (covered / N/A / not-applicable)', 'Zero placeholder lines'],
+    exitCriteria: ['harness:validate passes', 'Each H2 reflects code reality or carries an explicit TODO when not identifiable', 'Zero placeholder lines'],
     guidanceFile: 'skills/init/assets/populate-guidance/docs-security-md.md',
     detectionSignals: ['process\\.env\\.', 'JWT_SECRET', 'cors\\(', 'bcrypt', 'helmet', 'csrf'],
     mustCover: {
@@ -546,16 +546,151 @@ const CODE_PATHS_BY_DOC: ReadonlyMap<string, CodePathEntry> = new Map([
   }],
 ])
 
+// 2026-05-22 (Luiz/dev): documentos pre-existentes que cada doc canonico DEVE escanear
+// antes de grepar codigo. Origem do gap descoberto no tracer-bullet SECURITY: LLM ignorava
+// SECURITY_AUDIT*.md, COMPLIANCE.md, .claude/rules/*, .claude/progress.txt — onde reside
+// muito do conteudo "senior" que aparecia no output do Andre. Paths sao glob-style; se
+// nao existirem no projeto-alvo, LLM apenas pula (TODO opcional).
+const EXISTING_DOCS_TO_SCAN_BY_DOC: ReadonlyMap<string, ReadonlyArray<string>> = new Map([
+  ['docs/SECURITY.md', [
+    'docs/SECURITY_AUDIT*.md',
+    'docs/SECURITY_COMPLIANCE.md',
+    'docs/COMPLIANCE.md',
+    'docs/PCI*.md',
+    'docs/LGPD*.md',
+    '.claude/rules/security-patterns.md',
+    '.claude/progress.txt (grep: gotcha, CWE-, security, auth, JWT, RLS, webhook)',
+    '.claude/senior-principles.md',
+    'docs/DECISIONS.md (grep: auth, secret, RLS, webhook, crypto)',
+    'docs/design-docs/ADR-*.md (filtrar por seguranca)',
+    'docs/compound/*.md (filtrar: category security, CWE, OWASP, incidente)',
+    'docs/BUGS_ATIVOS.md (itens com tag security/auth/PII)',
+    'docs/DEBITOS_TECNICOS.md (secao Seguranca)',
+    'docs/RUNBOOK*.md, docs/PLAYBOOK*.md, docs/INCIDENT*.md',
+  ]],
+  ['docs/RELIABILITY.md', [
+    'docs/RUNBOOK*.md, docs/PLAYBOOK*.md, docs/INCIDENT*.md',
+    'docs/BUGS_ATIVOS.md (incidentes recentes)',
+    'docs/DEBITOS_TECNICOS.md (secao Confiabilidade/Performance)',
+    '.claude/progress.txt (grep: incidente, outage, rollback, cron, retry, fallback)',
+    'docs/compound/*.md (filtrar: incidente, postmortem, regressao)',
+    'docs/DECISIONS.md (grep: SLO, retry, fallback, observability)',
+    'docs/design-docs/ADR-*.md (filtrar por reliability)',
+  ]],
+  ['docs/DESIGN.md', [
+    'docs/DESIGN_SYSTEM*.md',
+    'docs/DESIGN_QUICK_REFERENCE*.md',
+    '.claude/skills/*/SKILL.md (procurar design-system local)',
+    'docs/compound/*.md (filtrar: design, ui, ux)',
+    'docs/design-docs/ADR-*.md (filtrar por design system)',
+  ]],
+  ['docs/FRONTEND.md', [
+    '.claude/rules/typescript-standards.md',
+    '.claude/rules/code-quality.md',
+    'docs/DEBITOS_TECNICOS.md (secao Frontend)',
+    'docs/BUGS_ATIVOS.md (bugs de UI/UX)',
+    'docs/compound/*.md (filtrar: react, hook, render, performance frontend)',
+    'docs/DECISIONS.md (grep: react, hook, state management, routing)',
+  ]],
+  ['ARCHITECTURE.md', [
+    'docs/DECISIONS.md (grep: arquitetura, monolito, micro, layer)',
+    'docs/design-docs/ADR-*.md (TODOS os ADRs sao input para ARCHITECTURE)',
+    '.claude/progress.txt (grep: refactor, layer, boundary, decisao)',
+    'docs/compound/*.md (filtrar: arquitetura, modelagem, layer)',
+    'docs/DEBITOS_TECNICOS.md (secao Arquitetura)',
+    'README.md (descricao de alto nivel ja existente)',
+  ]],
+  ['AGENTS.md', [
+    '.claude/CLAUDE.md',
+    '.claude/senior-principles.md',
+    '.claude/rules/*.md (catalogo de regras)',
+    '.claude/agents/*.md (catalogo de subagentes)',
+    'docs/PIPELINE.md',
+    'docs/AGENTS_LIST.md',
+  ]],
+  ['docs/QUALITY_SCORE.md', [
+    'docs/DEBITOS_TECNICOS.md (input direto para Known Gaps)',
+    'docs/BUGS_ATIVOS.md (input direto para Known Gaps)',
+    'docs/SECURITY_AUDIT*.md (findings entram em Strengths/Gaps por dimensao)',
+    'docs/compound/*.md (lessons learned ja capturadas)',
+  ]],
+  ['docs/PRODUCT_SENSE.md', [
+    'docs/PRODUCT_OVERVIEW.md',
+    'docs/FEATURES.md',
+    'docs/BACKLOG.md (prioridades atuais informam tradeoffs)',
+    'README.md (descricao publica do produto)',
+    'docs/DECISIONS.md (grep: feature, product, user, scope)',
+  ]],
+  ['docs/design-docs/core-beliefs.md', [
+    '.claude/senior-principles.md',
+    '.claude/CLAUDE.md',
+    'docs/compound/*.md (padroes recorrentes)',
+  ]],
+  ['README.md', [
+    'docs/PRODUCT_OVERVIEW.md',
+    'docs/FEATURES.md (features implementadas e status)',
+    'docs/BACKLOG.md (prioridades atuais)',
+    'CHANGELOG.md (historico de versoes)',
+    '.claude/progress.txt (grep: status, mvp, release, what is)',
+  ]],
+  ['docs/PLANS.md', [
+    'docs/exec-plans/active/README.md',
+    'docs/exec-plans/completed/README.md',
+    'docs/exec-plans/tech-debt-tracker.md',
+    'docs/exec-plans/completed/*.md (sample — entender formato de planos ja concluidos)',
+  ]],
+  ['docs/generated/db-schema.md', [
+    'docs/DECISIONS.md (grep: schema, migration, table, index, constraint, RLS, BYTEA)',
+    'docs/DEBITOS_TECNICOS.md (secao banco de dados, migrations pendentes)',
+    'docs/compound/*.md (filtrar: schema, migration, query, RLS, index, gotcha DB)',
+    '.claude/progress.txt (grep: migration, schema, BYTEA, RLS, trigger, coluna)',
+  ]],
+  ['docs/MERGE_GATES.md', [
+    '.github/workflows/*.yml (gates de CI ja configurados)',
+    'docs/QUALITY_SCORE.md (thresholds de qualidade atuais)',
+    '.claude/rules/testing-standards.md',
+    '.claude/rules/code-quality.md',
+    'docs/DEBITOS_TECNICOS.md (itens que precisam de gate — fat components, eslint-disable)',
+    'docs/compound/*.md (filtrar: qualidade, cobertura, lint, CI, gate)',
+  ]],
+  ['docs/CODE_STYLE.md', [
+    '.claude/rules/code-quality.md',
+    '.claude/rules/typescript-standards.md',
+    'docs/DEBITOS_TECNICOS.md (secao codigo duplicado, fat components, no-unused-vars, console.log)',
+    'docs/compound/*.md (filtrar: padrao de codigo, anti-pattern, refatoracao)',
+    '.claude/progress.txt (grep: style, convention, anti-pattern, padrao, gotcha)',
+    'docs/DECISIONS.md (grep: naming, convention, code style)',
+  ]],
+  ['docs/STATE.md', [
+    '.claude/ (diretorio completo — estado instalado do plugin)',
+    'docs/exec-plans/active/ (planos em andamento — informa "pending work")',
+    'docs/exec-plans/tech-debt-tracker.md',
+    'plugin-manifest.json',
+  ]],
+])
+
 /**
  * Retorna Wave 1 (discovery, stack-aware) e Wave 2 (write sections) para um doc canonico.
  * Plano 04 fase-02 — CA-04 do PRD: Rails → app/views/app/assets em FRONTEND.md,
  * Node-TS → src/ paths. G3 do README: paths vivem em CODE_PATHS_BY_DOC, nao concatenados.
+ *
+ * 2026-05-22 (Luiz/dev): Wave 1 agora prepende existingDocs (docs/audits/gotchas/ADRs
+ * pre-existentes) antes dos paths de codigo stack-specific. Origem: tracer-bullet SECURITY
+ * revelou que LLM-senior precisa ler artefatos existentes (auditorias, compound, gotchas)
+ * antes de grepar codigo — sem isso o output regrediu ao escopo "grep-only" do Andre.
  */
 export function buildWavesForDoc(doc: string, stack: StackId | null): ReadonlyArray<Wave> {
   const pathsEntry = CODE_PATHS_BY_DOC.get(doc)
+  const existingDocs = EXISTING_DOCS_TO_SCAN_BY_DOC.get(doc) ?? []
+  const existingItems: ReadonlyArray<string> = existingDocs.map(
+    p => `Scan existing artifact \`${p}\` if present (skip silently if absent)`,
+  )
   if (!pathsEntry) {
+    const fallbackItems = existingItems.length > 0
+      ? [...existingItems, `Then read the codebase to find inputs relevant to ${doc}`]
+      : [`Read the codebase to find inputs relevant to ${doc}`]
     return [
-      { name: 'Wave 1 — Discovery', items: [`Read the codebase to find inputs relevant to ${doc}`] },
+      { name: 'Wave 1 — Discovery', items: fallbackItems },
       { name: 'Wave 2 — Write sections', items: ['Write each section listed in sectionsToWrite'] },
     ]
   }
@@ -563,9 +698,12 @@ export function buildWavesForDoc(doc: string, stack: StackId | null): ReadonlyAr
   // Resolve paths por stack — fallback para default se stack-specific ausente ou stack=null.
   const stackKey = stack && stack !== 'unknown' ? stack : undefined
   const stackPaths = (stackKey && pathsEntry[stackKey]) ?? pathsEntry.default ?? []
-  const wave1Items: ReadonlyArray<string> = stackPaths.length > 0
+  const codeItems: ReadonlyArray<string> = stackPaths.length > 0
     ? stackPaths.map(p => `Read \`${p}\``)
     : [`Read the codebase to find inputs relevant to ${doc}`]
+
+  // Existing artifacts (auditorias, compound, gotchas, ADRs) PRIMEIRO; codigo depois.
+  const wave1Items: ReadonlyArray<string> = [...existingItems, ...codeItems]
 
   return [
     { name: 'Wave 1 — Discovery', items: wave1Items },

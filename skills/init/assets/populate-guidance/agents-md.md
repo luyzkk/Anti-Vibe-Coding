@@ -14,6 +14,10 @@ O publico primario sao os proprios agentes (Claude Code lendo ao iniciar uma ses
 
 Prescritivo e especifico. "Delegue para um subagente quando a task toca mais de 5 arquivos independentes" eh bom. "Use agentes de forma responsavel" eh ruim — vago ao ponto de ser inutil. Cada regra deve ser verificavel: ou voce fez ou nao fez.
 
+## Artefatos existentes — prioridade no Wave 1
+
+Wave 1 do fase de execucao lista artefatos pre-existentes (`Scan existing artifact ...`) ANTES dos paths de codigo. Esses artefatos sao fontes de alta prioridade — contem conhecimento senior ja documentado no repo (auditorias, ADRs, compound notes, gotchas, rules). Leia-os PRIMEIRO. Conteudo derivado de artefatos existentes vira citacao inline ou base de secao no doc final. Se um artefato nao existir no projeto-alvo, a instrucao `skip silently if absent` se aplica — marque `TODO(<owner/context needed>): ...` apenas quando a informacao seria critica e nao ha substituto.
+
 ## Sinais a procurar no codebase
 
 - `subagent_type:` em qualquer arquivo `.md` — indica que subagentes ja sao declarados neste repositorio. Mapeie quais IDs existem.

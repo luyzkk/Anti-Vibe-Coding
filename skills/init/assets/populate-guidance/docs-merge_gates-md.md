@@ -14,6 +14,10 @@ O publico primario sao contribuidores configurando CI pela primeira vez e engenh
 
 Operacional e linkado ao CI. Cada gate tem: o que verifica, qual comando executa, onde a configuracao vive, e o que bloqueia o merge se falhar. Um gate descrito sem link para o CI step que o enforca nao tem valor. "ESLint deve passar" eh incompleto; "ESLint passa via `.github/workflows/lint.yml` — falha bloqueia merge via branch protection" eh um gate real.
 
+## Artefatos existentes — prioridade no Wave 1
+
+Wave 1 do fase de execucao lista artefatos pre-existentes (`Scan existing artifact ...`) ANTES dos paths de codigo. Esses artefatos sao fontes de alta prioridade — contem conhecimento senior ja documentado no repo (auditorias, ADRs, compound notes, gotchas, rules). Leia-os PRIMEIRO. Conteudo derivado de artefatos existentes vira citacao inline ou base de secao no doc final. Se um artefato nao existir no projeto-alvo, a instrucao `skip silently if absent` se aplica — marque `TODO(<owner/context needed>): ...` apenas quando a informacao seria critica e nao ha substituto.
+
 ## Sinais a procurar no codebase
 
 - `.github/workflows/` — onde os workflows de CI vivem. Lista de arquivos revela quais gates ja existem.
