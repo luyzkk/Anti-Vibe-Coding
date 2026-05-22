@@ -1,7 +1,8 @@
 ---
 slug: refactor-populate-plan-faseplanv1
 date: 2026-05-21
-status: ready
+status: completed
+completedAt: 2026-05-21
 requires: []
 ---
 

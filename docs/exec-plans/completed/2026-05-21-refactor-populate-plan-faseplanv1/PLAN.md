@@ -1,8 +1,9 @@
 ---
 title: "Refatorar populate-plan-generator → hierarquia + FasePlanInput v1"
 mode: full
-status: active
+status: completed
 created: 2026-05-21
+completedAt: 2026-05-21
 ---
 
 # Exec Plan: Refatorar populate-plan-generator → hierarquia + FasePlanInput v1
