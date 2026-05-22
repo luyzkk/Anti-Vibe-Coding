@@ -319,6 +319,25 @@ Sugerir ao desenvolvedor executar `/anti-vibe-coding:anti-vibe-review`.
 - Para features E2E: User Story → Example Mapping → Gherkin e o fluxo de maior ROI com IA
 </constraints>
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Vou escrever os testes depois que o código estiver funcionando" | Testes escritos após implementação tendem a apenas confirmar o que foi feito, não o que deveria ser feito. Test-after não descobre design problems. |
+| "Este código é tão simples que não precisa de teste" | Código simples hoje, complexo amanhã. O custo de escrever o teste é mínimo; o custo da regressão não é. |
+| "TDD é lento, vou usar em código complexo" | TDD é mais lento no início de um arquivo, mais rápido no total do projeto. O tempo economizado em debug supera o investimento. |
+| "O tipo já garante o comportamento — não preciso testar" | Types verificam estrutura; testes verificam comportamento. Um `string` pode ser um email inválido — o compilador não detecta. |
+
+## Red Flags
+
+- `test.skip` ou `xit` sem comentário com data e ticket vinculado
+- `expect(true).toBe(true)` ou qualquer assertion que sempre passa
+- Teste sem nenhuma assertion (`expect` ausente)
+- 0% de cobertura em arquivo com lógica de negócio
+- Teste que só roda com `--testNamePattern` específico (jamais na suite completa)
+- Mock que retorna dados de produção hardcoded sem label `FIXTURE`
+- Describe block vazio criado como placeholder sem `test.todo`
+
 ## Feature solicitada
 
 $ARGUMENTS
