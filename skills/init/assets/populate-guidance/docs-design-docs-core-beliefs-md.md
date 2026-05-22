@@ -14,6 +14,10 @@ O publico primario sao os proprios agentes lendo antes de tomar decisoes arquite
 
 Prescritivo e fundamentado. Cada principio deve ter um "por que" — nao apenas "faca X", mas "faca X porque Y". Principios sem justificativa viram dogma. Principios com justificativa podem ser debatidos e evoluidos. Se um principio foi aprendido com custo (bug em producao, incidente de seguranca, acumulo de divida tecnica), o contexto torna o principio mais memoravel e aplicavel.
 
+## Artefatos existentes — prioridade no Wave 1
+
+Wave 1 do fase de execucao lista artefatos pre-existentes (`Scan existing artifact ...`) ANTES dos paths de codigo. Esses artefatos sao fontes de alta prioridade — contem conhecimento senior ja documentado no repo (auditorias, ADRs, compound notes, gotchas, rules). Leia-os PRIMEIRO. Conteudo derivado de artefatos existentes vira citacao inline ou base de secao no doc final. Se um artefato nao existir no projeto-alvo, a instrucao `skip silently if absent` se aplica — marque `TODO(<owner/context needed>): ...` apenas quando a informacao seria critica e nao ha substituto.
+
 ## Sinais a procurar no codebase
 
 - `docs/design-docs/` — ADRs existentes revelam que o time ja documentou decisoes arquiteturais. Esses ADRs informam os defaults de arquitetura.

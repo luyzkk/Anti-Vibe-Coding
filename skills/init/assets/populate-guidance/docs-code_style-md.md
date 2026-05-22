@@ -14,6 +14,10 @@ O publico primario sao engenheiros e agentes adicionando codigo novo, e revisore
 
 Pragmatico e ancorado em exemplos concretos do proprio codebase. "Arquivos TypeScript usam kebab-case (user-service.ts, auth-middleware.ts)" com um link para o diretorio onde voce pode confirmar isso eh util. "Use nomes descritivos" nao eh — qualquer desenvolvedor intermediario ja sabe isso. Cada regra deve ter ou um link para o config que a enforca automaticamente, ou um exemplo do porque ela existe.
 
+## Artefatos existentes — prioridade no Wave 1
+
+Wave 1 do fase de execucao lista artefatos pre-existentes (`Scan existing artifact ...`) ANTES dos paths de codigo. Esses artefatos sao fontes de alta prioridade — contem conhecimento senior ja documentado no repo (auditorias, ADRs, compound notes, gotchas, rules). Leia-os PRIMEIRO. Conteudo derivado de artefatos existentes vira citacao inline ou base de secao no doc final. Se um artefato nao existir no projeto-alvo, a instrucao `skip silently if absent` se aplica — marque `TODO(<owner/context needed>): ...` apenas quando a informacao seria critica e nao ha substituto.
+
 ## Sinais a procurar no codebase
 
 - `.eslintrc`, `biome.json` — regras de linter. O que ja eh enforced automaticamente nao precisa ser repetido aqui — apenas regras que requerem julgamento adicional.

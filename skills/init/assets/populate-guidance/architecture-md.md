@@ -14,6 +14,10 @@ O publico eh tanto humanos (novos contribuidores, revisores de PR) quanto agente
 
 Descritivo e estrutural. Preferencia por diagramas em texto (mermaid ou ASCII simples) com 1-2 sentencas de explicacao — nao o contrario. Se voce precisar de 3 paragrafos para descrever um componente, o diagrama esta faltando. Cada componente deve ter um link para o path real no codebase — sem links, o doc vira especulacao.
 
+## Artefatos existentes — prioridade no Wave 1
+
+Wave 1 do fase de execucao lista artefatos pre-existentes (`Scan existing artifact ...`) ANTES dos paths de codigo. Esses artefatos sao fontes de alta prioridade — contem conhecimento senior ja documentado no repo (auditorias, ADRs, compound notes, gotchas, rules). Leia-os PRIMEIRO. Conteudo derivado de artefatos existentes vira citacao inline ou base de secao no doc final. Se um artefato nao existir no projeto-alvo, a instrucao `skip silently if absent` se aplica — marque `TODO(<owner/context needed>): ...` apenas quando a informacao seria critica e nao ha substituto.
+
 ## Sinais a procurar no codebase
 
 - `import\s` e `require(` — mapeia dependencias entre modulos. Revela a estrutura real, nao a imaginada.

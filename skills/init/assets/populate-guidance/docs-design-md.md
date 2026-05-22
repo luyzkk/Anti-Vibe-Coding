@@ -14,6 +14,10 @@ O publico primario eh quem trabalha na interface visual: designers que precisam 
 
 Referencial e preciso. Cada token mencionado deve ter um link para o arquivo de origem real (tailwind.config.ts, CSS vars, etc.) — nao duplicar os valores aqui. "Cor primaria: ver tailwind.config.ts#L42" eh melhor do que "Cor primaria: #3B82F6" porque o arquivo de origem eh a fonte da verdade e nao fica desatualizado.
 
+## Artefatos existentes — prioridade no Wave 1
+
+Wave 1 do fase de execucao lista artefatos pre-existentes (`Scan existing artifact ...`) ANTES dos paths de codigo. Esses artefatos sao fontes de alta prioridade — contem conhecimento senior ja documentado no repo (auditorias, ADRs, compound notes, gotchas, rules). Leia-os PRIMEIRO. Conteudo derivado de artefatos existentes vira citacao inline ou base de secao no doc final. Se um artefato nao existir no projeto-alvo, a instrucao `skip silently if absent` se aplica — marque `TODO(<owner/context needed>): ...` apenas quando a informacao seria critica e nao ha substituto.
+
 ## Sinais a procurar no codebase
 
 - `tailwind.config` — define tokens de cor, espacamento e tipografia. Eh a fonte primaria para projetos Next/React.

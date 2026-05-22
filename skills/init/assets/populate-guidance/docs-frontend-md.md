@@ -14,6 +14,10 @@ O publico primario sao engenheiros frontend (humanos e agentes) tomando decisoes
 
 Tecnico e especifico para o stack. "Usamos App Router do Next.js 14 com server components por default — use `'use client'` apenas quando necessario" eh bom. "Temos um frontend moderno" eh ruim. Cada afirmacao deve ser verificavel no codebase. Avoid aspiracoes — descreva o que existe.
 
+## Artefatos existentes — prioridade no Wave 1
+
+Wave 1 do fase de execucao lista artefatos pre-existentes (`Scan existing artifact ...`) ANTES dos paths de codigo. Esses artefatos sao fontes de alta prioridade — contem conhecimento senior ja documentado no repo (auditorias, ADRs, compound notes, gotchas, rules). Leia-os PRIMEIRO. Conteudo derivado de artefatos existentes vira citacao inline ou base de secao no doc final. Se um artefato nao existir no projeto-alvo, a instrucao `skip silently if absent` se aplica — marque `TODO(<owner/context needed>): ...` apenas quando a informacao seria critica e nao ha substituto.
+
 ## Sinais a procurar no codebase
 
 - `src/app/` — confirma App Router (Next.js 14+). Presenca de `page.tsx`, `layout.tsx`, `loading.tsx`.

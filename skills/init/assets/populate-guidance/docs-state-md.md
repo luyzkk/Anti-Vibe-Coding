@@ -14,6 +14,10 @@ O publico primario sao agentes lendo STATE.md para orientar decisoes baseadas no
 
 Gerado e factual. STATE.md nao eh narrativo — eh um registro de fatos sobre a instalacao atual. Cada campo tem um valor especifico ou um `TODO` explicito se nao foi preenchido pelo init. "Stack primaria: node-ts (detectada via package.json em 2026-05-21)" eh bom. "Stack: TypeScript" eh ruim — falta o ID canonico e a fonte de deteccao.
 
+## Artefatos existentes — prioridade no Wave 1
+
+Wave 1 do fase de execucao lista artefatos pre-existentes (`Scan existing artifact ...`) ANTES dos paths de codigo. Esses artefatos sao fontes de alta prioridade — contem conhecimento senior ja documentado no repo (auditorias, ADRs, compound notes, gotchas, rules). Leia-os PRIMEIRO. Conteudo derivado de artefatos existentes vira citacao inline ou base de secao no doc final. Se um artefato nao existir no projeto-alvo, a instrucao `skip silently if absent` se aplica — marque `TODO(<owner/context needed>): ...` apenas quando a informacao seria critica e nao ha substituto.
+
 ## Sinais a procurar no codebase
 
 - `package.json` — primary source para deteccao de stack Node/TypeScript. Scripts, dependencies e devDependencies revelam o stack.
