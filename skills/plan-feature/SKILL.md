@@ -832,6 +832,26 @@ console.log('\n\n' + renderCompletionSignal({
 - `lib/legacy-detector.md` — Algoritmo de deteccao de estrutura legacy (consumido pelo Step 0)
 - `lib/legacy-migrator.md` — Algoritmo de migracao atomica STAGE/MOVE/CONFIRM/ROLLBACK (consumido pelo Step 0)
 
+---
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Vou planejar enquanto codifico" | Planejamento e implementacao misturados geram escopo crescente invisivel. Quando perceber o desvio, ja ha codigo que resiste a mudanca. |
+| "O plano esta na minha cabeca" | Plano nao escrito nao e plano — e intencao. Intencao nao passa por revisao nem por sub-agente. |
+| "Essa feature e simples, nao precisa de PRD" | Features "simples" sem spec sao as maiores fontes de retrabalho. A simplificacao e visivel antes de comecar, nao depois. |
+| "Vou ajustar as fases durante a execucao" | Ajustes durante execucao nao documentados geram desvios invisiveis. Correto e pausar, corrigir o plano, entao prosseguir. |
+
+## Red Flags
+
+- Task sem criterio explicito de verificacao (como saber que esta pronta?)
+- Fase com descricao "criar tudo de uma vez" ou "implementar o modulo completo"
+- Estimativa de sizing ausente ou apenas "grande/medio/pequeno" sem justificativa
+- Dependencia entre fases nao declarada explicitamente
+- Plano sem secao de rollback ou exit criteria
+- Feature com >3 etapas sem diagrama de fluxo ou sequencia de estados
+
 ```typescript
 // === Telemetria passiva (Plano 03 fase-02) — registra fim ===
 // CA-03: end emitido SEMPRE
