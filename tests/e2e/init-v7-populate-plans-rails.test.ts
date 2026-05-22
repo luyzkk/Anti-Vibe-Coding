@@ -16,29 +16,39 @@ describe('e2e: init v7 generate-populate-plans (Rails)', () => {
     await fs.rm(cwd, { recursive: true, force: true })
   })
 
-  test('CA-04: FRONTEND.md plan contains app/views and app/assets in Wave 1', async () => {
+  test('CA-04: FRONTEND.md fase plan contains app/views and app/assets in Wave 1', async () => {
     await runInit([], { cwd })
 
+    // Nova hierarquia: fase-02-docs-frontend.md dentro da pasta populate-harness
     const activeDir = path.join(cwd, 'docs/exec-plans/active')
-    const frontendDir = (await fs.readdir(activeDir))
-      .find(d => d.endsWith('populate-docs-frontend-md'))
-    expect(frontendDir, 'FRONTEND.md populate dir').toBeDefined()
+    const harnessDir = (await fs.readdir(activeDir)).find(d => d.includes('-populate-harness'))
+    expect(harnessDir, 'populate-harness dir').toBeDefined()
 
+    const frontendFase = (await fs.readdir(path.join(activeDir, harnessDir!))).find(f =>
+      f.includes('docs-frontend'),
+    )
+    expect(frontendFase, 'frontend fase file').toBeDefined()
     const content = await fs.readFile(
-      path.join(activeDir, frontendDir!, 'PLAN.md'),
+      path.join(activeDir, harnessDir!, frontendFase!),
       'utf-8',
     )
-    expect(content).toContain('app/views')
-    expect(content).toContain('app/assets')
-    expect(content).not.toContain('src/components')
+    // Wave 1 Discovery deve usar paths Rails (app/views, app/assets)
+    // Nota: detection signals listam ambos os stacks — verificar Wave 1 section especificamente
+    const wave1Match = content.match(/### Wave 1 — Discovery([\s\S]*?)###/)
+    const wave1 = wave1Match ? wave1Match[1] : ''
+    expect(wave1).toContain('app/views')
+    expect(wave1).toContain('app/assets')
+    expect(wave1).not.toContain('src/components')
   })
 
-  test('Rails SECURITY plan uses Gemfile and config/initializers (not Node paths)', async () => {
+  test('Rails SECURITY fase plan uses Gemfile and config/initializers (not Node paths)', async () => {
     await runInit([], { cwd })
-    const securityDir = (await fs.readdir(path.join(cwd, 'docs/exec-plans/active')))
-      .find(d => d.endsWith('populate-docs-security-md'))!
+    const activeDir = path.join(cwd, 'docs/exec-plans/active')
+    const harnessDir = (await fs.readdir(activeDir)).find(d => d.includes('-populate-harness'))!
+    const securityFase = (await fs.readdir(path.join(activeDir, harnessDir)))
+      .find(f => f.includes('docs-security'))!
     const content = await fs.readFile(
-      path.join(cwd, 'docs/exec-plans/active', securityDir, 'PLAN.md'),
+      path.join(activeDir, harnessDir, securityFase),
       'utf-8',
     )
     expect(content).toContain('Gemfile')

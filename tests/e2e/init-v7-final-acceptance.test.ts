@@ -16,14 +16,25 @@ describe('e2e: init v7 — acceptance criteria suite (PRD CA-01..CA-09)', () => 
     if (cwd) await fs.rm(cwd, { recursive: true, force: true })
   })
 
-  test('CA-01: greenfield Node-TS init creates 16 PLAN.md + .github files + 4 AVC docs', async () => {
+  test('CA-01: greenfield Node-TS init creates populate-harness folder with 16 fases + .github files + 4 AVC docs', async () => {
     cwd = await copyFixtureToTmp('v7-populate-node')
     await runInit([], { cwd, askUser: async () => 'N', log: () => {} })
 
-    // 16 PLAN.md em docs/exec-plans/active/{date}-populate-*/
+    // 1 pasta populate-harness em docs/exec-plans/active/ com 16 fase-NN-*.md (Plano 02 fase-01 hierarquia)
     const activeDir = path.join(cwd, 'docs/exec-plans/active')
-    const populateDirs = (await fs.readdir(activeDir)).filter((e) => e.includes('-populate-'))
-    expect(populateDirs.length).toBe(16)
+    const populateDirs = (await fs.readdir(activeDir)).filter((e) => e.includes('-populate-harness'))
+    expect(populateDirs.length).toBe(1)
+
+    const harnessDir = path.join(activeDir, populateDirs[0]!)
+    const harnessFiles = await fs.readdir(harnessDir)
+    const faseMds = harnessFiles.filter(f => f.startsWith('fase-') && f.endsWith('.md'))
+    expect(faseMds.length).toBe(16)
+
+    // PLAN.md, PRD.md, CONTEXT.md presentes
+    for (const f of ['PLAN.md', 'PRD.md', 'CONTEXT.md']) {
+      const stat = await fs.stat(path.join(harnessDir, f)).catch(() => null)
+      expect(stat?.isFile(), `${f} should exist in harness`).toBe(true)
+    }
 
     // 4 docs extras AVC presentes (RF-12)
     for (const doc of ['docs/MERGE_GATES.md', 'docs/CODE_STYLE.md', 'docs/STATE.md', '.claude/CLAUDE.md']) {
@@ -57,19 +68,27 @@ describe('e2e: init v7 — acceptance criteria suite (PRD CA-01..CA-09)', () => 
     expect(manifest.legacy.length).toBeGreaterThan(0)
   })
 
-  test('CA-04: Rails greenfield → FRONTEND plan contains app/views and app/assets', async () => {
+  test('CA-04: Rails greenfield → FRONTEND fase plan contains app/views and app/assets', async () => {
     cwd = await copyFixtureToTmp('v7-populate-rails')
     await runInit([], { cwd, askUser: async () => 'N', log: () => {} })
 
+    // Nova hierarquia: fase-02-docs-frontend.md dentro da pasta populate-harness
     const activeDir = path.join(cwd, 'docs/exec-plans/active')
-    const frontendDir = (await fs.readdir(activeDir)).find((d) =>
-      d.endsWith('populate-docs-frontend-md'),
+    const harnessDir = (await fs.readdir(activeDir)).find((d) => d.includes('-populate-harness'))
+    expect(harnessDir, 'populate-harness dir').toBeDefined()
+
+    const frontendFase = (await fs.readdir(path.join(activeDir, harnessDir!))).find(f =>
+      f.includes('docs-frontend'),
     )
-    expect(frontendDir).toBeDefined()
-    const content = await fs.readFile(path.join(activeDir, frontendDir!, 'PLAN.md'), 'utf8')
-    expect(content).toContain('app/views')
-    expect(content).toContain('app/assets')
-    expect(content).not.toContain('src/components')
+    expect(frontendFase, 'frontend fase file').toBeDefined()
+    const content = await fs.readFile(path.join(activeDir, harnessDir!, frontendFase!), 'utf8')
+    // Wave 1 Discovery deve usar paths Rails (app/views, app/assets)
+    // Nota: detection signals listam ambos os stacks — verificar Wave 1 section especificamente
+    const wave1Match = content.match(/### Wave 1 — Discovery([\s\S]*?)###/)
+    const wave1 = wave1Match ? wave1Match[1] : ''
+    expect(wave1).toContain('app/views')
+    expect(wave1).toContain('app/assets')
+    expect(wave1).not.toContain('src/components')
   })
 
   test('CA-05: greenfield without legacy → manifest.legacy is empty array', async () => {
@@ -105,10 +124,12 @@ describe('e2e: init v7 — acceptance criteria suite (PRD CA-01..CA-09)', () => 
     expect(after).not.toContain('## Delivery Loop')
   })
 
-  test('CA-07: every generated PLAN.md has exactly 10 H2 sections in canonical order', async () => {
+  test('CA-07: every generated fase-NN-*.md has exactly 10 H2 sections in canonical order', async () => {
     cwd = await copyFixtureToTmp('v7-populate-node')
     await runInit([], { cwd, askUser: async () => 'N', log: () => {} })
 
+    // Nova hierarquia: fases individuais em populate-harness/ (nao PLAN.md)
+    // renderFasePlan emite 10 H2 Andre + ## Final Report Contract (ADR-0022 decisao 6)
     const EXPECTED = [
       '## Goal',
       '## Scope',
@@ -120,13 +141,17 @@ describe('e2e: init v7 — acceptance criteria suite (PRD CA-01..CA-09)', () => 
       '## Compound Opportunity',
       '## Lessons Captured',
       '## Exit Criteria',
+      '## Final Report Contract',
     ]
     const activeDir = path.join(cwd, 'docs/exec-plans/active')
-    const dirs = (await fs.readdir(activeDir)).filter((e) => e.includes('-populate-'))
-    for (const dir of dirs) {
-      const content = await fs.readFile(path.join(activeDir, dir, 'PLAN.md'), 'utf8')
+    const harnessDir = (await fs.readdir(activeDir)).find((e) => e.includes('-populate-harness'))!
+    const faseMds = (await fs.readdir(path.join(activeDir, harnessDir))).filter(f =>
+      f.startsWith('fase-') && f.endsWith('.md'),
+    )
+    for (const faseFile of faseMds) {
+      const content = await fs.readFile(path.join(activeDir, harnessDir, faseFile), 'utf8')
       const sections = content.split('\n').filter((l) => l.startsWith('## '))
-      expect(sections, `Plan ${dir} sections`).toEqual(EXPECTED)
+      expect(sections, `${faseFile} sections`).toEqual(EXPECTED)
     }
   })
 

@@ -1,285 +1,108 @@
-<!--
-2026-05-19 (Luiz/dev): PLAN.md.tpl — template do populate-harness.
-Decisao: D1 e D4 do PRD populate-plan-andre-port (MH-2 / CA-03).
-Fonte canonica das 10 primeiras secoes: skills/lib/exec-plan-sections.ts (EXEC_PLAN_SECTIONS_FULL).
-11a secao (Observability) e melhoria nossa: descreve audit log do Step 91.
-3 opcionais (Follow-up Plans, Final Report, Pre-GO) entram como comentario — CA-03 do PRD diz
-"ausentes ou marcadas". NUNCA promover a H2 sem conteudo real.
+# Populate: docs/DESIGN.md
 
-Variaveis interpoladas pelo renderer (populate-plan-generator.ts, applyVars):
-  fixture-nextjs-supabase  — nome do projeto (frontmatter + heading)
-  2026-05-19          — YYYY-MM-DD da geracao
-  | Fase | Doc canonico | Arquivo | Status |
-|------|--------------|---------|--------|
-| 01 | `docs/DESIGN.md` | [fase-01-docs-design.md](./fase-01-docs-design.md) | aberta |
-| 02 | `docs/FRONTEND.md` | [fase-02-docs-frontend.md](./fase-02-docs-frontend.md) | aberta |
-| 03 | `docs/PLANS.md` | [fase-03-docs-plans.md](./fase-03-docs-plans.md) | aberta |
-| 04 | `docs/PRODUCT_SENSE.md` | [fase-04-docs-product-sense.md](./fase-04-docs-product-sense.md) | aberta |
-| 05 | `docs/QUALITY_SCORE.md` | [fase-05-docs-quality-score.md](./fase-05-docs-quality-score.md) | aberta |
-| 06 | `docs/MERGE_GATES.md` | [fase-06-docs-merge-gates.md](./fase-06-docs-merge-gates.md) | aberta |
-| 07 | `docs/RELIABILITY.md` | [fase-07-docs-reliability.md](./fase-07-docs-reliability.md) | aberta |
-| 08 | `docs/SECURITY.md` | [fase-08-docs-security.md](./fase-08-docs-security.md) | aberta |
-| 09 | `docs/CODE_STYLE.md` | [fase-09-docs-code-style.md](./fase-09-docs-code-style.md) | aberta |
-| 10 | `docs/design-docs/index.md` | [fase-10-docs-design-docs-index.md](./fase-10-docs-design-docs-index.md) | aberta |
-| 11 | `docs/design-docs/core-beliefs.md` | [fase-11-docs-design-docs-core-beliefs.md](./fase-11-docs-design-docs-core-beliefs.md) | aberta |
-| 12 | `docs/exec-plans/active/README.md` | [fase-12-docs-exec-plans-active-readme.md](./fase-12-docs-exec-plans-active-readme.md) | aberta |
-| 13 | `docs/exec-plans/completed/README.md` | [fase-13-docs-exec-plans-completed-readme.md](./fase-13-docs-exec-plans-completed-readme.md) | aberta |
-| 14 | `docs/exec-plans/tech-debt-tracker.md` | [fase-14-docs-exec-plans-tech-debt-tracker.md](./fase-14-docs-exec-plans-tech-debt-tracker.md) | aberta |
-| 15 | `docs/compound/README.md` | [fase-15-docs-compound-readme.md](./fase-15-docs-compound-readme.md) | aberta |
-| 16 | `docs/review-checklists/README.md` | [fase-16-docs-review-checklists-readme.md](./fase-16-docs-review-checklists-readme.md) | aberta |
-| 17 | `docs/review-checklists/security.md` | [fase-17-docs-review-checklists-security.md](./fase-17-docs-review-checklists-security.md) | aberta |
-| 18 | `docs/review-checklists/reliability.md` | [fase-18-docs-review-checklists-reliability.md](./fase-18-docs-review-checklists-reliability.md) | aberta |
-| 19 | `docs/review-checklists/agent-api.md` | [fase-19-docs-review-checklists-agent-api.md](./fase-19-docs-review-checklists-agent-api.md) | aberta |
-| 20 | `docs/review-checklists/frontend-ui.md` | [fase-20-docs-review-checklists-frontend-ui.md](./fase-20-docs-review-checklists-frontend-ui.md) | aberta |
-| 21 | `docs/review-checklists/production-readiness.md` | [fase-21-docs-review-checklists-production-readiness.md](./fase-21-docs-review-checklists-production-readiness.md) | aberta |
-| 22 | `docs/smoke-flows/README.md` | [fase-22-docs-smoke-flows-readme.md](./fase-22-docs-smoke-flows-readme.md) | aberta |
-| 23 | `docs/product-specs/index.md` | [fase-23-docs-product-specs-index.md](./fase-23-docs-product-specs-index.md) | aberta |
-| 24 | `docs/references/README.md` | [fase-24-docs-references-readme.md](./fase-24-docs-references-readme.md) | aberta |
-| 25 | `docs/generated/db-schema.md` | [fase-25-docs-generated-db-schema.md](./fase-25-docs-generated-db-schema.md) | aberta |
-| 26 | `docs/STATE.md` | [fase-26-docs-state.md](./fase-26-docs-state.md) | aberta |
-| 27 | `TODO.md` | [fase-27-todo.md](./fase-27-todo.md) | aberta |
-| 28 | `README.md` | [fase-28-readme.md](./fase-28-readme.md) | aberta |
-| 29 | `ARCHITECTURE.md` | [fase-29-architecture.md](./fase-29-architecture.md) | aberta |
-| 30 | `AGENTS.md` | [fase-30-agents.md](./fase-30-agents.md) | aberta |
-| 31 | `.claude/CLAUDE.md` | [fase-31-.claude-claude.md](./fase-31-.claude-claude.md) | aberta |  — bloco Markdown ja renderizado com tabela de fases
+**Guidance file:** `skills/init/assets/populate-guidance/docs-design-md.md`
+**Validation command:** `bun run harness:validate`
+**Depends on:** ARCHITECTURE.md
 
-Para escapar literais `{{` `}}` no corpo, evitar — applyVars usa replaceAll sem regex,
-entao apenas as chaves declaradas acima sao substituidas.
--->
----
-title: "Populate Harness — fixture-nextjs-supabase"
-mode: populate-harness
-status: active
-created: 2026-05-19
-project: fixture-nextjs-supabase
----
-
-# Plan: Populate Harness — fixture-nextjs-supabase
-
-**Generated by:** /anti-vibe-coding:init (Step 91-generate-populate-plan)
-**Date:** 2026-05-19
-**Status:** active
-
----
+**Detection signals (grep before writing):**
+- `docs/design-docs/ADR-`
+- `tailwind.config`
+- `globals.css`
+- `design-tokens`
 
 ## Goal
 
-Popular todos os docs canonicos do projeto `fixture-nextjs-supabase` com conteudo real extraido do
-codebase — zero placeholder, cada afirmacao referencia um arquivo lido. O contrato Harness
-do Andre exige docs vivos, nao templates genericos.
+Document the visual and interaction design system: tokens, component guidelines, and design-to-code conventions.
 
 ## Scope
 
-**In scope:**
-- Popular cada doc canonico listado em `Execution Steps` (1 fase por doc).
-- Subagente `harness-populator` consome inputs declarados (docs candidatos + paths de codigo).
-- Validacao por leitura humana via PR review.
+**In:**
+- Design tokens (colors, spacing, typography)
+- Component naming conventions
+- Design-to-code handoff process
+- Figma / design tool links if applicable
 
-**Out of scope:**
-- COMPOUND_ENGINEERING.md (meta-doc filosofico — D5 do PRD exclui).
-- Geracao de testes de codigo (responsabilidade de outros planos).
-- Refactor do codigo lido (somente leitura).
+**Out:**
+- Frontend implementation details (lives in docs/FRONTEND.md)
+- Code style (lives in docs/CODE_STYLE.md)
 
 ## Assumptions
 
-- Stack ja detectado por Step 03 (`detect-stack-and-register`).
-- `discovery-manifest-light` ja capturou docs existentes (Step 06 ou greenfield = vazio).
-- `stack-aware-input-paths` ja mapeou paths reais por doc canonico (Step 12 ou fallback).
-- Subagente populator tem acesso de leitura ao repo.
+- Project has a UI layer
+- Design tokens are defined somewhere (CSS vars, Tailwind config, or design file)
 
 ## Risks
 
-- Doc orfao sem destino canonico obvio (DQ2 do CONTEXT) — subagente marca `needsUser`.
-- Path em `Inputs (codigo)` pode estar marcado como `nao encontrado` (movido/renomeado) — verificar antes de citar.
-- Conteudo gerado pode duplicar info entre docs (ex: ARCHITECTURE vs DESIGN) — humano consolida no PR.
+| Risco | Mitigacao |
+|-------|-----------|
+| Design system described here drifts from implemented tokens | Link to actual token files (tailwind.config, CSS vars) rather than duplicating values |
 
 ## Execution Steps
 
-| Fase | Doc canonico | Arquivo | Status |
-|------|--------------|---------|--------|
-| 01 | `docs/DESIGN.md` | [fase-01-docs-design.md](./fase-01-docs-design.md) | aberta |
-| 02 | `docs/FRONTEND.md` | [fase-02-docs-frontend.md](./fase-02-docs-frontend.md) | aberta |
-| 03 | `docs/PLANS.md` | [fase-03-docs-plans.md](./fase-03-docs-plans.md) | aberta |
-| 04 | `docs/PRODUCT_SENSE.md` | [fase-04-docs-product-sense.md](./fase-04-docs-product-sense.md) | aberta |
-| 05 | `docs/QUALITY_SCORE.md` | [fase-05-docs-quality-score.md](./fase-05-docs-quality-score.md) | aberta |
-| 06 | `docs/MERGE_GATES.md` | [fase-06-docs-merge-gates.md](./fase-06-docs-merge-gates.md) | aberta |
-| 07 | `docs/RELIABILITY.md` | [fase-07-docs-reliability.md](./fase-07-docs-reliability.md) | aberta |
-| 08 | `docs/SECURITY.md` | [fase-08-docs-security.md](./fase-08-docs-security.md) | aberta |
-| 09 | `docs/CODE_STYLE.md` | [fase-09-docs-code-style.md](./fase-09-docs-code-style.md) | aberta |
-| 10 | `docs/design-docs/index.md` | [fase-10-docs-design-docs-index.md](./fase-10-docs-design-docs-index.md) | aberta |
-| 11 | `docs/design-docs/core-beliefs.md` | [fase-11-docs-design-docs-core-beliefs.md](./fase-11-docs-design-docs-core-beliefs.md) | aberta |
-| 12 | `docs/exec-plans/active/README.md` | [fase-12-docs-exec-plans-active-readme.md](./fase-12-docs-exec-plans-active-readme.md) | aberta |
-| 13 | `docs/exec-plans/completed/README.md` | [fase-13-docs-exec-plans-completed-readme.md](./fase-13-docs-exec-plans-completed-readme.md) | aberta |
-| 14 | `docs/exec-plans/tech-debt-tracker.md` | [fase-14-docs-exec-plans-tech-debt-tracker.md](./fase-14-docs-exec-plans-tech-debt-tracker.md) | aberta |
-| 15 | `docs/compound/README.md` | [fase-15-docs-compound-readme.md](./fase-15-docs-compound-readme.md) | aberta |
-| 16 | `docs/review-checklists/README.md` | [fase-16-docs-review-checklists-readme.md](./fase-16-docs-review-checklists-readme.md) | aberta |
-| 17 | `docs/review-checklists/security.md` | [fase-17-docs-review-checklists-security.md](./fase-17-docs-review-checklists-security.md) | aberta |
-| 18 | `docs/review-checklists/reliability.md` | [fase-18-docs-review-checklists-reliability.md](./fase-18-docs-review-checklists-reliability.md) | aberta |
-| 19 | `docs/review-checklists/agent-api.md` | [fase-19-docs-review-checklists-agent-api.md](./fase-19-docs-review-checklists-agent-api.md) | aberta |
-| 20 | `docs/review-checklists/frontend-ui.md` | [fase-20-docs-review-checklists-frontend-ui.md](./fase-20-docs-review-checklists-frontend-ui.md) | aberta |
-| 21 | `docs/review-checklists/production-readiness.md` | [fase-21-docs-review-checklists-production-readiness.md](./fase-21-docs-review-checklists-production-readiness.md) | aberta |
-| 22 | `docs/smoke-flows/README.md` | [fase-22-docs-smoke-flows-readme.md](./fase-22-docs-smoke-flows-readme.md) | aberta |
-| 23 | `docs/product-specs/index.md` | [fase-23-docs-product-specs-index.md](./fase-23-docs-product-specs-index.md) | aberta |
-| 24 | `docs/references/README.md` | [fase-24-docs-references-readme.md](./fase-24-docs-references-readme.md) | aberta |
-| 25 | `docs/generated/db-schema.md` | [fase-25-docs-generated-db-schema.md](./fase-25-docs-generated-db-schema.md) | aberta |
-| 26 | `docs/STATE.md` | [fase-26-docs-state.md](./fase-26-docs-state.md) | aberta |
-| 27 | `TODO.md` | [fase-27-todo.md](./fase-27-todo.md) | aberta |
-| 28 | `README.md` | [fase-28-readme.md](./fase-28-readme.md) | aberta |
-| 29 | `ARCHITECTURE.md` | [fase-29-architecture.md](./fase-29-architecture.md) | aberta |
-| 30 | `AGENTS.md` | [fase-30-agents.md](./fase-30-agents.md) | aberta |
-| 31 | `.claude/CLAUDE.md` | [fase-31-.claude-claude.md](./fase-31-.claude-claude.md) | aberta |
+### Wave 1 — Discovery
+
+- Read `tailwind.config.ts`
+- Read `src/app/globals.css`
+- Read `src/components/ui/`
+
+### Wave 2 — Write sections
+
+- Write the H2 section: Design Tokens
+- Write the H2 section: Component Guidelines
+- Write the H2 section: Design-to-Code Conventions
+- Write the H2 section: Design Tool Links
+
+**Must cover (per H2 in target doc):**
+
+- **Design Tokens**
+  - links to actual token source files
+  - color and spacing systems
+- **Component Guidelines**
+  - naming convention
+  - atomic vs composed
+- **Design-to-Code Conventions**
+  - handoff process
+  - who owns token definitions
+- **Design Tool Links**
+  - Figma URL or equivalent
+  - access instructions
+
+**Required outbound links:**
+
+- ARCHITECTURE.md
 
 ## Review Checklist
 
-- [ ] Cada doc populado tem ZERO placeholder generico (`TBD`, `lorem`, `<descricao>`).
-- [ ] Cada afirmacao no doc referencia path real do repo (verificavel com `grep`).
-- [ ] Itens marcados `needsUser` foram resolvidos no PR ou registrados em `MEMORY.md`.
+- [ ] Token references link to actual source files
+- [ ] No hardcoded values duplicated from source
+- [ ] No placeholder text
 
 ## Validation Log
 
-<!-- preencher durante /execute-plan: comando + resultado por fase -->
+<!-- preencher durante execucao: comando + resultado -->
 
 ## Compound Opportunity
 
-<!-- preencher ao /iterate: o que merece virar compound note? Ex: padroes recorrentes entre docs, gotchas de subagente, ajustes de heuristica candidate-docs. -->
+Design patterns that prevent common UI bugs belong in docs/compound/ as reusable patterns.
 
 ## Lessons Captured
 
-<!--
-2026-05-19 (Luiz/dev): Plano 05 fase-03 do PRD populate-plan-andre-port (SH-3).
-6 licoes genericas pre-populadas extraidas do plano referencia do Andre +
-compound notes consolidadas. Sao seeds — remover ou substituir apos primeira
-customizacao real do projeto (subagente do /execute-plan confirma ou edita).
--->
-
-- **Anti-pattern detectado:** heuristica e LLM podem ambos errar pelo mesmo motivo se o input mecanico (lista de docs canonicos no TEMPLATE_MANIFEST ou EXCLUDED) estiver errado. Validar lista de docs primeiro, antes de qualquer melhoria de qualidade na geracao.
-- **Principio universal — copy-then-improve:** ao portar de ferramenta validada externa (Andre, libs maduras), copiar literalmente primeiro, melhorar em cima. Nunca "adaptar para baixo".
-- **Padrao compound:** gate "nunca diminuir" deve ser TESTE, nao doc — docs decaem, testes nao. Aplicar a qualquer ponto onde paridade com referencia importa.
-- **Trade-off:** instrucoes imperativas (Fontes + Secoes + Honestidade) custam mais tokens no /execute-plan, mas o principio "nunca diminuir" precede custo. Documentar qualquer recusa futura de imperatividade.
-- **Honestidade > marketing:** cada afirmacao no doc canonico rastreia a um arquivo lido. Quando nao rastreia, marca `TODO(<contexto>):`. Doc com placeholder generico degrada todo o pipeline downstream.
-- **Audit antes de scaling cobertura:** Step 91 emite contagens (docsCobertos, docsSemEvidencia, fasesCriadas vs esperadas) antes de qualquer expansao — observabilidade primeiro, cobertura depois.
+<!-- preencher ao /iterate: links para docs/compound/ -->
 
 ## Exit Criteria
 
-- [ ] Todos os docs canonicos populados (= numero de fases mergeadas no PR).
-- [ ] `bun run test` e `bun run lint` verdes apos PR.
-- [ ] Humano aprovou via PR review — sem comentarios de placeholder pendente.
-
-## Observability
-
-Step 91 emite audit log estruturado por execucao com os seguintes campos:
-
-- `subagent_id`: id do subagente populator que rodou cada fase.
-- `input_paths`: lista de paths lidos (docs candidatos + codigo) — auditavel.
-- `contagens`: numero de inputs por doc canonico, numero de outputs gerados, numero de
-  `needsUser` emitidos.
-- `duracao_ms`: tempo total da fase.
-
-Audit log e persistido em `docs/exec-plans/active/2026-05-19-populate-harness/audit.log.jsonl`
-(append por fase). Plano 05 fase-02 detalha o contrato.
-
-<!-- opcional: Follow-up Plans — preencher quando outros planos dependerem deste populate-harness (ex: plano de refactor que precisa dos docs como input). -->
-
-<!-- opcional: Final Report — preencher ao fechar o PR com metricas (numero de docs populados, retries, tempo total). -->
-
-<!-- opcional: Pre-GO decisoes pendentes — preencher se houver decisoes que ainda precisam de aprovacao humana antes do merge. -->
-
----
-## Estrutura minima de fase (qualquer fase)
-
-<!--
-2026-05-19 (Luiz/dev): fase.md.tpl — template de fase individual do populate-harness.
-Decisao: D1 e D4 do PRD populate-plan-andre-port (MH-2).
-Adiciona sub-secao "Goal (local)" que o renderer atual nao tinha — alinhamento com Andre
-(cada fase declara seu objetivo local antes dos inputs).
-Step 91 PURO: renderer le este tpl e faz replace dos {{BLOCOS}} pelos helpers existentes
-em populate-plan-generator.ts (renderInputsDocsBlock, renderInputsCodeBlock,
-renderLLMInstructionBlock, renderDoneCriteriaBlock). ZERO LLM aqui.
-
-Variaveis interpoladas pelo renderer (applyVars):
-  01              — numero da fase (zero-padded "01", "02", ...)
-  docs/DESIGN.md          — path do doc canonico (ex: `docs/SECURITY.md`)
-  ### Inputs (docs candidatos)
-
-_(Nenhum doc existente detectado. LLM gera do zero a partir do codigo.)_
-     — bloco "### Inputs (docs candidatos)" ja renderizado
-  ### Inputs (codigo)
-
-- `tailwind.config.ts` _(candidato nao encontrado — verificar antes de usar)_
-- `src/app/globals.css` _(candidato nao encontrado — verificar antes de usar)_
-- `src/components/ui/` _(candidato nao encontrado — verificar antes de usar)_
-     — bloco "### Inputs (codigo)" ja renderizado
-  ### Instrucao LLM
-
-**Fontes:**
-- tailwind.config.{ts,js}
-- globals.css
-- components/ui/**
-- src/styles/tokens.css
-- figma-export.json (se existir)
-
-**Secoes obrigatorias do output:**
-- Tokens (cores, tipografia, spacing)
-- Componentes base
-- Padroes de composicao
-- Regras visuais (NAO regras de codigo — codigo vai em CODE_STYLE.md)
-
-Cada afirmacao rastreia um arquivo lido. Quando nao rastreia, marca `TODO(<contexto>):`. Honestidade > marketing.
-   — bloco "### Instrucao LLM" ja renderizado
-  ### Criterio de done
-
-Humano valida via PR review. Validador Step 90 emite warnings nao bloqueantes — qualidade real e avaliada por leitura humana do output. DQ3 do CONTEXT.
-   — bloco "### Criterio de done" ja renderizado
-
-Atencao: nao colocar `{{` ou `}}` literal no corpo — applyVars usa replaceAll, entao apenas
-as 6 chaves declaradas sao substituidas; um literal `{{XYZ}}` ficaria intacto no output
-(parece bug pro leitor humano).
--->
-# Fase 01: Popular `docs/DESIGN.md`
-
-**Doc canonico:** `docs/DESIGN.md`
-**Subagente:** harness-populator
+- [ ] harness:validate passes
+- [ ] Token links resolve
+- [ ] Zero placeholder lines
 
 ---
 
-### Goal (local)
+## Final Report Contract
 
-Popular `docs/DESIGN.md` com base nos inputs declarados abaixo — sem placeholder, sem
-conteudo generico. Cada afirmacao referencia um arquivo lido (path validado em `Inputs
-(codigo)` ou `Inputs (docs candidatos)`).
-
----
-
-### Inputs (docs candidatos)
-
-_(Nenhum doc existente detectado. LLM gera do zero a partir do codigo.)_
-
-
-### Inputs (codigo)
-
-- `tailwind.config.ts` _(candidato nao encontrado — verificar antes de usar)_
-- `src/app/globals.css` _(candidato nao encontrado — verificar antes de usar)_
-- `src/components/ui/` _(candidato nao encontrado — verificar antes de usar)_
-
-
-### Instrucao LLM
-
-**Fontes:**
-- tailwind.config.{ts,js}
-- globals.css
-- components/ui/**
-- src/styles/tokens.css
-- figma-export.json (se existir)
-
-**Secoes obrigatorias do output:**
-- Tokens (cores, tipografia, spacing)
-- Componentes base
-- Padroes de composicao
-- Regras visuais (NAO regras de codigo — codigo vai em CODE_STYLE.md)
-
-Cada afirmacao rastreia um arquivo lido. Quando nao rastreia, marca `TODO(<contexto>):`. Honestidade > marketing.
-
-
-### Criterio de done
-
-Humano valida via PR review. Validador Step 90 emite warnings nao bloqueantes — qualidade real e avaliada por leitura humana do output. DQ3 do CONTEXT.
+Quando esta fase for executada, o relatorio final DEVE listar:
+- **Files added** — paths criados nesta fase
+- **Files customized** — paths existentes que foram editados
+- **Files unchanged** — paths inspecionados mas nao modificados (com razao)
+- **Unresolved TODOs** — qualquer `TODO(<owner/context needed>): ...` deixado no doc
+- **Validation result** — output de `bun run harness:validate`
+- **First plan path** — proxima fase a executar (de `dependsOn` inverso)
