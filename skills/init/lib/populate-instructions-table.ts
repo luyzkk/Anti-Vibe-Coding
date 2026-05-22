@@ -5,12 +5,13 @@
 // 'nodejs-typescript'). 'nextjs' tambem mapeado pois compartilha o mesmo matrix folder.
 
 import type { StackId } from './detect-stack'
-import type { Wave, RiskEntry } from './populate-plan-generator'
+import type { Wave, RiskEntry, StackVariants } from './render-fase-plan'
 
 /**
  * Instrucao por doc — independente de stack. Paths reais vem de `buildWavesForDoc`.
  */
 export type DocInstruction = {
+  // === Campos antigos (mantidos para Plano 02 adapter) ===
   readonly goal: string
   readonly scopeIn: ReadonlyArray<string>
   readonly scopeOut: ReadonlyArray<string>
@@ -21,6 +22,22 @@ export type DocInstruction = {
   readonly reviewChecklist: ReadonlyArray<string>
   readonly compoundOpportunity: string
   readonly exitCriteria: ReadonlyArray<string>
+
+  // === Campos novos (FasePlanInput v1 ext) ===
+  /** Path do .md de guidance per-doc. NAO lido em runtime — apenas referenciado. */
+  readonly guidanceFile: string
+  /** Sinais que a LLM deve grepar no codebase antes de escrever o doc. */
+  readonly detectionSignals: ReadonlyArray<string>
+  /** Por H2 do doc-alvo, lista de itens que DEVEM ser cobertos na prosa final. */
+  readonly mustCover: Readonly<Record<string, ReadonlyArray<string>>>
+  /** Links obrigatorios para outros docs (anchor links permitidos). */
+  readonly linkTargets: ReadonlyArray<string>
+  /** Variacao por stack (opcional). Aceita 3 chaves: rails / nextjs / node-ts. */
+  readonly stackVariants?: StackVariants
+  /** Comando que fecha a fase com sinal de sucesso. */
+  readonly validationCommand: string
+  /** IDs de fases anteriores — docs dos quais este depende (vazio = independente). */
+  readonly dependsOn: ReadonlyArray<string>
 }
 
 /**
@@ -49,6 +66,17 @@ export const POPULATE_INSTRUCTIONS_BY_DOC: ReadonlyMap<string, DocInstruction> =
     reviewChecklist: ['Mirrors .claude/CLAUDE.md content', 'No conflicting instructions', 'All subagent IDs verifiable in code'],
     compoundOpportunity: 'If a delegation pattern proves valuable, capture as compound note in docs/compound/.',
     exitCriteria: ['harness:validate passes for AGENTS.md', 'Zero placeholder lines', 'Links to docs/AGENTS_LIST.md resolve'],
+    guidanceFile: 'skills/init/assets/populate-guidance/agents-md.md',
+    detectionSignals: ['subagent_type:', 'allowed-tools:', 'model:', 'Agent\\('],
+    mustCover: {
+      'Operating Contract': ['when to delegate vs do directly', 'cost of context switch'],
+      'Delegation Triggers': ['parallel-safe tasks', 'isolation requirements'],
+      'Audit Log Fields': ['fields required', 'retention policy'],
+      'Subagent Patterns': ['fork vs worktree', 'context isolation'],
+    },
+    linkTargets: ['.claude/CLAUDE.md', 'docs/AGENTS_LIST.md'],
+    validationCommand: 'bun run harness:validate',
+    dependsOn: [],
   }],
 
   ['ARCHITECTURE.md', {
@@ -61,6 +89,23 @@ export const POPULATE_INSTRUCTIONS_BY_DOC: ReadonlyMap<string, DocInstruction> =
     reviewChecklist: ['Each component links to a source path', 'Diagrams accompanied by 1-2 sentence description', 'No placeholder text'],
     compoundOpportunity: 'Architecture decisions that recur or surprise belong in docs/design-docs/ADR-*.md.',
     exitCriteria: ['harness:validate passes', 'Components claimed in doc exist in codebase'],
+    guidanceFile: 'skills/init/assets/populate-guidance/architecture-md.md',
+    detectionSignals: ['import\\s', 'require\\(', 'export default', 'config/routes'],
+    mustCover: {
+      'System Overview': ['primary stack', 'deployment target'],
+      'Components': ['each component links to source path', 'responsibility description'],
+      'Data Flow': ['request lifecycle', 'data persistence layer'],
+      'Key Invariants': ['invariants that must hold across refactors'],
+      'Decision Log Links': ['links to relevant ADR-*.md'],
+    },
+    linkTargets: ['docs/PLANS.md', 'docs/DESIGN.md'],
+    stackVariants: {
+      rails: 'Rails MVC — app/ layout, config/routes.rb as entry point',
+      nextjs: 'Next.js App Router — src/app/ layout, server/client split',
+      'node-ts': 'Node-TS monolith — src/ layout, entry via package.json main',
+    },
+    validationCommand: 'bun run harness:validate',
+    dependsOn: [],
   }],
 
   ['README.md', {
@@ -73,6 +118,22 @@ export const POPULATE_INSTRUCTIONS_BY_DOC: ReadonlyMap<string, DocInstruction> =
     reviewChecklist: ['Quick start can be followed top-to-bottom without external context', 'All links resolve', 'No placeholder text'],
     compoundOpportunity: 'Onboarding friction discovered during review belongs in docs/compound/ as a gotcha.',
     exitCriteria: ['harness:validate passes', 'Quick start steps verified runnable', 'Zero placeholder lines'],
+    guidanceFile: 'skills/init/assets/populate-guidance/readme-md.md',
+    detectionSignals: ['"scripts":', 'next dev', 'rails server', 'python manage.py', 'bun run'],
+    mustCover: {
+      'Overview': ['one-sentence project purpose', 'primary audience'],
+      'Prerequisites': ['runtime version', 'required env vars'],
+      'Quick Start': ['clone command', 'install command', 'run command'],
+      'Key Documentation': ['links to ARCHITECTURE.md, docs/PLANS.md'],
+    },
+    linkTargets: ['ARCHITECTURE.md'],
+    stackVariants: {
+      rails: 'Rails — bundle install + rails server quick start',
+      nextjs: 'Next.js — npm/bun install + next dev quick start',
+      'node-ts': 'Node-TS — bun install + bun run dev quick start',
+    },
+    validationCommand: 'bun run harness:validate',
+    dependsOn: [],
   }],
 
   ['docs/QUALITY_SCORE.md', {
@@ -85,6 +146,17 @@ export const POPULATE_INSTRUCTIONS_BY_DOC: ReadonlyMap<string, DocInstruction> =
     reviewChecklist: ['Each dimension has an objective description', 'Weights sum to 100%', 'Threshold clearly stated'],
     compoundOpportunity: 'If a new quality dimension emerges from a post-mortem, add it here with rationale.',
     exitCriteria: ['harness:validate passes', 'All dimensions have examples', 'Threshold is a number, not vague language'],
+    guidanceFile: 'skills/init/assets/populate-guidance/docs-quality_score-md.md',
+    detectionSignals: ['review:', 'checklist', 'score', 'rubric', 'threshold'],
+    mustCover: {
+      'Scoring Dimensions': ['correctness', 'security', 'maintainability'],
+      'Weights': ['weights sum to 100%', 'rationale for each weight'],
+      'Merge Threshold': ['numeric threshold', 'who decides exceptions'],
+      'Score Examples': ['example of 1/5 score', 'example of 5/5 score'],
+    },
+    linkTargets: ['docs/MERGE_GATES.md', 'docs/CODE_STYLE.md'],
+    validationCommand: 'bun run harness:validate',
+    dependsOn: [],
   }],
 
   ['docs/PLANS.md', {
@@ -97,6 +169,16 @@ export const POPULATE_INSTRUCTIONS_BY_DOC: ReadonlyMap<string, DocInstruction> =
     reviewChecklist: ['All linked plans exist on disk', 'New plan workflow documented', 'No orphan links'],
     compoundOpportunity: 'Planning process improvements belong in docs/compound/ as process lessons.',
     exitCriteria: ['harness:validate passes', 'Active plan links resolve', 'Completed plan links resolve'],
+    guidanceFile: 'skills/init/assets/populate-guidance/docs-plans-md.md',
+    detectionSignals: ['docs/exec-plans/active/', 'docs/exec-plans/completed/', 'new-plan.ts', 'exec-plans'],
+    mustCover: {
+      'Active Plans': ['link to each active plan directory', 'brief status per plan'],
+      'Completed Plans': ['link to completed plans archive', 'how to find historical decisions'],
+      'Creating a New Plan': ['link to scripts/new-plan.ts', 'naming convention for plan directories'],
+    },
+    linkTargets: ['docs/PRODUCT_SENSE.md'],
+    validationCommand: 'bun run harness:validate',
+    dependsOn: [],
   }],
 
   ['docs/DESIGN.md', {
@@ -109,6 +191,17 @@ export const POPULATE_INSTRUCTIONS_BY_DOC: ReadonlyMap<string, DocInstruction> =
     reviewChecklist: ['Token references link to actual source files', 'No hardcoded values duplicated from source', 'No placeholder text'],
     compoundOpportunity: 'Design patterns that prevent common UI bugs belong in docs/compound/ as reusable patterns.',
     exitCriteria: ['harness:validate passes', 'Token links resolve', 'Zero placeholder lines'],
+    guidanceFile: 'skills/init/assets/populate-guidance/docs-design-md.md',
+    detectionSignals: ['docs/design-docs/ADR-', 'tailwind.config', 'globals.css', 'design-tokens'],
+    mustCover: {
+      'Design Tokens': ['links to actual token source files', 'color and spacing systems'],
+      'Component Guidelines': ['naming convention', 'atomic vs composed'],
+      'Design-to-Code Conventions': ['handoff process', 'who owns token definitions'],
+      'Design Tool Links': ['Figma URL or equivalent', 'access instructions'],
+    },
+    linkTargets: ['ARCHITECTURE.md'],
+    validationCommand: 'bun run harness:validate',
+    dependsOn: ['ARCHITECTURE.md'],
   }],
 
   ['docs/FRONTEND.md', {
@@ -121,6 +214,22 @@ export const POPULATE_INSTRUCTIONS_BY_DOC: ReadonlyMap<string, DocInstruction> =
     reviewChecklist: ['All paths in doc match actual stack', 'A11y claims verified against actual a11y attrs in code', 'No placeholder text'],
     compoundOpportunity: 'Frontend patterns that get reused (modal, form, table) belong in docs/compound/ as pattern notes.',
     exitCriteria: ['harness:validate passes', 'No paths claim files that do not exist in the repo', 'WCAG level stated'],
+    guidanceFile: 'skills/init/assets/populate-guidance/docs-frontend-md.md',
+    detectionSignals: ['src/app/', 'src/components/', 'app/views/', 'jsx', 'tsx', 'hotwire'],
+    mustCover: {
+      'Routing': ['routing approach', 'file-based vs config-based'],
+      'Components': ['component hierarchy', 'shared vs page-specific'],
+      'Styling System': ['CSS framework or approach', 'design token integration'],
+      'Accessibility': ['WCAG target level', 'screen reader testing approach'],
+    },
+    linkTargets: ['ARCHITECTURE.md'],
+    stackVariants: {
+      rails: 'Rails — ERB/Hotwire/Turbo, app/views/ layout',
+      nextjs: 'Next.js App Router — server components, src/app/ layout',
+      'node-ts': 'Node-TS — React SPA or SSR, src/components/ layout',
+    },
+    validationCommand: 'bun run harness:validate',
+    dependsOn: ['ARCHITECTURE.md'],
   }],
 
   ['docs/PRODUCT_SENSE.md', {
@@ -133,6 +242,17 @@ export const POPULATE_INSTRUCTIONS_BY_DOC: ReadonlyMap<string, DocInstruction> =
     reviewChecklist: ['Each principle has a concrete example', 'No vague language without operationalization', 'No placeholder text'],
     compoundOpportunity: 'Product decisions that proved right or wrong after shipping belong in docs/compound/ as post-mortems.',
     exitCriteria: ['harness:validate passes', 'At least one concrete example per principle', 'Zero placeholder lines'],
+    guidanceFile: 'skills/init/assets/populate-guidance/docs-product_sense-md.md',
+    detectionSignals: ['docs/exec-plans/active/', 'docs/exec-plans/completed/', 'CHANGELOG.md', 'decision'],
+    mustCover: {
+      'Push Back Criteria': ['when to push back on requirements', 'how to frame the push back'],
+      'Feature Evaluation': ['criteria checklist', 'user value vs engineering cost'],
+      'User Value Metrics': ['how to measure value delivered', 'proxy metrics'],
+      'Anti-Patterns': ['over-engineering examples', 'feature-creep signals'],
+    },
+    linkTargets: ['docs/PLANS.md'],
+    validationCommand: 'bun run harness:validate',
+    dependsOn: [],
   }],
 
   ['docs/RELIABILITY.md', {
@@ -145,6 +265,22 @@ export const POPULATE_INSTRUCTIONS_BY_DOC: ReadonlyMap<string, DocInstruction> =
     reviewChecklist: ['Logging links to actual initialization code', 'SLOs are measurable numbers', 'Incident steps are actionable', 'No placeholder text'],
     compoundOpportunity: 'Outages and near-misses belong in docs/compound/ as reliability incident notes.',
     exitCriteria: ['harness:validate passes', 'At least one observability tool named and linked', 'Zero placeholder lines'],
+    guidanceFile: 'skills/init/assets/populate-guidance/docs-reliability-md.md',
+    detectionSignals: ['try\\s*\\{', 'catch\\s*\\(', 'logger\\.', 'console\\.error', 'Sentry', 'pino'],
+    mustCover: {
+      'Error Handling': ['error handling conventions', 'unhandled promise rejections'],
+      'Observability': ['logging setup', 'tracing or metrics if present'],
+      'SLO Targets': ['uptime target', 'latency budget if defined'],
+      'Incident Response': ['on-call process', 'runbook location'],
+    },
+    linkTargets: ['docs/SECURITY.md', 'ARCHITECTURE.md'],
+    stackVariants: {
+      rails: 'Rails — exception_notification or Sentry, Rails.logger',
+      nextjs: 'Next.js — Sentry/Datadog, server action error boundaries',
+      'node-ts': 'Node-TS — pino/winston logger, process uncaughtException handler',
+    },
+    validationCommand: 'bun run harness:validate',
+    dependsOn: ['ARCHITECTURE.md'],
   }],
 
   ['docs/SECURITY.md', {
@@ -157,6 +293,23 @@ export const POPULATE_INSTRUCTIONS_BY_DOC: ReadonlyMap<string, DocInstruction> =
     reviewChecklist: ['No secret values in markdown', 'All claims link to code', 'OWASP top-10 has explicit coverage statement', 'No placeholder text'],
     compoundOpportunity: 'Security incident root causes and surprising vulnerability patterns belong in docs/compound/ as security gotchas.',
     exitCriteria: ['harness:validate passes', 'OWASP top-10 has explicit coverage statement (covered / N/A / not-applicable)', 'Zero placeholder lines'],
+    guidanceFile: 'skills/init/assets/populate-guidance/docs-security-md.md',
+    detectionSignals: ['process\\.env\\.', 'JWT_SECRET', 'cors\\(', 'bcrypt', 'helmet', 'csrf'],
+    mustCover: {
+      'Auth Flow': ['auth mechanism', 'token lifetime and rotation'],
+      'Secret Management': ['.env.example coverage', 'secret rotation process'],
+      'Input Validation': ['validation library or approach', 'where validation happens'],
+      'Dependencies': ['dependency scanning tool', 'known CVE remediation process'],
+      'Headers and CSP': ['CSP policy', 'security headers list'],
+    },
+    linkTargets: ['docs/MERGE_GATES.md', 'ARCHITECTURE.md'],
+    stackVariants: {
+      rails: 'Rails — devise/rack-attack, config/initializers/content_security_policy.rb',
+      nextjs: 'Next.js — next-auth, middleware.ts CSP, security headers in next.config',
+      'node-ts': 'Node-TS — passport/jose, helmet middleware, express-validator',
+    },
+    validationCommand: 'bun run harness:validate',
+    dependsOn: [],
   }],
 
   ['docs/design-docs/core-beliefs.md', {
@@ -169,6 +322,17 @@ export const POPULATE_INSTRUCTIONS_BY_DOC: ReadonlyMap<string, DocInstruction> =
     reviewChecklist: ['No conflicting instructions with CLAUDE.md', 'Each principle is actionable', 'No placeholder text'],
     compoundOpportunity: 'Principles discovered through hard lessons belong here after surviving two projects.',
     exitCriteria: ['harness:validate passes', 'Each principle cites a rationale', 'Zero placeholder lines'],
+    guidanceFile: 'skills/init/assets/populate-guidance/docs-design-docs-core-beliefs-md.md',
+    detectionSignals: ['docs/design-docs/', 'docs/compound/', 'ADR-', 'CLAUDE.md'],
+    mustCover: {
+      'Quality Principles': ['definition of done', 'quality gates'],
+      'Security Defaults': ['minimum security baseline', 'never-do list'],
+      'Architecture Defaults': ['default architectural patterns', 'when to deviate'],
+      'Push Back Triggers': ['signals that requirements need challenge', 'how to raise concerns'],
+    },
+    linkTargets: ['docs/PRODUCT_SENSE.md'],
+    validationCommand: 'bun run harness:validate',
+    dependsOn: [],
   }],
 
   ['docs/generated/db-schema.md', {
@@ -181,6 +345,22 @@ export const POPULATE_INSTRUCTIONS_BY_DOC: ReadonlyMap<string, DocInstruction> =
     reviewChecklist: ['Tables listed match actual migration files', 'Foreign key relationships are correct', 'Marked as generated (not authoritative)', 'No placeholder text'],
     compoundOpportunity: 'Schema design patterns or surprising query performance issues belong in docs/compound/ as DB notes.',
     exitCriteria: ['harness:validate passes', 'Table count matches actual schema', 'Marked as generated and dated'],
+    guidanceFile: 'skills/init/assets/populate-guidance/docs-generated-db-schema-md.md',
+    detectionSignals: ['CREATE TABLE', 'db/migrate/', 'prisma/schema.prisma', 'schema.rb', 'migrations/'],
+    mustCover: {
+      'Tables': ['table list with column summaries', 'primary keys noted'],
+      'Relationships': ['foreign key relationships', 'join table semantics'],
+      'Indexes': ['index list', 'query optimization hints'],
+      'Migration History': ['pointer to migrations directory', 'schema version'],
+    },
+    linkTargets: ['ARCHITECTURE.md', 'docs/SECURITY.md'],
+    stackVariants: {
+      rails: 'Rails — db/schema.rb + db/migrate/ directory',
+      nextjs: 'Next.js — prisma/schema.prisma or drizzle schema',
+      'node-ts': 'Node-TS — prisma/schema.prisma, knexfile.ts, or drizzle',
+    },
+    validationCommand: 'bun run harness:validate',
+    dependsOn: ['ARCHITECTURE.md'],
   }],
 
   // ===== Extras AVC (4) =====
@@ -194,6 +374,18 @@ export const POPULATE_INSTRUCTIONS_BY_DOC: ReadonlyMap<string, DocInstruction> =
     reviewChecklist: ['Each gate links to CI config', 'Thresholds are numbers not ranges', 'No placeholder text'],
     compoundOpportunity: 'Gates that catch real bugs before merge belong in docs/compound/ as quality wins.',
     exitCriteria: ['harness:validate passes', 'All gates link to CI enforcement', 'Coverage threshold is a number'],
+    guidanceFile: 'skills/init/assets/populate-guidance/docs-merge_gates-md.md',
+    detectionSignals: ['.github/workflows/', 'eslint', 'biome.json', 'rubocop', 'coverage threshold'],
+    mustCover: {
+      'Lint Gate': ['linter name', 'link to CI step'],
+      'Type Check Gate': ['type checker command', 'strict mode status'],
+      'Test Coverage Gate': ['coverage threshold number', 'coverage tool'],
+      'Security Scan Gate': ['scanner name', 'block on high severity'],
+      'Enforcement': ['CI platform', 'branch protection rules'],
+    },
+    linkTargets: ['docs/QUALITY_SCORE.md'],
+    validationCommand: 'bun run harness:validate',
+    dependsOn: [],
   }],
 
   ['docs/CODE_STYLE.md', {
@@ -206,6 +398,22 @@ export const POPULATE_INSTRUCTIONS_BY_DOC: ReadonlyMap<string, DocInstruction> =
     reviewChecklist: ['Each rule links to linter config or example', 'Anti-patterns have rationale', 'No placeholder text'],
     compoundOpportunity: 'Style violations that caused real bugs (e.g. naming confusion leading to wrong var) belong in docs/compound/.',
     exitCriteria: ['harness:validate passes', 'Each anti-pattern has a concrete rationale', 'Zero placeholder lines'],
+    guidanceFile: 'skills/init/assets/populate-guidance/docs-code_style-md.md',
+    detectionSignals: ['.eslintrc', 'biome.json', '.rubocop.yml', '.editorconfig', 'prettier.config'],
+    mustCover: {
+      'Naming Conventions': ['file naming', 'variable/function naming'],
+      'Formatting Rules': ['enforced rules vs convention-only', 'formatter config link'],
+      'Preferred Patterns': ['hash maps over switch', 'early returns', 'functional patterns'],
+      'Anti-Patterns': ['patterns to avoid', 'rationale per anti-pattern'],
+    },
+    linkTargets: ['docs/QUALITY_SCORE.md'],
+    stackVariants: {
+      rails: 'Rails — RuboCop rules, Ruby idioms',
+      nextjs: 'Next.js — ESLint/Biome, TypeScript strict, React patterns',
+      'node-ts': 'Node-TS — ESLint/Biome, TypeScript strict, no-any rule',
+    },
+    validationCommand: 'bun run harness:validate',
+    dependsOn: [],
   }],
 
   ['docs/STATE.md', {
@@ -218,6 +426,17 @@ export const POPULATE_INSTRUCTIONS_BY_DOC: ReadonlyMap<string, DocInstruction> =
     reviewChecklist: ['Stack matches package.json or Gemfile', 'Version matches installed manifest', 'No placeholder text'],
     compoundOpportunity: 'If init state detection proves wrong across projects, capture as a detect-stack gotcha.',
     exitCriteria: ['harness:validate passes', 'Detected stack matches codebase signals', 'Init date is present'],
+    guidanceFile: 'skills/init/assets/populate-guidance/docs-state-md.md',
+    detectionSignals: ['package.json', 'Gemfile', 'requirements.txt', 'manifest', 'schemaVersion'],
+    mustCover: {
+      'Detected Stack': ['primary stack id', 'secondary stacks if any'],
+      'Manifest Version': ['installed manifest version', 'checksum'],
+      'Init Date': ['ISO date of last init run'],
+      'Enabled Features': ['feature flags active', 'optional steps that ran'],
+    },
+    linkTargets: ['ARCHITECTURE.md'],
+    validationCommand: 'bun run harness:validate',
+    dependsOn: ['ARCHITECTURE.md'],
   }],
 
   ['.claude/CLAUDE.md', {
@@ -230,6 +449,15 @@ export const POPULATE_INSTRUCTIONS_BY_DOC: ReadonlyMap<string, DocInstruction> =
     reviewChecklist: ['Content matches AGENTS.md within one review cycle', 'Mirror notice is first section', 'No placeholder text'],
     compoundOpportunity: 'If dual-file sync becomes a maintenance burden, consider automation and capture the decision in docs/design-docs/ADR.',
     exitCriteria: ['harness:validate passes', 'AGENTS.md and .claude/CLAUDE.md content match (or explicit note explains intentional divergence)', 'Zero placeholder lines'],
+    guidanceFile: 'skills/init/assets/populate-guidance/claude-claude-md.md',
+    detectionSignals: ['subagent_type:', 'MCP', 'allowed-tools:', 'mcpServers'],
+    mustCover: {
+      'Mirror Notice': ['explicit mirror notice', 'link to AGENTS.md as source of truth'],
+      'Operating Contract': ['mirrored content from AGENTS.md', 'last sync date'],
+    },
+    linkTargets: ['AGENTS.md'],
+    validationCommand: 'bun run harness:validate',
+    dependsOn: ['AGENTS.md'],
   }],
 ])
 
