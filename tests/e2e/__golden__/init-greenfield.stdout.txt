@@ -33,17 +33,9 @@ Knowledge cobre: type, generic, branded, discriminated, satisfies, ESM, CJS, eve
 [install-gh-files] (mutated disk)
 [delivery-loop]
 [capabilities-discovery] [capabilities-discovery] skipped — architecture profile not detected. Run /anti-vibe-coding:detect-architecture first.
-[91-generate-populate-plan] Plano de populacao gerado: docs/exec-plans/active/<DATE>-populate-harness
-Fases emitidas: 31 (1 por doc canonico).
-Stack detectado: node-ts (package.json#devDependencies.typescript).
-Discovery: 52 docs existentes amostrados.
-Para popular o harness com analise do repo: /anti-vibe-coding:execute-plan docs/exec-plans/active/<DATE>-populate-harness
-[91-generate-populate-plan] (mutated disk)
+[generate-populate-plans] init-07: 1 folder generated with 16 fases (node-ts stack)
+Folder: docs/exec-plans/active/<DATE>-populate-harness
+Legacy artifacts found: 0
+Docs skipped: 0 (none excluded)
+[generate-populate-plans] (mutated disk)
 [final-validation] validator: 0 warnings — scaffold canonico intacto
-
-Harness scaffold criado. Plano populate em docs/exec-plans/active/<DATE>-populate-harness/PLAN.md
-
-Proximo passo: rode /anti-vibe-coding:execute-plan docs/exec-plans/active/<DATE>-populate-harness/PLAN.md
-para a IA popular cada doc canonico lendo o codigo real. Revise via PR antes de fechar cada fase.
-
-Opcional: /anti-vibe-coding:detect-architecture para Modo Dual nas skills estruturantes.

@@ -16,26 +16,35 @@ describe('e2e: init v7 generate-populate-plans (Node-TS)', () => {
     await fs.rm(cwd, { recursive: true, force: true })
   })
 
-  test('CA-01: runInit creates 16 PLAN.md files in docs/exec-plans/active/', async () => {
+  test('CA-01: runInit creates populate-harness folder with 16 fase-NN-*.md files', async () => {
     await runInit([], { cwd })
     const activeDir = path.join(cwd, 'docs', 'exec-plans', 'active')
     const entries = await fs.readdir(activeDir)
-    const populateDirs = entries.filter(e => e.includes('-populate-'))
-    expect(populateDirs.length).toBe(16)
+    const harnessDirs = entries.filter(e => e.includes('-populate-harness'))
+    expect(harnessDirs.length).toBe(1)
 
-    for (const dir of populateDirs) {
-      const planPath = path.join(activeDir, dir, 'PLAN.md')
-      const stat = await fs.stat(planPath)
+    const harnessDir = path.join(activeDir, harnessDirs[0]!)
+    const harnessFiles = await fs.readdir(harnessDir)
+    const faseMds = harnessFiles.filter(f => f.startsWith('fase-') && f.endsWith('.md'))
+    expect(faseMds.length).toBe(16)
+
+    for (const faseFile of faseMds) {
+      const fasePath = path.join(harnessDir, faseFile)
+      const stat = await fs.stat(fasePath)
       expect(stat.isFile()).toBe(true)
       expect(stat.size).toBeGreaterThan(500)
     }
   })
 
-  test('CA-07: every generated PLAN.md has exactly the 10 H2 sections in canonical order', async () => {
+  test('CA-07: every generated fase-NN-*.md has exactly the 10 H2 sections in canonical order', async () => {
     await runInit([], { cwd })
     const activeDir = path.join(cwd, 'docs', 'exec-plans', 'active')
-    const dirs = (await fs.readdir(activeDir)).filter(e => e.includes('-populate-'))
+    const harnessDir = (await fs.readdir(activeDir)).find(e => e.includes('-populate-harness'))!
+    const faseMds = (await fs.readdir(path.join(activeDir, harnessDir))).filter(f =>
+      f.startsWith('fase-') && f.endsWith('.md'),
+    )
 
+    // renderFasePlan emite 10 H2 Andre + ## Final Report Contract (ADR-0022 decisao 6)
     const EXPECTED_SECTIONS = [
       '## Goal',
       '## Scope',
@@ -47,32 +56,42 @@ describe('e2e: init v7 generate-populate-plans (Node-TS)', () => {
       '## Compound Opportunity',
       '## Lessons Captured',
       '## Exit Criteria',
+      '## Final Report Contract',
     ]
 
-    for (const dir of dirs) {
-      const content = await fs.readFile(path.join(activeDir, dir, 'PLAN.md'), 'utf-8')
+    for (const faseFile of faseMds) {
+      const content = await fs.readFile(path.join(activeDir, harnessDir, faseFile), 'utf-8')
       const sections = content.split('\n').filter(l => l.startsWith('## '))
-      expect(sections, `Plan ${dir} sections`).toEqual(EXPECTED_SECTIONS)
+      expect(sections, `${faseFile} sections`).toEqual(EXPECTED_SECTIONS)
     }
   })
 
-  test('parity gate: number of plans matches POPULATE_INSTRUCTIONS_BY_DOC.size', async () => {
+  test('parity gate: number of fase-NN-*.md files matches POPULATE_INSTRUCTIONS_BY_DOC.size', async () => {
     const { POPULATE_INSTRUCTIONS_BY_DOC } = await import('../../skills/init/lib/populate-instructions-table')
     await runInit([], { cwd })
     const activeDir = path.join(cwd, 'docs', 'exec-plans', 'active')
-    const populateDirs = (await fs.readdir(activeDir)).filter(e => e.includes('-populate-'))
-    expect(populateDirs.length).toBe(POPULATE_INSTRUCTIONS_BY_DOC.size)
+    const harnessDir = (await fs.readdir(activeDir)).find(e => e.includes('-populate-harness'))!
+    const faseMds = (await fs.readdir(path.join(activeDir, harnessDir))).filter(f =>
+      f.startsWith('fase-') && f.endsWith('.md'),
+    )
+    expect(faseMds.length).toBe(POPULATE_INSTRUCTIONS_BY_DOC.size)
   })
 
-  test('Node-TS FRONTEND plan uses src/components, not app/views', async () => {
+  test('Node-TS FRONTEND fase plan uses src/components, not app/views', async () => {
     await runInit([], { cwd })
-    const frontendPlanDir = (await fs.readdir(path.join(cwd, 'docs/exec-plans/active')))
-      .find(d => d.includes('-populate-docs-frontend-md'))!
+    const activeDir = path.join(cwd, 'docs/exec-plans/active')
+    const harnessDir = (await fs.readdir(activeDir)).find(d => d.includes('-populate-harness'))!
+    const frontendFase = (await fs.readdir(path.join(activeDir, harnessDir)))
+      .find(f => f.includes('docs-frontend'))!
     const content = await fs.readFile(
-      path.join(cwd, 'docs/exec-plans/active', frontendPlanDir, 'PLAN.md'),
+      path.join(activeDir, harnessDir, frontendFase),
       'utf-8',
     )
-    expect(content).toContain('src/components')
-    expect(content).not.toContain('app/views')
+    // Wave 1 Discovery deve usar paths Node-TS (src/components)
+    // Nota: detection signals listam ambos os stacks — verificar Wave 1 section especificamente
+    const wave1Match = content.match(/### Wave 1 — Discovery([\s\S]*?)###/)
+    const wave1 = wave1Match ? wave1Match[1] : ''
+    expect(wave1).toContain('src/components')
+    expect(wave1).not.toContain('app/views')
   })
 })
