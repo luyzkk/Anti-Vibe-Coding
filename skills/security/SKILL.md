@@ -467,6 +467,26 @@ Checklist obrigatoria para auditar qualquer projeto em producao.
 
 ---
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Estamos num ambiente interno, não precisamos de autenticação forte" | Insider threats são reais. Credenciais internas vazam para terceiros. Perímetro não é defesa suficiente. |
+| "Vou adicionar HTTPS depois em produção" | Sem HTTPS em development, credenciais em texto plano viram hábito. Interceptação em redes locais é trivial. |
+| "JWT é seguro por padrão" | JWT sem `expiresIn` é válido para sempre. JWT sem verificação de assinatura no server é decoração. |
+| "Validação no frontend é suficiente" | Qualquer requisição pode bypashar o frontend. Server-side validation não é opcional — é a única camada confiável. |
+
+## Red Flags
+
+- `localStorage.setItem('token', ...)` — tokens sensíveis nunca em localStorage (XSS os expõe)
+- `console.log(password)` ou qualquer log de dado sensível
+- `expiresIn` ausente em payload JWT
+- `response_type=token` em OAuth (implicit flow — deprecado desde RFC 9700)
+- CORS configurado com wildcard `*` em endpoint autenticado
+- `eval()` em qualquer contexto com input do usuário
+- SQL concatenado com template string sem prepared statement
+- Segredo hardcoded em arquivo não ignorado pelo .gitignore
+
 ## Contexto da Consulta
 
 $ARGUMENTS
