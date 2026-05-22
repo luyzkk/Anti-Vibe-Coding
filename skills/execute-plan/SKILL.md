@@ -881,6 +881,26 @@ console.log('\n\n' + renderCompletionSignal({
 - `lib/legacy-detector.md` — Algoritmo de deteccao de estrutura legacy (consumido pelo Step 0)
 - `lib/legacy-migrator.md` — Algoritmo de migracao atomica STAGE/MOVE/CONFIRM/ROLLBACK (consumido pelo Step 0)
 
+---
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "O plano estava errado, vou improvisar" | Improviso durante execucao gera desvios nao documentados. Correto: pausar, atualizar o plano com a decisao, entao prosseguir. O plano e o registro de decisao — improvisacao apaga rastro. |
+| "Esse arquivo extra nao conta como desvio de escopo" | Todo arquivo fora do escopo declarado e uma decisao nao registrada. Se vale tocar, vale registrar no plano. |
+| "Vou passar pela fase sem validar — sei que funcionou" | Verificacao sem evidencia nao e verificacao. Checklist nao executado e teatro de qualidade. |
+| "Posso pular a fase de testes — os tipos ja garantem" | Types nao testam comportamento em runtime. Fases de teste existem precisamente porque o compilador nao consegue garantir tudo. |
+
+## Red Flags
+
+- Sub-agente que toca mais de 5 arquivos nao relacionados sem justificativa no plano
+- Fase concluida sem checklist de verificacao preenchido
+- PR que mistura mudancas de 2+ planos distintos
+- Decisao tomada durante execucao que nao foi registrada no MEMORY.md do plano
+- Step executado sem ter lido o arquivo antes de editar (violacao de integridade de edicao)
+- Fase marcada como concluida antes de `bun run harness:validate` verde
+
 ```typescript
 // === Telemetria passiva (Plano 03 fase-02) — registra fim ===
 // CA-03: end emitido SEMPRE
