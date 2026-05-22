@@ -2,6 +2,7 @@
 // 2026-05-21 (Luiz/dev): Plano 04 fase-04 — testes unit do Step 7 real.
 // RED: falha contra stub do Plano 01 fase-04 (retorna {mutated:false, summary:'stub'}).
 // GREEN: passa apos substituir stub por implementacao real.
+// 2026-05-21 (Luiz/dev): Plano 02 fase-02 — testes reescritos para hierarquia (1 pasta, 16 fases).
 
 import { test, expect, describe, beforeEach, afterEach } from 'bun:test'
 import { promises as fs } from 'node:fs'
@@ -63,7 +64,7 @@ describe('generatePopulatePlansStep (Step 7)', () => {
       }
     })
 
-    test('abort reason matches DI-Plano04-fase04-abort-message exactly', async () => {
+    test('abort reason matches DR-2 message exactly (Plano 02 fase-02 wording)', async () => {
       const ctx = mkCtx(tmpDir)
       try {
         await generatePopulatePlansStep.run(ctx)
@@ -72,6 +73,7 @@ describe('generatePopulatePlansStep (Step 7)', () => {
         expect((err as AbortError).reason).toBe(ABORT_MESSAGE_NO_STACK)
         expect((err as AbortError).reason).toContain('detect-architecture')
         expect((err as AbortError).reason).toContain('Detected primary: null')
+        expect((err as AbortError).reason).toContain('populate-harness fases')
       }
     })
 
@@ -87,10 +89,17 @@ describe('generatePopulatePlansStep (Step 7)', () => {
       expect(report.mutated).toBe(true)
     })
 
-    test('summary contains "16 plans generated"', async () => {
+    test('summary reflects single folder output (NOT 16 separate plans)', async () => {
+      // 2026-05-21 (Luiz/dev): Plano 02 fase-02 — GT-Plano02-fase01-step07-regression-expected.
+      // Hierarquia nova: 1 pasta com 16 fases dentro (nao 16 pastas separadas).
       const ctx = mkCtx(tmpDir, { stack: NODE_STACK })
       const report = await generatePopulatePlansStep.run(ctx)
-      expect(report.summary).toContain('16 plans generated')
+      expect(report.mutated).toBe(true)
+      expect(report.summary).toContain('1 folder generated')
+      expect(report.summary).toContain('16 fases')
+      expect(report.summary).toContain('node-ts stack')
+      expect(report.summary).toContain('docs/exec-plans/active/')
+      expect(report.summary).toContain('populate-harness')
     })
 
     test('summary contains "node-ts stack"', async () => {
@@ -99,24 +108,35 @@ describe('generatePopulatePlansStep (Step 7)', () => {
       expect(report.summary).toContain('node-ts stack')
     })
 
-    test('summary has 4 lines (NFR Observabilidade)', async () => {
+    test('summary has 4 lines with correct order (NFR Observabilidade)', async () => {
+      // 2026-05-21 (Luiz/dev): Plano 02 fase-02 — nova ordem: init-07, Folder, Legacy, Docs skipped.
       const ctx = mkCtx(tmpDir, { stack: NODE_STACK })
       const report = await generatePopulatePlansStep.run(ctx)
       const lines = report.summary.split('\n')
       expect(lines.length).toBe(4)
       expect(lines[0]).toMatch(/^init-07:/)
-      expect(lines[1]).toMatch(/^Legacy artifacts found: \d+$/)
-      expect(lines[2]).toMatch(/^Docs skipped:/)
-      expect(lines[3]).toMatch(/^Output:/)
+      expect(lines[1]).toMatch(/^Folder:/)
+      expect(lines[2]).toMatch(/^Legacy artifacts found: \d+$/)
+      expect(lines[3]).toMatch(/^Docs skipped:/)
     })
 
-    test('writes 16 PLAN.md files to docs/exec-plans/active/', async () => {
+    test('writes 1 folder with 16 fase files to docs/exec-plans/active/', async () => {
+      // 2026-05-21 (Luiz/dev): Plano 02 fase-02 — hierarquia: 1 pasta, nao 16 pastas separadas.
       const ctx = mkCtx(tmpDir, { stack: NODE_STACK })
       await generatePopulatePlansStep.run(ctx)
       const dir = path.join(tmpDir, 'docs', 'exec-plans', 'active')
       const entries = await fs.readdir(dir)
-      const populateDirs = entries.filter(e => e.includes('-populate-'))
-      expect(populateDirs.length).toBe(16)
+      const populateDirs = entries.filter(e => e.includes('-populate-harness'))
+      expect(populateDirs.length).toBe(1)
+      const faseFiles = await fs.readdir(path.join(dir, populateDirs[0]!))
+      const fasePlanFiles = faseFiles.filter(f => f.startsWith('fase-'))
+      expect(fasePlanFiles.length).toBe(16)
+    })
+
+    test('ABORT_MESSAGE_NO_STACK no longer references "16 populate plans" (old wording)', () => {
+      // 2026-05-21 (Luiz/dev): Plano 02 fase-02 — G1 trava: previne reintroducao do wording antigo.
+      expect(ABORT_MESSAGE_NO_STACK).not.toContain('16 populate plans')
+      expect(ABORT_MESSAGE_NO_STACK).toContain('populate-harness fases')
     })
   })
 
