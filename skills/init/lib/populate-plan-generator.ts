@@ -3,144 +3,23 @@
 // Sem LLM, sem stack-awareness no renderer — recebe input pronto e emite markdown.
 // CA-07 do PRD init-refactor-v7: as 10 secoes H2 nesta ORDEM EXATA.
 // 2026-05-21 (Luiz/dev): Plano 04 fase-03 — pipeline orquestrador generatePopulatePlans.
-// Itera 16 docs, monta AndrePlanInput, renderiza, escreve em disco. NFR Performance < 2s.
+// 2026-05-21 (Luiz/dev): Plano 02 fase-01 — output hierarquico (1 pasta, 16 fases).
+// Adapter DocInstruction -> FasePlanInput v1. renderAndrePlan removido (substituido por renderFasePlan).
 
 import path from 'node:path'
 import { promises as fs } from 'node:fs'
-import type { DetectedStack, StackId } from './detect-stack'
+import type { DetectedStack } from './detect-stack'
 import {
   POPULATE_INSTRUCTIONS_BY_DOC,
   buildWavesForDoc,
   docToSlug,
+  type DocInstruction,
 } from './populate-instructions-table'
 import { LegacyManifestSchema, type LegacyManifest } from '../../_shared/legacy-manifest-schema'
-
-// 2026-05-21 (Luiz/dev): Plano 04 fase-01 — tipo estruturado mapeando 1:1 nas 10 secoes
-// H2 do CA-07 do PRD init-refactor-v7. Cada campo vira uma secao no markdown gerado.
-// Decisao DI-Plano04-fase01-input-shape: sem campos free-form para evitar drift.
-
-export type Wave = {
-  readonly name: string
-  readonly items: ReadonlyArray<string>
-}
-
-export type RiskEntry = {
-  readonly risk: string
-  readonly mitigation: string
-}
-
-export type AndrePlanInput = {
-  /** Path canonico do doc-alvo (ex: 'docs/SECURITY.md'). Usado no title H1. */
-  readonly docPath: string
-  /** Goal: 1-3 linhas descrevendo o que o doc deve conter ao final. */
-  readonly goal: string
-  /** Scope in (secoes a criar) / out (o que NAO fazer). */
-  readonly scope: { readonly in: ReadonlyArray<string>; readonly out: ReadonlyArray<string> }
-  /** Pressupostos: o que o plano assume existir. */
-  readonly assumptions: ReadonlyArray<string>
-  /** Riscos com mitigacao. */
-  readonly risks: ReadonlyArray<RiskEntry>
-  /** Execution Steps: minimo 2 Waves (CA-07 do PRD). */
-  readonly waves: ReadonlyArray<Wave>
-  /** Review Checklist: itens binarios verificaveis. */
-  readonly reviewChecklist: ReadonlyArray<string>
-  /** Compound Opportunity: o que merece virar compound note se aprender algo. */
-  readonly compoundOpportunity: string
-  /** Exit Criteria: harness-validate passa, zero placeholders, etc. */
-  readonly exitCriteria: ReadonlyArray<string>
-}
-
-const SECTION_TITLES = [
-  '## Goal',
-  '## Scope',
-  '## Assumptions',
-  '## Risks',
-  '## Execution Steps',
-  '## Review Checklist',
-  '## Validation Log',
-  '## Compound Opportunity',
-  '## Lessons Captured',
-  '## Exit Criteria',
-] as const
-
-export function renderAndrePlan(input: AndrePlanInput): string {
-  const lines: string[] = []
-
-  lines.push(`# Populate: ${input.docPath}`)
-  lines.push('')
-
-  // ## Goal
-  lines.push(SECTION_TITLES[0])
-  lines.push('')
-  lines.push(input.goal)
-  lines.push('')
-
-  // ## Scope
-  lines.push(SECTION_TITLES[1])
-  lines.push('')
-  lines.push('**In:**')
-  for (const s of input.scope.in) lines.push(`- ${s}`)
-  lines.push('')
-  lines.push('**Out:**')
-  for (const s of input.scope.out) lines.push(`- ${s}`)
-  lines.push('')
-
-  // ## Assumptions
-  lines.push(SECTION_TITLES[2])
-  lines.push('')
-  for (const a of input.assumptions) lines.push(`- ${a}`)
-  lines.push('')
-
-  // ## Risks
-  lines.push(SECTION_TITLES[3])
-  lines.push('')
-  lines.push('| Risco | Mitigacao |')
-  lines.push('|-------|-----------|')
-  for (const r of input.risks) lines.push(`| ${r.risk} | ${r.mitigation} |`)
-  lines.push('')
-
-  // ## Execution Steps (Waves)
-  lines.push(SECTION_TITLES[4])
-  lines.push('')
-  for (const w of input.waves) {
-    lines.push(`### ${w.name}`)
-    lines.push('')
-    for (const item of w.items) lines.push(`- ${item}`)
-    lines.push('')
-  }
-
-  // ## Review Checklist
-  lines.push(SECTION_TITLES[5])
-  lines.push('')
-  for (const c of input.reviewChecklist) lines.push(`- [ ] ${c}`)
-  lines.push('')
-
-  // ## Validation Log
-  lines.push(SECTION_TITLES[6])
-  lines.push('')
-  lines.push('<!-- preencher durante execucao: comando + resultado -->')
-  lines.push('')
-
-  // ## Compound Opportunity
-  lines.push(SECTION_TITLES[7])
-  lines.push('')
-  lines.push(input.compoundOpportunity)
-  lines.push('')
-
-  // ## Lessons Captured
-  lines.push(SECTION_TITLES[8])
-  lines.push('')
-  lines.push('<!-- preencher ao /iterate: links para docs/compound/ -->')
-  lines.push('')
-
-  // ## Exit Criteria
-  lines.push(SECTION_TITLES[9])
-  lines.push('')
-  for (const e of input.exitCriteria) lines.push(`- [ ] ${e}`)
-  lines.push('')
-
-  return lines.join('\n')
-}
+import { renderFasePlan, type FasePlanInput, type Wave } from './render-fase-plan'
+import { renderPopulateHarnessPRD } from './populate-harness-prd-template'
+import { renderPopulateHarnessContext } from './populate-harness-context-template'
+import { renderPopulateHarnessPlanOverview } from './populate-harness-plan-overview'
 
 /** Extrai linhas H2 do markdown. Util para verificar secoes (CA-07). */
 export function extractH2Sections(markdown: string): string[] {
@@ -151,7 +30,53 @@ export function extractH2Sections(markdown: string): string[] {
 }
 
 // =============================================================================
-// Pipeline: generatePopulatePlans (Plano 04 fase-03)
+// Adapter: DocInstruction -> FasePlanInput v1 (Plano 02 fase-01)
+// =============================================================================
+
+// 2026-05-21 (Luiz/dev): Plano 02 fase-01 — adapter puro. Converte DocInstruction
+// (campos da tabela) em FasePlanInput v1 (schema do renderer renderFasePlan).
+// Wave 1 vem de buildWavesForDoc (stack-aware). Wave 2 deriva de sectionsToWrite.
+function toFasePlanInput(
+  docPath: string,
+  instr: DocInstruction,
+  stackPrimary: NonNullable<DetectedStack['primary']>,
+): FasePlanInput {
+  const wavesFromTable = buildWavesForDoc(docPath, stackPrimary)
+  const wave1 = wavesFromTable[0]! // garantido por buildWavesForDoc
+
+  const wave2Items = instr.sectionsToWrite.map(s => `Write the H2 section: ${s}`)
+  const waves: ReadonlyArray<Wave> = [
+    wave1,
+    { name: 'Wave 2 — Write sections', items: wave2Items },
+  ]
+
+  const base = {
+    docPath,
+    schemaVersion: 1 as const,
+    goal: instr.goal,
+    scope: { in: instr.scopeIn, out: instr.scopeOut },
+    assumptions: instr.assumptions,
+    risks: instr.risks,
+    waves,
+    reviewChecklist: instr.reviewChecklist,
+    compoundOpportunity: instr.compoundOpportunity,
+    exitCriteria: instr.exitCriteria,
+    guidanceFile: instr.guidanceFile,
+    detectionSignals: instr.detectionSignals,
+    mustCover: instr.mustCover,
+    linkTargets: instr.linkTargets,
+    validationCommand: instr.validationCommand,
+    dependsOn: instr.dependsOn,
+  }
+  // exactOptionalPropertyTypes: omit stackVariants entirely when undefined
+  if (instr.stackVariants !== undefined) {
+    return { ...base, stackVariants: instr.stackVariants }
+  }
+  return base
+}
+
+// =============================================================================
+// Pipeline: generatePopulatePlans (Plano 02 fase-01 — hierarquia)
 // =============================================================================
 
 // 2026-05-21 (Luiz/dev): Plano 04 fase-03 — tipos publicos do pipeline orquestrador.
@@ -167,22 +92,22 @@ export type GenerateOpts = {
   readonly cwd: string
 }
 
-export type GeneratedPlan = {
-  /** Path canonico do doc-alvo (ex: 'docs/SECURITY.md'). */
-  readonly dst: string
-  /** Slug do doc (ex: 'docs-security-md'). */
-  readonly slug: string
-  /** Path relativo do PLAN.md gerado — forward slashes (portavel). */
-  readonly path: string
-  /** Conteudo markdown completo. */
+export type GeneratedFasePlan = {
+  readonly dst: string         // ex: 'docs/SECURITY.md'
+  readonly slug: string        // ex: 'docs-security-md'
+  readonly faseNumber: number  // 1..16
+  readonly relPath: string     // ex: 'docs/exec-plans/active/2026-05-21-populate-harness/fase-01-docs-security-md.md'
   readonly content: string
 }
 
-export type GenerateResult = {
-  readonly plans: ReadonlyArray<GeneratedPlan>
-  readonly stackPrimary: StackId | null
+export type GenerateResultV2 = {
+  readonly folderPath: string                          // pasta unica criada (relativa ao cwd, forward slashes)
+  readonly prdPath: string
+  readonly contextPath: string
+  readonly planPath: string
+  readonly fasePlans: ReadonlyArray<GeneratedFasePlan>
+  readonly stackPrimary: NonNullable<DetectedStack['primary']>
   readonly legacyArtifactsFound: number
-  /** Docs que existem em D18 mas foram excluidos desta geracao (reservado para uso futuro). */
   readonly docsSkipped: ReadonlyArray<string>
 }
 
@@ -202,62 +127,64 @@ async function readManifestGraceful(cwd: string): Promise<LegacyManifest | null>
   }
 }
 
-// 2026-05-21 (Luiz/dev): Plano 04 fase-03 — orquestrador principal.
-// Itera os 16 docs do POPULATE_INSTRUCTIONS_BY_DOC, monta AndrePlanInput com Waves
-// stack-aware (Wave 1 da tabela + Wave 2 a partir de sectionsToWrite), renderiza e grava.
-// Path do campo retornado usa path.posix.join para portabilidade (forward slashes no Windows).
-export async function generatePopulatePlans(opts: GenerateOpts): Promise<GenerateResult> {
+// 2026-05-21 (Luiz/dev): Plano 02 fase-01 — orquestrador hierarquico.
+// Emite 1 pasta {date}-populate-harness/ com PRD.md, CONTEXT.md, PLAN.md e 16 fase-NN-*.md.
+// Path do campo retornado usa path.posix para portabilidade (forward slashes no Windows).
+export async function generatePopulatePlans(opts: GenerateOpts): Promise<GenerateResultV2> {
   const now = (opts.clock ?? (() => new Date()))()
   const dateSlug = now.toISOString().slice(0, 10)
 
   const manifest = await readManifestGraceful(opts.cwd)
   const legacyArtifactsFound = manifest?.legacy.filter(e => e.found).length ?? 0
 
-  const plans: GeneratedPlan[] = []
-
-  for (const [dst, instr] of POPULATE_INSTRUCTIONS_BY_DOC.entries()) {
-    const slug = docToSlug(dst)
-    const waves = buildWavesForDoc(dst, opts.stack.primary)
-
-    // Wave 2: items derivados de sectionsToWrite da instrucao (substitui Wave 2 generica de fase-02)
-    const wave2Items = instr.sectionsToWrite.map(s => `Write the H2 section: ${s}`)
-    const wavesFull: ReadonlyArray<Wave> = [
-      waves[0]!, // Wave 1 (Discovery, stack-aware) — garantida por buildWavesForDoc
-      { name: 'Wave 2 — Write sections', items: wave2Items },
-    ]
-
-    const input: AndrePlanInput = {
-      docPath: dst,
-      goal: instr.goal,
-      scope: { in: instr.scopeIn, out: instr.scopeOut },
-      assumptions: instr.assumptions,
-      risks: instr.risks,
-      waves: wavesFull,
-      reviewChecklist: instr.reviewChecklist,
-      compoundOpportunity: instr.compoundOpportunity,
-      exitCriteria: instr.exitCriteria,
-    }
-
-    const content = renderAndrePlan(input)
-    const relPath = path.posix.join(
-      'docs',
-      'exec-plans',
-      'active',
-      `${dateSlug}-populate-${slug}`,
-      'PLAN.md',
-    )
-
-    const absPath = path.join(opts.cwd, ...relPath.split('/'))
-    await fs.mkdir(path.dirname(absPath), { recursive: true })
-    // D10 NFR Idempotencia: SEMPRE sobrescreve plans gerados (G7 do README).
-    await fs.writeFile(absPath, content, 'utf-8')
-
-    plans.push({ dst, slug, path: relPath, content })
+  const stackPrimary = opts.stack.primary
+  if (stackPrimary === null) {
+    // Step 7 ja aborta antes — esta guarda eh defensiva
+    throw new Error('stack.primary is null; Step 7 should have aborted earlier')
   }
 
+  const folderName = `${dateSlug}-populate-harness`
+  const folderRel = path.posix.join('docs', 'exec-plans', 'active', folderName)
+  const folderAbs = path.join(opts.cwd, 'docs', 'exec-plans', 'active', folderName)
+
+  await fs.mkdir(folderAbs, { recursive: true })
+
+  // 1. PRD + CONTEXT (fixos por sessao)
+  const prdContent = renderPopulateHarnessPRD({ dateSlug, stackPrimary, legacyArtifactsFound })
+  const contextContent = renderPopulateHarnessContext({ dateSlug, stackPrimary, totalDocs: POPULATE_INSTRUCTIONS_BY_DOC.size })
+
+  await fs.writeFile(path.join(folderAbs, 'PRD.md'), prdContent, 'utf-8')
+  await fs.writeFile(path.join(folderAbs, 'CONTEXT.md'), contextContent, 'utf-8')
+
+  // 2. 16 fases (1 por doc)
+  const fasePlans: GeneratedFasePlan[] = []
+  let i = 0
+  for (const [dst, instr] of POPULATE_INSTRUCTIONS_BY_DOC.entries()) {
+    i++
+    const slug = docToSlug(dst)
+    const faseNumber = i
+    const faseFile = `fase-${String(faseNumber).padStart(2, '0')}-${slug}.md`
+    const input = toFasePlanInput(dst, instr, stackPrimary)
+    const content = renderFasePlan(input)
+    const relPath = path.posix.join(folderRel, faseFile)
+    const absPath = path.join(folderAbs, faseFile)
+    // D10 NFR Idempotencia: SEMPRE sobrescreve (G7 do README).
+    await fs.writeFile(absPath, content, 'utf-8')
+    fasePlans.push({ dst, slug, faseNumber, relPath, content })
+  }
+
+  // 3. PLAN.md (overview com lista das 16 fases, gerado apos as fases existirem)
+  const planContent = renderPopulateHarnessPlanOverview(fasePlans, { dateSlug, stackPrimary })
+  const planAbs = path.join(folderAbs, 'PLAN.md')
+  await fs.writeFile(planAbs, planContent, 'utf-8')
+
   return {
-    plans,
-    stackPrimary: opts.stack.primary,
+    folderPath: folderRel,
+    prdPath: path.posix.join(folderRel, 'PRD.md'),
+    contextPath: path.posix.join(folderRel, 'CONTEXT.md'),
+    planPath: path.posix.join(folderRel, 'PLAN.md'),
+    fasePlans,
+    stackPrimary,
     legacyArtifactsFound,
     docsSkipped: [],
   }
