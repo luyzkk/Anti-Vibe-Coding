@@ -46,10 +46,10 @@ export const generatePopulatePlansStep: Step = {
 
     // NFR Observabilidade — 4 metricas no summary multilinha.
     const summary = [
-      `init-07: ${result.plans.length} plans generated (${result.stackPrimary ?? 'unknown'} stack)`,
+      `init-07: ${result.fasePlans.length} plans generated (${result.stackPrimary} stack)`,
       `Legacy artifacts found: ${result.legacyArtifactsFound}`,
       `Docs skipped: ${result.docsSkipped.length} (${result.docsSkipped.join(', ') || 'none excluded'})`,
-      `Output: docs/exec-plans/active/*-populate-*/`,
+      `Output: docs/exec-plans/active/${result.folderPath.split('/').at(-1)}/`,
     ].join('\n')
 
     return {
