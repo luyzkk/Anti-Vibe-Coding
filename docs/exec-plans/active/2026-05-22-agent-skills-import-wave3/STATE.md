@@ -1,9 +1,9 @@
 # State: Agent-Skills Import — Wave 3
 
 **Plan:** ./PLAN.md
-**Phase:** in-progress
+**Phase:** completed
 **Current Plan:** 04/4
-**Last Updated:** 2026-05-23 (Plano 03 fechado 5/5)
+**Last Updated:** 2026-05-23 (Plano 04 fase-04 — manifest regenerado, Wave 3 fechada)
 
 ## Progress por Plano
 
@@ -12,11 +12,11 @@
 | 01 | Consolidacao /anti-vibe-review -> /verify-work (TB) | 4 | 4/4 | completed |
 | 02 | Prove-It Mode no tdd-verifier | 3 | 3/3 | completed |
 | 03 | Pipeline Compound -> Reference | 5 | 5/5 | completed |
-| 04 | Refactor Skills + Flowchart AGENTS.md + Manifest | 4 | 0/4 | detailed |
+| 04 | Refactor Skills + Flowchart AGENTS.md + Manifest | 4 | 4/4 | completed |
 
 ## Progress Global
 
-Fases done: 12/16 (75%)
+Fases done: 16/16 (100%)
 
 ## Log
 
@@ -39,3 +39,6 @@ Fases done: 12/16 (75%)
 - 2026-05-23: Bloqueio meta descoberto antes de fase-05. Subagente da fase-02 reportou que 3 compound notes-origem (`init-self-protection`, `path-escape-cascade`, `bash-env-var-scope-and`) estavam UNTRACKED no git desde sessao anterior. Como fase-05 modifica frontmatter de 2 delas, diff sairia incompleto. Resolucao: commit separado de housekeeping (`58349ca`, 3 files +178 linhas) antes de fase-05. Compound:check passou (34 notes validated). Aprendizado: rodar `git status docs/compound/` antes de qualquer fase que toque frontmatter.
 - 2026-05-23: Plano 03 fase-05 concluida via plan-executor. Campo `referenced-by:` adicionado em frontmatter de 5 compound notes-origem (3 → init-step-contract, 1 → hooks-checklist, 1 → tdd-cycle-checklist). Commit `d8974bb` (5 files +5 lines, exato). SH-04 fechado. 14/14 checks pass — incluindo idempotencia + compound:check + harness. Decisao G2: compound-irmas dos hooks (cjs-stdin-pattern, json-overwrite-bug) NAO receberam `referenced-by:` (sao "Referencias relacionadas", nao "Origem"). 
 - 2026-05-23: **PLANO 03 FECHADO 5/5.** Fechou CA-05, CA-06, MH-04, MH-05, SH-04. Commits da Wave: `d8c0059` (criterio), `cd4e761`/`25d4677`/`d50a338` (3 references), `58349ca` (housekeeping), `d8974bb` (frontmatter). Sem regressoes. Pronto para Plano 04 (Refactor Skills + Flowchart + Manifest).
+- 2026-05-23: Plano 04 iniciado via /execute-plan. Spawn 3 plan-executors em paralelo (fase-01/02/03 — arquivos disjuntos: tdd-workflow/SKILL.md, plan-feature/SKILL.md, AGENTS.md). Fase-04 sequencial apos as 3 fecharem (gate manifest + harness verde). Notas absorvidas dos planos anteriores: DI-5 do Plano 01 obsoletou GT-1 do MEMORY (`bun run generate:manifest` existe e funciona sem env var); deprecation notice de anti-vibe-review existe (G4 fase-03 desbloqueado); baseline tem 8 falhas pre-existentes (nao exigir 100% verde).
+- 2026-05-23: Plano 04 fases 01/02/03 concluidas em paralelo (3 subagentes simultaneos). Commits: `3ef2deb` (fase-01: Test Sizes + DAMP vs DRY + Test-Doubles em tdd-workflow/SKILL.md, 8/8 checks pass), `2735f4d` (fase-02: Task Sizing + Dependency Graph em plan-feature/SKILL.md, telemetria typescript intacta 5→5), `d86a918` (fase-03: ## Pipeline de Trabalho em AGENTS.md, 16 slugs validados, AGENTS_MAX_LINES elevado 40→70 em scripts/harness-validate.ts). DI-2 novo: scripts/harness-validate.ts modificado nesta wave — fase-04 audit deve incluir.
+- 2026-05-23: **PLANO 04 FECHADO 4/4. WAVE 3 ENCERRADA 16/16.** Fase-04: manifest regenerado via `bun run generate:manifest` (4 checksums atualizados: tdd-verifier.md, harness-validate.ts, plan-feature/SKILL.md, tdd-workflow/SKILL.md). harness:validate verde. Baseline tests: 8 falhas pre-existentes (v6-path-whitelist x6 + CA-09 x2) — zero regressoes. Typecheck: 7 erros pre-existentes em populate-plan* (untracked, exit 2 baseline). DI: idempotencia do manifest limitada pelo campo `generatedAt` (timestamp muda a cada regen) — comportamento pre-existente do script, nao regressao. CA-11 + SH-05 fechados.

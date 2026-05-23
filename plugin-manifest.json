@@ -1,6 +1,6 @@
 {
   "version": "7.1.0",
-  "generatedAt": "2026-05-23T17:20:43.456Z",
+  "generatedAt": "2026-05-23T20:19:05.362Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -457,7 +457,7 @@
     },
     "agents/tdd-verifier.md": {
       "version": "7.1.0",
-      "checksum": "1125ed3d3013b635fdd6366d5583bf04e21738013b7e4b141f5c634f5659b7c8",
+      "checksum": "c3dc06ec9d66ce7dd0cba729b1d26e4255592912d07545939b21f144a81f9199",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
@@ -541,7 +541,7 @@
     },
     "scripts/harness-validate.ts": {
       "version": "7.1.0",
-      "checksum": "6fd785906dd0999c76dbbec9576770843ab77a40979ef82714e5f28f3ae293ad",
+      "checksum": "1d3c2c250c5477f25248798ed7e832cbc46a3bc7c068b68d7278dc87ad55c5eb",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
@@ -2065,7 +2065,7 @@
     },
     "skills/plan-feature/SKILL.md": {
       "version": "7.1.0",
-      "checksum": "c58541be0b69c40cd728fe2616e8b4a3b813a140d1bfbd70b238854f83836db3",
+      "checksum": "3d335c56bf5755ade87faedcfdcc36040868fe4930a05c5a3b9353a8b0b2a0e7",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
@@ -2287,7 +2287,7 @@
     },
     "skills/tdd-workflow/SKILL.md": {
       "version": "7.1.0",
-      "checksum": "1adb986bc302c60b3873e6ea5e3cd0296a5f8cc77748cf6c36d33d0a29c79974",
+      "checksum": "71d50cccecd35640409a106aef1e4201138a4c3a8a334082ac541d6a40e2c879",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
