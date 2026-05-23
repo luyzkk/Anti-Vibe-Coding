@@ -1,9 +1,10 @@
 # State: Agent-Skills Import — Wave 2
 
 **Plan:** ./PLAN.md
-**Phase:** in-progress
+**Phase:** completed
 **Current Plan:** 04/4
 **Last Updated:** 2026-05-23
+**Completed:** 2026-05-23
 
 ## Progress por Plano
 
@@ -12,11 +13,11 @@
 | 01 | Foundation + Tracer Bullet | 4 | 4/4 | completed |
 | 02 | Refinar 12 Agentes Restantes | 4 | 4/4 | completed |
 | 03 | Skills Novas (3 ports) | 4 | 4/4 | completed |
-| 04 | Pedagogia ADR + Validação Final | 2 | 0/2 | detailed |
+| 04 | Pedagogia ADR + Validação Final | 2 | 2/2 | completed |
 
 ## Progress Global
 
-Fases done: 12/14 (86%)
+Fases done: 14/14 (100%)
 
 ## Log
 
@@ -41,3 +42,7 @@ Fases done: 12/14 (86%)
 - 2026-05-23: Fases 01/02/03 concluidas em paralelo. 3 skills criadas em `skills/{source-driven-development,doubt-driven-development,git-workflow-and-versioning}/SKILL.md`. 3 commits atomicos: 1e2c2d2 (source-driven), 89dd712 (doubt-driven), 63d85f7 (git-workflow). harness:validate verde em todas. DIs: lint script ausente -> typecheck; corpo das skills preservado em ingles (G6); cross-refs explicitos para consultant/design-twice/iterate/CLAUDE.md global.
 - 2026-05-23: fase-04 concluida — `plugin-manifest.json` regerado via `bun run scripts/generate-manifest.js` (PLUGIN_VERSION=7.1.0). 3 skills indexadas em `skills[]` e `files[]` com checksums SHA-256 validos. Skills totais: 38 (era 35). Commit 980705f. DI-Plano03-fase04-bun-vs-node-cjs registrada: script CJS exige `bun run` em vez de `node` devido a `type:module` em package.json — CRITICO para Plano 04 fase-02.
 - 2026-05-23: PLANO 03 CONCLUIDO (4/4 fases). 4 commits atomicos. 3 skills novas + manifest atualizado. Current Plan: 04/4 — proximo: pedagogia ADR + validacao final (pendencias BUG-1/DI seções legado/modo transitional do Plano 02 a fechar).
+- 2026-05-23: /execute-plan iniciado em Plano 04. 2 fases sequenciais (fase-02 depende do checksum NOVO da fase-01). Pre-condicoes validadas: 13/13 agentes em contract v2.0.0 (formato JSON "contract_version": "2.0.0"), 3 skills novas presentes, plugin.json sem campo skills (descoberta automatica).
+- 2026-05-23: fase-01 concluida — Edit cirurgico em skills/decision-registry/SKILL.md inserindo `## When to Write an ADR` ANTES de `## Comandos` (linha 65 -> 110). 4 sub-secoes: tabela gatilhos (6 linhas), lifecycle PROPOSED->ACCEPTED->SUPERSEDED|DEPRECATED com "Don't delete old ADRs", Common Rationalizations (5 linhas), Red Flags (5 bullets). CRUD intocado (## Comandos + ### `add`/`list`/`query` todos com 1 ocorrencia). harness:validate verde. Commit ad4dd21. DI-1 (codeblock indentado vs fence aninhado) + DI-2 (ancora 3 linhas) registradas.
+- 2026-05-23: fase-02 concluida — plugin-manifest.json regerado (PLUGIN_VERSION=7.1.0 bun run scripts/generate-manifest.js). Diff minimo: apenas checksum de decision-registry mudou (656a4b04 -> 8a721462), conforme G5 (idempotencia). 4 skills criticas validadas, 13 agentes com checksums SHA-256 validos. CA-11 confirmado (git diff vazio em skills/verify-work/SKILL.md vs origin/main). Pipeline: harness:validate verde; test/typecheck com pre-existentes do init-refactor-v7 (NAO Wave 2 — GT-1, GT-2). Exit Criteria PLAN.md: 7/8 verdes + 1 documentado. Commit 862ea21. DI-3/4/5 + GT-1/2/3/4/5 registradas.
+- 2026-05-23: WAVE 2 CONCLUIDA (14/14 fases, 4/4 planos). Status: completed. 22 commits atomicos no total. Tech-debt aberto: GT-1 (CA-14 audit log regressao), GT-2 (registry.ts modulo orfao), GT-3 (run-tests.ts estoura Windows ARG_MAX) — todos do init-refactor-v7, nao da Wave 2.
