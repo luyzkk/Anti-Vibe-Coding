@@ -166,6 +166,8 @@ export async function invokeAndConsolidate(
           if (!validation.valid || !validation.contract) {
             // withRetry precisa de um contrato — emitir needs_retry para tentar novamente
             // 2026-05-14 (Luiz/dev): validation failure gera needs_retry sintetico para withRetry escalar
+            // 2026-05-23 (Luiz/dev): contrato sintetico interno — usa v1 porque e emitido pelo orquestrador
+            // (nao por agente externo). Agentes externos emitem v2.0.0; este objeto e sinal de controle interno.
             return {
               contract_version: '1.0' as const,
               agent: fn.agent,

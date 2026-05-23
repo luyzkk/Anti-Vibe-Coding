@@ -1,25 +1,29 @@
 ---
-title: "Subagent Contract v1 — Especificacao Canonica"
+title: "Subagent Contract — Especificacao Canonica"
 status: Active
-version: "1.0"
-schema: "agents/_contract/v1.schema.json"
+version: "2.0.0"
+schema: "agents/_contract/v2.schema.json"
 adr: "./ADR-0002-subagent-contract.md"
-date: 2026-05-14
+date: 2026-05-23
 ---
 
-# Subagent Contract v1 — Especificacao Canonica
+# Subagent Contract — Especificacao Canonica
 
 **Status:** Active
-**Version:** 1.0
-**Schema:** `agents/_contract/v1.schema.json`
+**Version:** 2.0.0 (bump MAJOR — Wave 2, PRD DT-2)
+**Schema:** `agents/_contract/v2.schema.json`
+**Schema anterior (imutavel):** `agents/_contract/v1.schema.json`
 **ADR:** [ADR-0002](./ADR-0002-subagent-contract.md)
-**Date:** 2026-05-14
+**Migration Guide:** [subagent-contract-v2-migration.md](./subagent-contract-v2-migration.md)
+**Date:** 2026-05-23
 
 ---
 
 ## 1. Visao Geral
 
-Todo subagente deste plugin emite um envelope JSON padronizado ao concluir sua execucao. O contrato v1 define esse envelope: campos obrigatorios, lifecycle de status, campo `reasoning` livre e shape de `payload` por kind. O objetivo e permitir que qualquer orquestrador (skill consumidora) invoque qualquer subagente e parseia o output via um unico handler, sem regex especifico por auditor.
+Todo subagente deste plugin emite um envelope JSON padronizado ao concluir sua execucao. O contrato v2.0.0 define esse envelope: campos obrigatorios, lifecycle de status, campo `reasoning` livre, shape de `payload` por kind, e os novos campos obrigatorios `positive_observations` e `verdict`. O objetivo e permitir que qualquer orquestrador (skill consumidora) invoque qualquer subagente e parseia o output via um unico handler, sem regex especifico por auditor.
+
+<!-- 2026-05-23 (Luiz/dev): bump MAJOR 1.0 -> 2.0.0 — Wave 2 PRD agent-skills-import. Campos positivos_observations + verdict obrigatorios. Ver DT-2, DT-7 do PRD. -->
 
 Para a racional completa — alternativas rejeitadas, trade-offs de granularidade de status, obrigatoriedade de `reasoning` — consulte o [ADR-0002](./ADR-0002-subagent-contract.md).
 
@@ -47,11 +51,15 @@ Para a racional completa — alternativas rejeitadas, trade-offs de granularidad
 
 ```json
 {
-  "contract_version": "1.0",
+  "contract_version": "2.0.0",
   "agent": "nome-do-agente",
   "kind": "audit | mutation | proposal | verification",
   "status": "complete | needs_retry | needs_human | blocked",
+  "verdict": "approve | request_changes | block",
   "reasoning": "Texto livre. O agente descreve o que observou, inclusive coisas fora do payload esperado. Obrigatorio, minimo 20 chars.",
+  "positive_observations": [
+    "Observacao especifica citando arquivo, funcao ou padrao verificavel"
+  ],
   "payload": {
     "// shape depende de kind — ver secao 5": "..."
   },
@@ -64,7 +72,7 @@ Para a racional completa — alternativas rejeitadas, trade-offs de granularidad
 }
 ```
 
-Campos obrigatorios: `contract_version`, `agent`, `kind`, `status`, `reasoning`, `payload`.
+Campos obrigatorios: `contract_version`, `agent`, `kind`, `status`, `reasoning`, `payload`, `positive_observations`, `verdict`.
 Campos opcionais: `human_readable`, `metadata` (recomendado incluir).
 
 ---
@@ -73,12 +81,41 @@ Campos opcionais: `human_readable`, `metadata` (recomendado incluir).
 
 | Campo | Tipo | Regra de Validacao | Exemplo |
 |-------|------|-------------------|---------|
-| `contract_version` | string | Literal `"1.0"` — qualquer outro valor rejeita com `INVALID_CONTRACT_VERSION` | `"1.0"` |
+| `contract_version` | string | Literal `"2.0.0"` — qualquer outro valor rejeita com `INVALID_CONTRACT_VERSION` | `"2.0.0"` |
 | `agent` | string | Nome do arquivo do agente sem extensao `.md` | `"security-auditor"` |
 | `kind` | string | Um dos 4 valores: `audit`, `mutation`, `proposal`, `verification` | `"audit"` |
 | `status` | string | Um dos 4 valores de lifecycle: `complete`, `needs_retry`, `needs_human`, `blocked` | `"complete"` |
+| `verdict` | string | Um dos 3 valores: `approve`, `request_changes`, `block`. Ver regra de derivacao abaixo. | `"approve"` |
 | `reasoning` | string | Minimo 20 chars. Warning se entre 20-49 chars. Prosa livre — o que foi observado, inclusive fora do schema. | `"Encontrei SQL concatenado em 3 arquivos legacy marcados deprecated."` |
+| `positive_observations` | string[] | Array com `length >= 1`. Cada item deve citar arquivo, funcao ou padrao verificavel — tautologias sao rejeitadas pelo validator. | `["src/auth.ts:42 usa bcrypt saltRounds=12"]` |
 | `payload` | object | Shape depende de `kind` — ver secao 5. Validador rejeita se shape nao casar. | `{ "domain_status": "secure", "issues": [] }` |
+
+### Novos campos obrigatorios em v2.0.0
+
+- `contract_version`: string literal `"2.0.0"` (BREAKING — antes `"1.0"`).
+- `positive_observations`: `string[]` com `length >= 1`. Mesmo quando a auditoria nao encontra issues, o agente DEVE registrar pelo menos uma observacao positiva especifica (cita arquivo, funcao ou padrao verificavel — proibido tautologia). Ver `docs/design-docs/subagent-contract-v2-migration.md` para regex blacklist e exemplos.
+- `verdict`: enum literal `"approve" | "request_changes" | "block"`. Regra de derivacao:
+  - `approve`: nenhum issue critical/high, observacoes positivas validas.
+  - `request_changes`: pelo menos 1 issue medium/high; recomendacoes acionaveis.
+  - `block`: pelo menos 1 issue critical OU bloqueio de seguranca/contrato.
+
+### Campos novos opcionais (recomendados para issues critical/high)
+
+- `exploitation_scenario`: string descrevendo passo-a-passo como o issue pode ser explorado.
+- `impact`: string descrevendo blast radius (dados, usuarios, sistemas afetados).
+- `fix_with_example`: string com snippet de codigo correto (antes/depois quando aplicavel).
+
+### Tabela canonica `severity_action_map`
+
+| Severity | Acao obrigatoria | SLA sugerido | Bloqueia merge? |
+|----------|------------------|--------------|------------------|
+| critical | block + fix imediato | < 24h | sim |
+| high | request_changes + fix antes do release | < 1 semana | sim |
+| medium | request_changes + fix no proximo sprint | < 1 mes | nao |
+| low | nota informativa, sem bloqueio | best-effort | nao |
+| info | observacao positiva ou contexto | n/a | nao |
+
+Ver tambem: `docs/references/severity-glossary.md` (se existir; caso contrario, esta tabela e canonica para o plugin).
 
 ---
 
@@ -136,10 +173,15 @@ Agentes de leitura/analise que nao modificam arquivos. Cobrem 10 dos 13 subagent
 
 ```json
 {
-  "contract_version": "1.0",
+  "contract_version": "2.0.0",
   "agent": "security-auditor",
   "kind": "audit",
   "status": "complete",
+  "verdict": "block",
+  "positive_observations": [
+    "src/api/users/route.ts:88 valida input com zod antes de tocar DB",
+    "src/middleware/rate-limit.ts:15 aplica rate-limiting em todos os endpoints publicos"
+  ],
   "reasoning": "Encontrei MD5 usado para hash de senha em src/auth.ts:42 e SQL concatenado em src/api.ts:15. Tambem notei que .env.example tem placeholders mas .env real nao esta no .gitignore — fora do schema padrao mas relevante para o operador saber.",
   "payload": {
     "domain_status": "critical_issues",
@@ -148,7 +190,10 @@ Agentes de leitura/analise que nao modificam arquivos. Cobrem 10 dos 13 subagent
         "severity": "critical",
         "file": "src/auth.ts",
         "line": 42,
-        "description": "MD5 usado para hash de senha — trocar por bcrypt ou argon2"
+        "description": "MD5 usado para hash de senha — trocar por bcrypt ou argon2",
+        "exploitation_scenario": "Atacante com acesso ao DB extrai hashes MD5 e quebra senhas em minutos com rainbow tables.",
+        "impact": "Comprometimento de credenciais de toda a base de usuarios.",
+        "fix_with_example": "Substituir `md5(password)` por `await bcrypt.hash(password, 12)`."
       },
       {
         "severity": "high",
@@ -173,10 +218,15 @@ Agentes que verificam criterios de aceite de uma task ou plano. Nao modificam ar
 
 ```json
 {
-  "contract_version": "1.0",
+  "contract_version": "2.0.0",
   "agent": "plan-verifier",
   "kind": "verification",
   "status": "complete",
+  "verdict": "approve",
+  "positive_observations": [
+    "Todos os 12 testes do modulo notifications passaram sem skips",
+    "Lint retornou 0 warnings e 0 errors — codigo limpo"
+  ],
   "reasoning": "Acceptance criteria executado integralmente e passou. Testes verdes (12/12). Lint limpo. Arquivos esperados criados conforme listagem da task. Nenhum desvio detectado entre o plano e o estado atual do repo.",
   "payload": {
     "domain_status": "pass",
@@ -217,10 +267,14 @@ Agentes que exploram e propoe alternativas arquiteturais ou de design. Nao modif
 
 ```json
 {
-  "contract_version": "1.0",
+  "contract_version": "2.0.0",
   "agent": "design-explorer",
   "kind": "proposal",
   "status": "complete",
+  "verdict": "approve",
+  "positive_observations": [
+    "Requisito de auditoria identificado no roadmap — opcoes avaliadas levam isso em conta"
+  ],
   "reasoning": "Explorei 3 abordagens para o fluxo de notificacoes. A opcao B (event-sourced) tem trade-off claro de complexidade vs auditabilidade — vale destacar que o requisito de auditoria pode mudar em 6 meses conforme o roadmap. A opcao A e mais segura no horizonte curto.",
   "payload": {
     "proposal_summary": "Migrar fluxo de notificacoes para event-sourcing vs manter CRUD simples",
@@ -258,10 +312,14 @@ Agentes que modificam arquivos do repositorio. Em v1 o `payload.mutation` aceita
 
 ```json
 {
-  "contract_version": "1.0",
+  "contract_version": "2.0.0",
   "agent": "documentation-writer",
   "kind": "mutation",
   "status": "complete",
+  "verdict": "approve",
+  "positive_observations": [
+    "README.md secao Setup atualizada corretamente — bun install no lugar de npm install"
+  ],
   "reasoning": "Atualizei README.md secao Setup com novo passo de bun install substituindo npm install. Tambem detectei que CONTRIBUTING.md menciona npm em 3 lugares — fora do escopo desta task mas vale registrar como TODO para o operador.",
   "payload": {
     "mutation": {
@@ -321,24 +379,28 @@ Retorne uma tabela markdown com colunas: Arquivo | Severidade | Descricao
 Ao final, declare: SECURE, VULNERABILITIES_FOUND ou CRITICAL_ISSUES.
 ```
 
-**Depois (contrato v1):**
+**Depois (contrato v2.0.0):**
 
 ```markdown
 ## Output
 
-Retorne um JSON valido seguindo o contrato v1 exatamente:
+Retorne um JSON valido seguindo o contrato v2.0.0 exatamente:
 
 \`\`\`json
 {
-  "contract_version": "1.0",
+  "contract_version": "2.0.0",
   "agent": "security-auditor",
   "kind": "audit",
   "status": "complete",
+  "verdict": "approve | request_changes | block",
+  "positive_observations": [
+    "Cite pelo menos 1 arquivo, funcao ou padrao especifico verificado — sem tautologias"
+  ],
   "reasoning": "Descreva em 1-3 frases o que voce observou, especialmente coisas fora dos campos estruturados abaixo.",
   "payload": {
     "domain_status": "secure | vulnerabilities_found | critical_issues",
     "issues": [
-      { "severity": "critical | high | medium | low", "file": "caminho/arquivo.ts", "line": 0, "description": "descricao do problema" }
+      { "severity": "critical | high | medium | low | info", "file": "caminho/arquivo.ts", "line": 0, "description": "descricao do problema" }
     ]
   },
   "metadata": {
@@ -353,6 +415,8 @@ Importante:
 - `status` (top-level) e sempre lifecycle: complete / needs_retry / needs_human / blocked.
 - Resultado do dominio (secure, vulnerabilities_found etc) vai em `payload.domain_status`, nao em `status`.
 - `reasoning` e obrigatorio, minimo 20 caracteres. Escreva o que voce notou fora do schema padrao.
+- `positive_observations` e obrigatorio, minimo 1 item. Cite arquivo:linha ou padrao concreto.
+- `verdict`: block se critical, request_changes se high/medium, approve se apenas low/info ou nenhum.
 - Se nao encontrar issues, retorne `"issues": []`.
 ```
 
@@ -507,7 +571,7 @@ O modulo `skills/lib/subagent-contract.ts` exporta duas funcoes com propositos d
 
 | Codigo | Tipo | Quando Dispara | Como Corrigir |
 |--------|------|---------------|---------------|
-| `INVALID_CONTRACT_VERSION` | Error | `contract_version` nao e `"1.0"` | Usar o literal `"1.0"` — campo fixo em v1 |
+| `INVALID_CONTRACT_VERSION` | Error | `contract_version` nao e `"2.0.0"` | Usar o literal `"2.0.0"` — v1.0 nao e mais aceito. Ver migration guide. |
 | `MISSING_REQUIRED_FIELD` | Error | Campo obrigatorio ausente (`contract_version`, `agent`, `kind`, `status`, `reasoning`, `payload`) | Adicionar o campo faltante (ver secao 3) |
 | `INVALID_LIFECYCLE_STATUS` | Error | `status` top-level fora dos 4 valores permitidos | Usar `complete`, `needs_retry`, `needs_human` ou `blocked`. Enums de dominio (ex: `VULNERABILITIES_FOUND`) vao em `payload.domain_status` |
 | `REASONING_TOO_SHORT` | Error | `reasoning` ausente, vazio ou com menos de 20 chars | Escrever 1-3 frases descrevendo o que foi observado, inclusive fora do schema esperado |
@@ -539,7 +603,7 @@ Via `status` top-level. `complete` significa terminou, prossiga. `needs_human` s
 
 `needs_retry` e para falhas transientes (timeout, parse error, dado temporariamente indisponivel). `blocked` e para impasses semanticos (faltam informacoes que o agente nao pode obter sozinho, task contraditoria, escopo impossivel). Em caso de duvida, use `needs_human` — o operador decide se tenta de novo ou aborta.
 
-**Quando o JSON schema em `agents/_contract/v1.schema.json` estiver disponivel, como valido meu agente contra ele?**
+**Como valido meu agente contra o schema v2.0.0?**
 
 ```bash
 bun run agent:simulate {nome}
@@ -550,10 +614,52 @@ Ate o CLI estar disponivel (RF-CH-02), valide manualmente com:
 ```bash
 bun -e "
 const Ajv = require('ajv');
-const schema = require('./agents/_contract/v1.schema.json');
+const schema = require('./agents/_contract/v2.schema.json');
 const output = require('./agents/__fixtures__/{nome}/expected-output.json');
 const ajv = new Ajv();
 const valid = ajv.validate(schema, output);
 console.log(valid ? 'OK' : ajv.errors);
 "
 ```
+
+Para validar contra o schema v1 legado (imutavel):
+
+```bash
+bun -e "
+const Ajv = require('ajv');
+const schema = require('./agents/_contract/v1.schema.json');
+const output = require('./agents/__fixtures__/{nome}/expected-output.json');
+const ajv = new Ajv();
+const valid = ajv.validate(schema, output);
+console.log(valid ? 'OK (v1 legado)' : ajv.errors);
+"
+```
+
+---
+
+## Anti-Degeneration Rules (secao obrigatoria em cada agente)
+
+<!-- 2026-05-23 (Luiz/dev): secao adicionada em v2.0.0 — Wave 2 PRD CA-10. -->
+
+Todo agente DEVE declarar pelo menos 4 regras anti-degeneration no seu `.md`:
+
+- >= 2 regras GENERICAS aplicaveis a todo agente (sugestoes baseline):
+  - "Never suggest disabling type checks (`@ts-ignore`, `as any`) as a fix."
+  - "Never suggest disabling lint (`eslint-disable`) as the primary fix."
+  - "Never suggest `test.skip` / `xit` para silenciar testes."
+  - "Never suggest desabilitar validator, gate, hook ou guardrail como solucao."
+- >= 2 regras ESPECIFICAS do dominio do agente (ex: security-auditor tem regras de seguranca).
+
+Total minimo agregado: 4 regras x 13 agentes = 52 regras (CA-10 do PRD).
+
+---
+
+## Composition (secao obrigatoria em cada agente)
+
+<!-- 2026-05-23 (Luiz/dev): secao adicionada em v2.0.0 — Wave 2 PRD. -->
+
+Todo agente DEVE declarar:
+
+- **Invoke directly when:** condicoes em que o usuario invoca o agente sozinho.
+- **Invoke via:** lista de skills/slash-commands que orquestram este agente (`/security`, `/verify-work`, etc).
+- **Do not invoke from:** contextos onde o agente NAO deve ser chamado (ex: nao chamar `security-auditor` dentro de `code-smell-detector`).

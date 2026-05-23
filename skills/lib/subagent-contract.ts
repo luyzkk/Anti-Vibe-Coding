@@ -19,6 +19,9 @@ export type IssueSeverity = 'critical' | 'high' | 'medium' | 'low'
 
 export type CheckStatus = 'pass' | 'warn' | 'fail' | 'unable_to_verify'
 
+export type Verdict = 'approve' | 'request_changes' | 'block'
+
+// v1.0 — mantido para compatibilidade retroativa com parsers existentes (schema v1 imutavel)
 export interface SubagentContractBase {
   contract_version: '1.0'
   agent: string
@@ -34,6 +37,28 @@ export interface SubagentContractBase {
   }
 }
 
+// 2026-05-23 (Luiz/dev): v2.0.0 — Wave 2 PRD agent-skills-import (DT-2). Campos obrigatorios novos:
+// positive_observations (length >= 1, anti-tautologia) e verdict.
+export interface SubagentContractBaseV2 {
+  contract_version: '2.0.0'
+  agent: string
+  kind: ContractKind
+  status: LifecycleStatus
+  verdict: Verdict
+  positive_observations: string[] // length >= 1; cada item cita arquivo:linha ou simbolo especifico
+  reasoning: string
+  human_readable?: string
+  metadata?: {
+    run_id?: string
+    duration_ms?: number
+    model?: string
+    cost_tokens?: number
+  }
+}
+
+// Union discriminada por contract_version — usada em withRetry e InvokeFn
+export type SubagentContractBaseAny = SubagentContractBase | SubagentContractBaseV2
+
 export interface AuditContract extends SubagentContractBase {
   kind: 'audit'
   payload: {
@@ -43,6 +68,25 @@ export interface AuditContract extends SubagentContractBase {
       file?: string
       line?: number
       description: string
+    }>
+  }
+}
+
+// 2026-05-23 (Luiz/dev): AuditContractV2 — shape v2.0.0 com positive_observations + verdict + issues enriquecidos
+export interface AuditContractV2 extends SubagentContractBaseV2 {
+  kind: 'audit'
+  payload: {
+    domain_status?: string
+    issues: Array<{
+      id?: string
+      severity: IssueSeverity
+      title?: string
+      file?: string
+      line?: number
+      description?: string
+      exploitation_scenario?: string
+      impact?: string
+      fix_with_example?: string
     }>
   }
 }
@@ -61,7 +105,7 @@ export interface VerificationContract extends SubagentContractBase {
   }
 }
 
-// 2026-05-14 (Luiz/dev): proposalVariant expanded — Plano 02 fase-02 BUG-P02-01
+// 2026-05-23 (Luiz/dev): proposalVariant expanded — Plano 02 fase-02 BUG-P02-01
 // payload.proposal com 6 campos estruturados para consumo automatico pelo /design-twice handler
 export interface ProposalContract extends SubagentContractBase {
   kind: 'proposal'
@@ -87,6 +131,9 @@ export type SubagentContract =
   | VerificationContract
   | ProposalContract
   | MutationContract
+
+// v2 union — expandida conforme novos kinds v2 forem adicionados
+export type SubagentContractV2 = AuditContractV2
 
 // ---------------------------------------------------------------------------
 // Passo 2: Codigos de erro e warning — alinhado com doc canonico §7
@@ -185,19 +232,24 @@ function detectSecrets(text: string): ValidationError | null {
 // ---------------------------------------------------------------------------
 
 // 2026-05-14 (Luiz/dev): Validator usa ajv para schema + checks custom para PRD CA-02 e CA-03
+// 2026-05-23 (Luiz/dev): modo transitional — aceita v1.0 e v2.0.0 (Wave 2 DT-2). Escolhe schema pelo contract_version.
 // Import com fallback para readFileSync (compat com ambientes sem import attributes)
-let schemaJson: unknown
+let schemaJsonV1: unknown
+let schemaJsonV2: unknown
 try {
   // Bun suporta import attributes com TS 5.3+, mas carregar em runtime via readFileSync e mais seguro
-  const schemaPath = resolve(import.meta.dir, '../../agents/_contract/v1.schema.json')
-  schemaJson = JSON.parse(readFileSync(schemaPath, 'utf8'))
+  const v1Path = resolve(import.meta.dir, '../../agents/_contract/v1.schema.json')
+  const v2Path = resolve(import.meta.dir, '../../agents/_contract/v2.schema.json')
+  schemaJsonV1 = JSON.parse(readFileSync(v1Path, 'utf8'))
+  schemaJsonV2 = JSON.parse(readFileSync(v2Path, 'utf8'))
 } catch (e) {
   throw new Error(`Failed to load subagent contract schema: ${e instanceof Error ? e.message : String(e)}`)
 }
 
 const ajv = new Ajv({ allErrors: true })
 // 2026-05-20 (Luiz/dev): cast `as object` em vez de `as AnySchema` (so existe em ajv 7+).
-const validateSchema: ValidateFunction = ajv.compile(schemaJson as object)
+const validateSchemaV1: ValidateFunction = ajv.compile(schemaJsonV1 as object)
+const validateSchemaV2: ValidateFunction = ajv.compile(schemaJsonV2 as object)
 
 const VALID_LIFECYCLE_STATUSES: ReadonlySet<string> = new Set(['complete', 'needs_retry', 'needs_human', 'blocked'])
 
@@ -244,6 +296,13 @@ export function validateContract(parsed: unknown): ValidationResult {
     }
   }
 
+  // 2026-05-23 (Luiz/dev): modo transitional — escolhe schema pelo contract_version (v1 | v2).
+  // Contratos com versao desconhecida usam v1 (mantém comportamento pre-existente: rejeita com INVALID_CONTRACT_VERSION).
+  const contractVersion = obj['contract_version']
+  const isV2 = contractVersion === '2.0.0'
+  const isV1 = contractVersion === '1.0'
+  const validateSchema = isV2 ? validateSchemaV2 : validateSchemaV1
+
   // Schema validation via ajv (cobre os outros campos obrigatorios e payload shape)
   const schemaOk = validateSchema(parsed)
   if (!schemaOk && validateSchema.errors) {
@@ -264,7 +323,10 @@ export function validateContract(parsed: unknown): ValidationResult {
           ...(resolvedPath ? { path: resolvedPath } : {}),
         })
       } else if (instancePath === '/contract_version') {
-        errors.push({ code: 'INVALID_CONTRACT_VERSION', message: 'contract_version deve ser "1.0"', path: 'contract_version' })
+        const hint = !isV1 && !isV2
+          ? `contract_version "${String(contractVersion)}" nao suportado. Usar "1.0" (v1) ou "2.0.0" (v2). Ver docs/design-docs/subagent-contract-v2-migration.md`
+          : `contract_version deve ser "1.0" (v1) ou "2.0.0" (v2)`
+        errors.push({ code: 'INVALID_CONTRACT_VERSION', message: hint, path: 'contract_version' })
       } else if (instancePath === '/kind') {
         errors.push({ code: 'INVALID_KIND', message: e.message ?? 'kind invalido', path: 'kind' })
       } else if (keyword === 'oneOf' || instancePath.startsWith('/payload')) {
@@ -327,9 +389,10 @@ export type RetryOpts = {
   max?: number // default 1, cap absoluto em v6.1.0 — RF-SH-03 fica para v6.2
 }
 
-export type InvokeFn<T extends SubagentContractBase = SubagentContract> = () => Promise<T>
+// 2026-05-23 (Luiz/dev): InvokeFn e withRetry aceitam SubagentContractBaseAny (v1 | v2) — Wave 2 DT-2
+export type InvokeFn<T extends SubagentContractBaseAny = SubagentContract> = () => Promise<T>
 
-export async function withRetry<T extends SubagentContractBase>(
+export async function withRetry<T extends SubagentContractBaseAny>(
   invoke: InvokeFn<T>,
   opts: RetryOpts = {},
 ): Promise<T> {
