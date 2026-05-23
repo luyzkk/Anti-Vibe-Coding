@@ -62,6 +62,49 @@ if (__caps_generated_at !== null) {
 
 Gerenciar o registro de decisoes do projeto, mantendo consistencia entre sessoes.
 
+## When to Write an ADR
+
+> Adicionado na Wave 2 (2026-05-22) — pedagogia ANTES do CRUD para ensinar QUANDO escrever ADR antes de oferecer COMO escrever.
+
+ADRs capturam o raciocinio por tras de decisoes tecnicas significativas. Escreva ADR quando:
+
+| Gatilho | Exemplo |
+|---|---|
+| Escolha de framework, biblioteca ou major dependency | Next.js vs Remix, Prisma vs Drizzle |
+| Design de modelo de dados ou schema | Relacionamento N:N, particionamento, RLS strategy |
+| Estrategia de autenticacao | Cookie + session vs JWT vs OAuth provider |
+| Arquitetura de API | REST vs GraphQL vs tRPC vs RPC |
+| Build tool, hosting, infraestrutura | Vercel vs Cloudflare, Supabase vs RDS |
+| Qualquer decisao expensive to reverse | Trocar banco em prod, migrar de monolito para servicos |
+
+### Lifecycle de um ADR
+
+    PROPOSED -> ACCEPTED -> (SUPERSEDED por ADR-NNNN) ou DEPRECATED
+
+- **Don't delete old ADRs.** Eles preservam o raciocinio historico — futuras geracoes (humanos e agentes) precisam entender PORQUE algo foi decidido para nao re-decidir o mesmo.
+- Quando uma decisao mudar, escreva um NOVO ADR que referencia e supersede o antigo (campo `superseded_by` no frontmatter).
+- Status `DEPRECATED` significa "nao se aplica mais" sem substituto direto.
+
+### Common Rationalizations
+
+| Racionalizacao | Realidade |
+|---|---|
+| "O codigo se auto-documenta" | Codigo mostra o QUE. Nao mostra o PORQUE, nem quais alternativas foram rejeitadas, nem que restricoes se aplicam. |
+| "Vamos escrever ADR quando a API estabilizar" | APIs estabilizam mais rapido quando documentadas. O ADR e o primeiro teste do design. |
+| "Ninguem le ADRs" | Agentes leem. Engenheiros futuros leem. Seu eu daqui-a-3-meses le. |
+| "ADRs sao overhead" | Um ADR de 10 minutos previne 2 horas de debate sobre a mesma decisao 6 meses depois. |
+| "Vou lembrar por que tomei essa decisao" | Nao vai. Decisoes sem registro viram folclore — versao oral, distorcida a cada repasse. |
+
+### Red Flags
+
+- Decisao arquitetural sem ADR escrito.
+- ADR sem secao "Alternatives Considered" — virou monologo, nao analise.
+- ADR sem secao "Consequences" — incapaz de avaliar trade-off depois.
+- Decisao mudada SEM superseder o ADR antigo — historico corrompido.
+- `DEPRECATED` sem motivo registrado.
+
+---
+
 ## Comandos
 
 ### `add` — Registrar nova decisao
