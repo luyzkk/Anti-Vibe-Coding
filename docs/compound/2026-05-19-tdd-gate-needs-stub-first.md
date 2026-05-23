@@ -3,6 +3,7 @@ title: "TDD gate hook bloqueia criação de arquivo de implementação sem teste
 category: tooling
 tags: [tdd, hooks, red-green, stub, ordering, plan-executor]
 created: 2026-05-19
+referenced-by: [docs/references/tdd-cycle-checklist.md]
 ---
 
 ## Problem

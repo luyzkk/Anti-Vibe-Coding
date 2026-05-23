@@ -3,6 +3,7 @@ title: "Detector/parser limitado ao caminho-feliz é detector mal calibrado"
 category: bug
 tags: [detector, regex, i18n, legacy-layout, init, false-negative]
 created: 2026-05-18
+referenced-by: [docs/references/init-step-contract.md]
 ---
 
 ## Problem

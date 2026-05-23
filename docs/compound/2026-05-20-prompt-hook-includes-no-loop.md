@@ -3,6 +3,7 @@ title: "prompt-type Stop hook loops infinitely because parser greps for 'no' in 
 category: architecture
 tags: [hooks, stop-hook, prompt-hook, parser, infinite-loop, schema]
 created: 2026-05-20
+referenced-by: [docs/references/hooks-checklist.md]
 ---
 
 ## Problem

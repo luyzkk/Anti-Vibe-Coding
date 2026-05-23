@@ -3,6 +3,7 @@ title: "Dispatchers that mutate cwd must refuse to run inside their own plugin d
 category: architecture-gotcha
 tags: [dispatcher, init, self-protection, idempotency, blast-radius]
 created: 2026-05-18
+referenced-by: [docs/references/init-step-contract.md]
 ---
 
 ## Problem
