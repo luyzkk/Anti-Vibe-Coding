@@ -2,8 +2,8 @@
 
 **Plan:** ./PLAN.md
 **Phase:** in-progress
-**Current Plan:** 03/4
-**Last Updated:** 2026-05-23
+**Current Plan:** 04/4
+**Last Updated:** 2026-05-23 (Plano 03 fechado 5/5)
 
 ## Progress por Plano
 
@@ -11,12 +11,12 @@
 |-------|------|-------|------|--------|
 | 01 | Consolidacao /anti-vibe-review -> /verify-work (TB) | 4 | 4/4 | completed |
 | 02 | Prove-It Mode no tdd-verifier | 3 | 3/3 | completed |
-| 03 | Pipeline Compound -> Reference | 5 | 0/5 | detailed |
+| 03 | Pipeline Compound -> Reference | 5 | 5/5 | completed |
 | 04 | Refactor Skills + Flowchart AGENTS.md + Manifest | 4 | 0/4 | detailed |
 
 ## Progress Global
 
-Fases done: 7/16 (44%)
+Fases done: 12/16 (75%)
 
 ## Log
 
@@ -34,3 +34,8 @@ Fases done: 7/16 (44%)
 - 2026-05-23: Plano 02 fase-02 concluida via plan-executor. Secao `## Prove-It Mode` adicionada em `agents/tdd-verifier.md` (144 -> 250 linhas). Commit `98a841c`. 8/8 greps PASS (7 com pattern do spec; 1 com regex laxo do CA final — DEV-01 documenta inconsistencia entre Passo 4 grep e texto inserido). `bun run agents:contract` verde (31 testes), `harness:validate` verde, `typecheck` baseline (exit 2 nao-regressao). Convencao G7 confirmada: `mode: "prove-it"` top-level no input.
 - 2026-05-23: Plano 02 fase-03 concluida via plan-executor. 6 fixtures novos em `agents/__fixtures__/tdd-verifier/prove-it/{red-confirmed,already-green,inconclusive}/`. Commit `e368add`. Opcao A: loop PROVE_IT_STATES adicionado em `skills/lib/subagent-contract.test.ts` apos linha 193 — 3 testes novos passam (total agents:contract = 34). DI-4: `scripts/generate-manifest.js` exclui `__fixtures__` por design — manifest nao regenerado nesta fase. DI-5: `failing_test_snippet` omitido em `inconclusive/expected-output.json` (schema v1 nao exige; campo extensao do payload). Baseline test/typecheck mantido.
 - 2026-05-23: **PLANO 02 FECHADO 3/3.** CA-03 (3 campos novos no payload), CA-04 (guardrail already_green) e MH-03 (secao + protocolo + fixtures) integralmente cobertos. Commits da Wave: `745e5f1` (audit), `98a841c` (Prove-It Mode), `e368add` (fixtures + test). Sem regressoes. Pronto para Plano 03 (Pipeline Compound -> Reference) ou Plano 04. Planos 03 e 04 sao independentes entre si — PLAN linha 85 indica que podem rodar em paralelo apos 01+02.
+- 2026-05-23: Plano 03 fase-01 concluida via plan-executor. Secao `## Quando promover para reference` adicionada em `docs/compound/README.md` (linhas 26-51) com criterio numerico (>=3 repeticoes / >=2 skills / obrigatorio onboarding) + processo de promocao manual. CA-06 e MH-04 fechados. Commit `d8c0059`. 11/11 checks pass (RED→GREEN→VERIFY + greps de conteudo intacto + harness:validate exit 0). Zero DI/BUG/GT/DEV. G5 (adicao nao substituicao) respeitado: secoes pre-existentes intactas.
+- 2026-05-23: Plano 03 fases 02/03/04 concluidas em paralelo (3 subagentes simultaneos). 3 references criados em `docs/references/`: `init-step-contract.md` (cd4e761, 91 linhas, 27 items), `hooks-checklist.md` (25d4677, 94 linhas, 27 items), `tdd-cycle-checklist.md` (d50a338, 88 linhas, 33 items). Todos passaram criterios de aceite + harness. Compound notes-origem nao modificadas (so leitura). G2 do plano honrado: hooks-checklist cita compound-irmas no corpo mas nao no header Origem.
+- 2026-05-23: Bloqueio meta descoberto antes de fase-05. Subagente da fase-02 reportou que 3 compound notes-origem (`init-self-protection`, `path-escape-cascade`, `bash-env-var-scope-and`) estavam UNTRACKED no git desde sessao anterior. Como fase-05 modifica frontmatter de 2 delas, diff sairia incompleto. Resolucao: commit separado de housekeeping (`58349ca`, 3 files +178 linhas) antes de fase-05. Compound:check passou (34 notes validated). Aprendizado: rodar `git status docs/compound/` antes de qualquer fase que toque frontmatter.
+- 2026-05-23: Plano 03 fase-05 concluida via plan-executor. Campo `referenced-by:` adicionado em frontmatter de 5 compound notes-origem (3 → init-step-contract, 1 → hooks-checklist, 1 → tdd-cycle-checklist). Commit `d8974bb` (5 files +5 lines, exato). SH-04 fechado. 14/14 checks pass — incluindo idempotencia + compound:check + harness. Decisao G2: compound-irmas dos hooks (cjs-stdin-pattern, json-overwrite-bug) NAO receberam `referenced-by:` (sao "Referencias relacionadas", nao "Origem"). 
+- 2026-05-23: **PLANO 03 FECHADO 5/5.** Fechou CA-05, CA-06, MH-04, MH-05, SH-04. Commits da Wave: `d8c0059` (criterio), `cd4e761`/`25d4677`/`d50a338` (3 references), `58349ca` (housekeeping), `d8974bb` (frontmatter). Sem regressoes. Pronto para Plano 04 (Refactor Skills + Flowchart + Manifest).
