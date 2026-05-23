@@ -1,0 +1,10 @@
+{
+  "mode": "prove-it",
+  "files": [
+    {
+      "path": "src/utils/discount.ts",
+      "content": "export function calcDiscount(amount: number, rate: number): number {\n  return amount / rate\n}"
+    }
+  ],
+  "scope": "Provar RED para divisao por zero: invocar calcDiscount(0, 0.1) deveria lancar erro especifico (divisor cannot be zero), mas implementacao atual retorna NaN silenciosamente."
+}

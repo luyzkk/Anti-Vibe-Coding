@@ -1,0 +1,14 @@
+{
+  "contract_version": "1.0",
+  "agent": "tdd-verifier",
+  "kind": "audit",
+  "status": "complete",
+  "reasoning": "Tentei escrever teste para parseQuery mas o modulo importa drizzle-orm e a dependencia nao esta instalada no contexto de execucao. Test runner falha em load do modulo (Cannot find module). Nao consigo distinguir RED de problema de infra — codigo pode ou nao ter o bug, impossivel verificar sem rodar. Retornando inconclusive com diagnostico de setup; dev resolve dep antes de re-invocar.",
+  "payload": {
+    "domain_status": "inconclusive",
+    "issues": [],
+    "test_status": "inconclusive",
+    "failure_message": "Cannot run test — module load failed: Cannot find module 'drizzle-orm' from src/db/parse-query.ts. Resolucao: rodar 'bun add drizzle-orm' OU validar que o path do import esta correto (alias tsconfig? caminho relativo?). Re-invocar prove-it apos resolver. NAO posso concluir red/green sem execucao real do teste."
+  },
+  "metadata": { "run_id": "prove-it-fixture-inconclusive", "duration_ms": 0, "model": "test" }
+}

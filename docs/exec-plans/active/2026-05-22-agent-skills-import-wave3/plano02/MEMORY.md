@@ -18,6 +18,18 @@
 
 ---
 
+## Decisoes de Implementacao (continuacao — fase-03)
+
+- **DI-3 (fase-03):** Opcao A escolhida para Passo 6 (adicionar bloco de teste em `skills/lib/subagent-contract.test.ts`). Loop `PROVE_IT_STATES` adicionado apos o loop `FIXTURE_NAMES` existente (linha 193). 3 novos testes passam (`parseContract valida envelope v1` para cada estado). Motivo: automatiza regressao em CI futuro — Opcao B (REPL manual) nao deixa rastro.
+  - RED confirmado: `bun run agents:contract --grep "prove-it"` retornou `0 tests` antes da adicao.
+  - GREEN: `3 pass` apos adicao.
+
+- **DI-4 (fase-03):** `scripts/generate-manifest.js` exclui explicitamente diretórios `__fixtures__` (linha: `if (entry.name === '__tests__' || entry.name === '__fixtures__' || ...)`). Manifest NAO foi regenerado nesta fase — fixtures nao sao rastreados por checksum. Plano 04 fase-04 cobre regeneracao final do manifest (apenas `.md` de agents e skills sao rastreados).
+
+- **DI-5 (fase-03):** `failing_test_snippet` omitido em `inconclusive/expected-output.json` conforme spec. Schema v1 nao requer o campo — campo e adicional ao payload (tipo `object` aberto). parseContract retorna `valid: true` sem o campo. Constrait documentado no Gotchas do fase-03: consumidor checa `test_status` antes de ler `failing_test_snippet`.
+
+---
+
 ## Bugs Descobertos
 
 <!-- (preenchido durante execucao) -->
@@ -41,7 +53,7 @@
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 3 |
-| Fases concluidas | 2 |
+| Fases concluidas | 3 |
 | Fases com desvio | 1 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
@@ -54,6 +66,20 @@
 - **Convencao decidida (G7 — fase-02):** `mode: "prove-it"` e campo top-level no input do agente (ao lado de `"files"` e `"scope"`). Nao e parte do campo `scope`. Fixtures de fase-03 devem usar `"mode": "prove-it"` como campo top-level em `input.json`.
 - **Comentario HTML de linhagem adicionado:** `<!-- 2026-05-23 (Luiz/dev): prove-it mode — PRD Wave 3 Item 2, MH-03, CA-03 + CA-04, DC-7 -->` na linha 143 (antes da secao Prove-It Mode).
 - **DEV-01 (fase-02):** grep `'"mode": "prove-it"'` (Passo 4, item 8) retornou 0 — o texto documenta o campo com backticks markdown, nao como JSON literal. Criterio de aceite final usa `"mode.*prove-it"` (retorna 6 matches) e PASSA. Sem acao necessaria.
+
+### Arquivos criados em fase-03 (para Plano 04 fase-04)
+
+Os 6 arquivos abaixo NAO sao rastreados pelo manifest (fixtures excluidos). Plano 04 fase-04 confirma se manifest precisa incluir fixtures ou apenas agents .md:
+
+- `agents/__fixtures__/tdd-verifier/prove-it/red-confirmed/input.json`
+- `agents/__fixtures__/tdd-verifier/prove-it/red-confirmed/expected-output.json`
+- `agents/__fixtures__/tdd-verifier/prove-it/already-green/input.json`
+- `agents/__fixtures__/tdd-verifier/prove-it/already-green/expected-output.json`
+- `agents/__fixtures__/tdd-verifier/prove-it/inconclusive/input.json`
+- `agents/__fixtures__/tdd-verifier/prove-it/inconclusive/expected-output.json`
+
+Arquivo modificado em fase-03 (adicionado bloco de teste):
+- `skills/lib/subagent-contract.test.ts` — loop PROVE_IT_STATES (3 testes novos, totalizando 34 testes passando)
 
 ---
 

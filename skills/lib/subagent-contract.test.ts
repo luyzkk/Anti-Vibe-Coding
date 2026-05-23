@@ -192,6 +192,21 @@ for (const fixtureName of FIXTURE_NAMES) {
   })
 }
 
+// 2026-05-23 (Luiz/dev): fixtures prove-it — Plano 02 fase-03 CA-03/CA-04
+const PROVE_IT_STATES = ['red-confirmed', 'already-green', 'inconclusive'] as const
+for (const state of PROVE_IT_STATES) {
+  test(`fixture tdd-verifier/prove-it/${state}: parseContract valida envelope v1`, () => {
+    const fixturePath = resolve(
+      import.meta.dir,
+      `../../agents/__fixtures__/tdd-verifier/prove-it/${state}/expected-output.json`
+    )
+    const rawOutput = readFileSync(fixturePath, 'utf8')
+    const result = parseContract(rawOutput)
+    expect(result.valid).toBe(true)
+    expect(result.errors).toEqual([])
+  })
+}
+
 // 2026-05-14 (Luiz/dev): fixture plan-verifier — Plano 02 fase-03 CA-07
 test('plan-verifier fixture valida envelope v1 com domain_status warn', async () => {
   const fixturePath = resolve(__dirname, '../../agents/__fixtures__/plan-verifier/expected-output.json')

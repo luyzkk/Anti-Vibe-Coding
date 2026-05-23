@@ -1,0 +1,10 @@
+{
+  "mode": "prove-it",
+  "files": [
+    {
+      "path": "src/utils/phone.ts",
+      "content": "export function formatPhone(input: string | null | undefined): string {\n  if (!input) return ''\n  return input.replace(/\\D/g, '')\n}"
+    }
+  ],
+  "scope": "Provar RED para suposto bug em formatPhone(null) — bug-report alega que deveria lancar erro. Validar reproducao escrevendo teste que espera throw."
+}

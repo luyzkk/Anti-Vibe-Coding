@@ -1,0 +1,10 @@
+{
+  "mode": "prove-it",
+  "files": [
+    {
+      "path": "src/db/parse-query.ts",
+      "content": "import { sql } from 'drizzle-orm'\n\nexport function parseQuery(input: string) {\n  return sql.raw(input)\n}"
+    }
+  ],
+  "scope": "Provar RED para suposto SQL injection em parseQuery — escrever teste que injeta string maliciosa e verificar se e sanitizada."
+}
