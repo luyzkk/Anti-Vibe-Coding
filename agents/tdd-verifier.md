@@ -141,3 +141,110 @@ Regras:
 - `payload.domain_status`: enum de dominio especifico do auditor — valores aceitos: `"compliant"`, `"issues_found"`, `"critical_violations"`.
 - `payload.issues`: array de findings. Cada finding: `{ id: string, severity: "critical"|"high"|"medium"|"low", description: string, file?: string, line?: number, exploitation_scenario?: string, impact?: string, fix_with_example?: string }`.
 - NAO inclua secrets em `reasoning` ou `payload` — o validator rejeita patterns como `API_KEY=`, `SECRET=`, `PASSWORD=`.
+
+<!-- 2026-05-23 (Luiz/dev): prove-it mode — PRD Wave 3 Item 2, MH-03, CA-03 + CA-04, DC-7 -->
+
+## Prove-It Mode
+
+Modo opt-in que prova um RED genuino antes de qualquer fix. Ativado via campo top-level `mode: "prove-it"` no input do agente. Invocacao SEM `mode:` mantem comportamento padrao (auditoria read-only descrito em "O que verificar") — backward-compat total preservado.
+
+### Protocolo (5 passos)
+
+1. **Identificar** o comportamento a ser testado — bug a reproduzir ou feature ainda nao implementada
+2. **Escrever** um teste que DEVE FALHAR com o codigo atual (assertion failure, nao compilation error)
+3. **Confirmar** que o teste falha — rodar o test runner (via Bash, tool ja disponivel) e capturar a mensagem de erro
+4. **Retornar** envelope JSON com `payload.test_status: "red_confirmed"` + `payload.failing_test_snippet` (codigo do teste) + `payload.failure_message` (output do test runner)
+5. **PARAR** — NAO sugere fix, NAO modifica codigo de producao. Fix e responsabilidade do dev ou de ciclo subsequente (`tdd-workflow` GREEN phase)
+
+### Guardrail: `already_green` (mandatory)
+
+Se o teste escrito JA PASSA na primeira execucao (codigo existente satisfaz o comportamento), o agente DEVE retornar:
+
+- `payload.test_status: "already_green"`
+- `payload.failure_message`: diagnostico curto explicando o que aconteceu (possibilidades: teste escrito errado, codigo ja correto, escopo do bug nao reproduzido com este teste)
+
+Por que mandatory: sem este guardrail, agente poderia retornar `red_confirmed` em estado verde — RED falso — quebrando o invariante do ciclo TDD. R-02 do PRD Wave 3.
+
+### Guardrail: `inconclusive` (fallback)
+
+Se o teste nao roda (compilation error, dependencia ausente, infrastructure problem) ou o output do runner e ambiguo (test name nao matched, framework nao reconhecido), retornar:
+
+- `payload.test_status: "inconclusive"`
+- `payload.failure_message`: descricao do problema de execucao + sugestao de proximo passo (ajustar import, instalar dep, escolher framework)
+
+### Campos novos no payload (apenas em mode prove-it)
+
+| Campo | Tipo | Obrigatorio | Descricao |
+|-------|------|-------------|-----------|
+| `test_status` | enum: `"red_confirmed"` \| `"already_green"` \| `"inconclusive"` | sim (apenas em mode prove-it) | Resultado do RED check |
+| `failing_test_snippet` | string | sim (apenas se `test_status` = `"red_confirmed"` ou `"already_green"`) | Codigo do teste escrito (literal, executavel) |
+| `failure_message` | string | sim (apenas em mode prove-it) | Output literal do test runner OU diagnostico (se `already_green`/`inconclusive`) |
+
+Os 3 campos coexistem com `payload.issues` (que continua obrigatorio no kind `audit` per `agents/_contract/v1.schema.json`). Em mode prove-it, `payload.issues` pode ser array vazio `[]` se nao ha findings adicionais — o "finding" do modo e o `test_status` em si.
+
+### Exemplo: red_confirmed
+
+```json
+{
+  "contract_version": "1.0",
+  "agent": "tdd-verifier",
+  "kind": "audit",
+  "status": "complete",
+  "reasoning": "Bug de divisao por zero em calcDiscount nao tem teste. Escrevi teste que invoca calcDiscount(0, 0.1) e espera erro especifico. Test runner reportou assertion failure como esperado — RED confirmado, codigo nao trata divisor zero. Nao sugiro fix; ciclo seguinte do dev cobre GREEN.",
+  "payload": {
+    "domain_status": "red_confirmed",
+    "issues": [],
+    "test_status": "red_confirmed",
+    "failing_test_snippet": "describe('calcDiscount', () => {\n  it('throws on divisor zero', () => {\n    expect(() => calcDiscount(0, 0.1)).toThrow('divisor cannot be zero')\n  })\n})",
+    "failure_message": "FAIL src/discount.test.ts > calcDiscount > throws on divisor zero\n  Expected function to throw 'divisor cannot be zero'\n  Received: TypeError: Cannot read property 'amount' of NaN"
+  },
+  "metadata": { "run_id": "prove-it-001", "duration_ms": 0, "model": "test" }
+}
+```
+
+### Exemplo: already_green
+
+```json
+{
+  "contract_version": "1.0",
+  "agent": "tdd-verifier",
+  "kind": "audit",
+  "status": "complete",
+  "reasoning": "Teste escrito para reproduzir suposto bug em formatPhone(null) — esperava throw. Mas formatPhone ja retorna string vazia em null gracefully. Teste passou na primeira execucao. Possivel que o bug-report tenha sido outdated ou que o codigo foi corrigido sem teste de regressao. Retornando already_green com diagnostico.",
+  "payload": {
+    "domain_status": "already_green",
+    "issues": [],
+    "test_status": "already_green",
+    "failing_test_snippet": "describe('formatPhone', () => {\n  it('throws on null input', () => {\n    expect(() => formatPhone(null)).toThrow()\n  })\n})",
+    "failure_message": "Test passed unexpectedly. formatPhone(null) returned '' instead of throwing. Hipoteses: (1) bug ja corrigido sem teste de regressao; (2) teste escrito com expectativa errada; (3) escopo do bug nao reproduzido com este input — testar com outros inputs (undefined, {}, [])."
+  },
+  "metadata": { "run_id": "prove-it-002", "duration_ms": 0, "model": "test" }
+}
+```
+
+### Exemplo: inconclusive
+
+```json
+{
+  "contract_version": "1.0",
+  "agent": "tdd-verifier",
+  "kind": "audit",
+  "status": "complete",
+  "reasoning": "Tentei escrever teste para parseQuery(input) mas o modulo importa uma dependencia nao instalada (drizzle-orm). Test runner falha em load do modulo — nao consegue distinguir RED de problema de infra. Retornando inconclusive com diagnostico de setup; dev precisa instalar dep antes de re-rodar.",
+  "payload": {
+    "domain_status": "inconclusive",
+    "issues": [],
+    "test_status": "inconclusive",
+    "failure_message": "Cannot run test — module load failed: Cannot find module 'drizzle-orm'. Resolucao: rodar 'bun add drizzle-orm' OU verificar se o caminho do import esta correto. Re-invocar prove-it apos resolver dependencia."
+  },
+  "metadata": { "run_id": "prove-it-003", "duration_ms": 0, "model": "test" }
+}
+```
+
+(No exemplo `inconclusive`, `failing_test_snippet` foi omitido — campo obrigatorio apenas em `red_confirmed`/`already_green`. Schema v1 trata `payload` como `object` aberto, entao a omissao e valida ao nivel do envelope; agentes consumidores devem checar `test_status` antes de ler `failing_test_snippet`.)
+
+### Notas operacionais
+
+- O modo NAO altera o `contract_version` ("1.0") nem o `kind` ("audit"). Os 3 campos novos vivem dentro de `payload`, que e tipo `object` aberto no schema v1 — extensao backward-compat.
+- O modo NAO modifica arquivos. Mesmo escrevendo um teste novo para confirmar RED, o agente NAO comita o teste em disco — apenas inclui o snippet no payload. Dev decide se vai persistir como arquivo `.test.ts`.
+- Telemetria pode logar `mode: "prove-it"` separado para distinguir metricas de auditoria vs prova de RED (PRD secao "Observabilidade").
