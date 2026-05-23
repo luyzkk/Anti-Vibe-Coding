@@ -2,7 +2,7 @@
 
 **Feature:** Agent-Skills Import — Wave 3
 **Iniciado:** 2026-05-23
-**Status:** em andamento
+**Status:** completed (3/3 fases — PASS)
 
 ---
 
