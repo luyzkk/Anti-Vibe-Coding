@@ -1,7 +1,8 @@
 ---
 slug: agent-skills-import-wave3
 date: 2026-05-22
-status: approved
+status: completed
+completedAt: 2026-05-23
 requires: [agent-skills-import-wave2]
 parent_analysis: ../2026-05-22-agent-skills-import-analysis/ANALYSIS.md
 ---
