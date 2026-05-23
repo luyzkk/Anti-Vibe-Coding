@@ -199,6 +199,90 @@ Referencia completa: `skills/tdd-workflow/references/test-pyramid-ai.md`
 
 ---
 
+## Test Sizes
+
+Tres tamanhos de teste segundo orcamento de tempo e fidelidade ao runtime real:
+
+- **Unit (ms)** — milisegundos por teste, sem I/O, sem rede, sem filesystem. Funcao
+  pura ou modulo com dependencias mockadas. Roda em massa (centenas em <1s).
+- **Integration (sub-1s)** — sub-segundo, com storage fake (SQLite em memoria,
+  in-process queue, msw para HTTP). Testa integracao real entre 2-3 modulos.
+- **E2E (segundos)** — segundos por teste, com UI real, browser real (Playwright),
+  banco real. Reservar para fluxos criticos de usuario.
+
+| Tamanho | Custo | Quando usar |
+|---------|-------|-------------|
+| Unit | ms | Logica de dominio, parsing, transformacao de dados, validacao |
+| Integration | sub-1s | Repositories, controllers, integracao entre services |
+| E2E | segundos | Fluxos criticos end-to-end (login, checkout, onboarding) |
+
+**Regra de proporcao:** 70% Unit, 20% Integration, 10% E2E. Inverter a piramide
+(majoria E2E) torna a suite lenta e fragil.
+
+---
+
+## DAMP vs DRY em Testes
+
+**DAMP** = "Don't Abstain from Meaningful Phrases". Testes aceitam alguma repeticao
+se isso torna cada cenario auto-descritivo. Codigo de producao busca DRY; codigo de
+teste prioriza CLAREZA.
+
+**Anti-padrao (DRY demais):**
+
+```ts
+function setup(role: string) {
+  return createUserWithRole(role)
+}
+
+test('admin can delete', () => {
+  const u = setup('admin')
+  expect(canDelete(u)).toBe(true)
+})
+
+test('viewer cannot delete', () => {
+  const u = setup('viewer')
+  expect(canDelete(u)).toBe(false)
+})
+```
+
+O leitor precisa pular para `setup` para entender o cenario. Custo cognitivo
+desproporcional ao ganho de 1 linha.
+
+**DAMP (preferivel):**
+
+```ts
+test('admin can delete posts', () => {
+  const admin = createUserWithRole('admin')
+  expect(canDelete(admin)).toBe(true)
+})
+
+test('viewer cannot delete posts', () => {
+  const viewer = createUserWithRole('viewer')
+  expect(canDelete(viewer)).toBe(false)
+})
+```
+
+Cada teste e auto-contido. Setup explicito vence indireção. Helpers de teste sao
+extraidos APENAS quando a logica de setup e nao-obvia ou repetida 3+ vezes com
+identica forma.
+
+---
+
+## Test-Doubles Reference
+
+| Tipo | O que faz | Quando usar |
+|------|-----------|-------------|
+| **Stub** | Retorna valor fixo para chamadas | Substituir dependencia sem comportamento dinamico (ex: `clock.now() → 2026-01-01`) |
+| **Mock** | Verifica que uma chamada ocorreu com argumentos esperados | Testar side-effect (ex: `expect(emailer.send).toHaveBeenCalledWith(...)`) |
+| **Fake** | Implementacao simplificada e funcional | Substituir DB real por in-memory (ex: `InMemoryUserRepository`) |
+| **Spy** | Log de chamadas sem alterar comportamento | Observar fluxo sem modificar (ex: contar quantas vezes `logger.warn` foi chamado) |
+
+**Regra:** prefira **Fake** quando o comportamento da dependencia importa (testa
+mais cenarios reais). Use **Mock** com moderacao — mocks excessivos acoplam o teste
+a implementacao e nao ao comportamento.
+
+---
+
 <decision-tree>
 ## Classificacao de Complexidade (Modo Classico)
 
