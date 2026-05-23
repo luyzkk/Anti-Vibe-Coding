@@ -1,6 +1,6 @@
 {
   "version": "7.1.0",
-  "generatedAt": "2026-05-23T16:26:47.585Z",
+  "generatedAt": "2026-05-23T16:59:35.704Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -421,7 +421,7 @@
     },
     "agents/lesson-evaluator.md": {
       "version": "7.1.0",
-      "checksum": "13ef5a20aea867924f63df7a1d3c3d5be35a9e0a7494c34968308b3540ab4c93",
+      "checksum": "417331015e124795ab201e33dc2ee4dc1a66073c3a5ff5a246007b44bb0e2b5b",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
@@ -463,7 +463,7 @@
     },
     "agents/_contract/README.md": {
       "version": "7.1.0",
-      "checksum": "9b9f8e317c480760f597cbdab5026f210492a3dc33031ed1a949546fa4ddf75c",
+      "checksum": "d504e3ede3c75b0f971f824f5511ca5adb156fc9339868e201cbd19805a7564e",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
@@ -547,8 +547,8 @@
     },
     "scripts/init-cli.ts": {
       "version": "7.1.0",
-      "checksum": "07ed71f24350485066fbf284d64ada7a067a50554d114f0e06a051bcafa3a1b6",
-      "lastModified": "2026-05-21",
+      "checksum": "3512e48aa2076f062fd9944348b893577de42fb5f300e285c7ad37877d534f4f",
+      "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "scripts/new-plan.ts": {
@@ -577,8 +577,8 @@
     },
     "skills/anti-vibe-review/SKILL.md": {
       "version": "7.1.0",
-      "checksum": "4290f8419ed9c8acd530701b3e9b896186490550dd39379232a9bbc3a3d0e8e4",
-      "lastModified": "2026-05-14",
+      "checksum": "eb4bfd3e07070c5e275fdb22c96119fc0bd5e48409dd4056b360636ff0a0c8f7",
+      "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/api-design/SKILL.md": {
@@ -812,7 +812,7 @@
     "skills/execute-plan/SKILL.md": {
       "version": "7.1.0",
       "checksum": "a6219e1c4e6ebd003974e5893c5a9d23624fe0b25385aaf28843d8611a9031b0",
-      "lastModified": "2026-05-22",
+      "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/execute-plan/references/wave-execution.md": {
@@ -830,7 +830,7 @@
     "skills/grill-me/SKILL.md": {
       "version": "7.1.0",
       "checksum": "5196578d25beacf187e6ac7e0495bd9c01441b00ceace93eacf7982061feabee",
-      "lastModified": "2026-05-22",
+      "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/incident-response/SKILL.md": {
@@ -1063,8 +1063,8 @@
     },
     "skills/init/lib/migrate-claude-artifacts.ts": {
       "version": "7.1.0",
-      "checksum": "2bdcad8284ea8db9c3e138d716a5965f7a2d013f490a9f6f924546525072f774",
-      "lastModified": "2026-05-19",
+      "checksum": "50d520bd0f53a06081e31894c267e45686f136ac93ba60514c78b7076f2dec91",
+      "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/migrate-decisions.ts": {
@@ -1193,10 +1193,22 @@
       "lastModified": "2026-05-22",
       "updateStrategy": "replace"
     },
+    "skills/init/lib/populate-plan-coverage.ts": {
+      "version": "7.1.0",
+      "checksum": "2fe26135a73c329d8513ff924a8ffbab795f66fb7f5fb907ed908c33ee4e7ea9",
+      "lastModified": "2026-05-23",
+      "updateStrategy": "replace"
+    },
     "skills/init/lib/populate-plan-generator.ts": {
       "version": "7.1.0",
       "checksum": "62c4c1e6433da90b76dfaa9a13631a01a3f5e3f8441a3a164766178e9e8678a4",
-      "lastModified": "2026-05-22",
+      "lastModified": "2026-05-23",
+      "updateStrategy": "replace"
+    },
+    "skills/init/lib/populate-plan-writer.ts": {
+      "version": "7.1.0",
+      "checksum": "66f1f031cff4c0363f727e3c6de17119c41b03d70ef94280519f6dc2e326991d",
+      "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/progress-txt-parser.ts": {
@@ -1225,8 +1237,8 @@
     },
     "skills/init/lib/rails-anchor.ts": {
       "version": "7.1.0",
-      "checksum": "4ea908054e1774777950f4ab4f1ae1cd6c858970bdf34fbefec171983707737e",
-      "lastModified": "2026-05-19",
+      "checksum": "cf3fddeb8915becd3e7c6c018d7c358d51ad01cab34b57bea823170fc74db8e0",
+      "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/reconciler.ts": {
@@ -1331,6 +1343,30 @@
       "lastModified": "2026-05-20",
       "updateStrategy": "replace"
     },
+    "skills/init/lib/steps/00-detect-legacy.ts": {
+      "version": "7.1.0",
+      "checksum": "e56bcbdf689d03a643382b88a146841531f1f3befe1e1ac3ab88da2b18887d61",
+      "lastModified": "2026-05-23",
+      "updateStrategy": "replace"
+    },
+    "skills/init/lib/steps/00_1-reuse-discovery.ts": {
+      "version": "7.1.0",
+      "checksum": "79e99465d05dcba56ebba5757f411abbb22f9f33a9f4266e4caf2be73b1de50b",
+      "lastModified": "2026-05-23",
+      "updateStrategy": "replace"
+    },
+    "skills/init/lib/steps/00_2-reentry-guard.ts": {
+      "version": "7.1.0",
+      "checksum": "5fc8e1c66705c231e824755e0af8833dc76defcf34cfdd0191adfd9ded013163",
+      "lastModified": "2026-05-23",
+      "updateStrategy": "replace"
+    },
+    "skills/init/lib/steps/00_3-backup-pre-6_5_0.ts": {
+      "version": "7.1.0",
+      "checksum": "f67e6938e23e6ed20cec6ab41b4727311fb2b81dfe2dbad80389310a4e9d1929",
+      "lastModified": "2026-05-23",
+      "updateStrategy": "replace"
+    },
     "skills/init/lib/steps/01-reentry-gate.ts": {
       "version": "7.1.0",
       "checksum": "d05d726731c8133f3209ac534b1c68005cb9f22792c448601958587ef9dd18df",
@@ -1355,10 +1391,28 @@
       "lastModified": "2026-05-18",
       "updateStrategy": "replace"
     },
+    "skills/init/lib/steps/03-detect-stack-and-register.ts": {
+      "version": "7.1.0",
+      "checksum": "2f8e83c87c18b436992848b120fe0037517e0c88e9edca321281e7d968e697ec",
+      "lastModified": "2026-05-23",
+      "updateStrategy": "replace"
+    },
     "skills/init/lib/steps/03-secrets-scan.ts": {
       "version": "7.1.0",
       "checksum": "88188b1a6d050d7fb586880f91d690b9221b6a573f877b89ac4e3a401af337f5",
       "lastModified": "2026-05-21",
+      "updateStrategy": "replace"
+    },
+    "skills/init/lib/steps/03_1-persist-stack-and-knowledge.ts": {
+      "version": "7.1.0",
+      "checksum": "bcc598e543857601f81905ceb7aba4d2a506552fd685aa6ea718157e967c862a",
+      "lastModified": "2026-05-23",
+      "updateStrategy": "replace"
+    },
+    "skills/init/lib/steps/04-customize-architecture.ts": {
+      "version": "7.1.0",
+      "checksum": "a57bd9f0d687495839a3d716ff93e0354cc7e5ad551ba6a8e70ff7e20e2868c9",
+      "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/04-migrate-planning-and-manifest.ts": {
@@ -1385,6 +1439,12 @@
       "lastModified": "2026-05-21",
       "updateStrategy": "replace"
     },
+    "skills/init/lib/steps/06-secrets-scan.ts": {
+      "version": "7.1.0",
+      "checksum": "5ba71c9240130b30f94770556f2772d16d6940313db0fd38ac01b915cf941fee",
+      "lastModified": "2026-05-23",
+      "updateStrategy": "replace"
+    },
     "skills/init/lib/steps/07-generate-populate-plans.ts": {
       "version": "7.1.0",
       "checksum": "a04704cfc1edc2673f943f4b682e172d0460b7290c5460c9f48dabe6854a8c18",
@@ -1403,10 +1463,88 @@
       "lastModified": "2026-05-21",
       "updateStrategy": "replace"
     },
+    "skills/init/lib/steps/09-migrate-0-parse-dry-run.ts": {
+      "version": "7.1.0",
+      "checksum": "d730d9b9b6064e7101e7c310005e814e47aac92520b9639e4082fdb155dd6f60",
+      "lastModified": "2026-05-23",
+      "updateStrategy": "replace"
+    },
+    "skills/init/lib/steps/09_1-migrate-all-orchestrate.ts": {
+      "version": "7.1.0",
+      "checksum": "e4a87597c513c54942fd97615356cd91a327e23e7b0e40d3239df22b93a05ec5",
+      "lastModified": "2026-05-23",
+      "updateStrategy": "replace"
+    },
+    "skills/init/lib/steps/10-backup-pre-mutation.ts": {
+      "version": "7.1.0",
+      "checksum": "e9a360e3204aa643c2c1244b69c1bc310c5db68e082e591962a9870e321c0385",
+      "lastModified": "2026-05-23",
+      "updateStrategy": "replace"
+    },
     "skills/init/lib/steps/10-final-validation.ts": {
       "version": "7.1.0",
       "checksum": "ca0898e0734b51ba4bde4825dbe09611107eca1ce2c2127f70d2efb06188bede",
       "lastModified": "2026-05-21",
+      "updateStrategy": "replace"
+    },
+    "skills/init/lib/steps/10-migrate-1-backup.ts": {
+      "version": "7.1.0",
+      "checksum": "08447ffeee48a80f6dcd1fbf66cc5bfed5a98012d911e720ce6b197b0e260924",
+      "lastModified": "2026-05-23",
+      "updateStrategy": "replace"
+    },
+    "skills/init/lib/steps/11-migrate-2-planning.ts": {
+      "version": "7.1.0",
+      "checksum": "f437d6ab2a1a734c9c484c7219b0f776bf95d4f9b4bb6a85627c8ad13b775534",
+      "lastModified": "2026-05-23",
+      "updateStrategy": "replace"
+    },
+    "skills/init/lib/steps/12-migrate-3-lessons.ts": {
+      "version": "7.1.0",
+      "checksum": "9c792a12dcccc5747a49bafb3b07ed641d55df2d98eb6aae5e5fa347571fa53b",
+      "lastModified": "2026-05-23",
+      "updateStrategy": "replace"
+    },
+    "skills/init/lib/steps/13-import-progress-txt.ts": {
+      "version": "7.1.0",
+      "checksum": "04cdbba30f2b04bbe69e1802e35d886e583c125c6a96ad7b1f83e19fdd4d374d",
+      "lastModified": "2026-05-23",
+      "updateStrategy": "replace"
+    },
+    "skills/init/lib/steps/13-migrate-4-decisions.ts": {
+      "version": "7.1.0",
+      "checksum": "e4d661e0c8276e687cc2063aa29ac15687b008d195aa830fbf249079527213b1",
+      "lastModified": "2026-05-23",
+      "updateStrategy": "replace"
+    },
+    "skills/init/lib/steps/13_1-migrate-knowledge-path.ts": {
+      "version": "7.1.0",
+      "checksum": "bb9f876a5fb5c3490400eb5c7476db3c029b9f6e52e5e9b29725f337eabc6a6d",
+      "lastModified": "2026-05-23",
+      "updateStrategy": "replace"
+    },
+    "skills/init/lib/steps/14-delivery-loop.ts": {
+      "version": "7.1.0",
+      "checksum": "b9f84a100914b9ac2c4da92220d526e30e37e24b64411543a2ed88faac049991",
+      "lastModified": "2026-05-23",
+      "updateStrategy": "replace"
+    },
+    "skills/init/lib/steps/15-capabilities-discovery.ts": {
+      "version": "7.1.0",
+      "checksum": "3f58ca13da17cdbf85a0d5fa73965cada7dcb1dfa5362df0658d6c2557fea091",
+      "lastModified": "2026-05-23",
+      "updateStrategy": "replace"
+    },
+    "skills/init/lib/steps/90-final-validation.ts": {
+      "version": "7.1.0",
+      "checksum": "ff18b78fe687dc403c9a31a175db00d4b7ec835823fa26196d265456c33355ff",
+      "lastModified": "2026-05-23",
+      "updateStrategy": "replace"
+    },
+    "skills/init/lib/steps/91-generate-populate-plan.ts": {
+      "version": "7.1.0",
+      "checksum": "d8910b0eb6093dd5b8dad106d23def631c145873f72b4437d2f97feb20df0ada",
+      "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/abort-error.ts": {
@@ -1423,14 +1561,14 @@
     },
     "skills/init/lib/steps/inject-harness-scripts.ts": {
       "version": "7.1.0",
-      "checksum": "dbd3b7d9975b06f6e65ac383395046c5614dbe82de24c54b0bc8bd16d7c1acd1",
-      "lastModified": "2026-05-22",
+      "checksum": "f11aa484585c1b8db62b1a49bc13f8fe96e1e96c2cb95facbcda7c4b714c8b26",
+      "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/types.ts": {
       "version": "7.1.0",
-      "checksum": "0bc6380ad4aa4ce023afad104754ffa93429be26512750d86bdbee0b7d6c0186",
-      "lastModified": "2026-05-21",
+      "checksum": "3e5cfc1921573eb45ca7d6f75f6c97b4747bf4f0c68b8e214b341848e110c582",
+      "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/symlink-fallback.ts": {
@@ -1617,6 +1755,12 @@
       "version": "7.1.0",
       "checksum": "2e618198d22d712b96090ff1ee4e917ff2df2cde562b8972f3e454535337a17e",
       "lastModified": "2026-05-12",
+      "updateStrategy": "replace"
+    },
+    "skills/init/assets/snippets/populate-plan-template.md": {
+      "version": "7.1.0",
+      "checksum": "31393e37c2efa91a5646933956e928c75b3b5dfedfa0f0a03370fe516c6cb5cd",
+      "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/assets/snippets/rollback-adr-template.md": {
@@ -1817,6 +1961,18 @@
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
+    "skills/init/assets/templates/exec-plan/fase.md.tpl": {
+      "version": "7.1.0",
+      "checksum": "f8ed0b072f73645f768c6edbf650229b43c4c78694ad5e171f6c0c78ef290e6e",
+      "lastModified": "2026-05-23",
+      "updateStrategy": "replace"
+    },
+    "skills/init/assets/templates/exec-plan/PLAN.md.tpl": {
+      "version": "7.1.0",
+      "checksum": "73a220d87ed77fc3d0e7f44a77feb95df2fca32d1d692344429b406884a88351",
+      "lastModified": "2026-05-23",
+      "updateStrategy": "replace"
+    },
     "skills/init/assets/templates/package.json.tpl": {
       "version": "7.1.0",
       "checksum": "57e5535b60653841f4eb018fcbc2509bc7a8dbc1fb23acaf60eec300d162d7f3",
@@ -1910,7 +2066,7 @@
     "skills/plan-feature/SKILL.md": {
       "version": "7.1.0",
       "checksum": "c58541be0b69c40cd728fe2616e8b4a3b813a140d1bfbd70b238854f83836db3",
-      "lastModified": "2026-05-22",
+      "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/plan-feature/templates/fase-template.md": {
@@ -1994,7 +2150,7 @@
     "skills/security/SKILL.md": {
       "version": "7.1.0",
       "checksum": "17bdc3cda467e3951495d720046f5aaac9bd4601c2c151fd2a5c5caed3a2da97",
-      "lastModified": "2026-05-22",
+      "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/security/references/application-security.md": {
@@ -2131,8 +2287,8 @@
     },
     "skills/tdd-workflow/SKILL.md": {
       "version": "7.1.0",
-      "checksum": "9b27d6d16651b31201dbc2b6033da39fefc592d3dc9b0c320d7ce6d6a6e23895",
-      "lastModified": "2026-05-22",
+      "checksum": "1adb986bc302c60b3873e6ea5e3cd0296a5f8cc77748cf6c36d33d0a29c79974",
+      "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/tdd-workflow/references/deep-modules.md": {
@@ -2173,8 +2329,8 @@
     },
     "skills/verify-work/SKILL.md": {
       "version": "7.1.0",
-      "checksum": "3d4d98afa85ae5d5753649af43bb2dd48d94fab4f9210e8a763e9e40c3808d25",
-      "lastModified": "2026-05-14",
+      "checksum": "36c707469bd7862f15d7b0ada426ca7404ed9dc161399177ebd093081ee99b7e",
+      "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/verify-work/lib/adherence-checks.ts": {
@@ -2185,7 +2341,7 @@
     },
     "skills/verify-work/lib/audit-consolidator.ts": {
       "version": "7.1.0",
-      "checksum": "80ef537478e90af638068c6156e38890bb1273a1ddcaa9749fa98a2a8a62eb6b",
+      "checksum": "3f56b62cc8b16c09b0ad8af14aff8a66c19da7bf3e96f915719194e26a42c0b8",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
@@ -2473,7 +2629,7 @@
     },
     "skills/lib/subagent-contract.ts": {
       "version": "7.1.0",
-      "checksum": "70503e24343930961b9180d538345edfc3885c226ade62db8700bd9b93a359ee",
+      "checksum": "bdbfd9c1293bff7abdaf80a32b1d5aa2f34aa67e2945def676f11b9b1a57a8fa",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },

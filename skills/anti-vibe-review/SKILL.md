@@ -14,6 +14,20 @@ argument-hint: "[module or directory to review]"
 
 # Revisao Anti-Vibe — Auditoria Pos-Implementacao
 
+## ⚠️ Deprecation Notice (Wave 3 — 2026-05-22)
+
+Esta skill foi consolidada em `/verify-work`.
+
+**Migracao:** substitua `/anti-vibe-coding:anti-vibe-review` por `/anti-vibe-coding:verify-work` no seu workflow.
+
+A skill permanece **funcional** durante grace period — todos os comandos, opcoes e formato de relatorio continuam operando normalmente. Nenhuma alteracao de comportamento.
+
+**Por que migrar:** `/verify-work` executa o mesmo audit pipeline + adiciona testes/lint automatizados, debug agent, mutation testing, hallucination check e consolidacao paralela de auditores. Ver `## Diferencas com anti-vibe-review` em `/verify-work` para detalhes.
+
+**Sem data de remocao definida** — Wave 4 reavalia delete fisico baseado em telemetria de uso. Nao ha urgencia artificial.
+
+---
+
 Auditor de qualidade rigoroso. Executar uma revisao completa do codigo recem-implementado seguindo os principios Anti-Vibe Coding.
 
 ## Modos de Invocacao

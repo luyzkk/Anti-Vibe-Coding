@@ -153,12 +153,15 @@ Classificar por dominio para determinar auditores domain-specific:
 - Input: todos os arquivos modificados
 - Verifica: God objects, funcoes longas, DRY violations, magic numbers
 - Skippado se: config.auditors.code_quality = false
+- **Heuristica pratica (Consolidado de anti-vibe-review):** nomes grepáveis — para identificadores de funcoes/tipos/constantes criados, rodar `grep -c <nome> src/` e verificar se retorna <5 hits nao relacionados. Se >10 hits, o nome e generico demais e dificulta refatoracao segura. Esta heuristica complementa o auditor automatizado (que detecta padroes mas nao mede greppability).
 
 ### 2c. Auditores Domain-Specific (condicional, se config.auditors.domain_specific = true)
 
 Spawn apenas dos detectados na classificacao de arquivos modificados.
 
 Spawn todos em paralelo com os fixos (mesma mensagem, multiplos Agent calls).
+
+**Pre-check Deep Modules (Consolidado de anti-vibe-review):** antes de spawnar `solid-auditor`, considere avaliar se os modulos modificados expoem interface pequena com implementacao rica (deep) ou interface quase tao complexa quanto implementacao (shallow). Sinal de modulo shallow: muitos metodos publicos, muitos parametros expostos. Sinal de deep: interface pequena, implementacao rica. Em caso de shallow, o relatorio pode incluir warning de encapsulamento alem dos findings do auditor. Referencia: `skills/tdd-workflow/references/deep-modules.md`.
 
 ### 2d. Modelo por Auditor
 
@@ -520,6 +523,20 @@ Se falha (template nao encontrado, erro de leitura):
 - Esta skill e o encerramento do pipeline mas funciona standalone
 - Dev pode aceitar issues e prosseguir para commit/PR mesmo com findings
 - Se pipeline nao foi usado, o SUMMARY.md nao existira — a skill funciona normalmente sem ele
+
+---
+
+## Estrategia Staged/Unstaged (Consolidado de anti-vibe-review)
+
+Para comparar codigo antes e depois da verificacao sem perder o trabalho original, recomenda-se o fluxo Staged/Unstaged:
+
+1. Deixar as alteracoes em **staged**: `git add <arquivos>`
+2. Executar `/verify-work` (audit pipeline e debug agent operam sobre staged)
+3. Solicitar que as melhorias propostas (apos analise do report) sejam aplicadas como **unstaged** (sem `git add`)
+4. Comparar com `git diff` — staged = codigo original, unstaged = codigo revisado
+5. Aceitar ou rejeitar cada melhoria individualmente com `git add -p`
+
+> Nota: esta estrategia foi originalmente documentada em `/anti-vibe-review` (skill consolidada em Wave 3). Preservada aqui por valor operacional independente do audit pipeline automatizado.
 
 ---
 
