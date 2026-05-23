@@ -2,7 +2,7 @@
 
 **Plan:** ./PLAN.md
 **Phase:** in-progress
-**Current Plan:** 03/4
+**Current Plan:** 04/4
 **Last Updated:** 2026-05-23
 
 ## Progress por Plano
@@ -11,12 +11,12 @@
 |-------|------|-------|------|--------|
 | 01 | Foundation + Tracer Bullet | 4 | 4/4 | completed |
 | 02 | Refinar 12 Agentes Restantes | 4 | 4/4 | completed |
-| 03 | Skills Novas (3 ports) | 4 | 0/4 | detailed |
+| 03 | Skills Novas (3 ports) | 4 | 4/4 | completed |
 | 04 | Pedagogia ADR + Validação Final | 2 | 0/2 | detailed |
 
 ## Progress Global
 
-Fases done: 8/14 (57%)
+Fases done: 12/14 (86%)
 
 ## Log
 
@@ -37,3 +37,7 @@ Fases done: 8/14 (57%)
 - 2026-05-23: Wave C (fase-03) concluida — 4 agentes refinados em paralelo (documentation-writer kind:mutation / lesson-evaluator kind:audit / plan-executor + plan-verifier kind:verification), 7/7 greps verdes por agente, 4 commits atomicos (a9a3daf, 144c435, ..., 9f69a8b), harness verde. DI-Wave2-P02-kinds-variants-fase03 + DI-Wave2-P02-secoes-legado-mantidas registradas. BUG-1 sobre design-explorer kind:proposal flag para Plano 04 fase-02.
 - 2026-05-23: fase-04 (validacao consolidada) concluida — `relatorio-validacao.md` gerado, 13/13 agentes verdes (54 anti-degen >=52), CA-11 confirmado (diff vazio em skills/verify-work/SKILL.md vs e4d0614), CA-12 documentado conceitualmente, MEMORY.md "Notas para Planos Seguintes" preenchidas com 7 itens para Plano 04.
 - 2026-05-23: PLANO 02 CONCLUIDO (4/4 fases). 13 agentes refinados, 12 commits atomicos. Current Plan: 03/4 — proximo: skills novas (source-driven/doubt-driven/git-workflow).
+- 2026-05-23: /execute-plan iniciado em Plano 03. Estrategia: 3 fases em paralelo (01/02/03 independentes) + fase-04 sequencial. Modelo: padrao do plugin (sonnet).
+- 2026-05-23: Fases 01/02/03 concluidas em paralelo. 3 skills criadas em `skills/{source-driven-development,doubt-driven-development,git-workflow-and-versioning}/SKILL.md`. 3 commits atomicos: 1e2c2d2 (source-driven), 89dd712 (doubt-driven), 63d85f7 (git-workflow). harness:validate verde em todas. DIs: lint script ausente -> typecheck; corpo das skills preservado em ingles (G6); cross-refs explicitos para consultant/design-twice/iterate/CLAUDE.md global.
+- 2026-05-23: fase-04 concluida — `plugin-manifest.json` regerado via `bun run scripts/generate-manifest.js` (PLUGIN_VERSION=7.1.0). 3 skills indexadas em `skills[]` e `files[]` com checksums SHA-256 validos. Skills totais: 38 (era 35). Commit 980705f. DI-Plano03-fase04-bun-vs-node-cjs registrada: script CJS exige `bun run` em vez de `node` devido a `type:module` em package.json — CRITICO para Plano 04 fase-02.
+- 2026-05-23: PLANO 03 CONCLUIDO (4/4 fases). 4 commits atomicos. 3 skills novas + manifest atualizado. Current Plan: 04/4 — proximo: pedagogia ADR + validacao final (pendencias BUG-1/DI seções legado/modo transitional do Plano 02 a fechar).
