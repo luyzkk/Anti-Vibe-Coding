@@ -11,7 +11,20 @@ const crypto = require('crypto');
 const yaml = require('js-yaml');
 
 const PLUGIN_ROOT = path.join(__dirname, '..');
-const VERSION = process.env.PLUGIN_VERSION || '6.0.0';
+
+// Resolve version from package.json (single source of truth) with optional env override.
+// Avoids the trap where regenerations silently emit a stale '6.0.0' when PLUGIN_VERSION
+// is unset — bites every Wave that touches a SKILL.md.
+function resolveVersion() {
+  if (process.env.PLUGIN_VERSION) return process.env.PLUGIN_VERSION;
+  const pkg = JSON.parse(fs.readFileSync(path.join(PLUGIN_ROOT, 'package.json'), 'utf8'));
+  if (typeof pkg.version !== 'string' || pkg.version.trim() === '') {
+    throw new Error('package.json has no usable "version" field — cannot generate manifest');
+  }
+  return pkg.version;
+}
+
+const VERSION = resolveVersion();
 
 // Paths/prefixes que NAO entram no manifest (dog-food interno, nao distribuidos)
 const IGNORED_PREFIXES = [
