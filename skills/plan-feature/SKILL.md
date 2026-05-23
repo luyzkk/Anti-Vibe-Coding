@@ -810,6 +810,67 @@ Validation Log / Compound Opportunity / Lessons Captured ficam vazias inicialmen
 
 ---
 
+## Task Sizing
+
+Quatro tamanhos calibrados pelo tempo medio de execucao por um dev senior com IA:
+
+| Tamanho | Criterio | Exemplo | Regra-corte |
+|---------|----------|---------|-------------|
+| **XS** | < 2h | Adicionar campo a tabela existente + migration | Sem dependencia entre arquivos |
+| **S** | < 4h | Endpoint novo com 1 service + 1 teste | <= 3 arquivos tocados |
+| **M** | < 1 dia (~6h efetivos) | Feature pequena: endpoint + UI + teste E2E | 5-10 arquivos |
+| **L** | > 1 dia | Refactor multi-modulo, migracao de schema, novo subsistema | DEVE SER QUEBRADO |
+
+**Regra inviolavel:** **L sempre quebra**. Divida em subtasks XS/S/M antes de planejar.
+Uma fase L escondida e sempre underestimate disfarcado.
+
+**Sinais de que algo "S" e na verdade "M":**
+- Toca mais de 3 arquivos
+- Precisa de migration de schema
+- Tem decisao arquitetural pendente
+
+**Sinais de que algo "M" e na verdade "L":**
+- Quebra contratos publicos (API/types exportados)
+- Requer coordenacao entre 2+ equipes ou subsistemas
+- Tem incerteza tecnica nao resolvida (precisa de spike antes)
+
+---
+
+## Dependency Graph (ASCII)
+
+Notacao canonica para grafos de dependencia entre fases (mesmo formato usado em
+`plan-readme-template.md`):
+
+- **Nome do node** = `fase-NN` (numero da fase do plano)
+- **Seta horizontal** = `→` ou `--->` (continuacao na mesma linha)
+- **Seta vertical** = `|` no meio + `v` no fim (3 caracteres minimo)
+- **Junction (fan-in)** = `+----+----+` com `|` saindo do meio
+
+Exemplo curto (4 nodes mostrando paralelismo):
+
+```
+fase-01 (tipos base)
+    |
+    v
+fase-02 (services)     fase-03 (UI components)
+    |                          |
+    +------------+-------------+
+                 |
+                 v
+          fase-04 (E2E gate)
+```
+
+**Como ler:** `fase-02` e `fase-03` rodam em paralelo (ambas saem de `fase-01`).
+`fase-04` aguarda as duas (fan-in). Indentacao alinha `|` verticalmente — facilita
+leitura em monospace.
+
+**Anti-padroes:**
+- Usar caixas (`+---+\n| X |\n+---+`) — ruido visual sem benefit.
+- Setas diagonais (`\` ou `/`) — quebram em alguns renderers markdown.
+- Nodes sem prefixo `fase-NN` — perde rastreabilidade com os arquivos.
+
+---
+
 ## Completion Signal (D33)
 
 Ao finalizar o output principal (criacao do plano), a skill emite automaticamente um bloco YAML machine-readable via `console.log`. Orquestradores podem extrair o sinal usando `extractCompletionSignal(output)`.
