@@ -40,7 +40,7 @@ const REQUIRED_FILES = [
   '.claude/CLAUDE.md', // 2026-05-21 (Luiz/dev): RF-12 anti-vibe extension (Plano 05 fase-04)
 ] as const
 
-const AGENTS_MAX_LINES = 40
+const AGENTS_MAX_LINES = 70 // 2026-05-23 (Luiz/dev): raised from 40 to 70 — Pipeline de Trabalho flowchart added (wave3-p04-fase03, ~28 lines)
 
 // Required links inside AGENTS.md — sinal do harness do Andre.
 // 2026-05-14 (Luiz/dev): Plano 05 fase-03 — DT-10: 4 extensões anti-vibe adicionadas.

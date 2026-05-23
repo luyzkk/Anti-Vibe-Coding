@@ -2,6 +2,34 @@
 
 This plugin enforces XP discipline for AI-assisted development. Human navigates, agent pilots.
 
+## Pipeline de Trabalho
+
+Novo ao repo? Comece aqui. Cada fase do trabalho tem uma skill canonica — invoque na ordem.
+
+| Fase do trabalho | Skill a invocar | O que entrega |
+|------------------|------------------|---------------|
+| **Define** | `/anti-vibe-coding:write-prd`, `/anti-vibe-coding:grill-me` | PRD aprovado, ambiguidade zero |
+| **Plan** | `/anti-vibe-coding:plan-feature`, `/anti-vibe-coding:quick-plan` | Plano executavel hierarquico (PLAN.md + fases) |
+| **Build** | `/anti-vibe-coding:tdd-workflow`, `/anti-vibe-coding:execute-plan` | Implementacao fase-a-fase em ciclo RED/GREEN |
+| **Verify** | `/anti-vibe-coding:verify-work`, `/anti-vibe-coding:security` | Testes verdes + auditoria multi-agente |
+| **Review** | `/anti-vibe-coding:verify-work` (canonico), `/anti-vibe-review (DEPRECADO → use /verify-work)` | Quality score + checklist de release |
+| **Ship** | `/anti-vibe-coding:lessons-learned`, `/anti-vibe-coding:iterate` | Compound capturado + ciclo pos-deploy aberto |
+
+Fluxo canonico:
+
+```
+Define ---> Plan ---> Build ---> Verify ---> Review ---> Ship
+                                                            |
+                                                            v
+                                                      (loop iterativo)
+```
+
+Skills auxiliares (chamaveis de qualquer fase): `/anti-vibe-coding:consultant`,
+`/anti-vibe-coding:decision-registry`, `/anti-vibe-coding:design-twice`,
+`/anti-vibe-coding:code-simplification`, `/anti-vibe-coding:learn`.
+
+---
+
 ## Core Beliefs
 
 Plan before code. Test before implement. Capture lessons after merge. Discipline beats speed.
