@@ -1,0 +1,15 @@
+{
+  "contract_version": "1.0",
+  "agent": "tdd-verifier",
+  "kind": "audit",
+  "status": "complete",
+  "reasoning": "Teste escrito para reproduzir suposto bug em formatPhone(null) esperava throw. Mas formatPhone ja retorna string vazia em null gracefully (linha 2 — guarda condicional). Teste passou na primeira execucao. Guardrail already_green ativado — retornando test_status='already_green' com diagnostico de hipoteses, NAO red_confirmed (que seria RED falso). Dev decide se atualiza bug-report, escreve outro teste, ou descarta o report.",
+  "payload": {
+    "domain_status": "already_green",
+    "issues": [],
+    "test_status": "already_green",
+    "failing_test_snippet": "describe('formatPhone', () => {\n  it('throws on null input', () => {\n    expect(() => formatPhone(null)).toThrow()\n  })\n})",
+    "failure_message": "Test passed unexpectedly. formatPhone(null) returned '' (string vazia) em vez de lancar erro. Hipoteses: (1) bug ja foi corrigido sem teste de regressao; (2) bug-report descreveu sintoma errado — codigo nunca quebrou neste input; (3) escopo do bug nao reproduzido com null — testar undefined, {}, [], string vazia."
+  },
+  "metadata": { "run_id": "prove-it-fixture-green", "duration_ms": 0, "model": "test" }
+}

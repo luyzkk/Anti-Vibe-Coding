@@ -1,0 +1,15 @@
+{
+  "contract_version": "1.0",
+  "agent": "tdd-verifier",
+  "kind": "audit",
+  "status": "complete",
+  "reasoning": "Bug de divisao por zero em calcDiscount nao tem teste. Escrevi teste que invoca calcDiscount(0, 0.1) e espera erro especifico 'divisor cannot be zero'. Test runner reportou assertion failure como esperado — RED confirmado, codigo nao trata divisor zero (retorna NaN). Nao sugiro fix; ciclo seguinte do dev cobre GREEN.",
+  "payload": {
+    "domain_status": "red_confirmed",
+    "issues": [],
+    "test_status": "red_confirmed",
+    "failing_test_snippet": "describe('calcDiscount', () => {\n  it('throws on divisor zero', () => {\n    expect(() => calcDiscount(0, 0.1)).toThrow('divisor cannot be zero')\n  })\n})",
+    "failure_message": "FAIL src/utils/discount.test.ts > calcDiscount > throws on divisor zero\n  Expected function to throw 'divisor cannot be zero'\n  Received: TypeError: Cannot read property 'amount' of NaN"
+  },
+  "metadata": { "run_id": "prove-it-fixture-red", "duration_ms": 0, "model": "test" }
+}
