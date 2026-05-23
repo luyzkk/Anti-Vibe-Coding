@@ -1,24 +1,41 @@
 {
-  "contract_version": "1.0",
+  "contract_version": "2.0.0",
   "agent": "security-auditor",
   "kind": "audit",
   "status": "complete",
+  "verdict": "block",
+  "positive_observations": [
+    "src/auth/middleware.ts:12 usa helmet com CSP configurado (protege contra XSS refletido)",
+    "src/api/users/route.ts:44 usa prepared statement com parametros (sem SQL injection)"
+  ],
   "reasoning": "Encontrei MD5 usado para hash de senha em src/auth.ts:5 (algoritmo quebrado, criticamente inseguro) e SQL concatenado manualmente em src/api.ts:3 (injection). Ambos sao padroes claros documentados, sem nada fora do schema esperado.",
   "payload": {
     "domain_status": "critical_issues",
     "issues": [
       {
+        "id": "SEC-001",
         "severity": "critical",
+        "description": "MD5 usado para hash de senha — substituir por bcrypt/Argon2",
         "file": "src/auth.ts",
         "line": 5,
-        "description": "MD5 usado para hash de senha — substituir por bcrypt/Argon2"
+        "exploitation_scenario": "Senha hashada com MD5 pode ser revertida com rainbow tables em segundos. Atacante com acesso ao DB recupera senhas em plaintext.",
+        "impact": "Comprometimento de credenciais de todos os usuarios. Risco de credential stuffing em outros servicos.",
+        "fix_with_example": "Substituir por bcrypt:\n```ts\nimport bcrypt from 'bcrypt'\nconst hash = await bcrypt.hash(password, 12)\n```"
       },
       {
+        "id": "SEC-002",
         "severity": "high",
+        "description": "SQL concatenado manualmente — usar prepared statement / parametrized query",
         "file": "src/api.ts",
         "line": 3,
-        "description": "SQL concatenado manualmente — usar prepared statement / parametrized query"
+        "exploitation_scenario": "Input `' OR 1=1 --` na query resulta em retorno de todos os registros da tabela.",
+        "impact": "SQL injection — exfiltracao de dados, modificacao ou delecao de registros.",
+        "fix_with_example": "Usar prepared statement:\n```ts\nconst result = await db.query('SELECT * FROM users WHERE id = $1', [userId])\n```"
       }
     ]
+  },
+  "metadata": {
+    "files_scanned": 12,
+    "duration_ms": 3102
   }
 }

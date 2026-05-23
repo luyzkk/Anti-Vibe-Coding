@@ -1,0 +1,187 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "anti-vibe-coding/agents/_contract/v2.schema.json",
+  "title": "Subagent Contract v2",
+  "description": "Canonical output shape for Anti-Vibe Coding subagents — v2.0.0. BREAKING from v1: adds required fields positive_observations + verdict. See docs/design-docs/subagent-contract-v1.md and docs/design-docs/subagent-contract-v2-migration.md. ADR-0002.",
+  "type": "object",
+  "required": ["contract_version", "agent", "kind", "status", "reasoning", "payload", "positive_observations", "verdict"],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "const": "2.0.0",
+      "description": "Literal fixo em v2 (Wave 2 PRD DT-2). v1 schema em agents/_contract/v1.schema.json (imutavel)."
+    },
+    "agent": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "description": "Nome do subagente, igual ao filename sem .md."
+    },
+    "kind": {
+      "type": "string",
+      "enum": ["audit", "mutation", "proposal", "verification"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["complete", "needs_retry", "needs_human", "blocked"],
+      "description": "Lifecycle padronizado. Dominio fica em payload.domain_status (PRD Decisoes #2)."
+    },
+    "verdict": {
+      "type": "string",
+      "enum": ["approve", "request_changes", "block"],
+      "description": "Decisao sintetica do agente. approve: sem critical/high. request_changes: pelo menos 1 medium/high. block: pelo menos 1 critical ou bloqueio de seguranca."
+    },
+    "reasoning": {
+      "type": "string",
+      "minLength": 20,
+      "description": "Prosa livre. Minimo 20 chars (rejeita). 20-49 chars emite warning REASONING_LIKELY_WEAK no validator (nao no schema)."
+    },
+    "positive_observations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Array com minimo 1 observacao positiva especifica. Deve citar arquivo, funcao ou padrao verificavel — tautologias como 'no issues found' sao invalidas semanticamente (validator adicional em fase-04)."
+    },
+    "payload": {
+      "type": "object"
+    },
+    "human_readable": {
+      "type": "string",
+      "description": "Markdown opcional para apresentacao ao operador."
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "run_id": { "type": "string" },
+        "duration_ms": { "type": "integer", "minimum": 0 },
+        "model": { "type": "string" },
+        "cost_tokens": { "type": "integer", "minimum": 0 }
+      }
+    }
+  },
+  "oneOf": [
+    { "$ref": "#/definitions/auditVariant" },
+    { "$ref": "#/definitions/verificationVariant" },
+    { "$ref": "#/definitions/proposalVariant" },
+    { "$ref": "#/definitions/mutationVariant" }
+  ],
+  "definitions": {
+    "auditVariant": {
+      "type": "object",
+      "properties": {
+        "kind": { "const": "audit" },
+        "payload": {
+          "type": "object",
+          "required": ["issues"],
+          "properties": {
+            "domain_status": { "type": "string" },
+            "issues": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["severity", "description"],
+                "properties": {
+                  "severity": { "type": "string", "enum": ["critical", "high", "medium", "low", "info"] },
+                  "file": { "type": "string" },
+                  "line": { "type": "integer", "minimum": 1 },
+                  "description": { "type": "string", "minLength": 1 },
+                  "exploitation_scenario": { "type": "string" },
+                  "impact": { "type": "string" },
+                  "fix_with_example": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "verificationVariant": {
+      "type": "object",
+      "properties": {
+        "kind": { "const": "verification" },
+        "payload": {
+          "type": "object",
+          "required": ["checks"],
+          "properties": {
+            "domain_status": { "type": "string" },
+            "checks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["name", "status"],
+                "properties": {
+                  "name": { "type": "string", "minLength": 1 },
+                  "status": { "type": "string", "enum": ["pass", "warn", "fail", "unable_to_verify"] },
+                  "detail": { "type": "string" }
+                }
+              }
+            },
+            "issues": { "type": "array" },
+            "suggestions": { "type": "array" }
+          }
+        }
+      }
+    },
+    "proposalVariant": {
+      "type": "object",
+      "properties": {
+        "kind": { "const": "proposal" },
+        "payload": {
+          "type": "object",
+          "required": ["proposal"],
+          "properties": {
+            "proposal": {
+              "type": "object",
+              "required": ["title", "summary", "constraints", "tradeoffs", "recommendation", "alternatives"],
+              "properties": {
+                "title": { "type": "string", "minLength": 1, "maxLength": 80 },
+                "summary": { "type": "string", "minLength": 1 },
+                "constraints": {
+                  "type": "array",
+                  "items": { "type": "string", "minLength": 1 }
+                },
+                "tradeoffs": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["axis", "choice"],
+                    "properties": {
+                      "axis": { "type": "string", "minLength": 1 },
+                      "choice": { "type": "string", "minLength": 1 }
+                    }
+                  }
+                },
+                "recommendation": { "type": "string", "minLength": 1 },
+                "alternatives": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["id", "title", "rejected_because"],
+                    "properties": {
+                      "id": { "type": "string", "minLength": 1 },
+                      "title": { "type": "string", "minLength": 1 },
+                      "rejected_because": { "type": "string", "minLength": 1 }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "mutationVariant": {
+      "type": "object",
+      "properties": {
+        "kind": { "const": "mutation" },
+        "payload": {
+          "type": "object",
+          "description": "STUB em v2 — aceita qualquer shape. Spec real do mutation payload em v6.2 (PRD Won't Have)."
+        }
+      }
+    }
+  }
+}

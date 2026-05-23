@@ -74,7 +74,9 @@ const AGENTS_REQUIRED_LINKS = [
 // exec-plans/: artefatos de planejamento (PRD, planoXX/fase-*.md) — links relativos ao repo root mas interpretados relativo ao path profundo; falsos positivos inevitaveis. Required-files check usa path direto (nao crawl).
 // .anti-vibe/: backup canonico do /init (step 10 apply-merge-destructive) — arquivos originais movidos para backup perdem contexto relativo de links.
 // __golden__/: snapshots de output esperado (NAO docs reais) — paths internos sao representacoes literais do output, nao referencias navegaveis. Plano resolver-caveats-populate-plan-andre 2026-05-20.
-const SKIP_DIRS = new Set(['node_modules', '.git', '.claude', '.anti-vibe', '.planning', '.planning.v5-backup', 'claude-code', 'compound', 'templates', '__fixtures__', 'fixtures', '__golden__', 'snippets', '_legacy-detail', 'v5-legacy', 'exec-plans'])
+// Infos/: cache local de docs 3rd-party (Rails guides etc) — formato externo, sem garantia de H1/links validos para o nosso harness.
+// trash/: lixeira de trabalho descartado (tmp/trash/, etc) — paths historicos, links nao mantidos. Wave 2 Plano 01 fase-02 (GT-preexisting-harness-failures).
+const SKIP_DIRS = new Set(['node_modules', '.git', '.claude', '.anti-vibe', '.planning', '.planning.v5-backup', 'claude-code', 'compound', 'templates', '__fixtures__', 'fixtures', '__golden__', 'snippets', '_legacy-detail', 'v5-legacy', 'exec-plans', 'Infos', 'trash'])
 const ARCHIVED_SEGMENT = '_archived'
 
 // Inline — harness-validate é script standalone sem imports externos.
@@ -268,17 +270,21 @@ async function checkQualityScoreFormat(failures: Failure[]): Promise<void> {
 // 2026-05-14 (Luiz/dev): contract v1 prompt check — PRD CA-10 + RF-MH-02.
 // Regex linha-por-linha (G-P05-01): nao parse YAML completo. <50ms para 13 arquivos.
 // Tokens obrigatorios sao instrucoes literais que o prompt do agent precisa conter
-// para o LLM emitir envelope v1. Ausencia = prompt regrediu.
+// para o LLM emitir envelope v1/v2. Ausencia = prompt regrediu.
 // Glob agents/*.md (apenas top-level, nao recursivo — fixtures vivem em __fixtures__/).
 // Arquivos comecando com _ sao ignorados (_contract/, _archived/).
+// 2026-05-23 (Luiz/dev): transitional mode — aceita "1.0" OU "2.0.0" durante Wave 2 (Plano 01->02).
+// Apos Plano 02 fechar (todos agents bumpados), remover '"1.0"' da alternativa CONTRACT_VERSION_TOKENS.
 const CONTRACT_TOKENS = [
   'contract_version',
-  '"1.0"',
   'kind',
   'status',
   'reasoning',
   'payload',
 ] as const
+
+// Version token com alternativa transitional: aceita v1 legado OU v2 corrente.
+const CONTRACT_VERSION_TOKENS = ['"1.0"', '"2.0.0"'] as const
 
 export async function checkAgentContracts(
   failures: Failure[],
@@ -303,10 +309,14 @@ export async function checkAgentContracts(
       continue
     }
     const missing = CONTRACT_TOKENS.filter((token) => !content.includes(token))
+    const missingVersion = CONTRACT_VERSION_TOKENS.every((v) => !content.includes(v))
+    if (missingVersion) {
+      missing.push('"1.0" or "2.0.0"' as (typeof CONTRACT_TOKENS)[number])
+    }
     if (missing.length > 0) {
       failures.push({
         rule: 'agent-contract-v1',
-        message: `${file}: missing contract v1 tokens in prompt: ${missing.join(', ')}. See docs/design-docs/subagent-contract-v1.md.`,
+        message: `${file}: missing contract tokens in prompt: ${missing.join(', ')}. See docs/design-docs/subagent-contract-v1.md.`,
       })
     }
   }
