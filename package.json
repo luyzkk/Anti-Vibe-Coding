@@ -15,7 +15,8 @@
     "state:regenerate": "bun run skills/lib/state-md-generator.ts $PWD",
     "prepare": "husky",
     "agents:contract": "bun test skills/lib/subagent-contract.test.ts",
-    "test:grep-deleted-steps": "bun scripts/grep-deleted-steps.ts"
+    "test:grep-deleted-steps": "bun scripts/grep-deleted-steps.ts",
+    "generate:manifest": "bun scripts/generate-manifest.js"
   },
   "devDependencies": {
     "@types/bun": "^1.1.0",
