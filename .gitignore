@@ -40,6 +40,7 @@ tmp/
 .tmp/
 .anti-vibe/
 CONVERSA_INIT.MD
+wonts/
 
 # Artifact acidental de redirect mal-feito no Windows (PowerShell trata `nul`
 # como dispositivo, mas comandos bash via tools podem criar arquivo literal)
