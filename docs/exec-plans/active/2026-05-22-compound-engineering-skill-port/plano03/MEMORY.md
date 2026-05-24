@@ -98,6 +98,18 @@ Se nada mudou, manter vazio (bom sinal).
 
 - **DI-fase05-PatchResult-location:** `PatchResult` vive em `patch-agents.ts` (inline) e e re-exportado via `export type { PatchResult }` em `patch-new-plan.ts`. O installer importa `PatchResult` indiretamente (nao precisa — usa apenas os campos). Consistente com instrucao do spec: "inline em patch-agents, re-exportar para patch-new-plan".
 
+- **DI-fase06-completion-signal-shape:** A spec do fase-06 assumia payload `{ subcommand, artifacts: { plan_path, note_path } }` em `renderCompletionSignal`. A API real em `skills/lib/completion-signal.ts` usa `{ skill, status, outputs, next_suggested, blocks_for_user }` — sem subcommand e sem artifacts. Adaptado: `outputs` recebe `[notePath, planPath]` para captured e `[planPath]` para no-capture. Spirit do SH-07 preservado — bloco YAML machine-readable com `skill` e `status`.
+  - Por que: spec descrevia payload hipotetico, nao a API real.
+  - Impacto: orquestradores extraem via `extractCompletionSignal()` — campos `skill` e `status` presentes. Campo `subcommand` NAO existe (irrelevante para compound-engineering pois gate e o unico subcomando que emite signal).
+
+- **DI-fase06-telemetria-nivel-skill:** R10 pedia `writeTelemetryStart/End` em todos os 4 subcomandos do SKILL.md. Verificado: `telemetry-utils.ts` exporta `writeTelemetryStart/End` mas `INSTRUMENTED_SKILLS` lista apenas as 10 skills do pipeline principal (grill-me, write-prd, etc.) — `compound-engineering` NAO esta nessa lista. `FasePipeline` type nao inclui `compound-engineering`. Adicionar telemetria requereria modificar `telemetry-types.ts` (fora do escopo desta feature). A risk R10 foi documentada como "sem implementacao tecnica possivel no escopo atual" — o SKILL.md ja usa `renderCompletionSignal` (D33) como mecanismo de observability para orquestradores. Telemetria JSONL pode ser adicionada em feature futura junto com expansao de `FasePipeline`.
+  - Por que: `INSTRUMENTED_SKILLS` e uma lista fechada de 10 skills; modificar tipos de telemetria seria escopo de plano separado.
+  - Impacto: SKILL.md documentado com boilerplate de completion signal (SH-07) em vez de writeTelemetry — analogamente ao que `lessons-learned/SKILL.md` faz (que tambem nao usa writeTelemetry).
+
+- **DI-fase06-fixture-no-pkgjson-preexistente:** `tests/fixtures/compound-edge-no-pkgjson/` ja existia com conteudo instalado (AGENTS.md, docs/COMPOUND_ENGINEERING.md, etc.) de sessao anterior. A fixture nao tem `package.json` — CA-20 passa corretamente. Criacao de AGENTS.md minimo descrita na spec foi desnecessaria (fixture mais rica e aceitavel para CA-20).
+  - Por que: estado do repo divergia da spec — fixture criada em sessao pre-existing com `installCompound --force` no proprio diretorio de fixture.
+  - Impacto: CA-20 E2E usa fixture existente. Nao houve conflito.
+
 ---
 
 ## Metricas
@@ -105,7 +117,7 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 6 |
-| Fases concluidas | 5 |
+| Fases concluidas | 6 (PLANO COMPLETO) |
 | Fases com desvio | 2 |
 | Bugs encontrados | 1 |
 | Retries necessarios | 0 |
@@ -118,6 +130,64 @@ Informacoes que o proximo plano PRECISA saber antes de comecar.
 O subagente do proximo plano le este campo.
 
 _(Plano 03 e o ultimo plano da feature. Notas aqui sao para PRD-FOLLOWUP ou compound captures.)_
+
+### Estado final do Plano 03 (PLANO COMPLETO — 6/6 fases)
+
+**Todos os arquivos criados nas 6 fases:**
+- `skills/compound-engineering/lib/install-types.ts` + `install-types.test.ts`
+- `skills/compound-engineering/lib/installer.ts` + `installer.test.ts`
+- `skills/compound-engineering/lib/checker.ts` + `checker.test.ts`
+- `skills/compound-engineering/lib/active-plan-detector.ts` + `active-plan-detector.test.ts`
+- `skills/compound-engineering/lib/lessons-captured-updater.ts` + `lessons-captured-updater.test.ts`
+- `skills/compound-engineering/lib/invoke-lessons-learned.ts` + `invoke-lessons-learned.test.ts`
+- `skills/compound-engineering/lib/gate.ts` + `gate.test.ts`
+- `skills/compound-engineering/lib/readme-schema-detector.ts` + `readme-schema-detector.test.ts`
+- `skills/compound-engineering/lib/notes-inconsistency-scanner.ts` + `notes-inconsistency-scanner.test.ts`
+- `skills/compound-engineering/lib/migrate.ts` + `migrate.test.ts`
+- `skills/compound-engineering/lib/patch-agents.ts` + `patch-agents.test.ts`
+- `skills/compound-engineering/lib/patch-new-plan.ts` + `patch-new-plan.test.ts`
+- `skills/compound-engineering/references/capture-guide.md`
+- `tests/e2e/compound-engineering-edge-cases.test.ts`
+- `tests/fixtures/compound-edge-no-plans/docs/.gitkeep`
+- `tests/fixtures/compound-edge-multiple-plans/docs/exec-plans/active/2026-01-01-foo/PLAN.md`
+- `tests/fixtures/compound-edge-multiple-plans/docs/exec-plans/active/2026-01-02-bar/PLAN.md`
+
+**Arquivos modificados nas 6 fases:**
+- `skills/compound-engineering/SKILL.md` — secoes install/check/gate/migrate + completion signal SH-07
+- `skills/compound-engineering/lib/installer.ts` — P1/P2 integrados (fase-05)
+
+**Estado dos testes (final):**
+- Suite da lib (`skills/compound-engineering/`): **79 testes, 0 falhas** (+1 SH-07 no gate.test.ts)
+- E2E edge cases: **3 testes, 0 falhas** (CA-18/19/20)
+- Full suite: 13 falhas pre-existentes (nenhuma introduzida por este plano)
+
+**CAs do PRD atendidos por esta feature:**
+- MH-01: manifest roundtrip (Plano 01/02)
+- MH-02: install skip-by-default (CA-04/05/06) — fase-01
+- MH-03: check backward compat + strict (CA-09/CA-10) — fase-02
+- MH-04: gate decision questions + Skill tool (CA-07/08) — fase-03
+- MH-05: migrate nao-destrutivo (CA-13/CA-14) — fase-04
+- MH-06: patches P1/P2 idempotentes (CA-11/12) — fase-05
+- SH-01: skip-by-default (CA-04) — fase-01
+- SH-02: --force opt-in (CA-05) — fase-01
+- SH-03: patch AGENTS.md (CA-11/12) — fase-05
+- SH-04: patch new-plan.ts.tpl (P2) — fase-05
+- SH-05: check --strict P3 rules (CA-10) — fase-02
+- SH-06: gate invoca lessons-learned via Skill tool (CA-16) — fase-03
+- SH-07: completion signal YAML machine-readable — fase-06
+- CA-16: zero subprocess em gate.ts e invoke-lessons-learned.ts — fase-03 + verificado fase-06
+- CA-17: zero import cross-skill de skills/init/ — todas as fases verificado
+- CA-18: no-plan edge case — fase-03 + E2E fase-06
+- CA-19: multiple-plans edge case — fase-03 + E2E fase-06
+- CA-20: stack-agnostic sem package.json — fase-01 + E2E fase-06
+
+**Pendencias e caveats para Exit Criteria do PLAN overview:**
+- `updateLessonsCaptured` nao e idempotente (re-rodar gate gera append duplicado) — aceitavel v1
+- Telemetria JSONL (`writeTelemetryStart/End`) NAO implementada para compound-engineering (ver DI-fase06-telemetria-nivel-skill) — `compound-engineering` nao esta em `FasePipeline`, requer feature separada
+- `compound-edge-no-pkgjson/` ja existia com conteudo (nao criada do zero nesta fase)
+
+**Sugestao de compound capture:**
+SIM — esta feature (compound-engineering skill) e de alta complexidade, introduziu padroes novos (DI para invokeSkill testavel, gate com completion signal, detectActivePlan por PLAN.md presenca, fixture pre-existente surpresa). Candidata a compound note sobre "TDD gate em arquivos de tipos puros" e "completion signal shape real vs spec".
 
 ### Estado pos-fase-05 (input para fase-06)
 
