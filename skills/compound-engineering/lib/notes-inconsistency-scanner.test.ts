@@ -21,7 +21,9 @@ describe('scanNotesInconsistencies', () => {
     expect(issues).toEqual([])
   })
 
-  it('detects missing-title when note lacks title in frontmatter', async () => {
+  it('detects invalid-frontmatter when note lacks required field (title)', async () => {
+    // parseFrontmatter e estrito: qualquer campo canonico ausente retorna ok:false
+    // O scanner reporta como invalid-frontmatter com detail listando os erros
     const note = `---
 category: debugging
 tags: [bug]
@@ -39,8 +41,10 @@ Prevention.
 `
     await fs.writeFile(path.join(tmpDir, 'docs', 'compound', '2024-01-01-note.md'), note)
     const issues = await scanNotesInconsistencies(tmpDir)
-    const titles = issues.filter((i) => i.type === 'missing-title')
-    expect(titles.length).toBe(1)
+    const invalid = issues.filter((i) => i.type === 'invalid-frontmatter')
+    expect(invalid.length).toBe(1)
+    // detail deve mencionar title
+    expect(invalid[0]?.detail).toContain('title')
   })
 
   it('detects invalid-frontmatter when note has no frontmatter', async () => {
