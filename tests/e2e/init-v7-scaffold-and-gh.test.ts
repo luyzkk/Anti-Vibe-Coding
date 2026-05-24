@@ -19,11 +19,12 @@ describe('init v7 e2e — scaffold + gh (Plano 03 fase-03)', () => {
   beforeEach(async () => { tmp = await mkTmp() })
   afterEach(async () => { await fs.rm(tmp, { recursive: true, force: true }) })
 
-  test('registry: 05-scaffold-and-link na posicao 5, 06-install-gh-files na posicao 6', () => {
-    // 2026-05-21 (Luiz/dev): contrato de ordem D12 (revisada por DV-1/DV-3 — pipeline 10 steps).
+  test('registry: 05-scaffold-and-link na posicao 5, inject-harness-scripts na posicao 6, 06-install-gh-files na posicao 7', () => {
+    // 2026-05-22 (Luiz/dev): inject-harness-scripts inserido entre scaffold e gh-files.
     const ids = registry.map((s) => s.id)
     expect(ids[4]).toBe('05-scaffold-and-link')
-    expect(ids[5]).toBe('06-install-gh-files')
+    expect(ids[5]).toBe('inject-harness-scripts')
+    expect(ids[6]).toBe('06-install-gh-files')
   })
 
   test('CA-01: greenfield (Node-TS) — runInit cria todos os placeholders do manifest + .github/ files', async () => {
