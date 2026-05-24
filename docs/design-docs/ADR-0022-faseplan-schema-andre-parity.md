@@ -185,5 +185,50 @@ renderer so emite novos.
   - `skills/init/lib/populate-instructions-table.ts`
   - `skills/init/assets/populate-guidance/*.md` (NOVO)
   - `tests/e2e/__golden__/init-greenfield.*` (regenerar em Feature A)
-  - `skills/plan-feature/*` (Feature B)
-- PRDs futuros: PRD-A (init populate hierarchy) + PRD-B (cross-skill schema)
+  - `skills/plan-feature/*` (Feature B — descartada, ver Amendment 2026-05-22)
+- PRDs futuros: PRD-A (init populate hierarchy) ✅ concluida; PRD-B (cross-skill schema) ❌ descartada
+
+---
+
+## Amendment 2026-05-22 — Feature B descartada
+
+**Status do schema:** `FasePlanInput v1` permanece valido e ativo no init populate-harness.
+A decisao 1 da ADR (estrategia encadeada) cumpriu seu proposito: schema validado em 1
+consumidor antes de propagar. **A propagacao para `/plan-feature` foi avaliada e rejeitada.**
+
+### Razoes do descarte
+
+1. **Trigger primario do TD-01 nao disparou** — nenhum episodio real de confusao da LLM
+   com formato divergente foi registrado entre 2026-05-21 e 2026-05-22.
+
+2. **Lesson candidata da Feature A previu a duvida** — SUMMARY explicitamente marcou
+   "Schema deterministico + guidance interpretativa em `.md` (esperar Feature B confirmar
+   antes de capturar como pattern universal)". A validacao pendente nao se confirmou.
+
+3. **Tensao de dominio identificada** — Fases do init descrevem populacao de docs canonicos
+   (`waves.items: string[]` cabe naturalmente). Fases do `/plan-feature` descrevem
+   implementacao de codigo com snippets TypeScript, SQL, gotchas inline. `FasePlanInput v1`
+   nao tem campo para prosa de implementacao rica — migrar perderia conteudo, nao apenas
+   trocaria formato.
+
+4. **Alternativa 2 da ADR reavaliada** — a justificativa original de rejeicao (`/plan-feature`
+   confunde a LLM com formato divergente) era afirmativa sem evidencia. O proprio TD-01
+   contradiz a urgencia ao listar episodio real como gatilho primario.
+
+### Consequencias
+
+- `skills/init/lib/render-fase-plan.ts` permanece em `init/lib/` (nao move para `skills/lib/`).
+- `skills/plan-feature/templates/fase-template.md` permanece como fonte de verdade do formato
+  de fases de implementacao.
+- TD-01 movido para Won't Fix em `tech-debt-tracker.md`.
+- Entrada criada em `wonts/15-migrate-plan-feature-faseplanv1.md` documentando contexto.
+
+### Re-abertura
+
+Esta ADR nao revoga `FasePlanInput v1` — apenas descarta sua propagacao para `/plan-feature`.
+Feature B pode ser reaberta em PRD novo (nao reutilizar o draft removido) SE:
+
+- Episodio real de confusao da LLM com formato divergente em projeto cliente (registrar
+  em compound notes antes de reabrir).
+- Schema evoluir para v2 com suporte nativo a prosa de implementacao rica — neste caso a
+  unificacao volta a ser viavel sem perda de conteudo.
