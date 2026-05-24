@@ -96,6 +96,25 @@ describe('runGate', () => {
     expect(result.message).toContain('No active plan found')
   })
 
+  it('SEC-01: selectedPlanPath com path traversal retorna no-plan sem acesso ao filesystem externo', async () => {
+    await setupActivePlan('2026-05-24-feature-a')
+    await setupActivePlan('2026-05-24-feature-b')
+
+    const answers: GateAnswers = {
+      bug: { answer: 'yes', details: 'some bug' },
+      review: { answer: 'no' },
+      production: { answer: 'no' },
+      selectedPlanPath: '../../etc/passwd',
+    }
+
+    const mockInvokeSkill = async (_skill: string, _args: string): Promise<string> => ''
+
+    const result = await runGate(tmpDir, answers, mockInvokeSkill)
+
+    expect(result.status).toBe('no-plan')
+    expect(result.message).toContain('escapes')
+  })
+
   it('CA-19: target com 2+ planos e sem selectedPlanPath retorna multiple-plans', async () => {
     await setupActivePlan('2026-05-24-feature-a')
     await setupActivePlan('2026-05-24-feature-b')

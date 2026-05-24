@@ -1,5 +1,6 @@
 // 2026-05-24 (Luiz/dev): gate — PRD MH-06/RF-06, D20, CA-07/08/18/19
 // 2026-05-24 (Luiz/dev): completion signal SH-07 — renderCompletionSignal reusado de lessons-learned (G8)
+import path from 'node:path'
 import { detectActivePlan } from './active-plan-detector'
 import { buildLessonsLearnedInvocation, parseLessonsLearnedCompletion } from './invoke-lessons-learned'
 import { updateLessonsCaptured } from './lessons-captured-updater'
@@ -41,7 +42,13 @@ export async function runGate(
     if (!answers.selectedPlanPath) {
       return { status: 'multiple-plans', message: 'Multiple active plans — selectedPlanPath required' }
     }
-    planPath = answers.selectedPlanPath
+    // SEC-01: confine selectedPlanPath to targetRoot — reject any path that escapes
+    const resolved = path.resolve(answers.selectedPlanPath)
+    const resolvedRoot = path.resolve(targetRoot)
+    if (!resolved.startsWith(resolvedRoot + path.sep) && resolved !== resolvedRoot) {
+      return { status: 'no-plan', message: 'selectedPlanPath escapes targetRoot — refused' }
+    }
+    planPath = resolved
   } else {
     planPath = plan.planPath
   }
@@ -95,9 +102,14 @@ export async function runGate(
   }
 }
 
+// OCP: adicionar categoria = adicionar entrada nesta constante, sem tocar no loop
+const GATE_CATEGORIES = ['bug', 'review', 'production'] as const
+type GateCategory = (typeof GATE_CATEGORIES)[number]
+
 function pickFirstYesDetails(answers: GateAnswers): string | undefined {
-  if (answers.bug.answer === 'yes') return answers.bug.details
-  if (answers.review.answer === 'yes') return answers.review.details
-  if (answers.production.answer === 'yes') return answers.production.details
+  for (const category of GATE_CATEGORIES) {
+    const entry = answers[category as GateCategory]
+    if (entry.answer === 'yes') return entry.details
+  }
   return undefined
 }
