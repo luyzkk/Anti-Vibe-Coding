@@ -1,11 +1,7 @@
 // 2026-05-24 (Luiz/dev): P1 — PRD SH-03/CA-11/CA-12 + D23 regex multi-padrao
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
-
-export type PatchResult = {
-  status: 'patched' | 'already-present' | 'created' | 'appended'
-  message: string
-}
+import type { PatchResult } from './patch-types'
 
 // 2026-05-24 (Luiz/dev): D23 — cobre [text](docs/...), (./docs/...), (../docs/...)
 // \.{0,2} cobre: "" (0 pontos), "." (1 ponto = ./), ".." (2 pontos = ../)
