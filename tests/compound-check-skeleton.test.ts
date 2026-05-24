@@ -4,10 +4,11 @@ import path from 'node:path'
 import { spawn } from 'node:child_process'
 
 const FIXTURE = path.join(import.meta.dir, '__fixtures__', 'compound-check-skeleton')
+// 2026-05-24 (Luiz/dev): path atualizado após git mv — Plano 02 fase-01 (D15)
 const SCRIPT_SRC = path.join(
   import.meta.dir,
   '..',
-  'skills/init/assets/templates/scripts/compound-check.ts.tpl',
+  'skills/compound-engineering/assets/scripts/compound-check.ts.tpl',
 )
 
 async function runScript(cwd: string): Promise<{ code: number; stderr: string; stdout: string }> {

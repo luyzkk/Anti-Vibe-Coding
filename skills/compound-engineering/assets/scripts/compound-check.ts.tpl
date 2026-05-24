@@ -1,12 +1,14 @@
 #!/usr/bin/env bun
-// compound-check — fase-01 skeleton + fase-02 frontmatter+sections (CA-29).
-// Fase-01 (plano04): coleta arquivos, reporta unreadable.
-// Fase-02 (plano04): valida YAML frontmatter (title/category/tags/created) + H2 obrigatorias.
+// 2026-05-24 (Luiz/dev): port of compound-check.mjs (Andre) to TS+Bun — D8 + Plano 02 fase-01
+// Inlines helpers (parseFrontmatterInline, listCompoundFilesLocal) — RF-10: no lib/ dep in target.
+// Schema mirrored in skills/compound-engineering/lib/compound-frontmatter.ts (manual sync).
+// compound-check — frontmatter + sections (CA-29) + P3 strict rules (D8).
 
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 
 const root = process.cwd()
+const STRICT = process.argv.includes('--strict')
 
 type Failure = { rule: string; file: string; message: string }
 
@@ -16,6 +18,32 @@ async function main(): Promise<void> {
   const files = await listCompoundFilesLocal(root)
   await checkAllNotes(files, failures)
 
+  if (STRICT) {
+    // 2026-05-24 (Luiz/dev): P3 — 3 regras --strict (D8, DI-Plano02-fase01-p3-rules)
+
+    // P3.1 — AGENTS link: AGENTS.md must link to docs/COMPOUND_ENGINEERING.md
+    const agentsOk = await checkAgentsLink(root)
+    if (!agentsOk) {
+      failures.push({
+        rule: 'agents-link',
+        file: 'AGENTS.md',
+        message: '[agents-link] AGENTS.md: missing link to docs/COMPOUND_ENGINEERING.md',
+      })
+    }
+
+    // P3.2 — Plan-generator: scripts/new-plan.ts.tpl or new-plan.mjs must have 4 sections
+    const planGenErrors = await checkPlanGeneratorSections(root)
+    for (const msg of planGenErrors) {
+      failures.push({ rule: 'plan-generator', file: 'scripts/new-plan.ts.tpl', message: msg })
+    }
+
+    // P3.3 — Active-plan hygiene: plans in docs/exec-plans/active/ must not have unfilled placeholders
+    const planHygieneErrors = await checkActivePlanHygiene(root)
+    for (const msg of planHygieneErrors) {
+      failures.push({ rule: 'active-plan', file: 'docs/exec-plans/active/', message: msg })
+    }
+  }
+
   if (failures.length > 0) {
     console.error('Compound check failed:')
     for (const f of failures) {
@@ -24,12 +52,97 @@ async function main(): Promise<void> {
     process.exit(1)
   }
 
-  console.log(`Compound check passed (${files.length} compound notes validated).`)
+  console.log(`${files.length} compound notes validated${STRICT ? ' (strict mode)' : ''}`)
   process.exit(0)
 }
 
-// Helper inlined no template (sem dependencia de `lib/` no projeto-alvo).
-// O `lib/compound-files-collector.ts` no plugin e o gerador; o `.tpl` carrega copia inline.
+// === P3 helpers (strict-only) ===
+
+async function checkAgentsLink(rootDir: string): Promise<boolean> {
+  // 2026-05-24 (Luiz/dev): regex D23 — qualquer link markdown apontando para docs/COMPOUND_ENGINEERING.md
+  try {
+    const body = await fs.readFile(path.join(rootDir, 'AGENTS.md'), 'utf8')
+    return /\[.*?\]\(\.?\/?docs\/COMPOUND_ENGINEERING\.md\)/.test(body)
+  } catch {
+    return true // AGENTS.md absent = skip (not required to exist)
+  }
+}
+
+async function checkPlanGeneratorSections(rootDir: string): Promise<string[]> {
+  // 2026-05-24 (Luiz/dev): P3.2 — checks new-plan.ts.tpl or new-plan.mjs (Andre uses .mjs, we use .ts.tpl)
+  const candidates = [
+    path.join(rootDir, 'scripts', 'new-plan.ts.tpl'),
+    path.join(rootDir, 'scripts', 'new-plan.mjs'),
+    path.join(rootDir, 'scripts', 'new-plan.ts'),
+  ]
+  let body: string | null = null
+  for (const candidate of candidates) {
+    try {
+      body = await fs.readFile(candidate, 'utf8')
+      break
+    } catch {
+      // try next
+    }
+  }
+  if (body === null) return [] // sem gerador = skip
+
+  const requiredSections = [
+    '## Compound Opportunity',
+    '## Review Checklist',
+    '## Validation Log',
+    '## Lessons Captured',
+  ]
+  const missing: string[] = []
+  for (const section of requiredSections) {
+    if (!body.includes(section)) {
+      missing.push(`[plan-generator] new-plan script missing section: ${section}`)
+    }
+  }
+  return missing
+}
+
+async function checkActivePlanHygiene(rootDir: string): Promise<string[]> {
+  // 2026-05-24 (Luiz/dev): P3.3 — checks active plans have no unfilled placeholder text
+  const activeDir = path.join(rootDir, 'docs', 'exec-plans', 'active')
+  const errors: string[] = []
+
+  let entries: import('node:fs').Dirent[]
+  try {
+    entries = await fs.readdir(activeDir, { withFileTypes: true })
+  } catch {
+    return [] // directory absent = skip
+  }
+
+  const placeholderPhrases = [
+    'Describe the desired outcome in one paragraph.',
+    'List the assumptions that could invalidate the plan.',
+    'Note migration, rollout, or dependency risks.',
+    'Define what must be true before the work is considered done.',
+  ]
+
+  for (const entry of entries) {
+    if (!entry.isFile() || !entry.name.endsWith('.md') || entry.name === 'README.md') continue
+
+    const relativePath = path.join('docs/exec-plans/active', entry.name)
+    let content: string
+    try {
+      content = await fs.readFile(path.join(rootDir, relativePath), 'utf8')
+    } catch {
+      errors.push(`[active-plan] unable to read ${relativePath}`)
+      continue
+    }
+
+    for (const phrase of placeholderPhrases) {
+      if (content.includes(phrase)) {
+        errors.push(`[active-plan] ${relativePath}: still contains placeholder text: "${phrase}"`)
+      }
+    }
+  }
+  return errors
+}
+
+// === Collector inlined (no lib/ dep in target project) ===
+// lib/compound-files-collector.ts in the plugin is the source; .tpl carries an inline copy.
 async function listCompoundFilesLocal(rootDir: string): Promise<string[]> {
   const baseDir = path.join(rootDir, 'docs', 'compound')
   return collectMd(baseDir)
@@ -57,9 +170,9 @@ async function collectMd(dir: string): Promise<string[]> {
 }
 
 // === fase-02: frontmatter + required sections (CA-29) ===
-// Parser inlinado — script independente do plugin no projeto-alvo.
-// Schema espelhado em `lib/compound-frontmatter.ts` (fonte canonica para uso programatico).
-// Sincronizacao manual: se mudar schema, atualizar os dois lugares.
+// Parser inlined — script is independent from the plugin in the target project.
+// Schema mirrored in lib/compound-frontmatter.ts (canonical source for programmatic use).
+// Manual sync: if schema changes, update both places.
 
 const FRONTMATTER_RE_INLINE = /^---\r?\n([\s\S]*?)\r?\n---\r?\n/
 const DATE_RE_INLINE = /^\d{4}-\d{2}-\d{2}$/
