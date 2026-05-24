@@ -33,6 +33,13 @@ Formato: o que foi decidido + por que + impacto.
 - **DI-fase01-prefaces-analogico:** Criado `skills/compound-engineering/lib/compound-engineering-prefaces.ts` com `COMPOUND_ENGINEERING_PREFACE_BY_PROFILE = {}` e `DEFAULT_COMPOUND_ENGINEERING_PREFACE = ''` — análogo de `lessons-learned-prefaces.ts`. Necessário para que o bloco de telemetria na SKILL.md referencie imports válidos sem quebrar build. Plano 03 preenche entradas por profile quando subcomandos forem implementados.
 - **DI-fase01-typecheck-erros-preexistentes:** `bun run typecheck` aponta 7 erros em `skills/init/lib/populate-plan*` — todos pré-existentes, nenhum introduzido pela fase-01. Erros confirmados como GT-01 pré-existente (mencionado em MEMORY do Plano 01 original).
 
+### Decisões tomadas na fase-03
+
+- **DI-fase03-forma-a-tdd:** TDD Forma A escolhida — test de string-match em `README.md.tpl.test.ts` (6 testes). RED confirmado antes da edicao (6/6 falhando). GREEN confirmado apos edicao (6/6 passando). Forma B (roundtrip via compound-check) descartada por ser mais pesada e desnecessaria — Forma A prova CA-01 diretamente.
+- **DI-fase03-bloco-yaml-escopo:** Apenas 4 linhas alteradas dentro do bloco yaml (date→title, author→category, decision→created, tags permanece com valor simplificado). Prosa (cabecalho, secao "When to write", tabela Index) byte-identica confirmada por `git diff`.
+- **DI-fase03-goldens-intactos:** `git diff --stat tests/e2e/__golden__/` vazio — golden de conteudo nao referencia o interior do template. E2E `init-cutover-greenfield.test.ts`: 1 pass + 4 skip pre-existentes, 0 fail.
+- **DI-fase03-lint-nao-configurado:** Confirmado novamente que `bun run lint` retorna "Script not found" (consistente com DI-fase02). Nao bloqueante.
+
 ### Decisões tomadas na fase-02
 
 - **DI-fase02-spec-contradição-classificacao:** Spec da fase-02 Passo 1 dizia "9 canon-andre + 2 anti-vibe-extension" (listando smoke-flows como canon-andre), mas o código real tinha `smoke-flows/README.md` como `anti-vibe-extension` (linha 66). O Passo 3 (testes) dizia corretamente "7 canon-andre + 3 anti-vibe-extension". Regra 7 aplicada: código usado como fonte de verdade. COMPOUND_CATEGORY_BY_DST reflete o código real: 7 canon-andre + 3 anti-vibe-extension.
@@ -76,7 +83,7 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 3 |
-| Fases concluidas | 2 |
+| Fases concluidas | 3 |
 | Fases com desvio | 1 (desvio mínimo — 2 testes extras por TDD gate em fase-01) |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
@@ -84,6 +91,12 @@ Se nada mudou, manter vazio (bom sinal).
 ---
 
 ## Notas para Planos Seguintes
+
+### Bug MH-01 fechado (fase-03)
+
+- **MH-01 FECHADO:** `skills/init/assets/templates/docs/compound/README.md.tpl` agora tem schema canonico `title/category/tags/created`. CA-01 verificavel por maquina: `grep -E "^(title|category|created):" ... | wc -l` retorna 3; `grep -E "^(date|author|decision):" ... | wc -l` retorna 0.
+- **Plano 02 fase-01 DEVE preservar schema:** O `git mv` fisico e/ou substituicao literal do template do Andre (D14) NAO deve reverter para `date/author/decision`. Se a versao literal do Andre tiver schema diferente, ADAPTAR para `title/category/tags/created` antes de commitar. Nao regredir MH-01.
+- **Test de regressao existente:** `skills/init/assets/templates/docs/compound/README.md.tpl.test.ts` (6 testes) garante que qualquer regressao de schema sera detectada automaticamente. Nao deletar este arquivo em planos futuros.
 
 Informacoes que o proximo plano (Plano 02 — git mv físico + goldens) PRECISA saber antes de comecar.
 
