@@ -2,7 +2,6 @@
 name: update
 description: "This skill should be used when the user asks to 'update anti-vibe', 'check for updates', 'sync plugin changes', or when running /anti-vibe-coding:init in a project that already has Anti-Vibe Coding installed. Detects outdated files, shows available updates, and applies incremental updates with intelligent merge strategies."
 user-invocable: true
-disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Write, Edit, AskUserQuestion
 argument-hint: "[project path (default: current directory)]"
 ---

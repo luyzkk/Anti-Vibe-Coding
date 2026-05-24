@@ -2,7 +2,6 @@
 name: sync
 description: "This skill should be used when the user wants to 'sync plugin', 'force reload', 'invalidate cache', 'refresh plugin', or when encountering cache-related issues with the Anti-Vibe Coding plugin. Forces cache invalidation and shows current version status."
 user-invocable: true
-disable-model-invocation: true
 allowed-tools: Read, Bash
 ---
 
