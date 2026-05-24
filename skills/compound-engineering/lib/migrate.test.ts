@@ -1,4 +1,5 @@
 // 2026-05-24 (Luiz/dev): testes TDD RED para runMigrate — PRD CA-13/14 + RNF-04
+// 2026-05-24 (Luiz/dev): fix semantico notesScanned — bug fix audit solid-auditor
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
@@ -91,6 +92,29 @@ More prose after block that must also be preserved.
     }
 
     expect(result.notesWithIssues).toBeGreaterThan(0)
+  })
+
+  it('notesScanned reflete total de arquivos escaneados, nao apenas notas com issues', async () => {
+    // 3 notas: 2 com issues (sem frontmatter), 1 valida (frontmatter canonico completo)
+    const notesWithIssues = [
+      { name: '2024-01-01-bad-a.md', content: `# No frontmatter\nJust text.\n` },
+      { name: '2024-01-02-bad-b.md', content: `# Also no frontmatter\nMore text.\n` },
+    ]
+    const validNote = {
+      name: '2024-01-03-good.md',
+      content: `---\ntitle: Good note\ncategory: debugging\ntags: [x]\ncreated: 2024-01-03\n---\nContent.\n`,
+    }
+
+    for (const note of [...notesWithIssues, validNote]) {
+      await fs.writeFile(path.join(tmpDir, 'docs', 'compound', note.name), note.content)
+    }
+
+    const result = await runMigrate(tmpDir)
+
+    // notesScanned deve ser 3 (total), nao 2 (apenas notas com issues)
+    expect(result.notesScanned).toBe(3)
+    // notesWithIssues deve ser 2 (apenas notas com issues)
+    expect(result.notesWithIssues).toBe(2)
   })
 
   it('idempotencia: segunda invocacao em projeto ja migrado nao reescreve README', async () => {
