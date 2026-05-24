@@ -23,6 +23,18 @@ Formato: o que foi decidido + por que + impacto.
   - Por que: manifest lista apenas `docs/compound/README.md` — unico arquivo de compound/ que poderia ser alvo. A regex `(?!README\.md$)` exclui esse unico arquivo do manifest sem afeta-lo.
   - Impacto: notas de dev em `docs/compound/YYYY-MM-DD-*.md` nunca sao processadas.
 
+- **DI-fase02-p3-rule-names:** Spec dizia grep por `agents-link`, `plan-generator-sections`, `active-plan-hygiene`. O tpl real usa `agents-link`, `plan-generator`, `active-plan` (sem sufixos). Nao e regressao — sao os mesmos conceitos com nomes ligeiramente diferentes. Checker.ts usa o script sem depender dos nomes dos rules; CA-10 valida regex `/\[agents-link\]/` que e o sufixo real emitido no stderr.
+  - Por que: spec usou nomes de identificadores de regra de forma levemente inconsistente com o codigo real.
+  - Impacto: nenhum — tests verdes, comportamento correto.
+
+- **DI-fase02-tpl-path:** `checker.test.ts` usa `import.meta.dir` + `'../assets/scripts/compound-check.ts.tpl'` (1 nivel acima de `lib/`). Spec originalmente nao descrevia este path — descoberto ao rodar RED pela primeira vez (ENOENT com `../../assets/`).
+  - Por que: `lib/` esta dentro de `skills/compound-engineering/lib/` — um nivel de distancia dos assets, nao dois.
+  - Impacto: path corrigido antes do commit GREEN.
+
+- **DI-fase02-tipos-inline:** Tipos `CheckOpts` e `CheckResult` foram definidos inline em `checker.ts` (nao em arquivo separado `check-types.ts`). Spec do fase-02 os mostrava inline — seguiu-se o spec literalmente. TDD gate nao foi acionado pois nao ha arquivo separado de tipos.
+  - Por que: spec mostrava tipos no mesmo arquivo que a implementacao; sem separacao nao ha risco de gate falhar.
+  - Impacto: nenhum arquivo extra de tipos — mais simples.
+
 ---
 
 ## Bugs Descobertos
@@ -31,6 +43,8 @@ Bugs encontrados durante implementacao e como foram resolvidos.
 Formato: sintoma + causa raiz + fix aplicado.
 
 _(Nenhum bug encontrado em fase-01 — implementacao direta do spec.)_
+
+- **BUG-fase02-tpl-path-wrong:** `import.meta.dir` + `'../../assets/...'` resolve para `skills/assets/` (nao `skills/compound-engineering/assets/`). Correcao: usar `'../assets/...'` (1 nivel acima de `lib/`). Detectado na primeira execucao do RED, corrigido antes de qualquer commit GREEN.
 
 ---
 
@@ -54,6 +68,8 @@ Se nada mudou, manter vazio (bom sinal).
   - Motivo: TDD gate do projeto e inviolavel (regra 2 do executor).
   - Impacto: +1 arquivo nao listado nos "Arquivos Afetados" do fase-01 doc. Bom sinal (cobertura adicional).
 
+- **DEV-fase02-path-fix-before-green-commit:** Correcao de path em `checker.test.ts` feita antes do commit GREEN (detectada ao rodar os testes). Nao houve commit intermediario com caminho errado — path correto foi commitado diretamente no commit GREEN.
+
 ---
 
 ## Metricas
@@ -61,9 +77,9 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 6 |
-| Fases concluidas | 1 |
-| Fases com desvio | 1 |
-| Bugs encontrados | 0 |
+| Fases concluidas | 2 |
+| Fases com desvio | 2 |
+| Bugs encontrados | 1 |
 | Retries necessarios | 0 |
 
 ---
@@ -74,6 +90,26 @@ Informacoes que o proximo plano PRECISA saber antes de comecar.
 O subagente do proximo plano le este campo.
 
 _(Plano 03 e o ultimo plano da feature. Notas aqui sao para PRD-FOLLOWUP ou compound captures.)_
+
+### Estado pos-fase-02 (input para fase-03..06)
+
+**O que ficou pronto:**
+- `skills/compound-engineering/lib/checker.ts` — `runCompoundCheck(targetRoot, opts)` implementado via `Bun.spawn`, CA-09/CA-10 cobertos.
+- `skills/compound-engineering/lib/checker.test.ts` — 2 testes verdes (CA-09 backward compat, CA-10 strict agents-link).
+- `skills/compound-engineering/SKILL.md` — bloco `### Subcomando: check` adicionado.
+- Suite da lib: 39 testes, 0 falhas (+2 do checker).
+- CA-17 verde: `checker.ts` nao importa de `skills/init/`.
+- P3 validado: tpl contem 3 regras P3 (`agents-link`, `plan-generator`, `active-plan`).
+
+**Commits:**
+- `7f43899` — RED phase (checker.test.ts apenas, checker.ts ausente)
+- `75e9a39` — GREEN phase (checker.ts + SKILL.md update)
+
+**Pegadinhas para fases seguintes:**
+- O tpl usa rule names `agents-link`, `plan-generator`, `active-plan` (sem sufixos `-sections` e `-hygiene`). Grep por esses nomes reais ao verificar P3.
+- `checker.test.ts` usa `import.meta.dir` + `'../assets/scripts/compound-check.ts.tpl'` para localizar o script — 1 nivel acima de `lib/`, nao 2.
+- Checker e um wrapper fino — nao tem logica P3 propria. Toda logica de validacao fica no tpl/script instalado no target.
+- `CheckOpts` e `CheckResult` sao tipos inline em `checker.ts` — nao ha arquivo separado de tipos.
 
 ### Estado pos-fase-01 (input para fase-02..06)
 
