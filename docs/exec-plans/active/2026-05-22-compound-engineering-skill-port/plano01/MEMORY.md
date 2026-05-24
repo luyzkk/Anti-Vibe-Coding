@@ -33,6 +33,14 @@ Formato: o que foi decidido + por que + impacto.
 - **DI-fase01-prefaces-analogico:** Criado `skills/compound-engineering/lib/compound-engineering-prefaces.ts` com `COMPOUND_ENGINEERING_PREFACE_BY_PROFILE = {}` e `DEFAULT_COMPOUND_ENGINEERING_PREFACE = ''` — análogo de `lessons-learned-prefaces.ts`. Necessário para que o bloco de telemetria na SKILL.md referencie imports válidos sem quebrar build. Plano 03 preenche entradas por profile quando subcomandos forem implementados.
 - **DI-fase01-typecheck-erros-preexistentes:** `bun run typecheck` aponta 7 erros em `skills/init/lib/populate-plan*` — todos pré-existentes, nenhum introduzido pela fase-01. Erros confirmados como GT-01 pré-existente (mencionado em MEMORY do Plano 01 original).
 
+### Decisões tomadas na fase-02
+
+- **DI-fase02-spec-contradição-classificacao:** Spec da fase-02 Passo 1 dizia "9 canon-andre + 2 anti-vibe-extension" (listando smoke-flows como canon-andre), mas o código real tinha `smoke-flows/README.md` como `anti-vibe-extension` (linha 66). O Passo 3 (testes) dizia corretamente "7 canon-andre + 3 anti-vibe-extension". Regra 7 aplicada: código usado como fonte de verdade. COMPOUND_CATEGORY_BY_DST reflete o código real: 7 canon-andre + 3 anti-vibe-extension.
+- **DI-fase02-compoundEntry-helper:** Abordagem escolhida para spread fragmentado: `compoundEntry(dst)` helper síncrono chama `buildCompoundEntries().find(...)`. Alternativa seria chamar `getCompoundManifest()` diretamente por index — descartada por ser frágil a reordenações em manifest.ts. Helper é O(10×10) mas manifest é pequeno e constante.
+- **DI-fase02-TEMPLATES_ROOT-movido:** `TEMPLATES_ROOT` foi movido para antes do array `TEMPLATE_MANIFEST` (mas após o tipo `TemplateEntry`) para que `buildCompoundEntries()` possa referenciar na mesma scope. Export permanece inalterado.
+- **DI-fase02-e2e-4-skips:** E2E `init-cutover-greenfield.test.ts` rodou com 1 pass + 4 skip (pré-existentes). MEMORY anterior dizia "2 com test.skip" — na realidade são 4. Nenhum skip introduzido por esta fase.
+- **DI-fase02-lint-nao-configurado:** `bun run lint` retorna "Script not found" — lint não configurado neste projeto. Documentado para não repetir o check desnecessariamente.
+
 ---
 
 ## Bugs Descobertos
@@ -50,6 +58,7 @@ Armadilhas descobertas que planos futuros ou outros devs devem saber.
 Apenas gotchas que NAO eram obvios antes de implementar.
 
 - **GT-fase01-tdd-gate-bloqueia-constants:** O TDD gate do hook bloqueia qualquer arquivo `.ts` sem teste prévio — inclusive arquivos de constantes/tabelas de dados sem lógica. Se criar arquivo análogo de prefaces em Plano 03, criar o `.test.ts` RED antes.
+- **GT-fase02-compoundEntry-runtime-throw:** `compoundEntry(dst)` lança erro em runtime se dst não estiver em `COMPOUND_CATEGORY_BY_DST`. Se Plano 02/03 adicionar nova entrada compound em `manifest.ts`, precisa sincronizar o hash-map em `template-manifest.ts` simultaneamente — caso contrário init quebra em runtime (não em typecheck).
 
 ---
 
@@ -67,8 +76,8 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 3 |
-| Fases concluidas | 1 |
-| Fases com desvio | 1 (desvio mínimo — 2 testes extras por TDD gate) |
+| Fases concluidas | 2 |
+| Fases com desvio | 1 (desvio mínimo — 2 testes extras por TDD gate em fase-01) |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
 
@@ -85,6 +94,14 @@ Informacoes que o proximo plano (Plano 02 — git mv físico + goldens) PRECISA 
 - `skills/init/lib/template-manifest.ts` NÃO foi tocado nesta fase — Plano 02 fase-01 refatora para consumir `getCompoundManifest()`.
 - Goldens E2E `init-greenfield.tree.json` e `init-greenfield.stdout.txt` permanecem verdes — `git diff tests/e2e/__golden__/` vazio confirmado.
 - `skills/compound-engineering/references/capture-guide.md` existe como placeholder; Plano 03 fase-03 preenche.
+
+### Estado após fase-02 (input para Plano 02)
+
+- `skills/init/lib/template-manifest.ts` agora **consome `getCompoundManifest()`** via import puro — hardcode das 10 entradas compound removido. `COMPOUND_CATEGORY_BY_DST` hash-map mantém classificação por dst. `compoundEntry(dst)` helper preserva posição posicional no array (G2).
+- Plano 02 fase-01 precisa mudar APENAS a string `'../../init/assets/templates'` → `'../assets'` em `skills/compound-engineering/lib/manifest.ts` após `git mv` físico. O `template-manifest.ts` não precisa de alteração — `path.relative(TEMPLATES_ROOT, src)` continuará resolvendo corretamente.
+- 14 testes verdes em `skills/init/lib/template-manifest.test.ts` (9 originais + 4 R11 + 1 D25).
+- Goldens E2E `init-greenfield.tree.json` e `init-greenfield.stdout.txt` intactos.
+- `bun run lint` retorna "Script not found" — lint não configurado neste projeto.
 
 ---
 
