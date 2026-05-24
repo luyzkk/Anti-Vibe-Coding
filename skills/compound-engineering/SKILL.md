@@ -113,3 +113,13 @@ Quando `args` comeca com `gate`:
 6. Se todos 'nao': pergunta razao curta. Invoca `updateLessonsCaptured(planPath, 'no compound capture needed because: <razao>')`.
 
 Nota: `runGate` em `skills/compound-engineering/lib/gate.ts` encapsula esta logica para testes — o SKILL.md runtime substitui `invokeSkill` pela Skill tool nativa.
+
+### Subcomando: migrate
+
+Quando `args` comeca com `migrate`:
+
+1. Invoca `runMigrate(targetRoot)` de `skills/compound-engineering/lib/migrate.ts`.
+2. Renderiza output:
+   - Se `readmeMigrated`: `Fixed schema in docs/compound/README.md.`
+   - Se `notesWithIssues > 0`: `Inconsistencies report saved to docs/compound/migration-report.md ({N} notes need manual review).`
+   - Se ambos zero: `No legacy schema detected. No migration needed.`
