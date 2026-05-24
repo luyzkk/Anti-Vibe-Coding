@@ -4,11 +4,8 @@
 // DI-fase04-api-real: campos extras (date/author/decision) nao aparecem em fm.data tipado
 // (CompoundFrontmatter e fixo). Legacy fields detectados via raw frontmatter regex.
 import { listCompoundFiles } from './compound-files-collector'
-import { parseFrontmatter } from './compound-frontmatter'
+import { parseFrontmatter, FRONTMATTER_RE } from './compound-frontmatter'
 import { promises as fs } from 'node:fs'
-
-// 2026-05-24 (Luiz/dev): regex para extrair raw frontmatter block (mesmo padrao do parser interno)
-const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---\r?\n/
 
 export type NoteIssueType =
   | 'missing-title'
