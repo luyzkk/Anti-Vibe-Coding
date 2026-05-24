@@ -1,4 +1,5 @@
 // 2026-05-24 (Luiz/dev): testes RED para runGate — PRD CA-07/08/18/19, MH-06/RF-06
+// 2026-05-24 (Luiz/dev): SH-07 completion signal assertion adicionado — fase-06
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
@@ -112,5 +113,27 @@ describe('runGate', () => {
 
     expect(result.status).toBe('multiple-plans')
     expect(result.message).toContain('Multiple active plans')
+  })
+
+  // 2026-05-24 (Luiz/dev): SH-07 — completion signal YAML machine-readable no output do gate — fase-06
+  it('SH-07: completion signal — message de captured contem bloco yaml com skill e status', async () => {
+    await setupActivePlan('2026-05-24-signal-test')
+
+    const answers: GateAnswers = {
+      bug: { answer: 'yes', details: 'completion signal test' },
+      review: { answer: 'no' },
+      production: { answer: 'no' },
+    }
+
+    const mockInvokeSkill = async (_skill: string, _args: string): Promise<string> => {
+      return `Lesson captured.\n\n\`\`\`yaml\nstatus: complete\nnote_created: docs/compound/2026-05-24-signal.md\n\`\`\``
+    }
+
+    const result = await runGate(tmpDir, answers, mockInvokeSkill)
+
+    expect(result.status).toBe('captured')
+    // SH-07: bloco yaml com campos skill e status obrigatorios
+    expect(result.message).toMatch(/```yaml[\s\S]*status:/)
+    expect(result.message).toContain('anti-vibe-coding:compound-engineering')
   })
 })
