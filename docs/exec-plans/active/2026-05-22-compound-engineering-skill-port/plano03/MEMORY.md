@@ -92,6 +92,12 @@ Se nada mudou, manter vazio (bom sinal).
   - Por que: `missing-title` como tipo separado so seria possivel com um parser parcial (nao-estrito).
   - Impacto: report tem `invalid-frontmatter` como tipo mais comum em brownfield — informacao suficiente para o dev agir.
 
+- **DI-fase05-installer-notes-intacto:** Apos adicionar P1/P2 em `installer.ts`, os 4 testes existentes do installer nao quebraram. A razao: o teste CA-20 usa `toBeGreaterThan(0)` para `notes.length` e `toContain('No package.json detected')` — flexivel o suficiente para absorver notas extras. Nao foi necessario ajustar assertions. DEV registrado como observacao (nao como bug).
+  - Por que: spec do fase-05 antecipava possivel necessidade de ajuste; na pratica as assertions ja eram tolerantes.
+  - Impacto: zero mudancas em installer.test.ts.
+
+- **DI-fase05-PatchResult-location:** `PatchResult` vive em `patch-agents.ts` (inline) e e re-exportado via `export type { PatchResult }` em `patch-new-plan.ts`. O installer importa `PatchResult` indiretamente (nao precisa — usa apenas os campos). Consistente com instrucao do spec: "inline em patch-agents, re-exportar para patch-new-plan".
+
 ---
 
 ## Metricas
@@ -99,7 +105,7 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 6 |
-| Fases concluidas | 4 |
+| Fases concluidas | 5 |
 | Fases com desvio | 2 |
 | Bugs encontrados | 1 |
 | Retries necessarios | 0 |
@@ -112,6 +118,28 @@ Informacoes que o proximo plano PRECISA saber antes de comecar.
 O subagente do proximo plano le este campo.
 
 _(Plano 03 e o ultimo plano da feature. Notas aqui sao para PRD-FOLLOWUP ou compound captures.)_
+
+### Estado pos-fase-05 (input para fase-06)
+
+**O que ficou pronto:**
+- `skills/compound-engineering/lib/patch-agents.ts` — `patchAgentsMd(targetRoot)` com regex D23 multi-padrao; status: `patched` | `already-present` | `created` | `appended`. Exporta tipo `PatchResult`.
+- `skills/compound-engineering/lib/patch-agents.test.ts` — 7 testes verdes (CA-11 idempotencia bytewise, CA-12 paths relativos ./docs/, ../docs/, docs/, AGENTS.md ausente, secao ausente/appended, secao presente/patched).
+- `skills/compound-engineering/lib/patch-new-plan.ts` — `patchNewPlanTpl(targetRoot)` com suporte a 3 variantes de template; injeta 4 secoes antes de `## Exit Criteria`; importa e re-exporta `PatchResult` de `patch-agents`.
+- `skills/compound-engineering/lib/patch-new-plan.test.ts` — 5 testes verdes (RNF-02 bytewise, ordem das 4 secoes, skip sem template, idempotencia semantica, insercao antes de Exit Criteria).
+- `skills/compound-engineering/lib/installer.ts` — modificado: invoca P1+P2 apos loop de copia; mensagens pushadas em `result.notes`.
+- Suite da lib: 78 testes, 0 falhas (+12 do fase-05).
+- CA-17 verde: nenhum import cross-skill de `skills/init/` nos arquivos novos.
+- Installer.test.ts: 4 testes intactos (assertions usavam `toBeGreaterThan(0)` e `toContain` — nao quebraram com notas extras de P1/P2).
+
+**Commits:**
+- `5ef259a` — RED phase (patch-agents.test.ts + patch-new-plan.test.ts, implementacoes ausentes)
+- `256039e` — GREEN phase (patch-agents.ts + patch-new-plan.ts + installer.ts modificado)
+
+**Pegadinhas para fase-06:**
+- `installer.ts` result.notes agora contem sempre 2 mensagens extras (P1 + P2) alem das mensagens de stack-agnostic. Qualquer novo teste do installer que verifique `result.notes.length` exato precisara contar com essas 2 mensagens adicionais.
+- `patchNewPlanTpl` retorna `status: 'already-present'` tanto para "4 secoes ja presentes" quanto para "sem template encontrado" — diferenciar pelo campo `message` se necessario.
+- `PatchResult` vive em `patch-agents.ts` e e re-exportado por `patch-new-plan.ts`. Importar sempre de `./patch-agents` para evitar ciclo.
+- Regex D23 `\.{0,2}\/?docs\/COMPOUND_ENGINEERING\.md` cobre 0, 1 ou 2 pontos — edge case `../../docs/...` tambem coberto.
 
 ### Estado pos-fase-04 (input para fase-05..06)
 
