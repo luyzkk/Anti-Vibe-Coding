@@ -73,3 +73,16 @@ Delega captura de novas entradas para a skill `lessons-learned`.
 ## Acao solicitada
 
 $ARGUMENTS
+
+### Subcomando: install
+
+Quando `args` comeca com `install`:
+
+1. Detecta target root (`process.cwd()` por default).
+2. Parse `--force` em `args.includes('--force')`.
+3. Invoca `installCompound(targetRoot, { force })` de `skills/compound-engineering/lib/installer.ts`.
+4. Renderiza output:
+   - `Created: <list>` (se `result.created.length > 0`)
+   - `Overwritten: <list>` (se `result.overwritten.length > 0`)
+   - `Skipped existing files (use --force to overwrite): <list>` (se `result.skipped.length > 0`)
+   - `result.notes` (uma linha por nota, ex: mensagem stack-agnostic sem package.json)
