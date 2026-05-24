@@ -72,12 +72,22 @@ Se nada mudou, manter vazio (bom sinal).
 
 ---
 
+- **DI-fase03-tipos-inline-gate:** `GateAnswers` e `GateResult` definidos inline em `gate.ts` (nao em arquivo separado). Consistente com DI-fase02-tipos-inline para evitar TDD gate com arquivo de tipos puro.
+  - Por que: spec instrui explicitamente manter tipos inline (refinement DI-fase02).
+  - Impacto: nenhum arquivo extra de tipos em fase-03.
+
+- **DI-fase03-grep-ca17-false-positives:** Grep por `from '.*lessons-learned'` retornou 2 matches em `gate.ts` e `invoke-lessons-learned.test.ts` — ambos sao imports internos de `./invoke-lessons-learned` (helper dentro de compound-engineering). CA-17 verifica import CROSS-SKILL (de `skills/lessons-learned/`), nao imports internos. Verificado com grep por `from '.*skills/lessons-learned'` — 0 matches. CA-17 verde.
+  - Por que: nome do arquivo interno (`invoke-lessons-learned.ts`) tem substring `lessons-learned` que bate no grep amplo.
+  - Impacto: DI registrada para fases seguintes — usar pattern mais preciso ao verificar CA-17.
+
+---
+
 ## Metricas
 
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 6 |
-| Fases concluidas | 2 |
+| Fases concluidas | 3 |
 | Fases com desvio | 2 |
 | Bugs encontrados | 1 |
 | Retries necessarios | 0 |
@@ -90,6 +100,33 @@ Informacoes que o proximo plano PRECISA saber antes de comecar.
 O subagente do proximo plano le este campo.
 
 _(Plano 03 e o ultimo plano da feature. Notas aqui sao para PRD-FOLLOWUP ou compound captures.)_
+
+### Estado pos-fase-03 (input para fase-04..06)
+
+**O que ficou pronto:**
+- `skills/compound-engineering/lib/active-plan-detector.ts` — `detectActivePlan(targetRoot)` retornando `single`/`multiple`/`none`, CA-18/19 cobertos.
+- `skills/compound-engineering/lib/active-plan-detector.test.ts` — 4 testes verdes.
+- `skills/compound-engineering/lib/lessons-captured-updater.ts` — `updateLessonsCaptured(planPath, content)` patcha secao `## Lessons Captured` ou faz append no fim (degraded path), CA-07/08 cobertos.
+- `skills/compound-engineering/lib/lessons-captured-updater.test.ts` — 2 testes verdes.
+- `skills/compound-engineering/lib/invoke-lessons-learned.ts` — `buildLessonsLearnedInvocation` + `parseLessonsLearnedCompletion`, helper isolado (31 linhas, CA-16/17 verdes).
+- `skills/compound-engineering/lib/invoke-lessons-learned.test.ts` — 4 testes verdes.
+- `skills/compound-engineering/lib/gate.ts` — `runGate(targetRoot, answers, invokeSkill)` orquestrador com DI para invokeSkill (testavel via mock).
+- `skills/compound-engineering/lib/gate.test.ts` — 4 testes verdes (CA-07/08/18/19).
+- `skills/compound-engineering/SKILL.md` — bloco `### Subcomando: gate` adicionado com 3 perguntas do decision gate.
+- `skills/compound-engineering/references/capture-guide.md` — guia de captura preenchido (D13).
+- Suite da lib: 53 testes, 0 falhas (+14 do gate).
+- CA-16 verde: `gate.ts` e `invoke-lessons-learned.ts` sem `Bun.spawn` ou `child_process`.
+- CA-17 verde: nenhum cross-skill import de `skills/lessons-learned/` ou `skills/init/`.
+
+**Commits:**
+- `43b8f5c` — RED phase (4 test files, implementations ausentes)
+- `104b87c` — GREEN phase (4 implementations + SKILL.md + capture-guide.md)
+
+**Pegadinhas para fases seguintes:**
+- Grep por `from '.*lessons-learned'` retorna false positives (imports internos de `./invoke-lessons-learned`). Usar `from '.*skills/lessons-learned'` para verificar CA-17 cross-skill.
+- `runGate` recebe `invokeSkill` como funcao injetada — SKILL.md runtime substitui pelo `Skill({ skill: 'anti-vibe-coding:lessons-learned', args })` real. Testes usam mock.
+- `updateLessonsCaptured` nao e idempotente em conteudo (re-rodar gate gera append duplicado). Aceitavel para v1, dedup pode ser feature-06 ou futura.
+- `detectActivePlan` identifica plano por presenca de `PLAN.md` no subdir direto de `docs/exec-plans/active/` (nao recursivo). Subdirs de planos aninhados nao sao detectados — comportamento intencional.
 
 ### Estado pos-fase-02 (input para fase-03..06)
 
