@@ -36,7 +36,7 @@ describe('compound-check (skeleton)', () => {
   it('exits 0 when docs/compound/ is empty', async () => {
     const result = await runScript(FIXTURE)
     expect(result.code).toBe(0)
-    expect(result.stdout).toContain('Compound check passed (0 compound notes')
+    expect(result.stdout).toContain('0 compound notes validated')
   })
 
   it('exits 0 when docs/compound/ has only README.md', async () => {
