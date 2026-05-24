@@ -2,8 +2,7 @@
 name: init
 description: "This skill should be used when the user asks to 'initialize anti-vibe', 'setup anti-vibe coding', 'add anti-vibe to project', 'configure anti-vibe', or wants to onboard a project into the Anti-Vibe Coding methodology. Handles first-time setup with intelligent CLAUDE.md merge, rules deployment, and decisions registry initialization."
 user-invocable: true
-disable-model-invocation: true
-allowed-tools: Read, Grep, Glob, Write, Edit, AskUserQuestion
+allowed-tools: Read, Grep, Glob, Write, Edit, Bash, AskUserQuestion
 argument-hint: "[project path (default: current directory)]"
 ---
 
@@ -17,12 +16,23 @@ template. Steps executam pelo dispatcher `lib/run-init.ts`; cada step esta em
 
 ## Como executar
 
-```typescript
-// 2026-05-17 (Luiz/dev): cutover Rails-style (PRD D1/D7) — orquestrador unico.
-// DI-06/GT-04 (Windows): lazy-import centralizado no dispatcher.
-import { runInit } from './lib/run-init'
-await runInit({ args: process.argv.slice(2), cwd: process.cwd() })
+OBRIGATORIO: invocar o CLI via Bash. NUNCA simular steps manualmente — sem o CLI, o scaffold
+de 30+ harness docs nao roda e o plano gerado sera reduzido e incorreto.
+
+Este SKILL.md esta em `PLUGIN_ROOT/skills/init/SKILL.md`.
+O CLI esta em `PLUGIN_ROOT/scripts/init-cli.ts` (dois niveis acima daqui).
+
+```bash
+# TARGET_DIR = $ARGUMENTS se fornecido, caso contrario current dir
+bun "PLUGIN_ROOT/scripts/init-cli.ts" --cwd="TARGET_DIR"
 ```
+
+Para obter PLUGIN_ROOT: substituir `skills/init/SKILL.md` pelo caminho real deste arquivo
+e subir 2 diretorios. Exemplo Windows:
+  SKILL.md em `f:\Projetos\Anti-Vibe-Coding\skills\init\SKILL.md`
+  CLI em      `f:\Projetos\Anti-Vibe-Coding\scripts\init-cli.ts`
+
+Flags disponiveis: `--dry-run`, `--refresh`, `--additive-merge`, `--rollback`.
 
 ## Fluxo de Steps (documentacao)
 
