@@ -95,3 +95,21 @@ Quando `args` comeca com `check`:
 2. Invoca `runCompoundCheck(targetRoot, { strict })` de `skills/compound-engineering/lib/checker.ts`.
 3. Repassa exit code e output (stdout/stderr) ao caller.
 4. Se `--strict` e qualquer das 3 regras falhar, output inclui prefixo identificador da regra: `[agents-link]`, `[plan-generator]`, `[active-plan]`.
+
+### Subcomando: gate
+
+Quando `args` comeca com `gate`:
+
+1. Invoca `detectActivePlan(targetRoot)` de `skills/compound-engineering/lib/active-plan-detector.ts`.
+2. Se `status === 'none'`: imprime `No active plan found. Run /plan-feature first or specify --plan path.` e retorna.
+3. Se `status === 'multiple'`: usa `AskUserQuestion` com cada plano como opcao (singleSelect) para obter `selectedPlanPath`.
+4. Faz 3 perguntas ao dev (uma de cada vez via `AskUserQuestion`):
+   - "Algum bug aprendido aqui que outro dev/agente futuro poderia ter evitado se soubesse?"
+   - "Algum review/checklist falhou de forma que indica padrao repetivel?"
+   - "Algum issue de producao/operacional revelado durante esta feature?"
+5. Se qualquer resposta for 'sim': pergunte titulo curto descritivo. Invoca Skill tool nativa:
+   `Skill({ skill: 'anti-vibe-coding:lessons-learned', args: 'add "<titulo>"' })`
+   Em seguida invoca `updateLessonsCaptured(planPath, ...)` de `skills/compound-engineering/lib/lessons-captured-updater.ts` com o link para a nota criada.
+6. Se todos 'nao': pergunta razao curta. Invoca `updateLessonsCaptured(planPath, 'no compound capture needed because: <razao>')`.
+
+Nota: `runGate` em `skills/compound-engineering/lib/gate.ts` encapsula esta logica para testes — o SKILL.md runtime substitui `invokeSkill` pela Skill tool nativa.
