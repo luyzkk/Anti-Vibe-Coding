@@ -1,6 +1,5 @@
 // 2026-05-24 (Luiz/dev): contrato init↔skill (D7/D21) — PRD MH-04, CA-03.
-// Paths AINDA apontam para skills/init/assets/templates/ (transitório).
-// Plano 02 fase-01 troca para '../assets' após git mv.
+// Paths apontam para skills/compound-engineering/assets/ (cutover físico — Plano 02 fase-01).
 
 import path from 'node:path'
 
@@ -11,9 +10,9 @@ export type CompoundManifestEntry = {
   dst: string
 }
 
-// 2026-05-24 (Luiz/dev): durante Plano 01, src vive em init/assets/templates.
-// Apos Plano 02 fase-01 (git mv), trocar '../../init/assets/templates' por '../assets'.
-const TEMPLATES_ROOT = path.resolve(import.meta.dir, '../../init/assets/templates')
+// 2026-05-24 (Luiz/dev): cutover físico — D21 + Plano 02 fase-01
+// (estado anterior apontava para skills/init/assets/templates — transitório do Tracer Bullet)
+const TEMPLATES_ROOT = path.resolve(import.meta.dir, '../assets')
 
 const COMPOUND_ENTRIES: ReadonlyArray<{ src: string; dst: string }> = [
   { src: 'docs/COMPOUND_ENGINEERING.md.tpl',                   dst: 'docs/COMPOUND_ENGINEERING.md'                   },
