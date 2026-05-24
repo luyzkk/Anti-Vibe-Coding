@@ -1,2682 +1,2790 @@
 {
-  "version": "7.1.0",
-  "generatedAt": "2026-05-23T20:19:05.362Z",
+  "version": "7.2.0",
+  "generatedAt": "2026-05-24T14:07:24.128Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
       "path": "skills/anti-vibe-review/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": ""
     },
     "api-design": {
       "path": "skills/api-design/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "This skill should be used when the user asks about 'API design', 'N+1 problem', 'idempotency', 'idempotent APIs', 'DTOs', 'data transfer objects', 'webhooks', 'websockets', 'SSE', 'REST vs GraphQL', 'SQL vs NoSQL', 'race conditions in APIs', 'API concurrency', 'gRPC', 'AMQP', 'RabbitMQ', 'message queue', 'GraphQL schema', 'GraphQL depth', 'DataLoader', 'pagination', 'cursor pagination', 'keyset pagination', 'REST URL design', 'status codes', 'API versioning', 'HATEOAS', 'filtering', 'sorting', 'Protocol Buffers', or needs to analyze and audit API endpoints. Provides expert consultation on API design patterns, protocols, anti-patterns, and best practices."
     },
     "architecture": {
       "path": "skills/architecture/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "This skill should be used when the user asks about 'SOLID principles', 'monolith vs microservices', 'CQRS', 'event sourcing', 'REST vs GraphQL', 'tech stack selection', 'architecture decision', 'ADR', 'design patterns', 'Law of Demeter', 'Tell-Don't-Ask', 'composition vs inheritance', 'dependency injection', 'DI', 'IoC container', 'constructor injection', or faces architectural trade-off decisions. Provides senior-level architecture consultation with explicit trade-off analysis."
     },
     "centralize-config": {
       "path": "skills/centralize-config/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "Detecta configurações espalhadas (strings hardcoded, valores duplicados) e executa migração disciplinada para uma única fonte de verdade. Fluxo: detectar → mapear → centralizar → substituir usos → verificar."
     },
     "code-simplification": {
       "path": "skills/code-simplification/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "Guia de simplificação de código: identifica over-engineering, duplicação e complexidade desnecessária, aplicando padrões de simplificação por linguagem."
+    },
+    "compound-engineering": {
+      "path": "skills/compound-engineering/",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
+      "description": "This skill should be used when the user asks to 'install compound engineering scaffold', 'run compound gate', 'migrate compound schema', or 'check compound notes'. Manages the compound engineering scaffold (templates, decision gate, brownfield migration) and delegates capture to lessons-learned."
     },
     "consultant": {
       "path": "skills/consultant/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "Phase Zero consultation for uncertain decisions, trade-off analysis, and irreversible choices. Use when facing database schema design, auth pattern selection, critical library choices, infrastructure decisions, or when the user asks 'how should I implement', 'best approach', 'which pattern'. Teaches before coding — presents options with pros/cons instead of jumping to implementation."
     },
     "decision-registry": {
       "path": "skills/decision-registry/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "This skill should be used when the user asks to 'register a decision', 'log an architectural choice', 'add ADR', 'list decisions', 'query past decisions', or wants to track Architecture Decision Records (ADRs) for the project. Manages the project's decision history with alternatives and justifications."
     },
     "defensive-patterns": {
       "path": "skills/defensive-patterns/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "Menu de padrões defensivos para produção. Apresenta categorias (rate limit, circuit breaker, timeout, fallback, retry, bulkhead, config centralizada, health check, graceful degradation) e guia o dev a escolher quais aplicar ao contexto atual."
     },
     "design-patterns": {
       "path": "skills/design-patterns/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "This skill should be used when the user asks about 'code smells', 'code quality', 'Result Pattern', 'error handling patterns', 'structured logging', 'domain types', 'JavaScript internals', 'closures', 'event loop', 'race conditions', 'design patterns', 'GoF', 'Observer pattern', 'Factory pattern', 'Singleton', 'Decorator', 'Strategy pattern', 'Adapter', or requests a code quality analysis. Provides expert consultation on 28 code quality concepts covering code smells, error handling, logging, domain modeling, GoF design patterns, and JavaScript/TypeScript advanced patterns."
     },
     "design-twice": {
       "path": "skills/design-twice/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "Gera 3+ propostas arquiteturais divergentes via subagentes paralelos. Combate convergencia prematura forcando exploracoes com restricoes diferentes antes de escolher."
     },
     "detect-architecture": {
       "path": "skills/detect-architecture/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "Use this skill when the user asks to 'detectar arquitetura', 'classificar projeto', 'qual perfil arquitetural', '/detect-architecture', or runs `/anti-vibe-coding:detect-architecture`. Classifies the project in 1 of 5 architectural profiles (clean-architecture-ritual, mvc-flat, vertical-slice, nextjs-app-router, unknown-mixed) using folder + imports heuristic. Requires confirmation when confidence < 80%."
     },
     "doubt-driven-development": {
       "path": "skills/doubt-driven-development/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "Doubt-Driven Development: submete cada decisao nao-trivial a uma revisao adversarial fresh-context antes de ela 'ficar de pe'. Use quando correcao importa mais que velocidade, em codigo desconhecido, ou pre-deploy production. Sequencia CLAIM->EXTRACT->DOUBT->RECONCILE->STOP com 3 ciclos maximo. Diferente de design-twice (gera N alternativas), DDD ataca UMA escolha; diferente de verify-work (pos-impl), DDD e in-flight. Cross-model escalation OPCIONAL e documentada — usuario decide invocar."
     },
     "enhance-prompt": {
       "path": "skills/enhance-prompt/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "This skill should be used when the user asks to 'enhance my prompt', 'optimize start.md', 'add anti-vibe to my plans', 'improve my execution prompt', 'prepare tasks for automation', 'add skills to tasks', or wants to integrate Anti-Vibe Coding into their existing plan/task structure for automated execution by Claude Code."
     },
     "execute-plan": {
       "path": "skills/execute-plan/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "Executa planos hierarquicos fase por fase usando subagentes com isolamento de contexto. Navega plano por plano, le fases detalhadas, aplica TDD com isolamento RED/GREEN, mantém MEMORY.md e STATE.md atualizados. Oferece troca de contexto entre planos."
     },
     "git-workflow-and-versioning": {
       "path": "skills/git-workflow-and-versioning/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "Git Workflow e Versioning: codifica conventional commits, atomicidade, commits como save points, branches curtas (1-3 dias), PR description como contrato historico. Complementa CLAUDE.md global (fonte de verdade para tipos `feat`/`fix`/`chore`/etc). Vetado: 'Fix bug' como commit message. Hook commit-msg documentado como OPCIONAL (opt-in, nao bloqueante). Integra com /iterate e /incident-response que dependem de commit history limpo para post-mortem."
     },
     "grill-me": {
       "path": "skills/grill-me/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "Deep pre-implementation interview that resolves ALL ambiguity before coding. Asks 5-20 targeted questions covering scope, data, UX, edge cases, performance, security, and integration. Outputs CONTEXT.md with indexed decisions. Use before planning complex features or when requirements feel vague."
     },
     "incident-response": {
       "path": "skills/incident-response/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "Fluxo disciplinado de resposta a incidentes pós-deploy. Raw logs → hipótese → regression test (ANTES do fix) → fix → commit. Cada fix vem com regression test — hardening é hábito, não fase."
     },
     "incremental-implementation": {
       "path": "skills/incremental-implementation/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "Guia de implementação incremental: divide features em incrementos verificáveis, evitando big-bang delivery e integração tardia."
     },
     "infrastructure": {
       "path": "skills/infrastructure/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "This skill should be used when the user asks about 'DNS', 'domain setup', 'SSL', 'TLS certificates', 'hosting', 'deploy', 'VPS', 'serverless', 'CDN', 'PM2', 'Docker', 'Kubernetes', 'CI/CD', 'health checks', 'Let's Encrypt', 'Route 53', 'CloudFront', 'S3 hosting', or faces infrastructure and deployment decisions. Provides expert consultation on DNS, hosting, deployment patterns, and infrastructure architecture."
     },
     "init": {
       "path": "skills/init/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "This skill should be used when the user asks to 'initialize anti-vibe', 'setup anti-vibe coding', 'add anti-vibe to project', 'configure anti-vibe', or wants to onboard a project into the Anti-Vibe Coding methodology. Handles first-time setup with intelligent CLAUDE.md merge, rules deployment, and decisions registry initialization."
     },
     "iterate": {
       "path": "skills/iterate/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "Ciclo pos-deploy: incident response com regression test, hardening defensivo e centralizacao de config. A quarta pata do pipeline: Ensinar → Planejar → Verificar → Iterar. Use quando um bug foi relatado em producao ou quando uma feature estavel esta pronta para hardening."
     },
     "learn": {
       "path": "skills/learn/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "This skill should be used when the user asks to 'explain', 'teach me', 'what is', 'how does X work', 'explain like I'm a beginner', 'quero entender', 'me explica', 'o que e CRUD', 'como funciona auth', 'explica pra mim', 'nao entendi', 'aprenda', 'ensina', 'estudo', 'aprender sobre', or wants to understand a technical concept before or after building. Provides adaptive teaching that calibrates to the user's level (basic, intermediate, advanced) and connects explanations to the actual project code."
     },
     "lessons-learned": {
       "path": "skills/lessons-learned/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "This skill should be used when the user asks to 'add a lesson learned', 'register a lesson', 'review lessons', 'prune obsolete lessons', or when a significant error pattern is detected that should be recorded for future sessions. Manages project-specific senior knowledge with quality filters."
     },
     "pair-programming-with-agent": {
       "path": "skills/pair-programming-with-agent/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "Tutorial da dinâmica 'humano navega, agente pilota'. Quando interromper o agente, como injetar contexto de domínio, tabela Akita de capacidades (faz bem / faz mal), e exemplos reais de interrupção por over-engineering, contexto insuficiente e decisão conjunta."
     },
     "parity-audit": {
       "path": "skills/parity-audit/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "Audita capabilities do agente (MCPs, tools, subagentes) e produz parity-gaps.json com gaps ranqueados por severity. Use quando quiser revisar se o agente tem ferramentas para o task_type que você vai pedir."
     },
     "plan-feature": {
       "path": "skills/plan-feature/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "Converts PRD into executable hierarchical plan. Analyzes complexity like a senior engineer, decomposes into multiple plans with detailed phases, generates folder structure with memory per plan. Uses isolated subagents for each plan creation."
     },
     "qa-visual": {
       "path": "skills/qa-visual/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "This skill should be used when the user asks to 'run QA', 'test visually', 'visual QA', 'check in browser', 'open browser test', 'verify frontend', 'QA visual', 'testar no navegador', 'verificar visual', 'abrir no browser', or after completing a frontend feature. Opens a real browser via Playwright MCP to verify visual layout, user flows, network requests, console errors, and accessibility."
     },
     "quick-plan": {
       "path": "skills/quick-plan/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "Planejamento leve para tasks de complexidade media. Gera mini-plano de 3-7 passos no formato step/verify sem criar arquivos de planejamento em disco ou spawnar subagentes. Alternativa ao pipeline completo (grill-me → plan-feature → execute-plan) para tarefas que nao justificam o overhead."
     },
     "react-patterns": {
       "path": "skills/react-patterns/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "This skill should be used when the user asks about 'useEffect', 'React performance', 'data fetching in React', 'TanStack Query', 'state management', 'memoization', 'useMemo', 'useCallback', 'closure stale', 'React re-renders', 'virtualization', 'code splitting', or needs to analyze React component patterns and anti-patterns. Provides expert consultation on React/Next.js best practices."
     },
     "security": {
       "path": "skills/security/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "Expert security consultation covering OWASP Top 10, authentication (OAuth2, PKCE, JWT, session management), authorization (RBAC, ABAC, RLS), cryptography (bcrypt, argon2, HMAC), API security (rate limiting, CORS, CSRF, WAF), and Supabase/BaaS hardening. Use when implementing auth flows, handling secrets, validating webhooks, preventing injection attacks, or auditing security posture."
     },
     "source-driven-development": {
       "path": "skills/source-driven-development/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "Source-Driven Development: ancora cada decisao de implementacao em documentacao oficial. Use para codigo framework-especifico onde correcao importa. Diferente de consultant (que ensina trade-offs), SDD CITA fontes canonicas. Usa hierarquia docs oficiais > changelog > MDN; Stack Overflow nunca primaria; pattern UNVERIFIED quando doc nao encontrada."
     },
     "sync": {
       "path": "skills/sync/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "This skill should be used when the user wants to 'sync plugin', 'force reload', 'invalidate cache', 'refresh plugin', or when encountering cache-related issues with the Anti-Vibe Coding plugin. Forces cache invalidation and shows current version status."
     },
     "system-design": {
       "path": "skills/system-design/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "This skill should be used when the user asks about 'CAP theorem', 'PACELC', 'system design', 'caching strategies', 'Redis', 'horizontal scaling', 'vertical scaling', 'load balancer', 'load balancing algorithms', 'round robin', 'least connections', 'consistent hashing', 'database replication', 'sharding', 'SQL vs NoSQL', 'eventual consistency', 'CDN', 'edge server', 'anycast', 'cache invalidation', 'serverless', 'Lambda', 'cold start', 'serverfull', 'VPS', 'EC2', 'PM2', or faces infrastructure and scaling decisions. Provides expert consultation on distributed systems architecture, CDN, serverless, and trade-offs."
     },
     "tdd-workflow": {
       "path": "skills/tdd-workflow/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "Adaptive 7-step TDD workflow with automatic level detection (guided/assisted/direct). Enforces test-first discipline with RED-GREEN-REFACTOR cycle, naive-first implementation, context isolation, and vertical slices. Use for new features, bug fixes, or refactoring with test-driven development."
     },
     "todo-pick": {
       "path": "skills/todo-pick/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "Lista micro-débito do TODO.md e puxa 1 item por vez para correção. Sub-comandos: --skip {n} marca como skipped, --remove {n} deleta linha com confirmação."
     },
     "update": {
       "path": "skills/update/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "This skill should be used when the user asks to 'update anti-vibe', 'check for updates', 'sync plugin changes', or when running /anti-vibe-coding:init in a project that already has Anti-Vibe Coding installed. Detects outdated files, shows available updates, and applies incremental updates with intelligent merge strategies."
     },
     "verify-work": {
       "path": "skills/verify-work/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "Verificacao pos-execucao com testes, auditoria multi-agente paralela, test quality audit (cobertura real, testes fracos, alucinacoes) e debug automatico. Evolucao do anti-vibe-review com superpoderes."
     },
     "write-prd": {
       "path": "skills/write-prd/",
-      "version": "7.1.0",
-      "introduced": "v7.1.0",
+      "version": "7.2.0",
+      "introduced": "v7.2.0",
       "description": "Cria especificacao completa de feature via entrevista interativa. Gera PRD com MoSCoW, criterios de aceite e decisoes tecnicas. Importa contexto do /grill-me se disponivel."
     }
   },
   "files": {
     "CLAUDE.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "dcd80fa1b70880ef47b6697c19940e8ecd4238aa40ce6045f58e472eeefe8415",
       "lastModified": "2026-05-21",
       "updateStrategy": "merge"
     },
     "rules/api-standards.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "8b4269ab2e2fe63818cab4debb5af9a7747ed1c51a1a2db1c84e60b2261d0021",
       "lastModified": "2026-03-22",
       "updateStrategy": "merge"
     },
     "rules/code-quality.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "ef7c4b4cbe482c545cd55ee946f53d000c4b9007892cd8c2752cad366b8ea099",
       "lastModified": "2026-04-21",
       "updateStrategy": "merge"
     },
     "rules/database-patterns.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "701f3cbc186b2008d6a5ad9776e7f4ed985e68f1c548b874e1c4827081a4cedf",
       "lastModified": "2026-03-22",
       "updateStrategy": "merge"
     },
     "rules/infrastructure-patterns.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "e87d0e1fc140264770efd761e4974d0e23276a25e0b165315ef9d089da3e73e6",
       "lastModified": "2026-03-22",
       "updateStrategy": "merge"
     },
     "rules/security-patterns.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "ab58af497a987747ed6a34d15b3ae6f3a2b6038d3606a3ffe12eb9491030fd09",
       "lastModified": "2026-03-22",
       "updateStrategy": "merge"
     },
     "rules/simplicity-guard.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "4c66bb219d74402196bfda6498f40a00161bf3a453ccb48d44d7c4f9e3d5e76a",
       "lastModified": "2026-04-11",
       "updateStrategy": "merge"
     },
     "rules/solid-patterns.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "dd155d0725f227f5445c983216a501beadeb7b0e4ee6e32d80c34a9746bc5ba8",
       "lastModified": "2026-03-22",
       "updateStrategy": "merge"
     },
     "rules/surgical-changes.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "b2bb4e30bca0ec5b03f42d893f4823e7f0fdd61815eddfc5c78c362abbd6218d",
       "lastModified": "2026-04-11",
       "updateStrategy": "merge"
     },
     "rules/testing-standards.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "0eab25c949a18374385e3286c4ded7513693eba2163dee85a2f35f3bff99f514",
       "lastModified": "2026-04-21",
       "updateStrategy": "merge"
     },
     "rules/typescript-standards.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "f7af0e50c43039173a37e5b41584188f6e257765e4ae1c9def6a37dcbede223f",
       "lastModified": "2026-03-22",
       "updateStrategy": "merge"
     },
     "rules/verify-premises.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "5755486b2a744f9fdd2a700e9f4ed115312aa85a0ba4f9bec05b57bee7a08014",
       "lastModified": "2026-04-11",
       "updateStrategy": "merge"
     },
     "hooks/context-monitor.cjs": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "ea7798d43a5f221f377d5cdddbdc8dd6fbf8fa31beb1d9ab520f938eb3c4898c",
       "lastModified": "2026-04-08",
       "updateStrategy": "replace"
     },
     "hooks/file-size-guard.cjs": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "6f897ec44e84a2451b602379ef7671c97933d7a98d3a4da580251b29e16e79fc",
       "lastModified": "2026-05-20",
       "updateStrategy": "replace"
     },
     "hooks/grepping-names.cjs": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "d62e1462d07d37cfa2c111b1e2fef8b262b03bacfae74d1336748868b4a72e96",
       "lastModified": "2026-04-21",
       "updateStrategy": "replace"
     },
     "hooks/hooks.json": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "9db69a4169c2956cc18e3cea7d874f0df2d37922f0315da149a6b13cabb9d0e6",
       "lastModified": "2026-05-20",
       "updateStrategy": "replace"
     },
     "hooks/pre-mutation-gate.cjs": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "2835d13656993ffc1bfaa32b89db4de871e805123ddf504cce00a9f10cc19c12",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "hooks/pre-tool-use-destructive-guard.cjs": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "ad9d50b2571f4da13f9544f19fa710cc0be2ee56cf28afe5b800df454d126239",
       "lastModified": "2026-05-13",
       "updateStrategy": "replace"
     },
     "hooks/prompt-guard.cjs": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "503ec820b9d60d140662c8db3f04e64b05f494c595c96001524a8151c3d0c7b1",
       "lastModified": "2026-04-08",
       "updateStrategy": "replace"
     },
     "hooks/state-md-hook.cjs": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "c01cb7da052701aa6f4a208fe79e3a3edd42e6d0ebb9df72ad700c7a9801ea65",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "hooks/stop-reflector.cjs": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "bcd1eb3fec7ee20612b72a3c0e806afe142d92c4cbc5f9f02d0b8694ab614420",
       "lastModified": "2026-05-20",
       "updateStrategy": "replace"
     },
     "hooks/sync-agents-to-claude.cjs": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "b3fa80232308932cbd52357485a28c594645692adf6c1009b383cf3a2eb45bf3",
       "lastModified": "2026-05-20",
       "updateStrategy": "replace"
     },
     "hooks/tdd-gate.cjs": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "97c4591ff6966485d52387ee8b9c202b674d57241290c356229436e9b155d9a1",
       "lastModified": "2026-05-05",
       "updateStrategy": "replace"
     },
     "hooks/user-prompt-gate.cjs": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "d22734828c09e291bcf6c2dee0fe6be1173b13cc1c1e81d920ab4c151fe7454c",
       "lastModified": "2026-04-11",
       "updateStrategy": "replace"
     },
     "hooks/version-check.cjs": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "8f009e0aed13ac591c405b172d905509cbbd7eda6ec781e8bb18762485cd139e",
       "lastModified": "2026-05-20",
       "updateStrategy": "replace"
     },
     "agents/api-auditor.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "65b149b14fe3456ee52f91a48ef31299641dac22419f6cc22b5d619ed0a6cf06",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "agents/code-smell-detector.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "35c69a746c18173525090fa908a19a15dd10fa7f5723f2e59d87e9a0ff5159a4",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "agents/database-analyzer.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "32b4a6c92694547b87f9890ac7f3da4898bef831987b9e133095796bc824707d",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "agents/design-explorer.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "1d36d86db38f973a208083655fd8e32c3c4aaa800154e9de69f8b3f80ba7f449",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "agents/documentation-writer.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "465372a9f9598e0bf2a3d1259c46e9fbc560353b9c5f83ce334cf36320b084b0",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "agents/infrastructure-auditor.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "7620e616d90bd2e099b96c19fcb78426aa4ece75a3d2389d10962ac0b04542f2",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "agents/lesson-evaluator.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "417331015e124795ab201e33dc2ee4dc1a66073c3a5ff5a246007b44bb0e2b5b",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "agents/plan-executor.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "569415f9ce283ff365be8d5e6ff367d5b7ae9663cb1913abbb164802f89507d3",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "agents/plan-verifier.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "420db332487ed152e1187dac49161144a251984da7d25cdf4b9b92096e067b16",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "agents/react-auditor.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "84fb1c693c7bac1c9f675dd86934bc76d545fe09b6f2d4e448b5d6b691a8686b",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "agents/security-auditor.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "cc4c0d0ddbc5fe819a358fce096a933df36e51aa61640a8a20573cbb02d3afc3",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "agents/solid-auditor.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "8ded5d46e9a17417584a52ca39cfffa102f224579da782c7eaa426ae41d02691",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "agents/tdd-verifier.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "c3dc06ec9d66ce7dd0cba729b1d26e4255592912d07545939b21f144a81f9199",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "agents/_contract/README.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "d504e3ede3c75b0f971f824f5511ca5adb156fc9339868e201cbd19805a7564e",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "config/adaptive-coaching.json": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "2c83742c593deefed42a11a835d4cc708bd08109c4e72f95056c359eb1a8fd2c",
       "lastModified": "2026-05-15",
       "updateStrategy": "replace"
     },
     "config/context-monitor.json": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "7ce32a1dd049b61f70584099cba42797ead399907e97f044038bf6b4d1d0e186",
       "lastModified": "2026-04-08",
       "updateStrategy": "replace"
     },
     "config/model-profiles.json": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "a80296206a96ad44c4b20e3436918fe2d488fc5033a2a51f6538de64980edca0",
       "lastModified": "2026-04-08",
       "updateStrategy": "replace"
     },
     "config/qa-visual.json": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "4436e116ab239eb2e1766315606cdaf124790ffce083a68a1bf9f023ebf3822d",
       "lastModified": "2026-04-20",
       "updateStrategy": "replace"
     },
     "config/tdd-gate.json": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "6d70c87aee04b2a21b16768b6be2d578c90839139b5513939441b088c7928362",
       "lastModified": "2026-04-08",
       "updateStrategy": "replace"
     },
     "config/verify-work.json": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "441b70dd4a6093d8a51801a88d01a3c28d25317254b1bcab019241ede59aa1c2",
       "lastModified": "2026-04-08",
       "updateStrategy": "replace"
     },
     "config/_schemas/adaptive-coaching-v1.schema.json": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "7157c50c388580a2d43ce2c4f0b481cc2dcb4002b833cc2d9c4aa710f4f49a80",
       "lastModified": "2026-05-15",
       "updateStrategy": "replace"
     },
     "scripts/analyze-metrics.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "b5d39ff36c60537b9b0cb755d5ad014e3c4b24031644e45d2867b0b7b16032d8",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "scripts/bump-version.js": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "a19d34f7cd57032da5a452f987e8ace1d354fb8d100eac6de51fdb7f6e61e3c5",
       "lastModified": "2026-05-14",
       "updateStrategy": "replace"
     },
     "scripts/compound-check.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "a630a85cf1af4bff99e83e88edaf5b9f3d0ab09dc6badf75526881348cc51d6c",
       "lastModified": "2026-05-13",
       "updateStrategy": "replace"
     },
     "scripts/generate-manifest.js": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "e0f6efa1a8a36b759334f41de28e0b6610df7801fe337031e800fd7af8fc3147",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "scripts/grep-deleted-steps.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "6fd2a522f9694a6d4a64003e5b47a4b87e1c11d261252ed872fdbb123c4173ef",
       "lastModified": "2026-05-21",
       "updateStrategy": "replace"
     },
     "scripts/harness-validate.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "1d3c2c250c5477f25248798ed7e832cbc46a3bc7c068b68d7278dc87ad55c5eb",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "scripts/init-cli.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "3512e48aa2076f062fd9944348b893577de42fb5f300e285c7ad37877d534f4f",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "scripts/new-plan.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "ebab1be08c2c772887a9307b571d3fff2472712e0b5233bda92d12fcd0b45bca",
       "lastModified": "2026-05-13",
       "updateStrategy": "replace"
     },
     "scripts/parity-audit.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "41076b34b3210ec86c5e7528628f8229c41f29c870fef781ab5d9fc4a6522fa9",
       "lastModified": "2026-05-16",
       "updateStrategy": "replace"
     },
     "scripts/preface-simulate.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "1eb95c2614dd80de919f7d5bc31c80dad687c60e2820534fa1dbdb07bff0d8ab",
       "lastModified": "2026-05-15",
       "updateStrategy": "replace"
     },
     "scripts/run-tests.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "9b352cd3c1db5d065179852007905ff6d539766e0da6dd54ab9cdfaf7cc2aae9",
       "lastModified": "2026-05-13",
       "updateStrategy": "replace"
     },
     "skills/anti-vibe-review/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "eb4bfd3e07070c5e275fdb22c96119fc0bd5e48409dd4056b360636ff0a0c8f7",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/api-design/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "de9e5745454d7604d09dac5b8004c8f358f9c7c15054507e5f9a8be084757a9b",
       "lastModified": "2026-05-17",
       "updateStrategy": "replace"
     },
     "skills/api-design/references/api-concurrency.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "f3d2a9a08cb697d59f82418624039753a9f4ae666131f20de76aeecd54f5d7d2",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/api-design/references/api-protocols.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "9ca639c2a04d8fb5303cac00b522c4a38ee806f03763fd37873c31021dc01499",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/api-design/references/communication-patterns.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "dba4239ae8b43466e5cb5ea0c2519436e485725f87eb5c764399449c5b39d36a",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/api-design/references/database-selection.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "1757715ef4f62e1150c4920d7e9f5e4b2d5404fa74ad0ef2e7d156584ce63985",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/api-design/references/dtos.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "55c59c1e78ab33266364ea93387a3c3484014cf1ad68dbf8d42cd68ceb06b4c4",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/api-design/references/graphql-patterns.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "413e26e5958f6f7b60a5817d345513ee07de4e2ee3c6f501d0ca34cefbdf30b6",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/api-design/references/idempotency.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "68ffcb41adb9c5695745327bc83e5fa882b30d8070e90d4cc24e1d64bb8d590b",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/api-design/references/n-plus-one.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "aedb50d1a28f65f047c86ae4d7313baae5fbc92e03e9689635657c342538e1de",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/api-design/references/rest-advanced.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "51923d20dd799f8d7ebd5b0bc1990906a39f0515bf13da8d84a9abb8a1440334",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/api-design/lib/api-design-prefaces.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "576176c2a818d6e51f945d330b0a044f9dcb68efce8ba991e581487e4a1e59f2",
       "lastModified": "2026-05-15",
       "updateStrategy": "replace"
     },
     "skills/architecture/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "3fd7fcd2d8d8cbda5f9d41ad53416d951adce50ef32a0c20a6cee0f8da1f1d8d",
       "lastModified": "2026-05-17",
       "updateStrategy": "replace"
     },
     "skills/architecture/references/api-architecture.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "40ce9b4009687447bd0eb82328f54006a1c47c446222e8cdca2fb738400c2875",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/architecture/references/cqrs-event-sourcing.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "c61600608a4c5a0f86d49285afec0399a56f072183465a9566fcf355cfc68b2c",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/architecture/references/dependency-injection.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "4d7f8d5046ef6a96aa7dccb62c48703a353c38ce51d67197a813dc11e719555c",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/architecture/references/design-principles.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "e597ef142bbd71371e13f67d673e03b544dc120e0cb253246d0588f1d2165257",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/architecture/references/monolith-vs-microservices.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "9f915af8a592dc56b12a655c771b013e8e7ad2e9ecd54441df4a569fa3c2fcd9",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/architecture/references/solid-principles.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "a65f73e0d63928768868ef4f4166ce9d64959a479877bc06437aeec3d1ee1e64",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/architecture/lib/architecture-recommendations.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "cb39fb852b189819cc9c3305c12d740e0f8bf104d02a2b55737293d0b617845f",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/centralize-config/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "e8c7c1ecf917c0dfb64519cd87973d68a7da76e7e8ba8a6263faab51be9c4079",
       "lastModified": "2026-05-13",
       "updateStrategy": "replace"
     },
     "skills/code-simplification/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "36c98d35fbec8156ac1d93f7005bf3de452c9202437255d688a9698aa12c9b7e",
       "lastModified": "2026-05-22",
       "updateStrategy": "replace"
     },
+    "skills/compound-engineering/SKILL.md": {
+      "version": "7.2.0",
+      "checksum": "c4ad01ac8905c6212a423efb8b35db34ea23f2df8f96a8899638978bbaa2187c",
+      "lastModified": "2026-05-24",
+      "updateStrategy": "replace"
+    },
+    "skills/compound-engineering/references/capture-guide.md": {
+      "version": "7.2.0",
+      "checksum": "fdb4922ccb3bb576e3652edd7507ae09c3844f208e7367459804d20cf1810d83",
+      "lastModified": "2026-05-24",
+      "updateStrategy": "replace"
+    },
+    "skills/compound-engineering/lib/active-plan-detector.ts": {
+      "version": "7.2.0",
+      "checksum": "5271f363a7438bae786315dab7f895afc33c41a43aaa7ec217465a0af5b0a619",
+      "lastModified": "2026-05-24",
+      "updateStrategy": "replace"
+    },
+    "skills/compound-engineering/lib/checker.ts": {
+      "version": "7.2.0",
+      "checksum": "4843fbb0f052f40a88cdebe1bc8ea2e43aa65c42b10bc859cfba01a97cb59772",
+      "lastModified": "2026-05-24",
+      "updateStrategy": "replace"
+    },
+    "skills/compound-engineering/lib/compound-engineering-prefaces.ts": {
+      "version": "7.2.0",
+      "checksum": "9a0a8b042ee8cda0aa72ade96472de3d930a6b4606d6e52a77e10317756f38b4",
+      "lastModified": "2026-05-24",
+      "updateStrategy": "replace"
+    },
+    "skills/compound-engineering/lib/compound-files-collector.ts": {
+      "version": "7.2.0",
+      "checksum": "967928edeb4da508d6ac73558fc22ae667fc3e3d942f4229bf82bd20562fa6bd",
+      "lastModified": "2026-05-24",
+      "updateStrategy": "replace"
+    },
+    "skills/compound-engineering/lib/compound-frontmatter.ts": {
+      "version": "7.2.0",
+      "checksum": "de4b1755382ac073788eff8925eeb7c48911ee870155f73192093b68363f860c",
+      "lastModified": "2026-05-24",
+      "updateStrategy": "replace"
+    },
+    "skills/compound-engineering/lib/gate.ts": {
+      "version": "7.2.0",
+      "checksum": "d61e970c2147b27f7fb5e09e088c036ff4f97e08367a5ddc2bd6e552db61ffaf",
+      "lastModified": "2026-05-24",
+      "updateStrategy": "replace"
+    },
+    "skills/compound-engineering/lib/install-types.ts": {
+      "version": "7.2.0",
+      "checksum": "274f88c3db7b17c0d87867163a07c9f20205c6b0202db5172c889b177f0f4f4b",
+      "lastModified": "2026-05-24",
+      "updateStrategy": "replace"
+    },
+    "skills/compound-engineering/lib/installer.ts": {
+      "version": "7.2.0",
+      "checksum": "79affacad36be26fda4278e9c2728fe3e03930b1b238fffdb5a906bc402a08e4",
+      "lastModified": "2026-05-24",
+      "updateStrategy": "replace"
+    },
+    "skills/compound-engineering/lib/invoke-lessons-learned.ts": {
+      "version": "7.2.0",
+      "checksum": "805d818302435cee8eeecd4ae4a9491a981fa83b852d25cca118789c81a58e35",
+      "lastModified": "2026-05-24",
+      "updateStrategy": "replace"
+    },
+    "skills/compound-engineering/lib/lessons-captured-updater.ts": {
+      "version": "7.2.0",
+      "checksum": "cf00b5949a71cb5ba58faf36efc091edacd518b3ae0e95e8156954964a544fb3",
+      "lastModified": "2026-05-24",
+      "updateStrategy": "replace"
+    },
+    "skills/compound-engineering/lib/manifest.ts": {
+      "version": "7.2.0",
+      "checksum": "024a1d9a176c12808e2e8cf42e2e23e505db8b1d6e2560d2d729fb2a77888895",
+      "lastModified": "2026-05-24",
+      "updateStrategy": "replace"
+    },
+    "skills/compound-engineering/lib/migrate.ts": {
+      "version": "7.2.0",
+      "checksum": "a11fb4cbd9061636839bf087acc4bc7e904c8526f4dd8f9825e634767868bed5",
+      "lastModified": "2026-05-24",
+      "updateStrategy": "replace"
+    },
+    "skills/compound-engineering/lib/notes-inconsistency-scanner.ts": {
+      "version": "7.2.0",
+      "checksum": "322e6426f064feb4bf9f7a4979619251dc9ccb573401deaf6f2bbe0ee3da2aab",
+      "lastModified": "2026-05-24",
+      "updateStrategy": "replace"
+    },
+    "skills/compound-engineering/lib/patch-agents.ts": {
+      "version": "7.2.0",
+      "checksum": "43ef3efbc6d0cb05a3cace9db6da2bd656a4df56b83d8ed4a8337ada320b03c0",
+      "lastModified": "2026-05-24",
+      "updateStrategy": "replace"
+    },
+    "skills/compound-engineering/lib/patch-new-plan.ts": {
+      "version": "7.2.0",
+      "checksum": "0a690b61b4ddcbb68dd356b8704fbb2246e8805bf0bbc3b0c25c2d8f6b1951f2",
+      "lastModified": "2026-05-24",
+      "updateStrategy": "replace"
+    },
+    "skills/compound-engineering/lib/patch-types.ts": {
+      "version": "7.2.0",
+      "checksum": "ee98aff7eca7b68ad09943b3d1d179f92888d38cf1766d6238cf440e537d8d02",
+      "lastModified": "2026-05-24",
+      "updateStrategy": "replace"
+    },
+    "skills/compound-engineering/lib/readme-schema-detector.ts": {
+      "version": "7.2.0",
+      "checksum": "9da25d57a8cff7d684cf0fece5f1850c41878cc63667d35c3feedcfb9e7e1662",
+      "lastModified": "2026-05-24",
+      "updateStrategy": "replace"
+    },
+    "skills/compound-engineering/assets/docs/compound/README.md.tpl": {
+      "version": "7.2.0",
+      "checksum": "2039c05b31a40d44d17140fb05f2be73a613f93e6e976c1d25ae22cb26e728be",
+      "lastModified": "2026-05-24",
+      "updateStrategy": "replace"
+    },
+    "skills/compound-engineering/assets/docs/COMPOUND_ENGINEERING.md.tpl": {
+      "version": "7.2.0",
+      "checksum": "0fa7345800623c10b8fdf0142b05be65c0519daf67e2a572552c6a6a319b4f64",
+      "lastModified": "2026-05-24",
+      "updateStrategy": "replace"
+    },
+    "skills/compound-engineering/assets/docs/review-checklists/agent-api.md.tpl": {
+      "version": "7.2.0",
+      "checksum": "db6a4ed79cf32711e51fb01c59cb6f5d665d7d9a2d33d2426bfdad7dde8073e6",
+      "lastModified": "2026-05-24",
+      "updateStrategy": "replace"
+    },
+    "skills/compound-engineering/assets/docs/review-checklists/frontend-ui.md.tpl": {
+      "version": "7.2.0",
+      "checksum": "fb1da2bd72aec7127978328faa89253aa939e9b2772f53410ce8014df3389795",
+      "lastModified": "2026-05-24",
+      "updateStrategy": "replace"
+    },
+    "skills/compound-engineering/assets/docs/review-checklists/production-readiness.md.tpl": {
+      "version": "7.2.0",
+      "checksum": "21ec808e54bc8ea9b6fa7c81cf4c6c107dd7b21c03cd3d91980695c0f5fbb672",
+      "lastModified": "2026-05-24",
+      "updateStrategy": "replace"
+    },
+    "skills/compound-engineering/assets/docs/review-checklists/README.md.tpl": {
+      "version": "7.2.0",
+      "checksum": "43dd36829bbb48a47f0fe75abcfab3cb2098823b8b71417900297dde72d0cfa4",
+      "lastModified": "2026-05-24",
+      "updateStrategy": "replace"
+    },
+    "skills/compound-engineering/assets/docs/review-checklists/reliability.md.tpl": {
+      "version": "7.2.0",
+      "checksum": "9e5c21871b26a033be1f17bcfaa843d81c9041d60bd54052158c5d7d6286adb2",
+      "lastModified": "2026-05-24",
+      "updateStrategy": "replace"
+    },
+    "skills/compound-engineering/assets/docs/review-checklists/security.md.tpl": {
+      "version": "7.2.0",
+      "checksum": "44d9d1be444e3d2dbda07c79abac4077328ee0c53f32916f82dc7fcb71ae59b3",
+      "lastModified": "2026-05-24",
+      "updateStrategy": "replace"
+    },
+    "skills/compound-engineering/assets/docs/smoke-flows/README.md.tpl": {
+      "version": "7.2.0",
+      "checksum": "5563856d89904ad7c33357eb9899bbfe2aa0b0e557ad0c5de691d6a60873ec04",
+      "lastModified": "2026-05-24",
+      "updateStrategy": "replace"
+    },
+    "skills/compound-engineering/assets/scripts/compound-check.ts.tpl": {
+      "version": "7.2.0",
+      "checksum": "bfe6bc49033ece74b0656cc25ea458a3ae0274616ca0ab1cf980f5bfa1a690f0",
+      "lastModified": "2026-05-24",
+      "updateStrategy": "replace"
+    },
     "skills/consultant/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "aa687e36a0def92a416da34b8a9962dcc8afe08f7f37c73550886034616d7af4",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/decision-registry/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "8a72146214b59e8bf269441dfac2f9777d12221c6d4d296f3335ee668209ec87",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/decision-registry/lib/decision-registry-prefaces.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "0049271db0cc4e6d6c9d06d8bdf40adbdd6a65511efe6db3859bb3c7baf25986",
       "lastModified": "2026-05-15",
       "updateStrategy": "replace"
     },
     "skills/defensive-patterns/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "045667af452066055b6c6efa5492b9112fb8936a107b84f7b735a61f53646291",
       "lastModified": "2026-04-21",
       "updateStrategy": "replace"
     },
     "skills/design-patterns/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "7a9cf692fe9d839c49238b756ee895533e421a351889a75e32fd4c92b7c00c22",
       "lastModified": "2026-05-17",
       "updateStrategy": "replace"
     },
     "skills/design-patterns/references/code-smells.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "05177e187940f6b4c2babc2406a43352224e035e562b1b3eeadaab66b5420626",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/design-patterns/references/domain-types.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "a0be365dba6b1869304d84ef53f1a4a2d50908776eb221219d281958efccc09c",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/design-patterns/references/error-handling.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "6c001c9f8c5e213fc83bbc45801626cdabfdb9d264999b8f19385be45673bc09",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/design-patterns/references/gof-patterns.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "67811d827acc4c5a1aa6ab13a3137f031eb2c14dcb598c3b5401db6922207314",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/design-patterns/references/javascript-patterns.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "b04edf36c47a44189babd3acfc303d0949b5f6077f61108a3982eb148e47caa0",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/design-patterns/references/race-conditions.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "2ab41ecfc4d1afbe5c5219f9ffa78bcf2ab21c22618165027f8a5eb290bc3524",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/design-patterns/references/structured-logging.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "2d93255cf696d7c934bb6825743bdc13a05caf2923444169beed8ffa560f5efd",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/design-patterns/lib/design-patterns-prefaces.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "e4ffb40ef9af270fd4e9383c0efc4c00ad0b707b4183e3c2eec4dd2b0aafce18",
       "lastModified": "2026-05-15",
       "updateStrategy": "replace"
     },
     "skills/design-twice/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "dbfe68dec3efa65ae09f8e1d31354cfbf5b2443107a88bf80bfc9be7e96b6908",
       "lastModified": "2026-05-14",
       "updateStrategy": "replace"
     },
     "skills/detect-architecture/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "dbc9dd0e9459a36ae8b51cf44e3a5cb128b0eebe71174d20430d2062639da2ca",
       "lastModified": "2026-05-16",
       "updateStrategy": "replace"
     },
     "skills/doubt-driven-development/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "ed28f7229942a1fcb99a1fb8f10688ee7c96c86d7d5dc44773faf464bbff1fdd",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/enhance-prompt/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "1a7845ee488cd90bbd203c2759fd9bed2bf9f88df5a72de843cc489eaad515b7",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/execute-plan/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "a6219e1c4e6ebd003974e5893c5a9d23624fe0b25385aaf28843d8611a9031b0",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/execute-plan/references/wave-execution.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "0e4b625a1412e5a1d85f2b39a3e767085255c4b7fa538f4498b02d1f7ed0e5c5",
       "lastModified": "2026-04-08",
       "updateStrategy": "replace"
     },
     "skills/git-workflow-and-versioning/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "b9b9da8e0169d23387e21f80b328100b2f2b64d222b0b6013d0b2a64931f0e99",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/grill-me/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "5196578d25beacf187e6ac7e0495bd9c01441b00ceace93eacf7982061feabee",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/incident-response/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "cebc03f6fb3978d90e3dffd71ace37ec0f889441f76c55dc010fd19504307d99",
       "lastModified": "2026-04-21",
       "updateStrategy": "replace"
     },
     "skills/incremental-implementation/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "0072a2d41ce10c4a680bb7aef770d9ead38811e090ad3b4359885b054d29268e",
       "lastModified": "2026-05-22",
       "updateStrategy": "replace"
     },
     "skills/infrastructure/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "dc44f20c85cf2c4a345d5358c9990b478fb87566afa64469aeed6f645afd9a8b",
       "lastModified": "2026-05-17",
       "updateStrategy": "replace"
     },
     "skills/infrastructure/references/deployment-patterns.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "e438cb91d4811cd51892e15c2e2d04fb07f257314defa3cc0982edf08d9af435",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/infrastructure/references/dns-hosting.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "cc5d98dd62264945bd2d7daa1fdc5f30905a64022c3b30fc7af9f0fbe4eb0f2c",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/init/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "5f9e3ee95a51f06f0e5e87614490d8f001b37758a405173f32ebe0ac27e7c270",
-      "lastModified": "2026-05-23",
+      "lastModified": "2026-05-24",
       "updateStrategy": "replace"
     },
     "skills/init/lib/atoms-frontmatter-validator.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "14246dd5971368883fb1146e99f52a1463de7f25822fab3162159880b6408c00",
       "lastModified": "2026-05-20",
       "updateStrategy": "replace"
     },
     "skills/init/lib/audit-log-writer-factory.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "8697d4c2b4e554104968a3eac1563e9bb534b2716c0cbc5e09ac93d23f5981e6",
       "lastModified": "2026-05-18",
       "updateStrategy": "replace"
     },
     "skills/init/lib/audit-log.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "d58ad7f499d8c5df3aa5f227bf1c8f03841f3400c239bafb542feaef51117ed8",
       "lastModified": "2026-05-18",
       "updateStrategy": "replace"
     },
     "skills/init/lib/backup-anti-vibe.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "a3e675dc5207dd231d0f13277b4b6acf8fa5c152f884b7279fff155b3ca61b98",
       "lastModified": "2026-05-18",
       "updateStrategy": "replace"
     },
     "skills/init/lib/backup-planning.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "ae378f1c86e9d3a32c9d196ffe9072e7478e0e479d106ef2a261175ed3128a72",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
-    "skills/init/lib/compound-files-collector.ts": {
-      "version": "7.1.0",
-      "checksum": "50c1eb4be8e38eb95246211d616fa20814ab7334b627f4d354c78ab3ee270527",
-      "lastModified": "2026-05-12",
-      "updateStrategy": "replace"
-    },
-    "skills/init/lib/compound-frontmatter.ts": {
-      "version": "7.1.0",
-      "checksum": "c336455726e76f67b9aacd57caf6c9c1d4aea2db6274a15038436e10a4a64356",
-      "lastModified": "2026-05-12",
-      "updateStrategy": "replace"
-    },
     "skills/init/lib/compound-imported-constants.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "da3a6f00aff6fc89658ac4f34800df5aa6eee8aba9549cf876d05ee7596b9170",
       "lastModified": "2026-05-19",
       "updateStrategy": "replace"
     },
     "skills/init/lib/compound-imported-writer.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "a13f4236022a866d82ede2328ec343e4cc4ec8fad9561cac4154d37b9d3d7121",
       "lastModified": "2026-05-19",
       "updateStrategy": "replace"
     },
     "skills/init/lib/compound-writer.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "9a9d41f98b9a310ab7c672a67ea570fecdd5bd341c5dae3a4b2a3482ff617f9b",
       "lastModified": "2026-05-20",
       "updateStrategy": "replace"
     },
     "skills/init/lib/copy-knowledge.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "7884c4f6d84a4ec5fbe303c218e292c98d766d9cbac668c1763bc86f2d4c6e39",
       "lastModified": "2026-05-20",
       "updateStrategy": "replace"
     },
     "skills/init/lib/copy-recursive.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "53656c3dfa03c174209a30cebd93b53b26f29dd3fe01754e18faf061abcf10c9",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/lib/cross-upgrade-detector.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "0831e77dbea6218b652aa75bc91c053fb74af0fcab3380934065689e89b5658e",
       "lastModified": "2026-05-18",
       "updateStrategy": "replace"
     },
     "skills/init/lib/customize-architecture.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "52ed997b9020c799d1be075f139ea9eee580ade1f40c13d618b9ba3adf012721",
       "lastModified": "2026-05-19",
       "updateStrategy": "replace"
     },
     "skills/init/lib/detect-multi-stack.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "d74df770a4f8cdcca4d7e9f3fd6494080f82bb82a946eabc8f6c8fa2ecaf8cf3",
       "lastModified": "2026-05-17",
       "updateStrategy": "replace"
     },
     "skills/init/lib/detect-project-name.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "7df1584b75525a88a13fe8013c509c55b8906aa653fe4f54c16064d494c8aa2d",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/lib/detect-stack.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "0f01998391d36e274d9813de6dc5761d1c20434a41a17062656da6b34664f587",
       "lastModified": "2026-05-20",
       "updateStrategy": "replace"
     },
     "skills/init/lib/detect-v5-legacy.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "da39b7ee5af9cc44ba4f05b8a75ee115c00c02a928abf80b3b79a3731718ac16",
       "lastModified": "2026-05-19",
       "updateStrategy": "replace"
     },
     "skills/init/lib/discovery-manifest-light.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "3773c54df432365c6499211033caf8f324b812026d1546b17c19d24cfea77502",
       "lastModified": "2026-05-19",
       "updateStrategy": "replace"
     },
     "skills/init/lib/discovery-store.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "f69ba876745a1894b29bc83ad1069d9c8588cd9ae99038bae6460053115f2177",
       "lastModified": "2026-05-19",
       "updateStrategy": "replace"
     },
     "skills/init/lib/discovery.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "1713491eef6fd910c35c5305fae2b03b4fd9abd9b404b79b1966fd5ff900f6a4",
       "lastModified": "2026-05-14",
       "updateStrategy": "replace"
     },
     "skills/init/lib/dry-run-mode.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "38017b3e7b04ca370f17f344bbae13d70d27bd4e74dbf0ffcd8ab1dd811a2850",
       "lastModified": "2026-05-18",
       "updateStrategy": "replace"
     },
     "skills/init/lib/dry-run-renderer.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "01d273d43030df3a806bfa27c30983dd8203bb251a324e4d67b8eb4f62bfb2ad",
       "lastModified": "2026-05-19",
       "updateStrategy": "replace"
     },
     "skills/init/lib/dry-run.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "a2a3424b170703a37da76ba4af0f754ae8ba8429f439f4b313d93ef4b2c12d3b",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/lib/emit-stack-knowledge-events.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "5ee0ca882798b76116bd87bf407e7474464c8b0de606d7cb48e1e90497bbd00c",
       "lastModified": "2026-05-17",
       "updateStrategy": "replace"
     },
     "skills/init/lib/format-knowledge-preview.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "88cff519dbd3346095c8f9c0b3de02ad6a0bf93dbe101ec27a3c6ca7686c8bae",
       "lastModified": "2026-05-20",
       "updateStrategy": "replace"
     },
     "skills/init/lib/idempotency.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "1b1fb7e38ffce85846414295142f21b55028161e4aeb0e3897de34ca59251a92",
       "lastModified": "2026-05-15",
       "updateStrategy": "replace"
     },
     "skills/init/lib/init-subagent-ids.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "e264df2908330d230d3985ca8e3b88ce43261006b3b701b8aedcc19053614864",
       "lastModified": "2026-05-18",
       "updateStrategy": "replace"
     },
     "skills/init/lib/inject-optional-section.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "abafbcd23617df35a4c080463ba2059c44dd5ae4337aa27b1758a07a8d991dbc",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/lib/install-gh-files.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "fb2f790256ff4d96e7dd71b114c2ae8f7f333cdae8aa2bbb9cb8670984f991f9",
       "lastModified": "2026-05-18",
       "updateStrategy": "replace"
     },
     "skills/init/lib/lazy-import.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "bc3df0f93926eccc6c8af289f4c2daabb5c1d998671277b197e6a14a04b0ec8a",
       "lastModified": "2026-05-17",
       "updateStrategy": "replace"
     },
     "skills/init/lib/manifest-writer.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "689af079478793f8897b815690f565cf72e48b271689971fb01177f7d2930d93",
       "lastModified": "2026-05-15",
       "updateStrategy": "replace"
     },
     "skills/init/lib/migrate-claude-artifacts.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "50d520bd0f53a06081e31894c267e45686f136ac93ba60514c78b7076f2dec91",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/migrate-decisions.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "3a99ec47c5609247956c83f70e02b910881aa0bac657b676141b3ac952641620",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/lib/migrate-lessons.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "a3aa974b12559ea49669a4c3f608b1572a9ac397a9d01a45b013b9e8c9921475",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/lib/migrate-orchestrator.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "1030b6bfec046aa9a5f5b82a12509ad16edbe4f41ecea809a1201e22b785c8f3",
       "lastModified": "2026-05-19",
       "updateStrategy": "replace"
     },
     "skills/init/lib/migrate-planning.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "1c8865ac905d21ce9db420717d210fbc65e7e7ca0398b6ae3665d9ad28e7d914",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/lib/migration-mode-detector.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "f57049de64d67137b5b84f18618f06f71f59fdca57e9c5dd1d2a8059d05181cf",
       "lastModified": "2026-05-14",
       "updateStrategy": "replace"
     },
     "skills/init/lib/migration-planner.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "c9e8229312b8313725d85471752a289508c5a78d88cc516c530116cb5b0f9675",
       "lastModified": "2026-05-15",
       "updateStrategy": "replace"
     },
     "skills/init/lib/migration-tracer.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "12c660a4b9f8f6143b16bce187f6f7f12b3254073e37364fc598bbaa43107091",
       "lastModified": "2026-05-14",
       "updateStrategy": "replace"
     },
     "skills/init/lib/orchestrator-writer.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "f0d2e9ffeecbac76a7b83ca798df4dd1b4a67bcd3d112007ae71a2715584410d",
       "lastModified": "2026-05-15",
       "updateStrategy": "replace"
     },
     "skills/init/lib/orphan-plan-detector.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "ad347dbe7e80a0c9303bf177d64fbc4896f84d59f4d2d2167743ff549da71bc5",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/lib/parse-decisions.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "07d5f04d90f6e9adb36ea298a9b2994dc7cc80b48b113dca6ca40851ef356495",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/lib/parse-flags.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "85038ba6273bb37178b4c582a5c9b241236396fe776f67bae24b64b8575f1a91",
       "lastModified": "2026-05-17",
       "updateStrategy": "replace"
     },
     "skills/init/lib/parse-lessons.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "cc84bb4996c547ea4c0b3d4a8457b72b64ae33dd40ee66f07e0e8fdcbe97e417",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/lib/parse-planning-entry.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "9f6e6ecfea6741f694f2bc7d0a48502805446bae040416263c44521d7d2c8d20",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/lib/parse-refresh-flag.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "a22f3790fdf9c732701e6963571f59521b31b9bdfd51f5eb0c3bbd82992bdefa",
       "lastModified": "2026-05-17",
       "updateStrategy": "replace"
     },
     "skills/init/lib/plan-validator.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "f2619babab28cd6055a9291f4d6ad4af7b967ab0a4ea3fb771105fb739a3cc70",
       "lastModified": "2026-05-15",
       "updateStrategy": "replace"
     },
     "skills/init/lib/plan-writer.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "3da6c2df0bfad59315a9c1d9132facd82b935978adbbf051c446b22ce0f3563c",
       "lastModified": "2026-05-15",
       "updateStrategy": "replace"
     },
     "skills/init/lib/populate-harness-context-template.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "518916d88559073f67727223c72d810df78f8cf0147fd6a7b4f0f54bca395806",
       "lastModified": "2026-05-22",
       "updateStrategy": "replace"
     },
     "skills/init/lib/populate-harness-plan-overview.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "1244bf05db0c1d39433ce85f36dade9e6ed82cc0b1b60cbdaec8cf578b8b7e22",
       "lastModified": "2026-05-22",
       "updateStrategy": "replace"
     },
     "skills/init/lib/populate-harness-prd-template.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "194ab71c7a9c35d0c2f975d679206a2157e0c937871c9fb68ee4b929a53b0dea",
       "lastModified": "2026-05-22",
       "updateStrategy": "replace"
     },
     "skills/init/lib/populate-harness-state-template.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "619c608030bc157523f686ca3d1c6f30bc8e35480bc4c8d0d4ce93d11ce2341f",
       "lastModified": "2026-05-22",
       "updateStrategy": "replace"
     },
     "skills/init/lib/populate-instructions-table.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "71cd057933b4b37997eb94e3bbe51f4198921f2852b423c5e0317ca933d87b36",
       "lastModified": "2026-05-22",
       "updateStrategy": "replace"
     },
     "skills/init/lib/populate-plan-coverage.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "2fe26135a73c329d8513ff924a8ffbab795f66fb7f5fb907ed908c33ee4e7ea9",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/populate-plan-generator.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "62c4c1e6433da90b76dfaa9a13631a01a3f5e3f8441a3a164766178e9e8678a4",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/populate-plan-writer.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "66f1f031cff4c0363f727e3c6de17119c41b03d70ef94280519f6dc2e326991d",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/progress-txt-parser.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "5404e7cfe2ccc174a721b725ff41c9023a963f9a63e25e3cd7790315ec707023",
       "lastModified": "2026-05-19",
       "updateStrategy": "replace"
     },
     "skills/init/lib/prompts/compound.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "305aff3a66feef0028a6408f429a86d97aef539e1035b7d38696498b6097a6a9",
       "lastModified": "2026-05-14",
       "updateStrategy": "replace"
     },
     "skills/init/lib/prompts/explorer.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "a51494f43f4feb6b6c6617927ea3a1385adff30ebb049d16793322b9191026cf",
       "lastModified": "2026-05-14",
       "updateStrategy": "replace"
     },
     "skills/init/lib/prompts/reconciler.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "3f855a8254583752a803813a75529a47677941c6a853d7e739784411e64b6afb",
       "lastModified": "2026-05-14",
       "updateStrategy": "replace"
     },
     "skills/init/lib/rails-anchor.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "cf3fddeb8915becd3e7c6c018d7c358d51ad01cab34b57bea823170fc74db8e0",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/reconciler.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "5c906ea31978a71f40cbac3df7088c86c3f4d75e87675d11a00a55b740f91cd9",
       "lastModified": "2026-05-15",
       "updateStrategy": "replace"
     },
     "skills/init/lib/registry.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "3a03ebfe425ceede2010a1cc49209015c3498cfed8488a8823ed40f39a153d64",
-      "lastModified": "2026-05-23",
+      "lastModified": "2026-05-24",
       "updateStrategy": "replace"
     },
     "skills/init/lib/render-fase-plan.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "69a71169e198b57444343673e652c21bf40375330a516ae3ccf193998de2e1d0",
       "lastModified": "2026-05-21",
       "updateStrategy": "replace"
     },
     "skills/init/lib/reuse-discovery.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "327da8e68d9ba0355331f04d6a779640de81656b27b46a34b3deb3dfe95f2255",
       "lastModified": "2026-05-16",
       "updateStrategy": "replace"
     },
     "skills/init/lib/rollback.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "5163dfd6755afd4521944dc4c20d05cba71d62c911c4a2ccd8d20c599c6e7d9e",
       "lastModified": "2026-05-18",
       "updateStrategy": "replace"
     },
     "skills/init/lib/run-init.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "1f9ebcbc5ac6520f5bf8310e6ee5a620384cc2a7f1e9dfde5048eab69de83fdd",
       "lastModified": "2026-05-21",
       "updateStrategy": "replace"
     },
     "skills/init/lib/run-stack-knowledge-init.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "ab001bc611eac4988294b374f8e493360d5d38972eb1a546e2571a133bb50120",
       "lastModified": "2026-05-20",
       "updateStrategy": "replace"
     },
     "skills/init/lib/scaffold-full-tree.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "5000d39fc1cdbf243e0fc42c4f54d92f10d3c57b6a4060dd662609730c488a54",
       "lastModified": "2026-05-18",
       "updateStrategy": "replace"
     },
     "skills/init/lib/scaffold-templates.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "c44cc86095523b3cdfbc382a44def939b28c41d072b41ea11104188745b0b1c0",
       "lastModified": "2026-05-18",
       "updateStrategy": "replace"
     },
     "skills/init/lib/scaffold-todo-md.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "78be1895b7855e798310ac2b37d788cba960312e9ce1b1d35eca45678469b7c4",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/lib/secrets-scanner.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "b85230f5e30c4863e1a803c152440af644b811cfabf7f34175c9eb27c8081239",
       "lastModified": "2026-05-18",
       "updateStrategy": "replace"
     },
     "skills/init/lib/semver-compare.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "d2fff1173fda454e659ab675d5f52c579bfb15eedd7b98e441bdc0cd5525c99b",
       "lastModified": "2026-05-19",
       "updateStrategy": "replace"
     },
     "skills/init/lib/slugify.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "4a672667fece85d5a83b4c95f6ec0032be8df673b3db03ceb7cfab1abdf12881",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/lib/snippet-resolver.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "54cf9363cbe3ab86690f2ed80b4cf4ea021040cf4acae183cca4be68ca9f5583",
       "lastModified": "2026-05-19",
       "updateStrategy": "replace"
     },
     "skills/init/lib/stack-aware-input-paths.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "b8c989d84e3d3c07372cf2e0eeee8567edca94629b74b2243b5fb514e2f3870c",
       "lastModified": "2026-05-20",
       "updateStrategy": "replace"
     },
     "skills/init/lib/stack-id-map.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "7280a68fd7093499f4ff431a9c36e92afa511139e8a2745dfad7fb0c8fefc872",
       "lastModified": "2026-05-19",
       "updateStrategy": "replace"
     },
     "skills/init/lib/state-md-init.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "ab3a71896676f8e08f9bb06f5f52beefd9ece2d88b88710b6f4d975b6465d532",
       "lastModified": "2026-05-20",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/00-detect-legacy.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "e56bcbdf689d03a643382b88a146841531f1f3befe1e1ac3ab88da2b18887d61",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/00_1-reuse-discovery.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "79e99465d05dcba56ebba5757f411abbb22f9f33a9f4266e4caf2be73b1de50b",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/00_2-reentry-guard.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "5fc8e1c66705c231e824755e0af8833dc76defcf34cfdd0191adfd9ded013163",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/00_3-backup-pre-6_5_0.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "f67e6938e23e6ed20cec6ab41b4727311fb2b81dfe2dbad80389310a4e9d1929",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/01-reentry-gate.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "d05d726731c8133f3209ac534b1c68005cb9f22792c448601958587ef9dd18df",
       "lastModified": "2026-05-21",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/01-scaffold-full-tree.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "d59bcc25f0013ebb51d619b03a69d04241131ed19f83a3095f77abf2f9795bae",
       "lastModified": "2026-05-18",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/02-detect-legacy-and-stack.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "df244bc957b9335445c16fa3aea1ca994fd082e765882ab72608af26ea3a0870",
       "lastModified": "2026-05-21",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/02-link-claude-agents.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "636ffab46ccc821d1e4443f15b9e1c8955437c3926d85464630c7f97cb213694",
       "lastModified": "2026-05-18",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/03-detect-stack-and-register.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "2f8e83c87c18b436992848b120fe0037517e0c88e9edca321281e7d968e697ec",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/03-secrets-scan.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "88188b1a6d050d7fb586880f91d690b9221b6a573f877b89ac4e3a401af337f5",
       "lastModified": "2026-05-21",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/03_1-persist-stack-and-knowledge.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "bcc598e543857601f81905ceb7aba4d2a506552fd685aa6ea718157e967c862a",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/04-customize-architecture.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "a57bd9f0d687495839a3d716ff93e0354cc7e5ad551ba6a8e70ff7e20e2868c9",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/04-migrate-planning-and-manifest.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "86702eb623ad9ce1546a7d7698caf082d465b03a706baf01c9e412006d26ed92",
       "lastModified": "2026-05-21",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/05-install-gh-files.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "fa9b927da3261cd282cdc41a73156ebb4413de1c3467e52b90861cead2f3f7bb",
       "lastModified": "2026-05-18",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/05-scaffold-and-link.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "49c8d4e405c1760ac275a18d97af2aff7c4254a72d12e46098a2a148b09e518f",
       "lastModified": "2026-05-21",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/06-install-gh-files.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "96b9c249573b811449b6256a1674d0d416b11067de182d3294400adb88dd9804",
       "lastModified": "2026-05-21",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/06-secrets-scan.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "5ba71c9240130b30f94770556f2772d16d6940313db0fd38ac01b915cf941fee",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/07-generate-populate-plans.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "a04704cfc1edc2673f943f4b682e172d0460b7290c5460c9f48dabe6854a8c18",
       "lastModified": "2026-05-22",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/08-delivery-loop.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "84e29a098e4230da2e5472355085e93548d3ecf0508afaccfacc32ff9c6816fd",
       "lastModified": "2026-05-21",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/09-copy-knowledge.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "5cf3bfe182e973614818ec2981b56fd9407363ee66a1f1abee7057bc9adaf1a4",
       "lastModified": "2026-05-21",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/09-migrate-0-parse-dry-run.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "d730d9b9b6064e7101e7c310005e814e47aac92520b9639e4082fdb155dd6f60",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/09_1-migrate-all-orchestrate.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "e4a87597c513c54942fd97615356cd91a327e23e7b0e40d3239df22b93a05ec5",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/10-backup-pre-mutation.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "e9a360e3204aa643c2c1244b69c1bc310c5db68e082e591962a9870e321c0385",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/10-final-validation.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "ca0898e0734b51ba4bde4825dbe09611107eca1ce2c2127f70d2efb06188bede",
       "lastModified": "2026-05-21",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/10-migrate-1-backup.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "08447ffeee48a80f6dcd1fbf66cc5bfed5a98012d911e720ce6b197b0e260924",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/11-migrate-2-planning.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "f437d6ab2a1a734c9c484c7219b0f776bf95d4f9b4bb6a85627c8ad13b775534",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/12-migrate-3-lessons.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "9c792a12dcccc5747a49bafb3b07ed641d55df2d98eb6aae5e5fa347571fa53b",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/13-import-progress-txt.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "04cdbba30f2b04bbe69e1802e35d886e583c125c6a96ad7b1f83e19fdd4d374d",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/13-migrate-4-decisions.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "e4d661e0c8276e687cc2063aa29ac15687b008d195aa830fbf249079527213b1",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/13_1-migrate-knowledge-path.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "bb9f876a5fb5c3490400eb5c7476db3c029b9f6e52e5e9b29725f337eabc6a6d",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/14-delivery-loop.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "b9f84a100914b9ac2c4da92220d526e30e37e24b64411543a2ed88faac049991",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/15-capabilities-discovery.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "3f58ca13da17cdbf85a0d5fa73965cada7dcb1dfa5362df0658d6c2557fea091",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/90-final-validation.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "ff18b78fe687dc403c9a31a175db00d4b7ec835823fa26196d265456c33355ff",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/91-generate-populate-plan.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "d8910b0eb6093dd5b8dad106d23def631c145873f72b4437d2f97feb20df0ada",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/abort-error.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "432b974fd9ecb84ac84df22cd98bdea4c04513136b00aaa717cbc103b9e7b7c5",
       "lastModified": "2026-05-17",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/helpers.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "7607aba2608ffb6183672eec6a6cbc3638c26f1b2836ac86c8d0faab61628c6d",
       "lastModified": "2026-05-18",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/inject-harness-scripts.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "f11aa484585c1b8db62b1a49bc13f8fe96e1e96c2cb95facbcda7c4b714c8b26",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/types.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "3e5cfc1921573eb45ca7d6f75f6c97b4747bf4f0c68b8e214b341848e110c582",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/lib/symlink-fallback.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "afcf3701c019d70f2b654662dd79b503aec15a916cc4f34891721ee49a0a0245",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/lib/template-manifest.ts": {
-      "version": "7.1.0",
-      "checksum": "adf7dc4fb739610f5648be0c6cf9b00819bc46b1447c82a43c1c027587df1dbf",
-      "lastModified": "2026-05-23",
+      "version": "7.2.0",
+      "checksum": "29603c584e8ac69673f9a2ac22a0b27f2f350fde8d94a2ea8200858522ab5b38",
+      "lastModified": "2026-05-24",
       "updateStrategy": "replace"
     },
     "skills/init/lib/validator-allowlist.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "7da5f5a048933042c740ba4908686e313249ec79688e0306688723ccaacf68ac",
       "lastModified": "2026-05-19",
       "updateStrategy": "replace"
     },
     "skills/init/lib/write-stack-json.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "9616f3b792c6d83b65eaa60ff38b4860b684fb354f2326927fb3c042dc3b6a80",
       "lastModified": "2026-05-17",
       "updateStrategy": "replace"
     },
     "skills/init/lib/__golden__/fase-plan-sample.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "8cdba6c889ef6190ebf29e8f030d3427cba339d3180d8d061abcb54d4baf08f2",
       "lastModified": "2026-05-21",
       "updateStrategy": "replace"
     },
     "skills/init/assets/hooks/sync-agents-to-claude.cjs": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "c6c85345118381bbdb362a667d32dfc8543668542189d75b0752a7747317bfdc",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/assets/populate-guidance/agents-md.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "df74e2aa2de5bba1bcc708f033e7c0923545c754cf9557f1a10763ea5852935b",
       "lastModified": "2026-05-22",
       "updateStrategy": "replace"
     },
     "skills/init/assets/populate-guidance/architecture-md.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "7fbc6bf2e390b89390d78c56837ae4a98e4098604235794549b778fdff06a2f1",
       "lastModified": "2026-05-22",
       "updateStrategy": "replace"
     },
     "skills/init/assets/populate-guidance/claude-claude-md.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "0362aeb0d95aa0e186ee60c062d2ad199c79be61ed8d13c25d37dbbcfd875d15",
       "lastModified": "2026-05-22",
       "updateStrategy": "replace"
     },
     "skills/init/assets/populate-guidance/docs-code_style-md.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "252d9715c20f4cb55da8d875de62d0f2d0769393d5b8dd289bd8dd94ef72ab8c",
       "lastModified": "2026-05-22",
       "updateStrategy": "replace"
     },
     "skills/init/assets/populate-guidance/docs-design-docs-core-beliefs-md.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "f7f4de8d08bba9154de911fc574fac6d1ef5fc3ad4b8d794a2898a131f339b44",
       "lastModified": "2026-05-22",
       "updateStrategy": "replace"
     },
     "skills/init/assets/populate-guidance/docs-design-md.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "730ae71e36249cd49b37c194eb1833b83d244fb46d1cce08d76c474accc1b71a",
       "lastModified": "2026-05-22",
       "updateStrategy": "replace"
     },
     "skills/init/assets/populate-guidance/docs-frontend-md.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "620b4aa3628a70a571cfe473425ef9e5d545ecb780577b2e330b1e11f357cf71",
       "lastModified": "2026-05-22",
       "updateStrategy": "replace"
     },
     "skills/init/assets/populate-guidance/docs-generated-db-schema-md.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "0d945e90bbc15631d0ff474e809726228f711f4d01f4dc0139f5fe90c0b96043",
       "lastModified": "2026-05-22",
       "updateStrategy": "replace"
     },
     "skills/init/assets/populate-guidance/docs-merge_gates-md.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "4b41876b1770a84e7a66d70dbfd2064fd9c48fed511ca2429527e26d633fa401",
       "lastModified": "2026-05-22",
       "updateStrategy": "replace"
     },
     "skills/init/assets/populate-guidance/docs-plans-md.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "d4964af85310b470ec6a3dab322b147f0cf3d0d482dbf99e41a88dbeb66d1dd5",
       "lastModified": "2026-05-22",
       "updateStrategy": "replace"
     },
     "skills/init/assets/populate-guidance/docs-product_sense-md.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "de6babc049cffd81378bd17210dd81fbae5b7ff7ab96d7695191bb18e6d51390",
       "lastModified": "2026-05-22",
       "updateStrategy": "replace"
     },
     "skills/init/assets/populate-guidance/docs-quality_score-md.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "cda107d510dc7c94758aa9b8291c964c8dc3b2daf6f70096cccb806f9b067c15",
       "lastModified": "2026-05-22",
       "updateStrategy": "replace"
     },
     "skills/init/assets/populate-guidance/docs-reliability-md.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "d4a7a1dbab404f12c3d0fd42ec9ce5cbb71d7d3b18f2e19c5a49941ad134bf0b",
       "lastModified": "2026-05-22",
       "updateStrategy": "replace"
     },
     "skills/init/assets/populate-guidance/docs-security-md.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "15ca4a94211bde841947b6e109d3a948444ec39b822dc6a10cdf3f705a3beb73",
       "lastModified": "2026-05-22",
       "updateStrategy": "replace"
     },
     "skills/init/assets/populate-guidance/docs-state-md.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "da658e033599bfd54dc6d725c1d6779d6683c3f07bf8621298d20ec78682700d",
       "lastModified": "2026-05-22",
       "updateStrategy": "replace"
     },
     "skills/init/assets/populate-guidance/readme-md.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "ce62cbefc6045fcb5cd3092dcffdf85093d842c72ae9a05f455b69839d4cf94d",
       "lastModified": "2026-05-22",
       "updateStrategy": "replace"
     },
     "skills/init/assets/populate-guidance/_index.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "b58cab0515266268ac630326504ec9fc17765d62f7bcce7c46372457e6ed3c8d",
       "lastModified": "2026-05-22",
       "updateStrategy": "replace"
     },
     "skills/init/assets/populate-guidance/_template.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "4902baec066149714d3f28cf5264d12c235b9d4d64b9ee0d30fc89d5da0d34d8",
       "lastModified": "2026-05-22",
       "updateStrategy": "replace"
     },
     "skills/init/assets/snippets/akita-code-style.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "99cb96fe17326b8eafb9c06d22c84887b4b36832200e696f0626feb430fdb205",
       "lastModified": "2026-05-18",
       "updateStrategy": "replace"
     },
     "skills/init/assets/snippets/akita-comments.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "e760bedb0f8fa64a158895dca97dccba8fd1284a288dc5e5595a70899c8cd5f8",
       "lastModified": "2026-05-18",
       "updateStrategy": "replace"
     },
     "skills/init/assets/snippets/akita-dependencies.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "8e6f440b34d8f95bc26fcf93d698e949912db684b841e339f0bb0254f01b2332",
       "lastModified": "2026-05-18",
       "updateStrategy": "replace"
     },
     "skills/init/assets/snippets/akita-logging.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "102c3e188111b99ac60827104fa9128cc2a089856a4df3b5371f49fd2232b7f0",
       "lastModified": "2026-05-18",
       "updateStrategy": "replace"
     },
     "skills/init/assets/snippets/akita-tests.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "ecf2d40f5defe847277cf66d189a159d8a0390cee4442ac7f632b0945995f889",
       "lastModified": "2026-05-18",
       "updateStrategy": "replace"
     },
     "skills/init/assets/snippets/classifier-llm-prompt.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "76f247f349795989a67a63856a77c6f5e004728950874f639f4695c0a76885cc",
       "lastModified": "2026-05-18",
       "updateStrategy": "replace"
     },
     "skills/init/assets/snippets/delivery-loop.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "2e618198d22d712b96090ff1ee4e917ff2df2cde562b8972f3e454535337a17e",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/assets/snippets/populate-plan-template.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "31393e37c2efa91a5646933956e928c75b3b5dfedfa0f0a03370fe516c6cb5cd",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/assets/snippets/rollback-adr-template.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "592e6237ce739aec3747b0071c04e27dc8e9a9b39b82ee9bcf3d00b33896d357",
       "lastModified": "2026-05-18",
       "updateStrategy": "replace"
     },
     "skills/init/assets/static/.github/pull_request_template.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "8c9fcdbb895a69a58e80566eabb22384225089aa79dbcd5e4f7ffa81b8a738e0",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/.claude/CLAUDE.md.tpl": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "44421ac228612236d7ac284115a76d6a818e04d69e6118e35dd514640877df1e",
       "lastModified": "2026-05-20",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/.github/pull_request_template.md.tpl": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "0dd2fd0b3ead288e8a31af76b2971d3c0d9e1267bee53ae99584c9aa4a7a7dfd",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/AGENTS.md.tpl": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "fb45c09635cb8d50a3770ab72ae804899e46b180f67d2976fb615575db277c06",
       "lastModified": "2026-05-19",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/ARCHITECTURE.md.tpl": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "246759420e9b74d96163d46c9801418935ba8e70608f17c8eee22cfd6027500f",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/docs/CODE_STYLE.md.tpl": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "c9b309ed0ddb9f7e8a9f5bbe9fafdab81f91512c84f3eda281aced82e4b7d62e",
       "lastModified": "2026-05-19",
       "updateStrategy": "replace"
     },
-    "skills/init/assets/templates/docs/compound/README.md.tpl": {
-      "version": "7.1.0",
-      "checksum": "9475c30f5c02df63f5871e9105502c3132a86be349fe237a6a7b0977d1cbce8c",
-      "lastModified": "2026-05-12",
-      "updateStrategy": "replace"
-    },
-    "skills/init/assets/templates/docs/COMPOUND_ENGINEERING.md.tpl": {
-      "version": "7.1.0",
-      "checksum": "d44ec5c21c59533dcb03277a580d8682beadf1a3e303f852171d35122ec14a63",
-      "lastModified": "2026-05-12",
-      "updateStrategy": "replace"
-    },
     "skills/init/assets/templates/docs/design-docs/core-beliefs.md.tpl": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "e28bf083654daef6d514208125e78dbc77002b50882411cf5522fa7c57a0c31c",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/docs/design-docs/index.md.tpl": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "311077595119492c077760f942eddc6abc589c1cca37b1a323ab6e19d60e4de7",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/docs/DESIGN.md.tpl": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "646a2f7e5c38b321b41dd9dc300bdbb157a8679cdf8adcacc151cc6ebf6643eb",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/docs/exec-plans/active/README.md.tpl": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "a85b78da2d367f62ba4af3527ef782a71e2f0b352f72c46e19947d4935e6f232",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/docs/exec-plans/completed/README.md.tpl": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "fa400b5d7b51993897a6d3382043fc122d0907f9d8f81f21145a8f0ed5640d39",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/docs/exec-plans/tech-debt-tracker.md.tpl": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "d4d6d74e33c773ca6bbc530a52805b8f401aacb31a43763de28aea583076f329",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/docs/FRONTEND.md.tpl": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "438ceb3a30fd23a4467f03c98889e3edf6222385f38c63e46ed35ae9ad88462b",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/docs/generated/db-schema.md.tpl": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "1a4ef09ba9bb48b7dcb8c94d6f4823064fe46e785a339e886cf85dfffb56e77d",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/docs/MERGE_GATES.md.tpl": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "4b679d39a7946dc5fdf2c40e6cac5a0fdf80a92f127754d89e2c4faa98ac97a9",
       "lastModified": "2026-05-13",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/docs/PLANS.md.tpl": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "f649244797d298e0787dfbadc8867f0fda609a785984c8c3e85aa6c02e00058f",
       "lastModified": "2026-05-13",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/docs/product-specs/index.md.tpl": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "bf488307efe4396a1ece1bfdb89f2fc7c5eca4495b2c909fd4ed7845b426b9cd",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/docs/PRODUCT_SENSE.md.tpl": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "1c6a57722c5c281a95989a51b275c7e0654fcb9ecbfab502f6210272008cc85a",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/docs/QUALITY_SCORE.md.tpl": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "7e7b9229068c96ba63d427721757c88bbe99b99bf5465bf7b72dfa46d7f290c1",
       "lastModified": "2026-05-13",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/docs/references/README.md.tpl": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "4d3c3d3abb2d70b151b035b71069e10c12c1a2ac64abddb69b5ce70568e7663b",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/docs/RELIABILITY.md.tpl": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "b33c409039c6256cc185253f4e50e86b225204b846b8d285091293e26257f7d3",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
-    "skills/init/assets/templates/docs/review-checklists/agent-api.md.tpl": {
-      "version": "7.1.0",
-      "checksum": "4606cfa6b78a65e381093a1c95f0421838d5db56f646b8cf2bc5c324655da793",
-      "lastModified": "2026-05-12",
-      "updateStrategy": "replace"
-    },
-    "skills/init/assets/templates/docs/review-checklists/frontend-ui.md.tpl": {
-      "version": "7.1.0",
-      "checksum": "889248e5b5a6418fd8ed7aa47dcfcc6d6f04133721099ea74de88f7b0b177ee8",
-      "lastModified": "2026-05-12",
-      "updateStrategy": "replace"
-    },
-    "skills/init/assets/templates/docs/review-checklists/production-readiness.md.tpl": {
-      "version": "7.1.0",
-      "checksum": "e438b12bbcb28294fdafb6c51650b65f555709e6e1dce1a56c9645083643ae34",
-      "lastModified": "2026-05-12",
-      "updateStrategy": "replace"
-    },
-    "skills/init/assets/templates/docs/review-checklists/README.md.tpl": {
-      "version": "7.1.0",
-      "checksum": "a3d13fa3e9066d6ea54c6b0ab24d9806de8167ebc921e2a7c653f0fcf7830c14",
-      "lastModified": "2026-05-12",
-      "updateStrategy": "replace"
-    },
-    "skills/init/assets/templates/docs/review-checklists/reliability.md.tpl": {
-      "version": "7.1.0",
-      "checksum": "c8f802adb4836a6bb6a3ba3523759b67946ba329d1de6df426411a935c9b90ec",
-      "lastModified": "2026-05-12",
-      "updateStrategy": "replace"
-    },
-    "skills/init/assets/templates/docs/review-checklists/security.md.tpl": {
-      "version": "7.1.0",
-      "checksum": "27db278a0b1369f7a197ae3802f34434be634b63d64058efb9df292e922ee393",
-      "lastModified": "2026-05-12",
-      "updateStrategy": "replace"
-    },
     "skills/init/assets/templates/docs/SECURITY.md.tpl": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "62024ba51f1f001bce9cdf797ef5dbfa69d8241843063badd49ed1f8a68b15d2",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
-    "skills/init/assets/templates/docs/smoke-flows/README.md.tpl": {
-      "version": "7.1.0",
-      "checksum": "d83370035082ff69b0dfe4f08b4a2196ce27df7e1c29b94eb7524faad352d553",
-      "lastModified": "2026-05-12",
-      "updateStrategy": "replace"
-    },
     "skills/init/assets/templates/docs/STATE.md.tpl": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "0967c9e2db1274a986f2a8a72848853dd9564ec499da5a5da6e0b23848116af0",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/exec-plan/fase.md.tpl": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "f8ed0b072f73645f768c6edbf650229b43c4c78694ad5e171f6c0c78ef290e6e",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/exec-plan/PLAN.md.tpl": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "73a220d87ed77fc3d0e7f44a77feb95df2fca32d1d692344429b406884a88351",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/package.json.tpl": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "57e5535b60653841f4eb018fcbc2509bc7a8dbc1fb23acaf60eec300d162d7f3",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/README.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "d0fb80e9abc3e0e92eece5fa2b526bc99e0af27a459312da4188813f3db51778",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/README.md.tpl": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "938bca1cefcff7af1eb41e2fb177fb3a27d6938fddc216011cd43075fab8329a",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
-    "skills/init/assets/templates/scripts/compound-check.ts.tpl": {
-      "version": "7.1.0",
-      "checksum": "c519deed3802453953ef768877c1596659d1e0b9f538195da29b9c28b630f337",
-      "lastModified": "2026-05-12",
-      "updateStrategy": "replace"
-    },
     "skills/init/assets/templates/scripts/harness-validate.ts.tpl": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "89b30982da3a90f4d2db895ca1055cab123c25e12920f4319b97a474726974cf",
       "lastModified": "2026-05-20",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/scripts/new-plan.ts.tpl": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "76d839c02dbaaae5a6f62cc79961b2b47bdde7ffc519a9ef2565439c7579c6f6",
       "lastModified": "2026-05-13",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/TODO.md.tpl": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "e257f0bb2d0192c6703b3db9952bf05287bc416aa446efa4f1ae5eb8cfbfa9d4",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/iterate/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "3388438b11c0de6039f558d4f73f67a5967ebf2d1f0b1324df56e7298a04998c",
       "lastModified": "2026-05-15",
       "updateStrategy": "replace"
     },
     "skills/learn/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "6c3685ca6563993c431c94c7e24a7ec4771a4f697b38b7d6fe97f0cba0066ce2",
       "lastModified": "2026-04-08",
       "updateStrategy": "replace"
     },
     "skills/lessons-learned/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "870631f7bf46df329cb4676bfbe1687de014fb81e8dca5cd5ff219c3463d3ec8",
       "lastModified": "2026-05-16",
       "updateStrategy": "replace"
     },
     "skills/lessons-learned/lib/lessons-learned-prefaces.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "54ff0292047ff0a756edbec5b217c5c3a4945e2267028b9053bbfb7a56d64954",
       "lastModified": "2026-05-15",
       "updateStrategy": "replace"
     },
     "skills/pair-programming-with-agent/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "b206c15bae09869655cc2b0d00aa287fd87e558a58e2b73d2608286e2c6ddc1b",
       "lastModified": "2026-04-21",
       "updateStrategy": "replace"
     },
     "skills/parity-audit/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "490c67935b256147320bc9277a73bd7218ff7dcfdfb60bc07f7a2b4f7b056617",
       "lastModified": "2026-05-16",
       "updateStrategy": "replace"
     },
     "skills/parity-audit/lib/gap-rules.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "e03a35eb6758d3af695861b5269319d9fc5b70d66ecbb22f7a4155e1fc69b6ba",
       "lastModified": "2026-05-16",
       "updateStrategy": "replace"
     },
     "skills/parity-audit/lib/parity-gaps-writer.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "2fb9acc18188b295bdc2fb3bac4183c6ec452d106902a6d4d5ba3e5c5f50cf3b",
       "lastModified": "2026-05-16",
       "updateStrategy": "replace"
     },
     "skills/plan-feature/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "3d335c56bf5755ade87faedcfdcc36040868fe4930a05c5a3b9353a8b0b2a0e7",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/plan-feature/templates/fase-template.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "65f6d9aa97fd5f47e745a639b9442e3d6ccba3ec862a7314ce5b92b31fcf4724",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/plan-feature/templates/memory-prd-template.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "6cdecb1cddec3c6c416635e5cc25ddec1d1e9c7002aa24ff403b394ce23a92a2",
       "lastModified": "2026-04-20",
       "updateStrategy": "replace"
     },
     "skills/plan-feature/templates/memory-template.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "0969e178d9b019f847b920d42f80e7cc680c8efe6e02c14377165af1100c5e92",
       "lastModified": "2026-04-16",
       "updateStrategy": "replace"
     },
     "skills/plan-feature/templates/plan-overview-template.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "60df4e3601eee413708a33faa9f48f2b56cc2611bc434c2a0f3ca2f51ffa0e8d",
       "lastModified": "2026-04-20",
       "updateStrategy": "replace"
     },
     "skills/plan-feature/templates/plan-readme-template.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "3d5912338463227643f3ad7fb01444a8ef1337c6e6d8ddb8eea4915653422e77",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/plan-feature/templates/plan-template.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "a4a33e7fdf384599280b95eba02627887c3e909c16f4df8c8f2753c1dc6ced2c",
       "lastModified": "2026-04-08",
       "updateStrategy": "replace"
     },
     "skills/plan-feature/templates/state-template.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "c908d4a9be0e3b8645972e25ed823f2dcf2de4c09ba82c51cb9bc245635f3306",
       "lastModified": "2026-04-20",
       "updateStrategy": "replace"
     },
     "skills/plan-feature/lib/fase-policy.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "7bacdaccaf9de8d2a17e33ed5694e21b7c6f2f049a0da2ec8bd29565637d2251",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/qa-visual/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "d0ff09454cf23eeed6b152a8c57b198b3be75c643e79dbcbad7c63396ba0dc47",
       "lastModified": "2026-05-15",
       "updateStrategy": "replace"
     },
     "skills/quick-plan/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "433cc46aec0fdc74359d1d35289fe01df90f08f821403e9ce98debb4fba75fac",
       "lastModified": "2026-05-15",
       "updateStrategy": "replace"
     },
     "skills/react-patterns/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "b952d8416aa6edeebced71124ce56ad575a9950ff3c35a099a1145f2abddba35",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/react-patterns/references/data-fetching.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "cb3e6377f2d178cc8cf8ecba35cb3d0d9278d68a900f0161d117ec205700c266",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/react-patterns/references/useeffect-patterns.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "f3cf2a397987b92d90f7a12659f1d266235cfb5adbf1fa47c8babe1c57fb13ec",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/security/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "17bdc3cda467e3951495d720046f5aaac9bd4601c2c151fd2a5c5caed3a2da97",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/security/references/application-security.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "18393d1e1c00d2650a4f25983d56e81ab338a12ad54add5837b85bbdcbbf3d3e",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/security/references/auth-methods.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "eccd30ba7dcd2f3659a93d28c9ada640154affc3970c95f56d96af074e9082d5",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/security/references/authentication.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "026c6c4096a5f91ccf9da63f635f87dd4ca32c2380c151666e966dd5e2c40d76",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/security/references/authorization-models.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "5721dc231bbc9e4a88d1229f53e80bd01ff49534fe7b55050d3cd40dbfebd2d9",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/security/references/cryptography.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "c70907696199450bcd8b68662157cf9b662aa84ec1326ffb184dfad9b581f6dd",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/security/references/supabase-security.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "4698441be94d20450230f9b5ea0afa6627bc4ad26010f88a487324d96ae976be",
       "lastModified": "2026-03-27",
       "updateStrategy": "replace"
     },
     "skills/security/references/vibecoding-security.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "2a2c0582ef0b4cf12d5b81af97accb5f152ffa84874ded9e8f5bceb834522c2f",
       "lastModified": "2026-03-27",
       "updateStrategy": "replace"
     },
     "skills/security/references/webhook-security.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "1616945dfa0e3827fafcb8c713cb039d8bfd2186ef1649bb6f484c42b528e8e1",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/security/lib/security-prefaces.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "4e51d2cae6a6b718a09e703a962513c62490cf48d2172f06a5bb630270c8988e",
       "lastModified": "2026-05-15",
       "updateStrategy": "replace"
     },
     "skills/security/lib/stack-aware-preface.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "3836596da44e9df9aa876764821c7309f4e108bc771360224adbf5f0fee466a9",
       "lastModified": "2026-05-17",
       "updateStrategy": "replace"
     },
     "skills/source-driven-development/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "7b9aa234a35ec46dfd0e87de54ff8a71cf8383b667a60e558ff0b6c9ad12139d",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/sync/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "1b1aa286f7a56116eaba06a09709952a26f17c10276fbd544f91370e9596c523",
-      "lastModified": "2026-05-23",
+      "lastModified": "2026-05-24",
       "updateStrategy": "replace"
     },
     "skills/system-design/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "3b0f157f7bd62bcb1f93931e6a0149275d2b047a69c79f9814f5ccdbd5d0a6e1",
       "lastModified": "2026-05-17",
       "updateStrategy": "replace"
     },
     "skills/system-design/references/cache-strategies.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "0f112d91b07f234a9a4f880e3738091cf598c95f24535803cc58ef8deca77313",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/system-design/references/cap-theorem.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "895d516349aea7d6a8be6a3ca89ae0607d74316b88921eb836f257424862f189",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/system-design/references/cdn-mechanics.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "ef68d71505d7a01ef7e56e018d296700466057db7d625fb8b3862d9810eaa39b",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/system-design/references/database-selection.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "03345358e68365969350135f240971670c5c304a05c83515bb75d1b4b7568506",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/system-design/references/load-balancing.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "8a220d2c354ff5f3fda09bffb1c62ab8178a83bb3f817d415dea2f068fbf0353",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/system-design/references/replication-sharding.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "524356416f06757706671f753c7fd8790b1d9d27c78e2893e46d7ebaafbfc19d",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/system-design/references/scalability.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "a3ea5ee605748dea4c6c17e2c6693e45b843d998ed9efcfef31265b7e07a1a1f",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/system-design/references/serverless-vs-serverfull.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "30ef1fc59805a69f6c9c7648d47ba557989f0673fe30693a13da062e13a8431e",
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/system-design/lib/system-design-prefaces.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "dea3243254a8eabec27484a17e8e246ff5e1a2293cf787946d112aa864c5430e",
       "lastModified": "2026-05-15",
       "updateStrategy": "replace"
     },
     "skills/tdd-workflow/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "71d50cccecd35640409a106aef1e4201138a4c3a8a334082ac541d6a40e2c879",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/tdd-workflow/references/deep-modules.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "4ccb609bc1ff66aa9f736b9690c85c68713d5184a969415e47a4a4e9d75bb59c",
       "lastModified": "2026-04-08",
       "updateStrategy": "replace"
     },
     "skills/tdd-workflow/references/ia-tdd-workflow.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "783d73a9fc66d87541d8d969d571cd9cd28bab7998d76b9d7ac855558a3f4446",
       "lastModified": "2026-04-08",
       "updateStrategy": "replace"
     },
     "skills/tdd-workflow/references/test-pyramid-ai.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "16b96bca84df49d9524069995bb727fcd07ac64c687ceccdcbfefd09288f067c",
       "lastModified": "2026-04-08",
       "updateStrategy": "replace"
     },
     "skills/todo-pick/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "232f6c162f768c9b3522299c07c16d1ec751eba797ea08b1f0e07df3289ab091",
       "lastModified": "2026-05-13",
       "updateStrategy": "replace"
     },
     "skills/todo-pick/templates/todo-md-skeleton.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "1f7d5df7a83e0b814e1130f4845518278979d9b90e49dc635aafb9e81e4dfa61",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/update/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "0d94cd31f2ddb0810d6758bca51f4b71b020acfdeb86591c52848c5b3854a8ee",
-      "lastModified": "2026-05-23",
+      "lastModified": "2026-05-24",
       "updateStrategy": "replace"
     },
     "skills/verify-work/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "36c707469bd7862f15d7b0ada426ca7404ed9dc161399177ebd093081ee99b7e",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/verify-work/lib/adherence-checks.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "8ff9059c75126c9745cb0b34aa67585512f826bf891996d6de5ffcf967a041fd",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/verify-work/lib/audit-consolidator.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "3f56b62cc8b16c09b0ad8af14aff8a66c19da7bf3e96f915719194e26a42c0b8",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/write-prd/SKILL.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "6fa42e442d39aef7a4832f8fcbc5f0525d9ef0a226eceac4008c5f4d5a2ca834",
       "lastModified": "2026-05-16",
       "updateStrategy": "replace"
     },
     "skills/write-prd/templates/prd-template.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "86ad6b0fecf84b5b505fe0498fc8d71adc9f2ead564bda0eefeed9020720919c",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/write-prd/lib/structure-snippets.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "e5fa73ac552a147df496c398a4aba859910ee05fe373be60263d51cb9fa23a28",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/lib/adr-writer.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "ae9338243b05433f5f308d62c973a73a866fa605508e249c4465ab8bfa36f03e",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/lib/architecture-detector/classify-by-folders.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "68081f116bf762b0984f01e55d75668e34add1e943685869804acb5b130b24d0",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/lib/architecture-detector/classify-by-folders.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "8baa60f0a6487e89214d7eaf74ceb321612e68ba57e8182f9856366112a5af29",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/lib/architecture-detector/compute-confidence.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "d993c6f17a1dfa2abcc1942de227c0c4efd6821bd6e3c1893861361244f1b4dd",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/lib/architecture-detector/compute-confidence.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "db3ebc9d2cdc52af96ac44f2f5e890f3e310c39c35f82955e46775257f29433a",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/lib/architecture-detector/detect-architecture.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "8163289dcacaa77178fa2919fd3365500e683902bf6bd8f9965d2dc72cad6613",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/lib/architecture-detector/detect-architecture.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "d193c848249aab0e738e36bcb3114537e5506fc7d29af3f455114e92c96ca878",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/lib/architecture-detector/read-src-tree.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "2de20e297b5f9b76786c83af105bd3c1346ea2d76747a88e716bf2f3cb9a2b06",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/lib/architecture-detector/read-src-tree.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "fa8023b2de612be12c975e70aa65484aeb8b4e5e0898f93c4b6fb048123b8086",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/lib/architecture-detector/sample-imports.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "cb57a3a7dfd41a504c994e7db49af1fb764fd219adaed59d001edbca8b6dfcfd",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/lib/architecture-detector/sample-imports.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "44d7af7a4ab2fa214964c42727e039a2b0aa508b852a62317309f2fcdc59a63e",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/lib/architecture-detector/types.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "c534e62d2ebadc886313d288973097869915d1d62caa9b8e97de52515bb4bce6",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/lib/architecture-detector/types.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "d8b30e78845f102f1fc6a54715ff5f2e95d2bfbe812d1869af9e0e9c33ad51bb",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/lib/architecture-detector/write-architecture-profile.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "d16dcd6c24ba023244b33bfd76906e4955e72025c99d54034eded0c021b755c7",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/lib/architecture-detector/write-architecture-profile.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "7148828fb6e7ac0fd2c4e8dce13b731e6c3205dffe149316a87aab7985050235",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/lib/capabilities-writer.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "9a9edf452d8f030ce079b2b65f7759b5f4ad60ca48f0872e09171f3665cf2671",
       "lastModified": "2026-05-16",
       "updateStrategy": "replace"
     },
     "skills/lib/completion-signal.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "767fc2a0ab8712fcf4ba276e0d03407546d88e9bc549f932c9f75400828d5c13",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/lib/compound-decision-gate.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "d939c6b286e958f436c11d0e4549bf552ce47eb61b2841fd16adfda3ac6e0d6d",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/lib/compound-note-writer.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "b8564ca18f7402461aec802a4789651b996828944b7568cb3b7937cdf36669d1",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/lib/decision-registry-revoke.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "acc95722e75a6c4148f36916478b75b30482d47775e5a4790c25657c5f688e2e",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/lib/exec-plan-mover.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "b2eacddfac340d6ce90c6583a84df18111f100c28a176cfa41b16f03f63ddc7f",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/lib/exec-plan-reader.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "4a0342989d2b3649aedc72ea90ca02b7cd80788550bbdaf267646bd3dab2d662",
       "lastModified": "2026-05-20",
       "updateStrategy": "replace"
     },
     "skills/lib/exec-plan-sections.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "39384aff29449f1f31d5e43df9a9fb2fc6bc22114578d7afd1c31f9151934c4b",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/lib/exec-plan-template.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "dfb302e20417cdde1fd8d00ca36c4fc3e4d9b4eddc8eccf0268a72e258d367f4",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/lib/execute-plan-todo-capture.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "4d9aff77b66d8fe7b36e0b80417a53095ae9b64e9f5654de021f705e6281f294",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/lib/feature-flags.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "8868f6f859e0d381605aa0fc6dc75cf5db71c4c602c61be57521cb9d38456177",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/lib/hooks-merge-utils.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "f36a4074ffadc6c2c952d71d66aff140d51fa04d59e7cc7e81d5f270978ea48c",
       "lastModified": "2026-03-23",
       "updateStrategy": "replace"
     },
     "skills/lib/legacy-context-compat.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "fa6a304e0e7dd2b090421b7b7c6222b2b8bb2822adf023edb851e219815e21d2",
       "lastModified": "2026-05-16",
       "updateStrategy": "replace"
     },
     "skills/lib/legacy-detector.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "cb310df4661f16239aea8708afde62cb99fa2b1ca60273b89386dc2fa3e80d87",
       "lastModified": "2026-04-20",
       "updateStrategy": "replace"
     },
     "skills/lib/legacy-migrator.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "11397d2c364676bc35ec135a6c989e943e5551b90cdc58751b250fa48735befa",
       "lastModified": "2026-04-20",
       "updateStrategy": "replace"
     },
     "skills/lib/lessons-learned-crud.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "b48d2a892dac625ec03f5977ebf5d8e742c05ba4e89f6f1d301f945477dffcf1",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/lib/llm-anti-patterns.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "d35c383059a25c9a43bcc21ca04f8b96286f0dbe1f0ff7bcaacda55e58262a12",
       "lastModified": "2026-04-11",
       "updateStrategy": "replace"
     },
     "skills/lib/manifest-schema.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "6e5185fe279daf2ffddf4c84ef3800882372b4fe7401be18f6c8f68f64630dc6",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/lib/manifest-types.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "206cc5346105c7f25b0c16193042c29ecccc715a5f9a8d5dac5dde97ebe2da46",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/lib/manifest-utils.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "2d0007f9f0fef9c09404ca79098c93d0dbdc3be649e7e3631feebc3896226dde",
       "lastModified": "2026-03-23",
       "updateStrategy": "replace"
     },
     "skills/lib/model-profile-utils.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "83fab7b26a509bd41f6a92a80ddfaaf9e4bf810da80107ec7f7fd81e420af81e",
       "lastModified": "2026-04-08",
       "updateStrategy": "replace"
     },
     "skills/lib/path-resolver-v6.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "a57c0d73d45f40082bc27d4b308f32127f7f519311bd192b0b2633e44b03c4a3",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/lib/preface-context.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "4df37024dadc32bd67deafef964f32499e45b60f0cb6007617e3c20a7c724e36",
       "lastModified": "2026-05-17",
       "updateStrategy": "replace"
     },
     "skills/lib/profile-md-generator.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "321e7597a576886cd1bc1399184cb2c229298f12f3c421ea32e6d4a0adc4e60a",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/lib/read-architecture-profile.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "b707be85500a81a85d8ab2322f537fd55b7748a2f6767baa8efd2aa89cc2df6c",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/lib/stale-detector.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "bbe6b0d17fd1fe09e2a7a73f1221e4a4b00dc30d6f922e874533fb712d6ff8e6",
       "lastModified": "2026-05-15",
       "updateStrategy": "replace"
     },
     "skills/lib/state-md-generator.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "c10cf84aa035270cf651107bbf5f6741d454ff5a21b7450b217b5761d168c470",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/lib/state-md-lock.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "26232637c3f104adfc0a17c7ed8faac466b10ce441fd4f4623e28f906356ae23",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/lib/state-utils.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "b778782d801212ff8115af3eb93e2e3ed69a9f58b259596e396df5db06278cb1",
       "lastModified": "2026-05-15",
       "updateStrategy": "replace"
     },
     "skills/lib/subagent-contract.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "bdbfd9c1293bff7abdaf80a32b1d5aa2f34aa67e2945def676f11b9b1a57a8fa",
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
     "skills/lib/telemetry-schema.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "826040e4aae69420bf8f757c4cc3f1f1d3ca7a692b9e04be6e42687061c2c724",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/lib/telemetry-types.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "2381ef88e71c609a4dc4c08c6e4e848448b1ba2255cf11d93517a7bab937d0eb",
       "lastModified": "2026-05-17",
       "updateStrategy": "replace"
     },
     "skills/lib/telemetry-utils.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "d0b142900afe14e630c017b1e4a402fee8c128e5822a05116626d22c454bb9c0",
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/lib/telemetry-utils.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "d2d0b9db3efce1bfd870b51e5c82ab50a5d6da23c71f6e6301eff7012f851b0b",
       "lastModified": "2026-05-17",
       "updateStrategy": "replace"
     },
     "skills/lib/todo-utils.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "e20545a0e2012088f2d00819c831c02851e8096119f04aa17c5037ac90938ff8",
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/lib/tool-registry-inspector.ts": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "783c367cc23a36c0bf41a4a61287f434aaa1d25672624314d223363b4d672ae3",
       "lastModified": "2026-05-16",
       "updateStrategy": "replace"
     },
     "templates/STATE.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "149526338ba8786ac24e793275c4858c9cdb4fedab071b6ccd077e1765a548b1",
       "lastModified": "2026-04-08",
       "updateStrategy": "replace"
     },
     "templates/SUMMARY.md": {
-      "version": "7.1.0",
+      "version": "7.2.0",
       "checksum": "a747004333276648950325213323fc543f913ba39a250983c12e109762eac5b3",
       "lastModified": "2026-05-15",
       "updateStrategy": "replace"

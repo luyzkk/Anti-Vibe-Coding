@@ -3,6 +3,91 @@
 Todas as mudanças notáveis do plugin Anti-Vibe Coding serão documentadas aqui.
 
 
+## [7.2.0] - 2026-05-24
+
+> **Minor release — agent-skills-import (Waves 1/2/3) + compound-engineering-skill-port**
+>
+> Quatro PRDs consolidadas:
+> - `2026-05-22-agent-skills-import-wave1` (CI + references seed + 2 skills + Common Rationalizations + grill-me refactor)
+> - `2026-05-22-agent-skills-import-wave2` (13 agentes em contract v2.0.0 + 3 skills novas + pedagogia ADR)
+> - `2026-05-22-agent-skills-import-wave3` (Prove-It Mode + 3 references + consolidacao /verify-work + Pipeline AGENTS.md)
+> - `2026-05-22-compound-engineering-skill-port` (skill user-invocable com 4 subcomandos + bug fix MH-01 schema)
+>
+> Total de skills no plugin: **39** (era 34 em 7.1.0). Subagent-contract bumpado para v2.0.0
+> com modo transitional. Pipeline pos-feature ganha gate compound (`/anti-vibe-coding:compound-engineering gate`)
+> que delega captura ao `lessons-learned` via Skill tool nativa.
+
+### Added — Wave 1 (Infra + Skills + Refinements)
+
+- **`.github/workflows/test-plugin-install.yml`** — 3 jobs serie (validate-structure / validate-manifest / validate-tests) com actions pinadas a SHAs.
+- **`docs/references/security-checklist.md`** — checklist OWASP operacional (~10 itens).
+- **`docs/references/accessibility-checklist.md`** — checklist WCAG 2.0 AA (~8 itens).
+- **`docs/references/testing-patterns.md`** — padroes de teste TypeScript/Bun (~8 padroes).
+- **`skills/incremental-implementation/SKILL.md`** — port literal de `agent-skills-main` (copy-then-improve).
+- **`skills/code-simplification/SKILL.md`** — port literal de `agent-skills-main`.
+- **`## Common Rationalizations` + `## Red Flags`** em `tdd-workflow`, `security`, `plan-feature`, `execute-plan`, `grill-me` (conteudo dominio-especifico, nao generico).
+- **Hypothesis + Confidence + GUESS pattern** em `grill-me/SKILL.md` (Passos 1-2 originais intactos).
+
+### Added — Wave 2 (Agent Contract v2.0.0 + Skills + Pedagogia ADR)
+
+- **`subagent-contract-v2.schema.json`** + **`subagent-contract-v2-migration.md`** — schema v2 novo arquivo (v1 imutavel); harness em modo transitional aceita ambas versoes.
+- **13 agentes refinados para contract v2.0.0** — gold standard `security-auditor` (TB) + 12 demais em 3 waves paralelas (react/api/database/tdd-verifier; code-smell/solid/infrastructure/design-explorer; documentation-writer/lesson-evaluator/plan-executor/plan-verifier).
+- **`agents/_contract/`** — validator anti-generico com fixtures (RED+GREEN).
+- **`skills/source-driven-development/SKILL.md`** — port literal.
+- **`skills/doubt-driven-development/SKILL.md`** — port literal.
+- **`skills/git-workflow-and-versioning/SKILL.md`** — port literal.
+- **`## When to Write an ADR`** em `skills/decision-registry/SKILL.md` — tabela de gatilhos + lifecycle PROPOSED->ACCEPTED->SUPERSEDED|DEPRECATED + Common Rationalizations + Red Flags. CRUD intacto.
+
+### Added — Wave 3 (Prove-It Mode + References + Consolidacao)
+
+- **`## Prove-It Mode`** em `agents/tdd-verifier.md` — `mode: "prove-it"` top-level; 6 fixtures em `agents/__fixtures__/tdd-verifier/prove-it/{red-confirmed,already-green,inconclusive}/`.
+- **`docs/references/init-step-contract.md`** (91 linhas, 27 items).
+- **`docs/references/hooks-checklist.md`** (94 linhas, 27 items).
+- **`docs/references/tdd-cycle-checklist.md`** (88 linhas, 33 items).
+- **`## Quando promover para reference`** em `docs/compound/README.md` — criterio numerico (>=3 repeticoes / >=2 skills / obrigatorio onboarding) + processo de promocao manual.
+- **`referenced-by:` frontmatter** em 5 compound notes-origem (3 -> init-step-contract, 1 -> hooks-checklist, 1 -> tdd-cycle-checklist).
+- **`## Test Sizes + DAMP vs DRY + Test-Doubles`** em `skills/tdd-workflow/SKILL.md`.
+- **`## Task Sizing + Dependency Graph`** em `skills/plan-feature/SKILL.md`.
+- **`## Pipeline de Trabalho` flowchart** em `AGENTS.md` (16 slugs validados; `AGENTS_MAX_LINES` 40 -> 70).
+- **Deprecation notice** em `skills/anti-vibe-review/SKILL.md` apontando para `/verify-work` (grace period — skill permanece funcional).
+
+### Added — Compound Engineering Skill Port (Opcao C — Hibrida)
+
+- **`skills/compound-engineering/SKILL.md`** — user-invocable; 4 subcomandos:
+  - **`install`** — skip-by-default + `--force` opt-in; stack-agnostic; patches P1 (AGENTS.md) + P2 (`new-plan.ts.tpl`) idempotentes.
+  - **`check`** — wrapper via `Bun.spawn` invocando `compound-check.ts` do target; default backward compat + `--strict` ativa 3 regras novas (`agents-link`, `plan-generator`, `active-plan`).
+  - **`migrate`** — fix nao-destrutivo de README brownfield (schema antigo `date/author/decision` -> canonico `title/category/tags/created`) + relatorio auditavel de notas inconsistentes (RNF-04 verificado via MD5).
+  - **`gate`** — detecta plano ativo, 3 perguntas, delega `lessons-learned add` via Skill tool nativa (D20/CA-16). Completion signal SH-07.
+- **`skills/compound-engineering/lib/`** — `manifest.ts` (`getCompoundManifest()` pura, 10 entradas), `installer`, `checker`, `gate`, `active-plan-detector`, `lessons-captured-updater`, `invoke-lessons-learned`, `readme-schema-detector`, `notes-inconsistency-scanner`, `migrate`, `patch-agents` (P1), `patch-new-plan` (P2), `compound-engineering-prefaces`.
+- **`skills/compound-engineering/assets/`** — 10 templates `git mv` de `skills/init/assets/templates/` (linhagem preservada via estrategia 2-commits) com conteudo literal do Andre Prado.
+
+### Changed
+
+- **`.claude-plugin/plugin.json`** + **`.claude-plugin/marketplace.json`** + **`package.json`**: versao 7.1.0 -> 7.2.0 + description consolidada.
+- **`scripts/generate-manifest.js`** ja le `package.json.version` (single source of truth — fix DI-5 da Wave 3 mantido).
+- **`plugin-manifest.json`** regenerado: 425 arquivos indexados, 39 skills (era 34 em 7.1.0).
+
+### Fixed
+
+- **MH-01 (compound schema mismatch)** — `skills/init/assets/templates/docs/compound/README.md.tpl` agora documenta schema canonico `title/category/tags/created` (era `date/author/decision`, fazia projetos inicializados por `init` falharem no proprio `compound-check.ts`).
+- **Path traversal confinement** em `skills/compound-engineering/lib/gate.ts` + **OCP `pickFirstYesDetails`** (commit `37efa77`).
+- **`notesScanned`** em `migrate` reflete total escaneado (nao apenas notas com issues — commit `4360665`).
+
+### Testing
+
+- **compound-engineering lib:** 79+ testes (zero falhas).
+- **E2E novos:** 3 (`tests/e2e/compound-engineering-edge-cases.test.ts` — CA-18/19/20).
+- **subagent-contract:** 34 testes (era 31 — +3 do Prove-It Mode loop).
+- **`harness:validate`** verde (28 arquivos required, 329 markdown).
+- **Falhas pre-existentes** na full suite mantidas (init-refactor-v7 GT-1/2/3) — zero regressoes introduzidas pelas 4 PRDs.
+
+### Notes
+
+- **Wave 1** permanecia em `docs/exec-plans/active/` ate este release; movida para `completed/` no commit do bump.
+- **Templates compound:** ownership oficialmente transferido de `init` para `compound-engineering` — `init` consome via `getCompoundManifest()` pura (boundary D25 preservada).
+- **Telemetria por subcomando do compound:** NAO implementada (requer adicionar a `FasePipeline` em `telemetry-types.ts` — escopo separado). Mitigado via completion signal SH-07.
+
+
 ## [7.1.0] - 2026-05-22
 
 > **Minor release — populate-quality-v1: Wave 1 lê artefatos existentes + guidance permissiva**
