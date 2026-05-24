@@ -1,14 +1,8 @@
-# Agent API Review Checklist
+# Agent API Checklist
 
-Use for any change to agent-facing APIs or AGENTS.md instructions.
-
-- [ ] AGENTS.md updated to reflect new or removed capabilities
-- [ ] Agent instructions are declarative, not tutorial — assume the agent knows the domain
-- [ ] No ambiguous pronouns or context-dependent references in agent instructions
-- [ ] Scope boundaries are explicit: what the agent may and may not touch
-- [ ] Tool list in AGENTS.md matches tools actually available in the execution context
-- [ ] Breaking changes to agent APIs have migration path documented
-
----
-
-Replace this scaffold with project-specific content.
+- Agent actions have a scoped auth model and do not reuse broad human admin sessions.
+- Mutating actions are audited with actor, target, timestamp, and request context.
+- Destructive or high-impact actions require confirmation, narrowing, or human review.
+- Rate limits and abuse controls exist for agent-accessible endpoints.
+- Agent documentation names allowed actions, forbidden actions, and expected payloads.
+- Secrets and one-time credentials are never returned after initial creation.

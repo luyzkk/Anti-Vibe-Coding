@@ -1,16 +1,8 @@
-# Security Review Checklist
+# Security Checklist
 
-Use for any change touching auth, input handling, secrets, or dependencies.
-
-- [ ] All external inputs validated and sanitized
-- [ ] AuthN and AuthZ applied on every protected route
-- [ ] No secrets committed to version control
-- [ ] No secrets exposed in logs, error messages, or client bundles
-- [ ] Rate limiting in place on public endpoints
-- [ ] Dependency audit run and clean (`bun audit` or equivalent)
-- [ ] SQL / NoSQL queries use parameterized inputs; no string interpolation
-- [ ] File uploads validated for type and size; stored outside web root
-
----
-
-Replace this scaffold with project-specific content.
+- Authenticated and privileged actions have explicit authorization checks.
+- Tokens, secrets, raw credentials, and provider identifiers are never exposed in browser payloads or logs.
+- Webhooks verify signatures and reject replay or malformed payloads where applicable.
+- File uploads validate type, size, object keys, and post-upload ownership.
+- Redirects, CORS, CSP, cookies, and session settings match the deployment environment.
+- New agent or API access is scoped, audited, and rate-limited.
