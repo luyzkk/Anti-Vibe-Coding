@@ -3,7 +3,7 @@
 // (gray-matter nao esta no package.json do submodule).
 // Esquema fixo para compound notes (D19 — navegacao por IA). Resposta a Ambiguity 04-A1 (estrito).
 
-const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---\r?\n/
+export const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---\r?\n/
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
 
