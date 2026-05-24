@@ -78,9 +78,10 @@ More prose after block that must also be preserved.
     const reportExists = await fs.access(reportPath(tmpDir)).then(() => true).catch(() => false)
     expect(reportExists).toBe(true)
 
-    // Report deve conter 5 entradas
+    // Report deve conter cabecalho e informacoes das notas
     const reportContent = await fs.readFile(reportPath(tmpDir), 'utf-8')
-    expect(reportContent).toContain('migration-report')
+    expect(reportContent).toContain('# Migration Report')
+    expect(reportContent).toContain('Notes are NOT modified.')
 
     // RNF-04: notas NAO modificadas
     for (const note of badNotes) {
