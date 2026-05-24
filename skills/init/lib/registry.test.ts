@@ -6,8 +6,8 @@ import { describe, test, expect } from 'bun:test'
 import { registry } from './registry'
 
 describe('registry v7 (Plano 01 fase-04)', () => {
-  test('exatamente 10 steps (D12 revisada por DV-1 + DV-3)', () => {
-    expect(registry.length).toBe(10)
+  test('exatamente 11 steps (D12 + inject-harness-scripts 2026-05-22)', () => {
+    expect(registry.length).toBe(11)
   })
 
   test('ids batem com ordem D12 revisada', () => {
@@ -18,6 +18,7 @@ describe('registry v7 (Plano 01 fase-04)', () => {
       '03-secrets-scan',
       'migrate-planning-and-manifest',
       '05-scaffold-and-link',
+      'inject-harness-scripts',
       '06-install-gh-files',
       'generate-populate-plans',
       'delivery-loop',
@@ -26,22 +27,21 @@ describe('registry v7 (Plano 01 fase-04)', () => {
     ])
   })
 
-  test('todos os 10 steps sao reais (nenhum summary contem "stub")', async () => {
-    // 2026-05-21 (Luiz/dev): Plano 05 fase-05 — Steps 9-10 agora reais; loop de stubs removido.
-    // Steps 1-7 nao precisam de mock (nao tocam disco no cwd de producao para este check).
-    // Steps 8, 9, 10 retornam sem erro mesmo sem ctx completo (defensivos).
-    // Step 8 (delivery-loop) sem __interactiveAnswer retorna needsUser — summary e ''.
-    // Step 9 (copy-knowledge) roda runner real — summary indica stack detectada.
-    // Step 10 (final-validation) roda em cwd = process.cwd() — sem stack.json = sem abort.
+  test('todos os 11 steps sao reais (nenhum summary contem "stub")', async () => {
+    // Steps 1-8 nao precisam de mock (nao tocam disco no cwd de producao para este check).
+    // Steps 9, 10, 11 retornam sem erro mesmo sem ctx completo (defensivos).
+    // Step 9 (delivery-loop) sem __interactiveAnswer retorna needsUser — summary e ''.
+    // Step 10 (copy-knowledge) roda runner real — summary indica stack detectada.
+    // Step 11 (final-validation) roda em cwd = process.cwd() — sem stack.json = sem abort.
     const ctx = { cwd: process.cwd(), args: [], flags: {} } as any
-    const step8 = registry[7]!
     const step9 = registry[8]!
     const step10 = registry[9]!
-    const r8 = await step8.run(ctx)
+    const step11 = registry[10]!
     const r9 = await step9.run(ctx)
     const r10 = await step10.run(ctx)
-    expect(r8.summary).not.toContain('stub')
+    const r11 = await step11.run(ctx)
     expect(r9.summary).not.toContain('stub')
     expect(r10.summary).not.toContain('stub')
+    expect(r11.summary).not.toContain('stub')
   })
 })

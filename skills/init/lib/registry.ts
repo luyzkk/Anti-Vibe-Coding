@@ -9,6 +9,7 @@ import { detectLegacyAndStackStep } from './steps/02-detect-legacy-and-stack'
 import { secretsScanStep } from './steps/03-secrets-scan'
 import { migratePlanningAndManifestStep } from './steps/04-migrate-planning-and-manifest'
 import { scaffoldAndLinkStep } from './steps/05-scaffold-and-link'
+import { injectHarnessScriptsStep } from './steps/inject-harness-scripts'
 import { installGhFilesStep } from './steps/06-install-gh-files'
 import { generatePopulatePlansStep } from './steps/07-generate-populate-plans'
 import { deliveryLoopStep } from './steps/08-delivery-loop'
@@ -21,6 +22,7 @@ export const registry: readonly Step[] = [
   secretsScanStep,                // Step 3 — REAL (Plano 02 fase-02)
   migratePlanningAndManifestStep, // Step 4 — REAL (Plano 02 fase-03)
   scaffoldAndLinkStep,            // Step 5 — REAL (Plano 03 fase-01)
+  injectHarnessScriptsStep,       // Step 5b — REAL (2026-05-22 — inject harness scripts into existing package.json)
   installGhFilesStep,             // Step 6 — REAL (Plano 03 fase-02)
   generatePopulatePlansStep,      // Step 7 — REAL (Plano 04 fase-04)
   deliveryLoopStep,               // Step 8 — STUB (Plano 05)
