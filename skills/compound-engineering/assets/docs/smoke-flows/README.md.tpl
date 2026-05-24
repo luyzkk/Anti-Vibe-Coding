@@ -1,25 +1,33 @@
 # Smoke Flows
 
-Critical user flows that must pass before every production release.
+Use these recipes to keep browser verification consistent. Record human-paced videos with the cursor visible when UI or runtime behavior changed.
 
-## What is a smoke flow
+## Recipe Template
 
-A smoke flow is a high-level, human-readable description of a user journey. It is not a unit test — it documents the path a real user (or automated test) walks to verify the system is alive and the critical path works end-to-end.
+```md
+# Flow Name
 
-## Format
+## Role
 
-Each flow file should contain:
-1. **Goal** — what the user is trying to accomplish
-2. **Steps** — numbered list of actions
-3. **Expected outcome** — what "pass" looks like
-4. **Automated** — yes/no, link to test if yes
+Who performs the flow?
 
-## Flows
+## Setup
 
-| Flow | Critical | Automated |
-|------|----------|-----------|
-| TBD  | —        | —         |
+What data, credentials, or feature state is required?
 
----
+## Path
 
-Replace this scaffold with project-specific content.
+Where does the flow start?
+
+## Steps
+
+1. Step through the behavior at human pace.
+
+## Expected Result
+
+What must be true at the end?
+
+## Evidence
+
+Record the video path and any capture limitations in the execution plan or final report.
+```

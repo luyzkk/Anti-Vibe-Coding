@@ -1,29 +1,9 @@
 # Production Readiness Checklist
 
-Pre-release gate. All items must be checked before deploying to production.
-
-## Code Quality
-- [ ] All tests pass (`bun run test`)
-- [ ] No lint errors (`bun run lint`)
-- [ ] Typecheck clean (`bun run typecheck`)
-
-## Security
-- [ ] Security review checklist passed
-- [ ] No secrets in codebase (`git log` scan + `bun audit`)
-
-## Reliability
-- [ ] Reliability review checklist passed
-- [ ] Rollback plan documented
-
-## Observability
-- [ ] Error monitoring active and alert thresholds set
-- [ ] Key flows covered by smoke tests
-
-## Documentation
-- [ ] AGENTS.md current
-- [ ] ARCHITECTURE.md reflects current state
-- [ ] CHANGELOG updated (if public-facing)
-
----
-
-Replace this scaffold with project-specific content.
+- Environment variables and credentials are listed with owner and environment.
+- Database migrations, backfills, queue/cache schemas, and rollback risks are explicit.
+- Web, worker, scheduler, and one-off job processes are accounted for.
+- Storage buckets, CORS, lifecycle, and access policies are ready.
+- Email domains, sender identity, webhook secrets, and provider settings are configured.
+- Security headers, SSL/HSTS, rate limits, and token peppers are ready where applicable.
+- Smoke tests, monitoring, logs, alerting, replay, and rollback steps are known.
