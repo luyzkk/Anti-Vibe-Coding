@@ -8,10 +8,10 @@ Each compound note should begin with:
 
 ```yaml
 ---
-date: YYYY-MM-DD
-author: <name or "agent">
-tags: [<tag1>, <tag2>]
-decision: <one-line summary of the decision or lesson>
+title: "Curto título descritivo da nota"
+category: debugging
+tags: [tag1, tag2]
+created: YYYY-MM-DD
 ---
 ```
 
