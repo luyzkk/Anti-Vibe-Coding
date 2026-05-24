@@ -31,3 +31,16 @@ discovery/*.json
 
 # Test run artifacts (E2E migration test output — não versionado)
 tests/fixtures/__legacy-v5-e2e-run/
+
+# Material de consulta/referência local — NUNCA vai pro repo
+# Regra (memoria persistente feedback_git_repo_scope): apenas codigo do plugin
+# vai pro GitHub; documentos para estudo/exploracao de features ficam so locais.
+Infos/
+tmp/
+.tmp/
+.anti-vibe/
+CONVERSA_INIT.MD
+
+# Artifact acidental de redirect mal-feito no Windows (PowerShell trata `nul`
+# como dispositivo, mas comandos bash via tools podem criar arquivo literal)
+nul
