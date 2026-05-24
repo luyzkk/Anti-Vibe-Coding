@@ -1,10 +1,7 @@
 // 2026-05-24 (Luiz/dev): P2 — PRD SH-04/D8/D10 + RNF-02 idempotencia
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
-import type { PatchResult } from './patch-agents'
-
-// 2026-05-24 (Luiz/dev): re-exporta PatchResult de patch-agents para uso cruzado (spec instrui)
-export type { PatchResult }
+import type { PatchResult } from './patch-types'
 
 // 2026-05-24 (Luiz/dev): D10 — ordem canonica: Compound Opportunity → Review Checklist → Validation Log → Lessons Captured
 const NEW_PLAN_SECTIONS = [
