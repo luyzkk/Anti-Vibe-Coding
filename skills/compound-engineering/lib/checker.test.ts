@@ -11,9 +11,10 @@ import os from 'node:os'
 import { runCompoundCheck } from './checker'
 
 // Path para o compound-check.ts.tpl real (instalado como scripts/compound-check.ts no target)
+// 2026-05-24 (Luiz/dev): lib/ esta em skills/compound-engineering/lib/ — assets fica um nivel acima
 const TPL_PATH = path.resolve(
   import.meta.dir,
-  '../../assets/scripts/compound-check.ts.tpl',
+  '../assets/scripts/compound-check.ts.tpl',
 )
 
 describe('runCompoundCheck', () => {

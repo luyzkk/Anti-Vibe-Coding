@@ -86,3 +86,12 @@ Quando `args` comeca com `install`:
    - `Overwritten: <list>` (se `result.overwritten.length > 0`)
    - `Skipped existing files (use --force to overwrite): <list>` (se `result.skipped.length > 0`)
    - `result.notes` (uma linha por nota, ex: mensagem stack-agnostic sem package.json)
+
+### Subcomando: check
+
+Quando `args` comeca com `check`:
+
+1. Parse `--strict` em `args.includes('--strict')`.
+2. Invoca `runCompoundCheck(targetRoot, { strict })` de `skills/compound-engineering/lib/checker.ts`.
+3. Repassa exit code e output (stdout/stderr) ao caller.
+4. Se `--strict` e qualquer das 3 regras falhar, output inclui prefixo identificador da regra: `[agents-link]`, `[plan-generator]`, `[active-plan]`.
