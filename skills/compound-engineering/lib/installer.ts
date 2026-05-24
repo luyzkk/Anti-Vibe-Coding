@@ -2,6 +2,8 @@
 
 import { getCompoundManifest } from './manifest'
 import type { InstallOpts, InstallResult } from './install-types'
+import { patchAgentsMd } from './patch-agents'
+import { patchNewPlanTpl } from './patch-new-plan'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 
@@ -48,6 +50,13 @@ export async function installCompound(
       result.created.push(dstNorm)
     }
   }
+
+  // 2026-05-24 (Luiz/dev): patches P1/P2 — PRD SH-03/SH-04 + idempotencia RNF-02
+  // Sempre executam apos o loop de copia (sem flag adicional)
+  const p1 = await patchAgentsMd(targetRoot)
+  result.notes.push(p1.message)
+  const p2 = await patchNewPlanTpl(targetRoot)
+  result.notes.push(p2.message)
 
   return result
 }
