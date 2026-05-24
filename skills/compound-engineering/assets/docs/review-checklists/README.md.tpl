@@ -1,17 +1,9 @@
 # Review Checklists
 
-Domain-specific checklists used during code review and pre-release verification.
+Use these checklists before PR or production work. Pick the files that match the changed surface and record notable findings in the execution plan or final report.
 
-## Available Checklists
-
-| Checklist | When to use |
-|-----------|-------------|
-| `security.md` | Any change touching auth, input handling, secrets, or dependencies |
-| `reliability.md` | Any change to error handling, retries, or SLO-critical paths |
-| `agent-api.md` | Any change to agent-facing APIs or AGENTS.md instructions |
-| `frontend-ui.md` | Any UI change; accessibility and performance checks |
-| `production-readiness.md` | Pre-release gate for all production deployments |
-
-## Usage
-
-Work through the relevant checklist before marking a PR ready for review. Check off items as you verify them. Leave unchecked items with a comment explaining why they do not apply.
+- `security.md`: authentication, authorization, secrets, tokens, uploads, webhooks, and browser security.
+- `reliability.md`: jobs, retries, providers, storage, email, and rollback posture.
+- `agent-api.md`: agent API access, scopes, auditing, and skill contract.
+- `frontend-ui.md`: product UI, responsive behavior, accessibility, and smoke evidence.
+- `production-readiness.md`: launch prerequisites and operational rollout.
