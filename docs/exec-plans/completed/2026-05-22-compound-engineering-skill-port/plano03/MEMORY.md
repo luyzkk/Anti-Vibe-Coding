@@ -2,7 +2,7 @@
 
 **Feature:** compound-engineering-skill-port
 **Iniciado:** 2026-05-24
-**Status:** em andamento
+**Status:** concluido
 
 ---
 
