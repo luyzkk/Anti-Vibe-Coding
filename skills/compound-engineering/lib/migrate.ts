@@ -3,6 +3,7 @@
 // Notas (docs/compound/*.md) NUNCA sao modificadas.
 import { detectLegacySchema } from './readme-schema-detector'
 import { scanNotesInconsistencies, type NoteIssue } from './notes-inconsistency-scanner'
+import { listCompoundFiles } from './compound-files-collector'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 
@@ -47,7 +48,12 @@ export async function runMigrate(targetRoot: string): Promise<MigrateResult> {
   }
 
   // 2026-05-24 (Luiz/dev): scan notas — RNF-04 NAO reescreve nada nas notas
-  const issues = await scanNotesInconsistencies(targetRoot)
+  // 2026-05-24 (fix): listCompoundFiles separado para obter total escaneado (notesScanned)
+  // scanNotesInconsistencies retorna apenas notas COM issues — nao o total
+  const [files, issues] = await Promise.all([
+    listCompoundFiles(targetRoot),
+    scanNotesInconsistencies(targetRoot),
+  ])
   const reportPath = path.join(targetRoot, 'docs', 'compound', 'migration-report.md')
 
   if (issues.length > 0) {
@@ -58,7 +64,7 @@ export async function runMigrate(targetRoot: string): Promise<MigrateResult> {
   const uniqueNotes = new Set(issues.map((i) => i.path))
   return {
     readmeMigrated,
-    notesScanned: uniqueNotes.size,
+    notesScanned: files.length,
     notesWithIssues: uniqueNotes.size,
     reportPath: issues.length > 0 ? reportPath : undefined,
   }
