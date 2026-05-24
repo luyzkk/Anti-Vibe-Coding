@@ -1,7 +1,9 @@
 // 2026-05-24 (Luiz/dev): gate — PRD MH-06/RF-06, D20, CA-07/08/18/19
+// 2026-05-24 (Luiz/dev): completion signal SH-07 — renderCompletionSignal reusado de lessons-learned (G8)
 import { detectActivePlan } from './active-plan-detector'
 import { buildLessonsLearnedInvocation, parseLessonsLearnedCompletion } from './invoke-lessons-learned'
 import { updateLessonsCaptured } from './lessons-captured-updater'
+import { renderCompletionSignal } from '../../lib/completion-signal'
 
 // 2026-05-24 (Luiz/dev): tipos inline para evitar TDD gate (refinement DI-fase02-tipos-inline)
 export type GateAnswers = {
@@ -52,10 +54,19 @@ export async function runGate(
   if (!captured) {
     const reason = answers.noCaptureReason ?? 'no reason given'
     await updateLessonsCaptured(planPath, `no compound capture needed because: ${reason}`)
+    // 2026-05-24 (Luiz/dev): SH-07 — completion signal YAML para orquestradores (G8, D33)
+    // status=in_progress porque nao houve captura — partial outcome
+    const signal = renderCompletionSignal({
+      skill: 'anti-vibe-coding:compound-engineering',
+      status: 'in_progress',
+      outputs: [planPath],
+      next_suggested: null,
+      blocks_for_user: [],
+    })
     return {
       status: 'no-capture',
       planPath,
-      message: `Logged 'no compound capture needed' in plan's Lessons Captured section`,
+      message: `Logged 'no compound capture needed' in plan's Lessons Captured section\n\n${signal}`,
     }
   }
 
@@ -67,11 +78,20 @@ export async function runGate(
 
   const notePath = parsed.noteCreated ?? 'docs/compound/<see lessons-learned output>'
   await updateLessonsCaptured(planPath, `- Lesson captured: [${notePath}](../../${notePath})`)
+
+  // 2026-05-24 (Luiz/dev): SH-07 — completion signal YAML para orquestradores (G8, D33)
+  const signal = renderCompletionSignal({
+    skill: 'anti-vibe-coding:compound-engineering',
+    status: 'complete',
+    outputs: [notePath, planPath],
+    next_suggested: null,
+    blocks_for_user: [],
+  })
   return {
     status: 'captured',
     planPath,
     notePath,
-    message: `Lesson captured: ${notePath}. Linked in plan's Lessons Captured section.`,
+    message: `Lesson captured: ${notePath}. Linked in plan's Lessons Captured section.\n\n${signal}`,
   }
 }
 

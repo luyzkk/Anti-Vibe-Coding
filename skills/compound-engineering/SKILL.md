@@ -114,6 +114,20 @@ Quando `args` comeca com `gate`:
 
 Nota: `runGate` em `skills/compound-engineering/lib/gate.ts` encapsula esta logica para testes — o SKILL.md runtime substitui `invokeSkill` pela Skill tool nativa.
 
+7. Emite bloco YAML machine-readable no final do output (SH-07):
+   ```typescript
+   import { renderCompletionSignal } from '../lib/completion-signal'
+   // status='complete' se capturado, 'in_progress' se no-capture
+   const signal = renderCompletionSignal({
+     skill: 'anti-vibe-coding:compound-engineering',
+     status: 'complete',
+     outputs: [notePath, planPath],
+     next_suggested: null,
+     blocks_for_user: [],
+   })
+   // signal e appendado ao result.message — orquestradores parseiam via extractCompletionSignal()
+   ```
+
 ### Subcomando: migrate
 
 Quando `args` comeca com `migrate`:
