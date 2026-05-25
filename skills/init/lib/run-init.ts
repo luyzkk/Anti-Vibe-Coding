@@ -6,34 +6,10 @@ import { lazyImport } from './lazy-import'
 import { WriteRecorder } from './dry-run'
 import { createAuditLogWriterForCtx } from './audit-log-writer-factory'
 import { detectCrossUpgrade } from './cross-upgrade-detector'
+import { readPluginVersion } from './read-plugin-version'
 import { randomUUID } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
-
-async function readPluginVersion(): Promise<string> {
-  try {
-    const pluginJsonPath = path.join(
-      path.dirname(new URL(import.meta.url).pathname),
-      '..', '..', '..', '.claude-plugin', 'plugin.json',
-    )
-    const raw = await readFile(pluginJsonPath, 'utf-8')
-    const parsed = JSON.parse(raw) as { version?: string }
-    if (parsed.version) return parsed.version
-  } catch { /* fall through */ }
-  try {
-    const pkgPath = path.join(
-      path.dirname(new URL(import.meta.url).pathname),
-      '..', '..', '..', 'package.json',
-    )
-    const raw = await readFile(pkgPath, 'utf-8')
-    const parsed = JSON.parse(raw) as { version?: string }
-    if (parsed.version) return parsed.version
-  } catch { /* fall through */ }
-  // 2026-05-20 (Luiz/dev): D6 do PRD knowledge-path-cutover — fallback version bump 6.5.1 → 6.6.0.
-  // Patch 6.6.1: alinhamento de boundary tests do reentry-guard (verify-work).
-  // Minor 6.7.0: populate-plan-andre-port (Andre harness format) + gate path drift fix + caveats cleanup.
-  return '6.7.0'
-}
 
 export type RunInitOptions = {
   /** Permite injetar registry alternativo (tests). Default: registry global. */
