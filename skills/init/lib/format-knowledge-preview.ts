@@ -7,7 +7,10 @@ import { promises as fs } from 'node:fs'
 export const TOP_N_KEYWORDS = 8 as const
 
 /**
- * Parses the top-N keywords from the INDEX.md "Por keyword" table.
+ * Parses the top-N keywords from the INDEX.md keyword table.
+ *
+ * Supports both PT-BR ("## Por keyword") and EN ("## By keyword") section headers.
+ * PT-BR is used by Rails and Node-TS matrices; EN is used by the Next.js matrix per D15.
  *
  * @param indexPath - Absolute path to INDEX.md.
  * @param topN - How many keywords to return. `topN <= 0` returns `[]` immediately.
@@ -25,8 +28,9 @@ export async function parseTopKeywords(indexPath: string, topN: number = TOP_N_K
     return []
   }
 
-  // Localizar seção "## Por keyword" e parsear tabela markdown subsequente
-  const sectionMatch = content.match(/##\s+Por\s+keyword\s*\n([\s\S]*?)(?=\n##\s|$)/i)
+  // 2026-05-25 (Luiz/dev): aceitar 'By keyword' (EN) alem de 'Por keyword' (PT-BR) — RF-11 do PRD next-stack + G9 do README Plano 03.
+  // Backward compat: regex (?:Por|By) preserva matching para Rails/Node-TS INDEX PT-BR existentes.
+  const sectionMatch = content.match(/##\s+(?:Por|By)\s+keyword\s*\n([\s\S]*?)(?=\n##\s|$)/i)
   if (!sectionMatch || sectionMatch[1] === undefined) return []
 
   const sectionBody: string = sectionMatch[1]
