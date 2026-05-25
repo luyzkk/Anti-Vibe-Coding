@@ -4,6 +4,7 @@
 
 - [ARCHITECTURE.md](./ARCHITECTURE.md): system boundaries, layering, and ownership.
 - [docs/CODE_STYLE.md](./docs/CODE_STYLE.md): code style and conventions for agents (companion to DESIGN.md).
+- [docs/COMPOUND_ENGINEERING.md](./docs/COMPOUND_ENGINEERING.md): compound engineering and lessons capture.
 - [docs/PLANS.md](./docs/PLANS.md): when to open an execution plan and how to keep it current.
 - [docs/PRODUCT_SENSE.md](./docs/PRODUCT_SENSE.md): users, outcomes, product tradeoffs, and non-goals.
 - [docs/QUALITY_SCORE.md](./docs/QUALITY_SCORE.md): current quality bar and the biggest gaps.
@@ -12,7 +13,6 @@
 ## Anti-Vibe Extensions
 
 - [docs/MERGE_GATES.md](./docs/MERGE_GATES.md): PR gates, TDD enforcement, and quality checklist.
-- [docs/COMPOUND_ENGINEERING.md](./docs/COMPOUND_ENGINEERING.md): compound engineering and lessons capture.
 - [docs/review-checklists/](./docs/review-checklists/): pre-merge review checklists by domain.
 - [docs/smoke-flows/](./docs/smoke-flows/): critical user flows for smoke testing.
 
