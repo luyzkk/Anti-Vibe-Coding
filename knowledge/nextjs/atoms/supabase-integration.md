@@ -8,7 +8,6 @@ tier: 3
 triggers: [supabase, RLS, auth.js, SSR, "@supabase/ssr", createServerClient, createBrowserClient, signed URL, edge function]
 cross_stack_skills: [/security]
 updated: 2026-05-25
-flagged_for_human_audit: true
 ---
 
 # Supabase Integration
