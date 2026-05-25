@@ -34,8 +34,10 @@ export interface MultiStackResult {
 const MAX_DEPTH = 4
 const EXCLUDED_DIRS = new Set(['node_modules', 'vendor', 'dist', '.git', '.next', 'build', 'target', '.venv', '__pycache__'])
 
+// 2026-05-24 (Luiz/dev): PRD §RF-02 — matrix 'nextjs' herda extensoes de Node-TS (mesmo universo de fontes).
 const SOURCE_EXT_BY_MATRIX: Record<MatrixFolder, ReadonlyArray<string>> = {
   'nodejs-typescript': ['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs'],
+  'nextjs': ['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs'],
   'rails': ['.rb', '.erb'],
   'python': ['.py'],
   'laravel': ['.php'],
@@ -64,8 +66,14 @@ async function countSourceFiles(dir: string, extensions: ReadonlyArray<string>, 
 
 // 2026-05-16 (Luiz/dev): roda todos os probes (não first-match), agrega, aplica tiebreaker — CA-07.
 // Estratégia: probar anchor files diretamente aqui (lista curta) sem mexer em detect-stack.ts (G3).
+// 2026-05-24 (Luiz/dev): PRD §RF-03 — anchor para Vite + React (multi-stack tiebreaker).
+// G8: vite.config sem react em deps cai no probe singular como null — multi-stack adiciona
+// como candidato mas o tiebreaker por file count corrige se necessario.
 const ANCHOR_CHECKS: ReadonlyArray<[string, StackId]> = [
   ['package.json', 'node-ts'],
+  ['vite.config.ts', 'react'],
+  ['vite.config.js', 'react'],
+  ['vite.config.mjs', 'react'],
   ['Gemfile', 'rails'],
   ['pyproject.toml', 'python'],
   ['requirements.txt', 'python'],

@@ -93,6 +93,28 @@ describe('detectMultiStack', () => {
     expect(result.recognized_no_matrix).toEqual([])
   })
 
+  // 2026-05-24 (Luiz/dev): G8 — vite.config SEM react em deps NAO classifica como react via probe singular.
+  // detect-multi-stack usa file-presence-only em ANCHOR_CHECKS: vite.config.ts -> candidato 'react' -> folder 'nextjs'.
+  // Se Rails tem mais arquivos .rb que nextjs tem arquivos .ts, tiebreaker elege Rails como primary.
+  // O probe singular (detectStack) verifica deps — aqui documentamos que multi-stack com tiebreaker
+  // tambem produz resultado correto quando o stack rival tem mais source files.
+  it('detectMultiStack ignores vite.config when react is NOT in deps (G8 false-positive guard)', async () => {
+    const dir = await mkProject({
+      'vite.config.ts': 'export default {}',
+      // package.json SEM react em deps (projeto Vue-puro)
+      'package.json': JSON.stringify({ dependencies: { vue: '^3.0.0' } }),
+      'Gemfile': 'gem "rails"\n',
+      // Rails tem mais source files — tiebreaker elege rails como primary
+      'app/models/user.rb': 'class User; end',
+      'app/models/order.rb': 'class Order; end',
+      'app/models/item.rb': 'class Item; end',
+    })
+    const result = await detectMultiStack(dir)
+    // Rails vence o tiebreaker — nextjs/react nao deve ser primary quando rails tem mais .rb files
+    expect(result.primary).toBe('rails')
+    expect(result.primary).not.toBe('nextjs')
+  })
+
   it('completes detection within 500ms even with bounded walk (NFR perf, G4)', async () => {
     const dir = await mkProject({
       'package.json': JSON.stringify({ devDependencies: { typescript: '^5' } }),

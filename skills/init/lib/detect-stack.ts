@@ -10,7 +10,10 @@ import path from 'node:path'
 // compatibilidade com detect-multi-stack.ts (usa como placeholder interno para go.mod).
 // DetectedStack.primary usa Exclude<StackId, 'unknown'> | null — 'unknown' nunca aparece
 // como primary; o fallback e representado por null. Plano 01 fase-03.
-export type StackId = 'nextjs' | 'node-ts' | 'rails' | 'laravel' | 'python' | 'unknown'
+// 2026-05-24 (Luiz/dev): PRD §RF-03 — 'react' adicionado (Vite + React, sem Next).
+// G3 mitigation: probeNextjs RODA ANTES de probeReact em PROBES — todo Next.js project tem react
+// em deps; se probeReact viesse primeiro, classificaria Next como react e perderiamos o signal Next.
+export type StackId = 'nextjs' | 'react' | 'node-ts' | 'rails' | 'laravel' | 'python' | 'unknown'
 
 /**
  * Contrato multi-stack D22. Substitui o shape single-stack { id, signalSource }.
@@ -81,6 +84,33 @@ const probeNextjs: Probe = async (dir) => {
   return null
 }
 
+// 2026-05-24 (Luiz/dev): PRD §RF-03 — Vite + React puro.
+// G8: vite.config sozinho da falso-positivo (vue-vite, svelte-vite, lit-vite). EXIGE 'react' em deps.
+// Anchor: vite.config.{ts,js,mjs} — Vite suporta os 3; mjs cobre projects ESM-only.
+const probeReact: Probe = async (dir) => {
+  const viteConfigCandidates = ['vite.config.ts', 'vite.config.js', 'vite.config.mjs']
+  let viteConfigFound: string | null = null
+  for (const candidate of viteConfigCandidates) {
+    try {
+      await fs.access(path.join(dir, candidate))
+      viteConfigFound = candidate
+      break
+    } catch { /* segue */ }
+  }
+  if (!viteConfigFound) return null
+
+  const pkg = await readJsonSafe(path.join(dir, 'package.json'))
+  if (!pkg) return null
+  const deps: Record<string, unknown> = {
+    ...((pkg.dependencies as object | undefined) ?? {}),
+    ...((pkg.devDependencies as object | undefined) ?? {}),
+  }
+  if ('react' in deps) {
+    return { id: 'react', signalSource: `${viteConfigFound} + package.json#dependencies.react` }
+  }
+  return null
+}
+
 const probeNodeTs: Probe = async (dir) => {
   const pkg = await readJsonSafe(path.join(dir, 'package.json'))
   if (!pkg) return null
@@ -125,7 +155,10 @@ const probePython: Probe = async (dir) => {
  * rails, laravel, python sao independentes entre si mas vem depois do JS/TS.
  * 2026-05-18 (Luiz/dev): ordem preservada da v6.0 — nao reordenar sem DI registrado.
  */
-const PROBES: ReadonlyArray<Probe> = [probeNextjs, probeNodeTs, probeRails, probeLaravel, probePython]
+// 2026-05-24 (Luiz/dev): G3 mitigation — probeNextjs ANTES de probeReact.
+// Razao: todo Next.js project tambem tem 'react' em deps + pode ter vite.config (monorepo R5).
+// Se probeReact viesse primeiro: Next classificado como react, perdemos signal Next.
+const PROBES: ReadonlyArray<Probe> = [probeNextjs, probeReact, probeNodeTs, probeRails, probeLaravel, probePython]
 
 // 2026-05-18 (Luiz/dev): manifests que contam para telemetria CA-06 mesmo sem probe positivo
 const MANIFEST_FILES: ReadonlyArray<string> = [

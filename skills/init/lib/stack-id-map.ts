@@ -11,8 +11,12 @@ import type { StackId } from './detect-stack'
  * MatrixFolder type is derived from this array, so adding a value here
  * automatically expands the type — no dual maintenance of union type + Set.
  */
+// 2026-05-24 (Luiz/dev): PRD §RF-02 + D6 — 'nextjs' vira matrix folder propria.
+// 'react' (StackId novo) mapeia para a MESMA folder ('nextjs') porque atoms cobrem
+// React conceitual + Next idioms (D6 matrix compartilhada). Vite puro consome o mesmo INDEX.
 export const MATRIX_FOLDER_VALUES = [
   'nodejs-typescript',
+  'nextjs',
   'rails',
   'laravel',
   'python',
@@ -40,7 +44,12 @@ export function isMatrixFolder(s: unknown): s is MatrixFolder {
  */
 export const STACK_ID_TO_MATRIX_FOLDER: Record<StackId, string | null> = {
   'node-ts': 'nodejs-typescript',
-  'nextjs': 'nodejs-typescript', // Next.js shares the Node+TS matrix in v6.3.2
+  // 2026-05-24 (Luiz/dev): PRD §RF-02 — Next.js sai do compartilhamento com Node-TS para folder propria.
+  // Plano 01 fase-00 ja ajustou testes que codificavam 'nodejs-typescript' literal para Next (R1).
+  'nextjs': 'nextjs',
+  // 2026-05-24 (Luiz/dev): PRD §RF-03 + D6 — StackId 'react' (novo, vite-puro) compartilha matrix Next.
+  // Justificativa: 15 atoms cobrem React conceitual + Next idioms; cross-stack skills filtram por consulta.
+  'react': 'nextjs',
   'rails': 'rails',
   'laravel': 'laravel',
   'python': 'python',

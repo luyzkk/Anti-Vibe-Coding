@@ -144,4 +144,23 @@ describe('detectStack', () => {
     const r = await detectStack(FIXTURE)
     expect(r.primary).toBeNull()
   })
+
+  // 2026-05-24 (Luiz/dev): PRD §RF-03 — probeReact positivo (Vite + React puro).
+  it('detectStack returns react when vite.config.ts + react in deps', async () => {
+    await fs.writeFile(path.join(FIXTURE, 'vite.config.ts'), 'export default {}', 'utf8')
+    await writeJson('package.json', { dependencies: { react: '^18.0.0', 'react-dom': '^18.0.0' } })
+    const result = await detectStack(FIXTURE)
+    expect(result.primary).toBe('react')
+    expect(result.signalSource).toContain('vite.config.ts')
+    expect(result.signalSource).toContain('react')
+  })
+
+  // 2026-05-24 (Luiz/dev): G3 — probeNextjs vence em monorepo Next+Vite (R5).
+  // Todo Next.js project tem react em deps; se probeReact viesse primeiro, perderiamos signal Next.
+  it('detectStack returns nextjs when both Next AND vite.config exist (G3 monorepo R5)', async () => {
+    await fs.writeFile(path.join(FIXTURE, 'vite.config.ts'), 'export default {}', 'utf8')
+    await writeJson('package.json', { dependencies: { next: '^14.0.0', react: '^18.0.0' } })
+    const result = await detectStack(FIXTURE)
+    expect(result.primary).toBe('nextjs')
+  })
 })

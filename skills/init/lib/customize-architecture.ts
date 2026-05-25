@@ -12,6 +12,8 @@ const STACK_BLOCK_MARKER = '<!-- INIT:STACK_BLOCK -->'
 // stack primario valido em D22 (primary=null representa fallback). Fallback tratado via getPresentation().
 const STACK_PRESENTATION: Record<Exclude<StackId, 'unknown'>, { display: string; note: string }> = {
   nextjs:    { display: 'Next.js',                note: 'Next.js framework detected via package.json (D7).' },
+  // 2026-05-24 (Luiz/dev): PRD §RF-03 — 'react' (Vite + React puro) adicionado em fase-04.
+  react:     { display: 'React (Vite)',            note: 'React + Vite detected via vite.config + package.json#dependencies.react (PRD §RF-03).' },
   'node-ts': { display: 'Node.js + TypeScript',   note: 'Node.js + TypeScript detected via package.json (D7).' },
   rails:     { display: 'Ruby on Rails',           note: 'Rails framework detected via Gemfile (D7).' },
   laravel:   { display: 'Laravel (deferred)',      note: 'PHP+Laravel detected. Knowledge pack ships in v6.x.' },
