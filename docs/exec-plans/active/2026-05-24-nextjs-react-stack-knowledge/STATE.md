@@ -10,13 +10,13 @@
 
 | Plano | Nome | Fases | Done | Status |
 |-------|------|-------|------|--------|
-| 01 | Infra + Detector + Tracer Bullet | 6 | 4/6 | in-progress |
+| 01 | Infra + Detector + Tracer Bullet | 6 | 6/6 | done |
 | 02 | Atoms Feature-driven Next (EN) | 7 | 0/7 | pending |
 | 03 | Cross-cutting + React + Integrations + INDEX final | 7 | 0/7 | pending |
 
 ## Progress Global
 
-Fases done: 4/20 (20%)
+Fases done: 6/20 (30%)
 
 ## Atoms Flagged para Audit Humano (R3-B)
 
@@ -37,6 +37,8 @@ Audit final agendado para Plano 03 fase-07 (signature `Aprovado por Luiz em YYYY
 - 2026-05-24: Plano 01 fase-01 (scaffold knowledge/nextjs) concluida (UNCOMMITTED, aguarda bundle) — `knowledge/nextjs/INDEX.md` (82 linhas, EN, cabecalho `# Next.js + React Knowledge — Index`, preambulo D15+D6, ## By Cross-Stack Skill, ## By Tier (T1=7/T2=6/T3=2), ## By keyword placeholder, ## Status) + `knowledge/nextjs/atoms/.gitkeep`. GT-Plano01-fase01-harness-validate-atoms-vazia: `bun run harness:validate` REGRIDE com atoms/ vazia ([knowledge-presence]); estrategia: bundlar fase-01+02+03 num unico commit.
 - 2026-05-24: Plano 01 fase-02 (THIRD-PARTY-NOTICES.md) concluida (UNCOMMITTED, aguarda bundle) — arquivo na RAIZ do plugin (DI-Plano01-fase02-NOTICES-na-raiz, padrao kernel/Apache), MIT verbatim de `Infos/knowledge/NextJS/agent-skills-main/LICENSE` (sem typo "OUT OF OU" — DI-Plano01-fase02-MIT-source-sem-typo), Copyright (c) 2025 Addy Osmani, lista das 6 SKILL.md V2 (CA-11 grep checks: MIT=1, Copyright=1, 6 skills=6). `bun test` + `compound:check` verdes; `harness:validate` 2 erros pre-existentes (atoms/ vazia + broken-link CHANGELOG/rails-anchor — nao introduzidos por fase-02). GT-Plano01-fase02-skills-location-V2: skills com sufixo ` V2` no nome do diretorio.
 - 2026-05-24: Plano 01 fase-03 (piloto app-router-and-layouts.md) concluida (UNCOMMITTED, aguarda bundle) — `knowledge/nextjs/atoms/app-router-and-layouts.md` (141 linhas, EN, T1, 5 H2 sections, 7 frontmatter fields, 5 senior patterns + 3 anti-patterns + 9-row decision table + R5 edge case monorepo). Extrator subagente recebeu REGRA DE FIDELIDADE verbatim do compound 2026-05-16-extrator-subagente-injeta-verdades-fora-do-source.md. Verifier subagente aplicou VERIFIER REFINED PROTOCOL verbatim do compound 2026-05-16-verifier-protocol-technical-sections-only.md — auditou 24 claims tecnicas (Senior patterns + Anti-patterns + Decision criteria; pulou When to consult e Edge cases per protocol). Taxa inicial: 23/24=95.8% (APROVADO, gate ≥80%). Polish aplicado: 1 source adicionado (compass dbd12769 que continha quote verbatim Next.js docs) -> taxa final 24/24=100%. Verifier-report: `plano01/verifier-report-fase03.md`. `harness:validate` agora retorna SO o erro pre-existente CHANGELOG/rails-anchor (atoms/ vazia error GONE). Anti-drift + verifier refined ESTABELECIDOS como REGRESSION desde aqui — Plano 02/03 reusam blocos verbatim.
+- 2026-05-24: Plano 01 fases 01+02+03 BUNDLADAS em commit `3c55bdf` (R4 anti-regressao + GT atoms-vazia). Plano 01 fase-04 (detector atomic change) concluida em commit `4be337d` — 9 arquivos coordenados (7 spec + 2 typecheck-required: `customize-architecture.ts` + `legacy-manifest-schema.ts`). Mudancas: `STACK_ID_TO_MATRIX_FOLDER['nextjs']` agora retorna `'nextjs'` (era `'nodejs-typescript'`); `'react': 'nextjs'` adicionado (matriz compartilhada per D6); `StackId` ganhou `'react'`; `probeReact` (vite.config + react em deps, G8 false-positive guard); PROBES reordenado: `[probeNextjs, probeReact, probeNodeTs, ...]` (G3 mitigation precedencia); `SOURCE_EXT_BY_MATRIX['nextjs']` adicionado; `pickStaticMap('react')` retorna `NEXTJS_CANDIDATES`. 4 testes novos: probeReact positivo, probeNextjs vence monorepo, false-positive guard sem react, pickStaticMap('react'). `bun test` (44/44 nos 3 arquivos modificados), `bun typecheck` zero novos erros, `harness:validate` so erro pre-existente CHANGELOG/rails-anchor. DI-Plano01-fase04-scope-expansao-2-arquivos e DI-Plano01-fase04-tdd-evidence-warn registrados no MEMORY.
+- 2026-05-24: Plano 01 fase-05 (tracer bullet E2E + fixture Next.js) concluida — `tests/fixtures/nextjs-app-router-fixture/` (5 arquivos: package.json, next.config.js, tsconfig.json, src/app/page.tsx, src/app/layout.tsx); `tests/e2e/init-v7-nextjs-tracer-bullet.test.ts` (11 testes, CA-01/02/03/07); bug fix em `detect-multi-stack.ts` (DI-fase05-detectMultiStack-anchor-gap: adicionado `next.config.{js,ts}` como anchor nextjs-especifico em ANCHOR_CHECKS antes de package.json). 11/11 testes verdes, `bun test` global EXIT=0, perf CA-07 ~138ms total suite. Plano 01 concluido. Proximos: Plano 02 (Atoms Feature-driven Next).
 
 ## Plano 01 fase-03 — piloto app-router-and-layouts.md extraido (2026-05-24)
 
