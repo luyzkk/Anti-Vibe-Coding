@@ -40,7 +40,7 @@ describe('patchNewPlanTpl', () => {
     expect(after1).toBe(after2) // bytewise identical — RNF-02
   })
 
-  it('ordem das 4 secoes: Compound Opportunity → Review Checklist → Validation Log → Lessons Captured', async () => {
+  it('ordem das 4 secoes: Review Checklist → Validation Log → Compound Opportunity → Lessons Captured', async () => {
     const scriptsDir = path.join(tmpDir, 'scripts')
     await fs.mkdir(scriptsDir, { recursive: true })
     const tplPath = path.join(scriptsDir, 'new-plan.ts.tpl')
@@ -64,10 +64,10 @@ describe('patchNewPlanTpl', () => {
     expect(idxValidation).toBeGreaterThan(-1)
     expect(idxLessons).toBeGreaterThan(-1)
 
-    // ordem: Opportunity < Review < Validation < Lessons < Exit Criteria
-    expect(idxOpportunity).toBeLessThan(idxReview)
+    // ordem: Review < Validation < Opportunity < Lessons < Exit Criteria
     expect(idxReview).toBeLessThan(idxValidation)
-    expect(idxValidation).toBeLessThan(idxLessons)
+    expect(idxValidation).toBeLessThan(idxOpportunity)
+    expect(idxOpportunity).toBeLessThan(idxLessons)
     expect(idxLessons).toBeLessThan(idxExit)
   })
 
@@ -88,15 +88,15 @@ describe('patchNewPlanTpl', () => {
       [
         '# Plan',
         '',
-        '## Compound Opportunity',
-        '',
-        '_(content)_',
-        '',
         '## Review Checklist',
         '',
         '_(content)_',
         '',
         '## Validation Log',
+        '',
+        '_(content)_',
+        '',
+        '## Compound Opportunity',
         '',
         '_(content)_',
         '',
