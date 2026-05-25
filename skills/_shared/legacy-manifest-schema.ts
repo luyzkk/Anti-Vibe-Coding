@@ -47,7 +47,8 @@ export type LegacyEntry = z.infer<typeof LegacyEntrySchema>
 // `primary` pode ser null (fallback "no signal"). `confidence` derivado da quantidade
 // de manifests detectados — high se >=1 probe positivo + anchor files; low se nenhum.
 export const ManifestStackSchema = z.object({
-  primary: z.enum(['nextjs', 'node-ts', 'rails', 'laravel', 'python']).nullable(),
+  // 2026-05-24 (Luiz/dev): PRD §RF-03 — 'react' adicionado em fase-04 (Vite + React puro).
+  primary: z.enum(['nextjs', 'react', 'node-ts', 'rails', 'laravel', 'python']).nullable(),
   confidence: z.enum(['high', 'medium', 'low']),
 })
 

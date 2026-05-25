@@ -179,4 +179,19 @@ describe('stackAwareInputPaths', () => {
     expect(laravel.size).toBeGreaterThan(1)
     expect(python.size).toBeGreaterThan(1)
   })
+
+  // 2026-05-24 (Luiz/dev): PRD §RF-04 — pickStaticMap('react') DEVE retornar NEXTJS_CANDIDATES.
+  // Bug guard: case 'react' esquecido no switch retorna GENERIC_CANDIDATES (mapa quase-vazio),
+  // fazendo stackAwareInputPaths emitir lista vazia em Vite-only projects (D6 matrix compartilhada).
+  it("pickStaticMap('react') returns NEXTJS_CANDIDATES (shared matrix D6)", async () => {
+    const result = await stackAwareInputPaths(path.join(FIXTURES, 'empty'), 'react')
+    // GENERIC_CANDIDATES tem apenas ARCHITECTURE.md (size === 1).
+    // NEXTJS_CANDIDATES tem multiplos docs canonicos (size > 1) — assert confirma branch correto.
+    expect(result.size).toBeGreaterThan(1)
+    // Paths especificos de Next.js devem aparecer em ARCHITECTURE.md — confirma NEXTJS_CANDIDATES (nao GENERIC).
+    const arch = result.get('ARCHITECTURE.md') ?? []
+    const paths = arch.map(p => p.path)
+    expect(paths).toContain('src/app/layout.tsx')
+    expect(paths).toContain('src/app/page.tsx')
+  })
 })

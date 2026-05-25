@@ -493,9 +493,14 @@ function mergeCandidates(...maps: StackCandidates[]): StackCandidates {
  * unknown e null caem no GENERIC_CANDIDATES.
  * 2026-05-19 (Luiz/dev): Plano 05 fase-02 — Laravel e Python agora tem mapas dedicados (SH-2).
  */
+// 2026-05-24 (Luiz/dev): PRD §RF-04 + D6 — StackId 'react' herda o mesmo mapa de candidatos do Next.
+// R4 mitigation: matrix compartilhada implica paths compartilhados. Se alguem adicionar 'react' a
+// STACK_ID_TO_MATRIX_FOLDER mas esquecer o case aqui, stackAwareInputPaths retorna mapa vazio —
+// silent failure. Bloquear com test (Passo 7).
 function pickStaticMap(primary: StackId | null): StackCandidates {
   switch (primary) {
     case 'nextjs': return NEXTJS_CANDIDATES
+    case 'react': return NEXTJS_CANDIDATES // matrix compartilhada — D6
     case 'rails': return RAILS_CANDIDATES
     case 'node-ts': return NODE_TS_CANDIDATES
     case 'laravel': return LARAVEL_CANDIDATES
