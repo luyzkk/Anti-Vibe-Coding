@@ -15,6 +15,9 @@ Formato: o que foi decidido + por que + impacto.
 - **DI-W1-omissoes-por-source-gap:** 3 omissoes descobertas na Wave 1 por ausencia nos sources declarados: (1) `useTransition` removido de `react-hooks-and-state` — nenhum dos 3 sources cobre; (2) `NextAuth/Clerk` removidos de `security-stack-specific` — sources cobrem apenas Supabase; (3) dark mode, shadcn, CSS Modules vs Tailwind omitidos de `ui-and-styling` — compass_artifact_wf-a673671d e tooling report, nao UI/styling. Todos omitidos per REGRA DE FIDELIDADE.
 - **DI-W1-security-atom-CSRF:** CSRF esta nos triggers de `security-stack-specific` mas os sources nao documentam mecanica CSRF especifica para Server Actions alem de "sao endpoints HTTP publicos" + Zod validation. Descrito via Zod validation sem inventar CSRF-token specifics. Verifier batch fase-07 deve aceitar (claim qualitativa traceable ao source).
 - **DI-W1-ui-and-styling-lean:** `ui-and-styling.md` entregou 147 linhas (vs outros 154-190L) porque wf-a673671d e principalmente tooling (ESLint, TS, security), nao UI/styling. O V2 playbook cobre next/font apenas em snippet de layout. Atom e leanness e esperada, nao falha.
+- **DI-W2-suspense-use-hook-omitido:** `react-suspense-patterns.md` nao cobre `use()` hook com React 19 — sources mencionam `use()` apenas no contexto de "nao criar promises dentro de componentes" (rule 019), nao como hook de Suspense streaming no App Router. Omitido per REGRA DE FIDELIDADE.
+- **DI-W2-supabase-rls-edge-omitidos:** `supabase-integration.md` nao cobre RLS policy syntax (`auth.uid()` em Postgres), signed URLs para storage, edge functions — esses topicos nao estao no source `nextjs-supabase-auth/SKILL.md`. Atom foca em SSR clients (`createServerClient`/`createBrowserClient`), session exchange, cookies auth, anti-patterns de client no server. Verifier fase-07 deve aceitar (claims limitadas ao source).
+- **DI-W2-tdd-red-verde-confirmado:** TDD RED→GREEN para fase-05: testes 2+3 falharam antes da criacao do atom (existsSync→false, ENOENT), passei 3/3 apos. Tracer bullet 11/11 sem regressao — padrão validado para supabase E2E.
 
 ---
 
@@ -63,11 +66,12 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 7 |
-| Fases concluidas | 3 (fases 01+02+03 — Wave 1 paralela) |
+| Fases concluidas | 5 (fases 01+02+03 Wave 1 + fases 04+05 Wave 2) |
 | Fases com desvio | 0 |
-| Atoms entregues | 6 / 8 |
+| Atoms entregues | 8 / 8 |
 | Atoms acima do hard cap 200 linhas (pre-rework) | 0 |
 | Linhas por atom (Wave 1) | security=154, hooks=190, perf=117, testing=152, ui=147, errors=168 |
+| Linhas por atom (Wave 2) | suspense=178, supabase=183 |
 | Verifier rework rounds (fase-07) | 0 (pendente) |
 | Atoms flagged R3-B aprovados por humano | 0 / 3 (pendente fase-07) |
 
