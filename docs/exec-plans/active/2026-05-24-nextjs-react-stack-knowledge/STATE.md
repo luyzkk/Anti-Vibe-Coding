@@ -2,8 +2,8 @@
 
 **Plan:** ./PLAN.md
 **Phase:** in-progress
-**Current Plan:** 01/3
-**Last Updated:** 2026-05-24
+**Current Plan:** 03/3
+**Last Updated:** 2026-05-25 (Wave 1 done)
 **Detailed plans created:** Plano 01 (6 fases), Plano 02 (7 fases), Plano 03 (7 fases). Todos os 3 planos detalhados.
 
 ## Progress por Plano
@@ -11,12 +11,12 @@
 | Plano | Nome | Fases | Done | Status |
 |-------|------|-------|------|--------|
 | 01 | Infra + Detector + Tracer Bullet | 6 | 6/6 | done |
-| 02 | Atoms Feature-driven Next (EN) | 7 | 0/7 | pending |
-| 03 | Cross-cutting + React + Integrations + INDEX final | 7 | 0/7 | pending |
+| 02 | Atoms Feature-driven Next (EN) | 7 | 7/7 | done |
+| 03 | Cross-cutting + React + Integrations + INDEX final | 7 | 3/7 | in-progress |
 
 ## Progress Global
 
-Fases done: 6/20 (30%)
+Fases done: 16/20 (80%)
 
 ## Atoms Flagged para Audit Humano (R3-B)
 
@@ -39,6 +39,10 @@ Audit final agendado para Plano 03 fase-07 (signature `Aprovado por Luiz em YYYY
 - 2026-05-24: Plano 01 fase-03 (piloto app-router-and-layouts.md) concluida (UNCOMMITTED, aguarda bundle) — `knowledge/nextjs/atoms/app-router-and-layouts.md` (141 linhas, EN, T1, 5 H2 sections, 7 frontmatter fields, 5 senior patterns + 3 anti-patterns + 9-row decision table + R5 edge case monorepo). Extrator subagente recebeu REGRA DE FIDELIDADE verbatim do compound 2026-05-16-extrator-subagente-injeta-verdades-fora-do-source.md. Verifier subagente aplicou VERIFIER REFINED PROTOCOL verbatim do compound 2026-05-16-verifier-protocol-technical-sections-only.md — auditou 24 claims tecnicas (Senior patterns + Anti-patterns + Decision criteria; pulou When to consult e Edge cases per protocol). Taxa inicial: 23/24=95.8% (APROVADO, gate ≥80%). Polish aplicado: 1 source adicionado (compass dbd12769 que continha quote verbatim Next.js docs) -> taxa final 24/24=100%. Verifier-report: `plano01/verifier-report-fase03.md`. `harness:validate` agora retorna SO o erro pre-existente CHANGELOG/rails-anchor (atoms/ vazia error GONE). Anti-drift + verifier refined ESTABELECIDOS como REGRESSION desde aqui — Plano 02/03 reusam blocos verbatim.
 - 2026-05-24: Plano 01 fases 01+02+03 BUNDLADAS em commit `3c55bdf` (R4 anti-regressao + GT atoms-vazia). Plano 01 fase-04 (detector atomic change) concluida em commit `4be337d` — 9 arquivos coordenados (7 spec + 2 typecheck-required: `customize-architecture.ts` + `legacy-manifest-schema.ts`). Mudancas: `STACK_ID_TO_MATRIX_FOLDER['nextjs']` agora retorna `'nextjs'` (era `'nodejs-typescript'`); `'react': 'nextjs'` adicionado (matriz compartilhada per D6); `StackId` ganhou `'react'`; `probeReact` (vite.config + react em deps, G8 false-positive guard); PROBES reordenado: `[probeNextjs, probeReact, probeNodeTs, ...]` (G3 mitigation precedencia); `SOURCE_EXT_BY_MATRIX['nextjs']` adicionado; `pickStaticMap('react')` retorna `NEXTJS_CANDIDATES`. 4 testes novos: probeReact positivo, probeNextjs vence monorepo, false-positive guard sem react, pickStaticMap('react'). `bun test` (44/44 nos 3 arquivos modificados), `bun typecheck` zero novos erros, `harness:validate` so erro pre-existente CHANGELOG/rails-anchor. DI-Plano01-fase04-scope-expansao-2-arquivos e DI-Plano01-fase04-tdd-evidence-warn registrados no MEMORY.
 - 2026-05-24: Plano 01 fase-05 (tracer bullet E2E + fixture Next.js) concluida — `tests/fixtures/nextjs-app-router-fixture/` (5 arquivos: package.json, next.config.js, tsconfig.json, src/app/page.tsx, src/app/layout.tsx); `tests/e2e/init-v7-nextjs-tracer-bullet.test.ts` (11 testes, CA-01/02/03/07); bug fix em `detect-multi-stack.ts` (DI-fase05-detectMultiStack-anchor-gap: adicionado `next.config.{js,ts}` como anchor nextjs-especifico em ANCHOR_CHECKS antes de package.json). 11/11 testes verdes, `bun test` global EXIT=0, perf CA-07 ~138ms total suite. Plano 01 concluido. Proximos: Plano 02 (Atoms Feature-driven Next).
+- 2026-05-25: Plano 02 concluido (7/7 fases) — verifier batch 6/6 APPROVE, 100% rastreabilidade, 0 reworks. Transicao para Plano 03 (Current Plan: 03/3). Sessao encerrada para troca de contexto — Plano 03 retoma na proxima invocacao de /execute-plan.
+- 2026-05-25: Plano 02 Wave 2 (fases 04+05+06) concluida em paralelo — `data-fetching-and-cache.md` (183 linhas, 5 patterns, 4 anti-patterns, 8 rows; Next 14 vs 15 defaults documentados), `rendering-strategies.md` (165 linhas, T2, PPR marker confirmado, `next_versions: ['>=15']` frontmatter, 4 patterns, 9 rows), `pages-router-migration-tips.md` (146 linhas, T3, 4 patterns, 11-row mapping table). Todos 6 atoms Plano 02 presentes. Fase-07 (verifier batch) iniciando.
+- 2026-05-25: Plano 02 Wave 1 (fases 01+02+03) concluida em paralelo — 3 atoms criados: `react-server-components.md` (196 linhas, 4 patterns, 4 anti-patterns, 8 rows), `server-actions-and-mutations.md` (168 linhas, 5 patterns, 4 anti-patterns, 8 rows), `middleware-and-edge.md` (165 linhas, 5 patterns, 4 anti-patterns, 9 rows). Todos dentro do hard cap 200. `harness:validate` so erro pre-existente CHANGELOG/rails-anchor. Todos 4 secoes obrigatorias presentes. Wave 2 iniciando (fases 04+05+06).
+- 2026-05-25: Plano 03 Wave 1 (fases 01+02+03) concluida em paralelo — 6 atoms criados: `security-stack-specific.md` (154L, T1, R3-B flagged), `react-hooks-and-state.md` (190L, T1), `performance-and-turbopack.md` (117L, T2), `testing-strategy.md` (152L, T2), `ui-and-styling.md` (147L, T2), `error-handling-observability.md` (168L, T2). Todos dentro do hard cap 200. `harness:validate` so erro pre-existente. 3 omissoes por cobertura de source: useTransition nao nos sources (omitido de react-hooks), NextAuth/Clerk nao nos sources (omitido de security — Supabase apenas), dark mode/shadcn/CSS Modules nao nos sources (ui-and-styling mais leve). DI-W1-campo-cross_stack_skills: frontmatter usa `cross_stack_skills` (nao `related_skills` como fase docs indicavam) — consistente com atoms Plano 01 e 02. Progresso: 3/7 fases, 6/8 atoms. Wave 2 (fases 04+05) a iniciar.
 
 ## Plano 01 fase-03 — piloto app-router-and-layouts.md extraido (2026-05-24)
 
@@ -55,3 +59,16 @@ Audit final agendado para Plano 03 fase-07 (signature `Aprovado por Luiz em YYYY
 - **Verifier report:** `docs/exec-plans/active/2026-05-24-nextjs-react-stack-knowledge/plano01/verifier-report-fase03.md`
 - **Traceability rate:** 95.8% initial -> 100% post-polish (meta ≥80%) — APROVADO
 - **Next step:** fase-04 (detector atomic changes — 4 arquivos coordenados)
+
+## Plano 02 — Verifier batch (fase-07)
+
+Data: 2026-05-25
+Relatório: docs/exec-plans/active/2026-05-24-nextjs-react-stack-knowledge/plano02/verifier-report-plano02.md
+
+Status por atom:
+- react-server-components.md: verified
+- server-actions-and-mutations.md: verified
+- middleware-and-edge.md: verified
+- data-fetching-and-cache.md: verified
+- rendering-strategies.md: verified
+- pages-router-migration-tips.md: verified
