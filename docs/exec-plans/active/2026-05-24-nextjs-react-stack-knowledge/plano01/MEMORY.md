@@ -2,7 +2,7 @@
 
 **Feature:** Next.js + React Stack Knowledge
 **Iniciado:** 2026-05-24
-**Status:** in-progress (fase-00 concluida 2026-05-24)
+**Status:** in-progress (fase-00, fase-01, fase-02, fase-03 concluidas 2026-05-24)
 
 ---
 
@@ -22,6 +22,21 @@ Formato: o que foi decidido + por que + impacto.
 
 - **DI-Plano01-fase00-falhas-preexistentes-confirmadas:** `tests/harness-validate-v6-path-whitelist.test.ts` (6 falhas) e `tests/fixtures/generate-compound-fixture.test.ts` (5 falhas) confirmadas via git log como pre-existentes (commits `2de5886` e `aecb0f1`). `bun test` global ainda retorna EXIT=0 via runner.
   - Impacto: fases subsequentes nao devem culpar a feature pelas 11 falhas; tratar como GT herdado.
+
+- **DI-Plano01-fase02-NOTICES-na-raiz:** `THIRD-PARTY-NOTICES.md` commitado na RAIZ do plugin (em vez de `knowledge/nextjs/THIRD-PARTY-NOTICES.md`). Padrao tipo kernel/Apache — NOTICES unico centralizado.
+  - Por que: futuras stacks (Phoenix? Go?) que reusem material licenciado herdam o mesmo arquivo (uma fonte de verdade). Convencao mais comum em OSS.
+  - Impacto: caminhos relativos no NOTICES referenciam `Infos/knowledge/NextJS/agent-skills-main/<skill>/SKILL.md` — paths preservam audit trail mesmo com `Infos/` no .gitignore.
+
+- **DI-Plano01-fase02-MIT-source-sem-typo:** Fonte MIT em `Infos/knowledge/NextJS/agent-skills-main/LICENSE` NAO contem typo "OUT OF OU IN CONNECTION" (que a spec do fase-02 antecipava). Source usa "OR" corretamente. Texto verbatim sem ajuste.
+  - Impacto: nenhuma necessidade de divergencia do source; copia byte-for-byte aplicada.
+
+- **DI-Plano01-fase03-source-paths-sem-agent-skills-main:** Subagente extrator usou paths `Infos/knowledge/NextJS/nextjs-app-router-patterns/SKILL.md` (sem subdir `agent-skills-main/`). Verificado: skills existem em AMBOS os locais (`Infos/knowledge/NextJS/<skill>/` E `Infos/knowledge/NextJS/agent-skills-main/<skill>/`). Paths usados no atom sao validos.
+  - Por que: subagente listou `Infos/knowledge/NextJS/` e escolheu os paths diretos (sem o subdir `agent-skills-main`). Mais curto e tambem correto.
+  - Impacto: Plano 02/03 podem usar qualquer um dos dois patterns — preferir o mais curto (`Infos/knowledge/NextJS/<skill>/SKILL.md`) para consistencia. NOTICES referencia `agent-skills-main` (CA-11) — manter para attribution legal correta.
+
+- **DI-Plano01-fase03-polish-source-5-added:** Verifier reportou 23/24 (95.8% — APROVADO, single infundada nao-bloqueante). Claim #12 era quote verbatim de Next.js docs presente em `compass_artifact_wf-dbd12769` (sibling no mesmo diretorio) mas NAO declarado em `sources:`. Polish aplicado: adicionado dbd12769 como source 5 do atom. Taxa final 100% (24/24).
+  - Por que: option B do verifier (adicionar source) preferida sobre option A (paraphrasear) porque a quote tem valor pedagogico forte (Next.js docs canonico) E a fonte e legitima.
+  - Impacto: atom de 140 -> 141 linhas (ainda ≤200). Verifier-report atualizado com nota inline da polish.
 
 <!-- Exemplo:
 - **DI-Plano01-fase00-localizacao-NOTICES:** decidiu-se commitar `THIRD-PARTY-NOTICES.md` na raiz do plugin (em vez de `knowledge/nextjs/THIRD-PARTY-NOTICES.md`)
@@ -56,6 +71,14 @@ Apenas gotchas que NAO eram obvios antes de implementar.
   - Impacto: Plano 02/03 fixtures Vite devem ter `react` em `package.json` ou probe não bate
 -->
 
+- **GT-Plano01-fase01-harness-validate-atoms-vazia:** Criar `knowledge/nextjs/` com `atoms/` vazia (so .gitkeep) faz `bun run harness:validate` REGREDIR — validator `scripts/harness-validate.ts:670-721` rejeita matrix folders com `atomCount === 0` (`[knowledge-presence] knowledge/nextjs/atoms/ has no .md files`).
+  - Descoberto em: fase-01 (validator agressivo nao tolera estado intermediario)
+  - Impacto: nunca commitar fase-01 isolada (harness vermelho). Bundlar fase-01+02+03 num unico commit — fase-03 cria atom piloto que satisfaz validator. Estrategia adotada: 2 commits planejados ate aqui (planning artifacts + fase-00). Fase-01+02+03 bundlado no proximo.
+
+- **GT-Plano01-fase02-skills-location-V2:** As 6 SKILL.md V2 ficam em `Infos/knowledge/NextJS/agent-skills-main/<skill-name> V2/SKILL.md` (com sufixo ` V2` no nome do diretorio), nao em diretorios sem sufixo. Spec antecipava ambos os patterns — confirmado V2.
+  - Descoberto em: fase-02 (subagente teve que listar antes de copiar caminhos no NOTICES)
+  - Impacto: Plano 02/03 (extratores) devem referenciar fontes via caminho `... V2/SKILL.md` para skills mais novas; pacote V1 (sem sufixo) tambem existe e e fonte complementar. Documentar em frontmatter `sources:` dos atoms o caminho exato.
+
 ---
 
 ## Desvios do Plano
@@ -77,14 +100,14 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 6 |
-| Fases concluidas | 1 (fase-00) |
+| Fases concluidas | 4 (fase-00, fase-01, fase-02, fase-03) |
 | Fases com desvio | 0 |
 | Bugs encontrados | 0 |
-| Retries necessarios | 0 |
+| Retries necessarios | 0 (polish single-source-add em fase-03 nao conta como retry) |
 | Arquivos catalogados em fase-00 (audit) | 11 arquivos, 19 ocorrencias (estimativa PRD ~9 superada) |
 | Categoria A / B / C em fase-00 | 9 A / 0 B / 5 C |
-| Linhas do piloto (≤200 hard cap) | — |
-| Verifier refined taxa rastreabilidade | — (meta ≥80%) |
+| Linhas do piloto (≤200 hard cap) | 141 linhas (29% abaixo do cap) |
+| Verifier refined taxa rastreabilidade | 95.8% inicial -> 100% pos-polish (meta ≥80% — APROVADO) |
 
 ---
 
