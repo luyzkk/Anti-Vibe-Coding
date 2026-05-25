@@ -93,10 +93,13 @@ This is the agent index.
     ['docs/PLANS.md', '# Plans\n'],
     ['docs/PRODUCT_SENSE.md', '# Product Sense\n'],
     ['docs/QUALITY_SCORE.md', '# Quality Score\n'],
+    ['docs/MERGE_GATES.md', '# Merge Gates\n'],
     ['docs/RELIABILITY.md', '# Reliability\n'],
     ['docs/SECURITY.md', '# Security\n'],
     ['docs/COMPOUND_ENGINEERING.md', '# Compound Engineering\n'],
+    ['docs/CODE_STYLE.md', '# Code Style\n'],
     ['docs/STATE.md', stateMd],
+    ['.claude/CLAUDE.md', agentsMd],
     ['docs/design-docs/index.md', '# Design Docs\n'],
     ['docs/design-docs/core-beliefs.md', '# Core Beliefs\n'],
     ['docs/exec-plans/active/README.md', '# Active Plans\n'],
@@ -114,16 +117,19 @@ This is the agent index.
 
   // Copiar harness-validate.ts e compound-check.ts do template do plugin.
   // Fixture deve ser auto-suficiente: scripts devem existir em scripts/ (required-files check).
+  // 2026-05-25 (Luiz/dev): compound-check.ts.tpl mudou de owner — PRD 2026-05-22 (D2-B)
+  // moveu para skills/compound-engineering/assets/. harness-validate.ts.tpl ficou no init.
   const pluginRoot = path.resolve(import.meta.dir, '../..')
-  const templatesDir = path.join(pluginRoot, 'skills/init/assets/templates/scripts')
+  const initTemplatesDir = path.join(pluginRoot, 'skills/init/assets/templates/scripts')
+  const compoundTemplatesDir = path.join(pluginRoot, 'skills/compound-engineering/assets/scripts')
 
   await ensureDir(path.join(targetDir, 'scripts'))
   await fs.copyFile(
-    path.join(templatesDir, 'harness-validate.ts.tpl'),
+    path.join(initTemplatesDir, 'harness-validate.ts.tpl'),
     path.join(targetDir, 'scripts/harness-validate.ts'),
   )
   await fs.copyFile(
-    path.join(templatesDir, 'compound-check.ts.tpl'),
+    path.join(compoundTemplatesDir, 'compound-check.ts.tpl'),
     path.join(targetDir, 'scripts/compound-check.ts'),
   )
 }
