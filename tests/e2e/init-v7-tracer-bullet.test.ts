@@ -27,7 +27,7 @@ describe('init v7 tracer bullet (Plano 01 fase-06)', () => {
     rmSync(cwd, { recursive: true, force: true })
   })
 
-  test('greenfield: 11 steps executam em ordem D12 revisada, exit 0', async () => {
+  test('greenfield: 12 steps executam em ordem D12 revisada, exit 0', async () => {
     const result = await runInit([], {
       cwd,
       log: (line: string) => logs.push(line),
@@ -36,7 +36,7 @@ describe('init v7 tracer bullet (Plano 01 fase-06)', () => {
     // 1. Exit ok (gate nao dispara em greenfield)
     expect(result.kind).toBe('ok')
 
-    // 2. Ordem dos 11 steps no log (cada step emite `[<id>] <summary>`)
+    // 2. Ordem dos 12 steps no log (cada step emite `[<id>] <summary>`)
     const stepLogPattern = /^\[([^\]]+)\]/
     const stepIds = logs
       .map(l => l.match(stepLogPattern)?.[1])
@@ -55,6 +55,7 @@ describe('init v7 tracer bullet (Plano 01 fase-06)', () => {
       'delivery-loop',
       'copy-knowledge',
       'final-validation',
+      'write-anti-vibe-manifest',
     ])
 
     // 3. Step 1 (gate) passou silencioso em greenfield
