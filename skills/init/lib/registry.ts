@@ -15,6 +15,7 @@ import { generatePopulatePlansStep } from './steps/07-generate-populate-plans'
 import { deliveryLoopStep } from './steps/08-delivery-loop'
 import { copyKnowledgeStep } from './steps/09-copy-knowledge'
 import { finalValidationStep } from './steps/10-final-validation'
+import { writeAntiVibeManifestStep } from './steps/11-write-anti-vibe-manifest'
 
 export const registry: readonly Step[] = [
   reentryGateStep,                // Step 1 — REAL (Plano 01 fase-03, DV-3)
@@ -28,4 +29,5 @@ export const registry: readonly Step[] = [
   deliveryLoopStep,               // Step 8 — STUB (Plano 05)
   copyKnowledgeStep,              // Step 9 — STUB (Plano 05)
   finalValidationStep,            // Step 10 — STUB (Plano 05)
+  writeAntiVibeManifestStep,      // Step 11 — REAL (2026-05-25 — grava .anti-vibe-manifest.json com pluginVersion)
 ]
