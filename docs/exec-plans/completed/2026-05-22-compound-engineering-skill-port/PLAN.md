@@ -176,7 +176,24 @@ _(Preenchido ao final pelo `/compound-engineering gate` desta própria feature �
 
 ## Lessons Captured
 
-_(Preenchido durante execução / final via gate — vazio inicialmente.)_
+**Gate executado:** 2026-05-25 via `/anti-vibe-coding:compound-engineering gate` (dogfooding D24).
+
+### Licao priorizada para captura formal
+
+- **Titulo:** "Grep cross-skill amplo: incluir `skills/` `tests/` `scripts/` em refactors de renomeacao/mocao"
+- **Origem:** `BUG-fase02-grep-escopo-incompleto` (Plano 02 fase-03 retroativo) — callsite orfao em `tests/lessons-learned-v6.test.ts` escapou de grep limitado a `skills/`.
+- **Status:** Pendente em `docs/compound/` — Skill tool nativa bloqueada (`disable-model-invocation`); requer invocacao manual: `/anti-vibe-coding:lessons-learned add "Grep cross-skill amplo: incluir skills/ tests/ scripts/ em refactors de renomeacao/mocao"`
+
+### Outras licoes candidatas (do SUMMARY)
+
+- TDD gate em tipos puros (`GT-fase01-tdd-gate-tipos-puros`) — manter tipos INLINE evita arquivo de testes vazio.
+- `git mv` + content replace = estrategia 2-commits para preservar linhagem (`GT-fase01-git-mv-conteudo-diferente-dois-commits`).
+- Spec frequentemente diverge de API real — validar antes de implementar (DIs fase-04 `parseFrontmatter` e fase-06 `completion-signal`).
+
+### Achados operacionais do proprio gate (meta — input para captura futura)
+
+- **OP-01 (PR-based Exit Criteria + main-direct landing):** Item "PR descricao lista os 3 patches aplicados" pressupunha workflow de feature-branch + PR. 32 commits desta feature foram direto em `main`. Exit Criteria deveria condicionar: "se houver PR, descricao lista patches; senao, registrar em SUMMARY/CHANGELOG."
+- **OP-02 (D20/CA-16 quebrado por `disable-model-invocation`):** `gate` foi desenhado para invocar `lessons-learned add` via Skill tool nativa. Em ambientes com flag `disable-model-invocation` ativa para `lessons-learned`, a invocacao falha — gate degrada para "registrar pendencia e instruir invocacao manual". Premissa do PRD precisa de fallback documentado.
 
 ## Exit Criteria
 
