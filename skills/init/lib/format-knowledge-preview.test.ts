@@ -86,6 +86,18 @@ describe('format-knowledge-preview (RF10)', () => {
     expect(keywords.length).toBe(50)
     rmSync(tmpDir, { recursive: true, force: true })
   })
+
+  test('parses keywords from EN "By keyword" section (Next.js INDEX)', async () => {
+    const tmpDir = mkdtempSync(join(tmpdir(), 'kn-en-'))
+    const indexPath = join(tmpDir, 'INDEX.md')
+    writeFileSync(
+      indexPath,
+      `# Index\n\n## By keyword\n\n| Keyword | Atoms |\n|---|---|\n| a, b, c, d, e, f, g, h, i, j | [atom](./atoms/atom.md) |\n`,
+    )
+    const result = await parseTopKeywords(indexPath, 8)
+    expect(result).toEqual(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'])
+    rmSync(tmpDir, { recursive: true, force: true })
+  })
 })
 
 describe('extractRailsVersionWarning (RF11)', () => {

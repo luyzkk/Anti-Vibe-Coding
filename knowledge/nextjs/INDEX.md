@@ -1,82 +1,81 @@
-<!-- 2026-05-24 (Luiz/dev): INDEX skeleton Plano01 fase-01. INDEX final consolidado em Plano03 fase-06 (layout completo: ## By Cross-Stack Skill + ## By Tier + ## By keyword com mappings das 4 skills). Alinhado com RF-01 + D15 + D16 do PRD. -->
+<!-- 2026-05-25 (Luiz/dev): INDEX final consolidado Plano 03 fase-06. Layout D9 (by cross-stack skill + by tier + by keyword) em EN per D15. 15 atoms canonicos. -->
 
 # Next.js + React Knowledge — Index
 
-Senior knowledge for Next.js (App Router 13+/14/15) and React conceptual patterns (hooks, Suspense, Server Components). 15 atoms covering app router, RSC, server actions, middleware, data fetching, rendering strategies, security, performance, testing, UI/styling, error handling, React hooks/state, Suspense, Supabase integration, and Pages Router migration. Cross-stack skills consume this INDEX via `getStackKnowledgePreface()` before the generic body.
-
-> **Language note (D15 of PRD):** atoms in this matrix folder are written in **English**, aligned with official Next.js/React docs and the global ecosystem vocabulary (server components, suspense boundary, server actions). Other matrix folders — `knowledge/rails/` and `knowledge/nodejs-typescript/` — remain in PT-BR. Heterogeneity is a conscious trade-off; cross-stack skill prefaces emitted to a Next.js project will mix PT-BR (skill wrapper text) with EN (atom citations).
+> Senior Next.js + React knowledge (Next 14+ App Router, React 18+). 15 atoms covering App Router, Server Components, Server Actions, middleware, data fetching, rendering strategies, security, performance, testing, UI/styling, error handling, React hooks, Suspense patterns, plus Supabase integration and Pages Router migration tips.
 >
-> **Shared matrix (D6 of PRD):** this folder serves both Next.js projects and pure React (Vite) projects. The detector maps StackId `'react'` to this same matrix via `STACK_ID_TO_MATRIX_FOLDER['react'] = 'nextjs'`. React-conceptual atoms (hooks, Suspense, RSC) are leveraged in both contexts; Next-specific atoms (app router, middleware, server actions) are also present but filtered by consultation, not download.
+> **Heterogeneity note:** This matrix is written in **English** (aligned with Next.js/React official docs and global ecosystem vocabulary). Other matrix folders (`knowledge/rails/`, `knowledge/nodejs-typescript/`) remain in PT-BR. Cross-stack skill preface mixes PT-BR (skill wrapper text) with EN (atom citations) — accepted trade-off per D15.
 
 ---
 
 ## By Cross-Stack Skill
 
-<!-- Populated in Plano 03 fase-06 with mappings to /security, /react-patterns, /api-design, /system-design.
-     Each subsection (### For /<skill>) lists atoms (≥2 per skill per CA-09). -->
-
 ### For /security
-
-_To be populated after Plano 03 fase-01 (security-stack-specific atom)._
+- **middleware-and-edge** (T1) — middleware auth, runtime constraints, cookies handling, NextAuth/Clerk/Supabase auth patterns
+- **security-stack-specific** (T1) — middleware auth, CSRF in Server Actions, RSC secret leaks (`server-only`), auth.js patterns
 
 ### For /react-patterns
-
-_To be populated after Plano 02 fase-01 (react-server-components) + Plano 03 fase-01 (react-hooks-and-state) + fase-04 (react-suspense-patterns)._
+- **react-server-components** (T1) — server vs client boundaries, props serialization, useState/useEffect forbidden in RSC
+- **react-hooks-and-state** (T1) — useState/useReducer/useFormState/useOptimistic, interplay with Server Actions
+- **react-suspense-patterns** (T2) — Suspense boundaries, loading.tsx, streaming SSR, use() hook (Next 15+)
+- **rendering-strategies** (T2) — when to use static/dynamic/PPR (Next 15+)
 
 ### For /api-design
-
-_To be populated after Plano 02 fases 01-04 (server-actions, app-router, data-fetching)._
+- **server-actions-and-mutations** (T1) — `'use server'`, when to use vs route handlers, validation with Zod, revalidatePath/Tag
+- **data-fetching-and-cache** (T1) — `fetch()` with cache options, Next cache layers (data cache + full route cache), revalidate, tags
+- **app-router-and-layouts** (T1) — route handlers, dynamic routes, parallel routes
 
 ### For /system-design
-
-_To be populated after Plano 02 fase-04 (data-fetching), fase-05 (rendering-strategies with PPR), and Plano 03 fase-02 (performance-and-turbopack)._
+- **data-fetching-and-cache** (T1) — Next cache layers (data cache + full route cache), invalidation strategies
+- **rendering-strategies** (T2) — SSG/SSR/ISR/PPR trade-offs
+- **performance-and-turbopack** (T2) — bundle size, RSC payload, edge cold start, Turbopack vs Webpack
+- **error-handling-observability** (T2) — error.tsx boundaries, OTel integration via instrumentation.ts
 
 ---
 
 ## By Tier
 
-<!-- Atoms listed as planned in PRD Section "Lista canônica de atoms (15)".
-     Status column reflects which plan delivers each atom. -->
+### Tier 1 — Every Next.js senior dev needs (7 atoms)
+- `app-router-and-layouts` — App Router, nested layouts, parallel routes, route handlers
+- `react-server-components` — server vs client boundaries, async components, RSC props serialization
+- `server-actions-and-mutations` — `'use server'`, validation, revalidatePath, progressive enhancement
+- `middleware-and-edge` — middleware.ts, edge runtime constraints, cookies, auth patterns
+- `data-fetching-and-cache` — `fetch()` cache, Next cache layers, revalidate, tags
+- `security-stack-specific` — middleware auth, CSRF, RSC secret leaks, auth.js patterns
+- `react-hooks-and-state` — useState/useReducer/useFormState/useOptimistic patterns
 
-### Tier 1 — Every Next.js / senior React dev needs (7 atoms)
+### Tier 2 — Common in mid-size apps (6 atoms)
+- `rendering-strategies` — SSG/SSR/ISR + PPR section (Next 15+)
+- `performance-and-turbopack` — bundle, RSC payload, edge cold start
+- `testing-strategy` — Playwright, RTL, async server component tests
+- `ui-and-styling` — Tailwind, next/font, next/image, shadcn patterns
+- `error-handling-observability` — error.tsx, global-error.tsx, OTel via instrumentation.ts
+- `react-suspense-patterns` — Suspense boundaries, streaming, loading.tsx interplay with error.tsx
 
-- `app-router-and-layouts` — App Router fundamentals, route handlers, layouts, dynamic/parallel/intercepting routes _(Plano 01 fase-03 — pilot)_
-- `react-server-components` — server vs client boundaries, props serialization, useState/useEffect proibidos em RSC _(Plano 02 fase-01)_
-- `server-actions-and-mutations` — `'use server'`, Zod validation, revalidatePath/Tag, progressive enhancement _(Plano 02 fase-02)_
-- `middleware-and-edge` — runtime constraints, cookie handling, NextAuth/Clerk/Supabase auth _(Plano 02 fase-03)_
-- `data-fetching-and-cache` — `fetch()` cache options, Next cache layers, revalidate, tags _(Plano 02 fase-04)_
-- `security-stack-specific` — middleware auth, CSRF, RSC leaks, secret handling _(Plano 03 fase-01)_
-- `react-hooks-and-state` — useState/useReducer/useFormState/useOptimistic _(Plano 03 fase-01)_
-
-### Tier 2 — Common in mid-to-large apps (6 atoms)
-
-- `rendering-strategies` — SSG/SSR/ISR + PPR (Next 15+ via `next_versions: ['>=15']` per D13) _(Plano 02 fase-05)_
-- `performance-and-turbopack` — bundle, RSC payload, edge cold start _(Plano 03 fase-02)_
-- `testing-strategy` — Playwright, RTL, RSC tests _(Plano 03 fase-02)_
-- `ui-and-styling` — Tailwind, fonts, images, shadcn _(Plano 03 fase-03)_
-- `error-handling-observability` — error.tsx boundaries, OTel integration _(Plano 03 fase-03)_
-- `react-suspense-patterns` — Suspense boundaries, streaming, loading.tsx _(Plano 03 fase-04)_
-
-### Tier 3 — Deep-dive / legacy (2 atoms)
-
-- `supabase-integration` — RLS via SSR, server vs client clients, signed URLs _(Plano 03 fase-05)_
-- `pages-router-migration-tips` — Pages → App Router migration _(Plano 02 fase-06)_
+### Tier 3 — Niche / legacy (2 atoms)
+- `supabase-integration` — `@supabase/ssr`, RLS via SSR, signed URLs, edge functions
+- `pages-router-migration-tips` — Pages -> App Router migration for Next 13+ projects
 
 ---
 
 ## By keyword
 
-<!-- Populated in Plano 03 fase-06. Top-N keywords extracted from all atom triggers,
-     consumed by formatKnowledgePreview() parser per RF-11. -->
+| Keyword | Atoms |
+|---|---|
+| app router, layout, route handler, parallel route | [app-router-and-layouts](./atoms/app-router-and-layouts.md) |
+| RSC, server component, "use client", props serialization | [react-server-components](./atoms/react-server-components.md) |
+| server action, "use server", revalidatePath, mutation | [server-actions-and-mutations](./atoms/server-actions-and-mutations.md) |
+| middleware, edge runtime, cookies, NextAuth, Clerk | [middleware-and-edge](./atoms/middleware-and-edge.md) |
+| fetch, cache, revalidate, tags, data cache | [data-fetching-and-cache](./atoms/data-fetching-and-cache.md) |
+| SSG, SSR, ISR, PPR, partial prerendering | [rendering-strategies](./atoms/rendering-strategies.md) |
+| security, CSRF, RSC leak, auth.js, server-only | [security-stack-specific](./atoms/security-stack-specific.md) |
+| Turbopack, bundle, RSC payload, edge cold start | [performance-and-turbopack](./atoms/performance-and-turbopack.md) |
+| Playwright, RTL, Vitest, async server component test | [testing-strategy](./atoms/testing-strategy.md) |
+| Tailwind, next/font, next/image, shadcn | [ui-and-styling](./atoms/ui-and-styling.md) |
+| error.tsx, global-error, OTel, Sentry, instrumentation.ts | [error-handling-observability](./atoms/error-handling-observability.md) |
+| useState, useReducer, useFormState, useOptimistic | [react-hooks-and-state](./atoms/react-hooks-and-state.md) |
+| Suspense, loading.tsx, streaming, use() hook | [react-suspense-patterns](./atoms/react-suspense-patterns.md) |
+| supabase, RLS, "@supabase/ssr", signed URL | [supabase-integration](./atoms/supabase-integration.md) |
+| Pages Router, migration, getServerSideProps, getStaticProps | [pages-router-migration-tips](./atoms/pages-router-migration-tips.md) |
 
-_To be populated after all 15 atoms exist._
-
----
-
-## Status
-
-- Pilot atom: pending (Plano 01 fase-03)
-- Detector adjustment: pending (Plano 01 fase-04)
-- Tracer bullet E2E: pending (Plano 01 fase-05)
-- Feature-driven atoms (6): pending (Plano 02)
-- Cross-cutting + React + Integrations + INDEX final: pending (Plano 03)
+Coverage Next 14+ / React 18+. Next 15-only features (PPR, `use()` hook stable) marked with `next_versions: ['>=15']` in atom frontmatter (currently: `rendering-strategies`).
