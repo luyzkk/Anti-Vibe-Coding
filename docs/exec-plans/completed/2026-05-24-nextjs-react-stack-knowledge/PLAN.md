@@ -1,8 +1,9 @@
 ---
 title: "Next.js + React Stack Knowledge"
 mode: full
-status: active
+status: completed
 created: 2026-05-24
+completedAt: 2026-05-25
 ---
 
 # Exec Plan: Next.js + React Stack Knowledge

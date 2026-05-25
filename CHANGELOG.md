@@ -3,6 +3,57 @@
 Todas as mudanças notáveis do plugin Anti-Vibe Coding serão documentadas aqui.
 
 
+## [7.3.0] - 2026-05-25
+
+> **Minor release — Next.js + React Stack Knowledge (15 atoms)**
+>
+> Primeira stack knowledge completa em inglês (D15). 15 atoms extraídos de 9 fontes declaradas
+> com anti-drift clause + verifier batch (94% rastreabilidade, 0 rework rounds).
+> Detector ampliado com `nextjs` e `react` como StackIds distintos.
+> Parser de preview atualizado para aceitar INDEX em EN (`By keyword`).
+
+### Added — Infra + Detector (Plano 01)
+
+- **`knowledge/nextjs/atoms/app-router-and-layouts.md`** (T1) — App Router, layouts aninhados, Route Groups, `loading.tsx`, `not-found.tsx`.
+- **`knowledge/nextjs/INDEX.md`** — índice EN com `## By Cross-Stack Skill` (4 skills), `## By Tier` (T1/T2/T3), `## By keyword` (15-row table).
+- **`THIRD-PARTY-NOTICES.md`** — MIT attribution para 6 SKILL.md V2 (nextjs-app-router-patterns, nextjs-best-practices, nextjs-expert, nextjs-turbopack, nextjs-supabase-auth, nextjs-app-router-patterns-v2).
+- **`tests/fixtures/nextjs-app-router-fixture/`** — 5 arquivos (package.json com next+typescript, next.config.js, tsconfig.json, src/app/page.tsx, src/app/layout.tsx).
+- **`tests/e2e/init-v7-nextjs-tracer-bullet.test.ts`** — 11 testes E2E CA-01/02/03/07 para stack Next.js App Router.
+- **Detector:** `STACK_ID_TO_MATRIX_FOLDER['nextjs']` agora retorna `'nextjs'` (era `'nodejs-typescript'`); `'react': 'nextjs'` adicionado; `StackId` ganhou `'react'`; `probeReact` (vite.config + react em deps, G8 false-positive guard); `SOURCE_EXT_BY_MATRIX['nextjs']` adicionado.
+
+### Added — Atoms Feature-driven (Plano 02, 6 atoms EN)
+
+- **`knowledge/nextjs/atoms/react-server-components.md`** (T1, 196L) — Server-first, `server-only`, composição via children, async+Suspense, props serialização.
+- **`knowledge/nextjs/atoms/server-actions-and-mutations.md`** (T1, 168L) — `'use server'`, Zod safeParse, revalidatePath/Tag, useActionState+useFormStatus, IDOR guard.
+- **`knowledge/nextjs/atoms/middleware-and-edge.md`** (T1, 165L) — matcher config, auth-only-in-middleware advisory, Edge Runtime constraints, geolocation.
+- **`knowledge/nextjs/atoms/data-fetching-and-cache.md`** (T2, 183L) — fetch() semantics Next 14 vs 15, unstable_cache, React.cache() DAL dedup.
+- **`knowledge/nextjs/atoms/rendering-strategies.md`** (T2, 165L) — SSG/SSR/ISR/PPR decision table, `next_versions: ['>=15']` marker.
+- **`knowledge/nextjs/atoms/pages-router-migration-tips.md`** (T3, 146L) — getStaticProps→RSC, getServerSideProps→Server Component, API routes→Route Handlers.
+
+### Added — Cross-cutting + React + Integrations (Plano 03, 8 atoms EN)
+
+- **`knowledge/nextjs/atoms/security-stack-specific.md`** (T1, 154L) — middleware auth guard, `server-only` boundary, Supabase `getUser()` vs `getSession()`, XSS/dangerouslySetInnerHTML.
+- **`knowledge/nextjs/atoms/react-hooks-and-state.md`** (T1, 190L) — useState/useReducer, useOptimistic, useFormState, context anti-patterns, global store promotion gate.
+- **`knowledge/nextjs/atoms/performance-and-turbopack.md`** (T2, 117L) — next/image, next/font, Turbopack, bundle analysis, dynamic import.
+- **`knowledge/nextjs/atoms/testing-strategy.md`** (T2, 152L) — Vitest unit, RTL integration, Playwright E2E, MSW, test pyramid.
+- **`knowledge/nextjs/atoms/ui-and-styling.md`** (T2, 147L) — Tailwind JIT, CSS variables, next/font integration, component co-location.
+- **`knowledge/nextjs/atoms/error-handling-observability.md`** (T2, 168L) — error.tsx, global-error.tsx, instrumentation.ts, OTel, Sentry.
+- **`knowledge/nextjs/atoms/react-suspense-patterns.md`** (T2, 178L) — Suspense boundaries, streaming, loading.tsx, `<ErrorBoundary>` composition.
+- **`knowledge/nextjs/atoms/supabase-integration.md`** (T3, 183L) — `createBrowserClient`/`createServerClient`, middleware session refresh, OAuth callback, auth Server Actions.
+- **`tests/fixtures/nextjs-supabase-fixture/`** — 6 arquivos (base Next.js + `@supabase/ssr` + `supabase/.gitkeep`).
+- **`tests/e2e/init-v7-nextjs-supabase.test.ts`** — 3 testes E2E para detectStack+supabase-integration.
+
+### Fixed
+
+- **`skills/init/lib/format-knowledge-preview.ts`** — regex `(?:Por|By)\s+keyword` (RF-11): parser agora aceita INDEX em EN além de PT-BR. Backward-compatible. Adicionado 1 teste EN (14/14 passando).
+- **`skills/init/lib/detect-multi-stack.ts`** — `next.config.{js,ts}` adicionado como anchor nextjs-específico antes de package.json (fix: detectMultiStack não identificava projetos Next.js sem `next` explícito no config de detecção).
+
+### Captured
+
+- **`docs/compound/2026-05-25-stack-knowledge-extraction-workflow.md`** — workflow validado: parallel waves + anti-drift clause + verifier refined = 0 rework rounds em 14 atoms. Template reusável para próximas stacks.
+
+---
+
 ## [7.2.0] - 2026-05-24
 
 > **Minor release — agent-skills-import (Waves 1/2/3) + compound-engineering-skill-port**
