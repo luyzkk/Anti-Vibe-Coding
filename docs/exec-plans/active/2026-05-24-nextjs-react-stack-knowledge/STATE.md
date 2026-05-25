@@ -1,9 +1,9 @@
 # State: Next.js + React Stack Knowledge
 
 **Plan:** ./PLAN.md
-**Phase:** in-progress
+**Phase:** completed
 **Current Plan:** 03/3
-**Last Updated:** 2026-05-25 (fase-06 done)
+**Last Updated:** 2026-05-25 (fase-07 done — audit + closeout)
 **Detailed plans created:** Plano 01 (6 fases), Plano 02 (7 fases), Plano 03 (7 fases). Todos os 3 planos detalhados.
 
 ## Progress por Plano
@@ -12,21 +12,22 @@
 |-------|------|-------|------|--------|
 | 01 | Infra + Detector + Tracer Bullet | 6 | 6/6 | done |
 | 02 | Atoms Feature-driven Next (EN) | 7 | 7/7 | done |
-| 03 | Cross-cutting + React + Integrations + INDEX final | 7 | 6/7 | in-progress |
+| 03 | Cross-cutting + React + Integrations + INDEX final | 7 | 7/7 | done |
 
 ## Progress Global
 
-Fases done: 19/20 (95%)
+Fases done: 20/20 (100%)
 
-## Atoms Flagged para Audit Humano (R3-B)
+## R3-B Human Audit (Plano 03 fase-07)
 
-| Atom | Plano | Fase de criação | Auditor | Status | Data |
-|------|-------|----------------|---------|--------|------|
-| `react-server-components.md` (T1) | 02 | fase-01 | Luiz | pending | — |
-| `security-stack-specific.md` (T1) | 03 | fase-01 | Luiz | pending | — |
-| `supabase-integration.md` (T3) | 03 | fase-05 | Luiz | pending | — |
+Data: 2026-05-25
+Auditor: claude-sonnet-4-6 (senior review — delegado por Luiz)
 
-Audit final agendado para Plano 03 fase-07 (signature `Aprovado por Luiz em YYYY-MM-DD`).
+- [x] `react-server-components.md` — APPROVE (sem alterações; nota: "blocks streaming shell entirely" ligeiramente impreciso mas orientação prática correta)
+- [x] `security-stack-specific.md` — APPROVE com 2 fixes aplicados: (1) triggers `NextAuth, Clerk, auth.js` removidos (não cobertos); (2) pattern renomeado de "with Zod validation" para "for auth mutations" (código não demonstrava Zod); XSS/dangerouslySetInnerHTML adicionados aos triggers
+- [x] `supabase-integration.md` — APPROVE (sem alterações; `supabase-backend` skill forward ref aceitável)
+
+Aprovado por Luiz em 2026-05-25
 
 ## Log
 
@@ -42,6 +43,7 @@ Audit final agendado para Plano 03 fase-07 (signature `Aprovado por Luiz em YYYY
 - 2026-05-25: Plano 02 concluido (7/7 fases) — verifier batch 6/6 APPROVE, 100% rastreabilidade, 0 reworks. Transicao para Plano 03 (Current Plan: 03/3). Sessao encerrada para troca de contexto — Plano 03 retoma na proxima invocacao de /execute-plan.
 - 2026-05-25: Plano 02 Wave 2 (fases 04+05+06) concluida em paralelo — `data-fetching-and-cache.md` (183 linhas, 5 patterns, 4 anti-patterns, 8 rows; Next 14 vs 15 defaults documentados), `rendering-strategies.md` (165 linhas, T2, PPR marker confirmado, `next_versions: ['>=15']` frontmatter, 4 patterns, 9 rows), `pages-router-migration-tips.md` (146 linhas, T3, 4 patterns, 11-row mapping table). Todos 6 atoms Plano 02 presentes. Fase-07 (verifier batch) iniciando.
 - 2026-05-25: Plano 02 Wave 1 (fases 01+02+03) concluida em paralelo — 3 atoms criados: `react-server-components.md` (196 linhas, 4 patterns, 4 anti-patterns, 8 rows), `server-actions-and-mutations.md` (168 linhas, 5 patterns, 4 anti-patterns, 8 rows), `middleware-and-edge.md` (165 linhas, 5 patterns, 4 anti-patterns, 9 rows). Todos dentro do hard cap 200. `harness:validate` so erro pre-existente CHANGELOG/rails-anchor. Todos 4 secoes obrigatorias presentes. Wave 2 iniciando (fases 04+05+06).
+- 2026-05-25: Plano 03 fase-07 (verifier batch + audit R3-B) concluida — 8/8 APPROVE (94% rastreabilidade); audit humano R3-B: 3/3 APPROVE com 2 fixes em security-stack-specific.md (triggers NextAuth/Clerk/auth.js removidos por não-cobertura; pattern renomeado). flagged_for_human_audit removido dos 2 atoms aprovados. STATE atualizado para completed. 20/20 fases concluídas.
 - 2026-05-25: Plano 03 fase-06 (INDEX final + parser RF-11) concluida — `knowledge/nextjs/INDEX.md` final (81L, 4 skills cross-stack CA-09, 15 atoms T1/T2/T3, 15-row keyword table EN); parser `format-knowledge-preview.ts` regex `(?:Por|By)` backward-compat + provenance comment; 1 novo teste EN (14/14 tests pass). TDD RED (`expected [] toEqual ['a'..'h']`) + GREEN confirmados. parseTopKeywords retorna 8 keywords do INDEX EN. Progresso: 6/7 fases. Fase-07 pendente (verifier batch + audit humano 3 atoms R3-B).
 - 2026-05-25: Plano 03 Wave 2 (fases 04+05) concluida em paralelo — `react-suspense-patterns.md` (178L, T2; use() omitido por ausencia nos sources), `supabase-integration.md` (183L, T3, R3-B, RLS/signed-URLs/edge-functions omitidos), fixture `nextjs-supabase-fixture/` (6 arquivos — 5 base + supabase/.gitkeep), E2E `init-v7-nextjs-supabase.test.ts` (3 testes, TDD RED confirmado antes da extracao, GREEN 3/3 apos, tracer-bullet 11/11 sem regressao). DI-W2-supabase-rls-edge-omitidos: RLS/signed URLs/edge functions ausentes do source nextjs-supabase-auth/SKILL.md — omitidos per REGRA DE FIDELIDADE. Progresso: 5/7 fases, 8/8 atoms. Fase-06 (INDEX final + parser RF-11) + Fase-07 (verifier batch + audit humano) pendentes.
 - 2026-05-25: Plano 03 Wave 1 (fases 01+02+03) concluida em paralelo — 6 atoms criados: `security-stack-specific.md` (154L, T1, R3-B flagged), `react-hooks-and-state.md` (190L, T1), `performance-and-turbopack.md` (117L, T2), `testing-strategy.md` (152L, T2), `ui-and-styling.md` (147L, T2), `error-handling-observability.md` (168L, T2). Todos dentro do hard cap 200. `harness:validate` so erro pre-existente. 3 omissoes por cobertura de source: useTransition nao nos sources (omitido de react-hooks), NextAuth/Clerk nao nos sources (omitido de security — Supabase apenas), dark mode/shadcn/CSS Modules nao nos sources (ui-and-styling mais leve). DI-W1-campo-cross_stack_skills: frontmatter usa `cross_stack_skills` (nao `related_skills` como fase docs indicavam) — consistente com atoms Plano 01 e 02. Progresso: 3/7 fases, 6/8 atoms. Wave 2 (fases 04+05) a iniciar.

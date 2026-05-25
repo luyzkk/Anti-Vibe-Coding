@@ -7,10 +7,9 @@ sources:
   - skill: nextjs-best-practices (Infos/knowledge/NextJS/nextjs-best-practices/SKILL.md)
   - research: wf-191ad75d (Infos/knowledge/NextJS/compass_artifact_wf-191ad75d-254e-4bbf-9f64-2ff832c5006c_text_markdown.md)
 tier: 1
-triggers: [middleware auth, CSRF, RSC secret leak, NextAuth, Clerk, auth.js, secure cookies, server-only, authorization, authentication]
+triggers: [middleware auth, CSRF, RSC secret leak, secure cookies, server-only, authorization, authentication, XSS, dangerouslySetInnerHTML]
 cross_stack_skills: [/security]
 updated: 2026-05-25
-flagged_for_human_audit: true
 ---
 
 # Next.js Security — Stack-Specific Patterns
@@ -75,11 +74,11 @@ export async function getUserById(id: string) {
 
 ---
 
-### Pattern: Server Action auth with Zod validation
+### Pattern: Server Action for auth mutations
 
-**Problem:** Server Actions are public HTTP endpoints — invocable via direct POST even without a UI button.
+**Problem:** Server Actions are public HTTP endpoints — invocable via direct POST even without a UI button. Client-side auth mutations also don't invalidate the server-rendered layout cache.
 
-**Pattern:** Validate inputs with `Schema.safeParse` before any mutation; return errors as state, never throw for validation failures. Call `revalidatePath('/', 'layout')` after auth operations, before `redirect`.
+**Pattern:** Perform sign-in and sign-out in `'use server'` files. For arbitrary user input, validate with `Schema.safeParse` before any DB write. Call `revalidatePath('/', 'layout')` after auth operations, before `redirect`.
 
 ```ts
 'use server'
