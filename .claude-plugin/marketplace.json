@@ -8,8 +8,8 @@
   "plugins": [
     {
       "name": "anti-vibe-coding",
-      "description": "Plugin de desenvolvimento disciplinado com conhecimentos de programador senior. v7.2.0 — agent-skills-import Waves 1/2/3 + compound-engineering-skill-port. Wave 1: CI test-plugin-install + 3 references seed + 2 skills novas (incremental-implementation, code-simplification) + Common Rationalizations/Red Flags em 5 skills + Hypothesis refactor grill-me. Wave 2: 13 agentes em subagent-contract v2.0.0 + validator anti-generico + 3 skills novas (source-driven, doubt-driven, git-workflow) + pedagogia ADR em decision-registry. Wave 3: /anti-vibe-review -> /verify-work consolidacao + Prove-It Mode no tdd-verifier + 3 references (init-step-contract, hooks-checklist, tdd-cycle-checklist) + Test Sizes/DAMP-DRY em tdd-workflow + Task Sizing em plan-feature + Pipeline de Trabalho flowchart AGENTS.md. Compound: skill user-invocable com 4 subcomandos (install/check/migrate/gate) + bug fix MH-01 schema canonico + git mv 10 templates + patches P1/P2 idempotentes. Total: 38 skills (+5 vs 7.1.0).",
-      "version": "7.2.0",
+      "description": "Plugin de desenvolvimento disciplinado com conhecimentos de programador senior. v7.3.0 — Next.js Stack Knowledge. 15 atoms Next.js+React em ingles extraidos de 9 fontes (94% rastreabilidade, 0 rework). T1: app-router, RSC, server-actions, middleware, security-stack, react-hooks. T2: data-fetching/cache, rendering, perf+turbopack, testing, ui+styling, errors+observability, suspense. T3: pages-router-migration, supabase. Detector: nextjs+react StackIds distintos; probeReact + next.config anchor. Parser: INDEX EN (RF-11). Infra: THIRD-PARTY-NOTICES, INDEX.md (By Cross-Stack Skill/Tier/Keyword), 2 fixtures, 2 E2E (14 testes). Compound: stack-knowledge-extraction-workflow validado como template reusavel.",
+      "version": "7.3.0",
       "source": "./",
       "author": {
         "name": "Luiz Felipe"
