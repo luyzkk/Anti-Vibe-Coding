@@ -11,11 +11,10 @@
 Decisoes tomadas durante execucao que nao estavam no PRD ou plano.
 Formato: o que foi decidido + por que + impacto.
 
-<!-- Exemplo:
-- **DI-1:** Para `supabase-integration.md`, secao "Server vs client clients" precede "RLS via SSR"
-  - Por que: nextjs-supabase-auth/SKILL.md organiza assim; alinhamento melhora rastreabilidade
-  - Impacto: ordem das sections diverge do compass artifact (nao bloqueia verifier)
--->
+- **DI-W1-campo-cross_stack_skills:** Frontmatter usa campo `cross_stack_skills` (NAO `related_skills` como os docs das fases indicavam). Mantido consistente com atoms do Plano 01 (app-router-and-layouts) e Plano 02 (react-server-components, server-actions). Impacto: todos os 8 subagentes de extracao desta wave recebem `cross_stack_skills` no frontmatter alvo.
+- **DI-W1-omissoes-por-source-gap:** 3 omissoes descobertas na Wave 1 por ausencia nos sources declarados: (1) `useTransition` removido de `react-hooks-and-state` — nenhum dos 3 sources cobre; (2) `NextAuth/Clerk` removidos de `security-stack-specific` — sources cobrem apenas Supabase; (3) dark mode, shadcn, CSS Modules vs Tailwind omitidos de `ui-and-styling` — compass_artifact_wf-a673671d e tooling report, nao UI/styling. Todos omitidos per REGRA DE FIDELIDADE.
+- **DI-W1-security-atom-CSRF:** CSRF esta nos triggers de `security-stack-specific` mas os sources nao documentam mecanica CSRF especifica para Server Actions alem de "sao endpoints HTTP publicos" + Zod validation. Descrito via Zod validation sem inventar CSRF-token specifics. Verifier batch fase-07 deve aceitar (claim qualitativa traceable ao source).
+- **DI-W1-ui-and-styling-lean:** `ui-and-styling.md` entregou 147 linhas (vs outros 154-190L) porque wf-a673671d e principalmente tooling (ESLint, TS, security), nao UI/styling. O V2 playbook cobre next/font apenas em snippet de layout. Atom e leanness e esperada, nao falha.
 
 ---
 
@@ -64,12 +63,13 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 7 |
-| Fases concluidas | 0 |
+| Fases concluidas | 3 (fases 01+02+03 — Wave 1 paralela) |
 | Fases com desvio | 0 |
-| Atoms entregues | 0 / 8 |
+| Atoms entregues | 6 / 8 |
 | Atoms acima do hard cap 200 linhas (pre-rework) | 0 |
-| Verifier rework rounds (fase-07) | 0 |
-| Atoms flagged R3-B aprovados por humano | 0 / 3 |
+| Linhas por atom (Wave 1) | security=154, hooks=190, perf=117, testing=152, ui=147, errors=168 |
+| Verifier rework rounds (fase-07) | 0 (pendente) |
+| Atoms flagged R3-B aprovados por humano | 0 / 3 (pendente fase-07) |
 
 ---
 
