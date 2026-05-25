@@ -69,7 +69,14 @@ async function countSourceFiles(dir: string, extensions: ReadonlyArray<string>, 
 // 2026-05-24 (Luiz/dev): PRD §RF-03 — anchor para Vite + React (multi-stack tiebreaker).
 // G8: vite.config sem react em deps cai no probe singular como null — multi-stack adiciona
 // como candidato mas o tiebreaker por file count corrige se necessario.
+// 2026-05-24 (Luiz/dev): DI-fase05-nextjs-anchor — next.config.{js,ts} ANTES de package.json.
+// Razao: package.json sempre aciona 'node-ts' → 'nodejs-typescript'. Sem um anchor nextjs-especifico
+// antes, detectMultiStack nunca retorna primary:'nextjs' (package.json vem primeiro).
+// next.config.{js,ts} e idiomatico Next.js — presença garante que matrixCandidates tem 'nextjs'
+// antes de 'nodejs-typescript', ganhando tiebreaker por posicao (contagem de arquivos igual em monorepos).
 const ANCHOR_CHECKS: ReadonlyArray<[string, StackId]> = [
+  ['next.config.js', 'nextjs'],
+  ['next.config.ts', 'nextjs'],
   ['package.json', 'node-ts'],
   ['vite.config.ts', 'react'],
   ['vite.config.js', 'react'],
