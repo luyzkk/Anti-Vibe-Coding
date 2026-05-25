@@ -3,11 +3,15 @@ import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import type { PatchResult } from './patch-types'
 
-// 2026-05-24 (Luiz/dev): D10 — ordem canonica: Compound Opportunity → Review Checklist → Validation Log → Lessons Captured
+// 2026-05-25 (Luiz/dev): ordem canonica alinhada com o template distribuido
+// (skills/init/assets/templates/scripts/new-plan.ts.tpl) e com populate-harness-plan-overview.
+// Review Checklist -> Validation Log -> Compound Opportunity -> Lessons Captured.
+// Historico: ordem original divergia (Opportunity primeiro, citando D10) mas D10 do PRD
+// trata apenas do gate que patcha `## Lessons Captured`, nao da ordem do bloco.
 const NEW_PLAN_SECTIONS = [
-  '## Compound Opportunity',
   '## Review Checklist',
   '## Validation Log',
+  '## Compound Opportunity',
   '## Lessons Captured',
 ]
 
