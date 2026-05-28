@@ -42,18 +42,47 @@ describe('generatePopulatePlansStep (Step 7)', () => {
     expect(STEP_ID).toBe('generate-populate-plans')
   })
 
-  describe('DR-2 abort (stack=null ou ausente)', () => {
-    test('throws AbortError code=20 when ctx.stack is undefined', async () => {
+  describe('greenfield gate (stack=null ou ausente)', () => {
+    // 2026-05-28 (Luiz/dev): bug fix /init greenfield. Hard abort substituido por
+    // contrato needsUser (PRD D3/CH-01). Testes legados que asseravam abort imediato
+    // foram reescritos para refletir o novo fluxo: 1a invocacao retorna needsUser;
+    // resposta 's' pula gracioso; resposta 'a' mantem AbortError historico.
+    // ABORT_MESSAGE_NO_STACK e ABORT_CODE_NO_STACK preservados byte-identical.
+
+    test('returns needsUser on first invocation when ctx.stack is undefined', async () => {
       const ctx = mkCtx(tmpDir) // no stack
-      await expect(generatePopulatePlansStep.run(ctx)).rejects.toMatchObject({
-        name: 'AbortError',
-        code: ABORT_CODE_NO_STACK,
-      })
+      const report = await generatePopulatePlansStep.run(ctx)
+      expect(report.needsUser).toBeDefined()
+      expect(report.needsUser?.options).toEqual(['s', 'a'])
+      expect(report.needsUser?.prompt).toContain(ABORT_MESSAGE_NO_STACK)
+      expect(report.needsUser?.prompt).toContain('(s)kip')
+      expect(report.needsUser?.prompt).toContain('(a)bort')
+      expect(report.mutated).toBe(false)
     })
 
-    test('throws AbortError code=20 when ctx.stack.primary is null', async () => {
+    test('returns needsUser on first invocation when ctx.stack.primary is null', async () => {
       const ctx = mkCtx(tmpDir, {
-        stack: { primary: null, confidence: 'low', stacks: [] } as unknown as DetectedStack,
+        stack: { primary: null, secondary: [], signalSource: 'no signal', anchorFiles: [] },
+      })
+      const report = await generatePopulatePlansStep.run(ctx)
+      expect(report.needsUser).toBeDefined()
+      expect(report.mutated).toBe(false)
+    })
+
+    test('returns graceful skip when user answers "s"', async () => {
+      const ctx = mkCtx(tmpDir, {
+        flags: { __interactiveAnswer: 's' },
+      })
+      const report = await generatePopulatePlansStep.run(ctx)
+      expect(report.needsUser).toBeUndefined()
+      expect(report.mutated).toBe(false)
+      expect(report.summary).toContain('skipped')
+      expect(report.summary).toContain('stack not detected')
+    })
+
+    test('throws AbortError code=20 when user answers "a"', async () => {
+      const ctx = mkCtx(tmpDir, {
+        flags: { __interactiveAnswer: 'a' },
       })
       try {
         await generatePopulatePlansStep.run(ctx)
@@ -61,20 +90,34 @@ describe('generatePopulatePlansStep (Step 7)', () => {
       } catch (err) {
         expect(err).toBeInstanceOf(AbortError)
         expect((err as AbortError).code).toBe(20)
+        expect((err as AbortError).reason).toBe(ABORT_MESSAGE_NO_STACK)
       }
     })
 
-    test('abort reason matches DR-2 message exactly (Plano 02 fase-02 wording)', async () => {
-      const ctx = mkCtx(tmpDir)
-      try {
-        await generatePopulatePlansStep.run(ctx)
-        throw new Error('expected abort')
-      } catch (err) {
-        expect((err as AbortError).reason).toBe(ABORT_MESSAGE_NO_STACK)
-        expect((err as AbortError).reason).toContain('detect-architecture')
-        expect((err as AbortError).reason).toContain('Detected primary: null')
-        expect((err as AbortError).reason).toContain('populate-harness fases')
-      }
+    test('CI override: --skip-populate-plan flag skips without prompt', async () => {
+      const ctx = mkCtx(tmpDir, {
+        flags: { 'skip-populate-plan': true },
+      })
+      const report = await generatePopulatePlansStep.run(ctx)
+      expect(report.needsUser).toBeUndefined()
+      expect(report.mutated).toBe(false)
+      expect(report.summary).toContain('skipped')
+    })
+
+    test('answer case-insensitive: "S" treated as skip, "A" as abort', async () => {
+      const ctxSkip = mkCtx(tmpDir, { flags: { __interactiveAnswer: 'S' } })
+      const reportSkip = await generatePopulatePlansStep.run(ctxSkip)
+      expect(reportSkip.mutated).toBe(false)
+      expect(reportSkip.summary).toContain('skipped')
+
+      const ctxAbort = mkCtx(tmpDir, { flags: { __interactiveAnswer: 'A' } })
+      await expect(generatePopulatePlansStep.run(ctxAbort)).rejects.toBeInstanceOf(AbortError)
+    })
+
+    test('abort reason still matches DR-2 wording byte-identical', () => {
+      expect(ABORT_MESSAGE_NO_STACK).toContain('detect-architecture')
+      expect(ABORT_MESSAGE_NO_STACK).toContain('Detected primary: null')
+      expect(ABORT_MESSAGE_NO_STACK).toContain('populate-harness fases')
     })
 
     test('ABORT_CODE_NO_STACK constant equals 20', () => {

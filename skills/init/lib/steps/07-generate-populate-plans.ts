@@ -29,16 +29,54 @@ export const ABORT_MESSAGE_NO_STACK =
   'Detected primary: null.\n' +
   'Waves in the 16 populate-harness fases cannot be path-resolved without stack.'
 
+/**
+ * Prompt extension para o gate greenfield. Anexado a ABORT_MESSAGE_NO_STACK no
+ * needsUser.prompt — mantem a mensagem DR-2 byte-identical e adiciona as opcoes.
+ * 2026-05-28 (Luiz/dev): bug fix /init greenfield.
+ */
+const GREENFIELD_PROMPT_SUFFIX = '\n\n(s)kip populate-plan and continue, or (a)bort?'
+
 export const generatePopulatePlansStep: Step = {
   id: STEP_ID,
 
   async run(ctx) {
-    // DR-2 (G5 do Plano 04 README): aborta se stack ausente ou primary=null.
+    // 2026-05-28 (Luiz/dev): DR-2 hard abort substituido por gate interativo para suportar
+    // greenfield (repo zerado sem package.json/Gemfile). Hierarquia de decisao:
+    //   1. --skip-populate-plan flag → skip silencioso (CI override)
+    //   2. 1a invocacao sem __interactiveAnswer → return needsUser (dispatcher pergunta)
+    //   3. 2a invocacao: 's' → skip gracioso; 'a' → AbortError historico
+    // ABORT_MESSAGE_NO_STACK preservado byte-identical (teste valida).
     if (!ctx.stack || ctx.stack.primary === null) {
-      throw new AbortError({
-        code: ABORT_CODE_NO_STACK,
-        reason: ABORT_MESSAGE_NO_STACK,
-      })
+      if (ctx.flags['skip-populate-plan'] === true) {
+        return {
+          mutated: false,
+          summary: 'init-07: populate-plan skipped (--skip-populate-plan flag) — stack not detected',
+        }
+      }
+
+      const answer = ctx.flags['__interactiveAnswer']
+      if (typeof answer !== 'string') {
+        return {
+          mutated: false,
+          summary: '',
+          needsUser: {
+            prompt: ABORT_MESSAGE_NO_STACK + GREENFIELD_PROMPT_SUFFIX,
+            options: ['s', 'a'] as const,
+          },
+        }
+      }
+
+      const normalized = answer.trim().toLowerCase()
+      if (normalized === 'a') {
+        throw new AbortError({
+          code: ABORT_CODE_NO_STACK,
+          reason: ABORT_MESSAGE_NO_STACK,
+        })
+      }
+      return {
+        mutated: false,
+        summary: 'init-07: populate-plan skipped by user — stack not detected',
+      }
     }
 
     const result = await generatePopulatePlans({
