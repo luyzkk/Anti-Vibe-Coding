@@ -1,6 +1,6 @@
 {
   "version": "7.3.0",
-  "generatedAt": "2026-05-25T11:52:09.985Z",
+  "generatedAt": "2026-05-28T16:53:29.441Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -553,8 +553,8 @@
     },
     "scripts/init-cli.ts": {
       "version": "7.3.0",
-      "checksum": "3512e48aa2076f062fd9944348b893577de42fb5f300e285c7ad37877d534f4f",
-      "lastModified": "2026-05-24",
+      "checksum": "fa5a35d69be64ffaad6803075462e286d12b3e0f4c5e59788ba741dd862cc16d",
+      "lastModified": "2026-05-28",
       "updateStrategy": "replace"
     },
     "scripts/new-plan.ts": {
@@ -811,8 +811,8 @@
     },
     "skills/compound-engineering/lib/patch-new-plan.ts": {
       "version": "7.3.0",
-      "checksum": "738be938bbd135fadfc83e0b8979eb07a41f15cae410b136b085e05f2d505e1c",
-      "lastModified": "2026-05-24",
+      "checksum": "6c484f85f12cd8cbe46135da04983ec723426a25a385bc3c47ff8972d28df11a",
+      "lastModified": "2026-05-25",
       "updateStrategy": "replace"
     },
     "skills/compound-engineering/lib/patch-types.ts": {
@@ -1385,6 +1385,12 @@
       "lastModified": "2026-05-14",
       "updateStrategy": "replace"
     },
+    "skills/init/lib/read-plugin-version.ts": {
+      "version": "7.3.0",
+      "checksum": "d2f092eff96675b99c7e34917f2c7e45eb7f44dcc6f4b68615c9e8c0816fb143",
+      "lastModified": "2026-05-25",
+      "updateStrategy": "replace"
+    },
     "skills/init/lib/reconciler.ts": {
       "version": "7.3.0",
       "checksum": "5c906ea31978a71f40cbac3df7088c86c3f4d75e87675d11a00a55b740f91cd9",
@@ -1393,8 +1399,8 @@
     },
     "skills/init/lib/registry.ts": {
       "version": "7.3.0",
-      "checksum": "3a03ebfe425ceede2010a1cc49209015c3498cfed8488a8823ed40f39a153d64",
-      "lastModified": "2026-05-24",
+      "checksum": "db8e53859d33dfda0b8bf5a774cc566b4158196d0d49ab9f3ea7939e7cb83b68",
+      "lastModified": "2026-05-25",
       "updateStrategy": "replace"
     },
     "skills/init/lib/render-fase-plan.ts": {
@@ -1417,8 +1423,8 @@
     },
     "skills/init/lib/run-init.ts": {
       "version": "7.3.0",
-      "checksum": "1f9ebcbc5ac6520f5bf8310e6ee5a620384cc2a7f1e9dfde5048eab69de83fdd",
-      "lastModified": "2026-05-21",
+      "checksum": "837a31ec61b934ed169ab08ac5841d68fa65afec7847af2e77c42dbb63f85c5b",
+      "lastModified": "2026-05-25",
       "updateStrategy": "replace"
     },
     "skills/init/lib/run-stack-knowledge-init.ts": {
@@ -1543,8 +1549,8 @@
     },
     "skills/init/lib/steps/07-generate-populate-plans.ts": {
       "version": "7.3.0",
-      "checksum": "a04704cfc1edc2673f943f4b682e172d0460b7290c5460c9f48dabe6854a8c18",
-      "lastModified": "2026-05-22",
+      "checksum": "d8b73dc3fbb96fa493c752cb178c64903c560eac41665f4650bee7cf1fd8e72b",
+      "lastModified": "2026-05-28",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/08-delivery-loop.ts": {
@@ -1563,6 +1569,12 @@
       "version": "7.3.0",
       "checksum": "ca0898e0734b51ba4bde4825dbe09611107eca1ce2c2127f70d2efb06188bede",
       "lastModified": "2026-05-21",
+      "updateStrategy": "replace"
+    },
+    "skills/init/lib/steps/11-write-anti-vibe-manifest.ts": {
+      "version": "7.3.0",
+      "checksum": "f694e8a7884e4141f1c21d77804232b0df57ae96183ef5373b9b415b1dc03d02",
+      "lastModified": "2026-05-25",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/abort-error.ts": {
@@ -1801,8 +1813,8 @@
     },
     "skills/init/assets/templates/AGENTS.md.tpl": {
       "version": "7.3.0",
-      "checksum": "fb45c09635cb8d50a3770ab72ae804899e46b180f67d2976fb615575db277c06",
-      "lastModified": "2026-05-19",
+      "checksum": "8240d37cccae1e032427570f3376d51c3e13be715ae59c00c173f7b060f36607",
+      "lastModified": "2026-05-25",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/ARCHITECTURE.md.tpl": {
