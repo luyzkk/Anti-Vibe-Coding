@@ -41,6 +41,7 @@ Plan before code. Test before implement. Capture lessons after merge. Discipline
 | Understanding the plugin pipeline (grill-me → write-prd → plan-feature → execute-plan → verify-work → iterate) | `docs/PIPELINE.md` |
 | Configuring model profiles per agent (quality/balanced/budget) | `docs/MODEL_PROFILES.md` |
 | Listing available subagent auditors | `docs/AGENTS_LIST.md` |
+| When a task is scale (codebase-wide audit, 100s of files, cross-checked research) — workflow vs subagent vs skill | `docs/WORKFLOWS.md` |
 | Versioning, manifest checksums, update strategies | `docs/UPGRADE.md` |
 | Senior principles (security, quality, architecture defaults) | `docs/design-docs/core-beliefs.md` |
 | Past architectural decisions with rationale | `docs/design-docs/ADR-*.md` |
