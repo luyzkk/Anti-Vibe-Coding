@@ -2,7 +2,7 @@
 
 **Feature:** workflow-awareness
 **Iniciado:** 2026-05-29
-**Status:** em andamento
+**Status:** concluído (4/4 fases — 2026-05-29)
 
 ---
 
@@ -24,6 +24,12 @@ Formato: o que foi decidido + por que + impacto.
   escala (sem variável `matches` separada — `scaleMatches`). Funcionalmente equivalente à intenção da spec.
 - **DEV-line-numbers (trivial):** os números de linha citados na spec (459-461 / 463-476) tinham drift leve
   (estrutura real 459-476). Ancorado na estrutura do código, não nos números — como instruído.
+- **DI-fase02-INV5-overaplicado:** ao criar `docs/WORKFLOWS.md`, o executor tratou QUALQUER número como
+  banido por INV5 e trocou versão (`v2.1.154`→`v2.1 (build recente)`), `100%`→`inteiramente` e `16`→`dezesseis`.
+  INV5 proíbe apenas **thresholds de detecção de ESCALA** na prosa — versões e limites operacionais
+  (≤16 concorrentes) são factuais e poderiam permanecer literais. Sem impacto funcional; doc passou harness verde.
+  Candidato a refinamento futuro: restaurar `v2.1.154+` exato na seção de gate de disponibilidade (é dependência
+  declarada no PRD).
 
 ---
 
@@ -90,7 +96,7 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 4 |
-| Fases concluidas | 1 |
+| Fases concluidas | 4 |
 | Fases com desvio | 1 |
 | Bugs encontrados | 1 (pré-existente) |
 | Retries necessarios | 0 |

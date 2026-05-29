@@ -2,20 +2,20 @@
 
 **Plan:** ./PLAN.md
 **Phase:** in-progress
-**Current Plan:** 01/3
+**Current Plan:** 02/3
 **Last Updated:** 2026-05-29
 
 ## Progress por Plano
 
 | Plano | Nome | Fases | Done | Status |
 |-------|------|-------|------|--------|
-| 01 | Núcleo: Awareness + Detector + Doc + Gate | 4 | 1/4 | in-progress |
+| 01 | Núcleo: Awareness + Detector + Doc + Gate | 4 | 4/4 | completed |
 | 02 | Camadas de Skill | 6 | 0/6 | planned |
 | 03 | Cobertura: grill-me + consultant + retrospectivo | 3 | 0/3 | planned |
 
 ## Progress Global
 
-Fases done: 1/13 (8%) — Plano 01 fase-01 (tracer) GREEN; fases 02-04 pendentes
+Fases done: 4/13 (31%) — Plano 01 COMPLETO (4/4); Planos 02-03 pendentes (ambos dependem só do 01)
 
 ## Log
 
@@ -27,3 +27,6 @@ Fases done: 1/13 (8%) — Plano 01 fase-01 (tracer) GREEN; fases 02-04 pendentes
 - 2026-05-29: Plano 03 detalhado (3 fases, ~2.5h) via subagente isolado. Cobre RF10 (grill-me), RF11 (consultant), RF14 (stop-reflector). Decisões: (DI-fase02) `detectStrongScaleSignal(transcriptPath)` — helper puro exportado, varre cauda do transcript contando `tool_use` Agent/Task sequenciais, THRESHOLD=5, fail-open, default OFF; `buildBlockOutput(kind, opts={})` appenda bullet de workflow DENTRO do `reason` do FEATURE_COMPLETED existente (nunca decision:block novo — trava-mor RF14/D5), forma de retorno inalterada (backward-compat com testes linhas 83-88). (DI-fase03) gate STANDALONE `tests/e2e/workflow-coverage-leak.test.ts` — scan de prosa (grill-me/consultant) + import runtime do `stop-reflector.cjs`; assert single-block `Object.keys(out).sort()===['decision','reason']`; re-roda hook-test (G7) + diretriz do Plano 01 + harness:validate. Todos os 3 planos agora detalhados (4+6+3=13 fases).
 - 2026-05-29: /plan-feature (manutencao) — corrigidas pendencias dos planos. (A1) PLAN.md sizing defasado: Plano 02 ~5h→~6.5h, total ~13.5h→~15h, contagem de fases exata. (A2) marcador do gate Plano 03 alinhado: consultant 'nao lanca' (fase-01 ↔ fase-03). (A3) placeholders das MEMORY.md de Plano 02/03 preenchidos. (A4) label "D10"→"PRD-#10" em plano01/fase-02 (CONTEXT so vai ate D9). Itens deferidos travados: B1 tag banner = `[ANTI_VIBE_CODING v5.1 - SKILL & WORKFLOW ADVISOR ATIVO]`; B2 redacao [WORKFLOW_ADVISOR] (plano01/fase-01); B3 parafrasear (PRD #10). ⚠️ Assumido removido do PRD; Open Questions do CONTEXT marcadas resolvidas. (Nota: `bun run harness:validate` ja estava vermelho por broken-link pre-existente em CHANGELOG.md → skills/init/lib/rails-anchor.ts, commit 811b943 — fora do escopo desta feature.)
 - 2026-05-29: /execute-plan — branch `feat/workflow-awareness` criada (de `main`). **Plano 01 fase-01 (TRACER) executada** via subagente plan-executor isolado. GREEN: `bun test hooks/user-prompt-gate.test.cjs` → 10 pass / 0 fail (verificado pelo orquestrador). Commit `3e53e05` (só `hooks/user-prompt-gate.cjs` + `.test.cjs`, atômico). DI-fase01-scale-before-silent: checagem de escala movida para ANTES do STEP 3 (SILENT) — `rename`/`renomear` estão em SILENT e SCALE; posição original engolia CA-01 'rename 200 arquivos'. Spec autorizava o move (Gotcha "mover a checagem de escala para antes do STEP 3"). BUG-01 (pré-existente, NÃO introduzido): `bun run test` falha no Windows ("Linha de comando muito longa" — glob de `scripts/run-tests.ts`); hook-test roda explícito (G7). Próximas: fases 02 (doc), 03 (banner/AGENTS), 04 (gate) do Plano 01.
+- 2026-05-29: Plano 01 **fase-02 concluída** — `docs/WORKFLOWS.md` criado (doc canônico, 227 linhas, H1 ok). `bun run harness:validate` verde (28 required, 347 md — +WORKFLOWS.md; verificado pelo orquestrador). Commit `abeadb6` (só o doc). DI-fase02: executor aplicou INV5 de forma conservadora a números NÃO-threshold — `v2.1.154`→`v2.1 (build recente)`, `100%`→`inteiramente`, `16`→`dezesseis`. INV5 visa thresholds de ESCALA, não versões/limites operacionais; perda mínima de precisão, aceitável (candidato a refinar: restaurar `v2.1.154+` na seção de disponibilidade). Próximas: fase-03 (AGENTS+banner, depende deste doc — INV4) e fase-04 (gate).
+- 2026-05-29: Plano 01 **fase-03 concluída** — +1 linha em `AGENTS.md` (When to Read What → `docs/WORKFLOWS.md`; 67→68 linhas, ≤70 OK) + cláusula "Workflows dinâmicos" no banner SessionStart e tag → `[ANTI_VIBE_CODING v5.1 - SKILL & WORKFLOW ADVISOR ATIVO]` (`hooks.json`). Marker runtime `[SKILL_ADVISOR]` intacto (G4); hook-test da fase-01 sem regressão (10/10, re-verificado). harness verde. Commit `334d746` (só `AGENTS.md` + `hooks/hooks.json`). Sem DI/DEV/BUG. Próxima: fase-04 (gate de CI da diretriz).
+- 2026-05-29: Plano 01 **fase-04 (GATE) concluída → PLANO 01 COMPLETO (4/4)**. `tests/e2e/workflow-advisor-directive.test.ts` (7 pass/0 fail, 33 expects) trava a diretriz em CI: WORKFLOWS.md existe+H1, AGENTS linka, nenhum caminho `[WORKFLOW_ADVISOR]` emite tool Workflow/`decision:block` (CA-04/05) + CA-02/03/07. Gate com dentes (3 asserts quebram sem o branch). RED foi estrutural (01-03 já aplicados) — sem commit RED separado (aceito pela spec). Commit `c740907` (só o teste). Re-verificado pelo orquestrador: gate 7/7, hook-test 10/10, harness verde. **Núcleo entregue: o plugin já SUGERE workflows e a diretriz está travada por CI.** Planos 02 (skills, ~6.5h) e 03 (cobertura, ~2.5h) pendentes — ambos dependem só do Plano 01, podem rodar em paralelo.
