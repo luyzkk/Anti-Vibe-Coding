@@ -370,6 +370,34 @@ Green (nova versao):   [v2] [v2]
 4. Se problemas, rollback imediato (remover v2)
 ```
 
+### Feature Flags
+
+Feature flags operam na **camada de aplicacao** — complementam (nao substituem) as estrategias de infra acima. O canary acima e um rollout de infraestrutura; feature flags sao um rollout de funcionalidade dentro do codigo ja deployado.
+
+**Por que usar:**
+- Enviar codigo sem ativar (merge cedo no main, sem branch de longa duracao)
+- Rollback sem redeploy — desliga a flag em vez de reverter um deploy
+- Canary no nivel de feature (1% dos usuarios → 10% → 100%)
+- A/B test sem infra adicional
+
+**Snippet ilustrativo:**
+
+```typescript
+// feature-flags.ts
+if (featureFlags.isEnabled('new-checkout', { userId })) {
+  return newCheckoutFlow(cart)
+}
+return legacyCheckoutFlow(cart)
+```
+
+**Lifecycle de uma flag:**
+
+```
+Criar → Habilitar p/ teste interno → Canary (1%→10%→100%) → Rollout completo → Remover flag + codigo morto
+```
+
+**Regra de limpeza:** defina uma data de limpeza ao criar a flag, ou ela vira divida tecnica. Flags sem data de expiracao acumulam e tornam o codigo ilegivel.
+
 ### PM2 Zero-Downtime
 
 ```bash
@@ -540,6 +568,28 @@ Push → Install → Lint → Type Check → Test → Build → Deploy
 3. **Secrets no CI** — GitHub Secrets, NAO hardcoded no workflow
 4. **Deploy atomico** — ou deploy completo funciona, ou rollback
 5. **Notificacao de falha** — Slack, email, Discord quando pipeline quebra
+
+### CI Optimization
+
+Quando o pipeline passa de ~10 min, aplicar em ordem de impacto:
+
+1. **Cachear dependencias** — `actions/cache` (GitHub Actions) ou equivalente do provedor de CI; cache do setup-bun / setup-node reduz 1-3 min por job.
+2. **Rodar jobs em paralelo** — separar lint / typecheck / test / build em jobs independentes; o provedor roda em paralelo automaticamente quando nao ha dependencia entre eles.
+3. **Rodar so o que mudou (path filters)** — pular e2e em PRs que tocam apenas docs; pular build de imagem Docker se nenhum arquivo relevante mudou. Exemplo GitHub Actions: `on.push.paths` / `on.pull_request.paths`.
+4. **Matrix / sharding de testes** — dividir a suite em N shards rodando em paralelo (ex: `matrix: { shard: [1, 2, 3, 4] }`); reduz tempo proporcional ao numero de shards.
+5. **Tirar testes lentos do caminho critico** — mover testes de integracao pesados / e2e completos para um workflow em `schedule` (ex: nightly); PR recebe apenas o subconjunto rapido.
+
+Aplicar em ordem — o item 1 ja resolve a maioria dos casos; partir direto para sharding (4) sem cachear (1) e desperdicador.
+
+### PR Gating
+
+Fazer o CI ser um **gate de merge**, nao so um gate de deploy:
+
+- **Required status checks** — configurar no provedor de CI que o merge so e possivel com CI verde. No GitHub: Settings → Branches → Branch protection rules → "Require status checks to pass before merging".
+- **Branch protection no main** — bloquear force-push no main; exigir que PRs passem pelos checks antes de merge.
+- **Minimo de 1 review** — ao menos uma aprovacao humana antes de merge em branches protegidas.
+
+Isso converte a Regra 1 de CI/CD ("NUNCA pular testes") de convencao em mecanismo — o pipeline nao pode ser ignorado acidentalmente.
 
 ---
 
