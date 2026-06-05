@@ -1,0 +1,9 @@
+{
+  "files": [
+    {
+      "path": "src/utils/format-date.ts",
+      "content": "export function formatDate(date: Date): string {\n  return date.toISOString().split('T')[0] ?? ''\n}"
+    }
+  ],
+  "scope": "Revisar correctness (null/boundary, error-paths, spec-conformance) e readability (nomes, nesting, organizacao)"
+}

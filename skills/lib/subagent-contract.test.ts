@@ -158,10 +158,12 @@ test('parseAndDispatch reports dispatched=false when no handler matches kind', a
   expect(result.handlerKind).toBe('audit')
 })
 
-// 2026-05-14 (Luiz/dev): regression suite 13 fixtures — Plano 03 fase-05 CA-07
+// 2026-05-14 (Luiz/dev): regression suite 14 fixtures — Plano 03 fase-05 CA-07
+// 2026-06-05 (Luiz/dev): +code-reviewer (skill-parity-refresh Plano 06 fase-01 — fecha gap de
+//   cobertura do novo persona; verify-work M1).
 // Parameterized loop: each fixture must pass parseContract with valid=true, 0 errors, 0 warnings.
 // Decision (DI-01): 2 existing tests below are kept (domain-specific assertions). Loop adds baseline
-// envelope validation for all 13. Total ~27 tests.
+// envelope validation for all 14. Total ~29 tests.
 const FIXTURE_NAMES = [
   'security-auditor',
   'plan-verifier',
@@ -176,6 +178,7 @@ const FIXTURE_NAMES = [
   'lesson-evaluator',
   'plan-executor',
   'documentation-writer',
+  'code-reviewer',
 ] as const
 
 for (const fixtureName of FIXTURE_NAMES) {

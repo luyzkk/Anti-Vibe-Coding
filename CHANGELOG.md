@@ -495,7 +495,7 @@ Todas as mudanças notáveis do plugin Anti-Vibe Coding serão documentadas aqui
   CLAUDE.md preexistente para `docs/_legacy/CLAUDE.md.bak.{timestamp}` antes
   do scaffold sobrescrever. Reposicionado no registry para logo após
   secrets-scan (não depende mais de AGENTS.md).
-- **`rails-anchor` lib compartilhada** ([skills/init/lib/rails-anchor.ts](skills/init/lib/rails-anchor.ts)) —
+- **`rails-anchor` lib compartilhada** (`skills/init/lib/rails-anchor.ts`, removida em refactor posterior) —
   exporta `RAILS_GEMFILE_ANCHOR_RX`, `parseRailsAnchor`, `isLegacyRailsVersion`,
   `MIN_SUPPORTED_RAILS_MAJOR=7`, `MIN_SUPPORTED_RAILS_MINOR=1`. Elimina duplicate
   regex entre `detect-stack.ts` e `format-knowledge-preview.ts`.

@@ -98,6 +98,8 @@ Regras ESPECIFICAS do dominio de code smells:
 
 4. **Never suggest mascarar primitive obsession adicionando tipo wrapper sem comportamento.** Criar `type Email = string` sem validacao na construcao nao resolve primitive obsession — e renomear. O fix correto e um value object com construtor que valida. Se nao ha comportamento a encapsular, o tipo primitivo pode ser aceitavel.
 
+5. **Se incerto se um finding e um problema real, marque-o como `needs-investigation` e explique o porque — nao afirme com uma severidade nem omita silenciosamente.** Honestidade calibrada supera tanto o falso positivo quanto o silencio. (Espelha a Rule 3 do `plan-verifier`, que ja usa `unable_to_verify`.)
+
 ## Composition
 
 **Invoke directly when:**

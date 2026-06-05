@@ -281,6 +281,9 @@ identica forma.
 mais cenarios reais). Use **Mock** com moderacao — mocks excessivos acoplam o teste
 a implementacao e nao ao comportamento.
 
+**Ordem de preferencia (mais → menos confianca):** Implementacao real > Fake > Stub > Mock.
+Use mocks apenas quando a dependencia real e lenta, nao-deterministica, ou tem efeitos colaterais incontrolaveis (APIs externas, envio de email). Over-mocking cria testes que passam enquanto a producao quebra.
+
 ---
 
 <decision-tree>
@@ -331,6 +334,14 @@ Expectativa: testes devem FALHAR (Red phase)
 **Token economy**: Se houver erros de configuracao, solicitar ao dev que execute no proprio terminal e compartilhe apenas as linhas de erro relevantes (~20 tokens vs ~500 tokens com output completo)
 </context>
 </step>
+
+### Prove-It (bug fixes) — teste de reproducao ANTES do fix
+Quando a task e um bug report (nao uma feature nova): NAO comece tentando corrigir.
+Escreva primeiro um teste que reproduz o bug e confirme que ele FALHA (bug confirmado).
+So entao implemente o fix, rode o teste (deve passar) e rode a suite completa (sem regressoes).
+Antes (errado): editar o codigo "que parece o culpado" e testar manualmente.
+Depois (certo): teste vermelho que prova o bug -> fix minimo -> teste verde -> suite verde.
+Para o fluxo completo pos-deploy (logs brutos -> hipotese -> regression test -> fix cirurgico -> hardening -> autopsia), use `/anti-vibe-coding:incident-response`.
 
 <step id="4" name="TDD Green — Implementacao Minima (Naive First)">
 <instructions>
@@ -411,6 +422,7 @@ Sugerir ao desenvolvedor executar `/anti-vibe-coding:anti-vibe-review`.
 | "Este código é tão simples que não precisa de teste" | Código simples hoje, complexo amanhã. O custo de escrever o teste é mínimo; o custo da regressão não é. |
 | "TDD é lento, vou usar em código complexo" | TDD é mais lento no início de um arquivo, mais rápido no total do projeto. O tempo economizado em debug supera o investimento. |
 | "O tipo já garante o comportamento — não preciso testar" | Types verificam estrutura; testes verificam comportamento. Um `string` pode ser um email inválido — o compilador não detecta. |
+| "Vou rodar os testes de novo so pra ter certeza" | Re-rodar o mesmo comando sem nenhuma mudanca de codigo entre as execucoes adiciona zero confianca. So rode de novo apos uma alteracao que possa mudar o resultado. |
 
 ## Red Flags
 
@@ -421,6 +433,17 @@ Sugerir ao desenvolvedor executar `/anti-vibe-coding:anti-vibe-review`.
 - Teste que só roda com `--testNamePattern` específico (jamais na suite completa)
 - Mock que retorna dados de produção hardcoded sem label `FIXTURE`
 - Describe block vazio criado como placeholder sem `test.todo`
+- Rodar o mesmo comando de teste duas vezes sem nenhuma mudanca de codigo entre as execucoes
+
+## Verification — Auto-Auditoria Antes de Reportar "Pronto"
+Antes de declarar a task concluida, TODOS os itens devem estar satisfeitos:
+- [ ] Todo novo comportamento tem um teste correspondente
+- [ ] Fix de bug inclui um teste que FALHAVA antes do fix (Prove-It)
+- [ ] Nenhum teste foi pulado ou desabilitado (`test.skip`/`xit`/`.only`)
+- [ ] Nomes de teste descrevem comportamento (sem "should", terceira pessoa)
+- [ ] Cobertura nao diminuiu (se rastreada no projeto)
+- [ ] A suite foi REALMENTE executada: `bun run test && bun run lint` verde
+Nota: rode cada comando apos uma mudanca que possa afetar o resultado. Apos uma execucao limpa, NAO repita o mesmo comando sem alteracao de codigo — re-rodar codigo inalterado nao adiciona confianca.
 
 ## Feature solicitada
 

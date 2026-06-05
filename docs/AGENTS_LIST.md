@@ -1,12 +1,13 @@
 # Agents List — Plugin Subagents
 
-13 standalone subagent auditors in `agents/`, invokable from any skill via the Agent tool.
+14 standalone subagent auditors in `agents/`, invokable from any skill via the Agent tool.
 All agents are read-only unless noted. Default profile is `balanced` unless overridden.
 
 ## Subagent Auditors
 
 | Agent | Purpose | Default Profile |
 |-------|---------|----------------|
+| code-reviewer | Generalist correctness + readability review (read-only) | balanced |
 | tdd-verifier | Verifies TDD compliance (read-only) | balanced |
 | documentation-writer | Creates/updates docs | balanced |
 | lesson-evaluator | Evaluates lesson quality | balanced |

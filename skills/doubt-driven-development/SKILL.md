@@ -7,12 +7,6 @@ allowed-tools: Read, Grep, Glob, Task
 argument-hint: "[decisao ou artefato a submeter a doubt cycle]"
 ---
 
-```typescript
-// 2026-05-22 (Luiz/dev): telemetria passiva padrao plugin
-import { writeTelemetryStart } from "../../lib/telemetry-utils";
-writeTelemetryStart("doubt-driven-development");
-```
-
 # Doubt-Driven Development
 
 ## Differs from / Compose with
@@ -21,7 +15,7 @@ writeTelemetryStart("doubt-driven-development");
 - **`/verify-work`**: pos-implementacao, audita o que ja foi feito; DDD e **in-flight**, antes de comprometer. Compoem: DDD durante decisoes; `/verify-work` apos PR pronto. DDD reduz o numero de issues que `/verify-work` precisa pegar tarde.
 - **`/consultant`**: ensina trade-offs uma vez; DDD ataca a escolha resultante para checar se ela sobrevive a fresh-context. Compoem: `/consultant` da o mapa; DDD testa se a rota escolhida tem buraco.
 - **`source-driven-development`**: SDD verifica fatos sobre frameworks contra docs; DDD verifica raciocinio sobre o artefato. SDD checa que API existe; DDD checa que voce a usou corretamente sob o contract.
-- **Subagentes em `agents/`**: o Step 3 (DOUBT) usa um subagente fresh-context. Personas em `agents/` (code-reviewer, security-auditor) sao candidatas naturais — invocar com o prompt adversarial verbatim para override do shape padrao da persona.
+- **Subagentes em `agents/`**: o Step 3 (DOUBT) usa um subagente fresh-context. Personas em `agents/` (code-smell-detector, solid-auditor, security-auditor) sao candidatas naturais — invocar com o prompt adversarial verbatim para override do shape padrao da persona.
 
 ## Overview
 
@@ -125,7 +119,7 @@ CONTRACT: <paste contract>
 
 In Claude Code, the role-based reviewers in `agents/` start with isolated context by design and are usable here — see `agents/` for the roster and per-domain match.
 
-**The adversarial prompt above takes precedence over the persona's default response shape.** Personas like `code-reviewer` are written to produce balanced verdicts with both strengths and weaknesses; doubt-driven needs issues-only output. Paste the adversarial prompt verbatim into the invocation so it overrides the persona's default. If a persona's response shape can't be overridden cleanly, fall back to a generic subagent with the adversarial prompt.
+**The adversarial prompt above takes precedence over the persona's default response shape.** Personas like `code-smell-detector` or `solid-auditor` are written to produce balanced verdicts with both strengths and weaknesses; doubt-driven needs issues-only output. Paste the adversarial prompt verbatim into the invocation so it overrides the persona's default. If a persona's response shape can't be overridden cleanly, fall back to a generic subagent with the adversarial prompt.
 
 #### Cross-model escalation
 
@@ -259,9 +253,3 @@ After applying doubt-driven development:
 - [ ] In interactive mode, cross-model was **explicitly offered** to the user (regardless of artifact stakes) and the response was acknowledged in the output
 - [ ] In non-interactive mode, cross-model was skipped and the skip was announced
 - [ ] Any external CLI invocation was preceded by a PATH check, a working-binary test, syntax confirmation with the user, and explicit authorization to run
-
-```typescript
-// 2026-05-22 (Luiz/dev): telemetria passiva padrao plugin — fim da skill
-import { writeTelemetryEnd } from "../../lib/telemetry-utils";
-writeTelemetryEnd("doubt-driven-development");
-```

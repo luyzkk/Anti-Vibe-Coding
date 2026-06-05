@@ -55,6 +55,7 @@ docs/exec-plans/
 - `/tdd-workflow` → exists for direct implementation
 - `/learn` → can be invoked at any point
 - `/init` → onboards a project; mode-detected (see below)
+- **`idea-stage checkpoint`** (opcional) → antes de `/write-prd`, verificar validade da ideia: e um painkiller ou vitamina? Nomear a premissa mais arriscada e como testa-la. Vive em `consultant` via `## Auditoria de Premissas`. Pular quando a ideia ja esta validada.
 
 ## Init Modes
 
