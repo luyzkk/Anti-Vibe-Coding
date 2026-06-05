@@ -21,11 +21,12 @@ export function parseLessonsLearnedCompletion(output: string): InvokeLessonsResu
   // 2026-05-24 (Luiz/dev): completion signal YAML padrao — D33 da lessons-learned
   const yamlBlockMatch = output.match(/```yaml\s*\n([\s\S]*?)\n```/)
   if (!yamlBlockMatch) return { invoked: true, rawOutput: output }
-  const yaml = yamlBlockMatch[1]
-  const noteCreatedMatch = yaml.match(/note_created:\s*['"]?([^'"\n]+)['"]?/)
+  const yaml = yamlBlockMatch[1] ?? ''
+  const noteCreated = yaml.match(/note_created:\s*['"]?([^'"\n]+)['"]?/)?.[1]?.trim()
+  // exactOptionalPropertyTypes: so inclui noteCreated quando definido.
   return {
     invoked: true,
-    noteCreated: noteCreatedMatch?.[1]?.trim(),
     rawOutput: output,
+    ...(noteCreated !== undefined ? { noteCreated } : {}),
   }
 }

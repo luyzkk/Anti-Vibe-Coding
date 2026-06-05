@@ -66,11 +66,9 @@ More prose after block that must also be preserved.
       { name: '2024-01-05-e.md', content: `---\ntitle: A note\ncategory: debugging\ntags: [x]\n---\nNo created.\n` },
     ]
 
-    const originalContents: Record<string, string> = {}
     for (const note of badNotes) {
       const p = path.join(tmpDir, 'docs', 'compound', note.name)
       await fs.writeFile(p, note.content)
-      originalContents[note.name] = note.content
     }
 
     const result = await runMigrate(tmpDir)
@@ -88,7 +86,7 @@ More prose after block that must also be preserved.
     for (const note of badNotes) {
       const p = path.join(tmpDir, 'docs', 'compound', note.name)
       const current = await fs.readFile(p, 'utf-8')
-      expect(current).toBe(originalContents[note.name])
+      expect(current).toBe(note.content)
     }
 
     expect(result.notesWithIssues).toBeGreaterThan(0)
