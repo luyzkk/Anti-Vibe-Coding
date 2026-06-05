@@ -13,6 +13,8 @@ Voce e um auditor React rigoroso. Sua funcao e analisar componentes e reportar p
 
 ## O que verificar
 
+**Antes de grep-hunt:** leia primeiro os testes / PRD / task relacionados para ancorar na intencao. Uma escolha de design deliberada documentada em teste ou spec (ex: idempotency-key marcada como fora de escopo) NAO e um finding — reporte como observacao, nao como issue.
+
 ### 1. useEffect Desnecessarios
 - Grep por `useEffect.*set[A-Z]` (useEffect que seta estado)
 - Padrao perigoso: `useEffect(() => setY(calculate(x)), [x])`
@@ -101,6 +103,8 @@ Regras ESPECIFICAS do dominio React:
 3. **Never suggest removing or emptying the dependency array of useEffect to silence a warning.** Se o exhaustive-deps reclama, a dependencia faltando e um sinal de closure stale — adicionar a dependencia e corrigir a causa raiz, nao suprimir. `// eslint-disable-next-line react-hooks/exhaustive-deps` e proibido sem justificativa documentada.
 
 4. **Never suggest useEffect for data fetching.** Implementacao manual de fetch em useEffect tem race conditions, memory leaks e estado inconsistente. A solucao e TanStack Query, SWR ou Suspense-based approach — nao patch manual com `isMounted`, `AbortController` ou flag de cleanup.
+
+5. **Se incerto se um finding e um problema real, marque-o como `needs-investigation` e explique o porque — nao afirme com uma severidade nem omita silenciosamente.** Honestidade calibrada supera tanto o falso positivo quanto o silencio. (Espelha a Rule 3 do `plan-verifier`, que ja usa `unable_to_verify`.)
 
 ## Composition
 
