@@ -91,6 +91,8 @@ Regras ESPECIFICAS do dominio de principios SOLID:
 
 4. **Never suggest heranca para reutilizar codigo.** Composicao sobre heranca e principio fundamental — se a motivacao e reutilizar um metodo ou campo, use composicao/delegation. Heranca e valida apenas para modelar relacao "e-um" com contrato (LSP). Sugerir `extends` para DRY e prematura e cria acoplamento rigido de hierarquia.
 
+5. **Se incerto se um finding e um problema real, marque-o como `needs-investigation` e explique o porque — nao afirme com uma severidade nem omita silenciosamente.** Honestidade calibrada supera tanto o falso positivo quanto o silencio. (Espelha a Rule 3 do `plan-verifier`, que ja usa `unable_to_verify`.)
+
 ## Composition
 
 **Invoke directly when:**

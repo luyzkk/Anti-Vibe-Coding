@@ -155,6 +155,12 @@ Classificar por dominio para determinar auditores domain-specific:
 - Skippado se: config.auditors.code_quality = false
 - **Heuristica pratica (Consolidado de anti-vibe-review):** nomes grepáveis — para identificadores de funcoes/tipos/constantes criados, rodar `grep -c <nome> src/` e verificar se retorna <5 hits nao relacionados. Se >10 hits, o nome e generico demais e dificulta refatoracao segura. Esta heuristica complementa o auditor automatizado (que detecta padroes mas nao mede greppability).
 
+**code-reviewer:**
+- Input: todos os arquivos modificados
+- Verifica: correctness (spec-conformance, null/boundary/error-paths, race/off-by-one) e readability (nomes, nesting, organizacao)
+- Skippado se: config.auditors.code_review = false
+- Default: `config.auditors.code_review = true` (recomendado — garante que "review this" genererico tem um target no fleet; unico auditor que cobre correctness line-level sem overlap de dominio)
+
 ### 2c. Auditores Domain-Specific (condicional, se config.auditors.domain_specific = true)
 
 Spawn apenas dos detectados na classificacao de arquivos modificados.
@@ -301,6 +307,7 @@ IMPORTANTE: mutacoes sao SEMPRE revertidas. Nunca persistir.
 - TDD Compliance: ✅ strict | ⚠️ partial | ❌ none
 - Security: {se domainStatuses["security-auditor"] === "clean"} ✅ clean | {se "issues_found"} ⚠️ issues found | {se "critical_issues"} ❌ critical | {se incomplete} ⏸ incomplete
 - Code Quality: {se domainStatuses["code-smell-detector"] === "clean"} ✅ clean | {se "issues_found"} ⚠️ issues found | {se incomplete} ⏸ incomplete
+- Code Review: {se domainStatuses["code-reviewer"] === "clean"} ✅ clean | {se "issues_found"} ⚠️ issues found | {se "critical_issues"} ❌ critical | {se incomplete} ⏸ incomplete
 - React: {se "react-auditor" rodou} ✅ clean | ⚠️ issues found | ❌ critical | ⏸ incomplete
 - SOLID: {se "solid-auditor" rodou} ✅ clean | ⚠️ issues found | ⏸ incomplete
 - Test Quality: ✅ solid | ⚠️ {N} weak | ❌ {N} hallucinated
