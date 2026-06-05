@@ -175,6 +175,42 @@ CSP headers controlam quais recursos o browser pode carregar. Previne XSS e data
 - `script-src 'unsafe-inline' 'unsafe-eval'` — anula toda protecao CSP contra XSS
 - Nao ter CSP headers (sem protecao adicional contra XSS)
 
+> Ver tambem: `## Security Headers` abaixo para HSTS, nosniff, Referrer-Policy e Permissions-Policy.
+
+---
+
+## Security Headers (HSTS, nosniff, Referrer-Policy, Permissions-Policy)
+
+Headers complementares ao CSP — cada um cobre uma superficie de ataque diferente. Adicionar junto com a configuracao CSP da secao acima.
+
+| Header | Valor recomendado | Protege contra |
+|--------|------------------|----------------|
+| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains` | Forca HTTPS, previne downgrade e SSL-strip |
+| `X-Content-Type-Options` | `nosniff` | Impede MIME sniffing — sem isso, um upload de imagem pode ser interpretado pelo browser como script executavel |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` | Evita vazar path e query string no header `Referer` em requests cross-origin |
+| `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` | Desabilita APIs sensiveis do browser por padrao; o site so ativa o que declarar explicitamente |
+| `X-Frame-Options` | `DENY` | **Fallback legado apenas** — nosso CSP ja cobre clickjacking via `frame-ancestors 'none'` (ver secao CSP acima); incluir apenas para suporte a browsers antigos que nao entendem `frame-ancestors` |
+
+**Bloco de configuracao ilustrativo:**
+
+```typescript
+// Ilustrativo — auditar se o servidor/middleware da stack configura estes headers
+const securityHeaders = {
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+  'X-Frame-Options': 'DENY', // fallback legado — CSP frame-ancestors 'none' e o controle primario
+}
+```
+
+**Como auditar:**
+
+```bash
+# Verificar headers da resposta em producao
+curl -I https://seu-dominio.com | grep -iE "Strict-Transport|X-Content-Type|Referrer-Policy|Permissions-Policy|X-Frame"
+```
+
 ---
 
 ## UUIDs vs IDs Sequenciais
