@@ -142,6 +142,32 @@ Apos ultimo passo:
 
 ---
 
+## Common Rationalizations
+
+| Racionalizacao | Realidade |
+|---|---|
+| "Vou descobrir conforme codifico" | E assim que 3 passos viram retrabalho. 2 min de mini-plano economizam horas. |
+| "Os passos sao obvios" | Escreva mesmo assim — passos explicitos revelam dependencia e edge case esquecidos. |
+| "Plano e overhead pra task pequena" | Sem plano, implementar e so digitar. O verify por passo e o que prova que terminou. |
+
+## Red Flags
+
+- Comecar a editar sem o mini-plano de 3-7 passos confirmado (Step 3)
+- Passo sem criterio `verify:` (como saber que esta pronto?)
+- Ultimo passo NAO e validacao (testes + lint)
+- Task que so "cresce" durante a execucao — sinal de que era `/plan-feature`, nao quick-plan
+
+## Verificacao Antes de Executar
+
+Antes de comecar o Step 4, confirmar:
+
+- [ ] Cada passo tem acao concreta + criterio `verify:` objetivo
+- [ ] Entre 3 e 7 passos (se >7, e `/plan-feature`)
+- [ ] Ultimo passo e validacao (bun run test && bun run lint)
+- [ ] O dev aprovou o plano (Step 3)
+
+---
+
 ## Output Format (v6 — D18 reduzido)
 
 <!-- 2026-05-12 (Luiz/dev): 04-G1 — Assumptions/Risks/Review Checklist omitidos intencionalmente.
