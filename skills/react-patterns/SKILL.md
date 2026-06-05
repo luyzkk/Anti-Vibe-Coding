@@ -13,6 +13,8 @@ Modo de operacao: **CONSULTOR**. Ensinar o conceito, mostrar o anti-pattern, apr
 
 > Detalhes completos e exemplos extensivos estao em `references/`.
 
+> **Escopo:** react-patterns cobre corretude e performance de runtime React: re-renders, effects, data fetching, memoization e state shape. NAO cobre acessibilidade, design-system visual nem responsividade. Para acessibilidade (WCAG/aria), QA visual e checagem com axe/Playwright, ver o skill `qa-visual` (`/anti-vibe-coding:qa-visual`).
+
 ---
 
 ## 1. useEffect: Quando NAO Usar
@@ -195,3 +197,11 @@ Ao analisar codigo React, verificar nesta ordem:
 [ ] Imagens sem otimizacao? -> next/image ou lazy loading
 [ ] Deps faltantes no useEffect? -> Corrigir (NAO ignorar linter)
 ```
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "useMemo em tudo e mais seguro" | Memoizacao prematura adiciona overhead de re-render e esconde o gargalo real; medir com React Profiler antes de aplicar (ver `## 4`) |
+| "fetch dentro de useEffect e mais simples" | Entrega 3 bugs latentes: race condition, memory leak e estado inconsistente (ver `## 2`) |
+| "o linter esta errado sobre exhaustive-deps" | Deps faltantes sao bugs silenciosos; nunca suprimir o eslint-plugin-react-hooks (ver `## 3`) |
