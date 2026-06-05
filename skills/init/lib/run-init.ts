@@ -113,6 +113,11 @@ export async function runInit(
     return runRollback(rollbackOpts)
   }
 
+  // 2026-06-05 (Luiz/dev): CA-11 — capturado do StepReport do Step 7 (generate-populate-plans).
+  // Substitui o canal antigo via ctx.flags['__populatePlanPath'] (perdido num refactor: flags
+  // sao Readonly e steps nao podem muta-las). A mensagem final le esta variavel apos o loop.
+  let populatePlanPath: string | null = null
+
   for (const step of reg) {
     try {
       let report = await step.run(ctxWithAudit)
@@ -142,6 +147,10 @@ export async function runInit(
         // 2026-05-17 (Luiz/dev): log explicito de mutacao — alinhado com PRD SH-04 (rastreabilidade).
         log(`[${step.id}] (mutated disk)`)
       }
+      // 2026-06-05 (Luiz/dev): CA-11 — guarda o path do plano populate para a mensagem final.
+      if (typeof report.populatePlanPath === 'string') {
+        populatePlanPath = report.populatePlanPath
+      }
       // 2026-05-17 (Luiz/dev): Plano 02 fase-06 — early-exit para reuse-discovery cache-fresh.
       // Mapeia process.exit(0) do SKILL.md linha 550 sem usar AbortError (semantica de erro). PRD MH-04, CA-04.
       if (report.skipRemaining === true) {
@@ -167,11 +176,9 @@ export async function runInit(
   }
 
   // 2026-05-19 (Luiz/dev): Plano 05 fase-03 — mensagem final CA-11.
-  // `__populatePlanPath` e setado por Step 91 em ctx.flags apos escrever o plano populate.
-  // Mensagem sugestiva — nunca invoca automaticamente (feedback_suggest_dont_execute.md).
-  const populatePlanPath = typeof ctxWithAudit.flags['__populatePlanPath'] === 'string'
-    ? ctxWithAudit.flags['__populatePlanPath']
-    : null
+  // 2026-06-05 (Luiz/dev): populatePlanPath agora vem do StepReport do Step 7 (capturado no loop),
+  // nao mais de ctx.flags. Mensagem sugestiva — nunca invoca automaticamente
+  // (feedback_suggest_dont_execute.md).
   if (populatePlanPath !== null) {
     log('')
     log(`Harness scaffold criado. Plano populate em ${populatePlanPath}`)

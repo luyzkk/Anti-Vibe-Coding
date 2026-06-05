@@ -49,8 +49,13 @@ describe('generatePopulatePlansStep (Step 7)', () => {
     // resposta 's' pula gracioso; resposta 'a' mantem AbortError historico.
     // ABORT_MESSAGE_NO_STACK e ABORT_CODE_NO_STACK preservados byte-identical.
 
+    // 2026-06-05 (Luiz/dev): CA-11 — o gate so PERGUNTA quando ha como perguntar (ctx.askUser
+    // presente). Sem askUser (nao-interativo) o step re-detecta e decide sozinho — coberto pelos
+    // testes 'non-interactive' abaixo. Por isso estes dois injetam um askUser stub.
+    const askUserStub = async (): Promise<string> => 's'
+
     test('returns needsUser on first invocation when ctx.stack is undefined', async () => {
-      const ctx = mkCtx(tmpDir) // no stack
+      const ctx = mkCtx(tmpDir, { askUser: askUserStub }) // no stack, interactive
       const report = await generatePopulatePlansStep.run(ctx)
       expect(report.needsUser).toBeDefined()
       expect(report.needsUser?.options).toEqual(['s', 'a'])
@@ -63,10 +68,21 @@ describe('generatePopulatePlansStep (Step 7)', () => {
     test('returns needsUser on first invocation when ctx.stack.primary is null', async () => {
       const ctx = mkCtx(tmpDir, {
         stack: { primary: null, secondary: [], signalSource: 'no signal', anchorFiles: [] },
+        askUser: askUserStub,
       })
       const report = await generatePopulatePlansStep.run(ctx)
       expect(report.needsUser).toBeDefined()
       expect(report.mutated).toBe(false)
+    })
+
+    test('non-interactive (no askUser): skips gracefully when no stack on disk', async () => {
+      // tmpDir vazio — re-detect retorna null, step pula sem gate.
+      const ctx = mkCtx(tmpDir)
+      const report = await generatePopulatePlansStep.run(ctx)
+      expect(report.needsUser).toBeUndefined()
+      expect(report.mutated).toBe(false)
+      expect(report.summary).toContain('skipped')
+      expect(report.summary).toContain('non-interactive')
     })
 
     test('returns graceful skip when user answers "s"', async () => {
