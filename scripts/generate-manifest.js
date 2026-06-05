@@ -48,7 +48,10 @@ function isIgnored(relPath) {
  * Calcula SHA-256 checksum de um arquivo
  */
 function calculateChecksum(filePath) {
-  const content = fs.readFileSync(filePath, 'utf8');
+  // Normaliza CRLF -> LF antes de hashear: o checksum representa o conteudo CANONICO
+  // (forma LF, como o git armazena), nao a forma do working-copy. Sem isso, um manifest
+  // gerado no Windows (autocrlf -> CRLF) produz checksums que nao batem no CI Linux (LF).
+  const content = fs.readFileSync(filePath, 'utf8').replace(/\r\n/g, '\n');
   return crypto.createHash('sha256').update(content).digest('hex');
 }
 

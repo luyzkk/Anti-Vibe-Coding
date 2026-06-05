@@ -2,7 +2,7 @@
 // Referencia: G6 — paths relativos + forward slashes (Windows-safe)
 //             07-A5 — file: se absolutePath presente, feature: se featureName presente
 import * as fs from 'fs'
-import { relative, sep } from 'path'
+import { posix } from 'path'
 
 export type CaptureInput = {
   projectRoot: string
@@ -23,8 +23,12 @@ export function formatTodoLine(input: CaptureInput): string {
 
 function buildClassifier(input: CaptureInput): string | null {
   if (input.absolutePath !== null) {
-    // 2026-05-12 (Luiz/dev): split/join converte \ para / — Windows path safe
-    const rel = relative(input.projectRoot, input.absolutePath).split(sep).join('/')
+    // 2026-05-12 (Luiz/dev): normaliza \ -> / SEMPRE (determinístico cross-platform),
+    // depois usa posix.relative para que o resultado independa do path.sep do OS.
+    // Antes usava relative()+split(sep): platform-dependent, quebrava no Linux CI (G6).
+    const root = input.projectRoot.replace(/\\/g, '/')
+    const abs = input.absolutePath.replace(/\\/g, '/')
+    const rel = posix.relative(root, abs)
     return input.lineNumber !== null ? `file:${rel}:${input.lineNumber}` : `file:${rel}`
   }
   if (input.featureName !== null) return `feature:${input.featureName}`

@@ -1,14 +1,19 @@
 // skills/init/lib/steps/03-secrets-scan.ts
 // 2026-05-21 (Luiz/dev): Step 3 — secrets-scan REAL (init v7).
-// Portado de skills/init/lib/steps/06-secrets-scan.ts removendo dry-run/noWrite (D4 do CONTEXT)
-// e audit-log writer (sem __auditLog no novo pipeline).
+// Portado de skills/init/lib/steps/06-secrets-scan.ts removendo dry-run/noWrite (D4 do CONTEXT).
 // DV-1 do PLAN.md init-refactor-v7: secrets-scan vira step proprio (Step 3).
+// 2026-06-05 (Luiz/dev): restaura append do audit log canonico (CA-14). O writer canonico
+// continua sendo injetado em ctx.flags['__auditLog'] pelo dispatcher (D19); o port v7 deixou
+// de consumi-lo, deixando agents-log.json nunca escrito. Reescreve a entrada init-secrets-scan.
 
 import path from 'node:path'
 import { promises as fs } from 'node:fs'
 import type { Step, StepContext, StepReport } from './types'
 import { scanSecrets, type SecretMatch } from '../secrets-scanner'
 import { writeDiscoveryArtifact } from '../discovery-store'
+import { INIT_SUBAGENT_IDS } from '../init-subagent-ids'
+import { isDryRun } from '../dry-run-mode'
+import type { AuditLogWriter } from '../audit-log'
 
 export type SecretsScanFileEntry = {
   readonly relativePath: string
@@ -30,6 +35,16 @@ function containsBlacklisted(relPath: string): boolean {
 
 function hasMarkdownExtension(name: string): boolean {
   return name.endsWith('.md') || name.endsWith('.mdx')
+}
+
+// 2026-06-05 (Luiz/dev): type guard para o slot __auditLog. O dispatcher deposita um
+// AuditLogWriter real (ou nada); guard por shape (append callable) evita cast inseguro.
+function getAuditWriter(ctx: StepContext): AuditLogWriter | undefined {
+  const slot: unknown = ctx.flags['__auditLog']
+  if (slot !== null && typeof slot === 'object' && 'append' in slot && typeof slot.append === 'function') {
+    return slot as AuditLogWriter
+  }
+  return undefined
 }
 
 async function walkDir(
@@ -93,6 +108,21 @@ export const secretsScanStep: Step = {
 
     // 2026-05-21 (Luiz/dev): sempre escreve (D4 removeu dry-run/noWrite).
     await writeDiscoveryArtifact(ctx.cwd, 'secrets-scan-result', result, { noWrite: false })
+
+    // 2026-06-05 (Luiz/dev): CA-14 — escreve a entrada canonica no agents-log.json via writer
+    // injetado pelo dispatcher (ctx.flags['__auditLog']). Dry-run suprime (entries vazias).
+    // output_struct carrega apenas metadata/paths (DT-07: zero conteudo cru, zero PII).
+    const writer = isDryRun(ctx) ? undefined : getAuditWriter(ctx)
+    await writer?.append({
+      subagent_id: INIT_SUBAGENT_IDS.secretsScan,
+      input_paths: [ctx.cwd],
+      output_struct: {
+        matchCount: blocked.length,
+        blockedFiles: blocked.map((b) => b.relativePath),
+      },
+      duration_ms: result.durationMs,
+      retry_count: 0,
+    })
 
     return {
       mutated: false,
