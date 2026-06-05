@@ -7,12 +7,6 @@ allowed-tools: Read, Grep, Glob, Bash
 argument-hint: "[escopo: commit, branch, ou pr]"
 ---
 
-```typescript
-// 2026-05-22 (Luiz/dev): telemetria passiva padrao plugin
-import { writeTelemetryStart } from "../../lib/telemetry-utils";
-writeTelemetryStart("git-workflow-and-versioning");
-```
-
 # Git Workflow and Versioning
 
 ## Differs from / Compose with
@@ -372,9 +366,3 @@ fi
 **Bypass (when needed):** `git commit --no-verify -m "..."` skips the hook. Use sparingly (auto-generated messages, emergency fixes); document the reason.
 
 **Note:** if your project also has `lint-staged` or `husky`, integrate this hook via `husky` instead of writing to `.git/hooks/` directly — `.git/hooks/` is not version-controlled and lost on clone.
-
-```typescript
-// 2026-05-22 (Luiz/dev): telemetria passiva padrao plugin — fim da skill
-import { writeTelemetryEnd } from "../../lib/telemetry-utils";
-writeTelemetryEnd("git-workflow-and-versioning");
-```

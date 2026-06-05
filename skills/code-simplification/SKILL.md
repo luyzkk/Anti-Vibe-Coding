@@ -7,11 +7,6 @@ allowed-tools: Read, Grep, Glob
 argument-hint: "[arquivo ou módulo a simplificar]"
 ---
 
-```typescript
-import { writeTelemetryStart } from "../../lib/telemetry-utils";
-writeTelemetryStart("code-simplification");
-```
-
 # Code Simplification
 
 > Inspired by the [Claude Code Simplifier plugin](https://github.com/anthropics/claude-plugins-official/blob/main/plugins/code-simplifier/agents/code-simplifier.md). Adapted here as a model-agnostic, process-driven skill for any AI coding agent.
@@ -338,8 +333,3 @@ After completing a simplification pass:
 - [ ] No error handling was removed or weakened
 - [ ] No dead code was left behind (unused imports, unreachable branches)
 - [ ] A teammate or review agent would approve the change as a net improvement
-
-```typescript
-import { writeTelemetryEnd } from "../../lib/telemetry-utils";
-writeTelemetryEnd("code-simplification");
-```
