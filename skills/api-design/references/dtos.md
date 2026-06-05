@@ -22,6 +22,16 @@ DTOs sao objetos que definem EXATAMENTE quais dados entram e saem da API. Criam 
 4. **DTO != Modelo de Dominio** — DTO e contrato da API; modelo e regra de negocio
 5. **Versionar DTOs se a API e publica** — `UserResponseV1`, `UserResponseV2`
 
+### Onde a validacao NAO pertence
+
+Nao super-engenheire a validacao. Validar em todo lugar e tao perigoso quanto nao validar — cria ruido, falsos positivos e dilui a responsabilidade.
+
+- **Nao** entre funcoes internas que compartilham o mesmo contrato de tipo (se a fronteira ja validou, o interior nao precisa revalidar).
+- **Nao** em funcoes utilitarias chamadas por codigo que ja validou os dados (o dado ja esta limpo — parse duplo e desperdicio e pode gerar erros confusos).
+- **Nao** em dados que acabaram de sair do seu proprio banco de dados (voce controlou a escrita; revalidar o output do banco e ruido, nao seguranca).
+
+A regra e: **valide na fronteira, confie no interior.** A fronteira e onde dados externos entram (HTTP request, webhook, fila de mensagens). Depois que o DTO valida e filtra, o dado interno e confiavel.
+
 ## Exemplos de Implementacao
 
 ### Com Zod (TypeScript)
