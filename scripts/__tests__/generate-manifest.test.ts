@@ -118,7 +118,8 @@ describe("generate-manifest", () => {
       if (!relPath) return
       const absPath = path.join(PLUGIN_ROOT, relPath)
       if (fs.existsSync(absPath)) {
-        const content = fs.readFileSync(absPath, "utf8")
+        // Espelha calculateChecksum: normaliza CRLF -> LF (checksum canonico, cross-platform).
+        const content = fs.readFileSync(absPath, "utf8").replace(/\r\n/g, "\n")
         const expected = crypto.createHash("sha256").update(content).digest("hex")
         const entry = manifest.files[relPath]
         if (entry) expect(entry.checksum).toBe(expected)
