@@ -58,18 +58,18 @@ export async function writeADR(designDocsDir: string, input: ADRInput): Promise<
     `# ADR-${pad4(nextId)}: ${input.title}`,
     '',
     '## Context',
-    input.context ?? '(why is this decision needed)',
+    input.context ?? '(Por que esta decisao e necessaria? Liste requisitos e restricoes.)',
     '',
     '## Decision',
-    input.decision ?? '(what was decided)',
+    input.decision ?? '(O que foi decidido, em uma frase.)',
     '',
     '## Alternatives',
     (input.alternatives && input.alternatives.length > 0)
       ? input.alternatives.map((a) => `- ${a}`).join('\n')
-      : '- (no alternatives recorded)',
+      : '### Opcao A\n- Pros: ...\n- Cons: ...\n- Rejeitada porque: ...\n\n### Opcao B\n- Pros: ...\n- Cons: ...\n- Rejeitada porque: ...',
     '',
     '## Consequences',
-    input.consequences ?? '(trade-offs of this decision)',
+    input.consequences ?? '(Trade-offs aceitos: o que melhora, o que custa, o que fica mais dificil.)',
     '',
   ].join('\n')
 
