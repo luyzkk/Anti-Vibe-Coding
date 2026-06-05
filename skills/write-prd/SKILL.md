@@ -163,6 +163,24 @@ Regras:
 2. Se detectar anomalia (ex: 2 ORMs), mencionar no PRD como risco
 3. Focar no diretorio mais relevante para a feature — nao explorar tudo
 
+### Antes de gerar — confirmar suposicoes (boundary Step 2 -> Step 3)
+
+Antes de escrever QUALQUER conteudo do PRD no Step 3, listar as suposicoes que
+serao "assadas" no rascunho. Surgir aqui (e nao no Step 4, ja com o draft pronto)
+evita desperdicar um rascunho inteiro sobre uma premissa errada.
+
+```
+SUPOSICOES QUE VOU ASSUMIR:
+1. Stack: {ex: Next.js App Router + Prisma + Postgres — detectado no Step 2}
+2. Modelo de auth: {ex: sessao por cookie, nao JWT}
+3. Fonte de dados: {ex: reutilizar tabela `users` existente, nao criar entidade nova}
+→ Corrija agora ou prossigo com estas no PRD.
+```
+
+Regra: derivar cada item do que o Step 2 detectou; onde nao detectou, marcar
+"[A DEFINIR]" em vez de chutar. Isto NAO substitui o "⚠️ Assumido:" do Step 4 —
+aquele confirma decisoes ja escritas no draft; este confirma premissas ANTES do draft.
+
 ---
 
 ## Step 3 — Gerar PRD
@@ -189,6 +207,11 @@ Regras de geracao:
 2. Informacao insuficiente → preencher com "[A DEFINIR — perguntar ao dev]" em vez de inventar
 3. NAO gerar requisitos que o dev nao mencionou — apenas organizar e estruturar
 4. Must Have MINIMALISTA — aplicar teste: "Se mover para Should, a feature ainda resolve o problema core?"
+
+Exemplo de transformacao (requisito vago -> criterio mensuravel):
+  Vago:       "Deixe o dashboard mais rapido"
+  Mensuravel: LCP < 2.5s em 4G; carga inicial de dados < 500ms; CLS < 0.1
+Aplicar este reframe a cada Must Have antes de virar criterio Dado/Quando/Entao.
 
 ---
 
@@ -359,6 +382,18 @@ Se recusar, seguir para Step 7 sem insistir.
 
 ---
 
+## Verification
+
+Antes de sugerir `/plan-feature`, confirmar:
+
+- [ ] O PRD cobre Problema, Solucao e Criterios de Aceite.
+- [ ] O dev revisou e aprovou (Status = Approved).
+- [ ] Os criterios de aceite sao testaveis (formato Dado/Quando/Entao).
+- [ ] Must Have <= 40% dos requisitos totais.
+- [ ] O PRD foi salvo em `docs/exec-plans/active/{date}-{slug}/PRD.md`.
+
+---
+
 ## Pipeline Integration
 
 ### 0. Importar Contexto (se disponivel)
@@ -411,6 +446,26 @@ Se o dev disser NAO: encerrar normalmente. O PRD.md continua disponivel.
 8. Se o dev pedir "PRD rapido", pular mini-entrevista e gerar com informacao minima (marcando como Draft)
 9. A skill NAO substitui o /grill-me (resolver ambiguidades) nem o /consultant (ensinar trade-offs) — gera DOCUMENTO
 10. O PRD deve caber em 1-2 paginas para features simples. Para features complexas, cada secao deve ser concisa
+
+---
+
+## Common Rationalizations
+
+| Racionalizacao | Realidade |
+|---|---|
+| "Escrevo o PRD depois do codigo" | Isso e documentacao, nao especificacao. O valor do PRD esta em forcar clareza ANTES do codigo. |
+| "Esta task e simples, nao precisa de PRD" | Tasks simples nao precisam de PRD longo, mas ainda precisam de criterios de aceite. Um PRD de 2 linhas serve. |
+| "Os requisitos vao mudar de qualquer jeito" | Por isso o PRD e um documento vivo. Um PRD desatualizado ainda e melhor que nenhum PRD. |
+
+---
+
+## Red Flags
+
+- Implementando requisitos que nao estao no PRD nem foram mencionados pelo dev.
+- Tomando decisoes arquiteturais sem registra-las na tabela `## Decisoes Tecnicas`.
+- Must Have ocupando mais de 40% dos requisitos (lixeira de prioridade).
+
+---
 
 ```typescript
 // === Telemetria passiva (Plano 03 fase-02) — registra fim ===

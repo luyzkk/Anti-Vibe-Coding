@@ -118,6 +118,17 @@ NÃO inclua passos de implementação aqui.
 
 ---
 
+<!-- OPCIONAL — incluir SOMENTE se a feature toca schema de banco, dependencias novas
+     ou secrets. Para features comuns, omitir (guardrails globais ja vivem no
+     CLAUDE.md do usuario e no AGENTS.md gerado pelo init). -->
+## Boundaries (apenas features de risco: schema / deps / secrets)
+
+- **Sempre:** {ex: rodar testes antes de commit; validar inputs no boundary}
+- **Perguntar antes:** {ex: alterar schema de banco; adicionar dependencia; mudar CI}
+- **Nunca:** {ex: commitar secrets; remover teste falhando sem aprovacao}
+
+---
+
 ## Decisoes Tecnicas
 
 | # | Decisao | Escolha | Alternativa Rejeitada | Razao |
@@ -135,6 +146,7 @@ NÃO inclua passos de implementação aqui.
 - [ ] CA-03 (edge case): Dado {pre-condicao de erro}, quando {acao}, entao {comportamento esperado no erro}
 
 <!-- Minimo 3 criterios. Minimo 1 de erro/edge case. Cada criterio verificavel com sim/nao. -->
+<!-- Reframe vago->mensuravel: "mais rapido" -> "LCP < 2.5s em 4G; carga < 500ms". -->
 
 ---
 
