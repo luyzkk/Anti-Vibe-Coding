@@ -540,6 +540,18 @@ Para comparar codigo antes e depois da verificacao sem perder o trabalho origina
 
 ---
 
+## Common Rationalizations
+
+| Racionalização | Realidade |
+|---|---|
+| "Os testes passaram, então está correto" | Testes verdes provam que o que você testou funciona — não que você testou o que importa. Veja Test Quality Audit (Step 2e). |
+| "Lint limpo significa código bom" | Lint pega estilo, não bugs de lógica nem N+1. Rode o audit pipeline. |
+| "Eu mesmo escrevi, não precisa de fresh-context review" | Quem escreveu não enxerga o próprio over-engineering. A Fase Final existe por isso. |
+| "Cobertura alta = bem testado" | Cobertura pode estar inflada por testes de infra. Veja Cobertura Real (negócios vs infra). |
+| "Aceito o crítico, depois eu vejo" | Aceitar crítico exige justificativa documentada (Regra 4). "Depois" sem registro vira dívida invisível. |
+
+---
+
 ## Regras
 
 1. Esta skill NAO modifica codigo diretamente — apenas coordena agents
