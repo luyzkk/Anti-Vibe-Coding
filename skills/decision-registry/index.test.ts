@@ -105,7 +105,7 @@ describe('add (v6 layout)', () => {
     expect(result.layout).toBe('v6')
     expect(result.id).toBe(1)
     const content = await fs.readFile(result.filePath, 'utf-8')
-    expect(content).toContain('(why is this decision needed)')
+    expect(content).toContain('(Por que esta decisao e necessaria? Liste requisitos e restricoes.)')
   })
 })
 

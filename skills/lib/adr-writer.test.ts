@@ -102,9 +102,9 @@ describe('writeADR', () => {
 
     const content = await fs.readFile(filePath, 'utf-8')
     expect(id).toBe(1)
-    expect(content).toContain('(why is this decision needed)')
-    expect(content).toContain('(what was decided)')
-    expect(content).toContain('(no alternatives recorded)')
+    expect(content).toContain('(Por que esta decisao e necessaria? Liste requisitos e restricoes.)')
+    expect(content).toContain('(O que foi decidido, em uma frase.)')
+    expect(content).toContain('Rejeitada porque:')
   })
 
   it('escapes newline in status to prevent YAML injection (security fix fase-02)', async () => {
