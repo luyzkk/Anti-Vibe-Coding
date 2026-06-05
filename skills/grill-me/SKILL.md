@@ -36,6 +36,10 @@ writeTelemetryStart(__telemetry_startEntry)
 
 Skill ativa. Modo: entrevistador implacavel. Nao aceita ambiguidade. Nao gera codigo. Nunca.
 
+## Loading Constraints
+
+Esta skill exige um humano presente e responsivo. NÃO invocar em contextos não-interativos (CI, runs agendados, `/loop`, loop autônomo). Se estiver em um desses e a descrição estiver subespecificada, sinalizar isso como BLOQUEIO para o humano — nunca auto-responder as perguntas.
+
 ## Objetivo
 
 Resolver TODA ambiguidade antes de qualquer planejamento ou implementacao. Output: CONTEXT.md estruturado em `docs/exec-plans/active/YYYY-MM-DD-{slug}/CONTEXT.md` com decisoes indexadas e rastreadas.
@@ -207,6 +211,59 @@ Resposta vaga → reformular imediatamente:
 > - [decisao 2]: sem isso, [consequencia]
 > Quer responder essas agora, ou prosseguir com minhas recomendacoes para as restantes?"
 
+### Resposta sofisticada demais → sondar (quer vs. acha que deveria querer)
+
+As respostas mais perigosas não são as vagas — são as que SOAM como boa engenharia mas escondem que o dev não sabe o que quer. Sinais:
+- Buzzwords como objetivo: "escalável", "clean", "moderno", "robusto" sem métrica/cenário concreto
+- Apelo à convenção: "a forma padrão", "como a maioria faz"
+- Auto-justificativa: "eu deveria...", "acho que é o esperado", "boa prática manda..."
+
+Ao ouvir isso, sondar com UMA pergunta:
+> "Se você não tivesse que justificar isso pra ninguém, o que você realmente quer aqui?"
+
+Essa pergunta costuma render mais que as cinco anteriores. NÃO registrar um buzzword como decisão no CONTEXT.md sem essa sondagem.
+
+---
+
+## Passo 4.5 — Sintetizar e Confirmar (gate antes do CONTEXT.md)
+
+ANTES de gravar o CONTEXT.md, devolver ao dev um resumo curto (5-8 linhas) na linguagem dele, confirmável linha a linha:
+
+```
+Aqui está o que entendi que você quer:
+
+- Resultado:      {uma linha}
+- Usuário:        {uma linha — quem se beneficia}
+- Por que agora:  {uma linha — o que mudou}
+- Sucesso:        {uma linha — como sabemos que funcionou}
+- Restrição:      {uma linha — o limite que aperta}
+- Fora de escopo: {uma linha — o que explicitamente NÃO vamos fazer}
+
+Sim / não / ajustar?
+```
+
+A linha "Fora de escopo" é OBRIGATÓRIA: metade do desalinhamento é discordância silenciosa sobre o que NÃO está sendo construído.
+
+O gate é um "sim" EXPLÍCITO. Os seguintes NÃO contam como sim:
+- "tanto faz" / "você decide" → delegação, não decisão. Re-perguntar com duas opções concretas.
+- "parece bom" → ambíguo. Perguntar "algo a ajustar?". Silêncio não é confirmação.
+- "vai logo" / "bora" → muitas vezes saída educada, não endosso. Mesmo follow-up.
+- silêncio seguido de "ok, começa" → o dev desistiu da entrevista, não convergiu. Parar e perguntar o que ficou faltando.
+
+Se o dev corrigir, dobrar a correção no resumo e re-confirmar. Só seguir para o Passo 5 com sim explícito.
+
+---
+
+## Condição de Parada (95%)
+
+A entrevista termina quando você responde SIM a:
+> "Consigo prever a reação do dev às próximas 3 perguntas que eu faria?"
+
+Se sim, há entendimento compartilhado — parar e ir para o Passo 4.5 (sintetizar). Se não, fazer a próxima pergunta. Isso é um teste verificável, não um "feeling".
+
+Piso de não-convergência: se já passou de várias rodadas e a confiança NÃO sobe / você ainda não consegue prever, isso é informação sobre o pedido, não motivo pra continuar moendo até as 20 perguntas. Parar e dizer:
+> "Já fiz {N} perguntas e ainda não consigo prever suas reações. Algo fundamental está faltando. Quer dar um passo atrás?"
+
 ---
 
 ## Passo 5 — Gerar CONTEXT.md
@@ -330,7 +387,7 @@ Se o dev disser NAO: encerrar normalmente. O CONTEXT.md continua disponivel para
 
 1. Nunca gera codigo. Nunca. Apenas decisoes.
 2. Cada pergunta e sobre UMA decisao.
-3. Minimo 5 perguntas, maximo 20.
+3. Minimo 5 perguntas, maximo 20. O teto de 20 é limite, NÃO objetivo — parar antes pela Condição de Parada (95%); o piso de 5 não obriga continuar se já consegue prever.
 4. Se o dev ja passou pelo /consultant, importar decisoes de la.
 5. Se ja existe um CONTEXT.md anterior, fazer merge (nao sobrescrever).
 6. Salvar em `docs/exec-plans/active/{date}-{slug}/CONTEXT.md` (criar pasta datada se nao existir).
@@ -349,6 +406,7 @@ Se o dev disser NAO: encerrar normalmente. O CONTEXT.md continua disponivel para
 | "O usuário sabe o que quer" | Usuários descrevem soluções, não problemas. O trabalho do entrevistador é escavar até o problema real por baixo da solução proposta. |
 | "Fazer muitas perguntas vai irritar o dev" | Um dev irritado por perguntas prefere isso a um agente que entrega a coisa errada. Clareza é respeito. |
 | "Posso inferir o contexto do nome do projeto" | Nomes de projeto são rótulos, não specs. Dois projetos com o mesmo nome podem ter arquiteturas e restrições completamente diferentes. |
+| "Ele disse que quer algo 'escalável/clean/moderno', isso é claro" | Buzzword não é spec. É o dev dizendo o que soa bem, não o que ele quer. Sondar: "se não tivesse que justificar pra ninguém, o que você realmente quer?" antes de registrar como decisão. |
 
 ## Red Flags
 
@@ -358,6 +416,21 @@ Se o dev disser NAO: encerrar normalmente. O CONTEXT.md continua disponivel para
 - Avançar para implementação com confiança < 70% sem registrar as incertezas
 - Hipótese não declarada antes de fazer perguntas (modelo mental oculto)
 - Perguntas que confirmam o que o agente já assumiu em vez de testarem a hipótese
+- Aceitar resposta com buzzword ("escalável", "clean", "moderno", "a forma padrão", "eu deveria...") como decisão sem a sondagem de des-justificação
+- Gravar o CONTEXT.md sem o gate de sintetizar-e-confirmar (Passo 4.5) — especialmente sem a linha "Fora de escopo"
+
+## Verification
+
+Depois de aplicar o grill-me:
+
+- [ ] Hipótese + número de confiança declarados no primeiro turno (Passo 1.5)
+- [ ] Toda confiança < 70% veio com uma razão de uma linha (o que falta)
+- [ ] Uma decisão por pergunta, cada uma com GUESS anexado
+- [ ] >= 1 sondagem de des-justificação rodou quando apareceu resposta com buzzword
+- [ ] Restate concreto escrito (Resultado / Usuário / Por que agora / Sucesso / Restrição / Fora de escopo) no Passo 4.5
+- [ ] "Sim" explícito obtido (não "tanto faz", não "parece bom", não silêncio)
+- [ ] No ponto de parada, era possível prever as próximas 3 perguntas (ou o piso de não-convergência foi acionado)
+- [ ] Handoff downstream (/write-prd, /plan-feature) enquadrado na intenção confirmada, não no pedido original vago
 
 ---
 
