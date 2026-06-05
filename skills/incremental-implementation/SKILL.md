@@ -7,11 +7,6 @@ allowed-tools: Read, Grep, Glob
 argument-hint: "[feature ou módulo a implementar incrementalmente]"
 ---
 
-```typescript
-import { writeTelemetryStart } from "../../lib/telemetry-utils";
-writeTelemetryStart("incremental-implementation");
-```
-
 # Incremental Implementation
 
 ## Overview
@@ -252,8 +247,3 @@ After completing all increments for a task:
 - [ ] The build is clean
 - [ ] The feature works end-to-end as specified
 - [ ] No uncommitted changes remain
-
-```typescript
-import { writeTelemetryEnd } from "../../lib/telemetry-utils";
-writeTelemetryEnd("incremental-implementation");
-```
