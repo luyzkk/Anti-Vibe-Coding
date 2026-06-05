@@ -1,6 +1,6 @@
 {
   "version": "7.4.0",
-  "generatedAt": "2026-06-05T19:55:43.711Z",
+  "generatedAt": "2026-06-05T20:07:08.926Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -739,8 +739,8 @@
     },
     "skills/compound-engineering/lib/active-plan-detector.ts": {
       "version": "7.4.0",
-      "checksum": "5271f363a7438bae786315dab7f895afc33c41a43aaa7ec217465a0af5b0a619",
-      "lastModified": "2026-05-24",
+      "checksum": "45665d6eb940b79ff6170286037800d63ded945cd1d5a00308a0cc5e65d4d89c",
+      "lastModified": "2026-06-05",
       "updateStrategy": "replace"
     },
     "skills/compound-engineering/lib/checker.ts": {
@@ -787,8 +787,8 @@
     },
     "skills/compound-engineering/lib/invoke-lessons-learned.ts": {
       "version": "7.4.0",
-      "checksum": "805d818302435cee8eeecd4ae4a9491a981fa83b852d25cca118789c81a58e35",
-      "lastModified": "2026-05-24",
+      "checksum": "32bf8757109c5dbae684e21a0bc7fb2b337bdd1c457f75340cbd1b75918c0a1e",
+      "lastModified": "2026-06-05",
       "updateStrategy": "replace"
     },
     "skills/compound-engineering/lib/lessons-captured-updater.ts": {
@@ -805,8 +805,8 @@
     },
     "skills/compound-engineering/lib/migrate.ts": {
       "version": "7.4.0",
-      "checksum": "a11fb4cbd9061636839bf087acc4bc7e904c8526f4dd8f9825e634767868bed5",
-      "lastModified": "2026-05-24",
+      "checksum": "d5f3a6b4ed250922e5fa63b15c395e8223543c1d7b65bc1e90cb2ec99a000d8b",
+      "lastModified": "2026-06-05",
       "updateStrategy": "replace"
     },
     "skills/compound-engineering/lib/notes-inconsistency-scanner.ts": {

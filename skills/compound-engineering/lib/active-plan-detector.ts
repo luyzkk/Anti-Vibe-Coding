@@ -28,6 +28,9 @@ export async function detectActivePlan(targetRoot: string): Promise<ActivePlanRe
   }
 
   if (candidates.length === 0) return { status: 'none' }
-  if (candidates.length === 1) return { status: 'single', ...candidates[0] }
+  if (candidates.length === 1) {
+    const single = candidates[0]
+    if (single) return { status: 'single', planPath: single.planPath, slug: single.slug }
+  }
   return { status: 'multiple', candidates }
 }
