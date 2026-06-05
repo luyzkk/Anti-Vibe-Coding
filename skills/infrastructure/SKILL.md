@@ -363,3 +363,45 @@ Para cada opcao, avaliar:
 3. **Questionar escala prematura** — "Precisa de Kubernetes?" → "Quantos requests por segundo tem HOJE?"
 4. **Cloud nao e obrigatorio** — VPS com PM2/Docker resolve problemas reais por uma fracao do custo
 5. **Serverless tem limite** — NAO usar para APIs completas com banco de dados. Cold start + connection pool = problemas
+
+---
+
+## Common Rationalizations
+
+Atalhos que parecem razoaveis mas geram incidentes. Reconhecer e rebater antes de aceitar.
+
+| Racionalizacao | Realidade |
+|---|---|
+| "Adiciono health check depois" | Sem health check, o load balancer manda trafego pra instancia morta e o deploy zero-downtime nao funciona. Custa 5 linhas — faca agora. |
+| "Pulo staging, e so um hotfix" | Hotfixes quebram producao com a mesma frequencia. Staging existe justamente pros "rapidos". |
+| "Rodo o container como root, e mais facil" | Container como root = escape de container vira root no host. Usuario nao-root e padrao, nao opcional. |
+| "Boto o secret no compose/codigo por enquanto" | "Por enquanto" vira permanente e vaza no git. Secret manager / `.env` fora do repo desde o primeiro commit. |
+| "Configuro rollback quando precisar" | Voce vai precisar durante um incidente, quando nao ha tempo de configurar. Todo deploy nasce reversivel. |
+| "Serverless pra tudo, escala sozinho" | Serverless + banco relacional = cold start + connection pool estourado. Ver Secao 3/4 (so funcoes pontuais). |
+
+---
+
+## Red Flags
+
+Sinais de alerta para identificar em audit rapido. Cada item aponta para a cobertura aprofundada existente.
+
+- Servico de producao sem health check (ver Secao 5 / `deployment-patterns.md` §3).
+- Secrets em codigo ou `docker-compose.yml` (ver `deployment-patterns.md` §5).
+- Serverless na frente de banco relacional (ver Secao 3/4 e `dns-hosting.md` §5 — cold start + connection pool).
+- Kubernetes sem justificativa de escala ("quantos req/s HOJE?" — Regra 3 do Consultor).
+- Deploy sem plano de rollback.
+- Container rodando como root (ver `deployment-patterns.md` §2, regra "Usuario nao-root").
+- Sem `.env.example` commitado (ver `deployment-patterns.md` §5).
+
+---
+
+## Verification
+
+Self-check de conclusao. **Para a analise PRE-decisao use `## Template de Analise de Infraestrutura`; este self-check e PRE-conclusao** — executar antes de declarar uma tarefa de infra concluida.
+
+- [ ] Health check em TODOS os servicos (liveness + readiness onde aplicavel).
+- [ ] SSL com renovacao automatica configurada (certbot timer / ACM / Cloudflare).
+- [ ] Secrets num manager ou `.env` fora do repo — nada hardcoded.
+- [ ] Caminho de rollback definido e testado.
+- [ ] Deploy zero-downtime (rolling/blue-green/`pm2 reload`), nao restart com janela de queda.
+- [ ] Variaveis de ambiente validadas no startup (falha rapido se faltarem).
