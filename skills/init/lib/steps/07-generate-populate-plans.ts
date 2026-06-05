@@ -12,9 +12,11 @@
 // — Step 7 e diferente: sem stack, Waves nao tem como ser path-resolved. Aborta hard.
 // 2026-05-21 (Luiz/dev): Plano 02 fase-02 — wording ABORT_MESSAGE + summary refletindo hierarquia.
 
-import type { Step } from './types'
+import type { Step, StepReport } from './types'
 import { AbortError } from './abort-error'
 import { generatePopulatePlans } from '../populate-plan-generator'
+import { detectStack } from '../detect-stack'
+import type { DetectedStack } from '../detect-stack'
 
 export const STEP_ID = 'generate-populate-plans' as const
 export const ABORT_CODE_NO_STACK = 20 as const
@@ -43,8 +45,10 @@ export const generatePopulatePlansStep: Step = {
     // 2026-05-28 (Luiz/dev): DR-2 hard abort substituido por gate interativo para suportar
     // greenfield (repo zerado sem package.json/Gemfile). Hierarquia de decisao:
     //   1. --skip-populate-plan flag → skip silencioso (CI override)
-    //   2. 1a invocacao sem __interactiveAnswer → return needsUser (dispatcher pergunta)
-    //   3. 2a invocacao: 's' → skip gracioso; 'a' → AbortError historico
+    //   2. resposta interativa ja presente (__interactiveAnswer): 'a' → AbortError; 's' → skip
+    //   3. interativo sem resposta (ctx.askUser presente) → needsUser (dispatcher pergunta)
+    //   4. nao-interativo sem resposta (sem ctx.askUser) → re-detecta o stack do disco e gera
+    //      o plano (greenfield post-scaffold = node-ts). Se ainda null, skip gracioso.
     // ABORT_MESSAGE_NO_STACK preservado byte-identical (teste valida).
     if (!ctx.stack || ctx.stack.primary === null) {
       if (ctx.flags['skip-populate-plan'] === true) {
@@ -55,7 +59,22 @@ export const generatePopulatePlansStep: Step = {
       }
 
       const answer = ctx.flags['__interactiveAnswer']
-      if (typeof answer !== 'string') {
+      if (typeof answer === 'string') {
+        const normalized = answer.trim().toLowerCase()
+        if (normalized === 'a') {
+          throw new AbortError({
+            code: ABORT_CODE_NO_STACK,
+            reason: ABORT_MESSAGE_NO_STACK,
+          })
+        }
+        return {
+          mutated: false,
+          summary: 'init-07: populate-plan skipped by user — stack not detected',
+        }
+      }
+
+      // Sem resposta ainda: interativo pergunta; nao-interativo decide sozinho.
+      if (ctx.askUser !== undefined) {
         return {
           mutated: false,
           summary: '',
@@ -66,36 +85,41 @@ export const generatePopulatePlansStep: Step = {
         }
       }
 
-      const normalized = answer.trim().toLowerCase()
-      if (normalized === 'a') {
-        throw new AbortError({
-          code: ABORT_CODE_NO_STACK,
-          reason: ABORT_MESSAGE_NO_STACK,
-        })
+      // 2026-06-05 (Luiz/dev): CA-11 — caminho nao-interativo. ctx.stack vem do Step 2, que roda
+      // ANTES do Step 5 (scaffold) escrever o package.json canonico. Sem usuario para consultar,
+      // re-detecta do disco — mesma fonte que o copy-knowledge usa — e gera o plano se houver stack.
+      const resolved = await detectStack(ctx.cwd)
+      if (resolved.primary !== null) {
+        return generateAndReport(ctx.cwd, resolved)
       }
       return {
         mutated: false,
-        summary: 'init-07: populate-plan skipped by user — stack not detected',
+        summary: 'init-07: populate-plan skipped (no stack detected, non-interactive) — stack not detected',
       }
     }
 
-    const result = await generatePopulatePlans({
-      cwd: ctx.cwd,
-      stack: ctx.stack,
-    })
-
-    // NFR Observabilidade — 4 metricas no summary multilinha.
-    // 2026-05-21 (Luiz/dev): Plano 02 fase-02 — summary aponta para pasta unica (hierarquia).
-    const summary = [
-      `init-07: 1 folder generated with ${result.fasePlans.length} fases (${result.stackPrimary} stack)`,
-      `Folder: ${result.folderPath}`,
-      `Legacy artifacts found: ${result.legacyArtifactsFound}`,
-      `Docs skipped: ${result.docsSkipped.length} (${result.docsSkipped.join(', ') || 'none excluded'})`,
-    ].join('\n')
-
-    return {
-      mutated: true,
-      summary,
-    }
+    return generateAndReport(ctx.cwd, ctx.stack)
   },
+}
+
+// 2026-06-05 (Luiz/dev): CA-11 — gera a pasta populate e devolve o StepReport com o PLAN.md.
+// Centraliza o happy-path para ser reusado pelo caminho interativo (ctx.stack) e pelo
+// nao-interativo (stack re-detectado do disco). planPath vem forward-slash/relativo (path.posix).
+async function generateAndReport(cwd: string, stack: DetectedStack): Promise<StepReport> {
+  const result = await generatePopulatePlans({ cwd, stack })
+
+  // NFR Observabilidade — 4 metricas no summary multilinha.
+  // 2026-05-21 (Luiz/dev): Plano 02 fase-02 — summary aponta para pasta unica (hierarquia).
+  const summary = [
+    `init-07: 1 folder generated with ${result.fasePlans.length} fases (${result.stackPrimary} stack)`,
+    `Folder: ${result.folderPath}`,
+    `Legacy artifacts found: ${result.legacyArtifactsFound}`,
+    `Docs skipped: ${result.docsSkipped.length} (${result.docsSkipped.join(', ') || 'none excluded'})`,
+  ].join('\n')
+
+  return {
+    mutated: true,
+    summary,
+    populatePlanPath: result.planPath,
+  }
 }
