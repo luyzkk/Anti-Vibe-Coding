@@ -42,6 +42,11 @@ tmp/
 CONVERSA_INIT.MD
 wonts/
 
+# Workspace de planejamento skill-parity-refresh — mantido local (decisao do dev 2026-06-05).
+# Contem 2 COMPARISON-MATRIX (~180KB cada, material de referencia) + tracking de execucao
+# lido do disco pelo /execute-plan. Os grafts (deliverable) sao commitados em skills/.
+docs/exec-plans/active/2026-06-04-skill-parity-refresh/
+
 # Artifact acidental de redirect mal-feito no Windows (PowerShell trata `nul`
 # como dispositivo, mas comandos bash via tools podem criar arquivo literal)
 nul
