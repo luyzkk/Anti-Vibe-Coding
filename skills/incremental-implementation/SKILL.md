@@ -1,6 +1,6 @@
 ---
 name: incremental-implementation
-description: "Guia de implementação incremental: divide features em incrementos verificáveis, evitando big-bang delivery e integração tardia."
+description: "Guia de implementação incremental: divide features em incrementos verificáveis, evitando big-bang delivery e integração tardia. Use ao implementar qualquer mudança que toque mais de um arquivo, ao escrever muito código de uma só vez, ou quando uma tarefa parece grande demais para caber em um único passo."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob
