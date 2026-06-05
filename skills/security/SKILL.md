@@ -491,6 +491,24 @@ npm audit --audit-level=critical
 
 ---
 
+## Dependency Discipline
+
+**Portao de pre-adocao** — avalie ANTES de adicionar qualquer dependencia nova ao projeto. (Para triagem de vulnerabilidades em dependencias ja existentes, consulte `## 9. Triagem de Vulnerabilidades de Dependencias` acima.)
+
+Cada dependencia e uma passivo: ela aumenta a superficie de ataque, o tamanho do bundle e o custo de manutencao. Prefira a biblioteca padrao e utilitarios ja presentes no projeto.
+
+**Cinco verificacoes antes de `npm install <pacote>`:**
+
+1. **A stack atual ja resolve?** Verifique se uma lib ja adotada ou a stdlib da linguagem cobre o caso de uso — dependencia zero e melhor que dependencia justificada.
+2. **Tamanho do bundle e aceitavel?** Verifique o impacto com `bundlephobia.com` ou equivalente. Dependencias de runtime afetam tempo de carregamento e cold start.
+3. **Manutencao ativa?** Confira data do ultimo commit, issues abertas e responsividade dos mantenedores. Pacote sem atividade nos ultimos 12 meses e sinal de alerta.
+4. **Vulnerabilidades conhecidas?** Execute `bun audit` (padrao deste projeto) ou `npm audit` antes de fixar a versao. Se houver findings criticos sem correcao disponivel, reconsidere a adocao.
+5. **Licenca compativel?** GPL pode contaminar codigo proprietario. MIT/Apache-2.0/BSD sao geralmente seguros. Verifique a licenca antes de usar em produto comercial.
+
+> Toda dependencia e um passivo — o onus de justificar a adicao e de quem a propoe, nao o contrario.
+
+---
+
 ## Checklist de Seguranca Minima
 
 Checklist obrigatoria para auditar qualquer projeto em producao.

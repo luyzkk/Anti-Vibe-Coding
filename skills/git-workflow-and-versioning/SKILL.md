@@ -122,13 +122,22 @@ git commit -m "refactor validation and add phone number field"
 
 ### 5. Size Your Changes
 
-Target ~100 lines per commit/PR. Changes over ~1000 lines should be split. See the splitting strategies in `code-review-and-quality` for how to break down large changes.
+Target ~100 lines per commit/PR. Changes over ~1000 lines should be split. Veja as estrategias de divisao na tabela abaixo.
 
 ```
 ~100 lines  → Easy to review, easy to revert
 ~300 lines  → Acceptable for a single logical change
 ~1000 lines → Split into smaller changes
 ```
+
+**Estrategias de divisao quando a mudanca e grande demais:**
+
+| Estrategia | Como | Quando |
+|---|---|---|
+| Stack (por camada) | Separar backend, frontend e infraestrutura em PRs distintos | Mudanca full-stack que pode ser integrada por camada |
+| Por grupo de arquivos | Agrupar arquivos relacionados (ex: modelo + migracao; componente + teste) | Mudanca ampla com subconjuntos coerentes e independentes |
+| Horizontal (por feature slice) | Dividir pela funcionalidade: auth primeiro, depois perfil, depois notificacoes | Feature grande com sub-funcionalidades entregaveis individualmente |
+| Vertical (por comportamento) | Dividir pelo comportamento: primeiro o caminho feliz, depois erros, depois edge cases | Implementacao nova onde o caminho principal pode ser revisado antes |
 
 ## Branching Strategy
 

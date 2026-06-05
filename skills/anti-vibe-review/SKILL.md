@@ -124,6 +124,26 @@ Antes de spawnar agentes auditores (se aplicavel):
 - [ ] Sem cadeias de useEffect (efeito domino)?
 - [ ] useMemo/useCallback apenas com medicao previa (Profiler)?
 - [ ] Server state separado de client state?
+
+### 8. Severidade por Comentario e Verificacao
+
+**Prefixos por comentario de revisao** (sinalizam ao autor a acao esperada; distintos das linhas `CRITICO/ALTO/MEDIO/BAIXO` do `<report-template>`, que classificam findings para o relatorio):
+
+| Prefixo | Acao esperada do autor |
+|---------|------------------------|
+| *(sem prefixo)* | Mudanca obrigatoria — deve ser corrigido antes do merge |
+| `Critical:` | Bloqueia merge — falha de seguranca ou corretude grave |
+| `Nit:` | Opcional / estilo — autor decide se incorpora |
+| `Optional:` / `Consider:` | Sugestao de melhoria — nao bloqueia |
+| `FYI` | Informativo — nenhuma acao necessaria |
+
+**Verifique a Verificacao** — antes de aprovar, audite a narrativa de verificacao do autor (distinto do `/verify-work`, que executa verificacao ativamente, e do "Verificacao Forcada" do CLAUDE.md, que e auto-checagem do implementador):
+
+- [ ] Quais testes foram executados? O log foi compartilhado?
+- [ ] O build passou? Ha evidencia (CI verde ou output local)?
+- [ ] A funcionalidade foi testada manualmente?
+- [ ] Para mudancas de UI: screenshots ou recording antes/depois?
+- [ ] Para correcoes de bug: existe teste de regressao que reproduz o problema?
 </checklist>
 
 <report-template>
@@ -175,6 +195,37 @@ Para comparar codigo antes e depois da revisao sem perder o trabalho original:
 4. Comparar com `git diff` — staged = codigo original, unstaged = codigo revisado
 5. Aceitar ou rejeitar cada melhoria individualmente com `git add -p`
 </context>
+
+## Honesty na Revisao
+
+Honestidade com o autor e um requisito da revisao — nao uma preferencia de estilo. Este bloco trata da postura do *revisor* ao comunicar findings; e distinto do "nao carimbe o REVISOR" do `doubt-driven-development` (que e lado do orquestrador).
+
+- **Nao carimbe aprovacao sem evidencia.** "LGTM" sem ler o codigo e falha de revisao, nao cortesia.
+- **Nao suavize problemas reais.** Se ha um bug, diga que ha um bug — nao "talvez valha considerar".
+- **Quantifique o impacto quando possivel.** "Esta query N+1 adiciona ~50ms por item da lista" e mais util que "isso pode ser lento". Numeros concretos ajudam o autor a priorizar.
+- **Questione abordagens com problemas evidentes.** Sycophancy e um modo de falha — aprovar codigo ruim para evitar conflito prejudica o produto e o autor.
+- **Aceite override com elegancia.** Se o autor ouviu o feedback e decidiu de outra forma com justificativa, registre o desacordo e siga em frente. Revisores nao tem veto infinito.
+
+## Red Flags do Processo de Revisao
+
+- PR mergeado sem revisao de nenhum par
+- Revisao que verifica apenas se os testes passam — necessario mas nao suficiente
+- "LGTM" sem evidencia de leitura do codigo (tempo de revisao irreal para o tamanho do PR)
+- Mudanca sensivel a seguranca sem revisao especializada de seguranca
+- PR grande demais para revisar com qualidade — pedir split antes de aprovar
+- Bug fix sem teste de regressao que reproduz o problema
+- Comentarios de revisao sem indicacao de severidade (autor nao sabe o que e bloqueante)
+- Aceitar "corrijo depois" sem rastrear onde e quando
+
+## Common Rationalizations (revisao)
+
+| Rationalization | Reality |
+|---|---|
+| "Codigo gerado por IA provavelmente esta OK" | Precisa de **mais** escrutinio, nao menos — IA nao conhece o modelo de dominio, os invariantes de negocio nem o contexto de seguranca do projeto. |
+| "Os testes passam, esta bom" | Necessario mas nao suficiente. Testes nao capturam problemas de arquitetura, falhas de seguranca contextuais nem legibilidade de longo prazo. |
+| "Eu escrevi, entao sei que esta certo" | Autores sao cegos as proprias suposicoes. Revisao por par existe precisamente porque o autor nao consegue avaliar o proprio trabalho com olhos frescos. |
+| "Funciona, isso e suficiente" | Correctude funcional e a barra minima. Manutencao, seguranca e performance sao parte do contrato de qualidade. |
+| "Limpamos depois" | "Depois" raramente chega. Divida tecnica acumula juros — o custo de corrigir cresce a cada sprint. |
 
 ## Delegacao Opcional a Auditores (v6.1.0+)
 
