@@ -9,7 +9,6 @@ import path from 'node:path'
 import { mkdtemp, cp, rm } from 'node:fs/promises'
 import os from 'node:os'
 import { runInit } from '../../skills/init/lib/run-init'
-import { AbortError } from '../../skills/init/lib/steps/abort-error'
 import { orchestrateMigration } from '../../skills/init/lib/migrate-orchestrator'
 
 const FIXTURE_SRC = path.join(import.meta.dir, '__fixtures__', 'init-legacy-v5')
@@ -97,22 +96,32 @@ describe('E2E cutover — legacy v5 (CA-02 + CA-07)', () => {
     expect(planningExists).toBe(true)
   })
 
-  test('backup-fail aborts migration with AbortError code 1 (CA-07)', async () => {
-    // 2026-05-17 (Luiz/dev): simular permissao negada via chmod 000 no .planning/.
-    // No Windows, chmod nao funciona — pular com comentario explicativo.
-    // GT-P04F04-2: CA-07 skip em Windows — abrir tech-debt para rodar em CI Linux.
-    if (process.platform === 'win32') {
-      // skip: chmod 000 nao funciona em Windows; testar em CI Linux (tech-debt CA-07-win32)
-      return
-    }
+  test('backup failure halts migration before any docs/ mutation (CA-07)', async () => {
+    // 2026-06-05 (Luiz/dev): platform-agnostic backup-fail. A versao antiga usava
+    // chmod 0o000 em .planning/ para simular permissao negada — no-op no Windows (test
+    // pulava) e, no Linux CI, o pipeline v7 nao converte a falha em AbortError, entao o
+    // teste falhava. O backup da migracao vive em backupPlanning (via orchestrateMigration),
+    // que aborta de forma deterministica quando ha um lock orfao — sem depender de chmod
+    // nem de plataforma. Isto exercita o contrato CA-07 real: backup nao concluido => zero
+    // mutacao em docs/.
+    const { BACKUP_DIR } = await import('../../skills/init/lib/backup-planning')
+    const lockPath = path.join(tmpDir, `${BACKUP_DIR}.lock`)
+    await fs.writeFile(lockPath, `pid=stale\nstarted=2026-01-01T00:00:00.000Z\n`, 'utf8')
 
-    const { chmod } = await import('node:fs/promises')
-    await chmod(path.join(tmpDir, '.planning'), 0o000)
-    try {
-      await expect(runInit(['migrate'], { cwd: tmpDir })).rejects.toThrow(AbortError)
-    } finally {
-      // Restaurar para permitir cleanup no afterEach
-      await chmod(path.join(tmpDir, '.planning'), 0o755)
-    }
+    await expect(orchestrateMigration(tmpDir, { dryRun: false })).rejects.toThrow(/Backup lock present/)
+
+    // docs/ nunca foi criado — backup abortou antes de qualquer escrita (CA-07).
+    const docsExists = await fs
+      .access(path.join(tmpDir, 'docs'))
+      .then(() => true)
+      .catch(() => false)
+    expect(docsExists).toBe(false)
+
+    // .planning/ original permanece intacta — nada foi removido.
+    const planningExists = await fs
+      .access(path.join(tmpDir, '.planning'))
+      .then(() => true)
+      .catch(() => false)
+    expect(planningExists).toBe(true)
   })
 })
