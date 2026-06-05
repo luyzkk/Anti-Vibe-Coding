@@ -188,6 +188,7 @@ Para CADA task, siga esta ordem EXATA:
 ### Fase 1: Preparacao
 1. Leia o arquivo da task completo
 2. Verifique as secoes `Dependencies` e `Gotchas`
+   > Carregue apenas o plano, a task e os arquivos diretamente relevantes a esta task — inundar a janela com arquivos nao relacionados degrada a atencao do agente.
 3. **Se existir secao `## Anti-Vibe`:**
    - Execute TODOS os comandos em "Antes de implementar" usando a tool Skill
    - Aplique as recomendacoes das skills na implementacao
