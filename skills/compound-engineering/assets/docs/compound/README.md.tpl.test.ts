@@ -1,6 +1,7 @@
 // 2026-05-24 (plan-executor): RED test para MH-01 — schema canonico no compound/README.md.tpl
 // PRD CA-01: bloco yaml de exemplo deve ter title/category/tags/created (NAO date/author/decision)
 
+import { describe, it, expect } from 'bun:test'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
