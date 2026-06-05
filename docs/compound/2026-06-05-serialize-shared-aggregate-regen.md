@@ -24,13 +24,16 @@ Tratar a regeneração do agregado como **fase de fechamento serial**:
    todos os arquivos num agregado consistente (e de quebra conserta checksums stale acumulados de
    planos anteriores que nunca regeneraram).
 
-**Caveat obrigatório (reconcilia com `docs/compound/2026-05-17-manifest-generator-overwrites-introduced-field.md`):**
-`generate-manifest.js` ainda clobbera o campo `introduced` de todos os entries de skill com
-`v${VERSION}`. Rodar o regen só é seguro quando **a versão NÃO muda** (`package.json` ==
-manifest.version): aí os `introduced` já estão uniformes e o regen não perde histórico. No Plano 06
-a versão estava fixa em 7.3.0 → o regen mudou 0 linhas de `introduced` (verificado no diff do
-commit). Se a versão for bumpada, NÃO rodar generate:manifest sem antes corrigir o script para
-preservar `introduced`.
+**Correção (2026-06-05, pós-CI):** uma versão inicial desta nota afirmava "NÃO rodar generate:manifest
+quando a versão muda, para preservar `introduced`". **Isso está errado e quebra o CI.** O teste
+`scripts/__tests__/generate-manifest.test.ts` (`> all per-file versions match package.json`) e
+`plugin-manifest.json skills.* > tem version atual do plugin` EXIGEM que TODO entry tenha
+`version == package.json.version`. Logo, **num bump de versão você É OBRIGADO a rodar
+`bun run generate:manifest`** (que seta todos os entries para a nova versão + recomputa checksums).
+Bumpar só o campo top-level manualmente deixa os 445 entries na versão antiga → CI vermelho
+(version-match + checksum stale). O clobber de `introduced` (ver
+`docs/compound/2026-05-17-manifest-generator-overwrites-introduced-field.md`) é o **tradeoff aceito** —
+o jeito certo de resolver é CONSERTAR o script para preservar `introduced`, não evitar o regen.
 
 ## Prevention
 
