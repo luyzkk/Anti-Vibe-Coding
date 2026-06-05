@@ -139,6 +139,17 @@ NÃO inclua passos de implementação aqui.
 
 ---
 
+## Premissas a Validar
+
+<!-- Cada premissa que, se falsa, muda a decisao. Pareie com COMO testar antes de construir.
+     Premissas dealbreaker (Must Be True) primeiro. Ver consultant `references/assumption-audit.md`. -->
+
+| # | Premissa (o que estamos apostando ser verdade) | Tier (Must/Should/Might) | Como validar |
+|---|---|---|---|
+| 1 | {premissa} | {tier} | {experimento, medicao, ou pergunta a fazer ao usuario} |
+
+---
+
 ## Criterios de Aceite
 
 - [ ] CA-01: Dado {pre-condicao}, quando {acao do usuario}, entao {resultado esperado e mensuravel}

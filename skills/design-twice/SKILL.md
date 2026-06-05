@@ -127,7 +127,7 @@ Selecionar dominio baseado nas constraints coletadas (ver secao abaixo).
 | "Tela", componente, UI, layout, formulario, pagina | Frontend |
 | Multiplos sinais | Usar dominio MAIS relevante ou perguntar ao dev |
 
-Se o problema nao encaixa em nenhum dominio: criar restricoes customizadas baseadas nos eixos de trade-off mais relevantes (ex: custo vs velocidade, seguranca vs usabilidade).
+Se o problema nao encaixa em nenhum dominio dominante, gerar as 3 restricoes a partir do menu de `## Divergence Lenses` (escolher 3 lentes que produzam direcoes estruturalmente diferentes — ex: Inversion + Simplification + 10x). Catalogo completo em `references/divergence-lenses.md`.
 
 Regras para restricoes:
 1. As 3 restricoes DEVEM ser genuinamente diferentes — nao variacoes do mesmo tema
@@ -135,6 +135,28 @@ Regras para restricoes:
 3. Para 4-5 propostas: criar restricoes adicionais nao cobertas pelas 3 iniciais
 4. Para "proposta focada em [X]": criar restricao customizada com foco explicito em X
 5. O orquestrador NAO gera solucao propria — apenas distribui restricoes e compara resultados
+
+---
+
+## Divergence Lenses
+
+Quando o problema nao se encaixa em nenhum dos 4 dominios, ou quando as restricoes de dominio produziram propostas convergentes demais, use as lentes abaixo como geradores de restricoes para os subagentes. Cada lente produz uma direcao estruturalmente diferente.
+
+| Lente | Provocacao | Restricao para o subagente |
+|-------|-----------|---------------------------|
+| **Inversion** | E se fizermos o oposto do que e obvio? | "Inverta a abordagem padrao: o que seria radicalmente diferente do que esperamos?" |
+| **Constraint-removal** | E se budget, tempo ou tecnologia nao fossem fatores? | "Ignore restricoes praticas. Qual seria a solucao ideal sem limitacoes?" |
+| **Audience-shift** | E se o usuario-alvo fosse completamente diferente? | "Projete para um perfil de usuario oposto ao atual. O que muda na solucao?" |
+| **Combination** | E se combinarmos com uma ideia adjacente? | "Combine esta feature com [ideia adjacente do dominio]. O que emerge?" |
+| **Simplification** | Qual seria a versao 10x mais simples? | "Elimine 90% da complexidade. O que sobra ainda resolve o problema core?" |
+| **10x** | E se precisassemos escalar 10x o uso? | "Projete para 10x o volume/usuarios/dados atuais. O que precisa mudar fundamentalmente?" |
+| **Expert-lens** | O que um especialista do dominio acharia obvio? | "Aplique a perspectiva de um especialista senior em [dominio]. Que padrao estabelecido resolveria isso?" |
+
+**Como escolher 3 lentes:** priorizar lentes que produzam direcoes estruturalmente opostas. Exemplos de combinacoes eficazes:
+- Inversion + Simplification + 10x (radicalmente diferente + minimalista + massivo)
+- Constraint-removal + Expert-lens + Audience-shift (ideal vs pratico vs re-enquadramento)
+
+Catalogo de frameworks detalhados (SCAMPER, Pre-mortem, First Principles, JTBD, etc.) em `references/divergence-lenses.md`.
 
 ---
 
