@@ -54,6 +54,14 @@ export type StepReport = {
     readonly prompt: string
     readonly options: readonly string[]
   }
+  /**
+   * 2026-06-05 (Luiz/dev): CA-11 — caminho relativo do PLAN.md populate gerado pelo Step 7.
+   * O dispatcher captura este valor apos o loop para emitir a mensagem final sugestiva
+   * (Harness scaffold criado + /execute-plan). Substitui o canal antigo via ctx.flags
+   * (`__populatePlanPath`), que dependia de mutar flags Readonly e foi perdido num refactor.
+   * Opcional/additive — steps que nao geram plano simplesmente nao setam.
+   */
+  populatePlanPath?: string
 }
 
 /**

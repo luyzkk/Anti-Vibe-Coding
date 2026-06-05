@@ -139,7 +139,10 @@ const SKILL_TO_FASE: Record<string, FasePipeline> = {
  */
 export function writeTelemetryDomainEvent(entry: TelemetryDomainEvent, baseDir?: string): void {
   if (isTelemetryDisabled()) return
-  const filePath = computeMonthlyPath(new Date(), resolveMetricsDir(baseDir))
+  // Particiona pelo timestamp DO EVENTO, não pela data atual: um evento com timestamp de outro
+  // mês deve cair no arquivo daquele mês (em produção os dois coincidem; o decouple só importa
+  // quando se grava um evento com timestamp passado — caso do teste e de reprocessamento).
+  const filePath = computeMonthlyPath(new Date(entry.timestamp), resolveMetricsDir(baseDir))
   appendJsonlLine(filePath, JSON.stringify(entry) + '\n')
 }
 

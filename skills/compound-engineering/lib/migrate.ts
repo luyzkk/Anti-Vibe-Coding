@@ -62,11 +62,12 @@ export async function runMigrate(targetRoot: string): Promise<MigrateResult> {
   }
 
   const uniqueNotes = new Set(issues.map((i) => i.path))
+  // exactOptionalPropertyTypes: omitir a chave quando ausente (nao atribuir undefined).
   return {
     readmeMigrated,
     notesScanned: files.length,
     notesWithIssues: uniqueNotes.size,
-    reportPath: issues.length > 0 ? reportPath : undefined,
+    ...(issues.length > 0 ? { reportPath } : {}),
   }
 }
 
