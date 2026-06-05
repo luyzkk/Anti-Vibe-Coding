@@ -1,16 +1,11 @@
 ---
 name: code-simplification
-description: "Guia de simplificação de código: identifica over-engineering, duplicação e complexidade desnecessária, aplicando padrões de simplificação por linguagem."
+description: "Guia de simplificação de código: identifica over-engineering, duplicação e complexidade desnecessária, aplicando padrões de simplificação por linguagem. Use quando refatorar código para clareza sem mudar comportamento. Use quando o código funciona mas é mais difícil de ler/manter/estender do que deveria. Use quando revisar código que acumulou complexidade desnecessária."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob
 argument-hint: "[arquivo ou módulo a simplificar]"
 ---
-
-```typescript
-import { writeTelemetryStart } from "../../lib/telemetry-utils";
-writeTelemetryStart("code-simplification");
-```
 
 # Code Simplification
 
@@ -338,8 +333,3 @@ After completing a simplification pass:
 - [ ] No error handling was removed or weakened
 - [ ] No dead code was left behind (unused imports, unreachable branches)
 - [ ] A teammate or review agent would approve the change as a net improvement
-
-```typescript
-import { writeTelemetryEnd } from "../../lib/telemetry-utils";
-writeTelemetryEnd("code-simplification");
-```

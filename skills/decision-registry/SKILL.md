@@ -103,6 +103,15 @@ ADRs capturam o raciocinio por tras de decisoes tecnicas significativas. Escreva
 - Decisao mudada SEM superseder o ADR antigo — historico corrompido.
 - `DEPRECATED` sem motivo registrado.
 
+## Verification (apos escrever)
+
+Como `adr-writer.ts` sempre escreve os cabecalhos com stub, a checagem por AUSENCIA (Red Flags) nao pega um ADR preenchido pela metade — esta checklist positiva pega.
+
+- [ ] Secao Alternatives nao-vazia E nao e placeholder (cada alternativa tem Pros/Cons/Rejeitada porque)
+- [ ] Consequences preenchida (trade-off real, nao "(trade-offs...)")
+- [ ] status correto no frontmatter (`active` / `superseded` / `deprecated`)
+- [ ] ADR que supersede outro linka nos DOIS sentidos (`superseded_by` no antigo, `supersedes`/ref no novo)
+
 ---
 
 ## Comandos
@@ -126,6 +135,75 @@ Buscar decisao por nome ou area.
 **Risco conhecido:** [Riscos aceitos com essa decisao]
 **Reversibilidade:** Reversivel / Irreversivel
 ```
+
+## Exemplo preenchido (ADR completo)
+
+Exemplo do que um ADR PREENCHIDO deve conter — note Pros/Cons/Rejeitada porque em CADA alternativa (nao uma frase unica, nao placeholder).
+
+```markdown
+---
+id: 7
+title: "Usar TanStack Query em vez de fetch em useEffect"
+status: "active"
+created: 2026-06-04
+---
+
+# ADR-0007: Usar TanStack Query em vez de fetch em useEffect
+
+## Context
+
+O projeto tem 12 telas com data-fetching manual em useEffect. Cada tela reimplementa
+loading/error state, cache e refetch. Bugs de race condition apareceram 3 vezes em 2 sprints.
+Precisamos de uma abstracao de fetching padronizada que lide com cache, stale-while-revalidate
+e cancelamento automatico.
+
+## Decision
+
+Adotar TanStack Query (v5) como camada de data-fetching em todas as telas novas e migrar
+as 12 existentes em paralelo com outras tasks.
+
+## Alternatives
+
+### Opcao A — Manter fetch em useEffect com custom hook centralizado
+- Pros: zero dependencia nova; equipe ja conhece o padrao.
+- Cons: custom hook precisaria replicar cache, dedup de requests e retry — reinventando a roda.
+  Race conditions continuariam sendo responsabilidade do caller.
+- Rejeitada porque: o custo de manter o hook cresce quadraticamente com o numero de telas;
+  os 3 bugs de race condition mostram que o padrao manual nao e seguro no nosso contexto.
+
+### Opcao B — SWR (Stale-While-Revalidate da Vercel)
+- Pros: API mais simples que TanStack Query; bundle menor (~4 kB vs ~13 kB).
+- Cons: sem suporte nativo a mutations/optimistic updates; menos flexibilidade em cache keys.
+  Nosso maior pain point (mutations complexas) nao seria resolvido.
+- Rejeitada porque: avaliacoes de 2 projetos internos mostraram que SWR forca workarounds
+  para mutations — exatamente o caso de uso que mais precisamos cobrir.
+
+### Opcao C — React Server Components + fetch nativo (Next.js App Router)
+- Pros: fetching no servidor elimina waterfall; zero bundle client-side para dados.
+- Cons: requer migracao da arquitetura Pages Router inteira — escopo de 4-6 semanas.
+  Bloqueia features planejadas para o proximo sprint.
+- Rejeitada porque: irreversivel no curto prazo e fora do escopo do trimestre.
+  Registrar como candidata para proximo ciclo de arquitetura (ver ADR-0012 futuro).
+
+## Consequences
+
+- Positivo: cache automatico reduz requests duplicados; loading/error states centralizados;
+  DevTools do TanStack Query facilitam debugging.
+- Negativo: curva de aprendizado de ~1 semana para a equipe; bundle +13 kB (gzip: ~5 kB).
+- Risco aceito: versao 5 do TanStack Query e recente — possibilidade de breaking changes
+  em minor versions nos proximos 6 meses.
+```
+
+### Convencao de cross-link (codigo -> ADR)
+
+Quando um ADR governa codigo com gotcha nao-obvio, adicione um comentario de uma linha no call site para que o registro seja encontrado a partir do codigo que ele governa:
+
+```typescript
+// Sliding window evita burst nas bordas da janela. Ver ADR-0007 para o racional completo.
+if (now - windowStart > WINDOW_SIZE_MS) { counter = 0; windowStart = now }
+```
+
+Sem isso, o registro vira arquivo morto — ninguem chega no ADR a partir do codigo que ele governa.
 
 ## Arquivo de Armazenamento
 

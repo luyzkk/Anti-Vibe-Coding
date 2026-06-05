@@ -93,6 +93,20 @@ Modo Consultor de Seguranca. **ENSINAR** conceitos e **AUDITAR** codigo existent
 5. **Recomendar a correcao** sem gerar codigo completo
 
 > **Regra:** Se o desenvolvedor pedir "implementa", redirecionar para o TDD workflow com `/anti-vibe-coding:tdd-workflow` apos a consultoria.
+
+### Aprovacao Humana Necessaria
+
+Antes de sugerir implementacao das mudancas abaixo, **sinalizar para aprovacao humana — nunca auto-aplicar**:
+
+1. Novo fluxo de autenticacao ou alteracao de logica de auth existente
+2. Armazenar nova categoria de PII ou dados de pagamento
+3. Nova integracao com servico terceiro (OAuth provider, webhook externo, SDK de pagamento)
+4. Mudanca na configuracao de CORS (ampliar origens ou metodos permitidos)
+5. Novo handler de upload de arquivos
+6. Conceder roles ou permissoes elevadas (admin, superuser, service account privilegiada)
+7. Alterar configuracao de rate limiting (afrouxar limites ou desabilitar)
+
+Alinhado com "IA sugere, nunca invoca automaticamente" — apresentar o diff e aguardar confirmacao do humano antes de qualquer acao destrutiva ou de acesso ampliado.
 </instructions>
 
 ---
@@ -183,6 +197,26 @@ grep -r "ECB\|aes-128-ecb\|aes-256-ecb"
 4. Email de confirmacao com token unico e TTL (prova de posse — unica validacao definitiva)
 
 **Punycode:** Normalizar dominios com `punycode.toASCII()` antes de armazenar. Ataques de homoglyph exploram caracteres visualmente identicos.
+
+**Upload de arquivos seguro:**
+
+Tres camadas obrigatorias — qualquer uma isolada e contornavel:
+
+1. **Allowlist de MIME types** (nao denylist): rejeitar tudo que nao estiver explicitamente permitido.
+2. **Tamanho maximo explicito**: definir limite e rejeitar antes de salvar — sem limite = DoS por disco.
+3. **Verificar magic bytes**: a extensao do arquivo e o `Content-Type` declarado sao falsificaveis; ler os primeiros bytes do conteudo real para confirmar o tipo.
+
+```typescript
+// Ilustrativo — padrao de auditoria, nao scaffold de producao
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'application/pdf']
+const MAX_SIZE_BYTES = 5 * 1024 * 1024 // 5 MB
+
+// Auditar: o codigo verifica magic bytes ou confia apenas em file.mimetype?
+// file.mimetype vem do header declarado pelo cliente — falsificavel.
+// Usar biblioteca como 'file-type' (npm) para inspecionar os bytes reais.
+```
+
+Ver tambem: template de prompt em `references/vibecoding-security.md` (regra de upload) e defesa de DoS por URL em `references/supabase-security.md`.
 </context>
 
 <verification>
@@ -409,6 +443,72 @@ curl "https://[project].supabase.co/rest/v1/[tabela_sensivel]?select=*&limit=1" 
 
 ---
 
+## 9. Triagem de Vulnerabilidades de Dependencias
+
+> Referencia: `references/application-security.md`
+
+<constraints>
+- **`npm audit fix` automatico nao e triagem** — o atalho de IA de rodar `npm audit fix` e seguir em frente ignora breaking changes e pode introduzir regressoes
+- **Nem todo finding e bloqueante** — severidade alta em dependencia de dev-only nao bloqueia producao da mesma forma que em runtime
+- **Adiar = documentar** — ao adiar uma correcao, registrar a razao e a data de revisao no proprio codigo ou no issue tracker; findings sem contexto acumulam divida invisivel
+</constraints>
+
+<context>
+**Arvore de decisao (severidade x alcancabilidade x disponibilidade de fix):**
+
+```
+Critico / Alto?
+  └─ Funcao vulneravel e chamada no seu code path?
+       └─ SIM → Fix disponivel?
+                  └─ SIM → Atualizar agora
+                  └─ NAO → Allowlist temporaria + documentar razao + data de revisao
+       └─ NAO (apenas dev-only ou nao alcancavel) → Fix disponivel?
+                  └─ SIM → Atualizar em breve (nao bloqueia release)
+                  └─ NAO → Documentar razao + data de revisao + monitorar
+
+Moderado?
+  └─ Dependencia de runtime em producao? → Incluir no proximo release
+  └─ Dev-only?                           → Backlog com data de revisao
+
+Baixo?
+  └─ Tratar no ciclo normal de atualizacoes de dependencias
+```
+
+**Duas perguntas-chave antes de qualquer decisao:**
+1. "A funcao vulneravel e realmente chamada no meu code path?" — uma vulnerabilidade em codigo morto tem risco real zero.
+2. "Esta dependencia e de runtime ou dev-only?" — pacote de build/test nao alcanca producao.
+</context>
+
+<verification>
+```bash
+# Auditoria geral
+npm audit  # ou equivalente da stack (yarn audit, pnpm audit, pip-audit, bundle-audit, etc.)
+
+# Filtrar apenas criticos (saida vazia = sem criticos nao-tratados)
+npm audit --audit-level=critical
+```
+</verification>
+
+---
+
+## Dependency Discipline
+
+**Portao de pre-adocao** — avalie ANTES de adicionar qualquer dependencia nova ao projeto. (Para triagem de vulnerabilidades em dependencias ja existentes, consulte `## 9. Triagem de Vulnerabilidades de Dependencias` acima.)
+
+Cada dependencia e uma passivo: ela aumenta a superficie de ataque, o tamanho do bundle e o custo de manutencao. Prefira a biblioteca padrao e utilitarios ja presentes no projeto.
+
+**Cinco verificacoes antes de `npm install <pacote>`:**
+
+1. **A stack atual ja resolve?** Verifique se uma lib ja adotada ou a stdlib da linguagem cobre o caso de uso — dependencia zero e melhor que dependencia justificada.
+2. **Tamanho do bundle e aceitavel?** Verifique o impacto com `bundlephobia.com` ou equivalente. Dependencias de runtime afetam tempo de carregamento e cold start.
+3. **Manutencao ativa?** Confira data do ultimo commit, issues abertas e responsividade dos mantenedores. Pacote sem atividade nos ultimos 12 meses e sinal de alerta.
+4. **Vulnerabilidades conhecidas?** Execute `bun audit` (padrao deste projeto) ou `npm audit` antes de fixar a versao. Se houver findings criticos sem correcao disponivel, reconsidere a adocao.
+5. **Licenca compativel?** GPL pode contaminar codigo proprietario. MIT/Apache-2.0/BSD sao geralmente seguros. Verifique a licenca antes de usar em produto comercial.
+
+> Toda dependencia e um passivo — o onus de justificar a adicao e de quem a propoe, nao o contrario.
+
+---
+
 ## Checklist de Seguranca Minima
 
 Checklist obrigatoria para auditar qualquer projeto em producao.
@@ -432,12 +532,14 @@ Checklist obrigatoria para auditar qualquer projeto em producao.
 - [ ] CORS restritivo (dominios explicitos, nao `*`)
 - [ ] Cookies com HttpOnly + Secure + SameSite
 - [ ] CSP headers configurados
+- [ ] Security headers presentes (HSTS, X-Content-Type-Options: nosniff, Referrer-Policy, Permissions-Policy) alem de CSP
 - [ ] Rate limiting em todos endpoints publicos
 - [ ] Nenhuma regex com quantificadores nesteados
 
 ### Dados
 - [ ] ORM/prepared statements (nao SQL raw com interpolacao)
 - [ ] Inputs sanitizados em TODAS as camadas
+- [ ] Uploads validam allowlist de MIME + tamanho maximo + magic bytes
 - [ ] S3/storage privado + presigned URLs
 - [ ] Database em rede privada (VPC)
 - [ ] Menor privilegio para service accounts e DB users
@@ -463,6 +565,10 @@ Checklist obrigatoria para auditar qualquer projeto em producao.
 - [ ] RPCs sensiveis com REVOKE para `anon` + GRANT apenas para `authenticated`
 - [ ] Auditoria via `pg_policies`: nenhuma politica aberta para `anon` involuntariamente
 - [ ] Teste com anon key confirma que tabelas sensiveis retornam 401 ou `[]`
+
+### Dependencias
+- [ ] `npm audit` (ou equivalente da stack) sem criticos/highs nao-triados
+- [ ] Findings adiados documentados com razao + data de revisao
 </checklist>
 
 ---

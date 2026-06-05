@@ -358,6 +358,43 @@ const DOMAINS = [
   },
 ];
 
+// 2026-05-29 (Luiz/dev): SCALE_PATTERNS — sinal de ESCALA (D2 conservador). Âncora do CC = "500-file migration".
+// Threshold numérico vive SÓ aqui (INV5); skills usam linguagem semântica. NÃO dispara em \d{2,} (10).
+const SCALE_PATTERNS = [
+  // (a) verbo de volume + 100+: migrar/migrate/rename/renomear/convert/converter ... 123 (mín. 3 dígitos)
+  /\b(migrar|migrate|renomear|rename|convert(?:er)?)\b[\s\S]{0,40}?\b\d{3,}\b/i,
+  /\b\d{3,}\b[\s\S]{0,40}?\b(arquivos?|files?|m[oó]dulos?|componentes?|endpoints?)\b/i,
+  // (b) escopo + qualificador de escopo (palavra-só SEM número, mas COM qualificador "inteiro/todo/all")
+  /\b(varredura|sweep|auditar|audit|escanear|scan)\b[\s\S]{0,30}?\b(codebase|c[oó]digo|projeto|reposit[oó]rio|repo)\b[\s\S]{0,20}?\b(inteir[oa]|todo|toda|all|complet[oa])\b/i,
+  /\b(codebase inteiro|todo o projeto|todo o c[oó]digo|all files|todos os arquivos|reposit[oó]rio inteiro)\b/i,
+  // (c) cross-check / verificar fontes — SÓ com pluralizador (várias/several/multiple/múltiplas)
+  /\b(cross[- ]?check|verificar.*fontes|checar.*fontes|confront(?:ar|o).*fontes)\b[\s\S]{0,30}?\b(v[aá]rias|several|multiple|m[uú]ltiplas|diversas)\b/i,
+  /\b(v[aá]rias|several|multiple|m[uú]ltiplas|diversas)\s+fontes\b/i,
+  // (d) muitos ângulos/abordagens
+  /\bde\s+\d+\s+([aâ]ngulos?|abordagens?|angles?|approaches?|perspectivas?)\b/i,
+  /\b(m[uú]ltipl[oa]s|v[aá]ri[oa]s)\s+([aâ]ngulos?|abordagens?|perspectivas?)\b/i,
+];
+
+function hasScaleSignal(text) {
+  return SCALE_PATTERNS.some((re) => re.test(text));
+}
+
+// 2026-05-29 (Luiz/dev): WORKFLOW_ADVISOR — texto advisory puro (mesmo canal stdout do SKILL_ADVISOR).
+// NUNCA emite tool Workflow nem decision:block (diretriz/RF15). INV1: domínios casados viram
+// fallback DENTRO da mesma mensagem — nunca um segundo [...] empilhado.
+function workflowAdvisorMessage(trigger, fallbackDomains) {
+  let msg = `[WORKFLOW_ADVISOR] Esta tarefa tem sinal de escala (${trigger}) — pode exceder o que uma conversa coordena.\n`
+    + `Considere rodá-la como um dynamic workflow: inclua a palavra "workflow" no seu pedido para optar (o plugin nao lanca nada sozinho).\n`
+    + `Alternativa in-context: /verify-work | /design-twice | /deep-research (se disponivel) | /plan-feature.\n`
+    + `Workflows consomem substancialmente mais tokens. Pergunte ao usuario qual prefere antes de prosseguir.`;
+  if (fallbackDomains && fallbackDomains.length) {
+    // INV1: domínios casados viram fallback DENTRO da mesma mensagem — nunca um segundo [...] empilhado.
+    msg += `\nDominios in-context relacionados (fallback se preferir nao usar workflow):\n`
+      + fallbackDomains.map(d => `  - ${d.skill} (${d.name})`).join('\n');
+  }
+  return msg;
+}
+
 // Detects implementation requests that didn't match any specific domain
 const IMPLEMENTATION_PATTERNS = [
   /\b(implementar|implement|criar|create|construir|build|adicionar|add|develop|desenvolver)\b/i,
@@ -378,6 +415,25 @@ function processPrompt(prompt) {
 
   // STEP 2: Anti-deadlock — user already invoking a skill or command
   if (/\/anti-vibe-coding:/i.test(text) || /^\/.+/.test(text.trim())) return null;
+  // 2026-05-29 (Luiz/dev): humano já optou por workflow/ultracode → não re-sugerir (D4/CA-02).
+  if (/\bworkflow\b/i.test(text) || /\/effort\b/i.test(text) || /\bultracode\b/i.test(text)) return null;
+
+  // STEP 3.6: escala tem precedência ANTES do filtro silent — verbs like "rename" are in both
+  // SILENT_PATTERNS and SCALE_PATTERNS; scale must win (D3 — independe de verbo; INV1 — mensagem única).
+  // Spec escape valve: "Se um futuro gatilho de escala usar uma palavra que TAMBÉM esteja em SILENT,
+  // mover a checagem de escala para antes do STEP 3." (fase-01 gotchas)
+  const scaleHit = hasScaleSignal(text);
+  if (scaleHit) {
+    // Run domain classification for fallback context only.
+    const scaleMatches = [];
+    for (const domain of DOMAINS) {
+      if (domain.pattern.test(text)) scaleMatches.push(domain);
+    }
+    const trigger = scaleMatches.length >= 2
+      ? `multiplos dominios + escala: ${scaleMatches.map(d => d.name).join(', ')}`
+      : 'volume/varredura';
+    return workflowAdvisorMessage(trigger, scaleMatches);
+  }
 
   // STEP 3: Silent patterns — skip if no implementation intent detected alongside
   const hasImplementation = IMPLEMENTATION_PATTERNS.some(re => re.test(text));
@@ -427,9 +483,6 @@ function processPrompt(prompt) {
 
 // --- I/O handling ---
 
-let rawInput = '';
-let handled = false;
-
 function output(text) {
   if (!text) {
     process.exit(0);
@@ -441,36 +494,45 @@ function output(text) {
   process.exit(0);
 }
 
-function processInput() {
-  if (handled) return;
-  handled = true;
-  clearTimeout(safetyTimer);
-  try {
-    const input = JSON.parse(rawInput || '{}');
-    const prompt = input.prompt || input.message || input.content || '';
-    const result = processPrompt(prompt);
-    output(result);
-  } catch {
-    // fail-open: on error, pass through silently
-    process.exit(0);
+// 2026-05-29 (Luiz/dev): guard de I/O — sem este guard, um require() no teste penduraria
+// no process.stdin (GT-2). Padrão de stop-reflector.cjs (linhas 121-131).
+if (require.main === module) {
+  let rawInput = '';
+  let handled = false;
+
+  function processInput() {
+    if (handled) return;
+    handled = true;
+    clearTimeout(safetyTimer); // eslint-disable-line no-use-before-define
+    try {
+      const input = JSON.parse(rawInput || '{}');
+      const prompt = input.prompt || input.message || input.content || '';
+      const result = processPrompt(prompt);
+      output(result);
+    } catch {
+      // fail-open: on error, pass through silently
+      process.exit(0);
+    }
   }
+
+  const safetyTimer = setTimeout(() => {
+    if (!handled) processInput();
+  }, 500);
+
+  process.stdin.setEncoding('utf8');
+  process.stdin.on('data', chunk => {
+    rawInput += chunk;
+    try {
+      JSON.parse(rawInput);
+      setImmediate(() => { if (!handled) processInput(); });
+    } catch {
+      // incomplete JSON — wait for more chunks
+    }
+  });
+  process.stdin.on('end', processInput);
+  process.stdin.on('error', () => {
+    process.exit(0);
+  });
 }
 
-const safetyTimer = setTimeout(() => {
-  if (!handled) processInput();
-}, 500);
-
-process.stdin.setEncoding('utf8');
-process.stdin.on('data', chunk => {
-  rawInput += chunk;
-  try {
-    JSON.parse(rawInput);
-    setImmediate(() => { if (!handled) processInput(); });
-  } catch {
-    // incomplete JSON — wait for more chunks
-  }
-});
-process.stdin.on('end', processInput);
-process.stdin.on('error', () => {
-  process.exit(0);
-});
+module.exports = { processPrompt, SCALE_PATTERNS };

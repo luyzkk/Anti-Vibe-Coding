@@ -394,6 +394,28 @@ Anti-pattern: Horizontal Layer (ex: "criar todos os modelos", "criar todas as ro
 - Vertical slices geram feedback rapido e deploys incrementais
 ```
 
+### Grafo de Camadas (ordem de fundacao)
+
+Antes de fatiar, mapeie a dependencia ENTRE CAMADAS (nao entre fases). A ordem
+de implementacao segue este grafo de baixo para cima — construa fundacoes primeiro:
+
+```
+schema / migrations
+    |
+    +-- types / models
+            |
+            +-- API / services
+                    |
+                    +-- client / hooks
+                            |
+                            +-- UI / paginas
+```
+
+**Principio:** a ordem das fases segue o grafo de dependencias de baixo para cima —
+fundacao primeiro. (Isto e o porque de `fundacao → core → UI → polish` no Step 4 e
+de `Plano 1 "Fundacao"` no Step 5.) O grafo de CAMADAS guia a ordem; o grafo de
+FASES (`## Dependency Graph (ASCII)`) registra a ordem ja decidida.
+
 ### Tracer Bullet (Primeiro Slice Obrigatorio)
 
 ```
@@ -503,6 +525,9 @@ Apos decompor os slices (Step 3), analisar:
 
 4. Existe divisao natural em "dominios" ou "fases"?
    (fundacao → core → UI → polish)
+
+5. A ordem dos grupos segue o grafo de camadas (Step 3): de baixo
+   (schema) para cima (UI). Fundacao primeiro, sempre.
 
 A QUANTIDADE DE PLANOS E EMERGENTE desses fatores.
 Nao e pre-determinada. O modelo analisa e decide.
@@ -833,6 +858,7 @@ Uma fase L escondida e sempre underestimate disfarcado.
 - Quebra contratos publicos (API/types exportados)
 - Requer coordenacao entre 2+ equipes ou subsistemas
 - Tem incerteza tecnica nao resolvida (precisa de spike antes)
+- O titulo da fase contem "e"/"and" (ex: "criar API e UI") — sinal de que sao duas fases
 
 ---
 
@@ -868,6 +894,25 @@ leitura em monospace.
 - Usar caixas (`+---+\n| X |\n+---+`) — ruido visual sem benefit.
 - Setas diagonais (`\` ou `/`) — quebram em alguns renderers markdown.
 - Nodes sem prefixo `fase-NN` — perde rastreabilidade com os arquivos.
+
+---
+
+## Parallelization Safety
+
+Desenhar o grafo (acima) diz a ORDEM. Esta taxonomia diz o que pode rodar
+ao MESMO tempo com seguranca — aplicar ao decidir paralelismo entre planos
+(Step 5) e entre fases (`**Paralelismo possivel:**` nos templates).
+
+| Categoria | O que e | Regra |
+|---|---|---|
+| **Seguro paralelizar** | Slices/fases independentes, testes de feature ja implementada, documentacao | Paralelizar a vontade |
+| **Deve ser sequencial** | Migrations de schema, mudancas em estado compartilhado, cadeias de dependencia (fan-in) | Serializar — uma de cada vez |
+| **Precisa de coordenacao** | Fases/planos que compartilham um contrato de API (types, rota, payload) | **Definir o contrato PRIMEIRO, depois paralelizar** — nunca correr sobre um contrato ainda nao acordado |
+
+A terceira categoria e a armadilha mais comum: dois subagentes editando o mesmo
+contrato em paralelo geram conflito ou divergencia silenciosa. Se duas fases tocam
+o mesmo type/endpoint, extraia o contrato para uma fase anterior (sequencial) e so
+entao deixe as consumidoras rodarem em paralelo.
 
 ---
 

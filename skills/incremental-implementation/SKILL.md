@@ -1,16 +1,11 @@
 ---
 name: incremental-implementation
-description: "Guia de implementação incremental: divide features em incrementos verificáveis, evitando big-bang delivery e integração tardia."
+description: "Guia de implementação incremental: divide features em incrementos verificáveis, evitando big-bang delivery e integração tardia. Use ao implementar qualquer mudança que toque mais de um arquivo, ao escrever muito código de uma só vez, ou quando uma tarefa parece grande demais para caber em um único passo."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob
 argument-hint: "[feature ou módulo a implementar incrementalmente]"
 ---
-
-```typescript
-import { writeTelemetryStart } from "../../lib/telemetry-utils";
-writeTelemetryStart("incremental-implementation");
-```
 
 # Incremental Implementation
 
@@ -252,8 +247,3 @@ After completing all increments for a task:
 - [ ] The build is clean
 - [ ] The feature works end-to-end as specified
 - [ ] No uncommitted changes remain
-
-```typescript
-import { writeTelemetryEnd } from "../../lib/telemetry-utils";
-writeTelemetryEnd("incremental-implementation");
-```

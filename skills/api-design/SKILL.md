@@ -84,6 +84,33 @@ Usar este conhecimento para responder perguntas, auditar endpoints existentes e 
 
 ---
 
+## 0. Principios de Estabilidade de Interface
+
+Estes dois principios devem informar TODA decisao de design de API. Nao sao regras de transporte — sao restricoes de contratos.
+
+### Lei de Hyrum
+
+> "Com usuarios suficientes de uma API, todos os comportamentos observaveis do sistema serao dependidos por alguem, independente do que voce promete no contrato."
+
+Na pratica: **o contrato real e o comportamento observado, nao o contrato documentado.** Consumidores dependem de latencia acidental, de campos extras nao documentados, de erros retornados fora de spec — e quebram quando esses "detalhes" mudam.
+
+**Implicacoes de design:**
+
+- **Exponha apenas o necessario** — cada campo publico e uma promessa permanente.
+- **Nao vaze detalhes de implementacao** — nomes de tabela, IDs internos, stacks tecnologicas no response.
+- **Planeje deprecacao em tempo de design** — documentar a intencao de remocao desde o lancamento. Registrar em `/anti-vibe-coding:decision-registry add` decisoes de contrato que afetam consumers.
+- **Testes nao sao suficientes** — um teste verde nao garante que nenhum consumer depende de comportamento colateral.
+
+### Regra de Uma Versao
+
+Evite forcar consumers a escolher entre multiplas versoes da mesma API simultaneamente. Problemas de diamond dependency ocorrem quando dependencias transitivas requerem versoes incompativeis.
+
+Design para um mundo onde apenas uma versao existe por vez: **estenda, nao bifurque**. Adicione campos opcionais com defaults retro-compatíveis antes de criar `/api/v2`. Quando a quebra e inevitavel, a migracao deve ser sequencial (todos movem juntos), nao paralela.
+
+> **Conexao:** versioning de path (`/api/v1/`) em `references/rest-advanced.md` e o mecanismo de transporte. Esta regra e o principio de design que determina QUANDO criar uma nova versao.
+
+---
+
 ## 1. Problema N+1
 
 O problema N+1 ocorre quando uma query inicial busca N itens e, para cada item, dispara uma query adicional para dados relacionados. Resultado: 1 + N queries ao banco.
@@ -159,6 +186,7 @@ API e publica ou consumida por terceiros?
 ```
 
 > **Referencia completa:** `references/dtos.md` — tabela input vs output, regras, anti-patterns, checklist.
+> Modelagem de contrato em tempo de compilacao (unions + branded IDs): `references/typescript-contracts.md`
 
 ---
 
@@ -351,6 +379,36 @@ Caso simples? → Page pagination (intuitivo)
 | Rate limit | 429 Too Many Requests |
 
 **NUNCA retornar 200 para tudo.** Status codes semanticos sao obrigatorios.
+
+---
+
+## Common Rationalizations
+
+Justificativas comuns que encobrem decisoes de design ruins. Cada "Realidade" aponta para onde o conteudo ja existe nesta skill.
+
+| Racionalizacao | Realidade |
+|----------------|-----------|
+| "Vou documentar os contratos depois" | DTOs e schemas Zod **sao** a documentacao. Sem eles, o contrato e ambiguo desde o dia 1. → `references/dtos.md` |
+| "Sem paginacao por agora, os dados sao poucos" | A **REGRA CRITICA** e paginar sempre — colecoes crescem. Adicionar paginacao depois quebra consumers existentes (Lei de Hyrum). → secao 9 / `references/rest-advanced.md` |
+| "Vou versionar quando precisar" | Versionar depois e quebrar. Contratos publicos precisam de versionamento desde o lancamento; campos extras sao dependencias implicitas (Regra de Uma Versao). → secao 0 / `references/dtos.md` |
+| "Ninguem usa esse comportamento nao documentado" | Lei de Hyrum: com usuarios suficientes, alguem ja depende. Remover quebra producao silenciosamente. → secao 0 |
+| "Mantemos duas versoes em paralelo para nao quebrar ninguem" | Versoes paralelas criam diamond dependency e dobram custo de manutencao. A solucao e extensao retro-compativel + migracao sequencial. → Regra de Uma Versao (secao 0) |
+| "Validacao so no front-end, confio no meu cliente" | Front-end e UX, nao seguranca. Qualquer cURL ignora o front. Validacao e Mass Assignment sao vulnerabilidades reais. → `references/dtos.md` "Validacao SEMPRE no back-end" |
+| "API interna nao precisa de contrato formal" | APIs internas acumulam consumers silenciosamente. Sem contrato, qualquer mudanca e uma surpresa. DTOs e protocols se aplicam igualmente. → secoes 3 e 7 |
+
+---
+
+## Red Flags
+
+Lista de auditoría rapida. Cada item aponta para a referencia com o diagnostico completo.
+
+- **Endpoint retorna shapes diferentes dependendo de condicao** (ex: `{ data: [...] }` em sucesso, `{ error: "..." }` em falha sem envelope consistente) → `references/rest-advanced.md` (status codes / error formats)
+- **Formatos de erro inconsistentes entre endpoints** (uns retornam `{ message }`, outros `{ error }`, outros `{ errors: [] }`) → `references/rest-advanced.md`
+- **Validacao espalhada em funcoes utilitarias internas** em vez de concentrada na fronteira da API → `references/dtos.md`
+- **Campos existentes alterados ou removidos sem versionamento** — quebra silenciosa de consumers → Lei de Hyrum (secao 0) / `references/dtos.md` versioning
+- **Endpoint de colecao sem paginacao** — retorna todos os registros direto → secao 9 / `references/rest-advanced.md` REGRA CRITICA
+- **Verbos em URLs REST** (`/getUser`, `/createOrder`, `/deleteItem`) → secao 9 / `references/rest-advanced.md`
+- **Respostas de terceiros usadas diretamente sem validacao** (payload externo passado sem parse/DTO) → `references/communication-patterns.md` (HMAC + validacao) / `references/dtos.md`
 
 ---
 

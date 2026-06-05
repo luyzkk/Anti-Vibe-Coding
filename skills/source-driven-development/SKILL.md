@@ -7,12 +7,6 @@ allowed-tools: Read, Grep, Glob, WebFetch
 argument-hint: "[arquivo ou modulo a verificar contra docs oficiais]"
 ---
 
-```typescript
-// 2026-05-22 (Luiz/dev): telemetria passiva padrao plugin — ver skills/code-simplification/SKILL.md
-import { writeTelemetryStart } from "../../lib/telemetry-utils";
-writeTelemetryStart("source-driven-development");
-```
-
 # Source-Driven Development
 
 ## Differs from / Compose with
@@ -219,9 +213,3 @@ After implementing with source-driven development:
 - [ ] No deprecated APIs are used (checked against migration guides)
 - [ ] Conflicts between docs and existing code were surfaced to the user
 - [ ] Anything that could not be verified is explicitly flagged as unverified
-
-```typescript
-// 2026-05-22 (Luiz/dev): telemetria passiva padrao plugin — fim da skill
-import { writeTelemetryEnd } from "../../lib/telemetry-utils";
-writeTelemetryEnd("source-driven-development");
-```

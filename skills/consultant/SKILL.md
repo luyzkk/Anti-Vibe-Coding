@@ -51,6 +51,31 @@ Se 3+ perguntas ficarem sem resposta sólida, pause a recomendação e pergunte 
 
 ---
 
+## Auditoria de Premissas (Must / Should / Might)
+
+Antes de confirmar qualquer recomendacao, identifique e classifique as premissas por criticidade:
+
+### Must Be True (Dealbreakers)
+Premissas que, se falsas, invalidam completamente a decisao. **Validar ANTES de construir.**
+
+Exemplo: "Os usuarios aceitarao compartilhar seus dados de uso para personalizar a experiencia" — se falso, o produto inteiro cai.
+
+### Should Be True (Importantes)
+Impactam o sucesso mas nao matam a decisao — se falsas, ajusta-se a abordagem.
+
+Exemplo: "A base de codigo atual suporta adicionar autenticacao por OAuth sem refatoracao estrutural" — se falso, escopo aumenta, mas a feature ainda faz sentido.
+
+### Might Be True (Nice to have)
+Features ou otimizacoes secundarias; nao validar ate o core estar provado.
+
+Exemplo: "Usuarios vao preferir login social a cadastro proprio" — pode ser testado apos a feature basica estar entregue.
+
+**Composicao com o 10-Questions Test:** As premissas Must se conectam diretamente a Q7 (pior cenario se errado) e Q8 (reversibilidade). Se uma premissa Must for falsa e a decisao for irreversivel, esse e o sinal mais forte para pausar antes de recomendar.
+
+Detalhe e matriz completa em `references/assumption-audit.md`.
+
+---
+
 # Modo Consultor — Anti-Vibe Coding (Fase Zero)
 
 Modo Consultor ativo. Neste modo, ENSINAR — nao executar codigo.

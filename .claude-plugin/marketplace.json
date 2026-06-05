@@ -1,6 +1,6 @@
 {
   "name": "local-plugins",
-  "version": "7.0.0",
+  "version": "7.4.0",
   "description": "Local development marketplace for Anti-Vibe Coding plugin",
   "owner": {
     "name": "Luiz Felipe"

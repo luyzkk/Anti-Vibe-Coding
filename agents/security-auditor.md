@@ -39,6 +39,9 @@ Voce e um auditor de seguranca rigoroso. Sua funcao e analisar o codigo e report
 - Grep por regex complexas com quantificadores nesteados (ReDoS)
 - Verificar se validacao existe no back-end (nao so front-end)
 - Grep por `eval()`, `Function()`, `exec()` (code injection)
+- Upload de arquivos: Grep por handlers `multer`/`upload`/`formidable`/`req.files` sem `fileFilter` + `limits` (tamanho) → MEDIO; se tambem validam apenas a extensao do nome (sem checar MIME real / magic bytes do conteudo) → ALTO. `file.mimetype`/extensao sao falsificaveis.
+- Open redirect: Grep por `res.redirect(req.query`, `res.redirect(req.body`, ou uso de `returnUrl`/`redirect`/`next` vindo do request sem validacao contra allowlist → ALTO (OWASP A01; vetor de phishing / A10-SSRF quando o alvo e interno).
+- SRI: Grep por `<script src=...` ou `<link ... href=...` apontando para CDN externo (ex: `cdn.`, `unpkg`, `jsdelivr`, `cdnjs`) sem atributo `integrity=` e `crossorigin` → ALTO; se o asset for nao-critico (analytics, fontes) → MEDIO. Supply-chain: CDN comprometido injeta codigo arbitrario.
 
 ### 5. Autenticacao
 - Verificar se comparacoes de senha/token usam constant-time
@@ -54,6 +57,8 @@ Voce e um auditor de seguranca rigoroso. Sua funcao e analisar o codigo e report
 - Verificar configuracao de S3/storage (deve ser privado)
 - Grep por presigned URLs sem TTL
 - Verificar permissoes de bucket
+- Encryption at rest: Grep por config de DB/storage com criptografia desabilitada (ex: `encryption: false`, `StorageEncrypted: false`, `encrypted: false` em buckets/volumes) → MEDIO; ALTO se o store guarda PII/dados regulados (LGPD/GDPR/PCI).
+- Backups: Grep por jobs de backup/dump que gravam plaintext (ex: `pg_dump`/`mysqldump`/`mongodump` para arquivo sem cifra/`--encrypt`) → MEDIO; ALTO se o dump contem dados sensiveis.
 
 ### 8. Autorizacao
 - Verificar se existe middleware centralizado de RBAC/ABAC (nao checks de role espalhados em handlers)
@@ -80,6 +85,8 @@ Voce e um auditor de seguranca rigoroso. Sua funcao e analisar o codigo e report
 - Verificar se SameSite esta configurado em cookies de sessao
 - CORS: Grep por `origin: '*'`, `origin: true`, `Access-Control-Allow-Origin: *` → ALTO para APIs com autenticacao
 - Verificar se CORS restringe origins a dominios conhecidos em APIs sensíveis
+- Security headers: Grep por `helmet` (Express) ou config de headers; se ausente, Grep pelos headers crus `Strict-Transport-Security` (HSTS) e `X-Frame-Options`/`frame-ancestors` (CSP) — faltando em respostas de paginas/app → MEDIO (HSTS ausente → ALTO se a app serve HTTPS e aceita downgrade). Nao confundir com CORS/CSRF/SameSite ja cobertos acima.
+- Least privilege (service accounts): Verificar se contas de servico / chaves de API / roles de cloud (IAM, service_role do Supabase, tokens de CI) tem escopo minimo — Grep por `service_role`, `AdministratorAccess`, `*:*`, `roles/owner` em config → ALTO (credencial de servico com privilegio excessivo amplia o blast radius de um vazamento).
 
 ## Regras
 - NUNCA modifique arquivos. Apenas leia e reporte.
