@@ -3,6 +3,37 @@
 Todas as mudanças notáveis do plugin Anti-Vibe Coding serão documentadas aqui.
 
 
+## [7.4.0] - 2026-06-06
+
+> **Minor release — Skill Parity Refresh + Workflow Awareness**
+>
+> Enxerto de ~81 melhorias adversarialmente verificadas (de 22 pares skill/agent) sobre a suíte,
+> sem remover valor já em paridade (copy-then-improve). Nova capacidade: o agente generalista
+> `code-reviewer`. Mais a feature de workflow-awareness e a estabilização cross-platform do CI.
+
+### Added
+
+- **`agents/code-reviewer.md`** — agente auditor generalista (correctness + readability a nível de linha), contrato v2.0.0; frota de auditores 13 → 14. Regra `needs-investigation` (incerteza por finding) propagada aos 5 auditores existentes; "read-intent-first" em api/database/react.
+- **`docs/WORKFLOWS.md`** + `WORKFLOW_ADVISOR` (hook `user-prompt-gate`) — fronteira workflow vs subagente vs skill; sugestão opt-in de dynamic workflow para tarefas de escala.
+- **3 compound notes** (`docs/compound/2026-06-05-*`) — resolução de colisão serial, regen de agregado como passo de fechamento, gotcha do `grep -c` contar linha de import.
+
+### Changed — grafts em 19 skills + 3 agents
+
+- **write-prd, plan-feature/quick-plan, grill-me, consultant/design-twice, pair-programming/enhance-prompt** — Boundaries, Verification, Parallelization Safety, Auditoria de Premissas, Divergence Lenses.
+- **api-design, security, anti-vibe-review, git-workflow** — Hyrum's Law, Triagem de deps, upload safety, security headers, Dependency Discipline, severidade por comentário.
+- **tdd-workflow, qa-visual, react-patterns** — Prove-It pointer, Verification self-audit, Limites de Seguranca, Passo 7.5 Performance (LCP/CLS/INP), Common Rationalizations.
+- **incident-response, iterate, infrastructure, decision-registry, verify-work** — Localize tree, flaky branch, Rollout Decision Thresholds, Post-Launch Verification, Feature Flags, CI Optimization, worked ADR example.
+- **adr-writer.ts** — defaults viram mini-templates auto-explicativos (Pros/Cons/Rejeitada por alternativa).
+
+### Fixed — CI cross-platform (verde na main)
+
+- **telemetry** — `writeTelemetryDomainEvent` particiona pelo timestamp do evento, não pela data atual (time-dependency latente).
+- **execute-plan** — normalização de path backslash→slash platform-agnóstica (`posix.relative`).
+- **manifest** — checksums line-ending-independent (CRLF/LF); versão por-entry alinhada ao `package.json`.
+- **init** — mensagem final de populate-plan no greenfield (CA-11); audit-log restaurado no secrets-scan (CA-14); teste de cutover determinístico cross-platform (CA-07).
+- **typecheck** — 18 → 0 erros (exactOptionalPropertyTypes em compound-engineering; teste `README.md.tpl` órfão re-homed).
+- **versões** — `marketplace.json` (top-level + plugin aninhado) realinhado de 7.0.0/7.3.0 → 7.4.0; `version-bump.test` em 7.4.0.
+
 ## [7.3.0] - 2026-05-25
 
 > **Minor release — Next.js + React Stack Knowledge (15 atoms)**
