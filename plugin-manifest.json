@@ -1,6 +1,6 @@
 {
   "version": "7.4.0",
-  "generatedAt": "2026-06-05T20:07:08.926Z",
+  "generatedAt": "2026-06-06T12:59:01.967Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -542,7 +542,7 @@
     "scripts/generate-manifest.js": {
       "version": "7.4.0",
       "checksum": "31ea0ca376cd8b6755c6d4e692846f641ead3f8e60d6d724f3b8f07eea965ac3",
-      "lastModified": "2026-06-05",
+      "lastModified": "2026-06-06",
       "updateStrategy": "replace"
     },
     "scripts/grep-deleted-steps.ts": {
@@ -740,7 +740,7 @@
     "skills/compound-engineering/lib/active-plan-detector.ts": {
       "version": "7.4.0",
       "checksum": "45665d6eb940b79ff6170286037800d63ded945cd1d5a00308a0cc5e65d4d89c",
-      "lastModified": "2026-06-05",
+      "lastModified": "2026-06-06",
       "updateStrategy": "replace"
     },
     "skills/compound-engineering/lib/checker.ts": {
@@ -788,7 +788,7 @@
     "skills/compound-engineering/lib/invoke-lessons-learned.ts": {
       "version": "7.4.0",
       "checksum": "32bf8757109c5dbae684e21a0bc7fb2b337bdd1c457f75340cbd1b75918c0a1e",
-      "lastModified": "2026-06-05",
+      "lastModified": "2026-06-06",
       "updateStrategy": "replace"
     },
     "skills/compound-engineering/lib/lessons-captured-updater.ts": {
@@ -806,7 +806,7 @@
     "skills/compound-engineering/lib/migrate.ts": {
       "version": "7.4.0",
       "checksum": "d5f3a6b4ed250922e5fa63b15c395e8223543c1d7b65bc1e90cb2ec99a000d8b",
-      "lastModified": "2026-06-05",
+      "lastModified": "2026-06-06",
       "updateStrategy": "replace"
     },
     "skills/compound-engineering/lib/notes-inconsistency-scanner.ts": {
@@ -1454,7 +1454,7 @@
     "skills/init/lib/run-init.ts": {
       "version": "7.4.0",
       "checksum": "3f301b89f2d718698c96c6d409aa4ede1e9b63c580d8631269cffd86aa6489ee",
-      "lastModified": "2026-06-05",
+      "lastModified": "2026-06-06",
       "updateStrategy": "replace"
     },
     "skills/init/lib/run-stack-knowledge-init.ts": {
@@ -1550,7 +1550,7 @@
     "skills/init/lib/steps/03-secrets-scan.ts": {
       "version": "7.4.0",
       "checksum": "a7a8e87f1340148ecec7b3f3835da3964280ad52b71c3228ebb9e2fc923414f1",
-      "lastModified": "2026-06-05",
+      "lastModified": "2026-06-06",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/04-migrate-planning-and-manifest.ts": {
@@ -1580,7 +1580,7 @@
     "skills/init/lib/steps/07-generate-populate-plans.ts": {
       "version": "7.4.0",
       "checksum": "7312d1e39dbd4114debc68285385b774b84013cde24874c125e66f920652c85d",
-      "lastModified": "2026-06-05",
+      "lastModified": "2026-06-06",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/08-delivery-loop.ts": {
@@ -1628,7 +1628,7 @@
     "skills/init/lib/steps/types.ts": {
       "version": "7.4.0",
       "checksum": "04da3db1679cb610db9c1e3e66f449a71a86dca2f12362c9a2172089d722dc87",
-      "lastModified": "2026-06-05",
+      "lastModified": "2026-06-06",
       "updateStrategy": "replace"
     },
     "skills/init/lib/symlink-fallback.ts": {
@@ -2504,7 +2504,7 @@
     "skills/lib/execute-plan-todo-capture.ts": {
       "version": "7.4.0",
       "checksum": "70b1ad5cc46667f9400f20b9a47965fea702f95934f5be28b9c2e8d9f9b2b58c",
-      "lastModified": "2026-06-05",
+      "lastModified": "2026-06-06",
       "updateStrategy": "replace"
     },
     "skills/lib/feature-flags.ts": {
@@ -2648,7 +2648,7 @@
     "skills/lib/telemetry-utils.ts": {
       "version": "7.4.0",
       "checksum": "8907a301afb20a03a8647513c5bb5ad0c722f51e826339c3b7d1465395217a69",
-      "lastModified": "2026-06-05",
+      "lastModified": "2026-06-06",
       "updateStrategy": "replace"
     },
     "skills/lib/todo-utils.ts": {
