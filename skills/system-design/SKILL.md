@@ -1,6 +1,6 @@
 ---
 name: system-design
-description: "This skill should be used when the user asks about 'CAP theorem', 'PACELC', 'system design', 'caching strategies', 'Redis', 'horizontal scaling', 'vertical scaling', 'load balancer', 'load balancing algorithms', 'round robin', 'least connections', 'consistent hashing', 'database replication', 'sharding', 'SQL vs NoSQL', 'eventual consistency', 'CDN', 'edge server', 'anycast', 'cache invalidation', 'serverless', 'Lambda', 'cold start', 'serverfull', 'VPS', 'EC2', 'PM2', or faces infrastructure and scaling decisions. Provides expert consultation on distributed systems architecture, CDN, serverless, and trade-offs."
+description: "This skill should be used when the user asks about 'CAP theorem', 'PACELC', 'system design', 'caching strategies', 'Redis', 'horizontal scaling', 'vertical scaling', 'load balancer', 'load balancing algorithms', 'round robin', 'least connections', 'consistent hashing', 'database replication', 'sharding', 'SQL vs NoSQL', 'eventual consistency', 'CDN', 'edge server', 'anycast', 'cache invalidation', 'serverless', 'Lambda', 'cold start', 'serverfull', 'VPS', 'EC2', 'PM2', 'message queue', 'pub/sub', 'message broker', 'delivery semantics', 'exactly-once', 'idempotent consumer', 'idempotency key', 'message ordering', 'dead letter queue', 'DLQ', 'poison message', 'backpressure', 'load leveling', 'backlog', 'RabbitMQ', 'quorum queue', 'background jobs', 'BullMQ', 'outbox pattern', 'message durability', or faces infrastructure and scaling decisions. Provides expert consultation on distributed systems architecture, CDN, serverless, message queues, and trade-offs."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob, WebSearch
@@ -339,6 +339,60 @@ Prototipo / MVP? → Serverless ✓ (custo zero quando nao usa)
 
 ---
 
+## 9. Filas e Mensageria
+
+**REGRA:** Projetar para **at-least-once + consumidor idempotente**. "Exactly-once delivery" nativo prometido por um broker e red flag — desconfiar. A fila desacopla producao de consumo; nao e garantia de entrega magica.
+
+### Quando Usar Fila
+
+```
+O trabalho pode ser assincrono (usuario nao precisa do resultado na request)?
+  NAO → sincrono. Fila so adiciona latencia e complexidade
+  SIM → precisa de fan-out (N consumidores recebem o mesmo fato)?
+    SIM → Pub/Sub (broadcast de eventos)
+    NAO → trabalho processado por UM worker → Message Queue / Background Job (Bull, SQS, RabbitMQ)
+```
+
+### Garantias de Entrega — a Regra que Nao Muda
+
+- **at-most-once** e **at-least-once** sao as unicas semanticas factiveis. **exactly-once delivery e impossivel** em sistema distribuido (Two Generals + FLP)
+- O que E alcancavel e exactly-once *processing*: at-least-once + dedup/idempotencia no consumidor
+- Duplicatas sao esperadas (retry do publisher, ack falho do consumidor). Tratar como dadas
+
+### Arvore de Decisao — Correcao sob Duplicata
+
+```
+Reprocessar a mensagem tem efeito colateral observavel?
+  NAO (logica naturalmente idempotente) → consumir a vontade. Sem dedup
+  SIM → o efeito todo cabe numa transacao de banco?
+    SIM → idempotent consumer: logica + marcador de dedup no MESMO commit
+    NAO (efeito cross-system) → API externa suporta idempotency key?
+      SIM → passar o message ID como key; a API deduplica
+      NAO → outbox: gravar a intencao na transacao; processador publica depois
+```
+
+### Arvore de Decisao — DB-backed vs Broker Dedicado
+
+```
+Volume baixo/medio E atomicidade fila-estado importa?
+  SIM → fila no banco (Solid Queue, Postgres) — menos moving parts, durabilidade ACID herdada
+  NAO → throughput/SLA e o gargalo ou precisa fan-out real?
+    SIM → broker dedicado (RabbitMQ Quorum, Kafka, SQS)
+```
+
+### Sempre
+
+- **DLQ obrigatoria** — mensagem que falha repetidamente (poison message) vai para dead-letter queue, nao trava a fila
+- **Backpressure / load leveling** — a fila absorve picos; o consumidor processa no seu ritmo. Nao confundir com load shedding (descarte)
+- **Retry com backoff + jitter**, em UMA camada so, e so para erros transitorios (4xx nao-retry)
+
+> **Detalhes completos:**
+> - `references/messaging-models.md` — pub/sub vs fila, semantica de entrega, exactly-once delivery vs processing (Treat-Kreps), ordenacao, processamento assincrono de arquivos
+> - `references/messaging-reliability.md` — consumidor idempotente, chaves de idempotencia, outbox, retry/backoff/jitter, DLQ/poison
+> - `references/messaging-operations.md` — landscape de brokers, tipos de fila RabbitMQ, background jobs (Bull), durabilidade (fsync/WAL), backlog, backpressure
+
+---
+
 ## Cheat Sheet — Referencia Rapida
 
 | Decisao | Padrao Seguro | Mude Quando |
@@ -348,6 +402,7 @@ Prototipo / MVP? → Serverless ✓ (custo zero quando nao usa)
 | Cache | Cache-aside + TTL + invalidacao | Write-through se leitura imediata pos-escrita |
 | Banco | PostgreSQL | Problema COMPROVADO que SQL nao resolve |
 | Dados | Otimize → Cache → Replicacao → Sharding | Cada passo so se o anterior nao basta |
+| Filas | at-least-once + consumidor idempotente | exactly-once nativo prometido = desconfie |
 
 ---
 

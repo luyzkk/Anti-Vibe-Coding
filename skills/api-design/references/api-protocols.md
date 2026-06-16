@@ -108,6 +108,8 @@ Cache-Control: max-age=3600
 - Nao implementar dead letter queue (mensagens com falha se perdem)
 - Consumer sem idempotencia (mensagem pode ser entregue mais de uma vez)
 
+> **Profundidade (filas/mensageria):** delivery semantics, consumidor idempotente, DLQ/poison, outbox e escolha de broker estao em `system-design/references/messaging-*.md` (skill system-design, Onda 1).
+
 ---
 
 ## gRPC
