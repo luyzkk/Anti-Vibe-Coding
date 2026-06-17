@@ -1,6 +1,6 @@
 ---
 title: "Edit Manifest — System Design Coverage Gaps"
-status: onda2-applied
+status: onda3-approved
 created: 2026-06-16
 ---
 
@@ -16,8 +16,8 @@ created: 2026-06-16
 
 **Status das seções**
 - [x] **Onda 1 — Filas e Mensageria** — ✅ APROVADO (2026-06-16) · aplicado e shipado (PR #9, merge 2554e3f)
-- [x] **Onda 2 — SQL-internals + DNS-routing** — ✅ APLICADA e VERIFICADA (2026-06-16) · 3 refs SQL + §10 + DNS §8/§9 · adversarial 2 FLAG→corrigidos, DNS APROVA · D6 banners aguardam sign-off humano · working tree (não commitada)
-- [ ] Onda 3 — Resiliência (enriquecimento) — pendente (Plano 04 fase-03)
+- [x] **Onda 2 — SQL-internals + DNS-routing** — ✅ APLICADA, VERIFICADA + COMMITADA (2026-06-16) · 3 refs SQL + §10 + DNS §8/§9 · adversarial 2 FLAG→corrigidos, DNS APROVA · **D6 EXPLAIN/partitioning: sign-off humano dado (2026-06-17) — banners ⚠️unverified → ✅ confirmado**
+- [x] **Onda 3 — Resiliência (enriquecimento)** — ✅ **APROVADO (2026-06-17)** · 12 conceitos → 3 skills, ZERO reference nova (D1/CA-07): só extensão + cross-link. Decisões: load-shedding/deadline-propagation → system-design §11; §11 + shuffle estende replication-sharding; keywords/mapa como propostos; **advisor: adicionar as 3 skills**
 
 ---
 
@@ -364,3 +364,184 @@ fase-06 verifica (`bun test` das 2 skills + audit de cobertura + passe adversari
 3. **D6 unverified:** aplicar EXPLAIN/partitioning agora **marcados ⚠️unverified** (recomendado; fase-06 confirma)
    ou segurar essas 2 entradas até você revisar a doc oficial primeiro?
 4. **keywords `description` (SQL + DNS)** e **mapa conceito→alvo** — OK como proposto, ou ajustar?
+
+---
+---
+
+## SEÇÃO ONDA 3 — Resiliência (ENRIQUECIMENTO)
+
+> ✅ **APROVADO PELO NAVEGADOR (2026-06-17, via AskUserQuestion).** Decisões travadas: **load-shedding +
+> deadline-propagation → `system-design` §11** (não viram categorias novas em defensive-patterns); **§11 "Resiliência
+> Distribuída" criada + `shuffle-sharding` ESTENDE `replication-sharding.md`** (sem ref nova); **keywords + mapa
+> conceito→alvo como propostos**; **advisor `hooks.json`: ADICIONAR as 3 skills** (`defensive-patterns` +
+> `infrastructure` novas linhas + `system-design` estendida — corrige a omissão pré-existente). Destrava a fase-04 (aplicação).
+
+### Contexto
+
+- **12 conceitos sintetizados** em `Infos/_pipeline/synthesis/` (Onda 3), 100% com `fonte:` (457 citações no total).
+  Conflitos resolvidos via D4 (dois lados + regra): **C3** (`degraded-read-tension`) e **C4** (`retry-throttling-vs-circuit-breaker`).
+- **D1 / CA-07 — REGRA DURA DESTA ONDA: ZERO reference nova.** Resiliência **já é coberta** pelas skills existentes
+  (`defensive-patterns` é um menu de padrões de resiliência; `infrastructure` cobre deploy; `system-design` cobre
+  escala/distribuição). Onda 3 **enriquece** — só **extensão de arquivo existente + cross-link**. Nenhum arquivo novo.
+- **3 skills-alvo**, partição por **altitude/dono (D2)**:
+  - **`defensive-patterns`** = padrões de resiliência **no nível do serviço/código** (lar primário). Skill é um
+    **menu puro** (sem `references/`) → enriquecimento vai **inline nas categorias existentes** do `SKILL.md`.
+  - **`system-design`** = resiliência **no nível da frota/sistema distribuído** (overload, isolamento, falhas distribuídas)
+    → nova **§11** no `SKILL.md` + **extensão** de reference existente (`replication-sharding.md`). (R2: §11 anexa após §10.)
+  - **`infrastructure`** = resiliência **de deploy/operação** → **extensão** de `deployment-patterns.md` + `SKILL.md` §5.
+- **D3:** julgamento (quando usar/NÃO + árvore) no `SKILL.md`; profundidade/código nas references existentes
+  (onde a skill tem references). `defensive-patterns` não tem references → julgamento + snippet curto inline (como já é o padrão da skill).
+
+---
+
+### ⚠️ DECISÃO P5 — Destino dos conceitos "fleet-overload" — **PRECISA DA SUA ESCOLHA**
+
+A maioria dos 12 conceitos tem dono óbvio. **2 conceitos são limítrofes** entre `defensive-patterns` (serviço) e
+`system-design` (frota): **`load-shedding`** e **`deadline-propagation`**.
+
+**▶ RECOMENDADO — ambos em `system-design` §11** (resiliência de frota/overload): load shedding e deadline propagation
+são decisões de **arquitetura de sobrecarga** (preservar goodput da frota; propagar deadline pela cadeia de serviços),
+não um padrão que um único serviço liga/desliga. Ficam ao lado de `shuffle-sharding` e `distributed-challenges`, e
+cross-linkam a categoria de timeout/retry de `defensive-patterns` e o `backpressure-load-leveling` (Onda 1, em
+`messaging-operations.md`). Mantém `defensive-patterns` enxuto (só enriquece categorias existentes, **zero categoria nova**).
+
+**▷ ALTERNATIVA — ambos como categorias novas em `defensive-patterns`** (`#10 Load Shedding`, `#11 Deadline Propagation`):
+trata-os como padrões defensivos que o serviço implementa. Custo: 2 categorias novas no menu (cresce de 9 → 11); e
+`deadline-propagation`/`load-shedding` ficam separados de `distributed-challenges`/`shuffle-sharding` (que não cabem no
+menu de `defensive-patterns` e iriam pra `system-design` de qualquer forma) — partindo o tema de overload em duas skills.
+
+*Tudo abaixo assume o RECOMENDADO. Se escolher a alternativa, movo `load-shedding`+`deadline-propagation` para
+`defensive-patterns` e ajusto a §11 antes de aplicar.*
+
+---
+
+### Mapa conceito → alvo (12/12 — zero descarte silencioso, CA-01)
+
+**Sub-track A → `defensive-patterns/SKILL.md`** (enriquece categorias existentes — **nenhuma categoria nova**)
+
+| # | Conceito (`synthesis/…`) | Categoria-alvo (existente) | Tratamento | Conflito |
+|---|---|---|---|---|
+| 1 | timeouts | **#3 Timeout** | calibração por percentil; cobrir DNS+TLS+conexão (não só `SO_RCVTIMEO`); timeout baixo → cascata; estado UNKNOWN | — |
+| 2 | safe-retries | **#5 Retry** | idempotência é pré-requisito; retry em UMA camada; 4xx não-retry; parar quando não ajuda | — |
+| 3 | backoff-and-jitter | **#5 Retry** | backoff exponencial **limitado** + **jitter**; thundering herd (já mencionado — aprofunda) | — |
+| 4 | retry-throttling-vs-circuit-breaker | **#2 Circuit Breaker** + **#5 Retry** | a tensão **C4**: token bucket / retry budget × circuit breaker modal; AWS prefere token bucket; regra | **C4** |
+| 7 | health-checks | **#8 Health Check** | 4 tipos (liveness/local/dependency/anomaly); fail-open; black-hole; zombie; cross-link deploy + dns §9 | — |
+| 8 | avoiding-fallback | **#4 Fallback** | aprofunda o "Não use": código modal não-testado; cascata Amazon 2001; enrijecer primário; failover exercitado | — |
+| 9 | degraded-read-tension | **#4 Fallback** | a tensão **C3**: servir cache stale × fallback perigoso; regra (decisão irreversível? caminho exercitado?) | **C3** |
+
+**Sub-track B → `system-design`** (nova §11 no SKILL.md + extensão de reference existente — CA-07)
+
+| # | Conceito (`synthesis/…`) | Alvo | Tratamento | Conflito |
+|---|---|---|---|---|
+| 6 | load-shedding | **§11 SKILL.md** | regra "descartar p/ preservar goodput"; distinção shedding×backpressure×throttling; fast-reject; priorizar health check | — |
+| 5 | deadline-propagation | **§11 SKILL.md** | bullet "propague tempo restante por hop; clock monotônico; não comece trabalho fadado" | — |
+| 10 | shuffle-sharding | **EXTENDE** `replication-sharding.md` (nova subseção) + bullet §11 | isolamento combinatório; blast radius exponencial; analogia das cartas; bulkhead 1-em-N | — |
+| 11 | distributed-challenges | **§11 SKILL.md** (framing) | 8 modos de falha; 5 resultados de uma chamada remota; estado UNKNOWN; cross-link Two Generals/FLP (Onda 1) | — |
+
+**Sub-track C → `infrastructure`** (extensão — nenhuma reference nova; CA-07)
+
+| # | Conceito (`synthesis/…`) | Alvo | Tratamento | Conflito |
+|---|---|---|---|---|
+| 12 | blue-green-deploy | **EXTENDE** `deployment-patterns.md` (subseção blue-green) + `SKILL.md` §5 | dois slots; reverse-proxy switch; **health check na porta privada ANTES do switch**; rollback por inversão | — |
+| (7) | health-checks (ângulo deploy) | cross-link em `deployment-patterns.md` "Health Check Endpoints" → `defensive-patterns #8` | o padrão geral mora em `defensive-patterns`; aqui só o gancho de deploy | — |
+
+**Cobertura:** 12/12 conceitos mapeados. Nenhum órfão. (Os 3 OUT do triage seguem fora — `sources-manifest.md`.)
+
+---
+
+### Alvo A — `defensive-patterns/SKILL.md` (lar primário)
+
+`defensive-patterns` é um **menu puro** (sem `references/`). O enriquecimento é **inline** nas categorias existentes,
+no padrão atual da skill (cada categoria: **Quando / Faz / Não faz / snippet curto**). Aprofunda a camada de julgamento
+sem inchar — preservando o tom de menu navegável.
+
+- **#2 Circuit Breaker** e **#5 Retry** recebem o **C4** (tensão token-bucket × circuit-breaker modal + regra). É a
+  resolução profunda do C4 que foi **remetida desde a Onda 1**.
+- **#3 Timeout**, **#4 Fallback** (com C3), **#5 Retry**, **#8 Health Check** recebem a profundidade dos átomos
+  Brooker/Gabrielson/Yanacek.
+- **`description` (M4 / discoverability):** anexar keywords de resiliência. A skill já é keyword-rica para suas
+  categorias; proposta de acréscimo mínima:
+  > `'backoff', 'jitter', 'retry budget', 'token bucket', 'fail-open', 'black-hole', 'degraded read', 'stale cache', 'thundering herd'`
+- **`hooks.json`:** ⚠️ o advisor printf **NÃO lista `defensive-patterns`** (achado desta fase — mesma omissão
+  pré-existente que a Onda 2 registrou para `infrastructure`; não é desta feature). Sem linha de advisor para estender.
+  **Proposta:** fora de escopo adicionar agora (registrar observação). *(Se quiser, adiciono `defensive-patterns` +
+  `infrastructure` ao advisor numa linha — diga.)*
+
+### Alvo B — `system-design` (sub-track fleet-resilience)
+
+- **B.1 — Nova `## 11. Resiliência Distribuída`** no `SKILL.md` (após §10 SQL, antes do Cheat Sheet; R2 — anexa,
+  sem conflito com §9/§10). Julgamento (D3): framing `distributed-challenges` (os 5 resultados de uma chamada / estado
+  UNKNOWN) → regras de overload (`load-shedding`: descartar p/ goodput; `deadline-propagation`: propagar tempo restante)
+  → isolamento (`shuffle-sharding`: blast radius). Ponteiros pras references/§ e cross-link a `defensive-patterns`
+  (padrões de serviço) e `messaging-operations.md` (backpressure, Onda 1).
+- **B.2 — EXTENSÃO de `replication-sharding.md`** (CA-07 — sharding já coberto): subseção curta **"Shuffle Sharding —
+  isolamento de blast radius"** (combinatório; melhoria exponencial vs sharding regular; bulkhead 1-em-N) + cross-link
+  `dns-hosting.md` (Route 53 = shuffle sharding aplicado a nameservers, Onda 2) e `defensive-patterns #6 Bulkhead`.
+  **Não** vira reference nova.
+- **B.3 — Linhas no Cheat Sheet:**
+  - `Sobrecarga | load shedding (fast-reject) p/ preservar goodput | shedding caro/sem instrumentação = pior`
+  - `Cadeia de chamadas | propague deadline (tempo restante), não timeout fixo por hop | clock wall em vez de monotônico`
+  - `Isolar tenant/falha | shuffle sharding (blast radius exponencialmente menor) | poison-request que derruba qualquer worker`
+- **B.4 — `description` (M4):** anexar antes de "or faces infrastructure…":
+  > `'load shedding', 'goodput', 'shuffle sharding', 'blast radius', 'deadline propagation', 'distributed systems failure modes', 'overload', 'fault isolation'`
+- **B.5 — `hooks.json`:** anexar `, resiliencia (load shedding, shuffle sharding, deadline)` à linha do advisor da
+  `system-design` (já estendida p/ filas+SQL nas Ondas 1-2). É a **única** das 3 skills no advisor.
+
+### Alvo C — `infrastructure` (sub-track deploy)
+
+- **C.1 — EXTENSÃO de `deployment-patterns.md`** (CA-07 — deploy já coberto): subseção **"Blue-Green Deploy"** ao lado
+  do conteúdo zero-downtime/PM2/Docker existente — dois slots rotulados, switch via reverse-proxy (config única, só muda
+  a porta), **health check na porta privada ANTES do cutover**, rollback por inversão do switch, script único de cutover.
+  **Nota honesta:** o corpus **não cobre** migrations/estado compartilhado entre cores como mecânica — a síntese marcou
+  esse limite; a seção dirá explicitamente que blue-green não resolve compatibilidade de schema (sem inventar expand/contract).
+- **C.2 — `SKILL.md` §5 (Deployment Patterns):** mini-árvore/bullet "blue-green: health check pré-switch + rollback por
+  inversão" + ponteiro pra subseção da reference. Profundidade na reference.
+- **C.3 — `description` (M4):** anexar antes de "or faces infrastructure…":
+  > `'blue-green deployment', 'zero-downtime deploy', 'deployment health check', 'cutover', 'instant rollback'`
+- **C.4 — `hooks.json`:** ⚠️ `infrastructure` **não está no advisor** (mesmo achado da Onda 2). Fora de escopo estender
+  agora; discoverability fica na `description`.
+
+---
+
+### Conflitos resolvidos nesta onda (D4 — tensão + regra)
+
+| Conflito | Onde (synthesis → alvo) | Como (já sintetizado, dois lados citados) |
+|---|---|---|
+| **C3** degraded-read | `degraded-read-tension` → `defensive-patterns #4 Fallback` | servir cache stale mantém disponibilidade (Yanacek/health-checks + Galego ACID/BASE) × leitura degradada É fallback modal perigoso (Gabrielson, cascata Amazon 2001) + regra: decisão irreversível? caminho exercitado? |
+| **C4** retry throttle × circuit breaker | `retry-throttling-vs-circuit-breaker` → `defensive-patterns #2/#5` | token bucket / retry budget (default adaptativo, AWS) × circuit breaker (corte modal, difícil de testar, mas legítimo p/ corte total testado) — **resolução profunda do C4 que a Onda 1 remeteu pra cá** |
+
+CA-04 não se aplica a esta onda (era da Onda 1, exactly-once). Os dois conflitos desta onda têm os dois lados citados
+nominalmente nos arquivos de síntese (verificado: `grep "> fonte:"`).
+
+---
+
+### Guardrails desta seção
+
+- **CA-06:** nada acima é executado até você aprovar. Esta é a proposta, não a edição.
+- **CA-07 / D1 (a regra central desta onda):** **ZERO reference nova.** Tudo é extensão de arquivo existente
+  (`replication-sharding.md`, `deployment-patterns.md`, os 3 `SKILL.md`) + cross-link. Resiliência já era coberta.
+- **R2 (serialização):** `system-design/SKILL.md` recebe a **§11 anexada após §10** (Ondas 1/2). Sequencial, sem
+  conflito. `defensive-patterns` e `infrastructure` são alvos **independentes** → aplicação paralela OK (worktrees).
+- **CA-05:** após aplicar, `bun test` nas wire/prefaces das 3 skills tocadas deve ficar verde (runner nativo do bun —
+  o wrapper `bun run test` quebra no Windows por "linha de comando muito longa", pré-existente).
+- **CA-01 (audit GLOBAL final):** a fase-05 fecha a feature inteira — todas as **32 fontes in-scope → ≥1 átomo → alvo**
+  (OU OUT-com-motivo), somando as 3 ondas. + passe adversarial (Brooker/Yanacek/Gabrielson/MacCárthaigh) + olhos-frescos.
+
+---
+
+### O que sua aprovação destrava (fase-04)
+
+Aprovar esta seção autoriza a **aplicação Onda 3** (fase-04, worktrees, 1 subagente/arquivo-alvo): enriquecer as
+categorias de `defensive-patterns/SKILL.md`; criar a §11 + cheat-sheet + description em `system-design/SKILL.md` e
+estender `replication-sharding.md` + advisor `hooks.json`; estender `deployment-patterns.md` + `SKILL.md`/description de
+`infrastructure`. Depois, fase-05 verifica (`bun test` das 3 skills + **audit GLOBAL de cobertura** + passe adversarial
++ revisão olhos-frescos) e fecha a feature.
+
+**Decisões que preciso de você (gate Onda 3):**
+1. **Destino P5 (limítrofes):** `load-shedding` + `deadline-propagation` em **`system-design` §11** (recomendado) ou
+   como **categorias novas em `defensive-patterns`**?
+2. **§11 `system-design`:** criar nova `## 11. Resiliência Distribuída` (recomendado) — confirma? E `shuffle-sharding`
+   **estende** `replication-sharding.md` (não vira ref nova) — OK?
+3. **`description` (3 skills)** e **mapa conceito→alvo** — OK como propostos, ou ajustar?
+4. **Advisor `hooks.json`:** estender só a linha da `system-design` (recomendado) — ou quer que eu **adicione
+   `defensive-patterns` + `infrastructure` ao advisor** (corrige a omissão pré-existente que a Onda 2 registrou)?

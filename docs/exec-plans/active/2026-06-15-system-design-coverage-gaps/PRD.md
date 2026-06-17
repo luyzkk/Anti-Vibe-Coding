@@ -1,13 +1,13 @@
 ---
 slug: system-design-coverage-gaps
 date: 2026-06-15
-status: approved
+status: shipped
 requires: []
 ---
 
 # PRD: System Design Coverage Gaps (Knowledge Synthesis)
 
-**Status:** Approved
+**Status:** Shipped (3 ondas — Filas, SQL+DNS, Resiliência — entregues; CA-01 global PASS · efetivo no merge desta PR)
 **Author:** Luiz Felipe (Navegador/dev) + AI (Piloto)
 **Date:** 2026-06-15
 **Context:** ./CONTEXT.md
