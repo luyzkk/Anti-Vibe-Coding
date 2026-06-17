@@ -1,6 +1,6 @@
 ---
 name: system-design
-description: "This skill should be used when the user asks about 'CAP theorem', 'PACELC', 'system design', 'caching strategies', 'Redis', 'horizontal scaling', 'vertical scaling', 'load balancer', 'load balancing algorithms', 'round robin', 'least connections', 'consistent hashing', 'database replication', 'sharding', 'SQL vs NoSQL', 'eventual consistency', 'CDN', 'edge server', 'anycast', 'cache invalidation', 'serverless', 'Lambda', 'cold start', 'serverfull', 'VPS', 'EC2', 'PM2', 'message queue', 'pub/sub', 'message broker', 'delivery semantics', 'exactly-once', 'idempotent consumer', 'idempotency key', 'message ordering', 'dead letter queue', 'DLQ', 'poison message', 'backpressure', 'load leveling', 'backlog', 'RabbitMQ', 'quorum queue', 'background jobs', 'BullMQ', 'outbox pattern', 'message durability', or faces infrastructure and scaling decisions. Provides expert consultation on distributed systems architecture, CDN, serverless, message queues, and trade-offs."
+description: "This skill should be used when the user asks about 'CAP theorem', 'PACELC', 'system design', 'caching strategies', 'Redis', 'horizontal scaling', 'vertical scaling', 'load balancer', 'load balancing algorithms', 'round robin', 'least connections', 'consistent hashing', 'database replication', 'sharding', 'SQL vs NoSQL', 'eventual consistency', 'CDN', 'edge server', 'anycast', 'cache invalidation', 'serverless', 'Lambda', 'cold start', 'serverfull', 'VPS', 'EC2', 'PM2', 'message queue', 'pub/sub', 'message broker', 'delivery semantics', 'exactly-once', 'idempotent consumer', 'idempotency key', 'message ordering', 'dead letter queue', 'DLQ', 'poison message', 'backpressure', 'load leveling', 'backlog', 'RabbitMQ', 'quorum queue', 'background jobs', 'BullMQ', 'outbox pattern', 'message durability', 'database index', 'B-tree', 'B+ tree', 'clustered index', 'covering index', 'write amplification', 'WAL', 'write-ahead log', 'journal mode', 'ACID', 'BASE', 'EXPLAIN', 'query plan', 'EXPLAIN ANALYZE', 'table partitioning', 'partition pruning', 'recursive CTE', 'SQLite in production', 'IOPS', 'disaggregated storage', 'load shedding', 'goodput', 'shuffle sharding', 'blast radius', 'deadline propagation', 'distributed systems failure modes', 'overload', 'fault isolation', or faces infrastructure and scaling decisions. Provides expert consultation on distributed systems architecture, CDN, serverless, message queues, SQL internals, distributed resilience, and trade-offs."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob, WebSearch
@@ -393,6 +393,107 @@ Volume baixo/medio E atomicidade fila-estado importa?
 
 ---
 
+## 10. SQL Internals
+
+**REGRA:** Antes de otimizar, **leia o plano (EXPLAIN)** — nao adivinhe. B+tree e o default de indice (range scans); **cada indice e custo de escrita** (write amplification). Para dinheiro, **transacao ACID**, salvo escala extrema com mecanismo de compensacao. Particione so quando a tabela e grande o bastante.
+
+### Arvore de Decisao — Query Lenta
+
+```
+A query esta lenta?
+  → rode EXPLAIN / EXPLAIN ANALYZE primeiro — leia o plano antes de mexer
+    Seq Scan onde devia haver index? → falta indice (ou o filtro nao e SARGable)
+    Index existe mas nao e usado?    → estatisticas velhas (rode ANALYZE) ou seletividade baixa
+    Tabela grande demais p/ varrer?  → particionamento (range/list/hash) + partition pruning
+    Custo concentrado num JOIN/SORT? → indice composto cobrindo filtro + ordenacao
+```
+
+### Indices — a Regra que Nao Muda
+
+- **B+tree e o default** em RDBMS: nos internos so-chave (mais fanout, arvore rasa, fit em RAM) + folhas ligadas (range scans / ORDER BY eficientes)
+- **Cada indice e write amplification** — toda escrita atualiza a tabela E todos os indices afetados. Indice nao usado e custo puro
+- **Caveat (C9):** "B+tree e sempre melhor" e absolutismo — MongoDB usa B-tree; o recorte muda com RAM-fit. Detalhe em `sql-indexing-and-storage.md`
+
+### Arvore de Decisao — ACID para Dinheiro (C7)
+
+```
+O dado e dinheiro / saldo / estoque (perda = prejuizo direto)?
+  SIM → transacao ACID (SQL relacional). Atomicidade + isolamento nao sao opcionais
+        ... salvo escala extrema (volume que o relacional nao aguenta) E voce tem
+            mecanismo de compensacao (reconciliacao, saga) → NoSQL pragmatico e defensavel
+  NAO → BASE / eventual consistency pode bastar (ver CAP em `cap-theorem.md`)
+```
+> C-de-ACID (consistencia transacional) != C-de-CAP (consistencia distribuida). Nao confundir.
+
+### Sempre
+
+- **Particione so quando a tabela e grande o bastante** — particoes demais = overhead de planning. Particionar cedo numa tabela pequena e custo sem ganho
+- **Working set deve caber em RAM** — quando nao cabe, IOPS de disco (random IO) vira o gargalo. NVMe local x storage de rede (EBS) e trade-off latencia x elasticidade
+- **WAL da durabilidade + recuperacao** — mas durabilidade local (fsync) != replicacao (sobreviver a perda do no)
+
+> **Detalhes completos:**
+> - `references/sql-indexing-and-storage.md` — por que indexar, B-tree vs B+tree (C9), tipos e custo de indice, storage/IOPS, storage desagregado (C6)
+> - `references/sql-acid-and-durability.md` — ACID e BASE (C7), WAL/journal modes, SQLite em producao, nugget Pixeltable
+> - `references/sql-query-planning.md` — ler EXPLAIN e particionamento (⚠️ doc oficial PostgreSQL, pendente de revisao), deteccao de gap via recursive CTE
+
+---
+
+## 11. Resiliência Distribuída
+
+**REGRA:** Toda chamada que cruza uma fronteira de rede pode produzir **5 resultados**, não 2 — e o pior deles é **UNKNOWN** (timeout): não assuma sucesso nem falha. Sob sobrecarga, **descarte cedo e barato** para preservar goodput, propague o **deadline** por hop em vez de timeout fixo, e isole o blast radius com **shuffle sharding**. Distribuir custa caro (uma expressão local vira ~15 etapas) — antes de tratar os 5 resultados, pergunte se precisa mesmo distribuir.
+
+### Os 5 resultados de toda chamada remota (framing)
+
+Onde o código local tem 2 resultados (sucesso/exceção), toda operação de rede tem **cinco**: **POST_FAILED** (servidor não recebeu → retry seguro), **RETRYABLE** (falha transitória → backoff+jitter), **FATAL** (rejeição definitiva → não retry), **SUCCESS**, e **UNKNOWN** (timeout: pode ter executado ou não). Para UNKNOWN com efeito colateral (cobrança, saque), retry às cegas **duplica** e desistir às cegas **perde** — exija idempotência antes de retentar. Projete para os **8 modos de falha** (cada uma das 8 etapas request/response falha independentemente).
+> fonte: Jacob Gabrielson | Challenges with distributed systems | seção: Tratamento da falha
+
+### Regra de overload — descarte para preservar goodput (load shedding)
+
+Sob sobrecarga, aceitar tudo leva a disponibilidade zero para todos: a latência explode, os clientes batem timeout, nada vira resposta útil. A métrica que importa é **goodput** (respostas dentro do prazo), não throughput. Load shedding **rejeita proativamente o excesso** (fast-reject barato) para manter latência baixa no tráfego aceito. Distinga: **shedding DESCARTA** × **backpressure DESACELERA o produtor** (ver `messaging-operations.md`, Onda 1) × **throttling LIMITA por quota**. A requisição mais crítica sob carga é o **health check do LB** — nunca descartar (senão o LB encolhe a frota num death spiral).
+> fonte: David Yanacek | Using load shedding to avoid overload | seção: Impedindo que o trabalho seja desperdiçado
+
+### Regra de cadeia — propague o deadline (deadline propagation)
+
+Em chamadas encadeadas (cliente → A → B → C), o recurso escasso não é "quantos segundos cada serviço pode levar" — é **quanto tempo o cliente original ainda espera**. Propague o **tempo restante (deadline)** por hop, não um timeout fixo por serviço, para que serviços fundo na cadeia descartem trabalho já condenado antes de executá-lo. Meça duração com **clock monotônico** (`CLOCK_MONOTONIC` / `nanoTime` / `hrtime`) — nunca wall-clock, que salta no NTP. Não comece trabalho fadado a estourar o deadline.
+> fonte: David Yanacek | Using load shedding to avoid overload | seção: Como ficar de olho no relógio
+
+### Regra de isolamento — contenha o blast radius (shuffle sharding)
+
+Num modelo fan-out-para-todos, um **poison request** (que derruba qualquer instância) cascateia até derrubar tudo. Sharding regular reduz o impacto **linearmente** (1/N); **shuffle sharding** reduz **exponencialmente** (1/C(n,k)) sem adicionar hardware — cada cliente recebe uma **combinação** única de operadores, de modo que dois clientes raramente compartilham o conjunto inteiro. Detalhe em `references/replication-sharding.md`.
+> fonte: Colm MacCárthaigh | Workload isolation using shuffle sharding | seção: O que é fragmentação aleatória?
+
+### Arvore de Decisão — Sobrecarga / Falha Distribuída
+
+```
+A operação cruza uma fronteira de rede (domínio de falha distinto)?
+  NÃO (in-process) → trate como chamada local. NÃO aplique a maquinaria distribuída
+  SIM → preciso mesmo distribuir? (distribuir = ~15 etapas + matriz de teste ×~20)
+    Simplicidade local resolve → não distribua
+    Necessário → para CADA chamada, trate os 5 resultados (UNKNOWN+efeito → idempotência antes do retry)
+
+O serviço pode receber mais carga do que processa dentro do SLO de latência?
+  NÃO → não precisa de shedding ativo
+  SIM → o excedente pode ser DESCARTADO?
+    NÃO (toda requisição crítica) → backpressure (desacelera produtor) ou fila durável
+    SIM → LOAD SHEDDING (fast-reject barato; priorize health check do LB; descarte por idade)
+
+A requisição atravessa múltiplos serviços e o cliente tem timeout?
+  NÃO (salto único) → timeout local por chamada basta
+  SIM → propague o DEADLINE (tempo restante) por hop; clock monotônico; aborte trabalho órfão
+
+Falha induzida por carga (cliente abusivo / poison request) pode propagar?
+  NÃO → capacidade bruta resolve falha orgânica
+  SIM → clientes servíveis por QUALQUER operador do subconjunto + toleram retry?
+    NÃO → SHARDING REGULAR (bulkhead disjunto, impacto 1/N)
+    SIM → SHUFFLE SHARDING (impacto ~1/C(n,k); retry sequencial no cliente EM ORDEM)
+```
+
+> **Padrões no nível do serviço** (timeout, retry, circuit breaker, fallback, health check, bulkhead): ver `/anti-vibe-coding:defensive-patterns`.
+> **Backpressure / load leveling** (o produtor desacelera em vez de descartar): ver `references/messaging-operations.md` (Onda 1).
+> **Shuffle sharding** (isolamento combinatório de blast radius): ver subseção em `references/replication-sharding.md`.
+
+---
+
 ## Cheat Sheet — Referencia Rapida
 
 | Decisao | Padrao Seguro | Mude Quando |
@@ -403,6 +504,12 @@ Volume baixo/medio E atomicidade fila-estado importa?
 | Banco | PostgreSQL | Problema COMPROVADO que SQL nao resolve |
 | Dados | Otimize → Cache → Replicacao → Sharding | Cada passo so se o anterior nao basta |
 | Filas | at-least-once + consumidor idempotente | exactly-once nativo prometido = desconfie |
+| Indice SQL | B+tree; composto p/ filtrar + ordenar | cada indice e custo de escrita (write amplification) |
+| ACID p/ dinheiro | transacao ACID / SQL relacional | escala extrema + compensacao → NoSQL pragmatico |
+| Particionar | so quando a tabela e grande o bastante | particoes demais = overhead de planning |
+| Sobrecarga | load shedding (fast-reject) p/ preservar goodput | shedding caro/sem instrumentação = pior |
+| Cadeia de chamadas | propague deadline (tempo restante) | timeout fixo por hop; clock wall em vez de monotônico |
+| Isolar tenant/falha | shuffle sharding (blast radius exponencialmente menor) | poison-request que derruba qualquer worker |
 
 ---
 

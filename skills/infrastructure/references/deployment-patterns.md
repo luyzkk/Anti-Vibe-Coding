@@ -435,6 +435,59 @@ upstream api {
 
 ---
 
+## Blue-Green Deploy
+
+Padrao onde **duas versoes da aplicacao rodam em paralelo** — rotuladas "blue" e "green" — e o trafego de usuario vai para apenas uma por vez, roteado por um proxy. Os nomes sao rotulos arbitrarios para "versao atual live" e "nova versao a deployar"; o que importa e o mecanismo, nao qual cor e qual.
+> fonte: Augusto Galego | Como fazer deploy sem derrubar seu app (Blue-Green) | seção: Cenário da demonstração
+
+### Dois slots paralelos, mesma maquina, portas dedicadas por cor
+
+As duas instancias **nao precisam de duas maquinas**: podem rodar na mesma VPS, diferenciadas por porta — NGINX na 80, blue na 3001, green na 3002. Cada cor tem porta dedicada por convencao estatica; o NGINX escuta na porta publica e encaminha para a porta do slot ativo.
+> fonte: Augusto Galego | Como fazer deploy sem derrubar seu app (Blue-Green) | seção: Arquitetura: usuário → NGINX → instância de aplicação
+
+### Reverse proxy faz o cutover — um script de switch e o ponto unico
+
+O **switch via reverse proxy (NGINX)** e o coracao do padrao. Trocar a versao ativa e so mudar para qual porta ele encaminha — a config dos dois slots e estruturalmente identica, **so muda o numero da porta** no bloco `upstream`. O switch nao derruba nem sobe nenhuma instancia: e um *reload* de config, sem interromper conexoes ativas. Mantenha **um script de switch como ponto unico de cutover** (`switch myapp <cor>` so altera a config do NGINX e recarrega — nao faz deploy, nao sobe instancia, nao valida).
+> fonte: Augusto Galego | Como fazer deploy sem derrubar seu app (Blue-Green) | seção: O que o script de switch faz
+> fonte: Augusto Galego | Como fazer deploy sem derrubar seu app (Blue-Green) | seção: Os scripts bash
+
+### Health check na porta privada ANTES do switch
+
+O que torna o padrao seguro (nao so sem-downtime) e validar a nova instancia **acessando diretamente a porta privada em que ela roda** (ex.: 3002) — porta que o usuario final nao acessa — ANTES de flipar o trafego. E uma "staging dentro da propria producao": mesma maquina, mesmas dependencias, mesmo banco, mas sem expor a versao nova ao trafego real ate passar na validacao. Se o teste falhar, NAO flipe — a antiga continua servindo sem interrupcao.
+> fonte: Augusto Galego | Como fazer deploy sem derrubar seu app (Blue-Green) | seção: O fluxo Blue-Green na prática
+
+### Rollback imediato invertendo o switch
+
+Como **ambas as instancias continuam rodando** apos o switch, reverter e so re-executar o switch para a cor anterior (`switch myapp <cor-anterior>`) — a instancia antiga nunca foi derrubada. So delete a cor antiga apos um periodo de observacao em producao; deletar cedo abre mao da rede de seguranca. Instale o processo Node como servico **systemd** para reinicio automatico em falha, start no boot e controle via `systemctl` — em vez de prende-lo a uma sessao SSH.
+> fonte: Augusto Galego | Como fazer deploy sem derrubar seu app (Blue-Green) | seção: Testando o deploy
+> fonte: Augusto Galego | Como fazer deploy sem derrubar seu app (Blue-Green) | seção: Os scripts bash
+
+### Fluxo de 5 passos
+
+```
+1. sobe a cor inativa (deploy no diretorio do slot inativo)
+2. health check na PORTA PRIVADA  ← gate obrigatorio
+3. confirma  ── se falhar: ABORTA. NAO flipa. Antiga continua servindo.
+4. switch do NGINX (script unico de cutover)
+5. observa em producao; so ENTAO deleta a antiga
+     └── janela de rollback = instante 4 ate instante 5. Rollback = re-executar
+         o switch para a cor anterior. Instantaneo.
+```
+> fonte: Augusto Galego | Como fazer deploy sem derrubar seu app (Blue-Green) | seção: O fluxo Blue-Green na prática
+
+### Quando NAO usar / limite honesto
+
+- **Recursos de infra limitados** para manter duas instancias ativas ao mesmo tempo — blue-green duplica consumo de memoria/CPU (**2x recursos**) durante a janela.
+  > fonte: Augusto Galego | Como fazer deploy sem derrubar seu app (Blue-Green) | seção: Cenário da demonstração
+- **Downtime de poucos segundos e aceitavel** (backoffice, script interno, janela de manutencao com usuarios ausentes) — o custo de manter duas instancias nao se justifica.
+  > fonte: Augusto Galego | Como fazer deploy sem derrubar seu app (Blue-Green) | seção: Conclusões e trade-offs
+- **Migrations de banco incompativeis / estado compartilhado entre as cores.** Blue-green **nao resolve** isto: a validacao roda contra o "mesmo banco" — ou seja, **as duas cores compartilham o mesmo banco**, nao duplicado. Uma migration aplicada para a green afeta a blue que ainda serve trafego, e um rollback de codigo NAO desfaz a mudanca de schema. Compatibilidade de schema e um **pre-requisito** que o blue-green nao cobre; trate como condicao externa, nao como algo que o padrao mitiga sozinho.
+  > fonte: Augusto Galego | Como fazer deploy sem derrubar seu app (Blue-Green) | seção: O fluxo Blue-Green na prática
+
+> **Cross-link — health check:** o gate pre-switch aqui e um health check usado como **portao de cutover**. O padrao geral de health check (liveness / local / dependency / anomaly, fail-open, falha independente x correlacionada) esta em `defensive-patterns` #8.
+
+---
+
 ## 5. Environment Management
 
 ### Hierarquia de Ambientes
