@@ -8,7 +8,7 @@ Esta reference cobre **plano, layout físico e geração de séries**. Para *ín
 
 ## Ler o plano — EXPLAIN
 
-> ⚠️ **Referência oficial PostgreSQL — pendente de revisão humana (Onda 2 fase-06).** Conteúdo extraído de docs.postgresql.org; validar antes de tratar como canônico.
+> ✅ **Referência oficial PostgreSQL.** Conteúdo extraído de docs.postgresql.org e conferido contra a doc oficial (sign-off humano, 2026-06-17).
 
 O plano é uma árvore de custos estimados que o planner minimiza; o que importa diagnosticar é se as estimativas batem com a realidade — e saber quais divergências são erro e quais são só artefato de exibição.
 
@@ -121,7 +121,7 @@ O `actual time` está em milissegundos reais; o `cost` em unidades arbitrárias 
 
 ## Particionar a tabela — Table Partitioning
 
-> ⚠️ **Referência oficial PostgreSQL — pendente de revisão humana (Onda 2 fase-06).** Conteúdo extraído de docs.postgresql.org; validar antes de tratar como canônico.
+> ✅ **Referência oficial PostgreSQL.** Conteúdo extraído de docs.postgresql.org e conferido contra a doc oficial (sign-off humano, 2026-06-17).
 
 Particionar troca a complexidade de gerir N tabelas físicas pelo ganho de só tocar as partições relevantes — vale apenas quando a tabela é grande o suficiente e as queries filtram pela partition key.
 
@@ -377,6 +377,6 @@ WHERE orders.id IS NULL;
 
 ## Fontes
 
-- **EXPLAIN** — fonte única oficial: `PostgreSQL Docs | Using EXPLAIN | https://www.postgresql.org/docs/current/using-explain.html` — estrutura do plano como árvore de nodes; anatomia da linha de custo (startup..total / rows / width); custos em unidades arbitrárias; Seq/Index/Bitmap Scan e Filter×Index Cond; planner minimiza custo total e enable/disable flags (14.1.1); EXPLAIN ANALYZE com actual time/rows/loops, divergência estimado×real por estatística amostral, BUFFERS, ANALYZE roda a query (14.1.2); overhead de medição, não-extrapolar de tabela pequena, e discrepâncias legítimas — LIMIT, merge join, BitmapAnd/Or, Subplans Removed (14.1.3). ⚠️ unverified — extraído de doc oficial, aguarda revisão humana (fase-06).
-- **Particionamento** — fonte única oficial: `PostgreSQL Docs | Table Partitioning | https://www.postgresql.org/docs/current/ddl-partitioning.html` — conceito e os 4 benefícios, limiar "> RAM física", as 3 formas, inheritance/UNION ALL como alternativas (5.12.1); tabela particionada virtual, ATTACH/DETACH (5.12.2); inheritance e a armadilha do BETWEEN (5.12.3); pruning dirigido por bounds, plan-time E execution-time, `enable_partition_pruning` (5.12.4); constraint exclusion via CHECK, default `partition`, ~100 filhos (5.12.5); escolha da partition key, número de partições, OLTP × data-warehouse, decidir cedo (5.12.6). ⚠️ unverified — extraído de doc oficial, aguarda revisão humana (fase-06).
+- **EXPLAIN** — fonte única oficial: `PostgreSQL Docs | Using EXPLAIN | https://www.postgresql.org/docs/current/using-explain.html` — estrutura do plano como árvore de nodes; anatomia da linha de custo (startup..total / rows / width); custos em unidades arbitrárias; Seq/Index/Bitmap Scan e Filter×Index Cond; planner minimiza custo total e enable/disable flags (14.1.1); EXPLAIN ANALYZE com actual time/rows/loops, divergência estimado×real por estatística amostral, BUFFERS, ANALYZE roda a query (14.1.2); overhead de medição, não-extrapolar de tabela pequena, e discrepâncias legítimas — LIMIT, merge join, BitmapAnd/Or, Subplans Removed (14.1.3). ✅ extraído de doc oficial, conferido contra a doc (sign-off humano, 2026-06-17).
+- **Particionamento** — fonte única oficial: `PostgreSQL Docs | Table Partitioning | https://www.postgresql.org/docs/current/ddl-partitioning.html` — conceito e os 4 benefícios, limiar "> RAM física", as 3 formas, inheritance/UNION ALL como alternativas (5.12.1); tabela particionada virtual, ATTACH/DETACH (5.12.2); inheritance e a armadilha do BETWEEN (5.12.3); pruning dirigido por bounds, plan-time E execution-time, `enable_partition_pruning` (5.12.4); constraint exclusion via CHECK, default `partition`, ~100 filhos (5.12.5); escolha da partition key, número de partições, OLTP × data-warehouse, decidir cedo (5.12.6). ✅ extraído de doc oficial, conferido contra a doc (sign-off humano, 2026-06-17).
 - **Recursive CTE + anti-join** — fonte única coesa: `Aaron Francis | SQL for fun and profit` — caso real de webhook/pedido perdido resolvido em uma query. Cobre `WITH RECURSIVE` (sintaxe portável SQLite/MySQL/Postgres), anchor row + passo recursivo, anti-join `LEFT JOIN ... WHERE PK IS NULL`, o padrão completo (gerar universo + isolar ausentes), a generalização para sequências de datas, e o formato `<store_id><n>` dos números de pedido externos.
