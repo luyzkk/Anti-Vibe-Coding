@@ -256,6 +256,23 @@ Planejar rebalancing ANTES de precisar. Durante crise nao e hora de redesenhar s
 
 ---
 
+## Failover e Surge-Replacement
+
+Para OLTP de alta disponibilidade, **disponibilidade de escrita vem de replicas semi-sincronas que aceitam writes, nao dos "nines" de durabilidade do storage**. Durabilidade de volume (mesmo five-nines) protege contra falha de hardware de storage — nao contra perda da instancia. A meta do failover e *write-availability*, nao so durabilidade do dado.
+
+Montagem de referencia (PlanetScale Metal): tres copias de cada shard sob replicacao semi-sincrona do MySQL, exigindo dois nos online para aceitar writes — failover em poucos segundos quando o primario cai.
+
+**Surge-replacement** — para substituir um no sob carga sem perder tolerancia a falha, *expanda antes de contrair* (3 → 6 → 3) em vez de encolher o cluster (3 → 2). Ir de 3 para 2 remove a tolerancia exatamente quando ela mais importa; o surge nunca deixa menos de 3 nos funcionais.
+> fonte: Aaron Francis & Richard Crowley | Making MySQL faster (PlanetScale Metal) | seção: The surge pattern (preserving fault tolerance)
+
+- **Surge e obrigatorio** quando o storage e ephemeral (NVMe local) — substituir um no passa por restore de backup, que leva tempo.
+- **Surge e dispensavel** com storage detachavel (EBS detach/reattach em segundos) ou quando ja ha replicas extras alem do minimo para writes.
+> fonte: Aaron Francis & Richard Crowley | Making MySQL faster (PlanetScale Metal) | seção: The surge pattern (preserving fault tolerance)
+
+> **Detalhe SQL-internals** (hardware/IOPS, NVMe local x EBS, e o trade-off durabilidade-de-volume != replicacao — C6): ver `sql-indexing-and-storage.md`.
+
+---
+
 ## Anti-Patterns
 
 - **Sharding prematuro** — complexidade brutal (cross-shard queries, rebalancing, backups). So fazer quando NAO houver alternativa
