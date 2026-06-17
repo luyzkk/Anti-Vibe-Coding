@@ -1,6 +1,6 @@
 ---
 name: system-design
-description: "This skill should be used when the user asks about 'CAP theorem', 'PACELC', 'system design', 'caching strategies', 'Redis', 'horizontal scaling', 'vertical scaling', 'load balancer', 'load balancing algorithms', 'round robin', 'least connections', 'consistent hashing', 'database replication', 'sharding', 'SQL vs NoSQL', 'eventual consistency', 'CDN', 'edge server', 'anycast', 'cache invalidation', 'serverless', 'Lambda', 'cold start', 'serverfull', 'VPS', 'EC2', 'PM2', 'message queue', 'pub/sub', 'message broker', 'delivery semantics', 'exactly-once', 'idempotent consumer', 'idempotency key', 'message ordering', 'dead letter queue', 'DLQ', 'poison message', 'backpressure', 'load leveling', 'backlog', 'RabbitMQ', 'quorum queue', 'background jobs', 'BullMQ', 'outbox pattern', 'message durability', or faces infrastructure and scaling decisions. Provides expert consultation on distributed systems architecture, CDN, serverless, message queues, and trade-offs."
+description: "This skill should be used when the user asks about 'CAP theorem', 'PACELC', 'system design', 'caching strategies', 'Redis', 'horizontal scaling', 'vertical scaling', 'load balancer', 'load balancing algorithms', 'round robin', 'least connections', 'consistent hashing', 'database replication', 'sharding', 'SQL vs NoSQL', 'eventual consistency', 'CDN', 'edge server', 'anycast', 'cache invalidation', 'serverless', 'Lambda', 'cold start', 'serverfull', 'VPS', 'EC2', 'PM2', 'message queue', 'pub/sub', 'message broker', 'delivery semantics', 'exactly-once', 'idempotent consumer', 'idempotency key', 'message ordering', 'dead letter queue', 'DLQ', 'poison message', 'backpressure', 'load leveling', 'backlog', 'RabbitMQ', 'quorum queue', 'background jobs', 'BullMQ', 'outbox pattern', 'message durability', 'database index', 'B-tree', 'B+ tree', 'clustered index', 'covering index', 'write amplification', 'WAL', 'write-ahead log', 'journal mode', 'ACID', 'BASE', 'EXPLAIN', 'query plan', 'EXPLAIN ANALYZE', 'table partitioning', 'partition pruning', 'recursive CTE', 'SQLite in production', 'IOPS', 'disaggregated storage', or faces infrastructure and scaling decisions. Provides expert consultation on distributed systems architecture, CDN, serverless, message queues, SQL internals, and trade-offs."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob, WebSearch
@@ -393,6 +393,51 @@ Volume baixo/medio E atomicidade fila-estado importa?
 
 ---
 
+## 10. SQL Internals
+
+**REGRA:** Antes de otimizar, **leia o plano (EXPLAIN)** — nao adivinhe. B+tree e o default de indice (range scans); **cada indice e custo de escrita** (write amplification). Para dinheiro, **transacao ACID**, salvo escala extrema com mecanismo de compensacao. Particione so quando a tabela e grande o bastante.
+
+### Arvore de Decisao — Query Lenta
+
+```
+A query esta lenta?
+  → rode EXPLAIN / EXPLAIN ANALYZE primeiro — leia o plano antes de mexer
+    Seq Scan onde devia haver index? → falta indice (ou o filtro nao e SARGable)
+    Index existe mas nao e usado?    → estatisticas velhas (rode ANALYZE) ou seletividade baixa
+    Tabela grande demais p/ varrer?  → particionamento (range/list/hash) + partition pruning
+    Custo concentrado num JOIN/SORT? → indice composto cobrindo filtro + ordenacao
+```
+
+### Indices — a Regra que Nao Muda
+
+- **B+tree e o default** em RDBMS: nos internos so-chave (mais fanout, arvore rasa, fit em RAM) + folhas ligadas (range scans / ORDER BY eficientes)
+- **Cada indice e write amplification** — toda escrita atualiza a tabela E todos os indices afetados. Indice nao usado e custo puro
+- **Caveat (C9):** "B+tree e sempre melhor" e absolutismo — MongoDB usa B-tree; o recorte muda com RAM-fit. Detalhe em `sql-indexing-and-storage.md`
+
+### Arvore de Decisao — ACID para Dinheiro (C7)
+
+```
+O dado e dinheiro / saldo / estoque (perda = prejuizo direto)?
+  SIM → transacao ACID (SQL relacional). Atomicidade + isolamento nao sao opcionais
+        ... salvo escala extrema (volume que o relacional nao aguenta) E voce tem
+            mecanismo de compensacao (reconciliacao, saga) → NoSQL pragmatico e defensavel
+  NAO → BASE / eventual consistency pode bastar (ver CAP em `cap-theorem.md`)
+```
+> C-de-ACID (consistencia transacional) != C-de-CAP (consistencia distribuida). Nao confundir.
+
+### Sempre
+
+- **Particione so quando a tabela e grande o bastante** — particoes demais = overhead de planning. Particionar cedo numa tabela pequena e custo sem ganho
+- **Working set deve caber em RAM** — quando nao cabe, IOPS de disco (random IO) vira o gargalo. NVMe local x storage de rede (EBS) e trade-off latencia x elasticidade
+- **WAL da durabilidade + recuperacao** — mas durabilidade local (fsync) != replicacao (sobreviver a perda do no)
+
+> **Detalhes completos:**
+> - `references/sql-indexing-and-storage.md` — por que indexar, B-tree vs B+tree (C9), tipos e custo de indice, storage/IOPS, storage desagregado (C6)
+> - `references/sql-acid-and-durability.md` — ACID e BASE (C7), WAL/journal modes, SQLite em producao, nugget Pixeltable
+> - `references/sql-query-planning.md` — ler EXPLAIN e particionamento (⚠️ doc oficial PostgreSQL, pendente de revisao), deteccao de gap via recursive CTE
+
+---
+
 ## Cheat Sheet — Referencia Rapida
 
 | Decisao | Padrao Seguro | Mude Quando |
@@ -403,6 +448,9 @@ Volume baixo/medio E atomicidade fila-estado importa?
 | Banco | PostgreSQL | Problema COMPROVADO que SQL nao resolve |
 | Dados | Otimize → Cache → Replicacao → Sharding | Cada passo so se o anterior nao basta |
 | Filas | at-least-once + consumidor idempotente | exactly-once nativo prometido = desconfie |
+| Indice SQL | B+tree; composto p/ filtrar + ordenar | cada indice e custo de escrita (write amplification) |
+| ACID p/ dinheiro | transacao ACID / SQL relacional | escala extrema + compensacao → NoSQL pragmatico |
+| Particionar | so quando a tabela e grande o bastante | particoes demais = overhead de planning |
 
 ---
 
