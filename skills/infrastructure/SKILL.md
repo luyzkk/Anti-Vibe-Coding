@@ -1,6 +1,6 @@
 ---
 name: infrastructure
-description: "This skill should be used when the user asks about 'DNS', 'domain setup', 'SSL', 'TLS certificates', 'hosting', 'deploy', 'VPS', 'serverless', 'CDN', 'PM2', 'Docker', 'Kubernetes', 'CI/CD', 'health checks', 'Let's Encrypt', 'Route 53', 'CloudFront', 'S3 hosting', or faces infrastructure and deployment decisions. Provides expert consultation on DNS, hosting, deployment patterns, and infrastructure architecture."
+description: "This skill should be used when the user asks about 'DNS', 'domain setup', 'SSL', 'TLS certificates', 'hosting', 'deploy', 'VPS', 'serverless', 'CDN', 'PM2', 'Docker', 'Kubernetes', 'CI/CD', 'health checks', 'Let's Encrypt', 'Route 53', 'Route 53 routing policy', 'weighted routing', 'latency-based routing', 'failover routing', 'geolocation routing', 'geoproximity routing', 'multivalue answer', 'DNS health check', 'hosted zone', 'private hosted zone', 'split-horizon DNS', 'DNS TTL', 'CloudFront', 'S3 hosting', 'blue-green deployment', 'zero-downtime deploy', 'deployment health check', 'cutover', 'instant rollback', or faces infrastructure and deployment decisions. Provides expert consultation on DNS, DNS routing policies, hosting, deployment patterns, and infrastructure architecture."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob, WebSearch
@@ -83,6 +83,22 @@ Precisa de DNS gerenciado?
                 SIM → Route 53 ou Cloudflare API
                 NAO → Qualquer provedor DNS funciona
 ```
+
+### Arvore de Decisao — Route 53 Routing Policy
+
+Quando o DNS precisa fazer mais do que mapear nome → IP (HA, distribuicao geografica, canary):
+
+```
+Qual o requisito dominante da resposta DNS?
+  Um recurso so, sem logica         → Simple
+  Alta disponibilidade (primary/backup) → Failover (exige health check)
+  Dividir trafego por proporcao (canary, A/B) → Weighted
+  Menor latencia para o usuario     → Latency-based
+  Conformidade / conteudo por regiao (GDPR, idioma) → Geolocation
+  Localizacao + ajuste de viés (bias) → Geoproximity (requer Traffic Flow)
+  Varios IPs saudaveis, retorno aleatorio → Multivalue Answer (NAO substitui load balancer)
+```
+> Confusao classica: **geolocation** (de onde vem a query) != **latency-based** (qual regiao responde mais rapido) != **geoproximity** (distancia + bias). Detalhe + desambiguacao em `references/dns-hosting.md` §8. Health checks, TTL e hosted zones publicas/privadas em §9.
 
 ---
 
@@ -303,6 +319,9 @@ Rolling Update (PM2/Docker/K8s):
   4. Repetir para cada instancia
   Resultado: sempre ha instancias respondendo
 ```
+
+> **Blue-Green:** valide o novo slot com health check na porta privada ANTES do cutover; rollback = inverter o switch. Detalhe em `references/deployment-patterns.md` (Blue-Green Deploy).
+> fonte: Augusto Galego | Como fazer deploy sem derrubar seu app (Blue-Green) | seção: O fluxo Blue-Green na prática
 
 ### Arvore de Decisao — Deploy
 

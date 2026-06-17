@@ -207,6 +207,62 @@ Shard key: user_id
 
 ---
 
+## Shuffle Sharding — isolamento de blast radius
+
+Sharding de **dados** (acima) divide registros entre servidores. Shuffle sharding e outra coisa: e *fault isolation* — usa a mesma matematica de particao para conter o raio de uma falha induzida por carga, **nao** para dividir dados exclusivos.
+
+### O problema: fan-out-para-todos e vulneravel a poison request
+
+No escalonamento horizontal tradicional, o trafego e distribuido por **todas** as instancias saudaveis. Se um request especifico dispara um bug que derruba a instancia, o caller pode reenviar o **mesmo** request para instancia apos instancia, causando cascata ate todas cairem. Sem nenhuma fragmentacao, o blast radius e 100%.
+> fonte: Colm MacCárthaigh | Shuffle sharding: massive and magical fault isolation | seção: Traditional Horizontal Scaling
+
+### Sharding regular reduz o impacto linearmente (1/N)
+
+O **bulkhead** classico divide a frota em N shards disjuntos: um problema causado por um cliente afeta so o shard dele — com 4 shards, ~1/4 dos clientes e impactado. Mas o isolamento melhora **linearmente** com mais shards, e o custo de capacidade de folga tambem cresce linearmente; dois clientes no mesmo shard ainda se afetam. Sharding regular **nao** da isolamento por cliente.
+> fonte: Colm MacCárthaigh | Workload isolation using shuffle sharding | seção: O que é fragmentação aleatória?
+
+### Shuffle sharding reduz o impacto exponencialmente (1/C(n,k))
+
+Shuffle sharding cria shards **virtuais** compostos por um subconjunto de operadores reais (ex.: 2 de 8) e da a cada cliente uma **combinacao** unica. Os shards se sobrepoem — operadores sao compartilhados — mas dois clientes raramente compartilham o conjunto inteiro, entao a falha de um cliente quase nunca atinge todos os operadores de outro.
+> fonte: Colm MacCárthaigh | Workload isolation using shuffle sharding | seção: O que é fragmentação aleatória?
+
+A intuicao vem das **cartas**: um baralho de 52 embaralhado em maos de 4 gera **mais de 300.000 maos distintas**; a probabilidade de duas maos coincidirem cai rapidamente (< 1/4 para 1 carta, < 1/40 para 2). Essa probabilidade decrescente de sobreposicao e a base matematica.
+> fonte: Colm MacCárthaigh | Shuffle sharding: massive and magical fault isolation | seção: (introdução)
+
+A matematica e binomial: com n operadores e shards de tamanho k, ha C(n,k) = n! / (k!·(n−k)!) shards possiveis; o blast radius maximo por cliente e 1/C(n,k). Com 8 operadores e shards de 2 → C(8,2) = 28 → sobre os mesmos 8 operadores, sharding regular de 4 shards da 1/4 (25%); shuffle sharding da 1/28 — **sete vezes melhor, sem adicionar nenhum operador**. (Melhoria **exponencial** no isolamento.)
+> fonte: Colm MacCárthaigh | Workload isolation using shuffle sharding | seção: O que é fragmentação aleatória?
+
+A propriedade contra-intuitiva: o isolamento **melhora com escala** (mais workers/clientes = mais shards possiveis) e o custo de infra e **geralmente nenhum** — e reorganizacao dos recursos existentes, sem servidores extras. E o bulkhead na sua forma combinatoria, com impacto 1-em-C(n,k).
+> fonte: Colm MacCárthaigh | Workload isolation using shuffle sharding | seção: Conclusão
+
+### Variantes
+
+- **Stateless (hashing)** — o shard sai do hash do identificador, calculado **direto no cliente** sem consultar servico de mapeamento. Isolamento **probabilistico** (dois clientes podem colidir), zero estado, sem ponto unico de falha.
+- **Stateful (searching)** — atribuicao que verifica cada shard novo contra os anteriores, impondo garantias auditaveis ("nenhum par compartilha > k endpoints"). Requer store confiavel dos mapeamentos. Use quando o SLA promete blast radius maximo garantido.
+> fonte: Colm MacCárthaigh | Shuffle sharding: massive and magical fault isolation | seção: Infima and Shuffle Sharding
+- **AZ-aware** — garante que cada shard pegue instancias de **todas** as AZs, senao a aleatoriedade pode concentrar o shard numa AZ so e anular o multi-AZ.
+> fonte: Colm MacCárthaigh | Shuffle sharding: massive and magical fault isolation | seção: Infima and Shuffle Sharding
+- **Recursivo** — para tenancy hierarquica (cliente que hospeda sub-clientes); cada camada multiplica combinatoriamente os shards e a complexidade.
+> fonte: Colm MacCárthaigh | Workload isolation using shuffle sharding | seção: Conclusão
+
+### Quando NÃO usar
+
+- **Poison request que derruba QUALQUER worker** — se o request mata todo operador que o processa, shuffle sharding nao ajuda (o cliente afetado ainda precisa de mitigacao ativa; isolar ≠ resolver).
+> fonte: Colm MacCárthaigh | Shuffle sharding: massive and magical fault isolation | seção: Shuffle Sharding
+- **Stateful sem roteamento consistente / operadores nao intercambiaveis** — a formula C(n,k) pressupoe que qualquer operador do shard pode servir qualquer cliente do shard.
+> fonte: Colm MacCárthaigh | Workload isolation using shuffle sharding | seção: O que é fragmentação aleatória?
+- **Clientes sem retry sequencial** — o mecanismo depende de o cliente percorrer cada operador do shard **em ordem**; sem isso, a sobreposicao piora o isolamento em vez de melhorar.
+> fonte: Colm MacCárthaigh | Shuffle sharding: massive and magical fault isolation | seção: Shuffle Sharding
+- **Particionamento de DADOS** (um registro nao pode estar em multiplas particoes) — a sobreposicao de membership e especifica de fault isolation, nao se aplica a dados exclusivos.
+> fonte: Colm MacCárthaigh | Shuffle sharding: massive and magical fault isolation | seção: Post-script
+
+### Cross-refs
+
+- **Route 53 nameservers** sao shuffle sharding aplicado a **DNS** — ver `infrastructure/references/dns-hosting.md` (Onda 2). O angulo DNS nao e re-sintetizado aqui.
+- O padrao no **nivel do servico** (Bulkhead, #6) esta em `/anti-vibe-coding:defensive-patterns`; shuffle sharding e a versao combinatoria dessa mesma intuicao de isolar recursos por workload.
+
+---
+
 ## Servicos Gerenciados
 
 Para evitar complexidade operacional, considerar servicos gerenciados:
@@ -253,6 +309,23 @@ Em vez de `hash % num_shards`, usar anel de hash:
 - Movimentacao de dados e minima (~1/N dos dados)
 
 Planejar rebalancing ANTES de precisar. Durante crise nao e hora de redesenhar sharding.
+
+---
+
+## Failover e Surge-Replacement
+
+Para OLTP de alta disponibilidade, **disponibilidade de escrita vem de replicas semi-sincronas que aceitam writes, nao dos "nines" de durabilidade do storage**. Durabilidade de volume (mesmo five-nines) protege contra falha de hardware de storage — nao contra perda da instancia. A meta do failover e *write-availability*, nao so durabilidade do dado.
+
+Montagem de referencia (PlanetScale Metal): tres copias de cada shard sob replicacao semi-sincrona do MySQL, exigindo dois nos online para aceitar writes — failover em poucos segundos quando o primario cai.
+
+**Surge-replacement** — para substituir um no sob carga sem perder tolerancia a falha, *expanda antes de contrair* (3 → 6 → 3) em vez de encolher o cluster (3 → 2). Ir de 3 para 2 remove a tolerancia exatamente quando ela mais importa; o surge nunca deixa menos de 3 nos funcionais.
+> fonte: Aaron Francis & Richard Crowley | Making MySQL faster (PlanetScale Metal) | seção: The surge pattern (preserving fault tolerance)
+
+- **Surge e obrigatorio** quando o storage e ephemeral (NVMe local) — substituir um no passa por restore de backup, que leva tempo.
+- **Surge e dispensavel** com storage detachavel (EBS detach/reattach em segundos) ou quando ja ha replicas extras alem do minimo para writes.
+> fonte: Aaron Francis & Richard Crowley | Making MySQL faster (PlanetScale Metal) | seção: The surge pattern (preserving fault tolerance)
+
+> **Detalhe SQL-internals** (hardware/IOPS, NVMe local x EBS, e o trade-off durabilidade-de-volume != replicacao — C6): ver `sql-indexing-and-storage.md`.
 
 ---
 
