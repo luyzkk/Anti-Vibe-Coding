@@ -1,6 +1,6 @@
 {
   "name": "local-plugins",
-  "version": "7.4.0",
+  "version": "7.5.0",
   "description": "Local development marketplace for Anti-Vibe Coding plugin",
   "owner": {
     "name": "Luiz Felipe"
@@ -8,8 +8,8 @@
   "plugins": [
     {
       "name": "anti-vibe-coding",
-      "description": "Plugin de desenvolvimento disciplinado com conhecimentos de programador senior. v7.4.0 — Skill Parity Refresh: novo agente code-reviewer (frota 13→14, correctness+readability a nivel de linha) + ~81 grafts adversarialmente verificados em 19 skills e 3 agents (copy-then-improve, zero regressao) + correcoes de CI cross-platform (line-ending, path-sep, time-dependency). v7.3.0 — Next.js Stack Knowledge: 15 atoms Next.js+React em ingles extraidos de 9 fontes (94% rastreabilidade).",
-      "version": "7.4.0",
+      "description": "Plugin de desenvolvimento disciplinado com conhecimentos de programador senior. v7.5.0 — System Design Coverage Gaps: fecha os 3 buracos de System Design via sintese de corpus senior (32 fontes). Onda 1 Filas/Mensageria (3 references novas + secao 9), Onda 2 SQL-internals + DNS-routing (3 references SQL + EXPLAIN/particionamento PostgreSQL + 7 politicas Route 53), Onda 3 Resiliencia (enriquecimento, zero reference nova: defensive-patterns, system-design secao 11, infrastructure blue-green). 9 conflitos senior resolvidos via tensao+regra; toda afirmacao citada; advisor lista defensive-patterns + infrastructure. v7.4.0 — Skill Parity Refresh: code-reviewer + ~81 grafts em 19 skills/3 agents. v7.3.0 — Next.js Stack Knowledge: 15 atoms (94% rastreabilidade).",
+      "version": "7.5.0",
       "source": "./",
       "author": {
         "name": "Luiz Felipe"
