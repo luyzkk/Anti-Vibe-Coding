@@ -3,6 +3,51 @@
 Todas as mudanças notáveis do plugin Anti-Vibe Coding serão documentadas aqui.
 
 
+## [7.5.0] - 2026-06-17
+
+> **Minor release — System Design Coverage Gaps**
+>
+> Fecha os 3 buracos de System Design do plugin e reforça resiliência, destilando um corpus de
+> **32 fontes sênior** (573 átomos extraídos) em conteúdo formato-consultor dentro das skills, via
+> pipeline de síntese por disco (3 ondas). Toda afirmação framework-específica citada (`fonte:`);
+> 9 conflitos sênior (C1–C9) resolvidos via tensão + regra (D4); audit global CA-01 sem descarte
+> silencioso (32/32 fontes → átomo → alvo). +3.262 linhas em 6 skills.
+
+### Added — Onda 1 (Filas e Mensageria) e Onda 2 (SQL-internals + DNS-routing)
+
+- **`system-design`: 6 references novas** — `messaging-models.md`, `messaging-reliability.md`,
+  `messaging-operations.md` (filas); `sql-indexing-and-storage.md`, `sql-acid-and-durability.md`,
+  `sql-query-planning.md` (SQL, com EXPLAIN/particionamento de doc oficial PostgreSQL). Novas seções
+  §9 (Filas) e §10 (SQL Internals) no SKILL.md + Cheat Sheet + ~40 keywords na `description`.
+- **`infrastructure`: `dns-hosting.md` estendido** — §8 (7 políticas de roteamento Route 53 +
+  desambiguação geo×latency×geoproximity) e §9 (health-check/TTL/hosted zones).
+- **Cross-links** — AMQP em `api-design/api-protocols.md` → references de mensageria; `replication-sharding.md`
+  ganhou surge-replacement no failover.
+- Conflitos resolvidos: C1 (exactly-once Kreps↔Treat), C2, C5, C6, C7, C8, C9.
+
+### Added — Onda 3 (Resiliência, enriquecimento — ZERO reference nova)
+
+- **`defensive-patterns/SKILL.md`** — 5 categorias enriquecidas inline (Circuit Breaker, Timeout,
+  Fallback, Retry, Health Check) com profundidade sênior citada.
+- **`system-design`** — nova **§11 "Resiliência Distribuída"** (load shedding, deadline propagation,
+  distributed challenges) + Cheat Sheet; `replication-sharding.md` +Shuffle Sharding.
+- **`infrastructure`** — `deployment-patterns.md` +Blue-Green Deploy; SKILL.md §5.
+- Conflitos resolvidos: C3 (degraded-read × fallback), C4 (retry throttling × circuit breaker).
+
+### Changed
+
+- **`hooks/hooks.json` (advisor)** — passa a listar `defensive-patterns` e `infrastructure` (corrige
+  omissão pré-existente do printf) + system-design estendida (filas/SQL/resiliência); banner atualizado
+  para a versão corrente.
+- **`description` das 3 skills** — keywords novas (message queue, exactly-once, EXPLAIN, Route 53 routing
+  policy, load shedding, shuffle sharding, blue-green, etc.) para discoverability/invocação automática.
+
+### Fixed
+
+- **D6 (Onda 2)** — conteúdo EXPLAIN/partitioning de doc oficial PostgreSQL recebeu sign-off humano;
+  banners `⚠️unverified` → `✅ confirmado`.
+
+
 ## [7.4.0] - 2026-06-06
 
 > **Minor release — Skill Parity Refresh + Workflow Awareness**
