@@ -2,6 +2,12 @@
   "name": "anti-vibe-coding",
   "version": "7.5.0",
   "type": "module",
+  "license": "MIT",
+  "author": "Luiz Felipe (@luyzkk)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/luyzkk/Anti-Vibe-Coding.git"
+  },
   "scripts": {
     "test": "bun run scripts/run-tests.ts",
     "typecheck": "tsc --noEmit",

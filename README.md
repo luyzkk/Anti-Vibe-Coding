@@ -4,7 +4,7 @@ Plugin Claude Code para desenvolvimento disciplinado. Substitui "vibe coding" po
 
 Baseado na metodologia Anti-Vibe Coding (Fabio Akita / XP) e em 60+ princípios técnicos extraídos de referências sêniores.
 
-**Versão atual:** 7.3.0
+**Versão atual:** 7.5.0
 
 ---
 
@@ -53,7 +53,7 @@ A partir daí, todas as skills `/anti-vibe-coding:*` ficam disponíveis em qualq
 /anti-vibe-coding:sync
 ```
 
-Mostra a versão do plugin global e força invalidação de cache. Deve reportar `v7.3.0`.
+Mostra a versão do plugin global e força invalidação de cache. Deve reportar `v7.5.0`.
 
 ---
 
@@ -610,3 +610,9 @@ Antes de qualquer PR que toque `docs/`:
 ```bash
 bun run harness:validate && bun run compound:check
 ```
+
+---
+
+## Licença
+
+Distribuído sob a licença **MIT**. Veja [`LICENSE`](./LICENSE) para o texto completo.
