@@ -1,6 +1,6 @@
 {
   "version": "7.5.0",
-  "generatedAt": "2026-08-11T17:31:42.567Z",
+  "generatedAt": "2026-08-11T17:40:14.115Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -61,7 +61,7 @@
       "path": "skills/design-patterns/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "This skill should be used when the user asks about 'code smells', 'code quality', 'Result Pattern', 'error handling patterns', 'structured logging', 'domain types', 'JavaScript internals', 'closures', 'event loop', 'race conditions', 'design patterns', 'GoF', 'Observer pattern', 'Factory pattern', 'Singleton', 'Decorator', 'Strategy pattern', 'Adapter', or requests a code quality analysis. Provides expert consultation on 28 code quality concepts covering code smells, error handling, logging, domain modeling, GoF design patterns, and JavaScript/TypeScript advanced patterns."
+      "description": "This skill should be used when the user asks about 'code smells', 'code quality', 'Result Pattern', 'error handling patterns', 'structured logging', 'domain types', 'JavaScript internals', 'closures', 'event loop', 'race conditions', 'design patterns', 'GoF', 'Observer pattern', 'Factory pattern', 'Singleton', 'Decorator', 'Strategy pattern', 'Adapter', or requests a code quality analysis. Provides expert consultation on 26 code quality concepts covering code smells, error handling, logging, domain modeling, GoF design patterns, and JavaScript/TypeScript advanced patterns."
     },
     "design-twice": {
       "path": "skills/design-twice/",
@@ -175,7 +175,7 @@
       "path": "skills/quick-plan/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "Planejamento leve para tasks de complexidade media. Gera mini-plano de 3-7 passos no formato step/verify sem criar arquivos de planejamento em disco ou spawnar subagentes. Alternativa ao pipeline completo (grill-me → plan-feature → execute-plan) para tarefas que nao justificam o overhead."
+      "description": "Planejamento leve para tasks de complexidade media. Gera mini-plano de 3-7 passos no formato step/verify num arquivo so, sem a estrutura de pastas do /plan-feature e sem subagentes. Alternativa ao pipeline completo (grill-me → plan-feature → execute-plan) para tarefas que nao justificam o overhead."
     },
     "react-patterns": {
       "path": "skills/react-patterns/",
@@ -733,8 +733,8 @@
     },
     "skills/code-simplification/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "ce886d1f17fc43337ba09b35a98f1ffefb796137cd9f0f34f856bb6a7a659e40",
-      "lastModified": "2026-06-05",
+      "checksum": "a588accb762ef146765ceb5d20948189d559d3bda1d2fbf0444ede62ac7881ac",
+      "lastModified": "2026-08-11",
       "updateStrategy": "replace"
     },
     "skills/compound-engineering/SKILL.md": {
@@ -943,8 +943,8 @@
     },
     "skills/design-patterns/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "19ac0815e21f7c2e84335bdaf23b13d7e6b3cc2f74ba30c8e9609e2460938394",
-      "lastModified": "2026-05-17",
+      "checksum": "4290f15efa5f1ab3a99f8b4eb372bd8910a4dd1f53f34ee26c3aa0d571368815",
+      "lastModified": "2026-08-11",
       "updateStrategy": "replace"
     },
     "skills/design-patterns/references/code-smells.md": {
@@ -2131,8 +2131,8 @@
     },
     "skills/quick-plan/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "65ddacb99922af95a7fdf6e93bf4e8380f7af0fff32f9de1964bb2b6920beb77",
-      "lastModified": "2026-06-05",
+      "checksum": "74c99ebe00e19d3e973df589c5693c9c6ac9fab7506df6596b97eb8b5a07ea7d",
+      "lastModified": "2026-08-11",
       "updateStrategy": "replace"
     },
     "skills/react-patterns/SKILL.md": {

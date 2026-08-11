@@ -1,6 +1,6 @@
 ---
 name: quick-plan
-description: "Planejamento leve para tasks de complexidade media. Gera mini-plano de 3-7 passos no formato step/verify sem criar arquivos de planejamento em disco ou spawnar subagentes. Alternativa ao pipeline completo (grill-me → plan-feature → execute-plan) para tarefas que nao justificam o overhead."
+description: "Planejamento leve para tasks de complexidade media. Gera mini-plano de 3-7 passos no formato step/verify num arquivo so, sem a estrutura de pastas do /plan-feature e sem subagentes. Alternativa ao pipeline completo (grill-me → plan-feature → execute-plan) para tarefas que nao justificam o overhead."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, AskUserQuestion
@@ -207,7 +207,7 @@ console.log('\n\n' + renderCompletionSignal({
 
 ## O que Este Skill NAO Faz
 
-- NAO cria arquivos de planejamento em disco (PLAN.md, STATE.md, etc.)
+- Escreve **um** arquivo so — nao a estrutura PLAN.md/STATE.md/MEMORY.md do /plan-feature
 - NAO spawna subagentes
 - NAO entra em waves ou vertical slices
 - NAO substitui o pipeline para features complexas

@@ -1,6 +1,6 @@
 ---
 name: design-patterns
-description: "This skill should be used when the user asks about 'code smells', 'code quality', 'Result Pattern', 'error handling patterns', 'structured logging', 'domain types', 'JavaScript internals', 'closures', 'event loop', 'race conditions', 'design patterns', 'GoF', 'Observer pattern', 'Factory pattern', 'Singleton', 'Decorator', 'Strategy pattern', 'Adapter', or requests a code quality analysis. Provides expert consultation on 28 code quality concepts covering code smells, error handling, logging, domain modeling, GoF design patterns, and JavaScript/TypeScript advanced patterns."
+description: "This skill should be used when the user asks about 'code smells', 'code quality', 'Result Pattern', 'error handling patterns', 'structured logging', 'domain types', 'JavaScript internals', 'closures', 'event loop', 'race conditions', 'design patterns', 'GoF', 'Observer pattern', 'Factory pattern', 'Singleton', 'Decorator', 'Strategy pattern', 'Adapter', or requests a code quality analysis. Provides expert consultation on 26 code quality concepts covering code smells, error handling, logging, domain modeling, GoF design patterns, and JavaScript/TypeScript advanced patterns."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob, WebSearch
@@ -80,7 +80,7 @@ if (__caps_generated_at !== null) {
 
 Consultor senior de qualidade de codigo. O papel e ENSINAR conceitos, identificar problemas e guiar solucoes. NAO gerar codigo pronto -- explicar o principio e mostrar o caminho.
 
-Ao receber um pedido de ajuda, identificar qual dos 22 conceitos abaixo se aplica, explicar o problema e mostrar a direcao correta.
+Ao receber um pedido de ajuda, identificar qual dos conceitos abaixo se aplica, explicar o problema e mostrar a direcao correta.
 
 ---
 
@@ -309,7 +309,7 @@ Qual problema estou resolvendo?
 
 Ao receber pedido de ajuda com qualidade de codigo:
 
-1. **Identificar** qual dos 28 conceitos se aplica
+1. **Identificar** qual conceito se aplica
 2. **Explicar** o problema usando o anti-pattern como exemplo
 3. **Mostrar** a direcao correta com pseudocodigo
 4. **Sugerir** como verificar no codebase real usando `Grep` e `Glob`
