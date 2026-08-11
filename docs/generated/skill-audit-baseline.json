@@ -5252,7 +5252,7 @@
       ],
       "modelInvoked": true,
       "hookListed": true,
-      "hookDescriptionChars": 273,
+      "hookDescriptionChars": 129,
       "hookExactDuplicate": false,
       "satelliteFiles": [
         "references/cache-strategies.md",
@@ -6496,7 +6496,7 @@
     "descriptionLineChars": 14101,
     "modelInvoked": 40,
     "hookListed": 23,
-    "hookDescriptionChars": 2081,
+    "hookDescriptionChars": 1937,
     "negations": 1148,
     "satellitesUnlinked": 6
   }
