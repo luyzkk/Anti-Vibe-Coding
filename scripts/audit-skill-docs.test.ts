@@ -112,14 +112,14 @@ describe('auditSkillDocs', () => {
     expect(rec.descriptionLineChars).toBe(`description: "${DESC_WITH_TRIGGERS}"`.length)
   })
 
-  test('conta um trigger por item entre aspas simples', () => {
+  test('conta um item entre aspas simples por trigger', () => {
     const rec = auditSkillDocs(root).skills.find((s) => s.skill === 'alpha')!
-    expect(rec.triggerCount).toBe(3)
+    expect(rec.quotedTriggerCount).toBe(3)
   })
 
   test('retorna zero triggers para description sem lista de gatilhos', () => {
     const rec = auditSkillDocs(root).skills.find((s) => s.skill === 'beta')!
-    expect(rec.triggerCount).toBe(0)
+    expect(rec.quotedTriggerCount).toBe(0)
   })
 
   test('detecta negacoes com o numero da linha', () => {
@@ -139,7 +139,7 @@ describe('auditSkillDocs', () => {
     const rec = auditSkillDocs(root).skills.find((s) => s.skill === 'crlf')!
 
     expect(rec.descriptionChars).toBe(DESC_WITH_TRIGGERS.length)
-    expect(rec.triggerCount).toBe(3)
+    expect(rec.quotedTriggerCount).toBe(3)
     expect(rec.negations).toHaveLength(1)
   })
 

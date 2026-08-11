@@ -14,7 +14,7 @@ Referencia para escrever qualquer documento que um agente consome — uma skill,
 tornam cada um previsivel — o agente tomando o mesmo *processo* a cada run, nao produzindo o mesmo
 output.
 
-Quando o documento e uma skill, leia [`SKILL-MECHANICS.md`](./SKILL-MECHANICS.md): frontmatter,
+Quando o documento e uma skill, leia [`SKILL-MECHANICS.md`](./references/SKILL-MECHANICS.md): frontmatter,
 escolha de invocacao e router skills.
 
 ## Context pointers
@@ -116,7 +116,7 @@ Dividir um documento em dois gasta uma das duas cargas, entao divida so quando o
   apressar o step da frente. Mante-los fora de vista gera mais legwork na tarefa atual. Cuidado com o
   inverso: fundir sequencias expoe os steps seguintes de cada step ao que vem depois, convidando
   premature completion.
-- **Por invocacao** — especifico de skill: ver [`SKILL-MECHANICS.md`](./SKILL-MECHANICS.md).
+- **Por invocacao** — especifico de skill: ver [`SKILL-MECHANICS.md`](./references/SKILL-MECHANICS.md).
 
 ## Leading words
 

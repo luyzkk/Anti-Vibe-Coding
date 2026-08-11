@@ -42,7 +42,7 @@ Porta-la por ultimo significaria reescrever tudo.
 | O que | Quem consome |
 |---|---|
 | `skills/writing-for-agents/SKILL.md` — a referencia | Planos 02..N (toda skill portada e escrita contra ela) + qualquer edicao futura de `SKILL.md`/`AGENTS.md`/`CLAUDE.md` |
-| `skills/writing-for-agents/SKILL-MECHANICS.md` — invocacao mapeada nos nossos 6 campos | Planos 02..N (decidir model- vs user-invoked de cada porte) |
+| `skills/writing-for-agents/references/SKILL-MECHANICS.md` — invocacao mapeada nos nossos 8 campos | Planos 02..N (decidir model- vs user-invoked de cada porte) |
 | `scripts/audit-skill-docs.ts` + baseline JSON | fase-03 e fase-04 deste plano; regressao de context load em planos futuros |
 | Relatorio de auditoria | fase-04 (define o escopo dos patches) |
 

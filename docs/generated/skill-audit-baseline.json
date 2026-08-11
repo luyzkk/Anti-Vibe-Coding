@@ -4,7 +4,7 @@
       "skill": "anti-vibe-review",
       "descriptionChars": 339,
       "descriptionLineChars": 354,
-      "triggerCount": 5,
+      "quotedTriggerCount": 5,
       "bodyLines": 254,
       "negations": [
         {
@@ -194,7 +194,7 @@
       "skill": "api-design",
       "descriptionChars": 662,
       "descriptionLineChars": 677,
-      "triggerCount": 30,
+      "quotedTriggerCount": 30,
       "bodyLines": 428,
       "negations": [
         {
@@ -506,7 +506,7 @@
       "skill": "architecture",
       "descriptionChars": 483,
       "descriptionLineChars": 498,
-      "triggerCount": 16,
+      "quotedTriggerCount": 16,
       "bodyLines": 424,
       "negations": [
         {
@@ -720,7 +720,7 @@
       "skill": "centralize-config",
       "descriptionChars": 207,
       "descriptionLineChars": 222,
-      "triggerCount": 0,
+      "quotedTriggerCount": 0,
       "bodyLines": 132,
       "negations": [
         {
@@ -770,7 +770,7 @@
       "skill": "code-simplification",
       "descriptionChars": 372,
       "descriptionLineChars": 387,
-      "triggerCount": 0,
+      "quotedTriggerCount": 0,
       "bodyLines": 326,
       "negations": [
         {
@@ -830,7 +830,7 @@
       "skill": "compound-engineering",
       "descriptionChars": 296,
       "descriptionLineChars": 311,
-      "triggerCount": 4,
+      "quotedTriggerCount": 4,
       "bodyLines": 130,
       "negations": [
         {
@@ -872,7 +872,7 @@
       "skill": "consultant",
       "descriptionChars": 386,
       "descriptionLineChars": 401,
-      "triggerCount": 3,
+      "quotedTriggerCount": 3,
       "bodyLines": 400,
       "negations": [
         {
@@ -1038,7 +1038,7 @@
       "skill": "decision-registry",
       "descriptionChars": 303,
       "descriptionLineChars": 318,
-      "triggerCount": 5,
+      "quotedTriggerCount": 5,
       "bodyLines": 251,
       "negations": [
         {
@@ -1153,7 +1153,7 @@
       "skill": "defensive-patterns",
       "descriptionChars": 362,
       "descriptionLineChars": 375,
-      "triggerCount": 0,
+      "quotedTriggerCount": 0,
       "bodyLines": 201,
       "negations": [
         {
@@ -1308,7 +1308,7 @@
       "skill": "design-patterns",
       "descriptionChars": 579,
       "descriptionLineChars": 594,
-      "triggerCount": 18,
+      "quotedTriggerCount": 18,
       "bodyLines": 315,
       "negations": [
         {
@@ -1484,7 +1484,7 @@
       "skill": "design-twice",
       "descriptionChars": 166,
       "descriptionLineChars": 181,
-      "triggerCount": 0,
+      "quotedTriggerCount": 0,
       "bodyLines": 376,
       "negations": [
         {
@@ -1639,7 +1639,7 @@
       "skill": "detect-architecture",
       "descriptionChars": 407,
       "descriptionLineChars": 422,
-      "triggerCount": 4,
+      "quotedTriggerCount": 4,
       "bodyLines": 167,
       "negations": [
         {
@@ -1694,7 +1694,7 @@
       "skill": "doubt-driven-development",
       "descriptionChars": 493,
       "descriptionLineChars": 508,
-      "triggerCount": 1,
+      "quotedTriggerCount": 1,
       "bodyLines": 246,
       "negations": [
         {
@@ -1793,7 +1793,7 @@
       "skill": "enhance-prompt",
       "descriptionChars": 323,
       "descriptionLineChars": 338,
-      "triggerCount": 6,
+      "quotedTriggerCount": 6,
       "bodyLines": 262,
       "negations": [
         {
@@ -1888,7 +1888,7 @@
       "skill": "execute-plan",
       "descriptionChars": 250,
       "descriptionLineChars": 265,
-      "triggerCount": 0,
+      "quotedTriggerCount": 0,
       "bodyLines": 916,
       "negations": [
         {
@@ -2222,7 +2222,7 @@
       "skill": "git-workflow-and-versioning",
       "descriptionChars": 453,
       "descriptionLineChars": 468,
-      "triggerCount": 1,
+      "quotedTriggerCount": 1,
       "bodyLines": 368,
       "negations": [
         {
@@ -2267,7 +2267,7 @@
       "skill": "grill-me",
       "descriptionChars": 296,
       "descriptionLineChars": 311,
-      "triggerCount": 0,
+      "quotedTriggerCount": 0,
       "bodyLines": 454,
       "negations": [
         {
@@ -2592,7 +2592,7 @@
       "skill": "incident-response",
       "descriptionChars": 189,
       "descriptionLineChars": 202,
-      "triggerCount": 0,
+      "quotedTriggerCount": 0,
       "bodyLines": 167,
       "negations": [
         {
@@ -2717,7 +2717,7 @@
       "skill": "incremental-implementation",
       "descriptionChars": 305,
       "descriptionLineChars": 320,
-      "triggerCount": 0,
+      "quotedTriggerCount": 0,
       "bodyLines": 240,
       "negations": [
         {
@@ -2772,7 +2772,7 @@
       "skill": "infrastructure",
       "descriptionChars": 792,
       "descriptionLineChars": 807,
-      "triggerCount": 35,
+      "quotedTriggerCount": 35,
       "bodyLines": 417,
       "negations": [
         {
@@ -2913,7 +2913,7 @@
       "skill": "init",
       "descriptionChars": 333,
       "descriptionLineChars": 348,
-      "triggerCount": 4,
+      "quotedTriggerCount": 4,
       "bodyLines": 97,
       "negations": [
         {
@@ -2977,7 +2977,7 @@
       "skill": "iterate",
       "descriptionChars": 272,
       "descriptionLineChars": 287,
-      "triggerCount": 0,
+      "quotedTriggerCount": 0,
       "bodyLines": 349,
       "negations": [
         {
@@ -3072,7 +3072,7 @@
       "skill": "learn",
       "descriptionChars": 502,
       "descriptionLineChars": 517,
-      "triggerCount": 16,
+      "quotedTriggerCount": 16,
       "bodyLines": 324,
       "negations": [
         {
@@ -3222,7 +3222,7 @@
       "skill": "lessons-learned",
       "descriptionChars": 293,
       "descriptionLineChars": 308,
-      "triggerCount": 4,
+      "quotedTriggerCount": 4,
       "bodyLines": 235,
       "negations": [
         {
@@ -3337,7 +3337,7 @@
       "skill": "pair-programming-with-agent",
       "descriptionChars": 260,
       "descriptionLineChars": 273,
-      "triggerCount": 1,
+      "quotedTriggerCount": 1,
       "bodyLines": 226,
       "negations": [
         {
@@ -3492,7 +3492,7 @@
       "skill": "parity-audit",
       "descriptionChars": 206,
       "descriptionLineChars": 219,
-      "triggerCount": 0,
+      "quotedTriggerCount": 0,
       "bodyLines": 50,
       "negations": [
         {
@@ -3512,7 +3512,7 @@
       "skill": "plan-feature",
       "descriptionChars": 241,
       "descriptionLineChars": 256,
-      "triggerCount": 0,
+      "quotedTriggerCount": 0,
       "bodyLines": 973,
       "negations": [
         {
@@ -3897,7 +3897,7 @@
       "skill": "qa-visual",
       "descriptionChars": 393,
       "descriptionLineChars": 408,
-      "triggerCount": 10,
+      "quotedTriggerCount": 10,
       "bodyLines": 400,
       "negations": [
         {
@@ -4142,7 +4142,7 @@
       "skill": "quick-plan",
       "descriptionChars": 289,
       "descriptionLineChars": 304,
-      "triggerCount": 0,
+      "quotedTriggerCount": 0,
       "bodyLines": 226,
       "negations": [
         {
@@ -4237,7 +4237,7 @@
       "skill": "react-patterns",
       "descriptionChars": 388,
       "descriptionLineChars": 403,
-      "triggerCount": 12,
+      "quotedTriggerCount": 12,
       "bodyLines": 198,
       "negations": [
         {
@@ -4328,7 +4328,7 @@
       "skill": "security",
       "descriptionChars": 386,
       "descriptionLineChars": 401,
-      "triggerCount": 0,
+      "quotedTriggerCount": 0,
       "bodyLines": 589,
       "negations": [
         {
@@ -4716,7 +4716,7 @@
       "skill": "source-driven-development",
       "descriptionChars": 349,
       "descriptionLineChars": 364,
-      "triggerCount": 0,
+      "quotedTriggerCount": 0,
       "bodyLines": 206,
       "negations": [
         {
@@ -4771,7 +4771,7 @@
       "skill": "sync",
       "descriptionChars": 253,
       "descriptionLineChars": 268,
-      "triggerCount": 4,
+      "quotedTriggerCount": 4,
       "bodyLines": 198,
       "negations": [
         {
@@ -4866,7 +4866,7 @@
       "skill": "system-design",
       "descriptionChars": 338,
       "descriptionLineChars": 353,
-      "triggerCount": 0,
+      "quotedTriggerCount": 0,
       "bodyLines": 519,
       "negations": [
         {
@@ -5296,7 +5296,7 @@
       "skill": "tdd-workflow",
       "descriptionChars": 293,
       "descriptionLineChars": 308,
-      "triggerCount": 0,
+      "quotedTriggerCount": 0,
       "bodyLines": 441,
       "negations": [
         {
@@ -5568,7 +5568,7 @@
       "skill": "todo-pick",
       "descriptionChars": 154,
       "descriptionLineChars": 169,
-      "triggerCount": 0,
+      "quotedTriggerCount": 0,
       "bodyLines": 119,
       "negations": [
         {
@@ -5608,7 +5608,7 @@
       "skill": "update",
       "descriptionChars": 324,
       "descriptionLineChars": 339,
-      "triggerCount": 3,
+      "quotedTriggerCount": 3,
       "bodyLines": 527,
       "negations": [
         {
@@ -5713,7 +5713,7 @@
       "skill": "verify-work",
       "descriptionChars": 200,
       "descriptionLineChars": 215,
-      "triggerCount": 0,
+      "quotedTriggerCount": 0,
       "bodyLines": 610,
       "negations": [
         {
@@ -6003,7 +6003,7 @@
       "skill": "write-prd",
       "descriptionChars": 172,
       "descriptionLineChars": 187,
-      "triggerCount": 0,
+      "quotedTriggerCount": 0,
       "bodyLines": 482,
       "negations": [
         {
@@ -6258,7 +6258,7 @@
       "skill": "writing-for-agents",
       "descriptionChars": 190,
       "descriptionLineChars": 205,
-      "triggerCount": 0,
+      "quotedTriggerCount": 0,
       "bodyLines": 210,
       "negations": [
         {
@@ -6487,10 +6487,10 @@
       "hookDescriptionChars": 0,
       "hookExactDuplicate": false,
       "satelliteFiles": [
-        "SKILL-MECHANICS.md"
+        "references/SKILL-MECHANICS.md"
       ],
       "satellitesLinked": [
-        "SKILL-MECHANICS.md"
+        "references/SKILL-MECHANICS.md"
       ]
     }
   ],

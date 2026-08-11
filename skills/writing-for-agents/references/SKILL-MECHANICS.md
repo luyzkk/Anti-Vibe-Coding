@@ -1,6 +1,6 @@
 # Skill Mechanics
 
-Ramo especifico de skill de [`writing-for-agents`](./SKILL.md): o que muda quando o documento e uma
+Ramo especifico de skill de [`writing-for-agents`](../SKILL.md): o que muda quando o documento e uma
 skill — frontmatter, a escolha de invocacao e router skills. Todo o resto da escrita e a referencia
 universal em `SKILL.md`.
 
@@ -35,7 +35,7 @@ significado carregado duas vezes por sessao.
 
 ## Dividir por invocacao
 
-O corte por sequencia vive em [`SKILL.md`](./SKILL.md); este e o corte por invocacao. Separe uma
+O corte por sequencia vive em [`SKILL.md`](../SKILL.md); este e o corte por invocacao. Separe uma
 skill model-invoked nova quando existe uma leading word distinta que deve dispara-la sozinha — uma
 palavra que voce de fato usa nos seus prompts — ou quando outra skill precisa alcanca-la. Voce paga
 context load pela description nova e sempre carregada, entao esse alcance independente tem que valer.
