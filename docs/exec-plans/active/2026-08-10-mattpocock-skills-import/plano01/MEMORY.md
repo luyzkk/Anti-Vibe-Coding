@@ -54,9 +54,59 @@ de branches.
 > database selection, replication and sharding, load balancing, CDN, serverless vs serverfull,
 > message queues, SQL internals, or distributed resilience.
 
-Risco a validar na fase-03: triggers como `Redis`, `RabbitMQ`, `BullMQ` e `EC2` sao nomes de produto,
-nao sinonimos de branch — podem ser o que de fato dispara a skill na pratica. Colapsar sem checar
-trocaria context load por invocacao perdida. A decisao e por branch, com aprovacao humana.
+Risco levantado: triggers como `Redis`, `RabbitMQ`, `BullMQ` e `EC2` sao nomes de produto, nao
+sinonimos de branch — podem ser o que de fato dispara a skill na pratica. Colapsar sem checar
+trocaria context load por invocacao perdida.
+
+## fase-04 antecipada — variante B aplicada em `system-design` (2026-08-11)
+
+Aprovacao humana explicita por achado, que e a condicao da DI-04. **Cruza INV-03** (que veda editar
+skill existente nas fases 01–03): registrado, nao contornado.
+
+Aplicada a **variante B** — os 11 branches mais os nomes proprios preservados numa clausula so, em vez
+da variante A estrita. Razao: perder invocacao e assimetrico contra 0,6 ponto percentual de economia,
+e a regra da fonte manda colapsar sinonimo, nao nome proprio distinto.
+
+Uma linha: `skills/system-design/SKILL.md:3`. Corpo intacto (519 linhas antes e depois).
+
+| | antes | depois |
+|---|---|---|
+| `descriptionChars` de `system-design` | 1.481 | **338** (-1.143) |
+| `descriptionChars` do repo | 14.642 | **13.499** (-7,8%) |
+| previsto no achado | -1.143 | realizado -1.143 |
+
+Novo maior ofensor: `infrastructure` (792 chars, 35 triggers), depois `api-design` (662, 30).
+
+**Efeitos colaterais rastreados antes de editar** (busca nao e semantica):
+
+- `plugin-manifest.json` guardava **checksum** e **copia da description**. Ambos ficaram stale na hora
+  da edicao. Resolvido com `bun run generate:manifest` — que de quebra **fechou a pendencia aberta da
+  fase-01**: `writing-for-agents` agora esta registrado (skills 39 -> 40, arquivos 412 -> 414).
+- Nenhum teste assertava o texto antigo.
+- `docs/exec-plans/active/2026-06-15-system-design-coverage-gaps/edit-manifest.md` cita o texto antigo.
+  E registro historico do que foi feito na epoca — **nao** foi tocado.
+- O hook `SessionStart` mantem sua propria linha de 273 chars para `system-design`. Fora do escopo
+  desta aplicacao; segue como achado aberto.
+
+## Achados novos, abertos (surgiram ao aplicar)
+
+- **`SKILL-MECHANICS.md` nao e distribuido.** `scripts/generate-manifest.js:172-202` varre, dentro de
+  cada skill, apenas `references/`, `templates/`, `lib/` e `assets/`. **Arquivo irmao do `SKILL.md`
+  nao entra.** Das 114 satelites `.md` registradas hoje, zero e irma do `SKILL.md` — a convencao do
+  repo e subpasta. Consequencia: em projeto-alvo o ponteiro da `writing-for-agents` para
+  `./SKILL-MECHANICS.md` fica pendurado. Correcao proposta: `git mv` para
+  `references/SKILL-MECHANICS.md` + atualizar os 3 ponteiros no `SKILL.md`. **Nao aplicada** — muda a
+  estrutura entregue na fase-01, decisao do humano.
+- **`triggerCount` mede estilo de aspas, nao branch.** Depois do patch, `system-design` reporta
+  **0 triggers** — a variante B nao usa aspas simples. A description tem 11 branches e 9 nomes; a
+  metrica le zero. Como proxy de ranqueamento isso inverte o sinal: skill corrigida parece perfeita,
+  skill intocada parece pessima. **A fase-03 nao pode ranquear por `triggerCount` como esta.**
+  Opcoes: renomear para `quotedTriggerCount` e ranquear por `descriptionChars`, ou contar clausulas
+  separadas por virgula apos "asks about". Decisao do humano antes da fase-03.
+- **O teste de checksum do manifest amostra 3 de 414 arquivos** (`generate-manifest.test.ts:114-128`,
+  `Object.keys(manifest.files).slice(0, 3)` = `CLAUDE.md`, `rules/api-standards.md`,
+  `rules/code-quality.md`). Checksum stale em qualquer outro arquivo passa despercebido — foi o que
+  aconteceu aqui: editei `system-design/SKILL.md`, o checksum ficou errado e a suite seguiu verde.
 
 ## Decisoes de implementacao (DI)
 
