@@ -1,6 +1,6 @@
 {
   "version": "7.5.0",
-  "generatedAt": "2026-08-11T18:28:01.925Z",
+  "generatedAt": "2026-08-11T19:11:12.807Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -79,7 +79,7 @@
       "path": "skills/doubt-driven-development/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "Doubt-Driven Development: submete cada decisao nao-trivial a uma revisao adversarial fresh-context antes de ela 'ficar de pe'. Use quando correcao importa mais que velocidade, em codigo desconhecido, ou pre-deploy production. Sequencia CLAIM->EXTRACT->DOUBT->RECONCILE->STOP com 3 ciclos maximo. Diferente de design-twice (gera N alternativas), DDD ataca UMA escolha; diferente de verify-work (pos-impl), DDD e in-flight. Cross-model escalation OPCIONAL e documentada — usuario decide invocar."
+      "description": "Doubt-Driven Development: submete cada decisao nao-trivial a uma revisao adversarial fresh-context antes de ela 'ficar de pe'. Use quando correcao importa mais que velocidade, em codigo desconhecido, ou pre-deploy production."
     },
     "enhance-prompt": {
       "path": "skills/enhance-prompt/",
@@ -97,7 +97,7 @@
       "path": "skills/git-workflow-and-versioning/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "Git Workflow e Versioning: codifica conventional commits, atomicidade, commits como save points, branches curtas (1-3 dias), PR description como contrato historico. Complementa CLAUDE.md global (fonte de verdade para tipos `feat`/`fix`/`chore`/etc). Vetado: 'Fix bug' como commit message. Hook commit-msg documentado como OPCIONAL (opt-in, nao bloqueante). Integra com /iterate e /incident-response que dependem de commit history limpo para post-mortem."
+      "description": "Git workflow e versioning. Use ao escrever commit message, escolher estrategia de branch, trabalhar com worktree, preparar PR description, fazer higiene pre-commit, ou usar git para depurar (bisect, blame). Complementa o CLAUDE.md global, fonte de verdade dos tipos de commit."
     },
     "grill-me": {
       "path": "skills/grill-me/",
@@ -121,7 +121,7 @@
       "path": "skills/infrastructure/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "This skill should be used when the user asks about 'DNS', 'domain setup', 'SSL', 'TLS certificates', 'hosting', 'deploy', 'VPS', 'serverless', 'CDN', 'PM2', 'Docker', 'Kubernetes', 'CI/CD', 'health checks', 'Let's Encrypt', 'Route 53', 'Route 53 routing policy', 'weighted routing', 'latency-based routing', 'failover routing', 'geolocation routing', 'geoproximity routing', 'multivalue answer', 'DNS health check', 'hosted zone', 'private hosted zone', 'split-horizon DNS', 'DNS TTL', 'CloudFront', 'S3 hosting', 'blue-green deployment', 'zero-downtime deploy', 'deployment health check', 'cutover', 'instant rollback', or faces infrastructure and deployment decisions. Provides expert consultation on DNS, DNS routing policies, hosting, deployment patterns, and infrastructure architecture."
+      "description": "Infrastructure and deployment consultation. Use when the user asks about DNS and domain setup, SSL/TLS certificates, hosting choice, AWS essentials, or deployment patterns — by concept or by name (Route 53, CloudFront, S3, Docker, Kubernetes, PM2, Let's Encrypt, blue-green, CI/CD)."
     },
     "init": {
       "path": "skills/init/",
@@ -139,7 +139,7 @@
       "path": "skills/learn/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "This skill should be used when the user asks to 'explain', 'teach me', 'what is', 'how does X work', 'explain like I'm a beginner', 'quero entender', 'me explica', 'o que e CRUD', 'como funciona auth', 'explica pra mim', 'nao entendi', 'aprenda', 'ensina', 'estudo', 'aprender sobre', or wants to understand a technical concept before or after building. Provides adaptive teaching that calibrates to the user's level (basic, intermediate, advanced) and connects explanations to the actual project code."
+      "description": "Ensino adaptativo de conceito tecnico, calibrado ao nivel do dev e ligado ao codigo real do projeto. Use quando o dev quer entender algo antes ou depois de construir — 'me explica', 'quero entender', 'nao entendi', 'what is', 'how does X work'."
     },
     "lessons-learned": {
       "path": "skills/lessons-learned/",
@@ -181,7 +181,7 @@
       "path": "skills/react-patterns/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "This skill should be used when the user asks about 'useEffect', 'React performance', 'data fetching in React', 'TanStack Query', 'state management', 'memoization', 'useMemo', 'useCallback', 'closure stale', 'React re-renders', 'virtualization', 'code splitting', or needs to analyze React component patterns and anti-patterns. Provides expert consultation on React/Next.js best practices."
+      "description": "React e Next.js patterns. Use when the user asks about useEffect, data fetching (TanStack Query), closure stale, memoization (useMemo, useCallback), state management, or reviewing a component (re-renders, virtualization, code splitting)."
     },
     "security": {
       "path": "skills/security/",
@@ -1015,8 +1015,8 @@
     },
     "skills/doubt-driven-development/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "5c727cce4595f1d60340eed2e10e7985c9e6422834cf706cc0c44c677b8fd74a",
-      "lastModified": "2026-06-05",
+      "checksum": "904455bf96bc46c9684c951d101227a5088c4c63fec865803eb3f4f14c937c81",
+      "lastModified": "2026-08-11",
       "updateStrategy": "replace"
     },
     "skills/doubt-driven-development/references/orchestration-patterns.md": {
@@ -1045,8 +1045,8 @@
     },
     "skills/git-workflow-and-versioning/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "dd362a2558bcb4f2f17b5fdfa60b4eab424c80793744c36108ab7888731bb902",
-      "lastModified": "2026-06-05",
+      "checksum": "98a9c4270fa682bd4f164eb8910a43edd5db75276e156613c3cce45896c34d69",
+      "lastModified": "2026-08-11",
       "updateStrategy": "replace"
     },
     "skills/grill-me/SKILL.md": {
@@ -1069,8 +1069,8 @@
     },
     "skills/infrastructure/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "7e3dc2757328ca52fa3bd84b115d5ffb79e9d83118cf7bc775e14b974e2d8041",
-      "lastModified": "2026-06-17",
+      "checksum": "cd12af01f3de2a9046ddf2874f5849b8ba98427d41227b212193797eabc2f199",
+      "lastModified": "2026-08-11",
       "updateStrategy": "replace"
     },
     "skills/infrastructure/references/deployment-patterns.md": {
@@ -2029,8 +2029,8 @@
     },
     "skills/learn/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "6c3685ca6563993c431c94c7e24a7ec4771a4f697b38b7d6fe97f0cba0066ce2",
-      "lastModified": "2026-04-08",
+      "checksum": "88bc933f55ff058535dbfe9e1520843c181b1344ec1f9a398091e8d16e9f6854",
+      "lastModified": "2026-08-11",
       "updateStrategy": "replace"
     },
     "skills/lessons-learned/SKILL.md": {
@@ -2137,7 +2137,7 @@
     },
     "skills/react-patterns/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "2a7f6cb3f952455fa235b176c969f6a1c21733f89b894db1b2337289adeeae6e",
+      "checksum": "d60ce0c19cca072aa9584b1ab3ea440360096de029bbd924e35dc659e601f32e",
       "lastModified": "2026-08-11",
       "updateStrategy": "replace"
     },

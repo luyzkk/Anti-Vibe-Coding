@@ -1,6 +1,6 @@
 ---
 name: doubt-driven-development
-description: "Doubt-Driven Development: submete cada decisao nao-trivial a uma revisao adversarial fresh-context antes de ela 'ficar de pe'. Use quando correcao importa mais que velocidade, em codigo desconhecido, ou pre-deploy production. Sequencia CLAIM->EXTRACT->DOUBT->RECONCILE->STOP com 3 ciclos maximo. Diferente de design-twice (gera N alternativas), DDD ataca UMA escolha; diferente de verify-work (pos-impl), DDD e in-flight. Cross-model escalation OPCIONAL e documentada — usuario decide invocar."
+description: "Doubt-Driven Development: submete cada decisao nao-trivial a uma revisao adversarial fresh-context antes de ela 'ficar de pe'. Use quando correcao importa mais que velocidade, em codigo desconhecido, ou pre-deploy production."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob, Task

@@ -1687,8 +1687,8 @@
     },
     {
       "skill": "doubt-driven-development",
-      "descriptionChars": 493,
-      "descriptionLineChars": 508,
+      "descriptionChars": 225,
+      "descriptionLineChars": 240,
       "quotedTriggerCount": 1,
       "bodyLines": 246,
       "negations": [
@@ -2215,9 +2215,9 @@
     },
     {
       "skill": "git-workflow-and-versioning",
-      "descriptionChars": 453,
-      "descriptionLineChars": 468,
-      "quotedTriggerCount": 1,
+      "descriptionChars": 276,
+      "descriptionLineChars": 291,
+      "quotedTriggerCount": 0,
       "bodyLines": 368,
       "negations": [
         {
@@ -2765,9 +2765,9 @@
     },
     {
       "skill": "infrastructure",
-      "descriptionChars": 792,
-      "descriptionLineChars": 807,
-      "quotedTriggerCount": 35,
+      "descriptionChars": 282,
+      "descriptionLineChars": 297,
+      "quotedTriggerCount": 0,
       "bodyLines": 417,
       "negations": [
         {
@@ -3065,9 +3065,9 @@
     },
     {
       "skill": "learn",
-      "descriptionChars": 502,
-      "descriptionLineChars": 517,
-      "quotedTriggerCount": 16,
+      "descriptionChars": 244,
+      "descriptionLineChars": 259,
+      "quotedTriggerCount": 5,
       "bodyLines": 324,
       "negations": [
         {
@@ -4230,9 +4230,9 @@
     },
     {
       "skill": "react-patterns",
-      "descriptionChars": 388,
-      "descriptionLineChars": 403,
-      "quotedTriggerCount": 12,
+      "descriptionChars": 237,
+      "descriptionLineChars": 252,
+      "quotedTriggerCount": 0,
       "bodyLines": 194,
       "negations": [
         {
@@ -6492,8 +6492,8 @@
   "skipped": [],
   "totals": {
     "skillCount": 40,
-    "descriptionChars": 13509,
-    "descriptionLineChars": 14101,
+    "descriptionChars": 12145,
+    "descriptionLineChars": 12737,
     "modelInvoked": 40,
     "hookListed": 23,
     "hookDescriptionChars": 1937,
