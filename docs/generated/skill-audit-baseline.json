@@ -1034,7 +1034,7 @@
       "descriptionChars": 303,
       "descriptionLineChars": 318,
       "quotedTriggerCount": 5,
-      "bodyLines": 251,
+      "bodyLines": 252,
       "negations": [
         {
           "line": 24,
@@ -1132,9 +1132,9 @@
           "text": "Quando um ADR governa codigo com gotcha nao-obvio, adicione um comentario de uma linha no call site para que o registro seja encontrado a partir do codigo que ele governa:"
         },
         {
-          "line": 215,
+          "line": 216,
           "term": "nao",
-          "text": "1. Ler `.claude/decisions.md` (criar se nao existir)"
+          "text": "1. Resolver o layout e abrir o destino correspondente (criar se nao existir)"
         }
       ],
       "modelInvoked": true,
@@ -4233,7 +4233,7 @@
       "descriptionChars": 388,
       "descriptionLineChars": 403,
       "quotedTriggerCount": 12,
-      "bodyLines": 198,
+      "bodyLines": 194,
       "negations": [
         {
           "line": 12,
@@ -4286,22 +4286,22 @@
           "text": "**Regra:** NAO ignorar warnings do eslint-plugin-react-hooks sobre deps faltantes."
         },
         {
-          "line": 148,
+          "line": 146,
           "term": "NAO",
           "text": "| Ferramenta | Usar quando | NAO usar quando |"
         },
         {
-          "line": 169,
+          "line": 165,
           "term": "NAO",
           "text": "5. TanStack Query   -> Server state (dados do backend). NAO misturar com client state"
         },
         {
-          "line": 198,
+          "line": 194,
           "term": "NAO",
           "text": "[ ] Deps faltantes no useEffect? -> Corrigir (NAO ignorar linter)"
         },
         {
-          "line": 207,
+          "line": 203,
           "term": "nunca",
           "text": "| \"o linter esta errado sobre exhaustive-deps\" | Deps faltantes sao bugs silenciosos; nunca suprimir o eslint-plugin-react-hooks (ver `## 3`) |"
         }

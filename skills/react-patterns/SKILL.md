@@ -129,8 +129,6 @@ setCount(prev => prev + 1)
 
 ## 4. Memoization (Usar com Parcimonia)
 
-> Referencia completa: `references/performance.md`
-
 Memoization (useMemo, useCallback, React.memo) e otimizacao. SEMPRE medir antes de otimizar.
 
 ### Fluxo Correto
@@ -154,8 +152,6 @@ Memoization (useMemo, useCallback, React.memo) e otimizacao. SEMPRE medir antes 
 ---
 
 ## 5. State Management
-
-> Referencia completa: `references/state-management.md`
 
 ### Hierarquia de Decisao
 
