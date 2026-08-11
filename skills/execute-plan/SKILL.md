@@ -107,14 +107,14 @@ Suporta dois formatos:
 Roda antes de qualquer outra coisa. Se `.planning/` tem artefatos soltos pre-refatoracao
 (`PRD-*.md`, `PLAN-*.md`, `STATE-*.md`, `planoNN/` solto), oferece migrar para pasta datada.
 
-Algoritmo: `lib/legacy-detector.md`.
-Migracao: `lib/legacy-migrator.md`.
+Algoritmo: `skills/lib/legacy-detector.md`.
+Migracao: `skills/lib/legacy-migrator.md`.
 
 ### Fluxo
 
 ```
 1. Se `.planning/` nao existe: skip — ir para Step 1.
-2. Executar `detectLegacy(".planning/")` conforme `lib/legacy-detector.md`.
+2. Executar `detectLegacy(".planning/")` conforme `skills/lib/legacy-detector.md`.
 3. Se `legacy == false`: skip — ir para Step 1.
 4. Se `legacy == true`:
    a. Apresentar ao dev:
@@ -124,7 +124,7 @@ Migracao: `lib/legacy-migrator.md`.
            - {cada artifact.path}
          Slug inferido: {suggestedSlug ou 'nenhum — dev fornece'}"
    b. Se detectou apenas PLAN.md/STATE.md flat (sinal C sem A nem B):
-      - Nota: o detector retorna legacy=false se so C presente (conforme lib/legacy-detector.md).
+      - Nota: o detector retorna legacy=false se so C presente (conforme `skills/lib/legacy-detector.md`).
         Portanto esse caso nao chega aqui — PLAN.md flat puro nao eh legacy pelo algoritmo.
         Execute-plan Step 1b detecta o flat normalmente e vai para Step 2-FLAT.
    c. Se `suggestedSlug` for null (ambiguous):
@@ -141,7 +141,7 @@ Migracao: `lib/legacy-migrator.md`.
       - "Nao — executar legacy em modo v1 a partir de .planning/ raiz (nao migra)"
       - "Cancelar execute-plan"
    g. Se "Sim":
-      - Chamar `migrateLegacy(detectorResult, targetFolderName)` conforme `lib/legacy-migrator.md`
+      - Chamar `migrateLegacy(detectorResult, targetFolderName)` conforme `skills/lib/legacy-migrator.md`
       - Se `status == "success"`: continuar Step 1 dentro da pasta migrada
       - Se `rolled_back`/`aborted`: reportar erro, perguntar se prosseguir em modo legacy v1 ou cancelar
    h. Se "Nao — legacy v1":
@@ -878,8 +878,8 @@ console.log('\n\n' + renderCompletionSignal({
 - `skills/plan-feature/templates/memory-template.md` — Template de memoria por plano
 - `agents/plan-executor.md` — Agent que executa tasks/fases individuais
 - `agents/plan-verifier.md` — Agent que verifica output (read-only)
-- `lib/legacy-detector.md` — Algoritmo de deteccao de estrutura legacy (consumido pelo Step 0)
-- `lib/legacy-migrator.md` — Algoritmo de migracao atomica STAGE/MOVE/CONFIRM/ROLLBACK (consumido pelo Step 0)
+- `skills/lib/legacy-detector.md` — Algoritmo de deteccao de estrutura legacy (consumido pelo Step 0)
+- `skills/lib/legacy-migrator.md` — Algoritmo de migracao atomica STAGE/MOVE/CONFIRM/ROLLBACK (consumido pelo Step 0)
 
 ---
 
