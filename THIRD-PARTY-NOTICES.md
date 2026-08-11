@@ -63,12 +63,12 @@ SOFTWARE.
 **Derived sections** (translated to pt-BR, anchor terms kept in English; conceptual content and section order preserved):
 
 - `SKILL.md`: `Context pointers`, `As duas cargas`, `Hierarquia da informacao`, `Steps e criterios de completude`, `Quando dividir`, `Leading words`, `Poda`
-- `SKILL-MECHANICS.md`: `Dividir por invocacao`, `Router skills`, and the model- vs. user-invoked trade-off framing in `Invocation`
+- `references/SKILL-MECHANICS.md`: `Dividir por invocacao`, `Router skills`, and the model- vs. user-invoked trade-off framing in `Invocation`
 
 **Original to this repository** (no upstream counterpart):
 
 - `SKILL.md`: `Armadilhas deste harness`, `docs/ vs runtime asset`, `Common Rationalizations`, `Red Flags`
-- `SKILL-MECHANICS.md`: the frontmatter field table (rewritten for this plugin's eight fields — upstream models two states) and the measured frontmatter findings
+- `references/SKILL-MECHANICS.md`: the frontmatter field table (rewritten for this plugin's eight fields — upstream models two states) and the measured frontmatter findings
 
 #### MIT License (verbatim from upstream LICENSE):
 

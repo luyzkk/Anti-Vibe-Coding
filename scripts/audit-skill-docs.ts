@@ -24,7 +24,12 @@ export interface SkillAuditRecord {
    * Existe para reconciliar com o baseline de 2026-08-10, que mediu a linha bruta.
    */
   descriptionLineChars: number
-  triggerCount: number
+  /**
+   * Itens entre aspas simples na description. E proxy de ESTILO, nao de branch: uma description
+   * reescrita sem aspas le zero mesmo carregando 11 branches. Nao ranqueie por este campo —
+   * use `descriptionChars`, que mede o custo real.
+   */
+  quotedTriggerCount: number
   bodyLines: number
   negations: Negation[]
   modelInvoked: boolean
@@ -178,7 +183,7 @@ export function auditSkillDocs(skillsRoot: string, hookPayload = ''): SkillAudit
       skill: name,
       descriptionChars: description.length,
       descriptionLineChars: `description: ${descriptionRaw}`.length,
-      triggerCount: (description.match(QUOTED_TRIGGER) ?? []).length,
+      quotedTriggerCount: (description.match(QUOTED_TRIGGER) ?? []).length,
       bodyLines: trimBlankEdges(bodyRaw).length,
       negations,
       modelInvoked: readField(fmLines, 'disable-model-invocation') !== 'true',
@@ -241,5 +246,13 @@ if (import.meta.main) {
   console.log(`negacoes no corpo     ${t.negations}`)
   console.log(`satelites sem ponteiro ${t.satellitesUnlinked}`)
   if (report.skipped.length > 0) console.log(`ignoradas             ${report.skipped.join(', ')}`)
+
+  // Ranking por descriptionChars, nunca por quotedTriggerCount: aquele mede custo, este mede
+  // estilo de aspas — description reescrita sem aspas le zero e sobe no ranking sem ter melhorado.
+  console.log('\nmaiores ofensores (por descriptionChars):')
+  for (const s of [...report.skills].sort((a, b) => b.descriptionChars - a.descriptionChars).slice(0, 5)) {
+    console.log(`  ${s.skill.padEnd(22)}${String(s.descriptionChars).padStart(5)} chars`)
+  }
+
   console.log(`\nBaseline: ${join(outDir, 'skill-audit-baseline.json')}`)
 }

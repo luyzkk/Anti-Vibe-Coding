@@ -15,7 +15,7 @@ Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 | 04 | Aplicacao dos patches | planned | escopo definido pela fase-03 |
 
 Entregue na fase-01: `skills/writing-for-agents/SKILL.md` (220 linhas),
-`skills/writing-for-agents/SKILL-MECHANICS.md` (56 linhas), bloco de atribuicao MIT em
+`skills/writing-for-agents/references/SKILL-MECHANICS.md` (56 linhas), bloco de atribuicao MIT em
 `THIRD-PARTY-NOTICES.md`. Zero diff em `skills/*/SKILL.md` pre-existentes (INV-03 mantida).
 
 Entregue na fase-02: `scripts/audit-skill-docs.ts` + `scripts/audit-skill-docs.test.ts` (14 testes),
@@ -88,22 +88,28 @@ Novo maior ofensor: `infrastructure` (792 chars, 35 triggers), depois `api-desig
 - O hook `SessionStart` mantem sua propria linha de 273 chars para `system-design`. Fora do escopo
   desta aplicacao; segue como achado aberto.
 
-## Achados novos, abertos (surgiram ao aplicar)
+## Achados que surgiram ao aplicar
 
-- **`SKILL-MECHANICS.md` nao e distribuido.** `scripts/generate-manifest.js:172-202` varre, dentro de
-  cada skill, apenas `references/`, `templates/`, `lib/` e `assets/`. **Arquivo irmao do `SKILL.md`
-  nao entra.** Das 114 satelites `.md` registradas hoje, zero e irma do `SKILL.md` — a convencao do
-  repo e subpasta. Consequencia: em projeto-alvo o ponteiro da `writing-for-agents` para
-  `./SKILL-MECHANICS.md` fica pendurado. Correcao proposta: `git mv` para
-  `references/SKILL-MECHANICS.md` + atualizar os 3 ponteiros no `SKILL.md`. **Nao aplicada** — muda a
-  estrutura entregue na fase-01, decisao do humano.
-- **`triggerCount` mede estilo de aspas, nao branch.** Depois do patch, `system-design` reporta
-  **0 triggers** — a variante B nao usa aspas simples. A description tem 11 branches e 9 nomes; a
-  metrica le zero. Como proxy de ranqueamento isso inverte o sinal: skill corrigida parece perfeita,
-  skill intocada parece pessima. **A fase-03 nao pode ranquear por `triggerCount` como esta.**
-  Opcoes: renomear para `quotedTriggerCount` e ranquear por `descriptionChars`, ou contar clausulas
-  separadas por virgula apos "asks about". Decisao do humano antes da fase-03.
-- **O teste de checksum do manifest amostra 3 de 414 arquivos** (`generate-manifest.test.ts:114-128`,
+- **RESOLVIDO — `SKILL-MECHANICS.md` nao era distribuido.** `scripts/generate-manifest.js:172-202`
+  varre, dentro de cada skill, apenas `references/`, `templates/`, `lib/` e `assets/`. **Arquivo irmao
+  do `SKILL.md` nao entra.** Das 114 satelites `.md` registradas, zero era irma do `SKILL.md` — a
+  convencao do repo e subpasta, e a fase-01 seguiu o layout plano da fonte. Em projeto-alvo o ponteiro
+  ficaria pendurado. Corrigido em 2026-08-11: `git mv` para
+  `skills/writing-for-agents/references/SKILL-MECHANICS.md` (linhagem preservada), 2 ponteiros
+  atualizados no `SKILL.md` (`./references/SKILL-MECHANICS.md`), 2 ponteiros de volta no mechanics
+  (`../SKILL.md`), 2 rotulos no `THIRD-PARTY-NOTICES.md` e a linha do `README.md` deste plano.
+  Manifest regenerado: 414 -> 415 arquivos, path antigo removido. O baseline agora ve a satelite e a
+  conta como alcancada (0 orfaos na skill).
+  **A armadilha "path-em-doc envelhece calado" que a propria skill documenta pegou o autor dela.**
+- **RESOLVIDO — `triggerCount` media estilo de aspas, nao branch.** Depois do patch, `system-design`
+  passou a reportar **0 triggers**: a variante B nao usa aspas simples, embora carregue 11 branches e
+  9 nomes. Como proxy de ranqueamento isso inverte o sinal — skill corrigida parece perfeita, skill
+  intocada parece pessima, e a fase-03 mandaria subagente para as skills erradas. Renomeado para
+  **`quotedTriggerCount`**, com o aviso no proprio tipo, e o CLI agora imprime o ranking por
+  **`descriptionChars`**, que mede custo e nao estilo. A opcao mais cara (contar clausulas apos "asks
+  about") ficou de fora: `descriptionChars` ja ordena certo e nao tem heuristica para envelhecer.
+  **Regra para a fase-03: ranquear por `descriptionChars`.**
+- **ABERTO — o teste de checksum do manifest amostra 3 de 415 arquivos** (`generate-manifest.test.ts:114-128`,
   `Object.keys(manifest.files).slice(0, 3)` = `CLAUDE.md`, `rules/api-standards.md`,
   `rules/code-quality.md`). Checksum stale em qualquer outro arquivo passa despercebido — foi o que
   aconteceu aqui: editei `system-design/SKILL.md`, o checksum ficou errado e a suite seguiu verde.
