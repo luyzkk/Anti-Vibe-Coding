@@ -125,9 +125,13 @@ Step 3 — Regression Test ANTES do fix:
   "Antes de corrigir, vou escrever um teste que reproduz o bug.
    Esse teste deve FALHAR agora e PASSAR após o fix."
   
-  Escrever teste no arquivo de teste correspondente:
-  - Nome: verbo descritivo (nunca "should")
-  - Exemplo: "returns 404 when token expired after deploy"
+  Apresentar o teste e aguardar aprovação antes de gravar:
+  "Teste proposto:
+   Arquivo: [arquivo de teste correspondente]
+   Nome: verbo descritivo, nunca "should" — ex.: "returns 404 when token expired after deploy"
+   Gravar?"
+
+  Aguardar aprovação. Gravar.
   - Rodar: bun run test [arquivo]
   - Confirmar que FALHA (RED). Se passar: o teste não reproduz o bug.
 

@@ -315,10 +315,11 @@ A sugestao e INFORMATIVA — o dev decide se quer seguir ou nao.
 
 ---
 
-## Auto-Registro de Decisoes
+## Registro de Decisoes
 
-Ao final de qualquer consulta que resulte em uma decisao tomada, registrar automaticamente
-no arquivo `decisions.md` na raiz do projeto (criar se nao existir).
+Ao final de qualquer consulta que resulte em uma decisao tomada, montar a entrada abaixo e
+oferece-la ao dev via `/anti-vibe-coding:decision-registry`, que e quem grava em `decisions.md`
+na raiz do projeto.
 
 **Criterio para registrar:** a consulta chegou a uma recomendacao clara e o dev aceitou (ou nao refutou explicitamente). NAO registrar se dev recusar ou se a consulta terminou em incerteza.
 
