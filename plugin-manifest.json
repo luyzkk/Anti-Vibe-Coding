@@ -1,6 +1,6 @@
 {
   "version": "7.5.0",
-  "generatedAt": "2026-08-11T14:09:02.895Z",
+  "generatedAt": "2026-08-11T17:31:42.567Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -596,7 +596,7 @@
     "scripts/run-tests.ts": {
       "version": "7.5.0",
       "checksum": "9b352cd3c1db5d065179852007905ff6d539766e0da6dd54ab9cdfaf7cc2aae9",
-      "lastModified": "2026-05-13",
+      "lastModified": "2026-08-11",
       "updateStrategy": "replace"
     },
     "skills/anti-vibe-review/SKILL.md": {
@@ -913,8 +913,8 @@
     },
     "skills/consultant/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "40a0dbe5956a5dc5f7c3cca330627353ec349bc240e4b388dd746ee59e116052",
-      "lastModified": "2026-06-05",
+      "checksum": "9778875f4f47e87744695c7452a0bc17c0ecb0472efb097ca7f5d777490c77cf",
+      "lastModified": "2026-08-11",
       "updateStrategy": "replace"
     },
     "skills/consultant/references/assumption-audit.md": {
@@ -1033,8 +1033,8 @@
     },
     "skills/execute-plan/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "650e340120887f84122f8e3f3829e7f4e7e78d11e540fd9842151ed3d56a5e26",
-      "lastModified": "2026-05-23",
+      "checksum": "7052b079b66c010339e1e15f67b6463cb43ea3d2c105e8861f637311b4fc418c",
+      "lastModified": "2026-08-11",
       "updateStrategy": "replace"
     },
     "skills/execute-plan/references/wave-execution.md": {
@@ -1087,8 +1087,8 @@
     },
     "skills/init/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "cf696cdc83fe0cd8319d5a7972151088a4c876041bfbcb5f34009b03faed1b22",
-      "lastModified": "2026-05-24",
+      "checksum": "536b20d2deb80a759d65a8329a56bca4547597720553d527af961370937f3e6e",
+      "lastModified": "2026-08-11",
       "updateStrategy": "replace"
     },
     "skills/init/lib/atoms-frontmatter-validator.ts": {
@@ -2023,8 +2023,8 @@
     },
     "skills/iterate/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "c230d8c2ce7c5ead18e351a6ec30654adcde8a1f4215b67e20ef1e0f69f0593f",
-      "lastModified": "2026-06-05",
+      "checksum": "06e25eea82b6b742be998ef3fe9c982041a91da55a009c729b42d9f7c858204d",
+      "lastModified": "2026-08-11",
       "updateStrategy": "replace"
     },
     "skills/learn/SKILL.md": {

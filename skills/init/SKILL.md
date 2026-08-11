@@ -74,7 +74,7 @@ A tabela abaixo eh **documentacao gerada a mao**. A fonte de verdade do runtime 
 ## Regras Importantes
 
 - **NUNCA sobrescrever** informacoes do projeto sem aprovacao
-- **NUNCA remover** secoes existentes do CLAUDE.md original
+- **Nada e perdido** — o que sai do CLAUDE.md original e realocado, nunca descartado
 - **SEMPRE** criar backup antes de modificar
 - **SEMPRE** mostrar ao usuario o que sera alterado antes de alterar
 - **Default destrutivo + revogavel** — em projetos com CLAUDE.md pre-existente, o init **transforma** o CLAUDE.md em espelho <=40 linhas (D2/D26/D28) extraindo regras Akita para `docs/DESIGN.md`. NUNCA aplica essa transformacao sem (a) aprovacao explicita do dev via `needsUser` agregado (MH-04) e (b) backup recuperavel em `.anti-vibe/backup/{timestamp}/` (D9, D29). Reversibilidade garantida via `/anti-vibe-coding:init --rollback` (MH-07).

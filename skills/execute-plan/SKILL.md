@@ -820,7 +820,7 @@ Step 6-FLAT: SUMMARY ao completar
 ## Regras Criticas
 
 1. **Isolamento e absoluto** — subagentes GREEN nunca veem requisitos, apenas testes
-2. **O orchestrador nunca executa codigo** — apenas spawn de subagentes e atualizacao de estado
+2. **O orchestrador nao implementa** — escrever codigo e trabalho de subagente. O orchestrador faz spawn, atualiza estado e roda a validacao pos-fase (Step 5)
 3. **Max 3 retries** — apos isso, marcar blocked e continuar com outras fases
 4. **Sempre confirma antes de executar** — Step 3 e obrigatorio, nunca pule
 5. **Commit atomico por fase** — cada subagente faz commit(s) ao terminar
