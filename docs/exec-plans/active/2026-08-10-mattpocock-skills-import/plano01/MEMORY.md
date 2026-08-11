@@ -2,7 +2,7 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** fase-04 em execucao — **lotes 1 e 2 fechados**, aguardando aprovacao do lote 3 (hook, arquivo isolado)
+**Status:** fase-04 em execucao — **lotes 1, 2 e 3 fechados**, aguardando aprovacao do lote 4 (descriptions)
 **Branch:** `feat/writing-for-agents-port` (criada 2026-08-11, a partir de `main`)
 
 ## Progresso
@@ -12,7 +12,7 @@ Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 | 01 | Porte do nucleo | **done** | 2 novos + 1 modificado |
 | 02 | Instrumentacao + tracer | **done** | 2 novos + 1 gerado |
 | 03 | Auditoria fan-out | **done** (aguardando aprovacao) | 1 novo (`AUDIT-REPORT.md`) |
-| 04 | Aplicacao dos patches | **em execucao** | lote 1 (`0c964a0`, `357d154`) · lote 2 (`436dec7`, `e3a33b8`) |
+| 04 | Aplicacao dos patches | **em execucao** | lote 1 (`0c964a0`, `357d154`) · lote 2 (`436dec7`, `e3a33b8`) · lote 3 (`c61e941`) |
 
 Modo de aprovacao escolhido pelo humano: **por lote**, com a lista do lote na tela antes de aplicar
 (a alternativa era por achado, ~70 pausas). Lote 1 do relatorio virou **1a + 1b** — ver DI abaixo.
@@ -391,6 +391,48 @@ Formato: `DI-Plano01-faseNN-<slug>: <o que mudou e por que>`.
   correto, o lote 2 nao toca description. Corpo: 2a ~+105 chars (path mais longo), 2b ~−120.
   `satelites sem ponteiro` segue **6**: deletar ponteiro para arquivo **inexistente** nao muda
   contagem de orfao, que mede arquivo existente sem ponteiro. Metricas distintas, nao regressao.
+
+### fase-04 — lote 3 (S4 hook `SessionStart`), commit `c61e941`
+
+- **DI-Plano01-fase04-hooks-json-e-CRLF**: o primeiro plano de edicao era
+  `JSON.parse` -> modificar -> `JSON.stringify(obj, null, 2)`. Um gate de round-trip **abortou antes
+  de escrever**: original 9.584 chars, round-trip 9.431 — diferenca de **exatamente 153, o numero de
+  linhas**. `hooks/hooks.json` esta em **CRLF no disco** e `JSON.stringify` emite LF. Teria
+  reescrito as 153 linhas de um arquivo com historico de sobrescrita (compound `2026-03-23`).
+  Trocado para substituicao no **texto bruto**: diff de 1 linha, 153 CRLF preservados.
+  **Regra para qualquer edicao futura de `hooks/hooks.json`: nunca parse+stringify; editar o texto
+  bruto e conferir a contagem de CRLF antes e depois.**
+
+- **DI-Plano01-fase04-escape-tem-duas-barras**: no texto bruto do JSON a quebra do `printf` e
+  `\\n` — **3 chars: barra, barra, n** (o JSON escapa a barra que o printf vai interpretar). O
+  primeiro alvo montado com `String.raw` de uma barra so casou **0x** e o gate abortou. Custou uma
+  iteracao, nao um arquivo corrompido. Escrever alvo multi-linha para este arquivo exige
+  `String.raw` com **duas** barras.
+
+- **DI-Plano01-fase04-akita-metade-e-roteamento**: o relatorio tratou a tabela Akita (736 chars)
+  como uma coisa so, duplicada de `pair-programming-with-agent`. Sao **duas**. O bloco **"Faz BEM"**
+  (230 chars) nao tem destino de roteamento e nomeia o que o agente ja faz por default — no-op, e ai
+  sim duplicata. O bloco **"Faz MAL"** (371 chars) carrega as setas `-> consultant` e `-> security`,
+  que **nao existem em nenhum outro lugar do repo**: a tabela da propria skill tem os mesmos 5
+  dominios **sem** os alvos. Cortar a secao inteira teria removido a unica copia do roteamento.
+  Verificado lendo `pair-programming-with-agent:64-76` lado a lado, nao pela descricao do achado.
+
+- **DI-Plano01-fase04-lista-23-adiada**: os 1.981 chars da lista de skills (53% do banner) **nao
+  foram cortados**. E o G1 multiplicado por 23: se a descoberta depender so das descriptions e a
+  premissa estiver errada, 23 skills param de disparar **em silencio**. A lista tambem carrega o
+  protocolo "SEMPRE pergunte antes de invocar", ausente das descriptions. Precisa de lote proprio
+  com verificacao real de descoberta — nao de coragem.
+
+- **DI-Plano01-fase04-delta-lote3-divergiu-do-projetado**: projetado no relatorio **−1.039/sessao**,
+  realizado **−374** (banner 4.131 -> 3.757). A divergencia e deliberada e explicada acima: ~370 dos
+  chars projetados como corte sao a funcao de roteamento. **Aplicado o principio do relatorio
+  ("apontar e o trabalho do hook"), nao o numero dele.** G4: registrar divergencia, nao forcar o
+  numero.
+
+- **DI-Plano01-fase04-hook-verificado-executando**: o hook foi **executado** apos o patch
+  (`bash` sobre o `command` extraido), nao so validado como JSON. Renderiza, 23 skills presentes,
+  setas e travessoes UTF-8 intactos. `hookDescriptionChars` do baseline: 2.081 -> **1.937**, com
+  `hookListed` ainda **23** — a queda e o drift, nao descoberta perdida.
 
 ## Pendencias abertas (fase-01)
 
