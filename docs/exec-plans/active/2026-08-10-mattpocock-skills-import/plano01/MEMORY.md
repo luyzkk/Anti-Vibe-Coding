@@ -2,7 +2,7 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** fase-02 executada — aguardando aprovacao para fase-03
+**Status:** fase-03 executada — aguardando aprovacao para fase-04
 **Branch:** `feat/writing-for-agents-port` (criada 2026-08-11, a partir de `main`)
 
 ## Progresso
@@ -10,9 +10,9 @@ Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 | Fase | Nome | Status | Arquivos |
 |---|---|---|---|
 | 01 | Porte do nucleo | **done** | 2 novos + 1 modificado |
-| 02 | Instrumentacao + tracer | **done** (aguardando aprovacao) | 2 novos + 1 gerado |
-| 03 | Auditoria fan-out | planned | 0/1 |
-| 04 | Aplicacao dos patches | planned | escopo definido pela fase-03 |
+| 02 | Instrumentacao + tracer | **done** | 2 novos + 1 gerado |
+| 03 | Auditoria fan-out | **done** (aguardando aprovacao) | 1 novo (`AUDIT-REPORT.md`) |
+| 04 | Aplicacao dos patches | planned | escopo recomendado em 7 lotes pelo relatorio |
 
 Entregue na fase-01: `skills/writing-for-agents/SKILL.md` (220 linhas),
 `skills/writing-for-agents/references/SKILL-MECHANICS.md` (56 linhas), bloco de atribuicao MIT em
@@ -20,6 +20,48 @@ Entregue na fase-01: `skills/writing-for-agents/SKILL.md` (220 linhas),
 
 Entregue na fase-02: `scripts/audit-skill-docs.ts` + `scripts/audit-skill-docs.test.ts` (14 testes),
 baseline em `docs/generated/skill-audit-baseline.json` (40 registros). INV-03 mantida.
+
+Entregue na fase-03: [`AUDIT-REPORT.md`](./AUDIT-REPORT.md) — 5 subagentes read-only sobre as 40
+skills, 6 achados sistemicos, ~70 achados por skill, delta projetado **−35% do context load de
+descriptions**. INV-03 mantida (zero diff em `skills/`).
+
+## Decisoes de implementacao (DI) — fase-03
+
+- **DI-Plano01-fase03-40-nao-39**: a fase fala em 39 skills; sao **40**. `writing-for-agents` entrou
+  na fase-01 e foi auditada com ela mesma (lote B) — rendeu 2 achados de duplicacao, incluindo
+  `## Red Flags` sendo terceira copia de significados ja em `Common Rationalizations` e no corpo.
+
+- **DI-Plano01-fase03-preface-e-load-bearing**: **o achado mais importante da fase, e ele derrubou
+  uma proposta de subagente.** O lote C propos deletar os blocos de codigo de
+  `decision-registry:10-59`. Verificacao em `scripts/harness-validate.ts:637-660`: o bloco
+  `profile-aware-preface` e **obrigatorio** — o validator falha se faltar fence ou referencia a
+  `readPrefaceContext`. Deletar derrubaria `bun run harness:validate` em 9 skills. Os 54.974 chars de
+  blocos ```` ```typescript ```` nos SKILL.md sao **tres classes distintas**, nao uma: telemetria
+  (morta, guardada por `telemetry-utils.test.ts:192`), `profile-aware-preface` (**intocavel**) e
+  `stale-capabilities-check` (byte-identico em 6 arquivos, guardado por teste de ordem em 4). So a
+  primeira entra na fase-04.
+
+- **DI-Plano01-fase03-verificacao-obrigatoria**: 8 afirmacoes de subagente foram reverificadas por
+  script antes de entrar no relatorio (secao §Verificacao independente). 7 confirmaram; 1 era falsa
+  (a do preface). Alem dela, o lote C **retirou sozinho** um achado apos verificar: "`verify-work`
+  aponta para skill removida" — a skill existe. **Saida de subagente e hipotese**, e a taxa de erro
+  observada (~1 em 8 nas afirmacoes de maior impacto) justifica o custo da reverificacao.
+
+- **DI-Plano01-fase03-sistemicos-por-script**: os 6 achados sistemicos foram medidos por script, nao
+  por agente — cada lote ve 8 de 40 e nao enxerga padrao que atravessa o repo. Numeros: 28 secoes
+  terminais em 21 skills (28.281 chars) · 54.974 chars de blocos de codigo · hook `SessionStart` com
+  4.205 chars/sessao · 602 chars de boilerplate em 14 descriptions · 6 satelites orfaos.
+
+- **DI-Plano01-fase03-drift-do-proprio-corte**: o corte do `system-design` (commit `01ffdf7`) **nao
+  propagou para o `hooks/hooks.json`**, que mantem 273 chars da lista de triggers antiga carregados
+  em toda sessao. Violacao de single source of truth cometida por quem portou a lente que a descreve.
+  Entra no lote 3 da fase-04.
+
+- **DI-Plano01-fase03-guardrail-funcionou**: **zero achados** do tipo "corpo grande demais" nos 5
+  lotes. `security` (589), `verify-work` (610), `system-design` (519), `api-design` (438),
+  `architecture` (434), `tdd-workflow` (451) e `infrastructure` (426) passaram como catalogo
+  consultavel legitimo. O brief nomeava esse risco explicitamente e listava as skills protegidas por
+  lote — sem isso, a fase-03 teria produzido a parede de ruido que o README do plano previa.
 
 ## Tracer bullet — `system-design` (gate fase-02 -> fase-03: **passou**)
 
