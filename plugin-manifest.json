@@ -1,6 +1,6 @@
 {
   "version": "7.5.0",
-  "generatedAt": "2026-08-11T17:54:09.473Z",
+  "generatedAt": "2026-08-11T18:01:10.168Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -565,8 +565,8 @@
     },
     "scripts/harness-validate.ts": {
       "version": "7.5.0",
-      "checksum": "00c2d662a1b2bf7a0634250589cc41354660dd602e8e18634e0b2325e4a84b8d",
-      "lastModified": "2026-05-23",
+      "checksum": "50198ecd6139084c8cee0edf25605f39e886dfe0f06c946138276aa57e50d8be",
+      "lastModified": "2026-08-11",
       "updateStrategy": "replace"
     },
     "scripts/init-cli.ts": {
@@ -925,8 +925,8 @@
     },
     "skills/decision-registry/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "c23ff6ad77a30ceca022f1a194467c818ca48e0b889792a2b32362f8fc8c1f2f",
-      "lastModified": "2026-06-05",
+      "checksum": "9ec3b751cb43af5bcbd50d50861f3c0d347e5c8f923181e33705ee803d6b109d",
+      "lastModified": "2026-08-11",
       "updateStrategy": "replace"
     },
     "skills/decision-registry/lib/decision-registry-prefaces.ts": {
@@ -2023,7 +2023,7 @@
     },
     "skills/iterate/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "06e25eea82b6b742be998ef3fe9c982041a91da55a009c729b42d9f7c858204d",
+      "checksum": "eecd3438b90ee838a0682201993b1f023a95fcb02262e9b374aaaf2d0ef03ed6",
       "lastModified": "2026-08-11",
       "updateStrategy": "replace"
     },
@@ -2137,8 +2137,8 @@
     },
     "skills/react-patterns/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "3e70f0b5e6b1cd972ffa3804cbf139871fcce479e1d07e1f1c6545e101d00600",
-      "lastModified": "2026-06-05",
+      "checksum": "2a7f6cb3f952455fa235b176c969f6a1c21733f89b894db1b2337289adeeae6e",
+      "lastModified": "2026-08-11",
       "updateStrategy": "replace"
     },
     "skills/react-patterns/references/data-fetching.md": {

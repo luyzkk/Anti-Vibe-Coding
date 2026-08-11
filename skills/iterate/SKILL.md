@@ -45,7 +45,7 @@ Pipeline completo: `grill-me → write-prd → plan-feature → execute-plan →
 ```
 1. Verificar se há contexto de deploy:
    - Existe git tag de release? (git tag --list | tail -1)
-   - Existe SUMMARY.md com Wave concluída? (Glob ".planning/*/SUMMARY.md")
+   - Existe SUMMARY.md com Wave concluída? (Glob "docs/exec-plans/**/SUMMARY.md")
    - Existe arquivo de log ou stack trace no argumento?
 
 2. SE nenhum contexto de deploy detectado E argumento vazio:

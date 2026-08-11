@@ -207,23 +207,24 @@ Sem isso, o registro vira arquivo morto — ninguem chega no ADR a partir do cod
 
 ## Arquivo de Armazenamento
 
-As decisoes sao armazenadas em `.claude/decisions.md` na raiz do projeto.
+O destino depende do layout do projeto, resolvido por `lib/path-resolver-v6.ts` — ver
+`## Fluxo (v6)` abaixo.
 
 ## Fluxo de Trabalho
 
 ### Ao adicionar (`add`):
-1. Ler `.claude/decisions.md` (criar se nao existir)
+1. Resolver o layout e abrir o destino correspondente (criar se nao existir)
 2. Verificar se a decisao ja foi registrada
 3. Adicionar no formato correto com data de hoje
 4. Informar o desenvolvedor que a decisao foi registrada
 
 ### Ao listar (`list`):
-1. Ler `.claude/decisions.md`
+1. Ler o registro do layout resolvido
 2. Listar todas as decisoes em formato de tabela resumida:
    | Data | Decisao | Escolha | Reversivel? |
 
 ### Ao consultar (`query`):
-1. Buscar no `.claude/decisions.md` por termo
+1. Buscar no registro do layout resolvido por termo
 2. Mostrar a decisao completa com justificativa
 
 ## Fluxo (v6)
