@@ -106,8 +106,8 @@ Roda ANTES de qualquer outra coisa. Detecta dois niveis de estrutura legacy:
 - **v4 legacy**: `PRD-*.md` ou `planoNN/` soltos na raiz de `.planning/` (pre-pasta-datada)
 - **v5 legacy**: pastas `YYYY-MM-DD-slug/` dentro de `.planning/` (pre-v6, deve migrar para `docs/exec-plans/active/`)
 
-Algoritmo referenciado: `lib/legacy-detector.md` (v4 detection).
-Migracao referenciada: `lib/legacy-migrator.md`.
+Algoritmo referenciado: `skills/lib/legacy-detector.md` (v4 detection).
+Migracao referenciada: `skills/lib/legacy-migrator.md`.
 
 ### Fluxo
 
@@ -130,7 +130,7 @@ Migracao referenciada: `lib/legacy-migrator.md`.
    - Se "Cancelar": encerrar
 
 3. Verificar v4 legacy (apenas se nao havia v5 legacy):
-   - Executar `detectLegacy(".planning/")` conforme `lib/legacy-detector.md`
+   - Executar `detectLegacy(".planning/")` conforme `skills/lib/legacy-detector.md`
    - Se `legacy == false`: skip — ir para Step 1
 
 4. Se v4 `legacy == true`:
@@ -156,7 +156,7 @@ Migracao referenciada: `lib/legacy-migrator.md`.
         - "Nao — prosseguir com plan-feature em modo greenfield (legacy fica intocado)"
         - "Cancelar plan-feature"
    f. Se "Sim":
-      - Chamar `migrateLegacy(detectorResult, targetFolderName)` conforme `lib/legacy-migrator.md`
+      - Chamar `migrateLegacy(detectorResult, targetFolderName)` conforme `skills/lib/legacy-migrator.md`
         (target path = "docs/exec-plans/active/{targetFolderName}/")
       - Se retorno status == "success":
         - Confirmar: "Migrado com sucesso. {N} artefatos em docs/exec-plans/active/{targetFolderName}/"
@@ -754,7 +754,7 @@ Para aprofundar: sugerir `/anti-vibe-coding:learn "vertical slices"` ou `/anti-v
 
 ### 0. Deteccao de Legacy (ver Step 0 acima)
 Se detectar artefatos em `.planning/` (v4 ou v5), oferece migrar para `docs/exec-plans/active/`
-antes de qualquer outro fluxo. Ver `lib/legacy-detector.md` e `lib/legacy-migrator.md`.
+antes de qualquer outro fluxo. Ver `skills/lib/legacy-detector.md` e `skills/lib/legacy-migrator.md`.
 
 ### 1. Importar PRD (se disponivel)
 Antes de iniciar o planejamento, executar o Step 1 para localizar o PRD:
@@ -935,8 +935,8 @@ console.log('\n\n' + renderCompletionSignal({
 
 ## Referencias
 
-- `lib/legacy-detector.md` — Algoritmo de deteccao de estrutura legacy (consumido pelo Step 0)
-- `lib/legacy-migrator.md` — Algoritmo de migracao atomica STAGE/MOVE/CONFIRM/ROLLBACK (consumido pelo Step 0)
+- `skills/lib/legacy-detector.md` — Algoritmo de deteccao de estrutura legacy (consumido pelo Step 0)
+- `skills/lib/legacy-migrator.md` — Algoritmo de migracao atomica STAGE/MOVE/CONFIRM/ROLLBACK (consumido pelo Step 0)
 
 ---
 
