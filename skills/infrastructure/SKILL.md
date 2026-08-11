@@ -1,6 +1,6 @@
 ---
 name: infrastructure
-description: "This skill should be used when the user asks about 'DNS', 'domain setup', 'SSL', 'TLS certificates', 'hosting', 'deploy', 'VPS', 'serverless', 'CDN', 'PM2', 'Docker', 'Kubernetes', 'CI/CD', 'health checks', 'Let's Encrypt', 'Route 53', 'Route 53 routing policy', 'weighted routing', 'latency-based routing', 'failover routing', 'geolocation routing', 'geoproximity routing', 'multivalue answer', 'DNS health check', 'hosted zone', 'private hosted zone', 'split-horizon DNS', 'DNS TTL', 'CloudFront', 'S3 hosting', 'blue-green deployment', 'zero-downtime deploy', 'deployment health check', 'cutover', 'instant rollback', or faces infrastructure and deployment decisions. Provides expert consultation on DNS, DNS routing policies, hosting, deployment patterns, and infrastructure architecture."
+description: "Infrastructure and deployment consultation. Use when the user asks about DNS and domain setup, SSL/TLS certificates, hosting choice, AWS essentials, or deployment patterns — by concept or by name (Route 53, CloudFront, S3, Docker, Kubernetes, PM2, Let's Encrypt, blue-green, CI/CD)."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob, WebSearch
