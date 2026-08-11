@@ -17,6 +17,9 @@ on critical operations, KISS, YAGNI, zero clutter, functional programming when a
 > or asked, not filled silently.
 
 - Silently agreeing with something wrong is not being helpful — it is being negligent.
+- Absence of a trigger is not evidence an artifact is inert. Before deleting anything that
+  "never runs", grep for its marker in validators and tests — the consumer may be a verifier,
+  not a runtime. Non-executing is not the same as non-load-bearing.
 
 Skill: /anti-vibe-coding:consultant (Phase Zero teaching).
 
