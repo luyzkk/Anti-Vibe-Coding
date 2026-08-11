@@ -4135,8 +4135,8 @@
     },
     {
       "skill": "quick-plan",
-      "descriptionChars": 289,
-      "descriptionLineChars": 304,
+      "descriptionChars": 299,
+      "descriptionLineChars": 314,
       "quotedTriggerCount": 0,
       "bodyLines": 226,
       "negations": [
@@ -4197,8 +4197,8 @@
         },
         {
           "line": 210,
-          "term": "NAO",
-          "text": "- NAO cria arquivos de planejamento em disco (PLAN.md, STATE.md, etc.)"
+          "term": "nao",
+          "text": "- Escreve **um** arquivo so — nao a estrutura PLAN.md/STATE.md/MEMORY.md do /plan-feature"
         },
         {
           "line": 211,
@@ -6492,8 +6492,8 @@
   "skipped": [],
   "totals": {
     "skillCount": 40,
-    "descriptionChars": 13499,
-    "descriptionLineChars": 14091,
+    "descriptionChars": 13509,
+    "descriptionLineChars": 14101,
     "modelInvoked": 40,
     "hookListed": 23,
     "hookDescriptionChars": 2081,
