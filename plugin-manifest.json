@@ -1,6 +1,6 @@
 {
   "version": "7.5.0",
-  "generatedAt": "2026-06-19T13:04:11.501Z",
+  "generatedAt": "2026-08-11T13:56:42.978Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -205,7 +205,7 @@
       "path": "skills/system-design/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "This skill should be used when the user asks about 'CAP theorem', 'PACELC', 'system design', 'caching strategies', 'Redis', 'horizontal scaling', 'vertical scaling', 'load balancer', 'load balancing algorithms', 'round robin', 'least connections', 'consistent hashing', 'database replication', 'sharding', 'SQL vs NoSQL', 'eventual consistency', 'CDN', 'edge server', 'anycast', 'cache invalidation', 'serverless', 'Lambda', 'cold start', 'serverfull', 'VPS', 'EC2', 'PM2', 'message queue', 'pub/sub', 'message broker', 'delivery semantics', 'exactly-once', 'idempotent consumer', 'idempotency key', 'message ordering', 'dead letter queue', 'DLQ', 'poison message', 'backpressure', 'load leveling', 'backlog', 'RabbitMQ', 'quorum queue', 'background jobs', 'BullMQ', 'outbox pattern', 'message durability', 'database index', 'B-tree', 'B+ tree', 'clustered index', 'covering index', 'write amplification', 'WAL', 'write-ahead log', 'journal mode', 'ACID', 'BASE', 'EXPLAIN', 'query plan', 'EXPLAIN ANALYZE', 'table partitioning', 'partition pruning', 'recursive CTE', 'SQLite in production', 'IOPS', 'disaggregated storage', 'load shedding', 'goodput', 'shuffle sharding', 'blast radius', 'deadline propagation', 'distributed systems failure modes', 'overload', 'fault isolation', or faces infrastructure and scaling decisions. Provides expert consultation on distributed systems architecture, CDN, serverless, message queues, SQL internals, distributed resilience, and trade-offs."
+      "description": "System design consultation. Use when the user asks about CAP/PACELC trade-offs, scaling, caching, database selection, replication and sharding, load balancing, CDN, serverless vs serverfull, message queues, SQL internals, or distributed resilience — by concept or by name (Redis, RabbitMQ, BullMQ, Lambda, EC2, SQLite, EXPLAIN, WAL, DLQ)."
     },
     "tdd-workflow": {
       "path": "skills/tdd-workflow/",
@@ -236,6 +236,12 @@
       "version": "7.5.0",
       "introduced": "v7.5.0",
       "description": "Cria especificacao completa de feature via entrevista interativa. Gera PRD com MoSCoW, criterios de aceite e decisoes tecnicas. Importa contexto do /grill-me se disponivel."
+    },
+    "writing-for-agents": {
+      "path": "skills/writing-for-agents/",
+      "version": "7.5.0",
+      "introduced": "v7.5.0",
+      "description": "Writing documents an agent reads. Use when creating or editing a skill, when modifying AGENTS.md or CLAUDE.md, or when reviewing a doc an agent consumes — a PRD, a ticket, a subagent prompt."
     }
   },
   "files": {
@@ -525,6 +531,12 @@
       "version": "7.5.0",
       "checksum": "6d15e667f52077b5e77e8df6ac14f2198d80ac6c0a98fb16f96d29424224f5a8",
       "lastModified": "2026-05-09",
+      "updateStrategy": "replace"
+    },
+    "scripts/audit-skill-docs.ts": {
+      "version": "7.5.0",
+      "checksum": "0f3ebc0467206237e585a3059a66f6c4a38d94de1776db8a21f128bab6d576bb",
+      "lastModified": "2026-08-11",
       "updateStrategy": "replace"
     },
     "scripts/bump-version.js": {
@@ -2221,8 +2233,8 @@
     },
     "skills/system-design/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "1974ad0100c595ef7d1d1d86204425d40530c8a8906d4396136b224f0e48f151",
-      "lastModified": "2026-06-17",
+      "checksum": "b2eeeb18831ad2fab2a2e898b2c47cd132b8867ac079569e375b0775ba064672",
+      "lastModified": "2026-08-11",
       "updateStrategy": "replace"
     },
     "skills/system-design/references/cache-strategies.md": {
@@ -2391,6 +2403,12 @@
       "version": "7.5.0",
       "checksum": "bdf29b815b83daadfdda53fcc8e79169e3027e85c8d955c0157a264c6dd1110a",
       "lastModified": "2026-05-09",
+      "updateStrategy": "replace"
+    },
+    "skills/writing-for-agents/SKILL.md": {
+      "version": "7.5.0",
+      "checksum": "13b3f0ff2f4178914e7e740545dd07293c2b0e7584b6d081ee3486447b7b316a",
+      "lastModified": "2026-08-11",
       "updateStrategy": "replace"
     },
     "skills/lib/adr-writer.ts": {

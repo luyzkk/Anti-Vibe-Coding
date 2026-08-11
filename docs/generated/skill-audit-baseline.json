@@ -4864,9 +4864,9 @@
     },
     {
       "skill": "system-design",
-      "descriptionChars": 1481,
-      "descriptionLineChars": 1496,
-      "triggerCount": 75,
+      "descriptionChars": 338,
+      "descriptionLineChars": 353,
+      "triggerCount": 0,
       "bodyLines": 519,
       "negations": [
         {
@@ -6497,8 +6497,8 @@
   "skipped": [],
   "totals": {
     "skillCount": 40,
-    "descriptionChars": 14642,
-    "descriptionLineChars": 15234,
+    "descriptionChars": 13499,
+    "descriptionLineChars": 14091,
     "modelInvoked": 40,
     "hookListed": 23,
     "hookDescriptionChars": 2081,
