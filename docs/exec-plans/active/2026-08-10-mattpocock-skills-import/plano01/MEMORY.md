@@ -2,7 +2,7 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** fase-04 em execucao — lote 1a aplicado (`0c964a0`), aguardando aprovacao do lote 1b
+**Status:** fase-04 em execucao — **lote 1 fechado** (`0c964a0` + `357d154`), aguardando aprovacao do lote 2
 **Branch:** `feat/writing-for-agents-port` (criada 2026-08-11, a partir de `main`)
 
 ## Progresso
@@ -12,7 +12,7 @@ Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 | 01 | Porte do nucleo | **done** | 2 novos + 1 modificado |
 | 02 | Instrumentacao + tracer | **done** | 2 novos + 1 gerado |
 | 03 | Auditoria fan-out | **done** (aguardando aprovacao) | 1 novo (`AUDIT-REPORT.md`) |
-| 04 | Aplicacao dos patches | **em execucao** | lote 1a: 4 SKILL.md + 2 gerados (`0c964a0`) |
+| 04 | Aplicacao dos patches | **em execucao** | lote 1: 7 SKILL.md em 2 commits (`0c964a0`, `357d154`) |
 
 Modo de aprovacao escolhido pelo humano: **por lote**, com a lista do lote na tela antes de aplicar
 (a alternativa era por achado, ~70 pausas). Lote 1 do relatorio virou **1a + 1b** — ver DI abaixo.
@@ -307,6 +307,40 @@ Formato: `DI-Plano01-faseNN-<slug>: <o que mudou e por que>`.
   `missing or malformed frontmatter delimiters` a cada run. Mesma raiz do
   **DI-Plano01-fase01-frontmatter-regex-comentario-antes** (comentario HTML antes do `---`). O
   manifest gera assim mesmo; nenhum teste quebra. Nao e desta feature, mas agora tem dois sintomas.
+
+### fase-04 — lote 1b (contradicoes: frontmatter vs corpo)
+
+- **DI-Plano01-fase04-quick-plan-nem-um-lado-nem-o-outro**: o relatorio pos como description vs
+  `:182`. Nenhum dos dois lados estava certo. A verdade era um **terceiro** fato, visivel so lendo
+  `:210` junto: a skill escreve **um** arquivo e nao cria o *scaffold* multi-arquivo do
+  `/plan-feature`. A description generalizou "um arquivo" para "arquivo nenhum". **Padrao a procurar
+  nos lotes seguintes: contradicao pode ser sintoma de uma terceira formulacao que ninguem escreveu**
+  — resolver escolhendo um lado teria gravado uma falsidade diferente.
+
+- **DI-Plano01-fase04-contagem-num-lugar-so**: `design-patterns` tinha a contagem em 3 sites
+  (`:3` 28, `:83` 22, `:312` 28; real 26). Sincronizar os tres resolveria a instancia e deixaria a
+  classe viva. Aplicado: a contagem fica **so na description** (onde e ponteiro e ajuda a dimensionar
+  o alvo); nos dois sites do corpo a lista esta logo abaixo, entao o numero era cache de um lookup
+  barato — regra "environment como fonte de verdade" da lente. Nao pode divergir de novo.
+
+- **DI-Plano01-fase04-code-simplification-escalada-de-privilegio**: unico patch da fase que **amplia
+  poder**, e por isso foi decidido pelo humano em pergunta propria, nao dentro da lista do lote.
+  `allowed-tools: Read, Grep, Glob` vs ~170 das 335 linhas escritas como executor (Step 3 `:165`
+  editar/testar/commitar/reverter; Step 4; `## Verification` checando build e linter). Escolhido:
+  o corpo vence, frontmatter vira `Read, Write, Edit, Glob, Grep, Bash`. As alternativas eram
+  reescrever metade da skill como consultiva, ou adiar para lote proprio.
+  **Distincao util:** em `consultant` e `iterate` o `allowed-tools` restrito **confirmava** a regra
+  terminal, entao ele arbitrou; aqui ele e o **outlier** contra o corpo inteiro. Ler o frontmatter
+  primeiro continua certo — mas o veredito e por peso de evidencia, nao por precedencia fixa.
+
+- **DI-Plano01-fase04-delta-1b**: `descriptionChars` 13.499 -> **13.509 (+10)**, que e exatamente o
+  fragmento novo da description do `quick-plan`; a troca `28`->`26` e neutra em chars. **Medido ==
+  projetado.** Nenhum trigger foi removido de nenhuma description, entao G1 nao se aplica ao lote 1.
+
+- **DI-Plano01-fase04-lote1-nao-economiza-contexto**: somando 1a e 1b, o lote 1 fez
+  **+190 chars** de context load. Era o esperado e esta no relatorio: o lote foi ordenado por
+  consequencia/risco, nao por delta. O que ele entrega e determinismo — 7 pontos onde o agente
+  escolhia entre duas instrucoes conflitantes por sorteio.
 
 ## Pendencias abertas (fase-01)
 
