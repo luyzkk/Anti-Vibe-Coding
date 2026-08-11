@@ -298,6 +298,20 @@ Silenciar truncamento le como cobertura completa. Isto ficou de fora **de propos
 
 ---
 
+## Descartados na fase-04, com motivo
+
+Achado recusado aqui **nao deve ser re-sugerido** por auditoria futura sem que o motivo abaixo
+tenha mudado. Cada linha e uma recusa por razao load-bearing ou por falha de verificacao, nao por
+falta de tempo.
+
+| Achado (secao de origem) | Motivo do descarte | Verificado por |
+|---|---|---|
+| **S3 — `docs/references/` em `source-driven-development`** (5 sites: `:16`, `:17`, `:82`, `:83`, `:84`) | **Nao e ponteiro morto.** `docs/references/` existe com exatamente os 3 arquivos citados (`testing-patterns.md`, `security-checklist.md`, `accessibility-checklist.md`), e `:80` ja os rotula "Exemplos disponiveis no Anti-Vibe Coding". A observacao verdadeira — `sync-to-global.sh:83` nao distribui `docs/` — descreve **portabilidade para projeto instalado**, nao um ponteiro quebrado; e "check `docs/references/`" degrada sem dano quando a pasta nao existe. Se virar escopo, o patch e mover material, nao consertar path | `ls docs/references/` · `sync-to-global.sh:83` |
+| **Referencias `.planning/` do Step 0** de `plan-feature` e `execute-plan` | **Intencionalmente preservadas.** Compound `2026-05-14` linha 36 as lista entre os itens mantidos: e o fallback "v5 detectado, oferece migrar" (D10). `harness-validate.ts:424` whitelista `plan-feature` pelo mesmo motivo. Migra-las para `docs/exec-plans/` quebraria a deteccao de legado, que e o unico proposito do Step 0 | `docs/compound/2026-05-14-skill-paths-tech-debt-after-v6.md:31-39` |
+| **Fix implicito de `decision-registry`** (`.claude/decisions.md` -> `decisions.md` raiz) | **Aplicado em outra forma, porque o proposto estava errado.** `decisions.md` raiz e so o branch **v5/cru** (`index.ts:49-53`); em **v6** — default deste repo — a skill escreve `ADR-NNNN-{slug}.md` em `docs/design-docs/` (`index.ts:35-46`). Trocar o path teria produzido falsidade nova. Corrigido deferindo ao layout | `skills/decision-registry/index.ts:26-70` |
+
+---
+
 ## Recomendacao de escopo para a fase-04
 
 Ordenado por razao consequencia/risco, nao por chars. Cada lote respeita o cap de 5 arquivos e
