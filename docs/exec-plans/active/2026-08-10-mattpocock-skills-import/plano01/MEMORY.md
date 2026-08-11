@@ -2,21 +2,61 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** fase-01 executada — aguardando aprovacao para fase-02
+**Status:** fase-02 executada — aguardando aprovacao para fase-03
 **Branch:** `feat/writing-for-agents-port` (criada 2026-08-11, a partir de `main`)
 
 ## Progresso
 
 | Fase | Nome | Status | Arquivos |
 |---|---|---|---|
-| 01 | Porte do nucleo | **done** (aguardando aprovacao) | 2 novos + 1 modificado |
-| 02 | Instrumentacao + tracer | planned | 0/2 |
+| 01 | Porte do nucleo | **done** | 2 novos + 1 modificado |
+| 02 | Instrumentacao + tracer | **done** (aguardando aprovacao) | 2 novos + 1 gerado |
 | 03 | Auditoria fan-out | planned | 0/1 |
 | 04 | Aplicacao dos patches | planned | escopo definido pela fase-03 |
 
 Entregue na fase-01: `skills/writing-for-agents/SKILL.md` (220 linhas),
 `skills/writing-for-agents/SKILL-MECHANICS.md` (56 linhas), bloco de atribuicao MIT em
 `THIRD-PARTY-NOTICES.md`. Zero diff em `skills/*/SKILL.md` pre-existentes (INV-03 mantida).
+
+Entregue na fase-02: `scripts/audit-skill-docs.ts` + `scripts/audit-skill-docs.test.ts` (14 testes),
+baseline em `docs/generated/skill-audit-baseline.json` (40 registros). INV-03 mantida.
+
+## Tracer bullet — `system-design` (gate fase-02 -> fase-03: **passou**)
+
+**Conceito violado:** context pointer, regra "um trigger por branch" (`writing-for-agents` §Context
+pointers).
+
+**Evidencia.** A description tem **75 triggers**. O corpo tem **11 branches reais** — as secoes
+numeradas 1..11 (`SKILL.md:97,119,144,171,193,225,263,302,342,396,441`), cada uma com sua propria
+arvore de decisao e seu proprio `references/*.md`. Os 75 triggers mapeiam 1:1 nessas 11 secoes, com
+**64 excedentes**; o 75o (`'system design'`) e a identidade que o corpo ja carrega.
+
+Pior concentracao: §9 Filas (20 triggers) e §10 SQL internals (20). Sinonimos literais — o mesmo
+branch escrito duas vezes, que e a definicao do doc-fonte:
+
+| Sinonimos | Branch |
+|---|---|
+| `WAL` / `write-ahead log` | §10 |
+| `DLQ` / `dead letter queue` | §9 |
+| `B-tree` / `B+ tree` | §10 |
+| `EXPLAIN` / `EXPLAIN ANALYZE` / `query plan` | §10 |
+| `load balancer` / `load balancing algorithms` | §6 |
+| `message queue` / `message broker` / `pub/sub` | §9 |
+
+**Delta medido.** description atual **1.481 chars**. Proposta com 11 triggers (um por secao):
+**248 chars**. Economia **1.233 chars (83%)** — **8,4% de todo o context load de descriptions do
+repo, numa skill so**. O hook `SessionStart` gasta outros **273 chars** redescrevendo a mesma lista
+de branches.
+
+**Patch proposto — NAO aplicado (DI-04, INV-03):**
+
+> System design consultation. Use when the user asks about CAP/PACELC trade-offs, scaling, caching,
+> database selection, replication and sharding, load balancing, CDN, serverless vs serverfull,
+> message queues, SQL internals, or distributed resilience.
+
+Risco a validar na fase-03: triggers como `Redis`, `RabbitMQ`, `BullMQ` e `EC2` sao nomes de produto,
+nao sinonimos de branch — podem ser o que de fato dispara a skill na pratica. Colapsar sem checar
+trocaria context load por invocacao perdida. A decisao e por branch, com aprovacao humana.
 
 ## Decisoes de implementacao (DI)
 
@@ -76,6 +116,44 @@ Formato: `DI-Plano01-faseNN-<slug>: <o que mudou e por que>`.
   `SKILL.md` estao CRLF no working tree, e isso e esperado — `git ls-files --eol` mostra
   `i/lf  w/crlf`. `.gitattributes` **nao cobre `*.md`**; a normalizacao vem de `core.autocrlf`. O que
   importa e o indice em LF. Os 2 arquivos novos: LF puro no disco e no indice.
+
+### fase-02
+
+- **DI-Plano01-fase02-baseline-40-nao-39**: o criterio de aceite pede "39 registros". Sao **40** —
+  `writing-for-agents` entrou na fase-01. A reconciliacao contra o CONTEXT usa o subconjunto de 39.
+
+- **DI-Plano01-fase02-reconciliacao-linha-bruta**: descobri **como** o baseline de 15.149 foi medido:
+  a linha `description:` inteira, com o prefixo YAML **e o `\r` final**. Prova exata em
+  `system-design`: valor 1.481 · linha 1.496 · linha+`\r` **1.497** = o numero do CONTEXT. O script
+  reporta duas metricas — `descriptionChars` (o valor, que e o que ocupa contexto) e
+  `descriptionLineChars` (linha bruta sem o `\r`, para reconciliar). Nas 39: **15.029** vs 15.149 =
+  **-0,79%**, dentro dos ±2%. O `\r` fica de fora de proposito: e terminador de linha, nao conteudo.
+
+- **DI-Plano01-fase02-hook-duplication-parafraseada**: a metrica `hookDuplication` da spec
+  ("description presente no payload do hook") mediria **zero**. O `SessionStart` nomeia 23 skills mas
+  **parafraseia todas** — nenhuma description aparece literal. Substituida por `hookListed` +
+  `hookDescriptionChars` (o hook gasta **2.081 chars** redescrevendo skills que ja pagam description).
+  `hookExactDuplicate` foi mantido para o caso de teste que a spec pede, exercitado por fixture.
+
+- **DI-Plano01-fase02-satelite-recursivo**: a primeira versao listava so filhos diretos e reportava
+  **0 satelites para `system-design`**, que tem 14 em `references/`. Corrigido para recursivo sobre
+  `.md`, excluindo `__tests__`/`__fixtures__`/`__golden__`/`fixtures`/`assets`/`templates` (payload
+  que a skill *escreve*, nao material que o agente le — `init` sozinha gerava 60+ falsos orfaos). E
+  "alcancado por ponteiro" nao e so link markdown: as skills grandes citam o satelite em backticks.
+  Orfaos: 15 -> 74 -> **6** conforme a metrica ficou correta.
+
+- **DI-Plano01-fase02-negacoes-ruidosas-em-ptbr**: **1.149** negacoes em 40 skills. Num corpo em
+  pt-BR, `\bnao\b` casa prosa comum, nao so proibicao. O numero e **pool de partida, nao defeito** —
+  a fase-03 julga caso a caso; contar seria transformar ruido em achado.
+
+- **DI-Plano01-fase02-descricao-multilinha-inexistente**: o G2 afirma que "varias das nossas usam
+  aspas com quebra". Verificado: **zero** descriptions ocupam mais de uma linha. Continuacao YAML foi
+  implementada mesmo assim (4 linhas, e YAML permite), mas nenhuma skill exercita isso hoje.
+
+- **DI-Plano01-fase02-baseline-versionado**: a fase marca o JSON como "GERADO (nao versionado como
+  fonte)". Ele **foi commitado**: `docs/generated/db-schema.md` ja e rastreado, o `.gitignore` nao
+  cobre `docs/generated/`, e um baseline fora do versionamento nao serve de antes/depois para as
+  fases 03 e 04 — que e a unica razao de ele existir.
 
 ## Pendencias abertas (fase-01)
 
