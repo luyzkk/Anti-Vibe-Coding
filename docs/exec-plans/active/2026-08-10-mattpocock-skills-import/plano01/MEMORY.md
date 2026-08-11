@@ -2,7 +2,7 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** fase-03 executada — aguardando aprovacao para fase-04
+**Status:** fase-04 em execucao — lote 1a aplicado (`0c964a0`), aguardando aprovacao do lote 1b
 **Branch:** `feat/writing-for-agents-port` (criada 2026-08-11, a partir de `main`)
 
 ## Progresso
@@ -12,7 +12,10 @@ Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 | 01 | Porte do nucleo | **done** | 2 novos + 1 modificado |
 | 02 | Instrumentacao + tracer | **done** | 2 novos + 1 gerado |
 | 03 | Auditoria fan-out | **done** (aguardando aprovacao) | 1 novo (`AUDIT-REPORT.md`) |
-| 04 | Aplicacao dos patches | planned | escopo recomendado em 7 lotes pelo relatorio |
+| 04 | Aplicacao dos patches | **em execucao** | lote 1a: 4 SKILL.md + 2 gerados (`0c964a0`) |
+
+Modo de aprovacao escolhido pelo humano: **por lote**, com a lista do lote na tela antes de aplicar
+(a alternativa era por achado, ~70 pausas). Lote 1 do relatorio virou **1a + 1b** — ver DI abaixo.
 
 Entregue na fase-01: `skills/writing-for-agents/SKILL.md` (220 linhas),
 `skills/writing-for-agents/references/SKILL-MECHANICS.md` (56 linhas), bloco de atribuicao MIT em
@@ -252,6 +255,58 @@ Formato: `DI-Plano01-faseNN-<slug>: <o que mudou e por que>`.
   fonte)". Ele **foi commitado**: `docs/generated/db-schema.md` ja e rastreado, o `.gitignore` nao
   cobre `docs/generated/`, e um baseline fora do versionamento nao serve de antes/depois para as
   fases 03 e 04 — que e a unica razao de ele existir.
+
+### fase-04 — lote 1a (contradicoes: secao terminal vs step)
+
+- **DI-Plano01-fase04-lote1-excede-cap**: o lote 1 recomendado pelo relatorio tem **7 skills**, e o
+  cap e 5 arquivos. Dividido pela natureza do defeito, nao por contagem: **1a** = 4 casos de secao
+  terminal contradizendo um step (`execute-plan`, `consultant`, `iterate`, `init`); **1b** = 3 casos
+  de frontmatter contradizendo o corpo (`quick-plan` description, `code-simplification`
+  `allowed-tools`, `design-patterns` contagem). Cada metade e um commit coerente.
+
+- **DI-Plano01-fase04-allowed-tools-e-o-arbitro**: em 2 das 4, a direcao nao precisou de julgamento —
+  **`allowed-tools` ja decide**. `consultant` (`Read, Grep, Glob, WebSearch`) e `iterate`
+  (`Read, Glob, Grep, Bash, AskUserQuestion`) **nao tem `Write` nem `Edit`**, logo a secao que manda
+  gravar automaticamente instrui uma acao que o tool grant proibe. O relatorio nao registrou esse
+  fato em nenhuma das duas. **Criterio reusavel para os lotes seguintes: ler o frontmatter antes de
+  escolher qual lado da contradicao vence** — muitas vezes o lado ja esta escolhido.
+
+- **DI-Plano01-fase04-init-77-falsa-contra-o-codigo**: o relatorio caracterizou `init:77` vs `:80`
+  como contradicao interna ao doc. A verificacao no codigo mostrou coisa mais forte: `:77` e **falsa
+  contra a implementacao** — `linkClaudeToAgents:24` faz `fs.rm` do CLAUDE.md raiz e o recria
+  (documentado em `skills/init/lib/steps/05-scaffold-and-link.ts:48`). Muda a natureza do patch: nao
+  era escolher um lado, era remover uma afirmacao falsa. O patch nao repete os paths que `:80` ja
+  carrega (single source of truth).
+
+- **DI-Plano01-fase04-iterate-direcao-humana**: Regra 6 vence, Step 3 ganha gate. Decidido pelo
+  humano com as tres evidencias na tela (sem `Write`/`Edit`; a Regra 1 do mesmo bloco ja exige
+  diff + aprovacao para o fix; CLAUDE.md global manda sugerir e nunca executar). As alternativas
+  ofertadas — Step 3 vencer, ou dividir entre teste novo e teste existente — **exigiriam ampliar o
+  `allowed-tools`**, o que moveria a contradicao para o frontmatter em vez de resolve-la.
+
+- **DI-Plano01-fase04-manifest-todo-lote**: todo lote que edita `SKILL.md` precisa de
+  `bun run generate:manifest` **no mesmo commit**. Sem isso o checksum fica stale em silencio — e o
+  teste amostra 3 de 415 arquivos, entao a suite segue verde (pendencia ja registrada na fase-03).
+  Isso poe o lote em **6 arquivos**: 4 editados a mao + 2 regenerados por script
+  (`plugin-manifest.json`, `docs/generated/skill-audit-baseline.json`). O cap de 5 e sobre blast
+  radius de edicao manual; artefato gerado por script nao conta. Registrado por transparencia.
+
+- **DI-Plano01-fase04-delta-1a-e-comportamental**: `descriptionChars` **13.499 antes e depois** —
+  zero economia, como projetado. O lote toca corpo, nao description. Unica metrica que mexeu:
+  negacoes 1.149 -> 1.148. **Delta medido == projetado (~+180 chars).** G4 nao se aplica.
+
+**Achados novos, abertos, que surgiram na verificacao do 1a** (nao aplicados — fora do escopo do lote):
+
+- `init:80` cita `/anti-vibe-coding:init --rollback` (MH-07), mas `rollback` **nao aparece em
+  `skills/init/lib/parse-flags.ts`**. Existe `rollback.test.ts` e `run-init-rollback.test.ts`, entao
+  a lib existe — a duvida e se a **flag** e reconhecida. Exige verificacao antes de qualquer acao;
+  candidato ao lote 2 (ponteiros mortos) se confirmado.
+- `consultant` — `**Criterio para registrar:**` tem negacao redundante ("NAO registrar se dev
+  recusar") com o alvo positivo na mesma frase. Lote 7 (negacoes).
+- `skills/anti-vibe-review/SKILL.md`: `generate-manifest.js` emite
+  `missing or malformed frontmatter delimiters` a cada run. Mesma raiz do
+  **DI-Plano01-fase01-frontmatter-regex-comentario-antes** (comentario HTML antes do `---`). O
+  manifest gera assim mesmo; nenhum teste quebra. Nao e desta feature, mas agora tem dois sintomas.
 
 ## Pendencias abertas (fase-01)
 
