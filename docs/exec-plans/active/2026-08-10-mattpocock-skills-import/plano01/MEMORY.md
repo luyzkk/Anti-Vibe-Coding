@@ -2,7 +2,7 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** fase-04 em execucao — **lote 1 fechado** (`0c964a0` + `357d154`), aguardando aprovacao do lote 2
+**Status:** fase-04 em execucao — **lotes 1 e 2 fechados**, aguardando aprovacao do lote 3 (hook, arquivo isolado)
 **Branch:** `feat/writing-for-agents-port` (criada 2026-08-11, a partir de `main`)
 
 ## Progresso
@@ -12,7 +12,7 @@ Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 | 01 | Porte do nucleo | **done** | 2 novos + 1 modificado |
 | 02 | Instrumentacao + tracer | **done** | 2 novos + 1 gerado |
 | 03 | Auditoria fan-out | **done** (aguardando aprovacao) | 1 novo (`AUDIT-REPORT.md`) |
-| 04 | Aplicacao dos patches | **em execucao** | lote 1: 7 SKILL.md em 2 commits (`0c964a0`, `357d154`) |
+| 04 | Aplicacao dos patches | **em execucao** | lote 1 (`0c964a0`, `357d154`) · lote 2 (`436dec7`, `e3a33b8`) |
 
 Modo de aprovacao escolhido pelo humano: **por lote**, com a lista do lote na tela antes de aplicar
 (a alternativa era por achado, ~70 pausas). Lote 1 do relatorio virou **1a + 1b** — ver DI abaixo.
@@ -341,6 +341,56 @@ Formato: `DI-Plano01-faseNN-<slug>: <o que mudou e por que>`.
   **+190 chars** de context load. Era o esperado e esta no relatorio: o lote foi ordenado por
   consequencia/risco, nao por delta. O que ele entrega e determinismo — 7 pontos onde o agente
   escolhia entre duas instrucoes conflitantes por sorteio.
+
+### fase-04 — lote 2 (S3 ponteiros mortos), commits `436dec7` + `e3a33b8`
+
+- **DI-Plano01-fase04-legacy-15-nao-7**: o relatorio contou **7 sites**; sao **15 referencias em 14
+  linhas** (`plan-feature` 7 linhas, `execute-plan` 7). Uma delas (`execute-plan:127`) esta **sem
+  backticks** e escapa de qualquer grep que ancore em crase — foi so o grep sem crase que a achou.
+  **Contagem de subagente e estimativa; recontar antes de aplicar.**
+
+- **DI-Plano01-fase04-decision-registry-misdiagnostico**: o achado mais perigoso do lote. O relatorio
+  disse "`index.ts:53` grava em `decisions.md` raiz, doc diz `.claude/`" — e concluir dai que o fix
+  e trocar o path **estaria errado**. `index.ts:35-46` mostra que a raiz e so o branch **v5/cru**; em
+  **v6**, que e o default deste repo, a skill escreve `ADR-NNNN-{slug}.md` em `docs/design-docs/`.
+  Aplicar o fix implicito teria trocado uma falsidade por outra, mais convincente porque parcialmente
+  verdadeira. Corrigido deferindo ao layout, com `## Fluxo (v6)` (`:229-239`) como fonte unica — ele
+  ja estava certo, duas linhas abaixo do texto errado.
+  **Padrao: quando o relatorio cita uma linha de codigo como prova, ler a funcao inteira** — uma
+  linha dentro de um `if` prova o branch, nao o comportamento.
+
+- **DI-Plano01-fase04-forma-do-path-root-relative**: apresentei `../lib/...` e apliquei
+  `skills/lib/...`. A regra viva do repo, lida dos vizinhos na mesma secao `Referencias`: **material
+  da propria skill vai skill-relative** (`references/wave-execution.md`, que existe), **material de
+  fora vai root-relative** (`agents/plan-executor.md`,
+  `skills/plan-feature/templates/memory-template.md`). O compound 2026-05-14:34 usa a mesma forma.
+  Alvo identico nas duas formas; so uma casa com os vizinhos.
+
+- **DI-Plano01-fase04-planning-do-step-0-e-intencional**: as referencias `.planning/` do **Step 0** de
+  `plan-feature` e `execute-plan` **nao sao debito** — o compound 2026-05-14 linha 36 as preserva
+  explicitamente como o fallback "v5 detectado, oferece migrar" (D10), e `harness-validate.ts:424`
+  whitelista `plan-feature` por isso. **Nao "corrigir" em lote futuro.** No lote 2 so o path form
+  `lib/` estava quebrado.
+
+- **DI-Plano01-fase04-whitelist-acompanha-o-patch**: consertar um path exige aposentar a entrada de
+  divida que o tolerava, **no mesmo commit**. `harness-validate.ts:412` carregava
+  `'skills/iterate/SKILL.md', // busca .planning/*/SUMMARY.md` com a instrucao "remover quando cada
+  skill for migrada". Deixar a entrada tornaria o gate cego a uma reintroducao — divida que sobrevive
+  ao proprio motivo. `LEGACY_V5_SKILLS` e **permissivo** (autoriza `.planning/`, nao exige), entao
+  remover so torna o validator mais estrito; confirmado com `grep .planning skills/iterate` = 0 e com
+  `tests/harness-validate-v6-path-whitelist.test.ts` (8 verdes, usa fixtures, nao cita `iterate`).
+
+- **DI-Plano01-fase04-sdd-descartado**: `source-driven-development` (5 sites) **nao sobreviveu a
+  verificacao como defeito**. `docs/references/` existe com exatamente os 3 arquivos citados, e `:80`
+  ja os rotula "Exemplos disponiveis no Anti-Vibe Coding". A observacao verdadeira do relatorio
+  (`sync-to-global.sh:83` nao distribui `docs/`) e sobre **portabilidade**, nao ponteiro quebrado, e
+  a instrucao "check `docs/references/`" degrada sem dano quando a pasta nao existe. Registrado no
+  `AUDIT-REPORT.md` §Descartados.
+
+- **DI-Plano01-fase04-delta-lote2**: `descriptionChars` **13.509, inalterado** nos dois sub-lotes —
+  correto, o lote 2 nao toca description. Corpo: 2a ~+105 chars (path mais longo), 2b ~−120.
+  `satelites sem ponteiro` segue **6**: deletar ponteiro para arquivo **inexistente** nao muda
+  contagem de orfao, que mede arquivo existente sem ponteiro. Metricas distintas, nao regressao.
 
 ## Pendencias abertas (fase-01)
 
