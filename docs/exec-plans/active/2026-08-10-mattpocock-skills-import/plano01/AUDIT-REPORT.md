@@ -1,0 +1,320 @@
+# Auditoria das 40 Skills — Relatorio Consolidado
+
+**Plano 01, fase-03** · executado 2026-08-11 · branch `feat/writing-for-agents-port`
+**Lente:** `skills/writing-for-agents/SKILL.md` (portada na fase-01)
+**Baseline:** `docs/generated/skill-audit-baseline.json` (fase-02)
+
+**Nenhum arquivo de skill foi modificado nesta fase.** `git diff --stat skills/` vazio.
+Todo patch aqui e **proposta**; a aplicacao e da fase-04, com aprovacao humana por achado (DI-04).
+
+---
+
+## Particao usada
+
+5 subagentes read-only, particao por tamanho de corpo em snake draft — os pesados distribuidos, nao
+agrupados, senao um lote estoura contexto e os outros ficam ociosos.
+
+| Lote | Skills | Linhas |
+|---|---|---|
+| A | plan-feature(973), api-design(428), architecture(424), design-patterns(315), enhance-prompt(262), source-driven-development(206), defensive-patterns(201), parity-audit(50) | 2.859 |
+| B | execute-plan(916), tdd-workflow(441), infrastructure(417), learn(324), anti-vibe-review(254), writing-for-agents(210), react-patterns(198), init(97) | 2.857 |
+| C | verify-work(610), grill-me(454), consultant(400), code-simplification(326), decision-registry(251), quick-plan(226), sync(198), todo-pick(119) | 2.584 |
+| D | security(589), write-prd(482), qa-visual(400), iterate(349), doubt-driven-development(246), pair-programming-with-agent(226), detect-architecture(167), compound-engineering(130) | 2.589 |
+| E | update(527), system-design(519), design-twice(376), git-workflow-and-versioning(368), incremental-implementation(240), lessons-learned(235), incident-response(167), centralize-config(132) | 2.564 |
+
+Sao **40** skills, nao 39 — `writing-for-agents` entrou na fase-01 e foi auditada com ela mesma
+(lote B). Os 5 lotes leram as 40 por inteiro; nenhum retornou vazio; nenhuma skill ficou sem achado
+exceto `parity-audit`, cuja description e a mais enxuta do repo.
+
+## Verificacao independente
+
+Saida de subagente e hipotese. Estas afirmacoes foram reverificadas no repo antes de entrar aqui:
+
+| Afirmacao | Verificacao | Resultado |
+|---|---|---|
+| Blocos de telemetria nao tem gatilho | `grep -c "telemetry" hooks/hooks.json` | **0** — confirmado |
+| Import `../../lib/telemetry-utils` nao resolve | `ls lib/` | **nao existe** — confirmado |
+| `react-patterns` aponta references inexistentes | `ls skills/react-patterns/references/` | so 2 dos 4 citados — confirmado |
+| `decision-registry` doc diverge do codigo | `index.ts:53` | grava em `decisions.md` raiz, doc diz `.claude/` — confirmado |
+| Probe do `iterate` nunca dispara | `find .planning -name SUMMARY.md` | **vazio**; todos em `docs/exec-plans/` — confirmado |
+| `Boring technology primeiro` duplicado cross-skill | diff das 2 linhas | **byte-identico** — confirmado |
+| `incremental-implementation` usa npm num repo bun | grep | 4 sites `npm`, irmas usam `bun run` — confirmado |
+| Bloco `profile-aware-preface` e removivel | `harness-validate.ts:643` | **FALSO — e load-bearing.** Ver §Sistemico 2 |
+
+O ultimo item derrubou uma proposta de subagente. E o motivo de existir esta secao.
+
+---
+
+## Achados sistemicos
+
+Ordenados por delta. Sistemico = mesmo padrao em 5+ skills; um patch resolve muitos arquivos.
+
+### S1 — Secoes terminais que reescrevem os steps · 28.281 chars · 21 skills
+
+O padrao mais difundido do repo, e os 5 lotes o encontraram sem combinar. Uma secao de fechamento
+(`## Regras`, `## Regras Importantes`, `## Regras Inviolaveis`, `## Pipeline Integration`,
+`## Interaction with Other Skills`, `## O que Este Skill NAO Faz`) que reenuncia o que os steps acima
+ja disseram — muitas vezes verbatim.
+
+Medido mecanicamente: **28 secoes em 21 skills, 28.281 chars.**
+
+| Skill | Secao | Chars |
+|---|---|---|
+| verify-work | `## Pipeline Integration` (:402) | 6.034 |
+| plan-feature | `## Pipeline Integration` (:753) | 1.875 |
+| write-prd | `## Pipeline Integration` (:397) | 1.811 |
+| design-twice | `## Regras` (:351) | 1.348 |
+| init | `## Regras Importantes` (:74) | 1.104 |
+| architecture | `## Regras do Consultor` (:406) | 1.051 |
+| qa-visual | `## Regras Inviolaveis` (:373) | 1.049 |
+| iterate | `## Regras` (:328) | 999 |
+| tdd-workflow | `## Regras Inviolaveis` (:403) | 956 |
+| doubt-driven-development | `## Interaction with Other Skills` (:235) | 954 |
+| execute-plan | `## Regras Criticas` (:820) | 951 |
+| ...mais 17 secoes | | 10.149 |
+
+Nao e uniforme. Tres subtipos, com tratamento diferente:
+
+1. **Reprojecao pura** — todo item tem twin nomeado por linha. `design-twice:351-364` (11 de 12
+   itens), `update:491-500` (7 de 8), `write-prd:397-433` (4 de 4). Deletar e seguro.
+2. **Reprojecao com residuo** — a maioria tem twin, 1-2 itens sao fonte unica. `qa-visual:373-384`
+   (8 de 10 com twin), `verify-work:415-436`. Preservar o residuo, cortar o resto.
+3. **Reprojecao que contradiz** — o item nao repete, **diverge**. `iterate:333` diz que a skill nao
+   modifica teste sem aprovacao; o Step 3 (`:128`) manda escrever o teste sem gate.
+   `execute-plan:823` diz que o orquestrador nunca executa codigo; o Step 5 (`:569`) manda rodar
+   `bun run test`. **Estes nao sao limpeza — sao bugs de contrato**, e o agente obedece um dos dois
+   por sorteio.
+
+O subtipo 3 e o que justifica atacar S1 primeiro, mesmo que o delta em chars fosse zero.
+
+### S2 — Blocos de codigo em `SKILL.md` · 54.974 chars · ~15 skills · **tres classes, uma delas intocavel**
+
+`SKILL.md` e prompt, nao runtime — compound `2026-05-12-skill-md-code-blocks-do-not-execute`. Ha
+54.974 chars de blocos ```` ```typescript ```` nos SKILL.md, e `hooks/hooks.json` nao registra
+gatilho para nenhum deles (`grep -c "telemetry|preface|stale-capabilities"` = **0**).
+
+**Mas os blocos nao sao a mesma coisa, e trata-los como um so quebra o build.**
+
+| Classe | Skills | Guard | Veredito |
+|---|---|---|---|
+| `writeTelemetryStart/End` | 10 — architecture, consultant, design-twice, execute-plan, grill-me, iterate, plan-feature, quick-plan, verify-work, write-prd | `skills/lib/telemetry-utils.test.ts:192` exige o texto em 5 skills | **Morto.** O compound prova 0 metricas em 7 dias de uso real. Remover exige tocar o teste na mesma fase |
+| `profile-aware-preface` | 9 — api-design, architecture, compound-engineering, decision-registry, design-patterns, detect-architecture, lessons-learned, security, system-design | `scripts/harness-validate.ts:643` **falha** se faltar fence ou `readPrefaceContext` | **NAO TOCAR.** E spec que o agente simula, com `preface-simulate.ts` para exercitar. Deletar derruba `bun run harness:validate` |
+| `stale-capabilities-check` | 7 — api-design, compound-engineering, decision-registry, design-patterns, lessons-learned, security, system-design | `skills/lib/__tests__/stale-warning.test.ts` declara "SYNC OBRIGATORIO nas 6 SKILL.md"; 4 `__tests__/stack-aware-preface-wire.test.ts` assertam posicao | **Byte-identico em 6 arquivos** (1.394 chars cada = 8.364). Candidato a reference externa, mas mutacao e multi-arquivo com teste |
+
+O lote C propos deletar os blocos de `decision-registry:10-59`. Isso teria derrubado o
+`harness:validate`. E o modo de falha que o README deste plano nomeia — *"cortamos algo que era
+load-bearing"* — e so nao passou porque a proposta foi verificada em vez de aceita.
+
+**Recomendacao:** so a classe telemetria entra na fase-04, e junto com o teste que a prende.
+
+### S3 — Ponteiros mortos · 19 sites · 6 skills
+
+Path escrito em doc e contrato com o agente e **nunca executado por teste**. Nenhum destes quebra
+`harness:validate`: estao em backtick, nao em link markdown — o link checker nao os enxerga.
+
+| Ponteiro | Sites | Realidade |
+|---|---|---|
+| `lib/legacy-detector.md` · `lib/legacy-migrator.md` | 7 — `plan-feature` (5), `execute-plan` (2) | Os arquivos estao em `skills/lib/`. `plan-feature/lib/` existe mas so tem `fase-policy.ts`: o agente acha a pasta e nao o arquivo |
+| `references/performance.md` · `references/state-management.md` | 2 — `react-patterns:132,158` | Nao existem. So `data-fetching.md` e `useeffect-patterns.md` |
+| `.claude/decisions.md` | 4 — `decision-registry:210,215,221,226` | `index.ts:53` grava em `decisions.md` na **raiz**. Um `list` depois de um `add` retorna vazio, sem erro |
+| `.planning/*/SUMMARY.md` | 1 — `iterate:48` | `.planning/` existe mas nao tem nenhum `SUMMARY.md`; todos vivem em `docs/exec-plans/`. **A sonda de deploy nunca dispara** — a skill cai sempre no branch "nenhum contexto detectado" |
+| `docs/references/` | 5 — `source-driven-development:16,17,82,83,84` | `sync-to-global.sh:83` nao copia `docs/`. Resolve neste repo; em todo projeto instalado via `/init`, nao existe |
+
+### S4 — Duplicacao com o hook `SessionStart` · 4.205 chars por sessao
+
+O banner injetado a cada sessao tem **4.205 chars** — maior que qualquer description do repo. Duas
+duplicacoes medidas dentro dele:
+
+- **Drift do proprio corte desta feature.** A description do `system-design` foi cortada de 1.481
+  para 338 chars (commit `01ffdf7`), mas o hook manteve a lista antiga inteira: *"cache, scaling,
+  CAP, replicacao, filas/mensageria (queue, broker, exactly-once, idempotencia), SQL internals..."*
+  — **273 chars dos mesmos triggers que acabaram de ser colapsados.** Consertamos um dos dois
+  lugares. E a violacao de single source of truth que a lente descreve, cometida por quem a portou.
+- **Tabela Akita em dois lugares.** `hooks/hooks.json` carrega a tabela "Faz BEM / Faz MAL" (766
+  chars) em toda sessao; `pair-programming-with-agent:62-73` e a skill cujo proposito declarado e
+  ensinar exatamente isso. O hook e o **router** deste repo — apontar e o trabalho dele; carregar a
+  tabela inteira nao.
+- **23 skills relistadas** com descricao propria (2.081 chars), enquanto essas mesmas 23 ja pagam
+  8.436 chars de description de frontmatter.
+
+### S5 — Boilerplate de abertura na description · 602 chars · 14 skills
+
+14 das 40 descriptions abrem com *"This skill should be used when the user asks..."* — 43 chars de
+prefixo que nao carregam branch nenhum. As outras 26 ja nao usam, entao **nao e convencao viva**: e
+sedimento parcialmente removido. `defensive-patterns` e o exemplar do formato bom (9 triggers na
+primeira oracao mapeando 1:1 para as 9 secoes numeradas).
+
+### S6 — Satelites orfaos · 4 arquivos de referencia real
+
+Material que existe e nenhum ponteiro alcanca — o Red Flag literal da lente.
+
+| Arquivo | Tamanho | Branch que precisaria dele |
+|---|---|---|
+| `compound-engineering/references/capture-guide.md` | 2.441 chars | O gate, passo 5, que pede "titulo curto descritivo" **sem guia nenhum** enquanto 34 linhas sobre titulacao ficam sem leitor |
+| `design-twice/examples/worked-session.md` | 235 linhas | Nenhum. Unico ponteiro vivo esta num exec-plan fechado |
+| `tdd-workflow/references/ia-tdd-workflow.md` | 4.250 bytes | A secao `## IA-TDD` (:30-82), que nao tem ponteiro |
+| `init/lib/prompts/{compound,explorer,reconciler}.md` | 3 arquivos | Carregados por codigo, nao por ponteiro — falso positivo parcial |
+
+---
+
+## Achados por skill
+
+Os sistemicos acima nao se repetem aqui. Esta tabela e o que sobra depois de deduplicar.
+
+### Ponteiro — description com sinonimos do mesmo branch
+
+| Skill | Triggers → branches | Delta |
+|---|---|---|
+| infrastructure | 35 → 5 (Route 53 tem **8 triggers para uma arvore**; blue-green tem 5 para um sub-bloco) | −577 |
+| learn | 15 → 1 (o corpo roda os mesmos Steps 1→6 para todo gatilho) | −352 |
+| git-workflow-and-versioning | ~300 chars sao identidade do corpo ("Vetado: 'Fix bug'", "hook opt-in") | −310 |
+| doubt-driven-development | 254 chars finais sao a sequencia CLAIM→EXTRACT→DOUBT que o corpo carrega | −261 |
+| react-patterns | 12 → 5 (`virtualization` e `code splitting` nao alcancam branch nenhum) | −232 |
+| code-simplification | 3 `Use quando` para a mesma condicao | −225 |
+| anti-vibe-review | 5 triggers competindo com `/verify-work` numa skill **deprecada** | −211 |
+| detect-architecture | 3 sinonimos + o nome do slash-command, que o router ja resolve | −202 |
+| grill-me | as 7 categorias sao a tabela do corpo, nao branches | −190 |
+| update | 3 triggers para 1 branch | −184 |
+| init | 4 triggers para 1 branch; a identidade envelheceu (nenhum step e "rules deployment") | −181 |
+| api-design | 30 → 17 (`DTOs`≡`data transfer objects`, `gRPC`≡`Protocol Buffers`, `keyset` tem **0 ocorrencias** no corpo) | −171 |
+| decision-registry | 5 → 3 (quatro frases renomeiam o branch `add`) | −165 |
+| qa-visual | 10 → 2 (tres grupos de sinonimo literal) | −157 |
+| sync | 4 triggers para o mesmo fluxo unico | −128 |
+| source-driven-development | ultima oracao e identidade (hierarquia + UNVERIFIED estao no corpo) | −124 |
+| pair-programming-with-agent | 3 "exemplos reais" sao 3 instancias de um branch so | −93 |
+| architecture | `'design patterns'` e `'REST vs GraphQL'` sao **literalmente identicos** a triggers de outras 2 descriptions — roteamento em cara-ou-coroa | −69 |
+| iterate | "A quarta pata do pipeline" e identidade, nao trigger | −68 |
+| enhance-prompt | 2 pares de sinonimo | −54 |
+| verify-work | "Evolucao do anti-vibe-review com superpoderes" e linhagem de release | −46 |
+| lessons-learned | `add a lesson learned` ≡ `register a lesson` | −24 |
+
+**Subtotal: −4.024 chars** de context load permanente (excluindo os marcados incertos).
+
+### Completude — bound vago que convida premature completion
+
+| Skill | Bound | Proposta |
+|---|---|---|
+| grill-me | `95%` (`:257`, `:390`) — nada define o que mede. Convive com um **`70%`** (`:73`) para o mesmo teste preditivo, e um terceiro em `:416` | Trocar por "prever as proximas 3 perguntas", que ja esta em `:260` e e checavel |
+| tdd-workflow | Step 1 "Entender a stack" sem `<verification>`, enquanto Steps 3/4/5/7 tem | "Todo arquivo que a feature vai tocar foi lido, e o teste vizinho identificado por path" |
+| write-prd | "caber em 1-2 paginas" — pagina nao existe em markdown | "Cada secao <= 5 linhas; nenhuma vazia — o que falta vai `[A DEFINIR]`" |
+| plan-feature | "checklist com itens especificos (nao genericos)" | "cada item nomeia um arquivo, um comando ou uma assercao" |
+| centralize-config | O grep de verificacao usa `--include=*.ts --include=*.js`, mas o exemplo da propria skill mapeia ocorrencias em `.md`. **O gate passa verde com as ocorrencias intactas** | `grep -rn --exclude-dir=node_modules`; toda ocorrencia remanescente contabilizada |
+| enhance-prompt | "verificar se esta completo" — contra o que nunca e dito | O criterio existe 130 linhas acima, em `:131-136` |
+| doubt-driven-development | "small enough that a reviewer can hold it in mind" — o proprio doc admite o vazamento em `:203` | Dar ao lado-codigo o bound que o lado-decisao ja tem |
+
+### Contradicoes que mudam comportamento
+
+| Skill | Conflito |
+|---|---|
+| execute-plan | `:823` "o orchestrador **nunca executa codigo**" vs Step 5 `:569` "Executar: `bun run test`". O agente que obedece a regra pula a unica validacao pos-fase |
+| quick-plan | description promete "**sem criar arquivos** de planejamento em disco"; `:182` manda "Escrever em `docs/exec-plans/active/...`" |
+| code-simplification | `allowed-tools: Read, Grep, Glob` vs `:165` "Make the change / Run the test suite / commit / revert" |
+| consultant | `:292` "Sugerir (**nao executar automaticamente**)" vs `:316-339` "registrar **automaticamente** no `decisions.md`". E sem `Write` no frontmatter |
+| iterate | `:333` "nao modifica arquivos de teste sem aprovacao" vs Step 3 `:128` "Escrever teste no arquivo correspondente", sem gate |
+| init | `:77` "**NUNCA remover** secoes do CLAUDE.md" vs `:80`, a linha seguinte, documentando que o init **transforma** o CLAUDE.md em espelho <=40 linhas |
+| design-patterns | "28 conceitos" (`:3`, `:312`) vs "22 conceitos" (`:83`). Contagem real por heading: **26** |
+
+### Negacao — proibicao que ja tem alvo positivo ao lado
+
+`grill-me` (4 sites para "nao gera codigo", com `allowed-tools` que ja impede) · `learn` (2) ·
+`api-design`, `design-patterns`, `system-design`, `consultant` (a mesma regra "ensinar, nao codar"
+escrita 2-3x em cada) · `incremental-implementation:123-128` (5 comportamentos proibidos listados
+duas linhas abaixo do alvo positivo) · `source-driven-development:97-102` (lista "not authoritative"
+logo abaixo da tabela de autoridade) · `incident-response:48-61` (4 regras de proibicao, alvo
+positivo em `:50` sem governar) · `centralize-config` (2) · `enhance-prompt` (2) ·
+`git-workflow-and-versioning:110` (2) · `update:375-376` (3) · `quick-plan:206-214` (5) ·
+`lessons-learned:85-91` (5) · `security:243` (1) · `defensive-patterns:205` (1)
+
+### Fences invertidos — armadilha do compound 2026-04-21, ativa
+
+4 regioes com fence externo de 3 backticks contendo blocos de 3 backticks. Consequencia observavel:
+o conteudo troca de lado.
+
+- `sync:81-94`, `:97-109`, `:176-205` — em `:86` o comando `/anti-vibe-coding:init` cai **fora** do
+  bloco e renderiza como prosa, enquanto `:88-93` (prosa) renderiza como codigo
+- `verify-work:440-527` — o pseudocodigo `gerarMEMORYConsolidado` vira prosa e os passos d/e/f viram
+  bloco de codigo
+
+### Environment como fonte de verdade
+
+- `incremental-implementation` roda **`npm`** em 4 sites (`npm test`, `npm run build`,
+  `npm run lint`) num repo `bun`. As irmas (`incident-response`, `centralize-config`) usam
+  `bun run`, e o CLAUDE.md global manda usar bun. O agente que segue o checklist falha
+- `init:37-60` mantem uma tabela de 17 steps escrita a mao que o proprio doc declara perdedora no
+  conflito com `lib/registry.ts` — 1.886 chars de cache de um lookup barato
+- `detect-architecture:165-176` duplica os discriminadores de pasta que vivem em
+  `classify-by-folders.ts` (com teste). Adicionar um 6o perfil hoje exige editar 3 lugares, e so 1
+  tem teste
+- `system-design:263-338` mantem inline (§6/§7/§8) material que ja esta nos `references/*.md`
+  apontados — o resto que sobrou de uma migracao; §1-5 e §9-11 ja usam o shape enxuto
+
+---
+
+## Delta total projetado
+
+| Faixa | Item | Chars |
+|---|---|---|
+| Sistemico | S1 secoes terminais (pool medido; subconjunto com twin nomeado) | ate 28.281 |
+| Sistemico | S2 telemetria (unica classe segura das tres) | ~14.500 |
+| Sistemico | S4 hook `SessionStart` (drift do system-design + tabela Akita) | −1.039/sessao |
+| Sistemico | S5 boilerplate de abertura | −602 |
+| Alto | Descriptions — 22 skills | −4.024 |
+| Alto | S3 ponteiros mortos | 19 correcoes, delta ~0 |
+| Pontual | Negacoes, fences, environment, contradicoes | ~−3.500 |
+
+**Efeito nas descriptions:** 13.499 → **~9.475 chars (−30%)**. Somando o corte ja aplicado no
+`system-design`, o total sai de 14.642 para ~9.475 — **−35% do context load permanente**.
+
+Os numeros de chars sao a aritmetica dos subagentes sobre trechos citados; as contagens sistemicas
+(28.281 / 54.974 / 4.205 / 602) foram medidas por script nesta sessao.
+
+---
+
+## O que ficou de fora, e por que
+
+Silenciar truncamento le como cobertura completa. Isto ficou de fora **de proposito**:
+
+- **Corpo longo como sprawl — zero achados.** O guardrail segurou nos 5 lotes. `security` (589
+  linhas), `system-design` (519), `verify-work` (610), `infrastructure` (426), `api-design` (438),
+  `architecture` (434), `tdd-workflow` (451) sao **catalogo consultavel legitimo**, e conjunto plano
+  de pares nao e sprawl. Nenhuma linha de conteudo valido dessas secoes foi reportada como excesso.
+- **`profile-aware-preface`** — 9 skills, ~12.500 chars. **Load-bearing**, verificado. Fora de escopo
+  ate que alguem decida mudar o mecanismo, e ai o `harness-validate` muda junto.
+- **`stale-capabilities-check`** — 7 skills, 8.364 chars byte-identicos. Guardado por teste de ordem
+  em 4 arquivos. Marcado `incerto` pelos dois lotes que o viram.
+- **`security` em profundidade.** Cortar linha load-bearing de seguranca tem custo assimetrico. O
+  lote D marcou o unico achado de duplicacao como `incerto` e propos corte cirurgico que preserva
+  todo limiar. Nao entrou na faixa Alto.
+- **Os 11 `references/*.md` de `system-design`** nao foram lidos por inteiro — so os 3 cujas secoes
+  irmas foram acusadas de duplicacao, e nesses a verificacao foi por heading + trecho literal.
+- **`design-twice/examples/worked-session.md`** (235 linhas) nao foi lido. O achado e que **nenhum
+  ponteiro o alcanca**, verificado por grep em todo o repo.
+- **Achado retirado apos verificacao:** o lote C ia reportar "`verify-work` aponta para
+  `anti-vibe-review`, skill removida". **Falso** — a skill existe e continua listada no hook. O
+  achado real virou o oposto: duplicacao cross-file entre duas skills vivas (~1.721 chars em 3
+  blocos, com `verify-work:546` admitindo a copia).
+- **`parity-audit`** nao rendeu achado. Unico candidato (bloco "Saida esperada", 337 chars) falha o
+  teste comportamental: da ao Passo 3 a forma que ele precisa interpretar antes de rodar.
+
+---
+
+## Recomendacao de escopo para a fase-04
+
+Ordenado por razao consequencia/risco, nao por chars. Cada lote respeita o cap de 5 arquivos e
+aguarda aprovacao antes do proximo.
+
+| # | Lote | Por que primeiro | Risco |
+|---|---|---|---|
+| 1 | **Contradicoes** (7 skills, subtipo 3 de S1) | Sao bugs de contrato, nao estetica. O agente hoje obedece um dos dois lados por sorteio. Delta em chars e irrelevante; delta em comportamento e binario | Baixo — cada uma tem uma direcao obviamente correta, exceto `iterate` (decisao humana) |
+| 2 | **S3 ponteiros mortos** (19 sites, 6 skills) | Nenhum quebra teste ou validate. Falham em silencio, que e o pior modo | Nenhum — sao correcoes de path |
+| 3 | **S4 hook** (1 arquivo) | 4.205 chars por sessao, maior consumidor isolado. Inclui o drift que esta feature criou | Baixo — 1 arquivo, efeito imediatamente observavel |
+| 4 | **Descriptions** (22 skills, −4.024) | Maior delta mensuravel. Molde ja validado no `system-design` | Medio — **o risco e invocacao perdida, nao contexto**. Nomes proprios (`Redis`, `RabbitMQ`, `EC2`) nao sao sinonimos de branch; a variante B do `system-design` e o precedente |
+| 5 | **S1 secoes terminais** (subtipos 1 e 2) | 28.281 chars de pool | Medio — exige checar twin linha a linha antes de cortar. Subtipo 2 tem residuo que morre junto se cortado em bloco |
+| 6 | **S2 telemetria** (10 skills + 1 teste) | ~14.500 chars comprovadamente mortos | Medio — toca `telemetry-utils.test.ts` na mesma fase, ou a suite fica vermelha |
+| 7 | **Fences, npm→bun, negacoes, S5, S6** | Pontuais | Baixo |
+
+**Nao entra na fase-04:** `profile-aware-preface` (load-bearing), `stale-capabilities-check`
+(multi-arquivo com teste de ordem), corpo de `security`.
+
+**Gate para a fase-04**, herdado do `MEMORY.md`: todo achado precisa de evidencia citada + delta
+projetado, e `git status` limpo em `skills/` antes de comecar. Ambos satisfeitos.
