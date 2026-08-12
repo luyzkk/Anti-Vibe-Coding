@@ -29,6 +29,8 @@ Workflow TDD adaptativo de 7 passos. Seguir EXATAMENTE esta sequencia.
 
 ## IA-TDD — Deteccao Automatica de Nivel
 
+> Fundamentacao completa do fluxo IA-TDD: [`references/ia-tdd-workflow.md`](./references/ia-tdd-workflow.md)
+
 Detectar o nivel sem perguntar. Usar estes sinais:
 
 | Sinal detectado | Nivel inferido |

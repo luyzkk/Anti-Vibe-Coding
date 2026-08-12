@@ -1,6 +1,6 @@
 {
   "version": "7.5.0",
-  "generatedAt": "2026-08-12T12:36:42.354Z",
+  "generatedAt": "2026-08-12T12:39:14.635Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -37,7 +37,7 @@
       "path": "skills/compound-engineering/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "This skill should be used when the user asks to 'install compound engineering scaffold', 'run compound gate', 'migrate compound schema', or 'check compound notes'. Manages the compound engineering scaffold (templates, decision gate, brownfield migration) and delegates capture to lessons-learned."
+      "description": "Scaffold de compound engineering: templates, decision gate e migracao brownfield. A captura em si e delegada a /lessons-learned. Use ao instalar o scaffold, rodar o gate, migrar schema ou checar as notas."
     },
     "consultant": {
       "path": "skills/consultant/",
@@ -739,8 +739,8 @@
     },
     "skills/compound-engineering/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "c4ad01ac8905c6212a423efb8b35db34ea23f2df8f96a8899638978bbaa2187c",
-      "lastModified": "2026-05-24",
+      "checksum": "dc3c7bdf977bcf100918b69f3d562e8aa5ee38d3f553e441deceb3d74d8771e3",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/compound-engineering/references/capture-guide.md": {
@@ -997,8 +997,8 @@
     },
     "skills/design-twice/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "48c45daac40e971a9e83b35a42353b41b697e0f69ea8b60a2e37335b96e52c13",
-      "lastModified": "2026-06-05",
+      "checksum": "ec1a78b241fdd00f743fdf1a8ca7957b8c9d0057275bdb3a84d4de335c842916",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/design-twice/references/divergence-lenses.md": {
@@ -1063,8 +1063,8 @@
     },
     "skills/incremental-implementation/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "8fbfcd23bd186c163706b372fbbcc8ed02dec44d3a4dccba171bfe8a1131d535",
-      "lastModified": "2026-06-05",
+      "checksum": "e0993189129cd4321b93f13aa202b264016564b105797ef33d040bf213cc4ae8",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/infrastructure/SKILL.md": {
@@ -2329,8 +2329,8 @@
     },
     "skills/tdd-workflow/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "e695e7fe485e27719136f4aec4d63a54da5f2c8194f9aa16f08382160308d50f",
-      "lastModified": "2026-06-05",
+      "checksum": "217a3faf3f72c5d75f6b4ccb22f7df142f38b478c81ee98e37ef92ef0c9a031b",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/tdd-workflow/references/deep-modules.md": {
