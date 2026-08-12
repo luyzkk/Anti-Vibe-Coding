@@ -2,7 +2,7 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** fase-04 em execucao — **lotes 1, 2 e 3 fechados**, aguardando aprovacao do lote 4 (descriptions)
+**Status:** fase-04 em execucao — **lotes 1 a 4 fechados**, aguardando decisao sobre os lotes 5, 6 e 7
 **Branch:** `feat/writing-for-agents-port` (criada 2026-08-11, a partir de `main`)
 
 ## Progresso
@@ -12,7 +12,20 @@ Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 | 01 | Porte do nucleo | **done** | 2 novos + 1 modificado |
 | 02 | Instrumentacao + tracer | **done** | 2 novos + 1 gerado |
 | 03 | Auditoria fan-out | **done** (aguardando aprovacao) | 1 novo (`AUDIT-REPORT.md`) |
-| 04 | Aplicacao dos patches | **em execucao** | lote 1 (`0c964a0`, `357d154`) · lote 2 (`436dec7`, `e3a33b8`) · lote 3 (`c61e941`) |
+| 04 | Aplicacao dos patches | **em execucao** | lote 1 (`0c964a0`, `357d154`) · lote 2 (`436dec7`, `e3a33b8`) · lote 3 (`c61e941`) · lote 4 (`c3b87d4`, `3328eef`, `497ded2`, `6d71d8e`, `22b9efc`, `184470f`) |
+
+### Delta acumulado da fase-04 (medido, nao projetado)
+
+| Metrica | Inicio da fase | Depois do lote 4 |
+|---|---|---|
+| `descriptionChars` | 13.499 | **9.231** (−4.268, **−31,6%**) |
+| banner `SessionStart` | 4.131/sessao | **3.757** (−374) |
+| `hookDescriptionChars` | 2.081 | **1.937** |
+| `modelInvoked` | 40/40 | **39/40** |
+| maior ofensor | `system-design` 1.481 -> `infrastructure` 792 | **`security` 419** (crescido de proposito) |
+
+A auditoria projetou o repo terminando em **~9.475**; fechou em **9.231**. A cauda longa de
+outliers acabou: depois do 419, a distribuicao e 338 / 306 / 305 / 299.
 
 Modo de aprovacao escolhido pelo humano: **por lote**, com a lista do lote na tela antes de aplicar
 (a alternativa era por achado, ~70 pausas). Lote 1 do relatorio virou **1a + 1b** — ver DI abaixo.
@@ -433,6 +446,82 @@ Formato: `DI-Plano01-faseNN-<slug>: <o que mudou e por que>`.
   (`bash` sobre o `command` extraido), nao so validado como JSON. Renderiza, 23 skills presentes,
   setas e travessoes UTF-8 intactos. `hookDescriptionChars` do baseline: 2.081 -> **1.937**, com
   `hookListed` ainda **23** — a queda e o drift, nao descoberta perdida.
+
+### fase-04 — lote 4 (descriptions), 6 commits
+
+Dividido em 6 sub-lotes por delta decrescente (22 skills nao cabem no cap de 5). O 4f foi
+**adicionado durante a execucao**, com aprovacao — ver DI abaixo.
+
+| Sub-lote | Skills | Projetado | **Medido** |
+|---|---|---|---|
+| 4a | infrastructure, learn, git-workflow, doubt-driven, react-patterns | −1.732 | **−1.364** |
+| 4b | code-simplification, anti-vibe-review, detect-architecture, grill-me, update | −1.012 | **−678** |
+| 4c | init, api-design, decision-registry, qa-visual, sync | −809 | **−913** |
+| 4d | source-driven, pair-programming, architecture, iterate, enhance-prompt | −408 | **−647** |
+| 4e | verify-work, lessons-learned | −70 | **−150** |
+| 4f | design-patterns, consultant, security, defensive-patterns | (fora da lista) | **−526** |
+
+- **DI-Plano01-fase04-lista-de-22-nao-era-exaustiva**: a lista de descriptions da fase-03 ordenou por
+  delta estimado e parou nas 22. Ao terminar o 4e, **os 4 maiores ofensores do repo eram skills que
+  ela nunca listou** (`design-patterns` 579, `consultant` 386, `security` 386,
+  `defensive-patterns` 362) — sozinho, `design-patterns` valia 8x o lote 4e inteiro. Dai o 4f.
+  **Regra para a proxima auditoria: re-ranquear depois de cada lote, nao trabalhar a lista congelada.**
+
+- **DI-Plano01-fase04-nome-proprio-e-gatilho-nao-sinonimo**: aplicado 5x (variante B do
+  `system-design` como molde). `infrastructure` manteve Route 53/CloudFront/S3/Docker/Kubernetes;
+  `design-patterns` manteve os 6 nomes GoF em parentetico; `security` manteve OAuth2/PKCE/RBAC/
+  bcrypt/argon2/HMAC/CSRF/WAF intactos. Custo somado ~370 chars contra risco de invocacao perdida.
+
+- **DI-Plano01-fase04-gatilho-ptBR-preservado**: `learn` e `qa-visual` tinham gatilhos duplicados em
+  PT e EN. O relatorio mandava colapsar para um (`learn`: 15 -> 1). **Nao aplicado**: o dev deste
+  repo trabalha em portugues, e colapsar para ingles economizaria ~60 chars trocando por risco de
+  quebrar descoberta para exatamente quem usa a skill. Mantidos 3 PT + 2 EN em cada.
+
+- **DI-Plano01-fase04-relatorio-errou-o-orfao-do-react**: o relatorio afirmava que `virtualization` e
+  `code splitting` nao alcancam branch nenhum em `react-patterns`. **Falso** — estao em `:189` e
+  `:192`, dentro de `## Checklist Rapido de Code Review` (`:178`). Corta-los teria removido a unica
+  porta de entrada de material existente (G1 literal). Em vez disso o branch de review passou a ser
+  **nomeado**, coisa que a description antiga nao fazia.
+
+- **DI-Plano01-fase04-orfaos-que-o-relatorio-nao-achou**: o inverso tambem ocorreu. Em `api-design`
+  o relatorio achou 1 trigger orfao (`keyset`); a verificacao achou **4** (`keyset`, `HATEOAS`,
+  `filtering`, `sorting`). E separou os falsos-positivos: `status codes` (`:368-381`) e `versioning`
+  (`:110`, `:348`) sao material real e sobreviveram nomeados. **Verificar trigger a trigger contra o
+  corpo e o unico metodo que produziu os dois resultados.**
+
+- **DI-Plano01-fase04-description-que-mente**: tres descriptions descreviam comportamento
+  **inexistente**, nao apenas excessivo. `init` prometia "rules deployment" e "decisions registry
+  initialization" (o codigo **migra** legado: `04-migrate-planning-and-manifest.ts:66-91`);
+  `quick-plan` prometia "sem criar arquivos em disco" (lote 1b); `code-simplification` se chamava
+  "Guia" depois que o lote 1b deu a ela Write/Edit/Bash. **Classe distinta de sprawl: nao e texto
+  demais, e texto falso.**
+
+- **DI-Plano01-fase04-trigger-que-roteia-errado**: `architecture` carregava `'design patterns'`,
+  identico ao trigger da skill `design-patterns`. Nao era so duplicacao: `architecture §6` (`:280`) e
+  Design **Principles** (Lei de Demeter, Tell-Don't-Ask, Composicao > Heranca) e `design-patterns §7`
+  e **GoF**. Quem pergunta "design patterns" quer a segunda — o trigger mandava para o lugar errado.
+  Trocado por "principios de design". A outra colisao apontada (`'REST vs GraphQL'`) **ja tinha sido
+  resolvida** pelo corte do `api-design` no 4c.
+
+- **DI-Plano01-fase04-security-era-o-oposto**: `security` entrou no 4f por contagem de chars e a
+  verificacao **inverteu o diagnostico**. A skill tem 9 branches (`:114`-`:446`); a description
+  cobria 8. `§9 Triagem de Vulnerabilidades de Dependencias` + `## Dependency Discipline` (`:494`)
+  nao tinham gatilho nenhum. **Unico patch da fase que aumenta uma description (+33).** Description
+  longa nao e sintoma; branch sem porta de entrada e.
+
+- **DI-Plano01-fase04-yaml-sem-aspas**: 4 das 40 descriptions eram escalar YAML **sem aspas**
+  (`pair-programming-with-agent`, `defensive-patterns`, `incident-response`, `parity-audit`). Texto
+  novo com `": "` no meio **quebraria o parse** nessas. As duas que editei ganharam aspas junto e
+  tiveram o frontmatter reparseado (6 campos cada). **Correcao de registro: o commit do lote 4d
+  afirma que `pair-programming` era a unica sem aspas — errado, eram quatro.** O patch estava certo;
+  a afirmacao, nao. Restam 2 sem aspas: `incident-response` e `parity-audit`.
+
+- **DI-Plano01-fase04-anomalia-de-teste-nao-reproduzida**: durante o 4a, dois runs isolados falharam
+  sem reproducao — `bun test skills` com **13 fail num run de 240s** (normal ~9s) e `bun test
+  tests/e2e` com **1 fail**. Nao reproduzidos em 3 e 4 re-execucoes. Nenhum teste asserta texto de
+  description (verificado), e os que citam essas skills sao do bloco `stack-aware-preface`, intocado.
+  Runtime de 26x aponta contencao de ambiente. **Registrado como anomalia observada, nao como verde
+  limpo** — se reaparecer, vira achado com evidencia.
 
 ## Pendencias abertas (fase-01)
 
