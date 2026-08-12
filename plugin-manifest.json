@@ -1,6 +1,6 @@
 {
   "version": "7.5.0",
-  "generatedAt": "2026-08-12T11:47:39.611Z",
+  "generatedAt": "2026-08-12T11:53:17.284Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -145,7 +145,7 @@
       "path": "skills/lessons-learned/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "This skill should be used when the user asks to 'add a lesson learned', 'register a lesson', 'review lessons', 'prune obsolete lessons', or when a significant error pattern is detected that should be recorded for future sessions. Manages project-specific senior knowledge with quality filters."
+      "description": "Registro de licoes aprendidas do projeto, com filtro de qualidade senior. Use ao registrar uma licao, revisar as existentes, ou podar as obsoletas."
     },
     "pair-programming-with-agent": {
       "path": "skills/pair-programming-with-agent/",
@@ -229,7 +229,7 @@
       "path": "skills/verify-work/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "Verificacao pos-execucao com testes, auditoria multi-agente paralela, test quality audit (cobertura real, testes fracos, alucinacoes) e debug automatico. Evolucao do anti-vibe-review com superpoderes."
+      "description": "Verificacao pos-execucao: testes e lint, auditoria multi-agente paralela, test quality audit (cobertura real, testes fracos, alucinacoes) e debug automatico. Use apos concluir uma fase ou feature."
     },
     "write-prd": {
       "path": "skills/write-prd/",
@@ -2035,8 +2035,8 @@
     },
     "skills/lessons-learned/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "d2f08336587bb35fea6a461e5dabaac88f6d5593d9102500851d121b3fcaf327",
-      "lastModified": "2026-05-16",
+      "checksum": "6a5c5e3e0909b9db983540a20ec8683c6597e9a78daf637a1f593d2e9c20a353",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/lessons-learned/lib/lessons-learned-prefaces.ts": {
@@ -2371,8 +2371,8 @@
     },
     "skills/verify-work/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "a9b63e2620ff985d9a532600a73538df6ba2c1a431b81cdee57accce14631775",
-      "lastModified": "2026-06-05",
+      "checksum": "7466596b587ffc69384358bdefc83a236543a57d033e70525aea38a1690d3068",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/verify-work/lib/adherence-checks.ts": {

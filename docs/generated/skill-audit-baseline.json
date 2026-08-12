@@ -3215,9 +3215,9 @@
     },
     {
       "skill": "lessons-learned",
-      "descriptionChars": 293,
-      "descriptionLineChars": 308,
-      "quotedTriggerCount": 4,
+      "descriptionChars": 147,
+      "descriptionLineChars": 162,
+      "quotedTriggerCount": 0,
       "bodyLines": 235,
       "negations": [
         {
@@ -5706,8 +5706,8 @@
     },
     {
       "skill": "verify-work",
-      "descriptionChars": 200,
-      "descriptionLineChars": 215,
+      "descriptionChars": 196,
+      "descriptionLineChars": 211,
       "quotedTriggerCount": 0,
       "bodyLines": 610,
       "negations": [
@@ -6492,8 +6492,8 @@
   "skipped": [],
   "totals": {
     "skillCount": 40,
-    "descriptionChars": 9907,
-    "descriptionLineChars": 10501,
+    "descriptionChars": 9757,
+    "descriptionLineChars": 10351,
     "modelInvoked": 39,
     "hookListed": 23,
     "hookDescriptionChars": 1937,
