@@ -1,6 +1,6 @@
 ---
 name: code-simplification
-description: "Guia de simplificação de código: identifica over-engineering, duplicação e complexidade desnecessária, aplicando padrões de simplificação por linguagem. Use quando refatorar código para clareza sem mudar comportamento. Use quando o código funciona mas é mais difícil de ler/manter/estender do que deveria. Use quando revisar código que acumulou complexidade desnecessária."
+description: "Simplificação de código: identifica e remove over-engineering, duplicação e complexidade desnecessária, preservando o comportamento. Use quando o código funciona mas está mais difícil de ler, manter ou estender do que deveria."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash

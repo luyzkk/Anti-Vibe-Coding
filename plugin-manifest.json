@@ -1,6 +1,6 @@
 {
   "version": "7.5.0",
-  "generatedAt": "2026-08-11T19:11:12.807Z",
+  "generatedAt": "2026-08-12T11:19:05.183Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -31,7 +31,7 @@
       "path": "skills/code-simplification/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "Guia de simplificação de código: identifica over-engineering, duplicação e complexidade desnecessária, aplicando padrões de simplificação por linguagem. Use quando refatorar código para clareza sem mudar comportamento. Use quando o código funciona mas é mais difícil de ler/manter/estender do que deveria. Use quando revisar código que acumulou complexidade desnecessária."
+      "description": "Simplificação de código: identifica e remove over-engineering, duplicação e complexidade desnecessária, preservando o comportamento. Use quando o código funciona mas está mais difícil de ler, manter ou estender do que deveria."
     },
     "compound-engineering": {
       "path": "skills/compound-engineering/",
@@ -73,7 +73,7 @@
       "path": "skills/detect-architecture/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "Use this skill when the user asks to 'detectar arquitetura', 'classificar projeto', 'qual perfil arquitetural', '/detect-architecture', or runs `/anti-vibe-coding:detect-architecture`. Classifies the project in 1 of 5 architectural profiles (clean-architecture-ritual, mvc-flat, vertical-slice, nextjs-app-router, unknown-mixed) using folder + imports heuristic. Requires confirmation when confidence < 80%."
+      "description": "Classifica o projeto em 1 de 5 perfis arquiteturais por heuristica de pastas + imports. Use ao detectar arquitetura, classificar o projeto, ou perguntar qual perfil arquitetural ele segue."
     },
     "doubt-driven-development": {
       "path": "skills/doubt-driven-development/",
@@ -103,7 +103,7 @@
       "path": "skills/grill-me/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "Deep pre-implementation interview that resolves ALL ambiguity before coding. Asks 5-20 targeted questions covering scope, data, UX, edge cases, performance, security, and integration. Outputs CONTEXT.md with indexed decisions. Use before planning complex features or when requirements feel vague."
+      "description": "Entrevista pre-implementacao que resolve ambiguidade antes de codar. Gera CONTEXT.md com decisoes indexadas. Use antes de planejar feature complexa, ou quando os requisitos estao vagos."
     },
     "incident-response": {
       "path": "skills/incident-response/",
@@ -223,7 +223,7 @@
       "path": "skills/update/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "This skill should be used when the user asks to 'update anti-vibe', 'check for updates', 'sync plugin changes', or when running /anti-vibe-coding:init in a project that already has Anti-Vibe Coding installed. Detects outdated files, shows available updates, and applies incremental updates with intelligent merge strategies."
+      "description": "Atualiza uma instalacao existente do Anti-Vibe Coding: detecta arquivos desatualizados, mostra o que mudou e aplica merge incremental. Use ao pedir update do plugin, ou ao rodar /init num projeto que ja tem o plugin instalado."
     },
     "verify-work": {
       "path": "skills/verify-work/",
@@ -601,8 +601,8 @@
     },
     "skills/anti-vibe-review/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "00a83167667e16917f83469400c535af56a4c7053fcf570e19adce34d69211e5",
-      "lastModified": "2026-06-05",
+      "checksum": "6b12f3cd544f5277c389dead2762d6a14d2f49218141fec997bf9e829c85c7b5",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/api-design/SKILL.md": {
@@ -733,8 +733,8 @@
     },
     "skills/code-simplification/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "a588accb762ef146765ceb5d20948189d559d3bda1d2fbf0444ede62ac7881ac",
-      "lastModified": "2026-08-11",
+      "checksum": "91bc2ee2b3dcf9a6e344e0f440d842bc655d94513c8c3f16036b9fe5ea8f2118",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/compound-engineering/SKILL.md": {
@@ -1009,8 +1009,8 @@
     },
     "skills/detect-architecture/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "db6189c7143bdb6ec1d3575f5489bf3908526563baf171c200957dcd82302ae1",
-      "lastModified": "2026-05-16",
+      "checksum": "f8dd0c5d730e138bcc638be0f51d3a7e75d0f7ac17194d2877b1f71c00380f89",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/doubt-driven-development/SKILL.md": {
@@ -1051,8 +1051,8 @@
     },
     "skills/grill-me/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "a35b08f21f071bca0d373b06a93f7ecc3a54fbb6e7b3fe03da1399493ef665d0",
-      "lastModified": "2026-06-05",
+      "checksum": "cee1e1058168817dac2741b221e3d8139b36be2df2d738d369cd464a3b8fa16c",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/incident-response/SKILL.md": {
@@ -2365,8 +2365,8 @@
     },
     "skills/update/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "8a803497baacba38689d43d817c994f63041b130dfb4691e5cfb97ad3c9c6e7d",
-      "lastModified": "2026-05-24",
+      "checksum": "d964b113d9b23b7a4a020618f55aa991de543b1656f1437afaa30df593321890",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/verify-work/SKILL.md": {
