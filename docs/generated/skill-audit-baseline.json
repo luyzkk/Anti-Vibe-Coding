@@ -192,9 +192,9 @@
     },
     {
       "skill": "api-design",
-      "descriptionChars": 662,
-      "descriptionLineChars": 677,
-      "quotedTriggerCount": 30,
+      "descriptionChars": 279,
+      "descriptionLineChars": 294,
+      "quotedTriggerCount": 0,
       "bodyLines": 428,
       "negations": [
         {
@@ -1031,9 +1031,9 @@
     },
     {
       "skill": "decision-registry",
-      "descriptionChars": 303,
-      "descriptionLineChars": 318,
-      "quotedTriggerCount": 5,
+      "descriptionChars": 170,
+      "descriptionLineChars": 185,
+      "quotedTriggerCount": 0,
       "bodyLines": 252,
       "negations": [
         {
@@ -2906,9 +2906,9 @@
     },
     {
       "skill": "init",
-      "descriptionChars": 333,
-      "descriptionLineChars": 348,
-      "quotedTriggerCount": 4,
+      "descriptionChars": 213,
+      "descriptionLineChars": 228,
+      "quotedTriggerCount": 0,
       "bodyLines": 97,
       "negations": [
         {
@@ -3890,9 +3890,9 @@
     },
     {
       "skill": "qa-visual",
-      "descriptionChars": 393,
-      "descriptionLineChars": 408,
-      "quotedTriggerCount": 10,
+      "descriptionChars": 227,
+      "descriptionLineChars": 242,
+      "quotedTriggerCount": 3,
       "bodyLines": 400,
       "negations": [
         {
@@ -4764,9 +4764,9 @@
     },
     {
       "skill": "sync",
-      "descriptionChars": 253,
-      "descriptionLineChars": 268,
-      "quotedTriggerCount": 4,
+      "descriptionChars": 142,
+      "descriptionLineChars": 157,
+      "quotedTriggerCount": 0,
       "bodyLines": 198,
       "negations": [
         {
@@ -6492,8 +6492,8 @@
   "skipped": [],
   "totals": {
     "skillCount": 40,
-    "descriptionChars": 11467,
-    "descriptionLineChars": 12059,
+    "descriptionChars": 10554,
+    "descriptionLineChars": 11146,
     "modelInvoked": 39,
     "hookListed": 23,
     "hookDescriptionChars": 1937,

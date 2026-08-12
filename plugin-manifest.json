@@ -1,6 +1,6 @@
 {
   "version": "7.5.0",
-  "generatedAt": "2026-08-12T11:19:05.183Z",
+  "generatedAt": "2026-08-12T11:38:31.478Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -13,7 +13,7 @@
       "path": "skills/api-design/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "This skill should be used when the user asks about 'API design', 'N+1 problem', 'idempotency', 'idempotent APIs', 'DTOs', 'data transfer objects', 'webhooks', 'websockets', 'SSE', 'REST vs GraphQL', 'SQL vs NoSQL', 'race conditions in APIs', 'API concurrency', 'gRPC', 'AMQP', 'RabbitMQ', 'message queue', 'GraphQL schema', 'GraphQL depth', 'DataLoader', 'pagination', 'cursor pagination', 'keyset pagination', 'REST URL design', 'status codes', 'API versioning', 'HATEOAS', 'filtering', 'sorting', 'Protocol Buffers', or needs to analyze and audit API endpoints. Provides expert consultation on API design patterns, protocols, anti-patterns, and best practices."
+      "description": "API design consultation. Use when the user asks about interface stability and versioning, the N+1 problem, idempotency, DTOs, webhooks vs WebSockets vs SSE, SQL vs NoSQL, API concurrency, protocol choice (REST, gRPC, AMQP), GraphQL, or REST URL design (pagination, status codes)."
     },
     "architecture": {
       "path": "skills/architecture/",
@@ -49,7 +49,7 @@
       "path": "skills/decision-registry/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "This skill should be used when the user asks to 'register a decision', 'log an architectural choice', 'add ADR', 'list decisions', 'query past decisions', or wants to track Architecture Decision Records (ADRs) for the project. Manages the project's decision history with alternatives and justifications."
+      "description": "Registro de decisoes arquiteturais (ADR) do projeto, com alternativas e justificativa. Use ao registrar uma decisao, listar as existentes, ou consultar decisoes passadas."
     },
     "defensive-patterns": {
       "path": "skills/defensive-patterns/",
@@ -127,7 +127,7 @@
       "path": "skills/init/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "This skill should be used when the user asks to 'initialize anti-vibe', 'setup anti-vibe coding', 'add anti-vibe to project', 'configure anti-vibe', or wants to onboard a project into the Anti-Vibe Coding methodology. Handles first-time setup with intelligent CLAUDE.md merge, rules deployment, and decisions registry initialization."
+      "description": "Onboarding de um projeto no Anti-Vibe Coding: monta o scaffold do harness, espelha CLAUDE.md/AGENTS.md, migra artefatos legados e gera o plano de populate. Use ao inicializar ou configurar o Anti-Vibe num projeto."
     },
     "iterate": {
       "path": "skills/iterate/",
@@ -169,7 +169,7 @@
       "path": "skills/qa-visual/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "This skill should be used when the user asks to 'run QA', 'test visually', 'visual QA', 'check in browser', 'open browser test', 'verify frontend', 'QA visual', 'testar no navegador', 'verificar visual', 'abrir no browser', or after completing a frontend feature. Opens a real browser via Playwright MCP to verify visual layout, user flows, network requests, console errors, and accessibility."
+      "description": "QA visual no browser real via Playwright MCP: layout, fluxo do usuario, rede, erros de console, acessibilidade, responsividade e performance. Use apos concluir feature de frontend — 'testar no navegador', 'QA visual', 'run QA'."
     },
     "quick-plan": {
       "path": "skills/quick-plan/",
@@ -199,7 +199,7 @@
       "path": "skills/sync/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "This skill should be used when the user wants to 'sync plugin', 'force reload', 'invalidate cache', 'refresh plugin', or when encountering cache-related issues with the Anti-Vibe Coding plugin. Forces cache invalidation and shows current version status."
+      "description": "Forca invalidacao de cache do plugin Anti-Vibe Coding e mostra o status de versao. Use ao suspeitar que o plugin esta servindo conteudo velho."
     },
     "system-design": {
       "path": "skills/system-design/",
@@ -607,8 +607,8 @@
     },
     "skills/api-design/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "aa3db3688f9ee75f5a07c19003f8e73dc9d75645cb8013034fb3293f1bce0720",
-      "lastModified": "2026-06-05",
+      "checksum": "4eba370d970777d39414a125b9e463999297c5bcabff0b0572e799b808803f7b",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/api-design/references/api-concurrency.md": {
@@ -925,8 +925,8 @@
     },
     "skills/decision-registry/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "9ec3b751cb43af5bcbd50d50861f3c0d347e5c8f923181e33705ee803d6b109d",
-      "lastModified": "2026-08-11",
+      "checksum": "42a37b5cfbfc598b79136efe9417fef3690b47ee39eda07f040e61835bc6af6d",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/decision-registry/lib/decision-registry-prefaces.ts": {
@@ -1087,8 +1087,8 @@
     },
     "skills/init/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "536b20d2deb80a759d65a8329a56bca4547597720553d527af961370937f3e6e",
-      "lastModified": "2026-08-11",
+      "checksum": "3ece7f2a6b2e7c3ce38779d71deee89b323ce3b37a510328245491fc747ea046",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/init/lib/atoms-frontmatter-validator.ts": {
@@ -2125,8 +2125,8 @@
     },
     "skills/qa-visual/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "3025aca41c65dcd2b243c540ba021aaf5e6cb4a56482d52e15e508f9f2c07910",
-      "lastModified": "2026-06-05",
+      "checksum": "ef8e49eeac11b1f1de5a226c2846546b1658318836b073e838774c4b2f9d0440",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/quick-plan/SKILL.md": {
@@ -2227,8 +2227,8 @@
     },
     "skills/sync/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "4f3e278c20307d3decdf3a396e803e9375f468309bee2dc63d5e156705f274fe",
-      "lastModified": "2026-05-24",
+      "checksum": "01fa9f8598b24c96da39980f25e179b3f5c0cc10f0ec7301c393ae7aa661ab07",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/system-design/SKILL.md": {
