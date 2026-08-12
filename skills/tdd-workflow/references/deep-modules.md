@@ -12,7 +12,11 @@ Exemplo: `File.open(path)` — 1 parametro esconde filesystem, buffers, encoding
 **Shallow Module:** interface complexa → implementacao trivial.
 Exemplo: classe com 15 metodos publicos onde cada um tem 3 linhas.
 
-**Metrica informal:** Se a interface e quase tao complexa quanto a implementacao, o modulo e raso.
+Profundidade tem dois eixos: **quanto** a interface esconde — medido pelos sinais abaixo — e **onde**
+ela fica, o **seam**, com o **adapter** que a atravessa.
+
+**Metrica informal:** a interface e quase tao complexa quanto a implementacao? Entao o modulo e raso.
+Complexidade aqui e o que o caller precisa aprender, nunca contagem de linhas.
 
 ---
 
@@ -20,9 +24,14 @@ Exemplo: classe com 15 metodos publicos onde cada um tem 3 linhas.
 
 1. Muitos getters/setters sem logica (expoe estado interno diretamente)
 2. Classe "pass-through" — delega 100% sem adicionar valor
-3. Interface tem mais linhas que a implementacao
+3. O caller aprende quase tanto quanto o modulo faz por ele — pouco **leverage**
 4. Consumidor precisa coordenar 5+ modulos para fazer algo simples
 5. Information leakage: detalhes internos visiveis na API (ex: expoe `userId` quando deveria expor `User`)
+
+**Meca por leverage, nunca por volume.** O sinal 3 deste doc foi, ate 2026-08-12, um ratio bruto de
+tamanho entre interface e implementacao. Ratio assim premia inchar o corpo do modulo — 500 linhas
+redundantes "pontuam" mais fundo que 50 densas — e como esta referencia alimenta auditoria real
+(`verify-work`, `anti-vibe-review`), o vies chegava ao veredito.
 
 ---
 
@@ -33,6 +42,74 @@ Exemplo: classe com 15 metodos publicos onde cada um tem 3 linhas.
 3. "Funciona como magica" para o consumidor
 4. Mudancas internas nao quebram a API
 5. Facil de usar corretamente, dificil de usar errado (pit of success)
+
+---
+
+## Interface e mais que assinatura
+
+Interface e **tudo que o caller precisa saber para usar o modulo corretamente**: a assinatura de tipo,
+mais invariantes, restricoes de ordem, modos de erro, configuracao obrigatoria e caracteristicas de
+performance.
+
+Um modulo de 1 parametro que exige `init()` antes, estoura em ordem errada e degrada acima de 10k
+itens **nao e** deep: escondeu complexidade da assinatura, nao do caller. O que fica fora da
+assinatura, o caller aprende por bug.
+
+## Seam
+
+Um **seam** (Feathers) e um lugar onde voce altera o comportamento sem editar naquele lugar — a
+*localizacao* onde a interface do modulo mora. Onde por o seam e decisao propria, anterior ao que vai
+atras dele: conteudo certo no seam errado obriga todo caller a atravessar a fronteira errada.
+
+- **1 adapter = seam hipotetico. 2 adapters = seam real.** Introduza seam quando algo de fato varia;
+  com um unico adapter voce tem indirecao.
+- **Seams internos vs externos.** Um modulo deep pode ter seams internos, privados a implementacao e
+  usados pelos proprios testes, sem expo-los na interface externa. Seam interno nao vira port.
+
+## Adapter
+
+Um **adapter** e a coisa concreta que satisfaz a interface num seam. Descreve **papel** — que slot
+preenche — nao substancia. Adapter pequeno pode ter implementacao grande (repositorio Postgres);
+adapter grande pode ter implementacao pequena (fake em memoria).
+
+Distinto do Adapter do GoF, que converte uma interface incompativel na esperada
+(`skills/design-patterns/references/gof-patterns.md` §6). La e pattern de conversao; aqui e papel num
+seam — um adapter neste sentido pode nao converter nada.
+
+## Leverage e Locality
+
+Os dois retornos da profundidade. Sao distintos, e um refactor pode entregar um sem o outro:
+
+- **Leverage** — o que o *caller* ganha: quanto comportamento ele exerce por unidade de interface que
+  precisa aprender. Uma implementacao se paga em N call sites e M testes.
+- **Locality** — o que o *mantenedor* ganha: mudanca, bug, conhecimento e verificacao concentram num
+  lugar em vez de espalhar pelos callers. Conserta uma vez, conserta em todo lugar.
+
+Wrapper de 1 caller da locality sem leverage — e por isso que ele parece util e nao se paga.
+
+## Testes operacionais
+
+- **Deletion test.** Imagine deletar o modulo e inline seu conteudo nos callers. A complexidade some?
+  Era pass-through. Reaparece espalhada em N callers? O modulo estava se pagando.
+- **A interface e a superficie de teste.** Callers e testes atravessam o mesmo seam. Se o teste
+  precisa chegar *alem* da interface para verificar o resultado, o achado e a forma do modulo — o
+  seam esta no lugar errado.
+
+## Categorias de dependencia
+
+A categoria da dependencia decide **como testar atraves do seam**:
+
+| Categoria | O que e | Estrategia de teste |
+|---|---|---|
+| In-process | Computacao pura, estado em memoria, zero I/O | Sempre aprofundavel. Testa direto pela nova interface, sem adapter |
+| Local-substituivel | Tem stand-in local (PGLite para Postgres, fs em memoria) | Aprofundavel se o stand-in existe. Seam interno; sem port na interface externa |
+| Remota mas propria | Seus servicos atravessando rede | Define **port** no seam. Adapter HTTP em producao, adapter em memoria em teste |
+| Externa real | Terceiros que voce nao controla (Stripe, Twilio) | Port injetado; teste com mock adapter |
+
+**Replace, don't layer.** Teste antigo escrito contra o modulo shallow vira lixo quando ja existe
+teste na interface aprofundada — **delete o antigo** em vez de empilhar os dois. Teste assevera
+resultado observavel atraves da interface, nunca estado interno: se ele precisa mudar quando a
+implementacao muda, esta testando alem da interface.
 
 ---
 
@@ -116,3 +193,6 @@ Confusao comum: "Deep Module vai virar um God Object?"
 | Testabilidade | Alta (1 preocupacao) | Baixa (muitos concerns) |
 
 **Teste rapido:** se remover uma parte do modulo e ela nao fizer sentido isolada, pertence ao modulo (Deep). Se fizer sentido isolada e nao depende das outras partes, deveria ser extraida (God Object).
+
+Complementa o deletion test, nao concorre: o deletion test pergunta se o **modulo inteiro** se paga;
+este pergunta se **uma parte dele** pertence ali.
