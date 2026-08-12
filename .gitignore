@@ -2,7 +2,13 @@
 node_modules/
 
 # Plugin runtime state
-.claude/.context-monitor-state.json
+# 2026-08-12: nao ancorar este. O context-monitor escreve estado no `.claude/` do diretorio
+# corrente, entao o arquivo aparece em qualquer profundidade (18 locais hoje). Um padrao com
+# barra e ancorado na raiz e so pegava o da raiz — tres copias entraram no repo por bulk-add em
+# commits de arquivamento. Os outros padroes `.claude/` abaixo continuam ancorados de proposito:
+# ha fixtures TRACKED em `**/.claude/` (CLAUDE.md, decisions.md, .anti-vibe-manifest.json) que
+# seriam ignoradas se generalizadas.
+**/.claude/.context-monitor-state.json
 .claude/cache/
 .claude/tasks/
 .claude/settings.local.json
