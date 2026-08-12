@@ -74,7 +74,13 @@ async function main(): Promise<void> {
 }
 
 async function ensureFixture(): Promise<void> {
-  // Re-gera sempre — fixture e ephemera, nao versionada (.gitignore).
+  // Re-gera sempre — fixture e ephemera, nao versionada (`.gitignore`).
+  // 2026-08-12 (Luiz/dev): a premissa acima estava certa e o `.gitignore` e que faltava — 166
+  // arquivos de output do generator entraram no repo em 6de33e8 e este bloco os reescrevia a
+  // cada `bun run test`, sujando o working tree com o que parecia mudanca de codigo (o fixture
+  // copia `scripts/*.ts` do repo, entao o diff vinha como 131 linhas em compound-check.ts).
+  // Se algum dia precisar de fixture estavel aqui, o caminho e commitar um snapshot em OUTRO
+  // diretorio e parar de chamar o generator — nao versionar o alvo deste.
   console.log('Generating fixture (100 compound notes + 20 plans + 20 ADRs)...')
   const proc = spawn('bun', ['run', GENERATOR, FIXTURE], { stdio: 'inherit' })
   await new Promise<void>((resolve, reject) => {
