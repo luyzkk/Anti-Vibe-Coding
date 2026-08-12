@@ -20,6 +20,10 @@ on critical operations, KISS, YAGNI, zero clutter, functional programming when a
 - Absence of a trigger is not evidence an artifact is inert. Before deleting anything that
   "never runs", grep for its marker in validators and tests — the consumer may be a verifier,
   not a runtime. Non-executing is not the same as non-load-bearing.
+- A negative search result is not a finding until the same search has been shown to find a
+  known positive. A malformed pattern returns silence, not an error (`grep -E` reads `\|` as a
+  literal pipe), and silence is exactly what confirms a "not found" hypothesis — the failure
+  mode is self-confirming.
 
 Skill: /anti-vibe-coding:consultant (Phase Zero teaching).
 
