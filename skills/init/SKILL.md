@@ -80,6 +80,7 @@ A tabela abaixo eh **documentacao gerada a mao**. A fonte de verdade do runtime 
 - **Default destrutivo + revogavel** — em projetos com CLAUDE.md pre-existente, o init **transforma** o CLAUDE.md em espelho <=40 linhas (D2/D26/D28) extraindo regras Akita para `docs/DESIGN.md`. NUNCA aplica essa transformacao sem (a) aprovacao explicita do dev via `needsUser` agregado (MH-04) e (b) backup recuperavel em `.anti-vibe/backup/{timestamp}/` (D9, D29). Reversibilidade garantida via `/anti-vibe-coding:init --rollback` (MH-07).
 - **Opt-in conservador disponivel:** `/anti-vibe-coding:init --additive-merge` preserva o comportamento da v6.3.x (merge aditivo, sem reescrever CLAUDE.md, sem backup) para users que ainda nao querem migrar para o novo formato (SH-09). Documentado tambem em `docs/design-docs/ADR-NNNN-destructive-merge-default.md` (Plano 06 fase-03).
 - Se nao tiver certeza sobre um conflito, **perguntar ao usuario**
+- **Passo que sobrevive a sessao** — pegar `DATABASE_URL` num painel, criar secret de deploy no GitHub Actions — nao e pergunta: `AskUserQuestion` cobre resposta que o agente usa para agir agora; para o que o dev faz fora daqui, e talvez repita depois, ofereca `/anti-vibe-coding:wizard`
 
 ## Diretorio do projeto
 
