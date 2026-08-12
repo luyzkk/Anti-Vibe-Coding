@@ -118,7 +118,7 @@ Sinal de interface bem projetada: o teste NAO sabe detalhes internos.
 Se ao escrever testes voce perceber que precisa expor detalhes de implementacao:
 → Redesenhe a interface antes de implementar
 
-Referencia completa: `skills/tdd-workflow/references/deep-modules.md`
+Referencia completa: [`skills/tdd-workflow/references/deep-modules.md`](./references/deep-modules.md)
 
 ---
 

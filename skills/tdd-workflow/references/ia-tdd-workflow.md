@@ -36,7 +36,7 @@ NAO perguntar "estes requisitos estao bons?" — resposta sempre sera sim.
 Criar a interface publica do modulo com implementacoes stub:
 - Metodos que lancam NotImplementedError / throw new Error('not implemented')
 - Objetivo: definir a API antes de escrever testes
-- Aplicar Deep Modules: "Que interface eu gostaria de usar?" (ver references/deep-modules.md)
+- Aplicar Deep Modules: "Que interface eu gostaria de usar?" (ver [`deep-modules.md`](./deep-modules.md))
 
 ---
 

@@ -142,7 +142,7 @@ Spawn apenas dos detectados na classificacao de arquivos modificados.
 
 Spawn todos em paralelo com os fixos (mesma mensagem, multiplos Agent calls).
 
-**Pre-check Deep Modules (Consolidado de anti-vibe-review):** antes de spawnar `solid-auditor`, considere avaliar se os modulos modificados expoem interface pequena com implementacao rica (deep) ou interface quase tao complexa quanto implementacao (shallow). Sinal de modulo shallow: muitos metodos publicos, muitos parametros expostos. Sinal de deep: interface pequena, implementacao rica. Em caso de shallow, o relatorio pode incluir warning de encapsulamento alem dos findings do auditor. Referencia: `skills/tdd-workflow/references/deep-modules.md`.
+**Pre-check Deep Modules (Consolidado de anti-vibe-review):** antes de spawnar `solid-auditor`, considere avaliar se os modulos modificados expoem interface pequena com implementacao rica (deep) ou interface quase tao complexa quanto implementacao (shallow). Sinal de modulo shallow: muitos metodos publicos, muitos parametros expostos. Sinal de deep: interface pequena, implementacao rica. Em caso de shallow, o relatorio pode incluir warning de encapsulamento alem dos findings do auditor. Referencia: [`skills/tdd-workflow/references/deep-modules.md`](../tdd-workflow/references/deep-modules.md).
 
 ### 2d. Modelo por Auditor
 
