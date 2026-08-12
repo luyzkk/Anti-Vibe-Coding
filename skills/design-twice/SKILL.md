@@ -110,6 +110,7 @@ Regras para restricoes:
 3. Para 4-5 propostas: criar restricoes adicionais nao cobertas pelas 3 iniciais
 4. Para "proposta focada em [X]": criar restricao customizada com foco explicito em X
 5. O orquestrador NAO gera solucao propria — apenas distribui restricoes e compara resultados
+6. A qualidade das propostas depende da qualidade das restricoes — restricao fraca produz proposta generica
 
 ---
 
@@ -322,20 +323,3 @@ Baseado no contexto:
 | Complexidade >= 4 | "Feature complexa. Recomendo /write-prd para especificar antes de implementar." |
 | Complexidade <= 2 | "Feature simples. /plan-feature deve ser suficiente." |
 | Moderada | "Quer /write-prd para documentar ou /plan-feature para ir direto?" |
-
----
-
-## Regras
-
-1. Subagentes NAO veem as solucoes uns dos outros — isolamento total
-2. Cada subagente recebe as MESMAS constraints mas restricoes DIFERENTES
-3. O orquestrador NAO gera solucao propria — apenas compara e recomenda
-4. Se TODAS as propostas convergirem, declarar que o problema e simples
-5. Minimo 3 propostas, maximo 5 (3 e o default)
-6. Dev pode pedir "mais propostas" ou "proposta focada em [X]"
-7. "Tanto faz" NAO e aceito — insistir com recomendacao justificada
-8. A qualidade das propostas depende da qualidade das restricoes
-9. As restricoes devem ser genuinamente diferentes — nao variacoes do mesmo tema
-10. Decisao sempre registrada em decisions.md com prefixo DT-
-11. Learn point sempre oferecido ao final
-12. Proximo passo sempre sugerido ao final

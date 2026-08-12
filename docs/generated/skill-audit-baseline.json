@@ -1472,7 +1472,7 @@
       "descriptionChars": 166,
       "descriptionLineChars": 181,
       "quotedTriggerCount": 0,
-      "bodyLines": 332,
+      "bodyLines": 316,
       "negations": [
         {
           "line": 31,
@@ -1510,99 +1510,79 @@
           "text": "5. O orquestrador NAO gera solucao propria — apenas distribui restricoes e compara resultados"
         },
         {
-          "line": 118,
+          "line": 119,
           "term": "nao",
           "text": "Quando o problema nao se encaixa em nenhum dos 4 dominios, ou quando as restricoes de dominio produziram propostas convergentes demais, use as lentes abaixo como geradores de restricoes para os subagentes. Cada lente produz uma direcao estruturalmente diferente."
         },
         {
-          "line": 123,
+          "line": 124,
           "term": "nao",
           "text": "| **Constraint-removal** | E se budget, tempo ou tecnologia nao fossem fatores? | \"Ignore restricoes praticas. Qual seria a solucao ideal sem limitacoes?\" |"
         },
         {
-          "line": 151,
+          "line": 152,
           "term": "nao",
           "text": "<!-- 2026-05-14 (Luiz/dev): A3 — subagent_type permanece \"general-purpose\" (nao migrado para anti-vibe-coding:design-explorer ainda). Comportamento de output foi migrado para contrato v1 pelo Plano 02 fase-02. -->"
         },
         {
-          "line": 154,
+          "line": 155,
           "term": "NAO",
           "text": "- Subagentes NAO veem as solucoes uns dos outros"
         },
         {
-          "line": 162,
+          "line": 163,
           "term": "NAO",
           "text": "O orquestrador NAO parseia markdown manual — chama `consolidateProposals()` de `skills/design-twice/index.ts` que usa `parseContract()` internamente. Output dos subagentes vira array `ConsolidatedProposal[]` ordenado por letra (A/B/C)."
         },
         {
-          "line": 175,
+          "line": 176,
           "term": "nao",
           "text": "1. Output DEVE ser JSON valido conforme contrato v1 — nao markdown livre"
         },
         {
-          "line": 191,
+          "line": 192,
           "term": "nao",
           "text": "  (G-P02-03: reasoning = meta-observacao; human_readable = proposta em si — nao misturar)"
         },
         {
-          "line": 195,
+          "line": 196,
           "term": "nao",
           "text": "<!-- 2026-05-14 (Luiz/dev): Step 4 migrado de \"parse 8 secoes markdown\" para campos estruturados de payload.proposal — Plano 04 fase-02. Tabela nao usa mais complexity/effort/pros/cons/risks (campos obsoletos rejeitados em Plano 02 fase-02 BUG-1). -->"
         },
         {
-          "line": 232,
+          "line": 233,
           "term": "nao",
           "text": "qualquer abordagem funciona. A diferenca esta em detalhes, nao em direcao."
         },
         {
-          "line": 259,
+          "line": 260,
           "term": "nao",
           "text": "| \"Mais propostas\" | Spawnar 1-2 subagentes adicionais com restricoes nao cobertas (max 5 total) |"
         },
         {
-          "line": 262,
+          "line": 263,
           "term": "NAO",
           "text": "| \"Tanto faz\" | NAO aceitar: \"Essa decisao impacta [aspecto]. Recomendo {X} porque [razao]. Concorda?\" |"
         },
         {
-          "line": 283,
+          "line": 284,
           "term": "nao",
           "text": "**Convergencia:** {sim|nao} — {comentario se relevante}"
         },
         {
-          "line": 289,
+          "line": 290,
           "term": "nao",
           "text": "- Se decisions.md nao existir, criar com header padrao"
         },
         {
-          "line": 292,
+          "line": 293,
           "term": "nao",
           "text": "- Se o dev quiser ADR formal: sugerir `/decision-registry` (nao forcar)"
         },
         {
-          "line": 311,
+          "line": 312,
           "term": "NAO",
           "text": "O learn point deve ser especifico ao trade-off da decisao, NAO generico."
-        },
-        {
-          "line": 330,
-          "term": "NAO",
-          "text": "1. Subagentes NAO veem as solucoes uns dos outros — isolamento total"
-        },
-        {
-          "line": 332,
-          "term": "NAO",
-          "text": "3. O orquestrador NAO gera solucao propria — apenas compara e recomenda"
-        },
-        {
-          "line": 336,
-          "term": "NAO",
-          "text": "7. \"Tanto faz\" NAO e aceito — insistir com recomendacao justificada"
-        },
-        {
-          "line": 338,
-          "term": "nao",
-          "text": "9. As restricoes devem ser genuinamente diferentes — nao variacoes do mesmo tema"
         }
       ],
       "modelInvoked": true,
@@ -5568,7 +5548,7 @@
       "descriptionChars": 226,
       "descriptionLineChars": 241,
       "quotedTriggerCount": 0,
-      "bodyLines": 527,
+      "bodyLines": 518,
       "negations": [
         {
           "line": 101,
@@ -5611,52 +5591,32 @@
           "text": "Se não houver diferenças em CLAUDE.md (nenhuma seção nova ou alterada), pular o Passo 3.5 integralmente e reportar:"
         },
         {
-          "line": 375,
+          "line": 355,
+          "term": "NUNCA",
+          "text": "Arquivos em `.claude/backups/` **NUNCA** devem ser deletados automaticamente — a limpeza é do usuário."
+        },
+        {
+          "line": 377,
           "term": "não",
           "text": "- Seções puladas no Passo 3.5: ignorar completamente — não tocar"
         },
         {
-          "line": 376,
+          "line": 378,
           "term": "não",
           "text": "- Se `approvedSections` estiver vazio: não modificar CLAUDE.md, registrar no resumo final"
         },
         {
-          "line": 386,
+          "line": 388,
           "term": "never",
           "text": "**Estratégia: `\"never\"`**"
         },
         {
-          "line": 388,
+          "line": 390,
           "term": "Não",
           "text": "Ignorar completamente. Não tocar no arquivo."
         },
         {
-          "line": 495,
-          "term": "NUNCA",
-          "text": "3. **NUNCA** substituir arquivo com `userModified: true` sem avisar"
-        },
-        {
-          "line": 496,
-          "term": "never",
-          "text": "4. Se `updateStrategy === \"never\"`, ignorar completamente"
-        },
-        {
-          "line": 498,
-          "term": "NUNCA",
-          "text": "6. Arquivos em `.claude/backups/` NUNCA devem ser deletados automaticamente"
-        },
-        {
-          "line": 499,
-          "term": "não",
-          "text": "7. Se usuário cancelar (Opção 4), não modificar nada"
-        },
-        {
-          "line": 500,
-          "term": "NUNCA",
-          "text": "8. **CA-07:** Para CLAUDE.md, NUNCA aplicar seções sem confirmação explícita por seção (Passo 3.5). Dúvida = pular."
-        },
-        {
-          "line": 518,
+          "line": 509,
           "term": "não",
           "text": "⚠️ Aviso: CLAUDE.md está registrado no manifest mas não existe."
         }
@@ -5958,7 +5918,7 @@
       "descriptionChars": 172,
       "descriptionLineChars": 187,
       "quotedTriggerCount": 0,
-      "bodyLines": 432,
+      "bodyLines": 399,
       "negations": [
         {
           "line": 52,
@@ -6141,57 +6101,42 @@
           "text": "   Informar: \"Nao consegui migrar CONTEXT-{slug}.md: {motivo}. PRD salvo normalmente — mova manualmente se necessario.\""
         },
         {
-          "line": 386,
-          "term": "nao",
-          "text": "  Se o slug do CONTEXT nao bater com o slug final da pasta: perguntar ao dev (mitigacao R2)."
-        },
-        {
-          "line": 388,
-          "term": "NAO",
-          "text": "- **Se NAO existir:** Prosseguir com o fluxo normal de coleta de informacoes."
-        },
-        {
-          "line": 399,
-          "term": "NAO",
-          "text": "Se o dev disser NAO: encerrar normalmente. O PRD.md continua disponivel."
-        },
-        {
-          "line": 415,
+          "line": 382,
           "term": "NAO",
           "text": "2. A skill NAO gera PRDs genericos — DEVE contextualizar ao codebase real do projeto"
         },
         {
-          "line": 420,
+          "line": 387,
           "term": "NAO",
           "text": "7. NAO gerar requisitos que o dev nao mencionou — apenas organizar e estruturar"
         },
         {
-          "line": 420,
+          "line": 387,
           "term": "nao",
           "text": "7. NAO gerar requisitos que o dev nao mencionou — apenas organizar e estruturar"
         },
         {
-          "line": 422,
+          "line": 389,
           "term": "NAO",
           "text": "9. A skill NAO substitui o /grill-me (resolver ambiguidades) nem o /consultant (ensinar trade-offs) — gera DOCUMENTO"
         },
         {
-          "line": 431,
+          "line": 398,
           "term": "nao",
           "text": "| \"Escrevo o PRD depois do codigo\" | Isso e documentacao, nao especificacao. O valor do PRD esta em forcar clareza ANTES do codigo. |"
         },
         {
-          "line": 432,
+          "line": 399,
           "term": "nao",
           "text": "| \"Esta task e simples, nao precisa de PRD\" | Tasks simples nao precisam de PRD longo, mas ainda precisam de criterios de aceite. Um PRD de 2 linhas serve. |"
         },
         {
-          "line": 432,
+          "line": 399,
           "term": "nao",
           "text": "| \"Esta task e simples, nao precisa de PRD\" | Tasks simples nao precisam de PRD longo, mas ainda precisam de criterios de aceite. Um PRD de 2 linhas serve. |"
         },
         {
-          "line": 439,
+          "line": 406,
           "term": "nao",
           "text": "- Implementando requisitos que nao estao no PRD nem foram mencionados pelo dev."
         }
@@ -6451,7 +6396,7 @@
     "modelInvoked": 39,
     "hookListed": 23,
     "hookDescriptionChars": 1937,
-    "negations": 1138,
+    "negations": 1127,
     "satellitesUnlinked": 3
   }
 }
