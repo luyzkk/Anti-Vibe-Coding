@@ -70,6 +70,26 @@ SOFTWARE.
 - `SKILL.md`: `Armadilhas deste harness`, `docs/ vs runtime asset`, `Common Rationalizations`, `Red Flags`
 - `references/SKILL-MECHANICS.md`: the frontmatter field table (rewritten for this plugin's eight fields — upstream models two states) and the measured frontmatter findings
 
+`skills/wizard/` is **derived** from the `wizard` skill in the same repository, at the same commit `84fdeff`.
+
+**Upstream files used:**
+
+1. `skills/engineering/wizard/SKILL.md`
+2. `skills/engineering/wizard/template.sh`
+
+**Derived:**
+
+- `template.sh`: near-verbatim copy of the 204-line upstream script — the wizard library (everything above the `STAGES` marker) is deliberately unmodified, since identical UX across generated wizards is the point
+- `SKILL.md`: the four-step process (`Escopar o procedimento`, `Mapear a jornada de cada estagio`, `Escrever o wizard`, `Verificar e entregar`), translated to pt-BR with each step's completion criterion preserved
+
+**Original to this repository** (no upstream counterpart):
+
+- Two fixes to `template.sh`, both commented inline: `_existing` strips a trailing CR so a CRLF `.env` cannot send an invisible `\r` into `write_env` / `set_secret`; and the `explorer.exe` branch of `open_url` is treated as unconditional success, because it exits 1 even when it opened the browser (measured on Windows 11 / Git Bash)
+- `SKILL.md`: the `AskUserQuestion` boundary, `Correcoes nossas sobre o template original`, `Common Rationalizations`, `Red Flags`, and the frontmatter (upstream models two states; this plugin has eight fields)
+- `skills/wizard/template.test.ts`: static guards for the template
+
+Upstream's `agents/openai.yaml` was **not** ported — it is an OpenAI-specific display manifest with no counterpart in this plugin's frontmatter model.
+
 #### MIT License (verbatim from upstream LICENSE):
 
 ```

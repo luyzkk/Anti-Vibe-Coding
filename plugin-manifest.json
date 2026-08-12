@@ -1,6 +1,6 @@
 {
   "version": "7.5.0",
-  "generatedAt": "2026-08-12T22:49:55.831Z",
+  "generatedAt": "2026-08-12T23:08:23.318Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -230,6 +230,12 @@
       "version": "7.5.0",
       "introduced": "v7.5.0",
       "description": "Verificacao pos-execucao: testes e lint, auditoria multi-agente paralela, test quality audit (cobertura real, testes fracos, alucinacoes) e debug automatico. Use apos concluir uma fase ou feature."
+    },
+    "wizard": {
+      "path": "skills/wizard/",
+      "version": "7.5.0",
+      "introduced": "v7.5.0",
+      "description": "Generate an interactive bash wizard that walks a human through steps only they can take: provisioning infra, capturing credentials or CI secrets, navigating a third-party dashboard, a one-off migration. Steps the agent can run, just run."
     },
     "write-prd": {
       "path": "skills/write-prd/",
@@ -2385,6 +2391,12 @@
       "version": "7.5.0",
       "checksum": "80ef537478e90af638068c6156e38890bb1273a1ddcaa9749fa98a2a8a62eb6b",
       "lastModified": "2026-05-23",
+      "updateStrategy": "replace"
+    },
+    "skills/wizard/SKILL.md": {
+      "version": "7.5.0",
+      "checksum": "4122d7a3d859e4350ff67b80818fc97f3e3974623da3133f67c267ad3936e13a",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/write-prd/SKILL.md": {
