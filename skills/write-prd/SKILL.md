@@ -8,31 +8,6 @@ argument-hint: "[descricao da feature ou problema a especificar]"
 ---
 
 ```typescript
-// === Telemetria passiva (Plano 03 fase-02) — nao remover sem registrar em MEMORY.md ===
-// G5: telemetria SEMPRE ativa, ignora architectureDetectorEnabled
-// G7: skill name canonico fixo
-
-import { writeTelemetryStart, writeTelemetryEnd } from '../../lib/telemetry-utils'
-import type { TelemetryStart, TelemetryEnd } from '../../lib/telemetry-types'
-
-const __telemetry_skillName = 'write-prd'
-const __telemetry_fasePipeline = 'write-prd'
-const __telemetry_startTimestamp = new Date().toISOString()
-const __telemetry_startMs = Date.now()
-
-const __telemetry_startEntry: TelemetryStart = {
-  evento: 'start',
-  skill_invocada: __telemetry_skillName,
-  timestamp_inicio: __telemetry_startTimestamp,
-  profile_arquitetura: 'disabled',
-  fase_pipeline: __telemetry_fasePipeline,
-}
-
-writeTelemetryStart(__telemetry_startEntry)
-// === Fim do bloco de inicio ===
-```
-
-```typescript
 // === Perfil arquitetural (Plano 04 fase-04) ===
 // G1: UMA leitura + UMA resolucao via lookup. Sem branching profundo.
 // G2 / CA-04: profile null (flag off ou manifest ausente) → snippet vazio → template preserva v5.2
@@ -394,40 +369,7 @@ Antes de sugerir `/plan-feature`, confirmar:
 
 ---
 
-## Pipeline Integration
-
-### 0. Importar Contexto (se disponivel)
-Antes de iniciar o PRD, verificar se existe CONTEXT.md de `/grill-me` em duas fontes (nessa ordem):
-  a. v6 (default): `docs/exec-plans/active/YYYY-MM-DD-*/CONTEXT.md`
-  b. legacy v5 (fallback): `.planning/CONTEXT-*.md`
-
-- **Se existir (v6):** Importar automaticamente. Dizer ao dev:
-  > "Encontrei `docs/exec-plans/active/{pasta}/CONTEXT.md` do `/grill-me`. Vou usar este contexto e salvar o PRD na mesma pasta."
-  Reusar `{pasta}` (date + slug) como destino do PRD. Nenhum move necessario.
-
-- **Se existir (legacy `.planning/`):** Importar automaticamente. Dizer ao dev:
-  > "Encontrei `.planning/CONTEXT-{slug}.md` legacy. Vou usar este contexto e migrar o CONTEXT para a estrutura v6."
-  Ao final (Step 5.5), este arquivo sera MOVIDO para `docs/exec-plans/active/{date}-{slug}/CONTEXT.md`.
-  Se o slug do CONTEXT nao bater com o slug final da pasta: perguntar ao dev (mitigacao R2).
-
-- **Se NAO existir:** Prosseguir com o fluxo normal de coleta de informacoes.
-
-### 1. Salvar PRD
-Ao finalizar o PRD gerado e aprovado pelo dev, salvar em `docs/exec-plans/active/{YYYY-MM-DD}-{slug}/PRD.md`.
-
-### 2. Sugerir Proximo Passo
-
-> "PRD salvo em `docs/exec-plans/active/{date}-{slug}/PRD.md`.
->
-> Quer prosseguir para `/plan-feature`? Ele vai quebrar este PRD em planos e fases de execucao."
-
-Se o dev disser NAO: encerrar normalmente. O PRD.md continua disponivel.
-
-### 3. Learn Point (opcional)
-
-> "Quer entender como o MoSCoW prioriza features ou como o PRD alimenta o plano de execucao? Posso explicar via `/learn`."
-
-### Escape Hatches
+## Escape Hatches
 - Esta skill funciona standalone: o pipeline e opcional
 - Se CONTEXT.md existir mas o dev quiser ignorar: confirmar antes de descartar o contexto
 - Dev pode voltar a qualquer fase: "quero refazer o PRD"
@@ -436,16 +378,11 @@ Se o dev disser NAO: encerrar normalmente. O PRD.md continua disponivel.
 
 ## Regras
 
-1. O PRD e um documento VIVO — o dev pode edita-lo diretamente apos geracao
-2. A skill NAO gera PRDs genericos — DEVE contextualizar ao codebase real do projeto
-3. Criterios de aceite DEVEM ser testaveis (formato Dado/Quando/Entao)
-4. Must Have deve ser MINIMALISTA — maximo 40% dos requisitos totais
-5. Decisoes assumidas DEVEM ser destacadas e confirmadas com o dev
-6. Se o dev ja tem um PRD escrito, a skill REFINA em vez de reescrever
-7. NAO gerar requisitos que o dev nao mencionou — apenas organizar e estruturar
-8. Se o dev pedir "PRD rapido", pular mini-entrevista e gerar com informacao minima (marcando como Draft)
-9. A skill NAO substitui o /grill-me (resolver ambiguidades) nem o /consultant (ensinar trade-offs) — gera DOCUMENTO
-10. O PRD deve caber em 1-2 paginas para features simples. Para features complexas, cada secao deve ser concisa
+1. A skill NAO gera PRDs genericos — DEVE contextualizar ao codebase real do projeto
+2. Se o dev ja tem um PRD escrito, a skill REFINA em vez de reescrever
+3. Se o dev pedir "PRD rapido", pular mini-entrevista e gerar com informacao minima (marcando como Draft)
+4. A skill NAO substitui o /grill-me (resolver ambiguidades) nem o /consultant (ensinar trade-offs) — gera DOCUMENTO
+5. O PRD deve caber em 1-2 paginas para features simples. Para features complexas, cada secao deve ser concisa
 
 ---
 
@@ -464,28 +401,3 @@ Se o dev disser NAO: encerrar normalmente. O PRD.md continua disponivel.
 - Implementando requisitos que nao estao no PRD nem foram mencionados pelo dev.
 - Tomando decisoes arquiteturais sem registra-las na tabela `## Decisoes Tecnicas`.
 - Must Have ocupando mais de 40% dos requisitos (lixeira de prioridade).
-
----
-
-```typescript
-// === Telemetria passiva (Plano 03 fase-02) — registra fim ===
-// CA-03: end emitido SEMPRE
-// Limitacao conhecida: sucesso=true hardcoded (skill declarativa sem try/catch — ver MEMORY.md G9)
-
-const __telemetry_endEntry: TelemetryEnd = {
-  evento: 'end',
-  skill_invocada: __telemetry_skillName,
-  timestamp_inicio: __telemetry_startTimestamp,
-  timestamp_fim: new Date().toISOString(),
-  duracao_ms: Date.now() - __telemetry_startMs,
-  profile_arquitetura: 'disabled',
-  fase_pipeline: __telemetry_fasePipeline,
-  tokens_aproximados_consumidos: 0,
-  arquivos_lidos: 0,
-  arquivos_modificados: 0,
-  sucesso: true,
-}
-
-writeTelemetryEnd(__telemetry_endEntry)
-// === Fim do bloco de fim ===
-```

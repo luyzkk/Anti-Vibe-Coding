@@ -1,36 +1,11 @@
 ---
 name: consultant
-description: "Phase Zero consultation for uncertain decisions, trade-off analysis, and irreversible choices. Use when facing database schema design, auth pattern selection, critical library choices, infrastructure decisions, or when the user asks 'how should I implement', 'best approach', 'which pattern'. Teaches before coding — presents options with pros/cons instead of jumping to implementation."
+description: "Fase Zero: consultoria para decisao incerta, trade-off e escolha irreversivel. Use ao enfrentar schema de banco, padrao de auth, escolha de biblioteca ou de infra — ou quando a pergunta e 'como implementar', 'melhor abordagem', 'qual pattern'."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob, WebSearch
 argument-hint: "[question or feature to analyze]"
 ---
-
-```typescript
-// === Telemetria passiva (Plano 03 fase-03) — nao remover sem registrar em MEMORY.md ===
-// G5: telemetria SEMPRE ativa, ignora architectureDetectorEnabled
-// G7: skill name canonico fixo
-
-import { writeTelemetryStart, writeTelemetryEnd } from '../../lib/telemetry-utils'
-import type { TelemetryStart, TelemetryEnd } from '../../lib/telemetry-types'
-
-const __telemetry_skillName = 'consultant'
-const __telemetry_fasePipeline = 'consultant'
-const __telemetry_startTimestamp = new Date().toISOString()
-const __telemetry_startMs = Date.now()
-
-const __telemetry_startEntry: TelemetryStart = {
-  evento: 'start',
-  skill_invocada: __telemetry_skillName,
-  timestamp_inicio: __telemetry_startTimestamp,
-  profile_arquitetura: 'disabled',
-  fase_pipeline: __telemetry_fasePipeline,
-}
-
-writeTelemetryStart(__telemetry_startEntry)
-// === Fim do bloco de inicio ===
-```
 
 ## Princípio universal #1 — 10 Questions Test (obrigatório antes de recomendar)
 
@@ -315,10 +290,11 @@ A sugestao e INFORMATIVA — o dev decide se quer seguir ou nao.
 
 ---
 
-## Auto-Registro de Decisoes
+## Registro de Decisoes
 
-Ao final de qualquer consulta que resulte em uma decisao tomada, registrar automaticamente
-no arquivo `decisions.md` na raiz do projeto (criar se nao existir).
+Ao final de qualquer consulta que resulte em uma decisao tomada, montar a entrada abaixo e
+oferece-la ao dev via `/anti-vibe-coding:decision-registry`, que e quem grava em `decisions.md`
+na raiz do projeto.
 
 **Criterio para registrar:** a consulta chegou a uma recomendacao clara e o dev aceitou (ou nao refutou explicitamente). NAO registrar se dev recusar ou se a consulta terminou em incerteza.
 
@@ -386,24 +362,3 @@ Antes de finalizar a recomendação, responda explicitamente:
 - [ ] Algum item da recomendação cobre cenário hipotético sem evidência?
 
 Se a recomendação inclui itens "para o futuro" sem sinal concreto, marque-os explicitamente como **especulativos** e ofereça versão minimalista como alternativa.
-
-```typescript
-// === Telemetria passiva (Plano 03 fase-03) — registra fim ===
-
-const __telemetry_endEntry: TelemetryEnd = {
-  evento: 'end',
-  skill_invocada: __telemetry_skillName,
-  timestamp_inicio: __telemetry_startTimestamp,
-  timestamp_fim: new Date().toISOString(),
-  duracao_ms: Date.now() - __telemetry_startMs,
-  profile_arquitetura: 'disabled',
-  fase_pipeline: __telemetry_fasePipeline,
-  tokens_aproximados_consumidos: 0,
-  arquivos_lidos: 0,
-  arquivos_modificados: 0,
-  sucesso: true,
-}
-
-writeTelemetryEnd(__telemetry_endEntry)
-// === Fim do bloco de fim ===
-```
