@@ -2,7 +2,7 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** fases 01 e 02 executadas (2026-08-12) — fase 03 pendente
+**Status:** **concluido** — 3 de 3 fases executadas em 2026-08-12
 **Depende de:** plano01 fase-01 (a `writing-for-agents` e a lente contra a qual este material e
 escrito) — **satisfeita**, plano01 mergeado em 2026-08-12
 
@@ -12,7 +12,7 @@ escrito) — **satisfeita**, plano01 mergeado em 2026-08-12
 |---|---|---|---|
 | 01 | Expandir a referencia | **done** | 1/1 (+ `plugin-manifest.json` regerado) |
 | 02 | Ponteiros de descoberta | **done** | 3/3 (+ `plugin-manifest.json` regerado) |
-| 03 | 5o dominio no design-twice | planned | 0/1 |
+| 03 | 5o dominio no design-twice | **done** | 1/1 (+ `plugin-manifest.json` regerado) |
 
 ## Decisoes de implementacao (DI)
 
@@ -79,6 +79,45 @@ Ponteiro que nao dispara e context load puro. O teste aplicado nao foi "o texto 
 | `architecture` | "Devo criar uma interface `PaymentGateway` agora que so temos Stripe?" | A skill desce para `## 7. Dependency Injection` → `### Anti-Patterns`, onde "DI para tudo" e a linha que responde. O ponteiro esta na linha seguinte, no caminho de leitura, e substitui um julgamento por uma contagem (1 adapter = hipotetico) |
 | `design-twice` | `/design-twice` sobre "como estruturar o modulo de importacao de CSV" → Dominio 1 selecionado | O ponteiro fica logo apos a tabela do Dominio 1, que e lida para montar as restricoes dos 3 subagentes no Step 3. Dispara antes do spawn, que e o unico momento util |
 | `code-simplification` | Varredura do Step 2 chega em `Unnecessary abstractions \| Wrapper that adds no value` | O ponteiro esta imediatamente apos essa tabela. "Adds no value" e onde a varredura trava; o deletion test destrava |
+
+### fase-03
+
+- **DI-Plano02-fase03-contrato-reusa-axis-e-human_readable** (decisao do usuario, 2026-08-12): o
+  Passo 2 pedia "2 campos alem do contrato v1". O contrato e validado por JSON Schema em
+  `agents/_contract/v1.schema.json`, e a leitura dele mostrou duas coisas que o plano nao sabia:
+  (a) `tradeoffs[].axis` ja existe e e **exatamente** o mecanismo que o Passo 3 pede — os eixos
+  depth/locality/seam entram como `axis`, sem campo novo; (b) `human_readable` e o campo desenhado
+  para markdown livre, e o Step 4 ja manda inclui-lo COMPLETO apos a tabela. Entao o Dominio 5 exige
+  **duas secoes nomeadas dentro de `human_readable`** (*Interface completa*, *Atras do seam*) em vez
+  de campos novos. Passos 2 e 3 saem juntos, com zero risco de contrato.
+  **Verificado, nao assumido:** o schema **nao** tem `additionalProperties` em lugar nenhum
+  (`grep -c` = 0), entao campo extra teria passado na validacao — a opcao literal era viavel. Foi
+  recusada porque os campos ficariam invisiveis ao tipo `ProposalPayload`
+  (`skills/lib/subagent-contract.ts:113-121`), e o Step 4 deriva a tabela dos 6 campos canonicos.
+- **DI-Plano02-fase03-flexibility-fora**: "maximize flexibility" (restricao B do Dominio 1) **nao**
+  entra no Dominio 5 — em interface de modulo ela converge com "ports & adapters" e violaria a regra
+  1 do proprio `design-twice` ("as 3 restricoes DEVEM ser genuinamente diferentes"). O motivo esta
+  escrito no corpo, porque e a pergunta obvia de quem compara os dois dominios lado a lado.
+- **DI-Plano02-fase03-fronteira-explicita-no-quando-usar**: G1 avisa que sem a distincao escrita a
+  heuristica manda tudo para o Dominio 1. Resolvido dentro do proprio "Quando usar" — *"Dominio 1
+  decide como as pecas se organizam; este decide o que uma delas mostra"* — e nao numa nota separada,
+  que ficaria longe do momento da escolha.
+
+### Teste de divergencia (Verificacao da fase-03)
+
+Modulo usado: **`skills/lib/todo-utils.ts`**, o mesmo do pre-check de CF-01 — ja auditado, entao a
+comparacao e contra um veredito conhecido. As 3 restricoes produzem interfaces **estruturalmente**
+diferentes, nao a mesma com nomes trocados:
+
+| Restricao | Interface que produz | Onde o seam cai |
+|---|---|---|
+| A (deep radical) | 1 ponto de entrada — `openTodoFile(path)` devolve handle com `pending()` / `complete(item)` / `skip(item)`; `item` e token opaco, `lineIndex` some da interface | Na fronteira do arquivo; parsing e mutacao ficam ambos atras |
+| B (caller-first) | `pickNextTodo(path)` devolve o item ja escolhido com closures `done()` / `skip()` / `remove()` ligadas a ele — o caso do `/todo-pick` vira 1 chamada; edicao em lote fica verbosa | Na fronteira da **tarefa**, nao do arquivo |
+| C (ports & adapters) | Port `TodoStore` com `read()` / `write()`; nucleo de parsing vira puro e testa sem disco. Adapter fs em producao, em memoria em teste | Na fronteira de **I/O**; parsing fica na frente do seam, nao atras |
+
+Divergem em ponto de entrada, em o que e opaco e em posicionamento do seam — e cada uma resolve um
+defeito diferente do modulo atual (A mata o vazamento de `lineIndex`; B mata a coordenacao que o
+caller faz hoje; C mata o acoplamento a `fs` no nucleo). Regra 2 do `design-twice` satisfeita.
 
 ## Delta medido (fase-01)
 
