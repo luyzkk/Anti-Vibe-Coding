@@ -7,6 +7,11 @@
 **Nenhum arquivo de skill foi modificado nesta fase.** `git diff --stat skills/` vazio.
 Todo patch aqui e **proposta**; a aplicacao e da fase-04, com aprovacao humana por achado (DI-04).
 
+> **Fase-04 executada em 2026-08-12.** O resultado medido esta em
+> [§Delta real da fase-04](#delta-real-da-fase-04), no fim deste documento — inclusive onde o
+> realizado **divergiu** do projetado abaixo, e por que. Onde as duas secoes discordarem, **a
+> medida vale**; as projecoes aqui sao o que se sabia antes de aplicar.
+
 ---
 
 ## Particao usada
@@ -332,3 +337,99 @@ aguarda aprovacao antes do proximo.
 
 **Gate para a fase-04**, herdado do `MEMORY.md`: todo achado precisa de evidencia citada + delta
 projetado, e `git status` limpo em `skills/` antes de comecar. Ambos satisfeitos.
+
+---
+
+## Delta real da fase-04
+
+Executada em 2026-08-12, aprovacao humana por lote. **11 commits de codigo, 5 de registro.**
+Numeros medidos por `bun scripts/audit-skill-docs.ts .` apos cada lote — nao projetados.
+
+| Metrica | Antes | Depois | Delta |
+|---|---|---|---|
+| `descriptionChars` | 13.499 | **9.139** | **−4.360 (−32,3%)** |
+| Banner `SessionStart` | 4.131/sessao | **3.757** | −374 |
+| `hookDescriptionChars` | 2.081 | **1.937** | −144 |
+| Maior ofensor | `infrastructure` 792 | **`security` 419** | (crescido de proposito) |
+| Satelites sem ponteiro | 6 | **3** | −3 (os 3 restantes sao falso positivo) |
+| `modelInvoked` | 40/40 | **39/40** | `anti-vibe-review` saiu |
+
+A projecao deste relatorio era o repo terminar em **~9.475**. Fechou em **9.139**.
+
+### Lote a lote: projetado vs medido
+
+| Lote | Escopo | Projetado | **Medido** |
+|---|---|---|---|
+| 1a+1b | 7 contradicoes de contrato | ~0 | **+190** (comportamental, nao economiza) |
+| 2a+2b | S3 ponteiros mortos | ~0 | ~0 (7 skills corrigidas) |
+| 3 | Hook `SessionStart` | −1.039 | **−374** |
+| 4a–4f | 26 descriptions | −4.024 | **−4.278** |
+| 7a | 4 fences aninhados | 0 | **+4** (comportamental) |
+| 7b | Satelites, npm→bun, S5 | −602 | **−92** |
+
+### Onde a auditoria errou, e o que isso ensina
+
+Cinco afirmacoes deste relatorio nao sobreviveram a verificacao. Todas foram pegas **antes** de
+virar patch, por leitura do codigo ou do corpo da skill:
+
+1. **`legacy-*`: 7 sites** — sao **15**, em 14 linhas. Uma (`execute-plan:127`) esta sem backticks e
+   escapa de grep ancorado em crase.
+2. **`decision-registry`: "trocar `.claude/` pela raiz"** — o fix implicito estaria **errado**. A
+   linha citada como prova (`index.ts:53`) esta dentro de um `if`: prova o branch **v5/cru**. Em
+   **v6**, default deste repo, a skill escreve ADR em `docs/design-docs/`.
+3. **`react-patterns`: `virtualization` e `code splitting` nao alcancam branch** — **alcancam**
+   (`:189`, `:192`, dentro de `## Checklist Rapido de Code Review`). Corta-los teria removido a unica
+   porta para material existente.
+4. **`source-driven-development`: 5 ponteiros mortos** — **nenhum morto**. Ver §Descartados.
+5. **`api-design`: 1 trigger orfao (`keyset`)** — sao **4** (`keyset`, `HATEOAS`, `filtering`,
+   `sorting`). O erro aqui foi por **falta**, nao por excesso.
+
+Padrao: erro de subagente em **ambas as direcoes**. A verificacao trigger-a-trigger contra o corpo
+foi o unico metodo que pegou os dois tipos.
+
+### O que NAO foi feito, e por que
+
+**Fora de escopo por serem load-bearing** (confirmado, nao re-sugerir sem mudar o mecanismo):
+
+- **`profile-aware-preface`** — 9 skills, ~12.500 chars. `scripts/harness-validate.ts:643` **falha**
+  se faltar fence ou `readPrefaceContext`. Deletar derruba `bun run harness:validate`.
+- **`stale-capabilities-check`** — 7 skills, 8.364 chars byte-identicos. Preso por assertion de ordem
+  em 4 `__tests__/stack-aware-preface-wire.test.ts` e por "SYNC OBRIGATORIO" em
+  `skills/lib/__tests__/stale-warning.test.ts`.
+- **Corpo do `security`** — custo assimetrico. A description **cresceu** (+33) em vez de encolher:
+  a verificacao mostrou branch orfao, nao inchaco.
+
+**Adiado com motivo, escopo aberto para uma proxima sessao:**
+
+| Item | Volume medido | Por que ficou |
+|---|---|---|
+| **Lote 5 — secoes terminais (S1, subtipos 1 e 2)** | pool de 28.281 chars, 21 skills | Maior pool da auditoria, mas o subtipo 2 tem **residuo de fonte unica** que morre se cortado em bloco. Exige conferir twin linha a linha em 21 skills (~5 sub-lotes). O subtipo 3 (contradicoes) ja saiu no lote 1 |
+| **Lote 6 — telemetria (S2)** | **15.591 chars**, 2 blocos em 10 skills | Comprovadamente morta, mas a superficie de teste e **maior que o relatorio supunha**: `telemetry-utils.test.ts` tem 44 testes e ao menos 2 grupos (`consultiva`, `pipeline-core`) com assertions em `:192`, `:202`, `:211`, `:228`, `:568` — nao a linha unica projetada |
+| **Lista das 23 skills no hook** | 1.981 chars, 53% do banner | G1 multiplicado por 23. Se a descoberta depender so das descriptions e a premissa estiver errada, 23 skills param de disparar **em silencio**. A lista tambem carrega o protocolo "SEMPRE pergunte antes de invocar", ausente das descriptions. Precisa de verificacao real de descoberta, nao de coragem |
+| **Negacoes (pool de 1.148)** | julgamento caso a caso | O pool e em pt-BR: `\bnao\b` casa prosa comum. Contar seria transformar ruido em achado |
+
+**Achados novos abertos, encontrados durante a aplicacao** (nao existiam neste relatorio):
+
+- `init:80` cita `/anti-vibe-coding:init --rollback`, que **nao aparece** em
+  `skills/init/lib/parse-flags.ts`. A lib existe (`rollback.test.ts`); a duvida e se a **flag** e
+  reconhecida. Exige verificacao antes de acao.
+- O banner do `SessionStart` ainda anuncia `anti-vibe-review` como skill viva ("Review
+  pos-implementacao"), depois de ela ter sido deprecada e retirada da invocacao por modelo.
+  `hooks/hooks.json` e lote isolado — nao foi misturado.
+- `skills/anti-vibe-review/SKILL.md` faz `generate-manifest.js` emitir `missing or malformed
+  frontmatter delimiters` a cada run (comentario HTML antes do `---`). Nenhum teste quebra.
+- **Hardcodar gerenciador de pacote em skill distribuida** e fragil nos dois sentidos: `bun run test`
+  quebra em projeto-alvo que usa npm, tanto quanto `npm test` quebrava aqui. A regra da lente manda
+  deixar o lookup de um comando para o environment. Alinhado com as irmas por ora (3 skills).
+- **A lista de 22 descriptions deste relatorio nao era exaustiva.** Ao terminar as 22, os 4 maiores
+  ofensores do repo eram skills que ela nunca listou (`design-patterns` 579, `consultant` 386,
+  `security` 386, `defensive-patterns` 362) — dai o lote 4f. **Proxima auditoria: re-ranquear depois
+  de cada lote, nao trabalhar lista congelada.**
+
+### Anomalia de teste registrada
+
+Durante o lote 4a, dois runs isolados falharam **sem reproducao**: `bun test skills` com 13 fail num
+run de **240s** (normal ~9s), e `bun test tests/e2e` com 1 fail. Nao reproduzidos em 3 e 4
+re-execucoes respectivamente. Nenhum teste asserta texto de description (verificado), e os que citam
+as skills tocadas sao do bloco `stack-aware-preface`, intocado. O runtime de 26x aponta contencao de
+ambiente. **Registrado como anomalia observada, nao como verde limpo.**
