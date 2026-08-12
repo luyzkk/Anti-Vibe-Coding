@@ -668,6 +668,27 @@ Dividido em 6 sub-lotes por delta decrescente (22 skills nao cabem no cap de 5).
   `architecture`, `iterate` e `quick-plan` tinham a secao no fim do arquivo. Depois do 5a:
   **22.364 em 22 secoes / 18 skills**.
 
+### fase-04 — 5b tentado e recusado por verificacao (nenhum commit de codigo)
+
+- **DI-Plano01-fase04-5b-verify-work-e-falso-positivo**: eu mesmo propus o 5b como
+  `verify-work ## Pipeline Integration` sozinha, por ser 27% do pool restante. **A verificacao
+  matou o lote.** Dos 6.036 chars, **141 sao reprojecao** — o ponteiro de Learn Point, twin do
+  `## Step 5`. O resto e fonte unica: `### Cleanup de Artefatos` 4.331 (91 linhas do procedimento
+  de arquivamento do PRD), `### 0. Importar Contexto` 646, `### Ao Finalizar a Verificacao` 632,
+  `### Escape Hatches` 257. `SUMMARY.md`, `/commit`, `/push`, `/open-pr`, `iterate harden` e
+  `standalone` nao aparecem no corpo. **Nada aplicado.** Registrado em §Descartados para nao voltar.
+
+- **DI-Plano01-fase04-5b-pipeline-integration-nao-e-S1**: o padrao que emergiu vale para a familia
+  toda — `## Pipeline Integration` **nao e reprojecao dos steps**, e o contrato de pipeline da
+  skill: de onde le, onde escreve, o que vem depois, como escapar. No `write-prd` ele duplicava o
+  corpo por acidente (aquela skill detalha import/save dentro dos Steps 5 e 6); nas outras e o
+  unico lugar que diz. **A tabela do S1 juntou 4 secoes por nome de heading, nao por conteudo.**
+
+- **DI-Plano01-fase04-5b-escape-hatches-e-sempre-residuo**: `### Escape Hatches` aparece em 5
+  skills e e **fonte unica em todas** — `standalone` da 0 hits no corpo de `plan-feature`,
+  `grill-me` e `verify-work`; no `write-prd` ja tinha sido confirmado no 5a. **Qualquer sub-lote
+  que toque `## Pipeline Integration` preserva o bloco inteiro, sem reconferir.**
+
 ## Pendencias abertas (fase-01)
 
 - **`plugin-manifest.json` nao registra a skill nova.** O manifest lista os 39 `SKILL.md` entre 412
