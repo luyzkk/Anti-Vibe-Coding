@@ -2,9 +2,12 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** **fase-04 em curso** — lotes 1, 2, 3, 4, 6, 7, **5a** e **5b** aplicados. Pool do S1 em
-**20.938 nominais / ~12,9k reais** (ver `AUDIT-REPORT.md` §S1 e §Descartados). Rendimento esperado
-do que resta: **~6k**, nao os 28k da projecao original.
+**Status:** **fase-04 CONCLUIDA.** Lotes 1, 2, 3, 4, 6 e 7 completos; lote **5 fechado pelo humano
+em 2026-08-12** com 5a e 5b aplicados e o resto deixado na mesa por rendimento medido — ver
+`AUDIT-REPORT.md` §Adiado. Plano 01 pronto para review do PR #14.
+
+**Delta da fase-04:** descriptions **−4.360 (−32,3%)** · corpo dos `SKILL.md` **−19.341** ·
+banner `SessionStart` **−374/sessao**. Total **~23,7k chars** a menos no que o agente carrega.
 **Branch:** `feat/writing-for-agents-port` (criada 2026-08-11, a partir de `main`)
 
 ## Progresso
@@ -19,7 +22,16 @@ do que resta: **~6k**, nao os 28k da projecao original.
 Lotes aplicados: **1** (`0c964a0`, `357d154`) · **2** (`436dec7`, `e3a33b8`) · **3** (`c61e941`) ·
 **4** (`c3b87d4`, `3328eef`, `497ded2`, `6d71d8e`, `22b9efc`, `184470f`) · **7** (`3bfdb4b`,
 `7d8bea5`) · **6a** (`59bad47`) · **6b** (`057398c`) · **5a** (`379e10a`) · **5b** (`a45c04c`).
-Restante do lote **5** aberto, com o pool re-medido.
+**17 commits de codigo, 11 de registro.** Lote **5 fechado** com ~12,9k reais deixados na mesa.
+
+### Por que o lote 5 fechou incompleto
+
+Decisao do humano, com o numero na mesa. O S1 e o **unico achado sistemico da auditoria cuja
+projecao nao sobreviveu ao codigo** — e foram tres medicoes independentes dizendo isso: o subtipo 1
+nao existia (5a), a maior entrada da tabela era falso positivo (`verify-work`, 5b recusado), e o
+ratio real de reprojecao e 56% e nao ~90% (5b aplicado). O que sobra sao ~12 secoes de 275 a 1.1k,
+cada uma exigindo contagem item a item para render metade — **~6k contra o risco de derrubar regra
+viva numa lista de regras**. Os outros lotes renderam com projecao quase exata; este nao.
 
 ### Delta acumulado da fase-04 (medido, nao projetado)
 
@@ -31,13 +43,22 @@ Restante do lote **5** aberto, com o pool re-medido.
 | `modelInvoked` | 40/40 | **39/40** |
 | maior ofensor | `system-design` 1.481 -> `infrastructure` 792 | **`security` 419** (crescido de proposito) |
 
-A auditoria projetou o repo terminando em **~9.475**; fechou em **9.231**. A cauda longa de
-outliers acabou: depois do 419, a distribuicao e 338 / 306 / 305 / 299.
+A auditoria projetou o repo terminando em **~9.475**; fechou em **9.139** (esta linha dizia 9.231
+ate 2026-08-12 — numero antigo, o audit sempre reportou 9.139). A cauda longa de outliers acabou:
+depois do 419, a distribuicao e 338 / 306 / 305 / 299.
 
-O lote **6** nao mexe em nenhuma metrica desta tabela — corta **corpo**, nao description. Delta
-dele, medido em LF (ver DI sobre CRLF): **6a −7.297** · **6b −7.959** · **total −15.256** nos 10
-`SKILL.md`. Unica metrica do audit que se moveu: `negacoes no corpo` 1.148 → 1.143 → **1.138**,
-os 10 `nao` dos guard comments removidos.
+Os lotes **6**, **5a** e **5b** nao mexem em nenhuma metrica desta tabela — cortam **corpo**, nao
+description. Delta deles, medido em LF (ver DI sobre CRLF):
+
+| Lote | Delta | Skills |
+|---|---|---|
+| 6a | −7.297 | 5 consultivas |
+| 6b | −7.959 | 5 pipeline-core |
+| 5a | −2.635 | design-twice, update, write-prd |
+| 5b | −1.450 | write-prd, plan-feature, execute-plan |
+| **total** | **−19.341** | **13 skills distintas** |
+
+Unica metrica do audit que se moveu: `negacoes no corpo` 1.148 → **1.120**.
 
 Modo de aprovacao escolhido pelo humano: **por lote**, com a lista do lote na tela antes de aplicar
 (a alternativa era por achado, ~70 pausas). Lote 1 do relatorio virou **1a + 1b** — ver DI abaixo.
