@@ -2,8 +2,9 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** **fase-04 em curso** — lotes 1, 2, 3, 4, 6, 7 e **5a** aplicados. Restam ~4 sub-lotes do
-**5** (secoes de fechamento, pool de 22.364 em 18 skills) — ver `AUDIT-REPORT.md` §S1.
+**Status:** **fase-04 em curso** — lotes 1, 2, 3, 4, 6, 7, **5a** e **5b** aplicados. Pool do S1 em
+**20.938 nominais / ~12,9k reais** (ver `AUDIT-REPORT.md` §S1 e §Descartados). Rendimento esperado
+do que resta: **~6k**, nao os 28k da projecao original.
 **Branch:** `feat/writing-for-agents-port` (criada 2026-08-11, a partir de `main`)
 
 ## Progresso
@@ -17,8 +18,8 @@ Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
 Lotes aplicados: **1** (`0c964a0`, `357d154`) · **2** (`436dec7`, `e3a33b8`) · **3** (`c61e941`) ·
 **4** (`c3b87d4`, `3328eef`, `497ded2`, `6d71d8e`, `22b9efc`, `184470f`) · **7** (`3bfdb4b`,
-`7d8bea5`) · **6a** (`59bad47`) · **6b** (`057398c`) · **5a** (`379e10a`). Restante do lote **5**
-aberto, com o pool re-medido.
+`7d8bea5`) · **6a** (`59bad47`) · **6b** (`057398c`) · **5a** (`379e10a`) · **5b** (`a45c04c`).
+Restante do lote **5** aberto, com o pool re-medido.
 
 ### Delta acumulado da fase-04 (medido, nao projetado)
 
@@ -688,6 +689,27 @@ Dividido em 6 sub-lotes por delta decrescente (22 skills nao cabem no cap de 5).
   skills e e **fonte unica em todas** — `standalone` da 0 hits no corpo de `plan-feature`,
   `grill-me` e `verify-work`; no `write-prd` ja tinha sido confirmado no 5a. **Qualquer sub-lote
   que toque `## Pipeline Integration` preserva o bloco inteiro, sem reconferir.**
+
+### fase-04 — lote 5b (familia `## Regras`), commit `a45c04c`
+
+- **DI-Plano01-fase04-5b-constraints-e-repeso-nao-duplicacao**: `qa-visual` e `tdd-workflow`
+  sairam do lote na verificacao. Nos dois, `## Regras Inviolaveis` e o **conteudo unico** de um
+  bloco `<constraints>` — cortar a secao esvazia o bloco. Nenhum teste assere a tag, **mas** a
+  `COMPARISON-MATRIX` de 2026-06 trata os blocos `<constraints>` como escolha de design e cita a
+  regra "NUNCA pular o Passo 1" do `qa-visual` como ponto forte contra a ferramenta de referencia.
+  **Tag que re-pesa nao e duplicacao** — mesma familia do argumento do `profile-aware-preface`, so
+  que aqui a funcao e retorica, nao mecanica. Fora de escopo ate alguem decidir mudar a convencao.
+
+- **DI-Plano01-fase04-5b-ratio-real-56-porcento**: nas 3 secoes aplicadas, **19 de 34 itens**
+  tinham twin (56%). O S1 supunha ~90%. `write-prd` 5 de 10, `plan-feature` 6 de 12,
+  `execute-plan` 8 de 12. **Terceira verificacao seguida em que a premissa do S1 rende menos que o
+  relatorio diz** — depois do subtipo 1 (5a) e do `verify-work` (5b recusado). O criterio usado foi
+  estrito: so cortei item com **linha-twin nomeada**, nao item com "conceito presente".
+
+- **DI-Plano01-fase04-5b-frontmatter-nao-e-twin**: dois itens do `execute-plan` (isolamento,
+  troca de contexto) so apareciam na `description` do frontmatter. **Description nao conta como
+  twin** — ela e o indice de descoberta, nao o corpo que o agente executa. O item 9 (transicao
+  interativa) ficou por isso; o 1 (isolamento) saiu porque tinha twin real em `:781`.
 
 ## Pendencias abertas (fase-01)
 
