@@ -1,36 +1,11 @@
 ---
 name: quick-plan
-description: "Planejamento leve para tasks de complexidade media. Gera mini-plano de 3-7 passos no formato step/verify sem criar arquivos de planejamento em disco ou spawnar subagentes. Alternativa ao pipeline completo (grill-me → plan-feature → execute-plan) para tarefas que nao justificam o overhead."
+description: "Planejamento leve para tasks de complexidade media. Gera mini-plano de 3-7 passos no formato step/verify num arquivo so, sem a estrutura de pastas do /plan-feature e sem subagentes. Alternativa ao pipeline completo (grill-me → plan-feature → execute-plan) para tarefas que nao justificam o overhead."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, AskUserQuestion
 argument-hint: "[descricao da task]"
 ---
-
-```typescript
-// === Telemetria passiva (Plano 03 fase-03) — nao remover sem registrar em MEMORY.md ===
-// G5: telemetria SEMPRE ativa, ignora architectureDetectorEnabled
-// G7: skill name canonico fixo
-
-import { writeTelemetryStart, writeTelemetryEnd } from '../../lib/telemetry-utils'
-import type { TelemetryStart, TelemetryEnd } from '../../lib/telemetry-types'
-
-const __telemetry_skillName = 'quick-plan'
-const __telemetry_fasePipeline = 'quick-plan'
-const __telemetry_startTimestamp = new Date().toISOString()
-const __telemetry_startMs = Date.now()
-
-const __telemetry_startEntry: TelemetryStart = {
-  evento: 'start',
-  skill_invocada: __telemetry_skillName,
-  timestamp_inicio: __telemetry_startTimestamp,
-  profile_arquitetura: 'disabled',
-  fase_pipeline: __telemetry_fasePipeline,
-}
-
-writeTelemetryStart(__telemetry_startEntry)
-// === Fim do bloco de inicio ===
-```
 
 # Quick Plan — Planejamento Leve Inline
 
@@ -207,29 +182,8 @@ console.log('\n\n' + renderCompletionSignal({
 
 ## O que Este Skill NAO Faz
 
-- NAO cria arquivos de planejamento em disco (PLAN.md, STATE.md, etc.)
+- Escreve **um** arquivo so — nao a estrutura PLAN.md/STATE.md/MEMORY.md do /plan-feature
 - NAO spawna subagentes
 - NAO entra em waves ou vertical slices
 - NAO substitui o pipeline para features complexas
 - NAO pula TDD — testes continuam obrigatorios quando aplicavel
-
-```typescript
-// === Telemetria passiva (Plano 03 fase-03) — registra fim ===
-
-const __telemetry_endEntry: TelemetryEnd = {
-  evento: 'end',
-  skill_invocada: __telemetry_skillName,
-  timestamp_inicio: __telemetry_startTimestamp,
-  timestamp_fim: new Date().toISOString(),
-  duracao_ms: Date.now() - __telemetry_startMs,
-  profile_arquitetura: 'disabled',
-  fase_pipeline: __telemetry_fasePipeline,
-  tokens_aproximados_consumidos: 0,
-  arquivos_lidos: 0,
-  arquivos_modificados: 0,
-  sucesso: true,
-}
-
-writeTelemetryEnd(__telemetry_endEntry)
-// === Fim do bloco de fim ===
-```

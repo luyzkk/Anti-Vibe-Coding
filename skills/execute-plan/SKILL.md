@@ -8,31 +8,6 @@ argument-hint: "[caminho do PLAN.md ou nome da feature] [--plano N] [--fase N]"
 ---
 
 ```typescript
-// === Telemetria passiva (Plano 03 fase-02) — nao remover sem registrar em MEMORY.md ===
-// G5: telemetria SEMPRE ativa, ignora architectureDetectorEnabled
-// G7: skill name canonico fixo
-
-import { writeTelemetryStart, writeTelemetryEnd } from '../../lib/telemetry-utils'
-import type { TelemetryStart, TelemetryEnd } from '../../lib/telemetry-types'
-
-const __telemetry_skillName = 'execute-plan'
-const __telemetry_fasePipeline = 'execute-plan'
-const __telemetry_startTimestamp = new Date().toISOString()
-const __telemetry_startMs = Date.now()
-
-const __telemetry_startEntry: TelemetryStart = {
-  evento: 'start',
-  skill_invocada: __telemetry_skillName,
-  timestamp_inicio: __telemetry_startTimestamp,
-  profile_arquitetura: 'disabled',
-  fase_pipeline: __telemetry_fasePipeline,
-}
-
-writeTelemetryStart(__telemetry_startEntry)
-// === Fim do bloco de inicio ===
-```
-
-```typescript
 // === Perfil arquitetural (Plano 04 fase-05) — leitura UMA vez ===
 // Reutiliza FASE_POLICY_BY_PROFILE da fase-03 via cross-skill import (sem duplicar lookup).
 // G1: UMA leitura, UMA resolucao, zero branching profundo.
@@ -107,14 +82,14 @@ Suporta dois formatos:
 Roda antes de qualquer outra coisa. Se `.planning/` tem artefatos soltos pre-refatoracao
 (`PRD-*.md`, `PLAN-*.md`, `STATE-*.md`, `planoNN/` solto), oferece migrar para pasta datada.
 
-Algoritmo: `lib/legacy-detector.md`.
-Migracao: `lib/legacy-migrator.md`.
+Algoritmo: `skills/lib/legacy-detector.md`.
+Migracao: `skills/lib/legacy-migrator.md`.
 
 ### Fluxo
 
 ```
 1. Se `.planning/` nao existe: skip — ir para Step 1.
-2. Executar `detectLegacy(".planning/")` conforme `lib/legacy-detector.md`.
+2. Executar `detectLegacy(".planning/")` conforme `skills/lib/legacy-detector.md`.
 3. Se `legacy == false`: skip — ir para Step 1.
 4. Se `legacy == true`:
    a. Apresentar ao dev:
@@ -124,7 +99,7 @@ Migracao: `lib/legacy-migrator.md`.
            - {cada artifact.path}
          Slug inferido: {suggestedSlug ou 'nenhum — dev fornece'}"
    b. Se detectou apenas PLAN.md/STATE.md flat (sinal C sem A nem B):
-      - Nota: o detector retorna legacy=false se so C presente (conforme lib/legacy-detector.md).
+      - Nota: o detector retorna legacy=false se so C presente (conforme `skills/lib/legacy-detector.md`).
         Portanto esse caso nao chega aqui — PLAN.md flat puro nao eh legacy pelo algoritmo.
         Execute-plan Step 1b detecta o flat normalmente e vai para Step 2-FLAT.
    c. Se `suggestedSlug` for null (ambiguous):
@@ -141,7 +116,7 @@ Migracao: `lib/legacy-migrator.md`.
       - "Nao — executar legacy em modo v1 a partir de .planning/ raiz (nao migra)"
       - "Cancelar execute-plan"
    g. Se "Sim":
-      - Chamar `migrateLegacy(detectorResult, targetFolderName)` conforme `lib/legacy-migrator.md`
+      - Chamar `migrateLegacy(detectorResult, targetFolderName)` conforme `skills/lib/legacy-migrator.md`
       - Se `status == "success"`: continuar Step 1 dentro da pasta migrada
       - Se `rolled_back`/`aborted`: reportar erro, perguntar se prosseguir em modo legacy v1 ou cancelar
    h. Se "Nao — legacy v1":
@@ -819,18 +794,10 @@ Step 6-FLAT: SUMMARY ao completar
 
 ## Regras Criticas
 
-1. **Isolamento e absoluto** — subagentes GREEN nunca veem requisitos, apenas testes
-2. **O orchestrador nunca executa codigo** — apenas spawn de subagentes e atualizacao de estado
-3. **Max 3 retries** — apos isso, marcar blocked e continuar com outras fases
-4. **Sempre confirma antes de executar** — Step 3 e obrigatorio, nunca pule
-5. **Commit atomico por fase** — cada subagente faz commit(s) ao terminar
-6. **STATE.md e a fonte de verdade** — ler antes de escrever, sempre
-7. **MEMORY.md e preenchida durante execucao** — nao apos
-8. **Memorias anteriores sao consultadas** — antes de iniciar cada plano
-9. **Transicao entre planos e interativa** — dev decide se avanca ou troca contexto
-10. **Context threshold a 75%** — pausar, salvar estado e memoria
-11. **Destilacao de memoria ao final** — extrair licoes generalizaveis para o repositorio
-12. **Backward compat** — planos flat (v1) continuam funcionando sem mudanca
+1. **O orchestrador nao implementa** — escrever codigo e trabalho de subagente. O orchestrador faz spawn, atualiza estado e roda a validacao pos-fase (Step 5)
+2. **STATE.md e a fonte de verdade** — ler antes de escrever, sempre
+3. **MEMORY.md e preenchida durante execucao** — nao apos
+4. **Transicao entre planos e interativa** — dev decide se avanca ou troca contexto
 
 ---
 
@@ -878,8 +845,8 @@ console.log('\n\n' + renderCompletionSignal({
 - `skills/plan-feature/templates/memory-template.md` — Template de memoria por plano
 - `agents/plan-executor.md` — Agent que executa tasks/fases individuais
 - `agents/plan-verifier.md` — Agent que verifica output (read-only)
-- `lib/legacy-detector.md` — Algoritmo de deteccao de estrutura legacy (consumido pelo Step 0)
-- `lib/legacy-migrator.md` — Algoritmo de migracao atomica STAGE/MOVE/CONFIRM/ROLLBACK (consumido pelo Step 0)
+- `skills/lib/legacy-detector.md` — Algoritmo de deteccao de estrutura legacy (consumido pelo Step 0)
+- `skills/lib/legacy-migrator.md` — Algoritmo de migracao atomica STAGE/MOVE/CONFIRM/ROLLBACK (consumido pelo Step 0)
 
 ---
 
@@ -900,26 +867,3 @@ console.log('\n\n' + renderCompletionSignal({
 - Decisao tomada durante execucao que nao foi registrada no MEMORY.md do plano
 - Step executado sem ter lido o arquivo antes de editar (violacao de integridade de edicao)
 - Fase marcada como concluida antes de `bun run harness:validate` verde
-
-```typescript
-// === Telemetria passiva (Plano 03 fase-02) — registra fim ===
-// CA-03: end emitido SEMPRE
-// Limitacao conhecida: sucesso=true hardcoded (skill declarativa sem try/catch — ver MEMORY.md G9)
-
-const __telemetry_endEntry: TelemetryEnd = {
-  evento: 'end',
-  skill_invocada: __telemetry_skillName,
-  timestamp_inicio: __telemetry_startTimestamp,
-  timestamp_fim: new Date().toISOString(),
-  duracao_ms: Date.now() - __telemetry_startMs,
-  profile_arquitetura: 'disabled',
-  fase_pipeline: __telemetry_fasePipeline,
-  tokens_aproximados_consumidos: 0,
-  arquivos_lidos: 0,
-  arquivos_modificados: 0,
-  sucesso: true,
-}
-
-writeTelemetryEnd(__telemetry_endEntry)
-// === Fim do bloco de fim ===
-```

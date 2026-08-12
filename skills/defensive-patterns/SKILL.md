@@ -1,6 +1,6 @@
 ---
 name: defensive-patterns
-description: Menu de padrões defensivos para produção. Apresenta categorias (rate limit, circuit breaker, timeout, fallback, retry, bulkhead, config centralizada, health check, graceful degradation) e guia o dev a escolher quais aplicar ao contexto atual. Cobre backoff, jitter, retry budget, token bucket, fail-open, black-hole, degraded read, stale cache e thundering herd.
+description: "Menu de padrões defensivos para produção: rate limit, circuit breaker, timeout, fallback, retry, bulkhead, config centralizada, health check e graceful degradation. Guia o dev a escolher quais aplicar ao contexto atual."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob, Edit, Write

@@ -1,6 +1,6 @@
 ---
 name: pair-programming-with-agent
-description: Tutorial da dinâmica 'humano navega, agente pilota'. Quando interromper o agente, como injetar contexto de domínio, tabela Akita de capacidades (faz bem / faz mal), e exemplos reais de interrupção por over-engineering, contexto insuficiente e decisão conjunta.
+description: "Tutorial da dinâmica 'humano navega, agente pilota': hierarquia de confiança dos arquivos de contexto, tabela Akita de capacidades, quando interromper o agente e como injetar contexto de domínio."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob

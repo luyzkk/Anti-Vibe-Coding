@@ -1,6 +1,6 @@
 ---
 name: lessons-learned
-description: "This skill should be used when the user asks to 'add a lesson learned', 'register a lesson', 'review lessons', 'prune obsolete lessons', or when a significant error pattern is detected that should be recorded for future sessions. Manages project-specific senior knowledge with quality filters."
+description: "Registro de licoes aprendidas do projeto, com filtro de qualidade senior. Use ao registrar uma licao, revisar as existentes, ou podar as obsoletas."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob, Write, Edit
@@ -126,23 +126,24 @@ Uma licao SO deve ser registrada se atender a PELO MENOS 2 destes criterios:
    **Contexto:** [Por que essa regra existe — maximo 2 linhas]
    ```
 
-4b. Inferir origem do PRD mais recente em `_archive/`:
+4b. Inferir origem do plano mais recente em `docs/exec-plans/`:
 
-   1. Glob `.planning/_archive/YYYY-MM-DD-*/` — buscar pastas cujo nome comeca com data no formato `YYYY-MM-DD-`
-   2. Se resultado vazio ou `.planning/_archive/` nao existe:
+   1. Glob `docs/exec-plans/completed/YYYY-MM-DD-*/` e `docs/exec-plans/active/YYYY-MM-DD-*/` — buscar pastas cujo nome comeca com data no formato `YYYY-MM-DD-`
+   2. Se resultado vazio nos dois:
       - NAO adicionar linha de origem (comportamento preservado)
       - Prosseguir ao Passo 5
    3. Se encontrou pastas:
       - Ordenar descendente por nome (ordenacao lexicografica = cronologica para formato `YYYY-MM-DD`)
+      - Preferir `completed/` quando a mesma data aparecer nos dois
       - Pegar a primeira (mais recente)
-      - Construir linha: `**Origem:** .planning/_archive/{nome-da-pasta}/SUMMARY.md`
+      - Construir linha: `**Origem:** docs/exec-plans/{completed|active}/{nome-da-pasta}/SUMMARY.md`
    4. Injetar a linha como TERCEIRA linha do bloco da licao, apos `**Contexto:**`:
 
       ```
       ### [Categoria] Titulo conciso da licao
       **Regra:** ...
       **Contexto:** ...
-      **Origem:** .planning/_archive/2026-04-20-auth/SUMMARY.md
+      **Origem:** docs/exec-plans/completed/2026-04-20-auth/SUMMARY.md
       ```
 
    5. Prosseguir ao Passo 5 com a licao ja formatada com a linha de origem
@@ -154,7 +155,7 @@ Uma licao SO deve ser registrada se atender a PELO MENOS 2 destes criterios:
    - **Mesmo dia (sufixo -v2):** pegar qualquer uma (sort estavel) — nao e critico
 
 5. Se nao passar no filtro de qualidade, explicar por que nao qualifica
-6. **Avaliar promocao a senior-principles:** perguntar ao usuario se a licao atende aos 4 criterios de promocao (ver abaixo). Se o usuario confirmar, adicionar ao `senior-principles.md` na secao apropriada
+6. **Avaliar promocao a principio senior:** perguntar ao usuario se a licao atende aos 4 criterios de promocao (ver abaixo). Se o usuario confirmar, adicionar ao `docs/design-docs/core-beliefs.md` na secao apropriada
 
 ### Ao revisar (`review`):
 1. Listar todas as licoes com numeracao
@@ -165,11 +166,13 @@ Uma licao SO deve ser registrada se atender a PELO MENOS 2 destes criterios:
 2. Sugerir remocao com justificativa
 3. Esperar aprovacao do desenvolvedor antes de remover
 
-## Promocao a Senior Principles
+## Promocao a Principios Senior
 
-Apos registrar uma licao aprovada, avaliar se ela merece ser promovida ao `senior-principles.md`. Perguntar ao usuario:
+Apos registrar uma licao aprovada, avaliar se ela merece ser promovida ao
+`docs/design-docs/core-beliefs.md` — o registro canonico de principios senior do projeto (v6;
+substituiu o `senior-principles.md` da raiz, que era o local v5). Perguntar ao usuario:
 
-> "Esta licao parece [universal/nao-obvia/etc]. Ela atende os criterios para ir ao senior-principles.md?"
+> "Esta licao parece [universal/nao-obvia/etc]. Ela atende os criterios para ir ao core-beliefs.md?"
 
 ### Criterios de promocao (TODOS devem ser atendidos):
 
@@ -183,7 +186,7 @@ Apos registrar uma licao aprovada, avaliar se ela merece ser promovida ao `senio
 Se falhar em qualquer um, a licao fica apenas nas lessons do projeto.
 
 ### Ao promover:
-1. Identificar a secao correta no `senior-principles.md` (Seguranca, Qualidade, API Design, etc.)
+1. Identificar a secao correta no `docs/design-docs/core-beliefs.md` (Verification of Premises, Security, Code Quality, API Design, etc.)
 2. Adicionar no formato existente: regra concisa + justificativa apos o travessao
 3. Se nenhuma secao existente se aplica, criar uma nova secao
 4. Confirmar com o usuario o texto final antes de salvar

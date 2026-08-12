@@ -1,6 +1,6 @@
 ---
 name: sync
-description: "This skill should be used when the user wants to 'sync plugin', 'force reload', 'invalidate cache', 'refresh plugin', or when encountering cache-related issues with the Anti-Vibe Coding plugin. Forces cache invalidation and shows current version status."
+description: "Forca invalidacao de cache do plugin Anti-Vibe Coding e mostra o status de versao. Use ao suspeitar que o plugin esta servindo conteudo velho."
 user-invocable: true
 allowed-tools: Read, Bash
 ---
@@ -78,7 +78,7 @@ Nenhuma ação necessária. Se ainda assim está enfrentando problemas:
 ```
 
 #### Se desatualizado (versões diferentes):
-```
+````
 ⚠️ Plugin desatualizado!
 
 Para sincronizar, execute:
@@ -91,10 +91,10 @@ Isso irá:
 2. Mostrar lista de mudanças
 3. Aplicar merge inteligente
 4. Atualizar manifest local para v{pluginVersion}
-```
+````
 
 #### Se não instalado:
-```
+````
 ⚠️ Plugin não inicializado neste projeto
 
 Para instalar, execute:
@@ -106,7 +106,7 @@ Isso irá:
 1. Fazer merge do CLAUDE.md (preserva suas configurações)
 2. Instalar rules e skills
 3. Criar manifest de versionamento
-```
+````
 
 ### Passo 4 — Invalidação de Cache (Automática)
 
@@ -173,7 +173,7 @@ Se não existir, o plugin não está instalado globalmente.
 
 ## Exemplo de Saída
 
-```
+````
 ## Anti-Vibe Coding — Status de Sincronização
 
 ### Versão do Plugin Global
@@ -202,4 +202,4 @@ Isso irá:
 2. Mostrar lista de mudanças
 3. Aplicar merge inteligente
 4. Atualizar manifest local para v4.1.0
-```
+````

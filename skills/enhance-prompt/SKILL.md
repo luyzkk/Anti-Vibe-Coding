@@ -1,6 +1,6 @@
 ---
 name: enhance-prompt
-description: "This skill should be used when the user asks to 'enhance my prompt', 'optimize start.md', 'add anti-vibe to my plans', 'improve my execution prompt', 'prepare tasks for automation', 'add skills to tasks', or wants to integrate Anti-Vibe Coding into their existing plan/task structure for automated execution by Claude Code."
+description: "Integra o Anti-Vibe Coding numa estrutura de plano/task existente, para execucao automatizada pelo Claude Code. Use ao pedir enhance do prompt de execucao, ou ao preparar tasks para automacao."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob, Write, Edit, AskUserQuestion

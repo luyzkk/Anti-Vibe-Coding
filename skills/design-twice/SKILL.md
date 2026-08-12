@@ -7,31 +7,6 @@ allowed-tools: Read, Grep, Glob, Agent, Write
 argument-hint: "[descricao do problema ou feature a explorar]"
 ---
 
-```typescript
-// === Telemetria passiva (Plano 03 fase-03) — nao remover sem registrar em MEMORY.md ===
-// G5: telemetria SEMPRE ativa, ignora architectureDetectorEnabled
-// G7: skill name canonico fixo
-
-import { writeTelemetryStart, writeTelemetryEnd } from '../../lib/telemetry-utils'
-import type { TelemetryStart, TelemetryEnd } from '../../lib/telemetry-types'
-
-const __telemetry_skillName = 'design-twice'
-const __telemetry_fasePipeline = 'design-twice'
-const __telemetry_startTimestamp = new Date().toISOString()
-const __telemetry_startMs = Date.now()
-
-const __telemetry_startEntry: TelemetryStart = {
-  evento: 'start',
-  skill_invocada: __telemetry_skillName,
-  timestamp_inicio: __telemetry_startTimestamp,
-  profile_arquitetura: 'disabled',
-  fase_pipeline: __telemetry_fasePipeline,
-}
-
-writeTelemetryStart(__telemetry_startEntry)
-// === Fim do bloco de inicio ===
-```
-
 # Design Twice — Propostas Arquiteturais Divergentes
 
 Skill de exploracao arquitetural. Gera multiplas propostas genuinamente diferentes em paralelo antes de convergir em uma decisao. Baseada no principio "Design It Twice" de John Ousterhout.
@@ -135,6 +110,7 @@ Regras para restricoes:
 3. Para 4-5 propostas: criar restricoes adicionais nao cobertas pelas 3 iniciais
 4. Para "proposta focada em [X]": criar restricao customizada com foco explicito em X
 5. O orquestrador NAO gera solucao propria — apenas distribui restricoes e compara resultados
+6. A qualidade das propostas depende da qualidade das restricoes — restricao fraca produz proposta generica
 
 ---
 
@@ -161,6 +137,8 @@ Catalogo de frameworks detalhados (SCAMPER, Pre-mortem, First Principles, JTBD, 
 ---
 
 ## Step 3 — Spawnar Subagentes em Paralelo
+
+> Sessao completa do fluxo, do problema a decisao: [`examples/worked-session.md`](./examples/worked-session.md)
 
 Usar a Agent tool para spawnar 3 subagentes em PARALELO (em uma unica mensagem com 3 tool calls simultaneos):
 
@@ -345,41 +323,3 @@ Baseado no contexto:
 | Complexidade >= 4 | "Feature complexa. Recomendo /write-prd para especificar antes de implementar." |
 | Complexidade <= 2 | "Feature simples. /plan-feature deve ser suficiente." |
 | Moderada | "Quer /write-prd para documentar ou /plan-feature para ir direto?" |
-
----
-
-## Regras
-
-1. Subagentes NAO veem as solucoes uns dos outros — isolamento total
-2. Cada subagente recebe as MESMAS constraints mas restricoes DIFERENTES
-3. O orquestrador NAO gera solucao propria — apenas compara e recomenda
-4. Se TODAS as propostas convergirem, declarar que o problema e simples
-5. Minimo 3 propostas, maximo 5 (3 e o default)
-6. Dev pode pedir "mais propostas" ou "proposta focada em [X]"
-7. "Tanto faz" NAO e aceito — insistir com recomendacao justificada
-8. A qualidade das propostas depende da qualidade das restricoes
-9. As restricoes devem ser genuinamente diferentes — nao variacoes do mesmo tema
-10. Decisao sempre registrada em decisions.md com prefixo DT-
-11. Learn point sempre oferecido ao final
-12. Proximo passo sempre sugerido ao final
-
-```typescript
-// === Telemetria passiva (Plano 03 fase-03) — registra fim ===
-
-const __telemetry_endEntry: TelemetryEnd = {
-  evento: 'end',
-  skill_invocada: __telemetry_skillName,
-  timestamp_inicio: __telemetry_startTimestamp,
-  timestamp_fim: new Date().toISOString(),
-  duracao_ms: Date.now() - __telemetry_startMs,
-  profile_arquitetura: 'disabled',
-  fase_pipeline: __telemetry_fasePipeline,
-  tokens_aproximados_consumidos: 0,
-  arquivos_lidos: 0,
-  arquivos_modificados: 0,
-  sucesso: true,
-}
-
-writeTelemetryEnd(__telemetry_endEntry)
-// === Fim do bloco de fim ===
-```

@@ -8,31 +8,6 @@ argument-hint: "[caminho do PRD ou nome da feature]"
 ---
 
 ```typescript
-// === Telemetria passiva (Plano 03 fase-02) — nao remover sem registrar em MEMORY.md ===
-// G5: telemetria SEMPRE ativa, ignora architectureDetectorEnabled
-// G7: skill name canonico fixo
-
-import { writeTelemetryStart, writeTelemetryEnd } from '../../lib/telemetry-utils'
-import type { TelemetryStart, TelemetryEnd } from '../../lib/telemetry-types'
-
-const __telemetry_skillName = 'plan-feature'
-const __telemetry_fasePipeline = 'plan-feature'
-const __telemetry_startTimestamp = new Date().toISOString()
-const __telemetry_startMs = Date.now()
-
-const __telemetry_startEntry: TelemetryStart = {
-  evento: 'start',
-  skill_invocada: __telemetry_skillName,
-  timestamp_inicio: __telemetry_startTimestamp,
-  profile_arquitetura: 'disabled',
-  fase_pipeline: __telemetry_fasePipeline,
-}
-
-writeTelemetryStart(__telemetry_startEntry)
-// === Fim do bloco de inicio ===
-```
-
-```typescript
 // === Modo dual: leitura de perfil arquitetural (Plano 04 fase-03) ===
 // G1: leitura UMA vez, resolucao via lookup — sem branching profundo
 // G2: profile null → FASE_POLICY_V52 → comportamento v5.2 preservado (CA-04)
@@ -106,8 +81,8 @@ Roda ANTES de qualquer outra coisa. Detecta dois niveis de estrutura legacy:
 - **v4 legacy**: `PRD-*.md` ou `planoNN/` soltos na raiz de `.planning/` (pre-pasta-datada)
 - **v5 legacy**: pastas `YYYY-MM-DD-slug/` dentro de `.planning/` (pre-v6, deve migrar para `docs/exec-plans/active/`)
 
-Algoritmo referenciado: `lib/legacy-detector.md` (v4 detection).
-Migracao referenciada: `lib/legacy-migrator.md`.
+Algoritmo referenciado: `skills/lib/legacy-detector.md` (v4 detection).
+Migracao referenciada: `skills/lib/legacy-migrator.md`.
 
 ### Fluxo
 
@@ -130,7 +105,7 @@ Migracao referenciada: `lib/legacy-migrator.md`.
    - Se "Cancelar": encerrar
 
 3. Verificar v4 legacy (apenas se nao havia v5 legacy):
-   - Executar `detectLegacy(".planning/")` conforme `lib/legacy-detector.md`
+   - Executar `detectLegacy(".planning/")` conforme `skills/lib/legacy-detector.md`
    - Se `legacy == false`: skip — ir para Step 1
 
 4. Se v4 `legacy == true`:
@@ -156,7 +131,7 @@ Migracao referenciada: `lib/legacy-migrator.md`.
         - "Nao — prosseguir com plan-feature em modo greenfield (legacy fica intocado)"
         - "Cancelar plan-feature"
    f. Se "Sim":
-      - Chamar `migrateLegacy(detectorResult, targetFolderName)` conforme `lib/legacy-migrator.md`
+      - Chamar `migrateLegacy(detectorResult, targetFolderName)` conforme `skills/lib/legacy-migrator.md`
         (target path = "docs/exec-plans/active/{targetFolderName}/")
       - Se retorno status == "success":
         - Confirmar: "Migrado com sucesso. {N} artefatos em docs/exec-plans/active/{targetFolderName}/"
@@ -754,7 +729,7 @@ Para aprofundar: sugerir `/anti-vibe-coding:learn "vertical slices"` ou `/anti-v
 
 ### 0. Deteccao de Legacy (ver Step 0 acima)
 Se detectar artefatos em `.planning/` (v4 ou v5), oferece migrar para `docs/exec-plans/active/`
-antes de qualquer outro fluxo. Ver `lib/legacy-detector.md` e `lib/legacy-migrator.md`.
+antes de qualquer outro fluxo. Ver `skills/lib/legacy-detector.md` e `skills/lib/legacy-migrator.md`.
 
 ### 1. Importar PRD (se disponivel)
 Antes de iniciar o planejamento, executar o Step 1 para localizar o PRD:
@@ -822,16 +797,10 @@ Validation Log / Compound Opportunity / Lessons Captured ficam vazias inicialmen
 
 1. O plano e o contrato — /execute-plan segue EXATAMENTE o que esta nos planos
 2. Se o plano estiver errado, corrigir o PLANO (nao improvisar durante execucao)
-3. Tracer bullet pode parecer "pouco" mas e o slice mais importante
-4. A quantidade de planos e fases e decidida por analise semantica, NUNCA por thresholds fixos
-5. Cada plano e gerado em contexto isolado (subagente) para evitar poluicao
-6. Planos sao gerados sob demanda — NUNCA gerar todos de uma vez
-7. Cada fase deve ser time-boxed (30min-2h) e ter checklist de verificacao
-8. NUNCA gerar overview sem aprovacao do dev (Step 7 e obrigatorio)
-9. NUNCA salvar plano se dev cancelar a aprovacao
-10. STATE.md e a fonte de verdade para progresso — /execute-plan atualiza, dev pode editar
-11. Cada plano tem sua propria MEMORY.md — preenchida durante execucao
-12. A decisao de quantos planos depende do julgamento senior da LLM, nao de regras fixas
+3. A quantidade de planos e fases e decidida por analise semantica, NUNCA por thresholds fixos
+4. NUNCA salvar plano se dev cancelar a aprovacao
+5. STATE.md e a fonte de verdade para progresso — /execute-plan atualiza, dev pode editar
+6. Cada plano tem sua propria MEMORY.md — preenchida durante execucao
 
 ---
 
@@ -935,8 +904,8 @@ console.log('\n\n' + renderCompletionSignal({
 
 ## Referencias
 
-- `lib/legacy-detector.md` — Algoritmo de deteccao de estrutura legacy (consumido pelo Step 0)
-- `lib/legacy-migrator.md` — Algoritmo de migracao atomica STAGE/MOVE/CONFIRM/ROLLBACK (consumido pelo Step 0)
+- `skills/lib/legacy-detector.md` — Algoritmo de deteccao de estrutura legacy (consumido pelo Step 0)
+- `skills/lib/legacy-migrator.md` — Algoritmo de migracao atomica STAGE/MOVE/CONFIRM/ROLLBACK (consumido pelo Step 0)
 
 ---
 
@@ -957,26 +926,3 @@ console.log('\n\n' + renderCompletionSignal({
 - Dependencia entre fases nao declarada explicitamente
 - Plano sem secao de rollback ou exit criteria
 - Feature com >3 etapas sem diagrama de fluxo ou sequencia de estados
-
-```typescript
-// === Telemetria passiva (Plano 03 fase-02) — registra fim ===
-// CA-03: end emitido SEMPRE
-// Limitacao conhecida: sucesso=true hardcoded (skill declarativa sem try/catch — ver MEMORY.md G9)
-
-const __telemetry_endEntry: TelemetryEnd = {
-  evento: 'end',
-  skill_invocada: __telemetry_skillName,
-  timestamp_inicio: __telemetry_startTimestamp,
-  timestamp_fim: new Date().toISOString(),
-  duracao_ms: Date.now() - __telemetry_startMs,
-  profile_arquitetura: 'disabled',
-  fase_pipeline: __telemetry_fasePipeline,
-  tokens_aproximados_consumidos: 0,
-  arquivos_lidos: 0,
-  arquivos_modificados: 0,
-  sucesso: true,
-}
-
-writeTelemetryEnd(__telemetry_endEntry)
-// === Fim do bloco de fim ===
-```
