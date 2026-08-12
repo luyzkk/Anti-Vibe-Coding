@@ -334,6 +334,8 @@ Quantas classes com dependencias?
 | **Injecao circular** | A depende de B, B depende de A | SRP violado — extrair logica compartilhada para terceira classe |
 | **Salvar detalhes externos no banco** | `productId` do Stripe no banco — banco acoplado ao Stripe | Salvar IDs do DOMINIO, mapeamento para IDs externos na camada de integracao |
 
+**Seam** — decidir *onde* a fronteira de um modulo fica e decisao propria, anterior a decidir o que vai atras dela; e da a "DI para tudo" acima um teste contavel: 1 adapter = seam hipotetico, 2 = seam real ([deep-modules](../tdd-workflow/references/deep-modules.md)).
+
 ---
 
 ## Template de Analise Arquitetural
