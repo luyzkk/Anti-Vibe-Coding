@@ -1,36 +1,11 @@
 ---
 name: verify-work
-description: "Verificacao pos-execucao com testes, auditoria multi-agente paralela, test quality audit (cobertura real, testes fracos, alucinacoes) e debug automatico. Evolucao do anti-vibe-review com superpoderes."
+description: "Verificacao pos-execucao: testes e lint, auditoria multi-agente paralela, test quality audit (cobertura real, testes fracos, alucinacoes) e debug automatico. Use apos concluir uma fase ou feature."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Glob, Grep, Bash, Agent, AskUserQuestion
 argument-hint: "[feature name ou caminho de arquivos]"
 ---
-
-```typescript
-// === Telemetria passiva (Plano 03 fase-02) — nao remover sem registrar em MEMORY.md ===
-// G5: telemetria SEMPRE ativa, ignora architectureDetectorEnabled
-// G7: skill name canonico fixo
-
-import { writeTelemetryStart, writeTelemetryEnd } from '../../lib/telemetry-utils'
-import type { TelemetryStart, TelemetryEnd } from '../../lib/telemetry-types'
-
-const __telemetry_skillName = 'verify-work'
-const __telemetry_fasePipeline = 'verify-work'
-const __telemetry_startTimestamp = new Date().toISOString()
-const __telemetry_startMs = Date.now()
-
-const __telemetry_startEntry: TelemetryStart = {
-  evento: 'start',
-  skill_invocada: __telemetry_skillName,
-  timestamp_inicio: __telemetry_startTimestamp,
-  profile_arquitetura: 'disabled',
-  fase_pipeline: __telemetry_fasePipeline,
-}
-
-writeTelemetryStart(__telemetry_startEntry)
-// === Fim do bloco de inicio ===
-```
 
 ```typescript
 // === Perfil arquitetural (Plano 04 fase-05) — leitura UMA vez ===
@@ -437,7 +412,7 @@ Antes de iniciar a verificacao, verificar se `{PASTA_ATIVA}/SUMMARY.md` existe (
 
 ### Cleanup de Artefatos — Arquivamento do PRD
 
-```
+````
 Apos verificacao completa, se a pasta do PRD for detectada (`docs/exec-plans/active/YYYY-MM-DD-{slug}/`):
 
 1. Detectar pasta ativa do PRD:
@@ -524,7 +499,7 @@ Se falha (template nao encontrado, erro de leitura):
    Se mv falhar (permissao, filesystem diferente, etc.):
      - Abortar sem estado parcial (mv e atomico para mesmo filesystem)
      - Mensagem clara sobre o erro
-```
+````
 
 ### Escape Hatches
 - Esta skill e o encerramento do pipeline mas funciona standalone
@@ -594,26 +569,3 @@ Pergunte ao subagente:
 3. "Há algum sinal de over-engineering que só fica visível com olhos frescos?"
 
 Inclua a resposta do subagente na seção "Fresh-context Review" do relatório final.
-
-```typescript
-// === Telemetria passiva (Plano 03 fase-02) — registra fim ===
-// CA-03: end emitido SEMPRE
-// Limitacao conhecida: sucesso=true hardcoded (skill declarativa sem try/catch — ver MEMORY.md G9)
-
-const __telemetry_endEntry: TelemetryEnd = {
-  evento: 'end',
-  skill_invocada: __telemetry_skillName,
-  timestamp_inicio: __telemetry_startTimestamp,
-  timestamp_fim: new Date().toISOString(),
-  duracao_ms: Date.now() - __telemetry_startMs,
-  profile_arquitetura: 'disabled',
-  fase_pipeline: __telemetry_fasePipeline,
-  tokens_aproximados_consumidos: 0,
-  arquivos_lidos: 0,
-  arquivos_modificados: 0,
-  sucesso: true,
-}
-
-writeTelemetryEnd(__telemetry_endEntry)
-// === Fim do bloco de fim ===
-```

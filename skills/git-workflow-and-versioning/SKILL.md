@@ -1,6 +1,6 @@
 ---
 name: git-workflow-and-versioning
-description: "Git Workflow e Versioning: codifica conventional commits, atomicidade, commits como save points, branches curtas (1-3 dias), PR description como contrato historico. Complementa CLAUDE.md global (fonte de verdade para tipos `feat`/`fix`/`chore`/etc). Vetado: 'Fix bug' como commit message. Hook commit-msg documentado como OPCIONAL (opt-in, nao bloqueante). Integra com /iterate e /incident-response que dependem de commit history limpo para post-mortem."
+description: "Git workflow e versioning. Use ao escrever commit message, escolher estrategia de branch, trabalhar com worktree, preparar PR description, fazer higiene pre-commit, ou usar git para depurar (bisect, blame). Complementa o CLAUDE.md global, fonte de verdade dos tipos de commit."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob, Bash

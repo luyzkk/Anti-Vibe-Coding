@@ -3,9 +3,9 @@
      Bash adicionado para harness/validate se aplicavel. Nao muda fluxo padrao. -->
 ---
 name: anti-vibe-review
-description: "This skill should be used when the user asks to 'review my code', 'audit this module', 'run anti-vibe review', 'check code quality', 'post-implementation review', or after completing a feature implementation. Executes a read-only post-implementation audit covering TDD compliance, code patterns, architecture, error handling, and security."
+description: "Auditoria read-only pos-implementacao: TDD, patterns, arquitetura, error handling e seguranca. DEPRECADA — consolidada em /verify-work, que roda o mesmo pipeline e mais. Prefira /verify-work; use esta so para manter workflow existente."
 user-invocable: true
-disable-model-invocation: false
+disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Agent, Bash
 context: fork
 agent: Explore

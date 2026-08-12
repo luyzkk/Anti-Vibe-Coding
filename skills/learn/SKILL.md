@@ -1,6 +1,6 @@
 ---
 name: learn
-description: "This skill should be used when the user asks to 'explain', 'teach me', 'what is', 'how does X work', 'explain like I'm a beginner', 'quero entender', 'me explica', 'o que e CRUD', 'como funciona auth', 'explica pra mim', 'nao entendi', 'aprenda', 'ensina', 'estudo', 'aprender sobre', or wants to understand a technical concept before or after building. Provides adaptive teaching that calibrates to the user's level (basic, intermediate, advanced) and connects explanations to the actual project code."
+description: "Ensino adaptativo de conceito tecnico, calibrado ao nivel do dev e ligado ao codigo real do projeto. Use quando o dev quer entender algo antes ou depois de construir — 'me explica', 'quero entender', 'nao entendi', 'what is', 'how does X work'."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob

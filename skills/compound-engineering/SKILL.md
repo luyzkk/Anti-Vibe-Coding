@@ -1,6 +1,6 @@
 ---
 name: compound-engineering
-description: "This skill should be used when the user asks to 'install compound engineering scaffold', 'run compound gate', 'migrate compound schema', or 'check compound notes'. Manages the compound engineering scaffold (templates, decision gate, brownfield migration) and delegates capture to lessons-learned."
+description: "Scaffold de compound engineering: templates, decision gate e migracao brownfield. A captura em si e delegada a /lessons-learned. Use ao instalar o scaffold, rodar o gate, migrar schema ou checar as notas."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob, Write, Edit, Skill
@@ -107,7 +107,8 @@ Quando `args` comeca com `gate`:
    - "Algum bug aprendido aqui que outro dev/agente futuro poderia ter evitado se soubesse?"
    - "Algum review/checklist falhou de forma que indica padrao repetivel?"
    - "Algum issue de producao/operacional revelado durante esta feature?"
-5. Se qualquer resposta for 'sim': pergunte titulo curto descritivo. Invoca Skill tool nativa:
+5. Se qualquer resposta for 'sim': pergunte titulo curto descritivo — criterios de titulacao em
+   [`references/capture-guide.md`](./references/capture-guide.md). Invoca Skill tool nativa:
    `Skill({ skill: 'anti-vibe-coding:lessons-learned', args: 'add "<titulo>"' })`
    Em seguida invoca `updateLessonsCaptured(planPath, ...)` de `skills/compound-engineering/lib/lessons-captured-updater.ts` com o link para a nota criada.
 6. Se todos 'nao': pergunta razao curta. Invoca `updateLessonsCaptured(planPath, 'no compound capture needed because: <razao>')`.

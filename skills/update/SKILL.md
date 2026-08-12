@@ -1,6 +1,6 @@
 ---
 name: update
-description: "This skill should be used when the user asks to 'update anti-vibe', 'check for updates', 'sync plugin changes', or when running /anti-vibe-coding:init in a project that already has Anti-Vibe Coding installed. Detects outdated files, shows available updates, and applies incremental updates with intelligent merge strategies."
+description: "Atualiza uma instalacao existente do Anti-Vibe Coding: detecta arquivos desatualizados, mostra o que mudou e aplica merge incremental. Use ao pedir update do plugin, ou ao rodar /init num projeto que ja tem o plugin instalado."
 user-invocable: true
 allowed-tools: Read, Grep, Glob, Write, Edit, AskUserQuestion
 argument-hint: "[project path (default: current directory)]"
@@ -352,6 +352,8 @@ if (fs.existsSync(currentPath)) {
 }
 ```
 
+Arquivos em `.claude/backups/` **NUNCA** devem ser deletados automaticamente — a limpeza é do usuário.
+
 #### 4.2 Aplicar Estratégia
 
 **Estratégia: `"replace"`**
@@ -386,6 +388,8 @@ Se arquivo é `rules/*.md`:
 **Estratégia: `"never"`**
 
 Ignorar completamente. Não tocar no arquivo.
+
+Se qualquer estratégia falhar no meio da aplicação: **REVERTER do backup** criado em 4.1 e avisar o usuário.
 
 #### 4.3 Calcular Novo Checksum
 
@@ -485,19 +489,6 @@ function compareVersions(v1, v2) {
   return 0;
 }
 ```
-
----
-
-## Regras Importantes
-
-1. **SEMPRE** criar backup antes de modificar qualquer arquivo
-2. **SEMPRE** atualizar manifest local após aplicar mudanças
-3. **NUNCA** substituir arquivo com `userModified: true` sem avisar
-4. Se `updateStrategy === "never"`, ignorar completamente
-5. Se merge falhar, **REVERTER do backup** e avisar usuário
-6. Arquivos em `.claude/backups/` NUNCA devem ser deletados automaticamente
-7. Se usuário cancelar (Opção 4), não modificar nada
-8. **CA-07:** Para CLAUDE.md, NUNCA aplicar seções sem confirmação explícita por seção (Passo 3.5). Dúvida = pular.
 
 ---
 

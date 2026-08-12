@@ -1,6 +1,6 @@
 ---
 name: init
-description: "This skill should be used when the user asks to 'initialize anti-vibe', 'setup anti-vibe coding', 'add anti-vibe to project', 'configure anti-vibe', or wants to onboard a project into the Anti-Vibe Coding methodology. Handles first-time setup with intelligent CLAUDE.md merge, rules deployment, and decisions registry initialization."
+description: "Onboarding de um projeto no Anti-Vibe Coding: monta o scaffold do harness, espelha CLAUDE.md/AGENTS.md, migra artefatos legados e gera o plano de populate. Use ao inicializar ou configurar o Anti-Vibe num projeto."
 user-invocable: true
 allowed-tools: Read, Grep, Glob, Write, Edit, Bash, AskUserQuestion
 argument-hint: "[project path (default: current directory)]"
@@ -74,7 +74,7 @@ A tabela abaixo eh **documentacao gerada a mao**. A fonte de verdade do runtime 
 ## Regras Importantes
 
 - **NUNCA sobrescrever** informacoes do projeto sem aprovacao
-- **NUNCA remover** secoes existentes do CLAUDE.md original
+- **Nada e perdido** — o que sai do CLAUDE.md original e realocado, nunca descartado
 - **SEMPRE** criar backup antes de modificar
 - **SEMPRE** mostrar ao usuario o que sera alterado antes de alterar
 - **Default destrutivo + revogavel** — em projetos com CLAUDE.md pre-existente, o init **transforma** o CLAUDE.md em espelho <=40 linhas (D2/D26/D28) extraindo regras Akita para `docs/DESIGN.md`. NUNCA aplica essa transformacao sem (a) aprovacao explicita do dev via `needsUser` agregado (MH-04) e (b) backup recuperavel em `.anti-vibe/backup/{timestamp}/` (D9, D29). Reversibilidade garantida via `/anti-vibe-coding:init --rollback` (MH-07).

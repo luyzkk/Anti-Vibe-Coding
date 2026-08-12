@@ -1,6 +1,6 @@
 ---
 name: source-driven-development
-description: "Source-Driven Development: ancora cada decisao de implementacao em documentacao oficial. Use para codigo framework-especifico onde correcao importa. Diferente de consultant (que ensina trade-offs), SDD CITA fontes canonicas. Usa hierarquia docs oficiais > changelog > MDN; Stack Overflow nunca primaria; pattern UNVERIFIED quando doc nao encontrada."
+description: "Source-Driven Development: ancora cada decisao de implementacao em documentacao oficial, citando a fonte. Use para codigo framework-especifico onde correcao importa mais que velocidade."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob, WebFetch
