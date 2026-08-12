@@ -8,3 +8,4 @@ tests/fixtures/** text eol=lf
 # core.autocrlf=true on Windows would convert to CRLF in working tree,
 # causing "bad interpreter" errors in Git Bash when running the hook.
 .husky/* text eol=lf
+*.sh text eol=lf
