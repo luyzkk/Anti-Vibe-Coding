@@ -342,23 +342,28 @@ projetado, e `git status` limpo em `skills/` antes de comecar. Ambos satisfeitos
 
 ## Delta real da fase-04
 
-Executada em 2026-08-12, aprovacao humana por lote. **11 commits de codigo, 5 de registro.**
+Executada em 2026-08-12, aprovacao humana por lote. **13 commits de codigo, 6 de registro.**
 Numeros medidos por `bun scripts/audit-skill-docs.ts .` apos cada lote — nao projetados.
-
-> **Estado desta secao: pre-lote-6.** O lote **6a** (`59bad47`) ja entrou e nao move nenhuma linha
-> da tabela abaixo — corta corpo, nao description. Esta secao e reescrita ao fim do lote 6, com 6a
-> e 6b juntos.
 
 | Metrica | Antes | Depois | Delta |
 |---|---|---|---|
 | `descriptionChars` | 13.499 | **9.139** | **−4.360 (−32,3%)** |
+| Corpo dos `SKILL.md` (lote 6) | — | — | **−15.256** (10 skills) |
 | Banner `SessionStart` | 4.131/sessao | **3.757** | −374 |
 | `hookDescriptionChars` | 2.081 | **1.937** | −144 |
 | Maior ofensor | `infrastructure` 792 | **`security` 419** | (crescido de proposito) |
 | Satelites sem ponteiro | 6 | **3** | −3 (os 3 restantes sao falso positivo) |
 | `modelInvoked` | 40/40 | **39/40** | `anti-vibe-review` saiu |
+| Negacoes no corpo | 1.148 | **1.138** | −10 (os guard comments do lote 6) |
 
-A projecao deste relatorio era o repo terminar em **~9.475**. Fechou em **9.139**.
+A projecao deste relatorio era o repo terminar em **~9.475**. Fechou em **9.139**. Somando o corpo
+cortado pelo lote 6, a fase-04 tirou **~19,6k chars** do que o agente carrega.
+
+**Como medir delta de corpo neste repo:** em LF, contra os blobs
+(`git show <sha>:<path> | wc -c`), **nunca** com `wc -c` no working tree. `core.autocrlf=true` e o
+`.gitattributes` so forca LF em `tests/fixtures/`, `__fixtures__/`, `*.snap` e `.husky/` — todo
+`SKILL.md` esta CRLF em disco e LF no index. Medir em disco inflou o lote 6a em 230 bytes (+3,7%
+aparente sobre a projecao, quando o real era +0,6%).
 
 ### Lote a lote: projetado vs medido
 
@@ -370,6 +375,13 @@ A projecao deste relatorio era o repo terminar em **~9.475**. Fechou em **9.139*
 | 4a–4f | 26 descriptions | −4.024 | **−4.278** |
 | 7a | 4 fences aninhados | 0 | **+4** (comportamental) |
 | 7b | Satelites, npm→bun, S5 | −602 | **−92** |
+| 6a | Telemetria, 5 consultivas | −7.257 | **−7.297** (+40) |
+| 6b | Telemetria, 5 pipeline-core | −7.904 | **−7.959** (+55) |
+
+Os dois unicos lotes cuja projecao bateu quase exato foram os do 6 — os que contavam **bytes de um
+bloco literal**. Onde a projecao errou feio (3, 7b) ela estimava o efeito de **reescrever prosa**.
+Vale para a proxima auditoria: projecao de delta so e confiavel quando o alvo e texto que sai
+inteiro.
 
 ### Onde a auditoria errou, e o que isso ensina
 
@@ -408,7 +420,7 @@ foi o unico metodo que pegou os dois tipos.
 | Item | Volume medido | Por que ficou |
 |---|---|---|
 | **Lote 5 — secoes terminais (S1, subtipos 1 e 2)** | pool de 28.281 chars, 21 skills | Maior pool da auditoria, mas o subtipo 2 tem **residuo de fonte unica** que morre se cortado em bloco. Exige conferir twin linha a linha em 21 skills (~5 sub-lotes). O subtipo 3 (contradicoes) ja saiu no lote 1 |
-| ~~**Lote 6 — telemetria (S2)**~~ **6a aplicado** (`59bad47`), **6b pendente** | 6a: **−7.527 medidos** nas 5 consultivas. 6b: 5 pipeline-core, ~−7.9k projetados | A superficie de teste era mesmo **maior que este relatorio supunha** — 5 testes em 3 describes, nao a linha unica. Confirmado tambem que **a lib nao sai junto**: `emit-stack-knowledge-events.ts:5` usa `writeTelemetryDomainEvent`. Morto e so o prompt |
+| ~~**Lote 6 — telemetria (S2)**~~ **CONCLUIDO** (`59bad47` + `057398c`) | **−15.256 medidos**, 20 blocos em 10 skills | A superficie de teste era mesmo **maior que este relatorio supunha** — 5 testes em 3 describes, nao a linha unica. Confirmado tambem que **a lib nao sai junto**: `emit-stack-knowledge-events.ts:5` usa `writeTelemetryDomainEvent`. Morto era so o prompt. Deixa 5 exports sem caller — ver achado abaixo |
 | **Lista das 23 skills no hook** | 1.981 chars, 53% do banner | G1 multiplicado por 23. Se a descoberta depender so das descriptions e a premissa estiver errada, 23 skills param de disparar **em silencio**. A lista tambem carrega o protocolo "SEMPRE pergunte antes de invocar", ausente das descriptions. Precisa de verificacao real de descoberta, nao de coragem |
 | **Negacoes (pool de 1.148)** | julgamento caso a caso | O pool e em pt-BR: `\bnao\b` casa prosa comum. Contar seria transformar ruido em achado |
 
@@ -425,27 +437,30 @@ foi o unico metodo que pegou os dois tipos.
 - **Hardcodar gerenciador de pacote em skill distribuida** e fragil nos dois sentidos: `bun run test`
   quebra em projeto-alvo que usa npm, tanto quanto `npm test` quebrava aqui. A regra da lente manda
   deixar o lookup de um comando para o environment. Alinhado com as irmas por ora (3 skills).
-- **O lote 6 deixa 5 exports de `skills/lib/telemetry-utils.ts` sem caller — nao 4, e nao agora.**
-  Achado do 6a, **registrado e nao aplicado**. Verificado por grep sobre `.ts`/`.js`/`.json`/`.md`
-  fora de `node_modules`:
+- **O lote 6 deixou 5 exports de `skills/lib/telemetry-utils.ts` sem caller — nao 4.**
+  Achado do 6a, **registrado e nao aplicado**, agora reconfirmado com o lote 6 fechado:
+  `grep -rln 'writeTelemetryStart\|writeTelemetryEnd' skills/*/SKILL.md` retorna **vazio**, e uma
+  varredura de `.ts`/`.js` fora de `node_modules` nao acha **nenhum** caller dos 5 fora da propria
+  lib e do seu teste.
 
-  | Export | Situacao apos o lote 6 | Evidencia |
+  | Export | Situacao | Evidencia |
   |---|---|---|
-  | `INSTRUMENTED_SKILLS` | orfao **hoje** | zero referencia em runtime, inclusive dentro da propria lib — `inferFasePipeline` le `SKILL_TO_FASE`, nao esta constante. So o teste asserta o length |
-  | `writeTelemetryStart` | orfao **depois do 6b** | ainda aparece nos 5 `SKILL.md` pipeline-core |
-  | `writeTelemetryEnd` | orfao **depois do 6b** | idem |
-  | `serializeEntry` | orfao **depois do 6b** — nao estava na lista | usado so por start/end (`:89`, `:113`). O comentario em `:137` diz explicitamente que `writeTelemetryDomainEvent` **nao** o reutiliza |
-  | `inferFasePipeline` | orfao **hoje** | zero caller; morre junto com `SKILL_TO_FASE` |
+  | `INSTRUMENTED_SKILLS` | orfao | zero referencia em runtime, inclusive dentro da propria lib — `inferFasePipeline` le `SKILL_TO_FASE`, nao esta constante. So o teste asserta o length |
+  | `writeTelemetryStart` | orfao | ultimo consumidor eram os 10 blocos de prompt |
+  | `writeTelemetryEnd` | orfao | idem |
+  | `serializeEntry` | orfao — **nao estava na lista de 4** | usado so por start/end (`:89`, `:113`). O comentario em `:137` diz explicitamente que `writeTelemetryDomainEvent` **nao** o reutiliza |
+  | `inferFasePipeline` | orfao | zero caller; morre junto com `SKILL_TO_FASE` |
 
   **Sobrevivem:** `writeTelemetryDomainEvent` (caller real em
   `skills/init/lib/emit-stack-knowledge-events.ts:5`) e, com ele, `computeMonthlyPath` (`:145`) e
   `appendJsonlLine` (`:146`) — esses dois nao tem caller **externo**, mas sao usados dentro da lib.
   Viram internos sem `export`, nao delecoes.
 
-  Duas condicoes para o lote de limpeza: **(a)** so depois do 6b, senao start/end ainda estao
-  citados em 5 `SKILL.md`; **(b)** `docs/TELEMETRY.md` e `skills/lib/telemetry-utils.md` documentam
-  a API inteira — cortar export sem toca-los cria o ponteiro morto (S3) que o lote 2 acabou de
-  limpar.
+  Condicao que sobra para o lote de limpeza: `docs/TELEMETRY.md` e `skills/lib/telemetry-utils.md`
+  documentam a API inteira — cortar export sem toca-los cria o ponteiro morto (S3) que o lote 2
+  acabou de limpar. O `runtime smoke` de `telemetry-utils.test.ts` tambem chama start/end direto;
+  ele testa a lib, nao o prompt, e precisa de decisao explicita: some com os exports ou vira teste
+  de `writeTelemetryDomainEvent`.
 
 - **A lista de 22 descriptions deste relatorio nao era exaustiva.** Ao terminar as 22, os 4 maiores
   ofensores do repo eram skills que ela nunca listou (`design-patterns` 579, `consultant` 386,

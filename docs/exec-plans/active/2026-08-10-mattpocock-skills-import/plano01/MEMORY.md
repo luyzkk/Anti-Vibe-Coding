@@ -2,9 +2,8 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** **fase-04 em curso** — lotes 1, 2, 3, 4, 7 e **6a** aplicados. Falta o **6b** (a metade
-pipeline-core do lote 6). Lote 5 (secoes terminais) segue adiado com motivo — ver
-`AUDIT-REPORT.md` §O que NAO foi feito.
+**Status:** **fase-04 concluida** (lotes 1, 2, 3, 4, 6 e 7). Lote 5 (secoes terminais) segue adiado
+com motivo — ver `AUDIT-REPORT.md` §O que NAO foi feito.
 **Branch:** `feat/writing-for-agents-port` (criada 2026-08-11, a partir de `main`)
 
 ## Progresso
@@ -18,7 +17,8 @@ pipeline-core do lote 6). Lote 5 (secoes terminais) segue adiado com motivo — 
 
 Lotes aplicados: **1** (`0c964a0`, `357d154`) · **2** (`436dec7`, `e3a33b8`) · **3** (`c61e941`) ·
 **4** (`c3b87d4`, `3328eef`, `497ded2`, `6d71d8e`, `22b9efc`, `184470f`) · **7** (`3bfdb4b`,
-`7d8bea5`) · **6a** (`59bad47`). Lote **5** (secoes terminais) segue adiado com motivo medido.
+`7d8bea5`) · **6a** (`59bad47`) · **6b** (`057398c`). Lote **5** (secoes terminais) segue adiado
+com motivo medido.
 
 ### Delta acumulado da fase-04 (medido, nao projetado)
 
@@ -33,9 +33,10 @@ Lotes aplicados: **1** (`0c964a0`, `357d154`) · **2** (`436dec7`, `e3a33b8`) ·
 A auditoria projetou o repo terminando em **~9.475**; fechou em **9.231**. A cauda longa de
 outliers acabou: depois do 419, a distribuicao e 338 / 306 / 305 / 299.
 
-O lote **6a** nao mexe em nenhuma metrica desta tabela — corta **corpo**, nao description. Delta
-dele: **−7.527 chars** nos 5 `SKILL.md` (72.241 → 64.714 bytes). Unica metrica do audit que se
-moveu: `negacoes no corpo` 1.148 → **1.143**, os 5 `nao` do guard comment removido.
+O lote **6** nao mexe em nenhuma metrica desta tabela — corta **corpo**, nao description. Delta
+dele, medido em LF (ver DI sobre CRLF): **6a −7.297** · **6b −7.959** · **total −15.256** nos 10
+`SKILL.md`. Unica metrica do audit que se moveu: `negacoes no corpo` 1.148 → 1.143 → **1.138**,
+os 10 `nao` dos guard comments removidos.
 
 Modo de aprovacao escolhido pelo humano: **por lote**, com a lista do lote na tela antes de aplicar
 (a alternativa era por achado, ~70 pausas). Lote 1 do relatorio virou **1a + 1b** — ver DI abaixo.
@@ -591,17 +592,53 @@ Dividido em 6 sub-lotes por delta decrescente (22 skills nao cabem no cap de 5).
   enganoso que a lente combate. Nao tocados: `exactly 10 skills are instrumented` (asserta a
   constante da lib, nao `SKILL.md`) e o `runtime smoke`. 44 → **42 testes**, 0 fail.
 
-- **DI-Plano01-fase04-medido-acima-do-projetado**: projetado **−7.257**, medido **−7.527** (+270).
-  A diferenca e explicada byte a byte: cada bloco 1 repete o nome da skill em 2 sites
-  (`__telemetry_skillName` e `__telemetry_fasePipeline`), entao o custo por skill e
-  `1.485 + 2 × len(nome)`. `iterate` 1.499 · `consultant` 1.505 · `architecture` 1.509 ·
-  `design-twice` 1.509 · `quick-plan` 1.505. **O 6b deve vir acima do projetado tambem.**
+- **DI-Plano01-fase04-medir-em-LF-nao-no-working-tree** *(corrige um numero que eu ja tinha
+  registrado aqui)*: o primeiro registro dizia **−7.527 (+270 sobre o projetado)**. Errado —
+  media `wc -c` no working tree. `core.autocrlf=true` neste repo e `.gitattributes` so forca LF
+  para `tests/fixtures/`, `__fixtures__/`, `*.snap` e `.husky/`: todo `SKILL.md` esta **CRLF em
+  disco e LF no index**. As 46 linhas removidas por skill levavam 46 bytes de `\r` que a projecao
+  nunca contou. Medido de novo contra os blobs (`git show <sha>:<path> | wc -c`): **−7.297**, ou
+  **+40** sobre o projetado — 0,6%, nao 3,7%. **A projecao estava boa; a regua e que estava
+  errada.** Formula real por skill, em LF: `1.439 + 2 × len(nome)` — o nome aparece em
+  `__telemetry_skillName` e `__telemetry_fasePipeline`. `iterate` 1.453 · `consultant` 1.459 ·
+  `architecture` 1.463 · `design-twice` 1.463 · `quick-plan` 1.459.
+  **Delta de corpo em repo Windows so vale medido em LF.**
 
 - **DI-Plano01-fase04-ancora-de-conteudo-nao-linha**: os 10 patches foram ancorados em conteudo
   (`---` + heading seguinte; prosa terminal + fence), nunca em numero de linha — o bloco 1 sai
   primeiro e desloca todo o resto do arquivo. Em `architecture` isso e critico: o fence de
   fechamento da telemetria e vizinho de `<!-- profile-aware-preface:start -->`, que e load-bearing
   (`scripts/harness-validate.ts:643`). Verificado depois: `harness:validate` passa, 361 md.
+
+### fase-04 — lote 6b (telemetria, metade pipeline-core), commit `057398c`
+
+- **DI-Plano01-fase04-6b-blocos-sao-de-fase-02**: os 10 blocos das pipeline-core dizem
+  **`Plano 03 fase-02`**, nao `fase-03` como os das consultivas, e o bloco de fim carrega 2 linhas
+  de comentario a mais (`CA-03: end emitido SEMPRE` e a limitacao do `sucesso=true` hardcoded).
+  Custo em LF: **1.570 + 2 × len(nome)** contra 1.439 do 6a — os 131 bytes de diferenca sao
+  exatamente esses 2 comentarios. Se eu tivesse reusado o `old_string` do 6a, os 10 Edits falhavam.
+  **Bloco "identico" entre lotes e hipotese, nao fato — reler antes.**
+
+- **DI-Plano01-fase04-6b-vizinho-nao-e-o-preface**: em 4 das 5 (`write-prd`, `plan-feature`,
+  `execute-plan`, `verify-work`) o bloco de telemetria e seguido direto por outro
+  ```` ```typescript ```` — `Perfil arquitetural` / `Modo dual`, do Plano 04, que usa
+  `readArchitectureProfile`. **Nao e** o `profile-aware-preface`: `grep` por
+  `profile-aware-preface` nas 5 retorna **zero**, entao o gate de `harness-validate.ts:643` nao
+  cobre essas skills. Ancorei no primeiro comentario do bloco vizinho mesmo assim — o perigo real
+  e cortar demais, e o gate so protege 9 skills, nao estas.
+
+- **DI-Plano01-fase04-6b-hr-orfao-no-write-prd**: `write-prd` tinha um `---` de separacao entre
+  `## Red Flags` e o bloco de telemetria. Removido o bloco, o `---` virava a ultima linha do
+  arquivo, sem nada depois. Conferido que nao veio junto com a instrumentacao (`git show
+  23c8204^` mostra o arquivo terminando numa lista numerada) e que **nenhum dos 40 `SKILL.md`
+  termina em `---`**. Removido junto — sao 5 bytes, e por isso o delta de `write-prd` (1.593) e o
+  unico que nao fecha na formula.
+
+- **DI-Plano01-fase04-6b-superficie-zerada**: depois deste lote **nenhum teste le bloco de
+  telemetria em `SKILL.md`**. Sobrou um unico teste tocando `SKILL.md` no arquivo — o do Tracer
+  Bullet, que le `architectureProfile`. O describe `consultivas skills` foi renomeado para
+  `architecture SKILL.md`: com um teste so, e sobre architecture, o nome antigo mentia.
+  44 → 42 (6a) → **39 testes**, 0 fail.
 
 ## Pendencias abertas (fase-01)
 
