@@ -2,7 +2,8 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** fase-04 em execucao — **lotes 1 a 4 fechados**, aguardando decisao sobre os lotes 5, 6 e 7
+**Status:** **fase-04 concluida** (lotes 1, 2, 3, 4 e 7). Lotes 5 e 6 adiados com motivo — ver
+`AUDIT-REPORT.md` §O que NAO foi feito. Plano 01 pronto para PR.
 **Branch:** `feat/writing-for-agents-port` (criada 2026-08-11, a partir de `main`)
 
 ## Progresso
@@ -12,13 +13,17 @@ Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 | 01 | Porte do nucleo | **done** | 2 novos + 1 modificado |
 | 02 | Instrumentacao + tracer | **done** | 2 novos + 1 gerado |
 | 03 | Auditoria fan-out | **done** (aguardando aprovacao) | 1 novo (`AUDIT-REPORT.md`) |
-| 04 | Aplicacao dos patches | **em execucao** | lote 1 (`0c964a0`, `357d154`) · lote 2 (`436dec7`, `e3a33b8`) · lote 3 (`c61e941`) · lote 4 (`c3b87d4`, `3328eef`, `497ded2`, `6d71d8e`, `22b9efc`, `184470f`) |
+| 04 | Aplicacao dos patches | **done** | 11 commits de codigo em 5 lotes — ver tabela abaixo |
+
+Lotes aplicados: **1** (`0c964a0`, `357d154`) · **2** (`436dec7`, `e3a33b8`) · **3** (`c61e941`) ·
+**4** (`c3b87d4`, `3328eef`, `497ded2`, `6d71d8e`, `22b9efc`, `184470f`) · **7** (`3bfdb4b`,
+`7d8bea5`). Lotes **5** (secoes terminais) e **6** (telemetria) adiados com motivo medido.
 
 ### Delta acumulado da fase-04 (medido, nao projetado)
 
 | Metrica | Inicio da fase | Depois do lote 4 |
 |---|---|---|
-| `descriptionChars` | 13.499 | **9.231** (−4.268, **−31,6%**) |
+| `descriptionChars` | 13.499 | **9.139** (−4.360, **−32,3%**) |
 | banner `SessionStart` | 4.131/sessao | **3.757** (−374) |
 | `hookDescriptionChars` | 2.081 | **1.937** |
 | `modelInvoked` | 40/40 | **39/40** |
@@ -522,6 +527,43 @@ Dividido em 6 sub-lotes por delta decrescente (22 skills nao cabem no cap de 5).
   description (verificado), e os que citam essas skills sao do bloco `stack-aware-preface`, intocado.
   Runtime de 26x aponta contencao de ambiente. **Registrado como anomalia observada, nao como verde
   limpo** — se reaparecer, vira achado com evidencia.
+
+### fase-04 — lote 7 (pontuais), commits `3bfdb4b` + `7d8bea5`
+
+- **DI-Plano01-fase04-fence-e-bug-comportamental**: as 4 regioes de fence aninhado
+  (`sync:81-94`, `:97-109`, `:176-205`, `verify-work:440-527`) estavam com fence externo de **3**
+  backticks. O parser fecha no primeiro fence interno, e o conteudo **troca de lado**: em
+  `verify-work`, o pseudocodigo `gerarMEMORYConsolidado` (`:483-508`) renderizava como prosa e os
+  passos d/e/f do arquivamento (`:510-514`) viravam bloco de codigo. Fix do compound `2026-04-21`:
+  externo com **4** backticks. Verificado por parser que respeita "fence de N so fecha com >= N":
+  `sync` 8 blocos, `verify-work` 17, nenhum aberto ao fim.
+
+- **DI-Plano01-fase04-correcao-heading-fantasma**: durante a analise eu tratei as duas ocorrencias de
+  `## Anti-Vibe Coding — Status de Sincronizacao` (`sync:48`, `:177`) como headings fantasma criados
+  pelo fence quebrado. **Errado** — `grep` e line-based e nao enxerga bloco; as duas ja estavam
+  dentro de blocos corretamente pareados. O bug e o descrito acima, confirmado por leitura direta
+  das linhas, nao pela contagem de headings. Registrado porque a inferencia errada quase virou
+  evidencia no commit.
+
+- **DI-Plano01-fase04-S5-consumido-pelo-lote-4**: a fase-03 contou **14** descriptions abrindo com
+  "This skill should be used when the user asks" (602 chars). Ao chegar no lote 7, restava **uma**
+  (`compound-engineering`) — as outras 13 sairam junto com as reescritas do lote 4. **Achado
+  sistemico pode ser consumido por lote anterior; medir de novo antes de abrir o lote dele.**
+
+- **DI-Plano01-fase04-satelites-6-para-3**: religados 3 dos 6 orfaos —
+  `compound-engineering/references/capture-guide.md` (ponteiro no passo 5 do gate, que pedia titulo
+  sem guia), `tdd-workflow/references/ia-tdd-workflow.md` (na secao `## IA-TDD`, que precisava dele)
+  e `design-twice/examples/worked-session.md` (no Step 3). Os 3 restantes sao
+  `init/lib/prompts/*.md`, que a propria fase-03 marcou como **falso positivo** — carregados por
+  codigo, nao por ponteiro. **Metrica agora em 3 e nao deve ir a zero.**
+
+- **DI-Plano01-fase04-package-manager-em-skill-distribuida**: `incremental-implementation` rodava
+  `npm` em 4 sites num repo `bun`. Alinhado com as irmas (`incident-response`, `centralize-config`),
+  que usam `bun run`. **Mas isso e correto so pela metade:** hardcodar gerenciador de pacote numa
+  skill **distribuida** quebra nos dois sentidos — `bun run test` falha em projeto-alvo que usa npm,
+  tanto quanto `npm test` falhava aqui. A regra da lente manda deixar o lookup de um comando para o
+  environment (`package.json`). Nao inventei uma terceira convencao em 3 skills; fica como achado
+  aberto no `AUDIT-REPORT.md`.
 
 ## Pendencias abertas (fase-01)
 
