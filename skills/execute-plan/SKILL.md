@@ -794,18 +794,10 @@ Step 6-FLAT: SUMMARY ao completar
 
 ## Regras Criticas
 
-1. **Isolamento e absoluto** — subagentes GREEN nunca veem requisitos, apenas testes
-2. **O orchestrador nao implementa** — escrever codigo e trabalho de subagente. O orchestrador faz spawn, atualiza estado e roda a validacao pos-fase (Step 5)
-3. **Max 3 retries** — apos isso, marcar blocked e continuar com outras fases
-4. **Sempre confirma antes de executar** — Step 3 e obrigatorio, nunca pule
-5. **Commit atomico por fase** — cada subagente faz commit(s) ao terminar
-6. **STATE.md e a fonte de verdade** — ler antes de escrever, sempre
-7. **MEMORY.md e preenchida durante execucao** — nao apos
-8. **Memorias anteriores sao consultadas** — antes de iniciar cada plano
-9. **Transicao entre planos e interativa** — dev decide se avanca ou troca contexto
-10. **Context threshold a 75%** — pausar, salvar estado e memoria
-11. **Destilacao de memoria ao final** — extrair licoes generalizaveis para o repositorio
-12. **Backward compat** — planos flat (v1) continuam funcionando sem mudanca
+1. **O orchestrador nao implementa** — escrever codigo e trabalho de subagente. O orchestrador faz spawn, atualiza estado e roda a validacao pos-fase (Step 5)
+2. **STATE.md e a fonte de verdade** — ler antes de escrever, sempre
+3. **MEMORY.md e preenchida durante execucao** — nao apos
+4. **Transicao entre planos e interativa** — dev decide se avanca ou troca contexto
 
 ---
 

@@ -1852,7 +1852,7 @@
       "descriptionChars": 250,
       "descriptionLineChars": 265,
       "quotedTriggerCount": 0,
-      "bodyLines": 868,
+      "bodyLines": 860,
       "negations": [
         {
           "line": 75,
@@ -2101,66 +2101,56 @@
         },
         {
           "line": 797,
-          "term": "nunca",
-          "text": "1. **Isolamento e absoluto** — subagentes GREEN nunca veem requisitos, apenas testes"
-        },
-        {
-          "line": 798,
           "term": "nao",
-          "text": "2. **O orchestrador nao implementa** — escrever codigo e trabalho de subagente. O orchestrador faz spawn, atualiza estado e roda a validacao pos-fase (Step 5)"
+          "text": "1. **O orchestrador nao implementa** — escrever codigo e trabalho de subagente. O orchestrador faz spawn, atualiza estado e roda a validacao pos-fase (Step 5)"
         },
         {
-          "line": 800,
-          "term": "nunca",
-          "text": "4. **Sempre confirma antes de executar** — Step 3 e obrigatorio, nunca pule"
-        },
-        {
-          "line": 803,
+          "line": 799,
           "term": "nao",
-          "text": "7. **MEMORY.md e preenchida durante execucao** — nao apos"
+          "text": "3. **MEMORY.md e preenchida durante execucao** — nao apos"
         },
         {
-          "line": 865,
+          "line": 857,
           "term": "nao",
           "text": "| \"O plano estava errado, vou improvisar\" | Improviso durante execucao gera desvios nao documentados. Correto: pausar, atualizar o plano com a decisao, entao prosseguir. O plano e o registro de decisao — improvisacao apaga rastro. |"
         },
         {
-          "line": 866,
+          "line": 858,
           "term": "nao",
           "text": "| \"Esse arquivo extra nao conta como desvio de escopo\" | Todo arquivo fora do escopo declarado e uma decisao nao registrada. Se vale tocar, vale registrar no plano. |"
         },
         {
-          "line": 866,
+          "line": 858,
           "term": "nao",
           "text": "| \"Esse arquivo extra nao conta como desvio de escopo\" | Todo arquivo fora do escopo declarado e uma decisao nao registrada. Se vale tocar, vale registrar no plano. |"
         },
         {
-          "line": 867,
+          "line": 859,
           "term": "nao",
           "text": "| \"Vou passar pela fase sem validar — sei que funcionou\" | Verificacao sem evidencia nao e verificacao. Checklist nao executado e teatro de qualidade. |"
         },
         {
-          "line": 867,
+          "line": 859,
           "term": "nao",
           "text": "| \"Vou passar pela fase sem validar — sei que funcionou\" | Verificacao sem evidencia nao e verificacao. Checklist nao executado e teatro de qualidade. |"
         },
         {
-          "line": 868,
+          "line": 860,
           "term": "nao",
           "text": "| \"Posso pular a fase de testes — os tipos ja garantem\" | Types nao testam comportamento em runtime. Fases de teste existem precisamente porque o compilador nao consegue garantir tudo. |"
         },
         {
-          "line": 868,
+          "line": 860,
           "term": "nao",
           "text": "| \"Posso pular a fase de testes — os tipos ja garantem\" | Types nao testam comportamento em runtime. Fases de teste existem precisamente porque o compilador nao consegue garantir tudo. |"
         },
         {
-          "line": 872,
+          "line": 864,
           "term": "nao",
           "text": "- Sub-agente que toca mais de 5 arquivos nao relacionados sem justificativa no plano"
         },
         {
-          "line": 875,
+          "line": 867,
           "term": "nao",
           "text": "- Decisao tomada durante execucao que nao foi registrada no MEMORY.md do plano"
         }
@@ -3461,7 +3451,7 @@
       "descriptionChars": 241,
       "descriptionLineChars": 256,
       "quotedTriggerCount": 0,
-      "bodyLines": 925,
+      "bodyLines": 919,
       "negations": [
         {
           "line": 90,
@@ -3754,77 +3744,62 @@
           "text": "2. Se o plano estiver errado, corrigir o PLANO (nao improvisar durante execucao)"
         },
         {
+          "line": 800,
+          "term": "NUNCA",
+          "text": "3. A quantidade de planos e fases e decidida por analise semantica, NUNCA por thresholds fixos"
+        },
+        {
           "line": 801,
           "term": "NUNCA",
-          "text": "4. A quantidade de planos e fases e decidida por analise semantica, NUNCA por thresholds fixos"
+          "text": "4. NUNCA salvar plano se dev cancelar a aprovacao"
         },
         {
-          "line": 803,
-          "term": "NUNCA",
-          "text": "6. Planos sao gerados sob demanda — NUNCA gerar todos de uma vez"
-        },
-        {
-          "line": 805,
-          "term": "NUNCA",
-          "text": "8. NUNCA gerar overview sem aprovacao do dev (Step 7 e obrigatorio)"
-        },
-        {
-          "line": 806,
-          "term": "NUNCA",
-          "text": "9. NUNCA salvar plano se dev cancelar a aprovacao"
-        },
-        {
-          "line": 809,
-          "term": "nao",
-          "text": "12. A decisao de quantos planos depende do julgamento senior da LLM, nao de regras fixas"
-        },
-        {
-          "line": 835,
+          "line": 829,
           "term": "nao",
           "text": "- Tem incerteza tecnica nao resolvida (precisa de spike antes)"
         },
         {
-          "line": 885,
+          "line": 879,
           "term": "nunca",
           "text": "| **Precisa de coordenacao** | Fases/planos que compartilham um contrato de API (types, rota, payload) | **Definir o contrato PRIMEIRO, depois paralelizar** — nunca correr sobre um contrato ainda nao acordado |"
         },
         {
-          "line": 885,
+          "line": 879,
           "term": "nao",
           "text": "| **Precisa de coordenacao** | Fases/planos que compartilham um contrato de API (types, rota, payload) | **Definir o contrato PRIMEIRO, depois paralelizar** — nunca correr sobre um contrato ainda nao acordado |"
         },
         {
-          "line": 923,
+          "line": 917,
           "term": "nao",
           "text": "| \"O plano esta na minha cabeca\" | Plano nao escrito nao e plano — e intencao. Intencao nao passa por revisao nem por sub-agente. |"
         },
         {
-          "line": 923,
+          "line": 917,
           "term": "nao",
           "text": "| \"O plano esta na minha cabeca\" | Plano nao escrito nao e plano — e intencao. Intencao nao passa por revisao nem por sub-agente. |"
         },
         {
-          "line": 923,
+          "line": 917,
           "term": "nao",
           "text": "| \"O plano esta na minha cabeca\" | Plano nao escrito nao e plano — e intencao. Intencao nao passa por revisao nem por sub-agente. |"
         },
         {
-          "line": 924,
+          "line": 918,
           "term": "nao",
           "text": "| \"Essa feature e simples, nao precisa de PRD\" | Features \"simples\" sem spec sao as maiores fontes de retrabalho. A simplificacao e visivel antes de comecar, nao depois. |"
         },
         {
-          "line": 924,
+          "line": 918,
           "term": "nao",
           "text": "| \"Essa feature e simples, nao precisa de PRD\" | Features \"simples\" sem spec sao as maiores fontes de retrabalho. A simplificacao e visivel antes de comecar, nao depois. |"
         },
         {
-          "line": 925,
+          "line": 919,
           "term": "nao",
           "text": "| \"Vou ajustar as fases durante a execucao\" | Ajustes durante execucao nao documentados geram desvios invisiveis. Correto e pausar, corrigir o plano, entao prosseguir. |"
         },
         {
-          "line": 932,
+          "line": 926,
           "term": "nao",
           "text": "- Dependencia entre fases nao declarada explicitamente"
         }
@@ -5918,7 +5893,7 @@
       "descriptionChars": 172,
       "descriptionLineChars": 187,
       "quotedTriggerCount": 0,
-      "bodyLines": 399,
+      "bodyLines": 394,
       "negations": [
         {
           "line": 52,
@@ -6101,42 +6076,32 @@
           "text": "   Informar: \"Nao consegui migrar CONTEXT-{slug}.md: {motivo}. PRD salvo normalmente — mova manualmente se necessario.\""
         },
         {
-          "line": 382,
+          "line": 381,
           "term": "NAO",
-          "text": "2. A skill NAO gera PRDs genericos — DEVE contextualizar ao codebase real do projeto"
+          "text": "1. A skill NAO gera PRDs genericos — DEVE contextualizar ao codebase real do projeto"
         },
         {
-          "line": 387,
+          "line": 384,
           "term": "NAO",
-          "text": "7. NAO gerar requisitos que o dev nao mencionou — apenas organizar e estruturar"
+          "text": "4. A skill NAO substitui o /grill-me (resolver ambiguidades) nem o /consultant (ensinar trade-offs) — gera DOCUMENTO"
         },
         {
-          "line": 387,
-          "term": "nao",
-          "text": "7. NAO gerar requisitos que o dev nao mencionou — apenas organizar e estruturar"
-        },
-        {
-          "line": 389,
-          "term": "NAO",
-          "text": "9. A skill NAO substitui o /grill-me (resolver ambiguidades) nem o /consultant (ensinar trade-offs) — gera DOCUMENTO"
-        },
-        {
-          "line": 398,
+          "line": 393,
           "term": "nao",
           "text": "| \"Escrevo o PRD depois do codigo\" | Isso e documentacao, nao especificacao. O valor do PRD esta em forcar clareza ANTES do codigo. |"
         },
         {
-          "line": 399,
+          "line": 394,
           "term": "nao",
           "text": "| \"Esta task e simples, nao precisa de PRD\" | Tasks simples nao precisam de PRD longo, mas ainda precisam de criterios de aceite. Um PRD de 2 linhas serve. |"
         },
         {
-          "line": 399,
+          "line": 394,
           "term": "nao",
           "text": "| \"Esta task e simples, nao precisa de PRD\" | Tasks simples nao precisam de PRD longo, mas ainda precisam de criterios de aceite. Um PRD de 2 linhas serve. |"
         },
         {
-          "line": 406,
+          "line": 401,
           "term": "nao",
           "text": "- Implementando requisitos que nao estao no PRD nem foram mencionados pelo dev."
         }
@@ -6396,7 +6361,7 @@
     "modelInvoked": 39,
     "hookListed": 23,
     "hookDescriptionChars": 1937,
-    "negations": 1127,
+    "negations": 1120,
     "satellitesUnlinked": 3
   }
 }

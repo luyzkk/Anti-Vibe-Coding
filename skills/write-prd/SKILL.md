@@ -378,16 +378,11 @@ Antes de sugerir `/plan-feature`, confirmar:
 
 ## Regras
 
-1. O PRD e um documento VIVO — o dev pode edita-lo diretamente apos geracao
-2. A skill NAO gera PRDs genericos — DEVE contextualizar ao codebase real do projeto
-3. Criterios de aceite DEVEM ser testaveis (formato Dado/Quando/Entao)
-4. Must Have deve ser MINIMALISTA — maximo 40% dos requisitos totais
-5. Decisoes assumidas DEVEM ser destacadas e confirmadas com o dev
-6. Se o dev ja tem um PRD escrito, a skill REFINA em vez de reescrever
-7. NAO gerar requisitos que o dev nao mencionou — apenas organizar e estruturar
-8. Se o dev pedir "PRD rapido", pular mini-entrevista e gerar com informacao minima (marcando como Draft)
-9. A skill NAO substitui o /grill-me (resolver ambiguidades) nem o /consultant (ensinar trade-offs) — gera DOCUMENTO
-10. O PRD deve caber em 1-2 paginas para features simples. Para features complexas, cada secao deve ser concisa
+1. A skill NAO gera PRDs genericos — DEVE contextualizar ao codebase real do projeto
+2. Se o dev ja tem um PRD escrito, a skill REFINA em vez de reescrever
+3. Se o dev pedir "PRD rapido", pular mini-entrevista e gerar com informacao minima (marcando como Draft)
+4. A skill NAO substitui o /grill-me (resolver ambiguidades) nem o /consultant (ensinar trade-offs) — gera DOCUMENTO
+5. O PRD deve caber em 1-2 paginas para features simples. Para features complexas, cada secao deve ser concisa
 
 ---
 

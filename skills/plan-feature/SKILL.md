@@ -797,16 +797,10 @@ Validation Log / Compound Opportunity / Lessons Captured ficam vazias inicialmen
 
 1. O plano e o contrato — /execute-plan segue EXATAMENTE o que esta nos planos
 2. Se o plano estiver errado, corrigir o PLANO (nao improvisar durante execucao)
-3. Tracer bullet pode parecer "pouco" mas e o slice mais importante
-4. A quantidade de planos e fases e decidida por analise semantica, NUNCA por thresholds fixos
-5. Cada plano e gerado em contexto isolado (subagente) para evitar poluicao
-6. Planos sao gerados sob demanda — NUNCA gerar todos de uma vez
-7. Cada fase deve ser time-boxed (30min-2h) e ter checklist de verificacao
-8. NUNCA gerar overview sem aprovacao do dev (Step 7 e obrigatorio)
-9. NUNCA salvar plano se dev cancelar a aprovacao
-10. STATE.md e a fonte de verdade para progresso — /execute-plan atualiza, dev pode editar
-11. Cada plano tem sua propria MEMORY.md — preenchida durante execucao
-12. A decisao de quantos planos depende do julgamento senior da LLM, nao de regras fixas
+3. A quantidade de planos e fases e decidida por analise semantica, NUNCA por thresholds fixos
+4. NUNCA salvar plano se dev cancelar a aprovacao
+5. STATE.md e a fonte de verdade para progresso — /execute-plan atualiza, dev pode editar
+6. Cada plano tem sua propria MEMORY.md — preenchida durante execucao
 
 ---
 
