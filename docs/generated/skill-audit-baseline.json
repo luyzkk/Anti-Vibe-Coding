@@ -2,9 +2,9 @@
   "skills": [
     {
       "skill": "anti-vibe-review",
-      "descriptionChars": 339,
-      "descriptionLineChars": 354,
-      "quotedTriggerCount": 5,
+      "descriptionChars": 235,
+      "descriptionLineChars": 250,
+      "quotedTriggerCount": 0,
       "bodyLines": 254,
       "negations": [
         {
@@ -183,7 +183,7 @@
           "text": "- Foco em itens que nao tem auditor dedicado (Arquitetura, Seguranca contextual, React patterns)"
         }
       ],
-      "modelInvoked": true,
+      "modelInvoked": false,
       "hookListed": true,
       "hookDescriptionChars": 63,
       "hookExactDuplicate": false,
@@ -768,8 +768,8 @@
     },
     {
       "skill": "code-simplification",
-      "descriptionChars": 372,
-      "descriptionLineChars": 387,
+      "descriptionChars": 226,
+      "descriptionLineChars": 241,
       "quotedTriggerCount": 0,
       "bodyLines": 326,
       "negations": [
@@ -1632,9 +1632,9 @@
     },
     {
       "skill": "detect-architecture",
-      "descriptionChars": 407,
-      "descriptionLineChars": 422,
-      "quotedTriggerCount": 4,
+      "descriptionChars": 188,
+      "descriptionLineChars": 203,
+      "quotedTriggerCount": 0,
       "bodyLines": 167,
       "negations": [
         {
@@ -2260,8 +2260,8 @@
     },
     {
       "skill": "grill-me",
-      "descriptionChars": 296,
-      "descriptionLineChars": 311,
+      "descriptionChars": 185,
+      "descriptionLineChars": 200,
       "quotedTriggerCount": 0,
       "bodyLines": 454,
       "negations": [
@@ -5601,9 +5601,9 @@
     },
     {
       "skill": "update",
-      "descriptionChars": 324,
-      "descriptionLineChars": 339,
-      "quotedTriggerCount": 3,
+      "descriptionChars": 226,
+      "descriptionLineChars": 241,
+      "quotedTriggerCount": 0,
       "bodyLines": 527,
       "negations": [
         {
@@ -6492,9 +6492,9 @@
   "skipped": [],
   "totals": {
     "skillCount": 40,
-    "descriptionChars": 12145,
-    "descriptionLineChars": 12737,
-    "modelInvoked": 40,
+    "descriptionChars": 11467,
+    "descriptionLineChars": 12059,
+    "modelInvoked": 39,
     "hookListed": 23,
     "hookDescriptionChars": 1937,
     "negations": 1148,

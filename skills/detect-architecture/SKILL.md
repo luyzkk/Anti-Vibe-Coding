@@ -1,6 +1,6 @@
 ---
 name: detect-architecture
-description: "Use this skill when the user asks to 'detectar arquitetura', 'classificar projeto', 'qual perfil arquitetural', '/detect-architecture', or runs `/anti-vibe-coding:detect-architecture`. Classifies the project in 1 of 5 architectural profiles (clean-architecture-ritual, mvc-flat, vertical-slice, nextjs-app-router, unknown-mixed) using folder + imports heuristic. Requires confirmation when confidence < 80%."
+description: "Classifica o projeto em 1 de 5 perfis arquiteturais por heuristica de pastas + imports. Use ao detectar arquitetura, classificar o projeto, ou perguntar qual perfil arquitetural ele segue."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Bash, Glob

@@ -1,6 +1,6 @@
 ---
 name: grill-me
-description: "Deep pre-implementation interview that resolves ALL ambiguity before coding. Asks 5-20 targeted questions covering scope, data, UX, edge cases, performance, security, and integration. Outputs CONTEXT.md with indexed decisions. Use before planning complex features or when requirements feel vague."
+description: "Entrevista pre-implementacao que resolve ambiguidade antes de codar. Gera CONTEXT.md com decisoes indexadas. Use antes de planejar feature complexa, ou quando os requisitos estao vagos."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob, AskUserQuestion
