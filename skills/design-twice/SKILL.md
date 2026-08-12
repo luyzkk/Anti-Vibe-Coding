@@ -65,6 +65,8 @@ Selecionar dominio baseado nas constraints coletadas (ver secao abaixo).
 | B | "Maximize flexibility. Design for future extension. Plugin points, interfaces." | Open-Closed |
 | C | "Optimize for performance. Every millisecond matters. Inline, cache, batch." | Performance-first |
 
+**Seam** — se as propostas divergirem sobre *onde* a interface do modulo fica, mande as 3 nomearem igual: [deep-modules](../tdd-workflow/references/deep-modules.md) define seam, adapter, leverage e locality. Sem isso A e B descrevem a mesma fronteira com palavras diferentes e a tabela do Step 4 nao compara nada.
+
 ### Dominio 2: Escolha de Tecnologia
 **Quando usar:** feature requer escolha de lib, framework ou ferramenta
 

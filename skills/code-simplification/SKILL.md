@@ -158,6 +158,8 @@ Scan for these patterns — each one is a concrete signal, not a vague smell:
 | Over-engineered patterns | Factory-for-a-factory, strategy-with-one-strategy | Replace with the simple direct approach |
 | Redundant type assertions | Casting to a type that's already inferred | Remove the assertion |
 
+**Deletion test** — before collapsing a wrapper or pass-through, delete the module mentally and inline it into its callers: complexity vanishes (it was pass-through — collapse it) or reappears across N callers (it was paying for itself — keep it). See [deep-modules](../tdd-workflow/references/deep-modules.md).
+
 ### Step 3: Apply Changes Incrementally
 
 Make one simplification at a time. Run tests after each change. **Submit refactoring changes separately from feature or bug fix changes.** A PR that refactors and adds a feature is two PRs — split them.

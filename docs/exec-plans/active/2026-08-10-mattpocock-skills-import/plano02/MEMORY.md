@@ -2,7 +2,7 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** fase-01 executada (2026-08-12) — fases 02 e 03 pendentes
+**Status:** fases 01 e 02 executadas (2026-08-12) — fase 03 pendente
 **Depende de:** plano01 fase-01 (a `writing-for-agents` e a lente contra a qual este material e
 escrito) — **satisfeita**, plano01 mergeado em 2026-08-12
 
@@ -11,7 +11,7 @@ escrito) — **satisfeita**, plano01 mergeado em 2026-08-12
 | Fase | Nome | Status | Arquivos |
 |---|---|---|---|
 | 01 | Expandir a referencia | **done** | 1/1 (+ `plugin-manifest.json` regerado) |
-| 02 | Ponteiros de descoberta | planned | 0/3 |
+| 02 | Ponteiros de descoberta | **done** | 3/3 (+ `plugin-manifest.json` regerado) |
 | 03 | 5o dominio no design-twice | planned | 0/1 |
 
 ## Decisoes de implementacao (DI)
@@ -42,6 +42,43 @@ Formato: `DI-Plano02-faseNN-<slug>: <o que mudou e por que>`.
   checksums — o de `deep-modules.md` (meu) e o de `scripts/run-tests.ts` (**nao meu**: drift do PR
   #13, que alterou o runner sem regerar o manifest). O manifest e artefato gerado unico, entao nao da
   para separar. Incluido no commit; deixar checksum stale seria pior.
+
+### fase-02
+
+- **DI-Plano02-fase02-markdown-link-em-vez-de-backtick**: os 4 ponteiros que ja existiam usam path
+  em backtick a partir da raiz (`` `skills/tdd-workflow/references/deep-modules.md` ``). Os 3 novos
+  usam **markdown link relativo**. Motivo: `harness-validate.ts` tem link-checker ativo em `skills/`
+  — confirmado por controle positivo (quebrei um link de proposito e o validate reprovou com
+  `[broken-link] skills\architecture\SKILL.md ... deep-modules-QUEBRADO.md`, depois restaurei e
+  passou). Path em backtick nao e verificado por nada, que e exatamente a divida do compound
+  `2026-05-14-skill-paths-tech-debt-after-v6`. Divergencia de estilo aceita de proposito: troca
+  apodrecimento silencioso por falha alta. Nao converti os 4 antigos — fora do escopo desta fase.
+- **DI-Plano02-fase02-ancoragem-em-tensao-existente**: cada ponteiro foi colado no ponto onde a
+  skill **ja trava numa decisao** que o vocabulario resolve, em vez de numa secao de "referencias".
+  `architecture` → logo apos `### Anti-Patterns` do DI, porque a linha "DI para tudo" ja diz *"se so
+  existe UMA implementacao possivel, funcao direta"* e depende de julgar "possivel"; a regra de
+  contar adapters converte isso em contagem. `code-simplification` → logo apos a tabela
+  **Redundancy**, cuja linha `Unnecessary abstractions | Wrapper that adds no value` depende de
+  julgar "value"; o deletion test e o teste que faltava. `design-twice` → logo apos a tabela do
+  Dominio 1, que e o caminho de leitura de quem monta o prompt dos subagentes no Step 3.
+- **DI-Plano02-fase02-idioma-segue-o-hospedeiro**: `code-simplification/SKILL.md` e escrito em
+  ingles; o ponteiro dele foi escrito em ingles. Os outros dois, em pt-BR. Os termos-ancora ficam em
+  ingles nos tres (INV-01), entao o vocabulario casa mesmo com os corpos em idiomas diferentes.
+- **DI-Plano02-fase02-mais-2-linhas-nao-1**: o criterio "cada arquivo ganhou ≤ 1 linha" e satisfeito
+  em **conteudo** (1 linha cada), mas o `git diff --numstat` mostra `2 0` por arquivo — markdown
+  exige a linha em branco separando paragrafo. Sem contorcao para chegar a `1 0`; enfiar o ponteiro
+  como linha de tabela distorceria tabelas que catalogam *patterns*, nao testes.
+
+### Passo 4 — cenario de disparo conferido, por ponteiro
+
+Ponteiro que nao dispara e context load puro. O teste aplicado nao foi "o texto e bonito?" mas
+**"o agente esta lendo esta regiao no momento em que a duvida aparece?"**.
+
+| Skill | Cenario real | Por que dispara |
+|---|---|---|
+| `architecture` | "Devo criar uma interface `PaymentGateway` agora que so temos Stripe?" | A skill desce para `## 7. Dependency Injection` → `### Anti-Patterns`, onde "DI para tudo" e a linha que responde. O ponteiro esta na linha seguinte, no caminho de leitura, e substitui um julgamento por uma contagem (1 adapter = hipotetico) |
+| `design-twice` | `/design-twice` sobre "como estruturar o modulo de importacao de CSV" → Dominio 1 selecionado | O ponteiro fica logo apos a tabela do Dominio 1, que e lida para montar as restricoes dos 3 subagentes no Step 3. Dispara antes do spawn, que e o unico momento util |
+| `code-simplification` | Varredura do Step 2 chega em `Unnecessary abstractions \| Wrapper that adds no value` | O ponteiro esta imediatamente apos essa tabela. "Adds no value" e onde a varredura trava; o deletion test destrava |
 
 ## Delta medido (fase-01)
 
