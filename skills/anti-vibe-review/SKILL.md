@@ -92,7 +92,7 @@ Antes de spawnar agentes auditores (se aplicavel):
   - Sinal de modulo raso (shallow): interface quase tao complexa quanto implementacao (muitos metodos publicos, muitos parametros expostos)
   - Sinal de modulo profundo (deep): interface pequena, implementacao rica
   - Se modulo raso detectado → warning com sugestao de encapsulamento
-  - Referencia: `skills/tdd-workflow/references/deep-modules.md`
+  - Referencia: [`skills/tdd-workflow/references/deep-modules.md`](../tdd-workflow/references/deep-modules.md)
 
 ### 4. Error Handling
 - [ ] Erros fornecem feedback ao usuario?
