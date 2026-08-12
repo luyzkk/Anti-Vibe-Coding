@@ -409,12 +409,13 @@ const LEGACY_V5_SKILLS = new Set([
   'skills/grill-me/SKILL.md',       // escreve CONTEXT.md em .planning/ — migrar para docs/
   'skills/write-prd/SKILL.md',       // le .planning/CONTEXT-*.md e cria .planning/{date}-{slug}/
   'skills/lessons-learned/SKILL.md', // le .planning/_archive/ para contexto de licoes
-  'skills/iterate/SKILL.md',         // busca .planning/*/SUMMARY.md
   'skills/lib/state-utils.md',       // documenta o sistema legado .planning/ — atualizar para docs/exec-plans/
   'skills/execute-plan/SKILL.md',    // Step 0 legacy detection + referencias v5 — migrar para docs/exec-plans/
   // 2026-05-17: removidos da whitelist apos auditoria (zero referencias .planning/ no arquivo real):
   //   skills/quick-plan/SKILL.md — migrado para docs/exec-plans/
   //   templates/SUMMARY.md — migrado, paths agora apontam para docs/exec-plans/
+  // 2026-08-11: removido da whitelist (Plano 01 fase-04, lote 2b):
+  //   skills/iterate/SKILL.md — a sonda de deploy passou a usar docs/exec-plans/**/SUMMARY.md
 ])
 
 function isV6PathWhitelisted(rel: string): boolean {

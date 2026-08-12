@@ -1,6 +1,6 @@
 ---
 name: lessons-learned
-description: "This skill should be used when the user asks to 'add a lesson learned', 'register a lesson', 'review lessons', 'prune obsolete lessons', or when a significant error pattern is detected that should be recorded for future sessions. Manages project-specific senior knowledge with quality filters."
+description: "Registro de licoes aprendidas do projeto, com filtro de qualidade senior. Use ao registrar uma licao, revisar as existentes, ou podar as obsoletas."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob, Write, Edit

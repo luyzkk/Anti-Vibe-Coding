@@ -1,6 +1,6 @@
 ---
 name: api-design
-description: "This skill should be used when the user asks about 'API design', 'N+1 problem', 'idempotency', 'idempotent APIs', 'DTOs', 'data transfer objects', 'webhooks', 'websockets', 'SSE', 'REST vs GraphQL', 'SQL vs NoSQL', 'race conditions in APIs', 'API concurrency', 'gRPC', 'AMQP', 'RabbitMQ', 'message queue', 'GraphQL schema', 'GraphQL depth', 'DataLoader', 'pagination', 'cursor pagination', 'keyset pagination', 'REST URL design', 'status codes', 'API versioning', 'HATEOAS', 'filtering', 'sorting', 'Protocol Buffers', or needs to analyze and audit API endpoints. Provides expert consultation on API design patterns, protocols, anti-patterns, and best practices."
+description: "API design consultation. Use when the user asks about interface stability and versioning, the N+1 problem, idempotency, DTOs, webhooks vs WebSockets vs SSE, SQL vs NoSQL, API concurrency, protocol choice (REST, gRPC, AMQP), GraphQL, or REST URL design (pagination, status codes)."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob, WebSearch

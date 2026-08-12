@@ -1,6 +1,6 @@
 ---
 name: security
-description: "Expert security consultation covering OWASP Top 10, authentication (OAuth2, PKCE, JWT, session management), authorization (RBAC, ABAC, RLS), cryptography (bcrypt, argon2, HMAC), API security (rate limiting, CORS, CSRF, WAF), and Supabase/BaaS hardening. Use when implementing auth flows, handling secrets, validating webhooks, preventing injection attacks, or auditing security posture."
+description: "Expert security consultation covering OWASP Top 10, authentication (OAuth2, PKCE, JWT, session management), authorization (RBAC, ABAC, RLS), cryptography (bcrypt, argon2, HMAC), API security (rate limiting, CORS, CSRF, WAF), Supabase/BaaS hardening, and dependency vulnerability triage. Use when implementing auth flows, handling secrets, validating webhooks, preventing injection attacks, or auditing security posture."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob, WebSearch
