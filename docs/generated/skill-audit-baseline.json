@@ -870,8 +870,8 @@
     },
     {
       "skill": "consultant",
-      "descriptionChars": 386,
-      "descriptionLineChars": 401,
+      "descriptionChars": 243,
+      "descriptionLineChars": 258,
       "quotedTriggerCount": 3,
       "bodyLines": 401,
       "negations": [
@@ -1146,8 +1146,8 @@
     },
     {
       "skill": "defensive-patterns",
-      "descriptionChars": 362,
-      "descriptionLineChars": 375,
+      "descriptionChars": 219,
+      "descriptionLineChars": 234,
       "quotedTriggerCount": 0,
       "bodyLines": 201,
       "negations": [
@@ -1301,9 +1301,9 @@
     },
     {
       "skill": "design-patterns",
-      "descriptionChars": 579,
-      "descriptionLineChars": 594,
-      "quotedTriggerCount": 18,
+      "descriptionChars": 306,
+      "descriptionLineChars": 321,
+      "quotedTriggerCount": 0,
       "bodyLines": 315,
       "negations": [
         {
@@ -4321,8 +4321,8 @@
     },
     {
       "skill": "security",
-      "descriptionChars": 386,
-      "descriptionLineChars": 401,
+      "descriptionChars": 419,
+      "descriptionLineChars": 434,
       "quotedTriggerCount": 0,
       "bodyLines": 589,
       "negations": [
@@ -6492,8 +6492,8 @@
   "skipped": [],
   "totals": {
     "skillCount": 40,
-    "descriptionChars": 9757,
-    "descriptionLineChars": 10351,
+    "descriptionChars": 9231,
+    "descriptionLineChars": 9827,
     "modelInvoked": 39,
     "hookListed": 23,
     "hookDescriptionChars": 1937,

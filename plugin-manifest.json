@@ -1,6 +1,6 @@
 {
   "version": "7.5.0",
-  "generatedAt": "2026-08-12T11:53:17.284Z",
+  "generatedAt": "2026-08-12T12:04:53.151Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -43,7 +43,7 @@
       "path": "skills/consultant/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "Phase Zero consultation for uncertain decisions, trade-off analysis, and irreversible choices. Use when facing database schema design, auth pattern selection, critical library choices, infrastructure decisions, or when the user asks 'how should I implement', 'best approach', 'which pattern'. Teaches before coding — presents options with pros/cons instead of jumping to implementation."
+      "description": "Fase Zero: consultoria para decisao incerta, trade-off e escolha irreversivel. Use ao enfrentar schema de banco, padrao de auth, escolha de biblioteca ou de infra — ou quando a pergunta e 'como implementar', 'melhor abordagem', 'qual pattern'."
     },
     "decision-registry": {
       "path": "skills/decision-registry/",
@@ -55,13 +55,13 @@
       "path": "skills/defensive-patterns/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "Menu de padrões defensivos para produção. Apresenta categorias (rate limit, circuit breaker, timeout, fallback, retry, bulkhead, config centralizada, health check, graceful degradation) e guia o dev a escolher quais aplicar ao contexto atual. Cobre backoff, jitter, retry budget, token bucket, fail-open, black-hole, degraded read, stale cache e thundering herd."
+      "description": "Menu de padrões defensivos para produção: rate limit, circuit breaker, timeout, fallback, retry, bulkhead, config centralizada, health check e graceful degradation. Guia o dev a escolher quais aplicar ao contexto atual."
     },
     "design-patterns": {
       "path": "skills/design-patterns/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "This skill should be used when the user asks about 'code smells', 'code quality', 'Result Pattern', 'error handling patterns', 'structured logging', 'domain types', 'JavaScript internals', 'closures', 'event loop', 'race conditions', 'design patterns', 'GoF', 'Observer pattern', 'Factory pattern', 'Singleton', 'Decorator', 'Strategy pattern', 'Adapter', or requests a code quality analysis. Provides expert consultation on 26 code quality concepts covering code smells, error handling, logging, domain modeling, GoF design patterns, and JavaScript/TypeScript advanced patterns."
+      "description": "Consultoria de qualidade de codigo — 26 conceitos. Use ao investigar code smells, error handling (Result Pattern), structured logging, tipos de dominio, internals de JavaScript/TypeScript (closures, event loop), race conditions, ou patterns GoF (Observer, Factory, Singleton, Decorator, Strategy, Adapter)."
     },
     "design-twice": {
       "path": "skills/design-twice/",
@@ -187,7 +187,7 @@
       "path": "skills/security/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "Expert security consultation covering OWASP Top 10, authentication (OAuth2, PKCE, JWT, session management), authorization (RBAC, ABAC, RLS), cryptography (bcrypt, argon2, HMAC), API security (rate limiting, CORS, CSRF, WAF), and Supabase/BaaS hardening. Use when implementing auth flows, handling secrets, validating webhooks, preventing injection attacks, or auditing security posture."
+      "description": "Expert security consultation covering OWASP Top 10, authentication (OAuth2, PKCE, JWT, session management), authorization (RBAC, ABAC, RLS), cryptography (bcrypt, argon2, HMAC), API security (rate limiting, CORS, CSRF, WAF), Supabase/BaaS hardening, and dependency vulnerability triage. Use when implementing auth flows, handling secrets, validating webhooks, preventing injection attacks, or auditing security posture."
     },
     "source-driven-development": {
       "path": "skills/source-driven-development/",
@@ -913,8 +913,8 @@
     },
     "skills/consultant/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "9778875f4f47e87744695c7452a0bc17c0ecb0472efb097ca7f5d777490c77cf",
-      "lastModified": "2026-08-11",
+      "checksum": "5c64b23620524c8b5ce67414aa2009306542acedf05b15455179c188f71b0753",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/consultant/references/assumption-audit.md": {
@@ -937,14 +937,14 @@
     },
     "skills/defensive-patterns/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "16394f3f5577bd336cf3d5f0186e242778b9f79fc0fff5191bf388c7adb59047",
-      "lastModified": "2026-06-17",
+      "checksum": "4196dfadcdde3048ede052b660cb1ac4720fbaeccd359fb2b5fc335e01e72486",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/design-patterns/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "4290f15efa5f1ab3a99f8b4eb372bd8910a4dd1f53f34ee26c3aa0d571368815",
-      "lastModified": "2026-08-11",
+      "checksum": "6fcd6502c31f8038e87ebe81ab06838e3e15fc0595340b948ae9e4047632b490",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/design-patterns/references/code-smells.md": {
@@ -2155,8 +2155,8 @@
     },
     "skills/security/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "516ee118069fabbcd9c35846e564187c7cbff5fa97bd85b1cac52bf48ebd57e1",
-      "lastModified": "2026-06-05",
+      "checksum": "2bff641dedccf74dea06404f8134a4988106a3925d72ca189d3cc23d5a0bccf5",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/security/references/application-security.md": {
