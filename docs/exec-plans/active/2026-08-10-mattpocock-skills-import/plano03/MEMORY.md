@@ -2,7 +2,7 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** fase-01 executada (2026-08-12) — fases 02 e 03 pendentes
+**Status:** fases 01 e 02 executadas (2026-08-12) — fase 03 (dogfood) pendente
 **Depende de:** plano01 fase-01 (a lente de escrita) — **satisfeita**, plano01 mergeado
 
 ## Progresso
@@ -10,7 +10,7 @@ Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 | Fase | Nome | Status | Arquivos |
 |---|---|---|---|
 | 01 | Porte da skill + template | **done** | 3/3 (+ `template.test.ts`, `.gitattributes`, manifest) |
-| 02 | Ponteiros: infrastructure + init | planned | 0/2 |
+| 02 | Ponteiros: infrastructure + init | **done** | 2/2 (+ manifest regerado) |
 | 03 | Dogfood: wizard real | planned | 0/1 |
 
 ## Decisoes de implementacao (DI)
@@ -62,6 +62,35 @@ Formato: `DI-Plano03-faseNN-<slug>: <o que mudou e por que>`.
 - **DI-Plano03-fase01-shellcheck-ausente**: o checklist pede `shellcheck`; **nao esta instalado nesta
   maquina**. `bash -n` passou e esta no teste automatizado. Cobertura ausente declarada, nao
   silenciada — se for instalado, vale rodar antes da fase-03.
+
+### fase-02
+
+- **DI-Plano03-fase02-buraco-confirmado**: a alegacao do README (426 linhas de `infrastructure`, zero
+  ocorrencias de `dashboard`/`console`/`painel`/`manualmente`/`acesse`/`credencia`) foi **verificada**,
+  nao assumida: os 6 termos dao 0, com controle positivo (`DNS` = 25) provando que o grep enxerga o
+  arquivo. Regra de `docs/compound/2026-08-12-grep-negativo-exige-controle-positivo.md`.
+- **DI-Plano03-fase02-ancoras**: os dois ponteiros foram colados onde a skill **ja narra** o passo
+  manual, nao numa secao de referencias. `infrastructure` → logo apos *"e comum comprar no
+  registrador e apontar nameservers para Cloudflare ou Route 53"* (`### Registrador vs Provedor
+  DNS`), que e literalmente a acao que o agente nao consegue executar; a mesma secao ja nomeia
+  Hostinger, o registrador do cenario de teste. `init` → dentro de `## Regras Importantes`, na
+  sequencia da regra *"se nao tiver certeza sobre um conflito, perguntar ao usuario"*, que e a linha
+  com a qual a distincao wizard-vs-`AskUserQuestion` precisa conversar (G3).
+- **DI-Plano03-fase02-askuserquestion-so-no-frontmatter**: a fase supoe que o `/init` "ja usa
+  `AskUserQuestion`". Ele aparece **so em `allowed-tools`** (`skills/init/SKILL.md:5`) — o corpo
+  nunca descreve o uso. Isso nao muda o ponteiro, mas muda o motivo: ele nao esta desambiguando um
+  uso documentado, esta escrevendo a fronteira pela primeira vez. Se alguem documentar
+  `AskUserQuestion` no corpo do `init` depois, as duas linhas precisam ser lidas juntas.
+- **DI-Plano03-fase02-verbo-oferecer**: os dois dizem **ofereca**, nunca "gere". Regra registrada do
+  usuario (`feedback_suggest_dont_execute`), e o proprio `init` ja fecha com *"NAO invocar ...
+  automaticamente"* — os ponteiros ficam consistentes com a convencao que a skill hospedeira ja tem.
+
+### Passo 3 — cenarios de disparo conferidos
+
+| Skill | Cenario | Por que dispara |
+|---|---|---|
+| `infrastructure` | "preciso apontar meu dominio na Hostinger para a Vercel" | A consulta desce para `## 1. DNS & Domain Management` → `### Registrador vs Provedor DNS`, secao que **nomeia Hostinger**. O ponteiro esta no paragrafo seguinte e lista "apontar nameserver no registrador" como primeiro item |
+| `init` | "o projeto precisa de `DATABASE_URL` e de um secret de deploy no GitHub Actions" | Os dois valores estao **literalmente nomeados** no ponteiro, dentro das regras que governam o fluxo inteiro do init |
 
 ## Cobertura ausente desta fase
 

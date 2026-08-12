@@ -1,6 +1,6 @@
 {
   "version": "7.5.0",
-  "generatedAt": "2026-08-12T23:08:23.318Z",
+  "generatedAt": "2026-08-12T23:24:46.645Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -1075,7 +1075,7 @@
     },
     "skills/infrastructure/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "cd12af01f3de2a9046ddf2874f5849b8ba98427d41227b212193797eabc2f199",
+      "checksum": "7b3817dc916f4f212dbe7ac9b522a25ec39e2df34f549d6584068eeca45e7398",
       "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
@@ -1093,7 +1093,7 @@
     },
     "skills/init/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "3ece7f2a6b2e7c3ce38779d71deee89b323ce3b37a510328245491fc747ea046",
+      "checksum": "dfa03eaa8825d014b9684984374eb5c86d06ad0faae91811001926d1a15945fd",
       "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
