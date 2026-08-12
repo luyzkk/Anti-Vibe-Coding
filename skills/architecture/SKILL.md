@@ -1,6 +1,6 @@
 ---
 name: architecture
-description: "This skill should be used when the user asks about 'SOLID principles', 'monolith vs microservices', 'CQRS', 'event sourcing', 'REST vs GraphQL', 'tech stack selection', 'architecture decision', 'ADR', 'design patterns', 'Law of Demeter', 'Tell-Don't-Ask', 'composition vs inheritance', 'dependency injection', 'DI', 'IoC container', 'constructor injection', or faces architectural trade-off decisions. Provides senior-level architecture consultation with explicit trade-off analysis."
+description: "Consultoria de arquitetura com trade-off explicito. Use ao decidir SOLID, monolito vs microservicos, CQRS e event sourcing, REST vs GraphQL, escolha de stack, principios de design (Lei de Demeter, Tell-Don't-Ask, composicao vs heranca), ou injecao de dependencia."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob, WebSearch

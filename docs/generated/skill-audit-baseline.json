@@ -504,9 +504,9 @@
     },
     {
       "skill": "architecture",
-      "descriptionChars": 483,
-      "descriptionLineChars": 498,
-      "quotedTriggerCount": 16,
+      "descriptionChars": 263,
+      "descriptionLineChars": 278,
+      "quotedTriggerCount": 0,
       "bodyLines": 424,
       "negations": [
         {
@@ -1786,9 +1786,9 @@
     },
     {
       "skill": "enhance-prompt",
-      "descriptionChars": 323,
-      "descriptionLineChars": 338,
-      "quotedTriggerCount": 6,
+      "descriptionChars": 192,
+      "descriptionLineChars": 207,
+      "quotedTriggerCount": 0,
       "bodyLines": 262,
       "negations": [
         {
@@ -2970,8 +2970,8 @@
     },
     {
       "skill": "iterate",
-      "descriptionChars": 272,
-      "descriptionLineChars": 287,
+      "descriptionChars": 205,
+      "descriptionLineChars": 220,
       "quotedTriggerCount": 0,
       "bodyLines": 353,
       "negations": [
@@ -3330,8 +3330,8 @@
     },
     {
       "skill": "pair-programming-with-agent",
-      "descriptionChars": 260,
-      "descriptionLineChars": 273,
+      "descriptionChars": 195,
+      "descriptionLineChars": 210,
       "quotedTriggerCount": 1,
       "bodyLines": 226,
       "negations": [
@@ -4709,8 +4709,8 @@
     },
     {
       "skill": "source-driven-development",
-      "descriptionChars": 349,
-      "descriptionLineChars": 364,
+      "descriptionChars": 185,
+      "descriptionLineChars": 200,
       "quotedTriggerCount": 0,
       "bodyLines": 206,
       "negations": [
@@ -6492,8 +6492,8 @@
   "skipped": [],
   "totals": {
     "skillCount": 40,
-    "descriptionChars": 10554,
-    "descriptionLineChars": 11146,
+    "descriptionChars": 9907,
+    "descriptionLineChars": 10501,
     "modelInvoked": 39,
     "hookListed": 23,
     "hookDescriptionChars": 1937,

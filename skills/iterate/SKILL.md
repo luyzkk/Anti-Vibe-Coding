@@ -1,6 +1,6 @@
 ---
 name: iterate
-description: "Ciclo pos-deploy: incident response com regression test, hardening defensivo e centralizacao de config. A quarta pata do pipeline: Ensinar → Planejar → Verificar → Iterar. Use quando um bug foi relatado em producao ou quando uma feature estavel esta pronta para hardening."
+description: "Ciclo pos-deploy: incident response com regression test, hardening defensivo e centralizacao de config. Use quando um bug foi relatado em producao, ou quando uma feature estavel esta pronta para hardening."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Glob, Grep, Bash, AskUserQuestion
