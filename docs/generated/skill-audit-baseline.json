@@ -828,10 +828,10 @@
     },
     {
       "skill": "compound-engineering",
-      "descriptionChars": 296,
-      "descriptionLineChars": 311,
-      "quotedTriggerCount": 4,
-      "bodyLines": 130,
+      "descriptionChars": 204,
+      "descriptionLineChars": 219,
+      "quotedTriggerCount": 0,
+      "bodyLines": 131,
       "negations": [
         {
           "line": 24,
@@ -854,7 +854,7 @@
           "text": "// G7 do plano02: shape atual de capabilities.json não tem `storedChecksums` — check direto por age."
         },
         {
-          "line": 113,
+          "line": 114,
           "term": "nao",
           "text": "6. Se todos 'nao': pergunta razao curta. Invoca `updateLessonsCaptured(planPath, 'no compound capture needed because: <razao>')`."
         }
@@ -866,7 +866,9 @@
       "satelliteFiles": [
         "references/capture-guide.md"
       ],
-      "satellitesLinked": []
+      "satellitesLinked": [
+        "references/capture-guide.md"
+      ]
     },
     {
       "skill": "consultant",
@@ -1480,7 +1482,7 @@
       "descriptionChars": 166,
       "descriptionLineChars": 181,
       "quotedTriggerCount": 0,
-      "bodyLines": 376,
+      "bodyLines": 378,
       "negations": [
         {
           "line": 11,
@@ -1533,87 +1535,87 @@
           "text": "| **Constraint-removal** | E se budget, tempo ou tecnologia nao fossem fatores? | \"Ignore restricoes praticas. Qual seria a solucao ideal sem limitacoes?\" |"
         },
         {
-          "line": 174,
+          "line": 176,
           "term": "nao",
           "text": "<!-- 2026-05-14 (Luiz/dev): A3 — subagent_type permanece \"general-purpose\" (nao migrado para anti-vibe-coding:design-explorer ainda). Comportamento de output foi migrado para contrato v1 pelo Plano 02 fase-02. -->"
         },
         {
-          "line": 177,
+          "line": 179,
           "term": "NAO",
           "text": "- Subagentes NAO veem as solucoes uns dos outros"
         },
         {
-          "line": 185,
+          "line": 187,
           "term": "NAO",
           "text": "O orquestrador NAO parseia markdown manual — chama `consolidateProposals()` de `skills/design-twice/index.ts` que usa `parseContract()` internamente. Output dos subagentes vira array `ConsolidatedProposal[]` ordenado por letra (A/B/C)."
         },
         {
-          "line": 198,
+          "line": 200,
           "term": "nao",
           "text": "1. Output DEVE ser JSON valido conforme contrato v1 — nao markdown livre"
         },
         {
-          "line": 214,
+          "line": 216,
           "term": "nao",
           "text": "  (G-P02-03: reasoning = meta-observacao; human_readable = proposta em si — nao misturar)"
         },
         {
-          "line": 218,
+          "line": 220,
           "term": "nao",
           "text": "<!-- 2026-05-14 (Luiz/dev): Step 4 migrado de \"parse 8 secoes markdown\" para campos estruturados de payload.proposal — Plano 04 fase-02. Tabela nao usa mais complexity/effort/pros/cons/risks (campos obsoletos rejeitados em Plano 02 fase-02 BUG-1). -->"
         },
         {
-          "line": 255,
+          "line": 257,
           "term": "nao",
           "text": "qualquer abordagem funciona. A diferenca esta em detalhes, nao em direcao."
         },
         {
-          "line": 282,
+          "line": 284,
           "term": "nao",
           "text": "| \"Mais propostas\" | Spawnar 1-2 subagentes adicionais com restricoes nao cobertas (max 5 total) |"
         },
         {
-          "line": 285,
+          "line": 287,
           "term": "NAO",
           "text": "| \"Tanto faz\" | NAO aceitar: \"Essa decisao impacta [aspecto]. Recomendo {X} porque [razao]. Concorda?\" |"
         },
         {
-          "line": 306,
+          "line": 308,
           "term": "nao",
           "text": "**Convergencia:** {sim|nao} — {comentario se relevante}"
         },
         {
-          "line": 312,
+          "line": 314,
           "term": "nao",
           "text": "- Se decisions.md nao existir, criar com header padrao"
         },
         {
-          "line": 315,
+          "line": 317,
           "term": "nao",
           "text": "- Se o dev quiser ADR formal: sugerir `/decision-registry` (nao forcar)"
         },
         {
-          "line": 334,
+          "line": 336,
           "term": "NAO",
           "text": "O learn point deve ser especifico ao trade-off da decisao, NAO generico."
         },
         {
-          "line": 353,
+          "line": 355,
           "term": "NAO",
           "text": "1. Subagentes NAO veem as solucoes uns dos outros — isolamento total"
         },
         {
-          "line": 355,
+          "line": 357,
           "term": "NAO",
           "text": "3. O orquestrador NAO gera solucao propria — apenas compara e recomenda"
         },
         {
-          "line": 359,
+          "line": 361,
           "term": "NAO",
           "text": "7. \"Tanto faz\" NAO e aceito — insistir com recomendacao justificada"
         },
         {
-          "line": 361,
+          "line": 363,
           "term": "nao",
           "text": "9. As restricoes devem ser genuinamente diferentes — nao variacoes do mesmo tema"
         }
@@ -1627,6 +1629,7 @@
         "references/divergence-lenses.md"
       ],
       "satellitesLinked": [
+        "examples/worked-session.md",
         "references/divergence-lenses.md"
       ]
     },
@@ -5292,7 +5295,7 @@
       "descriptionChars": 293,
       "descriptionLineChars": 308,
       "quotedTriggerCount": 0,
-      "bodyLines": 441,
+      "bodyLines": 443,
       "negations": [
         {
           "line": 21,
@@ -5300,247 +5303,247 @@
           "text": "Se `stackKnowledgePreface` for não-vazio, **prepende** esta frase ao início da resposta. Se vazio, ignore — comportamento da skill = v6.3.1 intacto (CA-09)."
         },
         {
-          "line": 51,
+          "line": 53,
           "term": "nao",
           "text": "   - O que o teste verifica (comportamento, nao implementacao)"
         },
         {
-          "line": 55,
+          "line": 57,
           "term": "nao",
           "text": "2. Dev valida: \"sim\" / \"nao entendi\" / propoe cenario alternativo"
         },
         {
-          "line": 56,
+          "line": 58,
           "term": "nao",
           "text": "   - Se \"nao entendi\" → sugerir /anti-vibe-coding:learn para o conceito em questao"
         },
         {
-          "line": 60,
+          "line": 62,
           "term": "Nunca",
           "text": "**Regra:** UM teste por ciclo. Nunca propor 3 testes de uma vez no Nivel 1."
         },
         {
-          "line": 67,
+          "line": 69,
           "term": "nao",
           "text": "2. IA gera 1-3 testes por vez (nao todos de uma vez)"
         },
         {
-          "line": 71,
+          "line": 73,
           "term": "nao",
           "text": "   - Subagente GREEN implementa (recebe APENAS testes, nao os requisitos)"
         },
         {
-          "line": 82,
+          "line": 84,
           "term": "nao",
           "text": "IA nao propoe testes no Nivel 3, apenas implementa."
         },
         {
-          "line": 88,
+          "line": 90,
           "term": "nao",
           "text": "No IA-TDD, a unidade de trabalho e o slice vertical — nao o modulo ou a camada."
         },
         {
-          "line": 96,
+          "line": 98,
           "term": "NAO",
           "text": "- Tracer bullet NAO precisa ter logica de negocio — apenas \"encanamento\" funcionando"
         },
         {
-          "line": 100,
+          "line": 102,
           "term": "nao",
           "text": "**Slices subsequentes:** cada slice adiciona um comportamento observavel, nao uma camada:"
         },
         {
-          "line": 110,
+          "line": 112,
           "term": "nao",
           "text": "> \"Que interface eu gostaria de usar?\" — nao \"como vou implementar isso?\""
         },
         {
-          "line": 112,
+          "line": 114,
           "term": "NAO",
           "text": "Sinal de interface bem projetada: o teste NAO sabe detalhes internos."
         },
         {
-          "line": 127,
+          "line": 129,
           "term": "nao",
           "text": "Principio: o agente que implementa nao deve \"ver\" os requisitos em texto natural."
         },
         {
-          "line": 133,
+          "line": 135,
           "term": "NAO",
           "text": "- NAO produz codigo de producao"
         },
         {
-          "line": 139,
+          "line": 141,
           "term": "NAO",
           "text": "- NAO recebe: requisitos em texto natural, descricao da task"
         },
         {
-          "line": 145,
+          "line": 147,
           "term": "NAO",
           "text": "**Quando NAO usar:** features simples com 1-2 criterios, CRUD basico sem logica."
         },
         {
-          "line": 147,
+          "line": 149,
           "term": "nao",
           "text": "Nota: context isolation depende do TDD Gate (plano 05) para bloquear edicao de testes durante GREEN. Se nao ativo, as instrucoes no prompt do subagente GREEN sao a unica barreira."
         },
         {
-          "line": 168,
+          "line": 170,
           "term": "NAO",
           "text": "O AI Judge e um segundo LLM que valida conformidade TDD em tempo real. Consome ~2.5x tokens — NAO e o padrao."
         },
         {
-          "line": 178,
+          "line": 180,
           "term": "nao",
           "text": "Dev decide: sim → ativar `config/tdd-gate.json → mode: \"ai-judge\"` / nao → continuar com regex."
         },
         {
-          "line": 187,
+          "line": 189,
           "term": "nao",
           "text": "Com IA, o ROI por camada inverte — nao em quantidade, mas em QUEM LIDA COM CADA CAMADA:"
         },
         {
-          "line": 226,
+          "line": 228,
           "term": "Don't",
           "text": "**DAMP** = \"Don't Abstain from Meaningful Phrases\". Testes aceitam alguma repeticao"
         },
         {
-          "line": 266,
+          "line": 268,
           "term": "nao",
           "text": "extraidos APENAS quando a logica de setup e nao-obvia ou repetida 3+ vezes com"
         },
         {
-          "line": 282,
+          "line": 284,
           "term": "nao",
           "text": "a implementacao e nao ao comportamento."
         },
         {
-          "line": 285,
+          "line": 287,
           "term": "nao",
           "text": "Use mocks apenas quando a dependencia real e lenta, nao-deterministica, ou tem efeitos colaterais incontrolaveis (APIs externas, envio de email). Over-mocking cria testes que passam enquanto a producao quebra."
         },
         {
-          "line": 309,
+          "line": 311,
           "term": "nao",
           "text": "- Se algo nao estiver claro, PERGUNTAR antes de escrever qualquer codigo"
         },
         {
-          "line": 318,
+          "line": 320,
           "term": "Nao",
           "text": "- Nao escrever codigo de producao aqui"
         },
         {
-          "line": 327,
+          "line": 329,
           "term": "NAO",
           "text": "- NAO escrever codigo de producao nesta etapa"
         },
         {
-          "line": 339,
+          "line": 341,
           "term": "nao",
           "text": "Quando a task e um bug report (nao uma feature nova): NAO comece tentando corrigir."
         },
         {
-          "line": 339,
+          "line": 341,
           "term": "NAO",
           "text": "Quando a task e um bug report (nao uma feature nova): NAO comece tentando corrigir."
         },
         {
-          "line": 351,
+          "line": 353,
           "term": "NUNCA",
           "text": "- NUNCA otimize na fase GREEN — codigo feio que passa nos testes e melhor que codigo elegante nao validado"
         },
         {
-          "line": 351,
+          "line": 353,
           "term": "nao",
           "text": "- NUNCA otimize na fase GREEN — codigo feio que passa nos testes e melhor que codigo elegante nao validado"
         },
         {
-          "line": 370,
+          "line": 372,
           "term": "nao",
           "text": "- Compare complexidade antes/depois — se a refatoracao nao melhora claramente, mantenha o naive"
         },
         {
-          "line": 405,
+          "line": 407,
           "term": "NUNCA",
           "text": "- NUNCA gerar codigo de producao e testes ao mesmo tempo — testes escritos depois tendem a validar a implementacao, nao o comportamento esperado"
         },
         {
-          "line": 405,
+          "line": 407,
           "term": "nao",
           "text": "- NUNCA gerar codigo de producao e testes ao mesmo tempo — testes escritos depois tendem a validar a implementacao, nao o comportamento esperado"
         },
         {
-          "line": 406,
+          "line": 408,
           "term": "NUNCA",
           "text": "- NUNCA pular a etapa de testes para \"ganhar tempo\" — divida tecnica acumula juros exponenciais"
         },
         {
-          "line": 409,
+          "line": 411,
           "term": "nao",
           "text": "- Testar **comportamento**, nao implementacao"
         },
         {
-          "line": 410,
+          "line": 412,
           "term": "nao",
           "text": "- Usar verbos em terceira pessoa nos nomes de teste (nao usar \"should\")"
         },
         {
-          "line": 411,
+          "line": 413,
           "term": "NUNCA",
           "text": "- NUNCA adicionar 2+ testes em um unico ciclo sem alertar sobre test-first vs test-driven"
         },
         {
-          "line": 413,
+          "line": 415,
           "term": "nao",
           "text": "- Para features de regras de negocio: humano especifica via testes — IA nao propoe requisitos de negocio"
         },
         {
-          "line": 421,
+          "line": 423,
           "term": "não",
           "text": "| \"Vou escrever os testes depois que o código estiver funcionando\" | Testes escritos após implementação tendem a apenas confirmar o que foi feito, não o que deveria ser feito. Test-after não descobre design problems. |"
         },
         {
-          "line": 421,
+          "line": 423,
           "term": "não",
           "text": "| \"Vou escrever os testes depois que o código estiver funcionando\" | Testes escritos após implementação tendem a apenas confirmar o que foi feito, não o que deveria ser feito. Test-after não descobre design problems. |"
         },
         {
-          "line": 422,
-          "term": "não",
-          "text": "| \"Este código é tão simples que não precisa de teste\" | Código simples hoje, complexo amanhã. O custo de escrever o teste é mínimo; o custo da regressão não é. |"
-        },
-        {
-          "line": 422,
+          "line": 424,
           "term": "não",
           "text": "| \"Este código é tão simples que não precisa de teste\" | Código simples hoje, complexo amanhã. O custo de escrever o teste é mínimo; o custo da regressão não é. |"
         },
         {
           "line": 424,
           "term": "não",
-          "text": "| \"O tipo já garante o comportamento — não preciso testar\" | Types verificam estrutura; testes verificam comportamento. Um `string` pode ser um email inválido — o compilador não detecta. |"
+          "text": "| \"Este código é tão simples que não precisa de teste\" | Código simples hoje, complexo amanhã. O custo de escrever o teste é mínimo; o custo da regressão não é. |"
         },
         {
-          "line": 424,
+          "line": 426,
           "term": "não",
           "text": "| \"O tipo já garante o comportamento — não preciso testar\" | Types verificam estrutura; testes verificam comportamento. Um `string` pode ser um email inválido — o compilador não detecta. |"
         },
         {
-          "line": 433,
+          "line": 426,
+          "term": "não",
+          "text": "| \"O tipo já garante o comportamento — não preciso testar\" | Types verificam estrutura; testes verificam comportamento. Um `string` pode ser um email inválido — o compilador não detecta. |"
+        },
+        {
+          "line": 435,
           "term": "jamais",
           "text": "- Teste que só roda com `--testNamePattern` específico (jamais na suite completa)"
         },
         {
-          "line": 444,
+          "line": 446,
           "term": "nao",
           "text": "- [ ] Cobertura nao diminuiu (se rastreada no projeto)"
         },
         {
-          "line": 446,
+          "line": 448,
           "term": "NAO",
           "text": "Nota: rode cada comando apos uma mudanca que possa afetar o resultado. Apos uma execucao limpa, NAO repita o mesmo comando sem alteracao de codigo — re-rodar codigo inalterado nao adiciona confianca."
         },
         {
-          "line": 446,
+          "line": 448,
           "term": "nao",
           "text": "Nota: rode cada comando apos uma mudanca que possa afetar o resultado. Apos uma execucao limpa, NAO repita o mesmo comando sem alteracao de codigo — re-rodar codigo inalterado nao adiciona confianca."
         }
@@ -5556,6 +5559,7 @@
       ],
       "satellitesLinked": [
         "references/deep-modules.md",
+        "references/ia-tdd-workflow.md",
         "references/test-pyramid-ai.md"
       ]
     },
@@ -6492,12 +6496,12 @@
   "skipped": [],
   "totals": {
     "skillCount": 40,
-    "descriptionChars": 9231,
-    "descriptionLineChars": 9827,
+    "descriptionChars": 9139,
+    "descriptionLineChars": 9735,
     "modelInvoked": 39,
     "hookListed": 23,
     "hookDescriptionChars": 1937,
     "negations": 1148,
-    "satellitesUnlinked": 6
+    "satellitesUnlinked": 3
   }
 }

@@ -162,6 +162,8 @@ Catalogo de frameworks detalhados (SCAMPER, Pre-mortem, First Principles, JTBD, 
 
 ## Step 3 — Spawnar Subagentes em Paralelo
 
+> Sessao completa do fluxo, do problema a decisao: [`examples/worked-session.md`](./examples/worked-session.md)
+
 Usar a Agent tool para spawnar 3 subagentes em PARALELO (em uma unica mensagem com 3 tool calls simultaneos):
 
 ```
