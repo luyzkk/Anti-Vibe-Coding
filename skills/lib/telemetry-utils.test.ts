@@ -186,34 +186,16 @@ describe('inferFasePipeline', () => {
 }) // end describe('telemetry-utils')
 
 // === Smoke tests fase-03 (Plano 03) — consultivas ===
+// 2026-08-12: os blocos de telemetria das 5 consultivas sairam dos SKILL.md (lote 6a do
+// plano01 do import mattpocock) — prompt nao executa, so gastava contexto. Os smoke tests
+// que liam esses blocos foram junto. A lib segue viva: `emit-stack-knowledge-events.ts`
+// consome `writeTelemetryDomainEvent`.
 describe('consultivas skills (fase-03 smoke)', () => {
-  const CONSULTIVAS = ['iterate', 'consultant', 'architecture', 'design-twice', 'quick-plan'] as const
-
-  test('each consultiva SKILL.md contains writeTelemetryStart and writeTelemetryEnd calls', () => {
-    for (const skill of CONSULTIVAS) {
-      const skillPath = join('skills', skill, 'SKILL.md')
-      expect(existsSync(skillPath)).toBe(true)
-      const content = readFileSync(skillPath, 'utf-8')
-      expect(content).toContain('writeTelemetryStart')
-      expect(content).toContain('writeTelemetryEnd')
-    }
-  })
-
-  test('each consultiva SKILL.md imports from telemetry-utils', () => {
-    for (const skill of CONSULTIVAS) {
-      const skillPath = join('skills', skill, 'SKILL.md')
-      const content = readFileSync(skillPath, 'utf-8')
-      expect(content).toMatch(/from ['"]\.\.\/\.\.\/lib\/telemetry-utils['"]/)
-    }
-  })
-
   test('architecture skill preserves Tracer Bullet code from Plano 01 fase-06', () => {
     const archPath = join('skills', 'architecture', 'SKILL.md')
     const content = readFileSync(archPath, 'utf-8')
     // Tracer Bullet do Plano 01 fase-06 declara leitura de architectureProfile
     expect(content).toContain('architectureProfile')
-    // E o bloco de telemetria desta fase tambem esta presente
-    expect(content).toContain('writeTelemetryStart')
   })
 })
 
@@ -223,8 +205,13 @@ describe('D13 cobertura completa (fase-02 + fase-03)', () => {
     'iterate', 'consultant', 'architecture', 'design-twice', 'quick-plan',
   ] as const
 
-  test('all 10 instrumented skills have telemetry blocks (D13 / RF4)', () => {
-    for (const skill of ALL_TEN) {
+  // 2026-08-12 (lote 6a): as 5 consultivas perderam os blocos de prompt; so as 5
+  // pipeline-core ainda os carregam no SKILL.md. `ALL_TEN` continua sendo a lista
+  // canonica da lib e e checada pelo teste seguinte.
+  const PIPELINE_CORE = ['grill-me', 'write-prd', 'plan-feature', 'execute-plan', 'verify-work'] as const
+
+  test('pipeline-core skills still carry telemetry blocks in SKILL.md (D13 / RF4)', () => {
+    for (const skill of PIPELINE_CORE) {
       const skillPath = join('skills', skill, 'SKILL.md')
       const content = readFileSync(skillPath, 'utf-8')
       // DI-01: .or nao e API valida do bun:test — usar OR booleano

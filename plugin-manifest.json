@@ -1,6 +1,6 @@
 {
   "version": "7.5.0",
-  "generatedAt": "2026-08-12T12:39:14.635Z",
+  "generatedAt": "2026-08-12T14:08:58.544Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -679,7 +679,7 @@
     },
     "skills/architecture/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "fa16163ccff79601465b486e9b810be36611e5f47e00eb917e03fbc30136e0c1",
+      "checksum": "3077a95b0952775e611c0f3655c881cc87f85a950b58723820649c4827e7e010",
       "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
@@ -913,7 +913,7 @@
     },
     "skills/consultant/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "5c64b23620524c8b5ce67414aa2009306542acedf05b15455179c188f71b0753",
+      "checksum": "168903b8b29aaffb47d41f04648b58b5106fd690876ea8aee6dab9e67cb721fc",
       "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
@@ -997,7 +997,7 @@
     },
     "skills/design-twice/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "ec1a78b241fdd00f743fdf1a8ca7957b8c9d0057275bdb3a84d4de335c842916",
+      "checksum": "85226e1c33cbc4d7a3b69035ddc69330adcdc147facfbd2105d45b85e3003abb",
       "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
@@ -2023,7 +2023,7 @@
     },
     "skills/iterate/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "1026a51f4c3c9dad8ad794b6c36bc1e0b8b3255ca5b3e8e8e3dc588e6cefae30",
+      "checksum": "a6e8cfe7aeb857735f405d99cab48c0033db3c1f00a285fb2c8e9622a52c6613",
       "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
@@ -2131,8 +2131,8 @@
     },
     "skills/quick-plan/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "74c99ebe00e19d3e973df589c5693c9c6ac9fab7506df6596b97eb8b5a07ea7d",
-      "lastModified": "2026-08-11",
+      "checksum": "32cba3ccc6b9011ce990cf18abd93d5bce1b8234d80e28fd2f35d8065fc4eb54",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/react-patterns/SKILL.md": {
