@@ -437,7 +437,7 @@ Antes de iniciar a verificacao, verificar se `{PASTA_ATIVA}/SUMMARY.md` existe (
 
 ### Cleanup de Artefatos — Arquivamento do PRD
 
-```
+````
 Apos verificacao completa, se a pasta do PRD for detectada (`docs/exec-plans/active/YYYY-MM-DD-{slug}/`):
 
 1. Detectar pasta ativa do PRD:
@@ -524,7 +524,7 @@ Se falha (template nao encontrado, erro de leitura):
    Se mv falhar (permissao, filesystem diferente, etc.):
      - Abortar sem estado parcial (mv e atomico para mesmo filesystem)
      - Mensagem clara sobre o erro
-```
+````
 
 ### Escape Hatches
 - Esta skill e o encerramento do pipeline mas funciona standalone
