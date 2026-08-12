@@ -2,8 +2,8 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** **fase-04 concluida** (lotes 1, 2, 3, 4, 6 e 7). Lote 5 (secoes terminais) segue adiado
-com motivo — ver `AUDIT-REPORT.md` §O que NAO foi feito.
+**Status:** **fase-04 em curso** — lotes 1, 2, 3, 4, 6, 7 e **5a** aplicados. Restam ~4 sub-lotes do
+**5** (secoes de fechamento, pool de 22.364 em 18 skills) — ver `AUDIT-REPORT.md` §S1.
 **Branch:** `feat/writing-for-agents-port` (criada 2026-08-11, a partir de `main`)
 
 ## Progresso
@@ -17,8 +17,8 @@ com motivo — ver `AUDIT-REPORT.md` §O que NAO foi feito.
 
 Lotes aplicados: **1** (`0c964a0`, `357d154`) · **2** (`436dec7`, `e3a33b8`) · **3** (`c61e941`) ·
 **4** (`c3b87d4`, `3328eef`, `497ded2`, `6d71d8e`, `22b9efc`, `184470f`) · **7** (`3bfdb4b`,
-`7d8bea5`) · **6a** (`59bad47`) · **6b** (`057398c`). Lote **5** (secoes terminais) segue adiado
-com motivo medido.
+`7d8bea5`) · **6a** (`59bad47`) · **6b** (`057398c`) · **5a** (`379e10a`). Restante do lote **5**
+aberto, com o pool re-medido.
 
 ### Delta acumulado da fase-04 (medido, nao projetado)
 
@@ -639,6 +639,34 @@ Dividido em 6 sub-lotes por delta decrescente (22 skills nao cabem no cap de 5).
   Bullet, que le `architectureProfile`. O describe `consultivas skills` foi renomeado para
   `architecture SKILL.md`: com um teste so, e sobre architecture, o nome antigo mentia.
   44 → 42 (6a) → **39 testes**, 0 fail.
+
+### fase-04 — lote 5a (3 secoes de fechamento do S1), commit `379e10a`
+
+- **DI-Plano01-fase04-5a-subtipo1-nao-existe**: a auditoria classificou 3 secoes como "reprojecao
+  pura — deletar e seguro". Conferidas item a item, **as tres tem residuo de fonte unica**.
+  `design-twice` bate no numero (11 de 12); `update` e **6 de 8**, nao 7 — o item 6 (backups nunca
+  deletados automaticamente) tambem nao tem twin; e `write-prd` e o pior: os "4 de 4" contam as 4
+  subsecoes numeradas e param **antes** do `### Escape Hatches`, que fica dentro da mesma secao e
+  tem 3 regras sem twin nenhum. **Nenhuma secao do S1 e segura de deletar em bloco.** O resto do
+  lote 5 tem que ser contado item a item, nao classificado por titulo.
+
+- **DI-Plano01-fase04-5a-residuo-sobe-para-o-step**: em vez de deixar stub de um item so, o residuo
+  foi promovido para junto do step a que pertence — item 8 do `design-twice` virou o 6 de
+  `Regras para restricoes`; os dois do `update` foram para o `4.1 Criar Backup` e o fim do
+  `4.2 Aplicar Estrategia`; o `### Escape Hatches` do `write-prd` virou `## Escape Hatches`. Por
+  isso o delta liquido (**−2.635**) e menor que o tamanho das secoes (3.161): 344 chars voltaram.
+
+- **DI-Plano01-fase04-5a-meu-grep-quebrado**: quase reportei o `design-twice` como claim falso da
+  auditoria. O grep usava `\|` com `grep -E` — em ERE isso e pipe **literal**, nao alternacao, e os
+  twins dos itens 3 e 9 (`:112`, `:108`) voltaram vazios. A auditoria estava certa. **Achado
+  negativo por grep so vale depois de provar que o mesmo grep acha um caso positivo conhecido.**
+  Mesma familia do compound `2026-06-05-grep-c-alternation-counts-import-line.md`.
+
+- **DI-Plano01-fase04-5a-pool-e-rotulo**: pool re-medido antes de abrir o lote: **25.527 em 25
+  secoes / 20 skills**, nao os 28.281/28/21 da fase-03 — os lotes 1-7 consumiram ~2.754 (mesmo
+  efeito do S5 no lote 7). E **"terminais" e falso para 21 das 25**: so `design-twice`,
+  `architecture`, `iterate` e `quick-plan` tinham a secao no fim do arquivo. Depois do 5a:
+  **22.364 em 22 secoes / 18 skills**.
 
 ## Pendencias abertas (fase-01)
 

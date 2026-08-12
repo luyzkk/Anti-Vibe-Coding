@@ -78,10 +78,31 @@ Medido mecanicamente: **28 secoes em 21 skills, 28.281 chars.**
 | execute-plan | `## Regras Criticas` (:820) | 951 |
 | ...mais 17 secoes | | 10.149 |
 
+> **Correcao aplicada em 2026-08-12 (sub-lote 5a).** Duas coisas desta secao nao sobreviveram a
+> verificacao. **(a)** O pool encolheu para **25.527 chars em 25 secoes / 20 skills** antes do 5a —
+> os lotes 1-7 consumiram ~2.754, mesmo efeito que o S5 sofreu no lote 7. **(b)** "Terminais" e
+> literalmente falso para **21 das 25**: so `design-twice`, `architecture`, `iterate` e
+> `quick-plan` tinham a secao no fim do arquivo; as outras estao no meio. O padrao real e
+> *secao de fechamento*, nao *secao terminal*.
+
 Nao e uniforme. Tres subtipos, com tratamento diferente:
 
-1. **Reprojecao pura** — todo item tem twin nomeado por linha. `design-twice:351-364` (11 de 12
-   itens), `update:491-500` (7 de 8), `write-prd:397-433` (4 de 4). Deletar e seguro.
+1. ~~**Reprojecao pura** — todo item tem twin nomeado por linha. Deletar e seguro.~~
+   **Categoria vazia — verificada e derrubada no 5a.** Os tres exemplos citados como prova
+   (`design-twice`, `update`, `write-prd`) **todos** carregam residuo de fonte unica. Contagem
+   real, item a item:
+
+   | Skill | Claim | Real | Residuo que morreria |
+   |---|---|---|---|
+   | `design-twice ## Regras` | 11 de 12 | **11 de 12** ✓ | item 8, "qualidade das propostas depende da qualidade das restricoes" — `qualidade` nao aparece no corpo |
+   | `update ## Regras Importantes` | 7 de 8 | **6 de 8** | item 5 (`REVERTER do backup`) **e** item 6 (backups nunca deletados automaticamente) — zero hits para delet/apag/limpar/remover no corpo |
+   | `write-prd ## Pipeline Integration` | 4 de 4 | **4 de 4 nas subsecoes numeradas, 0 de 3 no bloco seguinte** | `### Escape Hatches` inteiro: "funciona standalone", "confirmar antes de descartar o contexto", "voltar a qualquer fase" |
+
+   O erro do `write-prd` e o de maior consequencia da auditoria inteira: os "4 de 4" contam as 4
+   subsecoes numeradas e **param antes** do `### Escape Hatches`, que fica dentro da mesma secao.
+   Cortar o bloco como "seguro" apagaria 3 regras sem twin. O do `update` erra na direcao oposta
+   — subconta o residuo em 1. **Nao existe secao S1 segura de deletar em bloco; toda uma exige
+   contagem item a item.**
 2. **Reprojecao com residuo** — a maioria tem twin, 1-2 itens sao fonte unica. `qa-visual:373-384`
    (8 de 10 com twin), `verify-work:415-436`. Preservar o residuo, cortar o resto.
 3. **Reprojecao que contradiz** — o item nao repete, **diverge**. `iterate:333` diz que a skill nao
@@ -342,13 +363,14 @@ projetado, e `git status` limpo em `skills/` antes de comecar. Ambos satisfeitos
 
 ## Delta real da fase-04
 
-Executada em 2026-08-12, aprovacao humana por lote. **13 commits de codigo, 6 de registro.**
+Executada em 2026-08-12, aprovacao humana por lote. **14 commits de codigo, 7 de registro.**
 Numeros medidos por `bun scripts/audit-skill-docs.ts .` apos cada lote — nao projetados.
 
 | Metrica | Antes | Depois | Delta |
 |---|---|---|---|
 | `descriptionChars` | 13.499 | **9.139** | **−4.360 (−32,3%)** |
 | Corpo dos `SKILL.md` (lote 6) | — | — | **−15.256** (10 skills) |
+| Corpo dos `SKILL.md` (lote 5a) | — | — | **−2.635** (3 skills) |
 | Banner `SessionStart` | 4.131/sessao | **3.757** | −374 |
 | `hookDescriptionChars` | 2.081 | **1.937** | −144 |
 | Maior ofensor | `infrastructure` 792 | **`security` 419** | (crescido de proposito) |
@@ -377,6 +399,7 @@ aparente sobre a projecao, quando o real era +0,6%).
 | 7b | Satelites, npm→bun, S5 | −602 | **−92** |
 | 6a | Telemetria, 5 consultivas | −7.257 | **−7.297** (+40) |
 | 6b | Telemetria, 5 pipeline-core | −7.904 | **−7.959** (+55) |
+| 5a | 3 secoes de fechamento do S1 | — | **−2.635** (residuo preservado) |
 
 Os dois unicos lotes cuja projecao bateu quase exato foram os do 6 — os que contavam **bytes de um
 bloco literal**. Onde a projecao errou feio (3, 7b) ela estimava o efeito de **reescrever prosa**.
@@ -400,8 +423,18 @@ virar patch, por leitura do codigo ou do corpo da skill:
 5. **`api-design`: 1 trigger orfao (`keyset`)** — sao **4** (`keyset`, `HATEOAS`, `filtering`,
    `sorting`). O erro aqui foi por **falta**, nao por excesso.
 
+6. **S1: a categoria "reprojecao pura, deletar e seguro" nao existe** — os 3 exemplos citados como
+   prova todos tinham residuo de fonte unica, e o do `write-prd` escondia um bloco inteiro
+   (`### Escape Hatches`, 3 regras). Ver §S1, correcao do 5a.
+
 Padrao: erro de subagente em **ambas as direcoes**. A verificacao trigger-a-trigger contra o corpo
 foi o unico metodo que pegou os dois tipos.
+
+**E vale para quem verifica tambem.** No 5a eu quase reportei o `design-twice` como claim falso: o
+grep usava `\|` com `grep -E`, onde isso e pipe **literal**, nao alternacao — os twins dos itens 3 e
+9 existiam (`:108`, `:112`) e voltaram vazios. Mesma familia do compound
+`2026-06-05-grep-c-alternation-counts-import-line.md`. **Achado negativo por grep so vale depois de
+provar que o grep acha o caso positivo.**
 
 ### O que NAO foi feito, e por que
 
@@ -419,7 +452,7 @@ foi o unico metodo que pegou os dois tipos.
 
 | Item | Volume medido | Por que ficou |
 |---|---|---|
-| **Lote 5 — secoes terminais (S1, subtipos 1 e 2)** | pool de 28.281 chars, 21 skills | Maior pool da auditoria, mas o subtipo 2 tem **residuo de fonte unica** que morre se cortado em bloco. Exige conferir twin linha a linha em 21 skills (~5 sub-lotes). O subtipo 3 (contradicoes) ja saiu no lote 1 |
+| **Lote 5 — secoes de fechamento (S1)** — **5a aplicado** (`379e10a`), resto aberto | pool re-medido: **22.364 chars, 22 secoes, 18 skills** (era 25.527/25/20 antes do 5a) | O 5a confirmou o motivo do adiamento: **os tres exemplos de "deletar e seguro" tinham residuo**. Exige contagem item a item, ~4 sub-lotes restantes. Maior peca isolada: `verify-work ## Pipeline Integration`, 6.036 chars (27% do pool restante). O subtipo 3 (contradicoes) ja saiu no lote 1 |
 | ~~**Lote 6 — telemetria (S2)**~~ **CONCLUIDO** (`59bad47` + `057398c`) | **−15.256 medidos**, 20 blocos em 10 skills | A superficie de teste era mesmo **maior que este relatorio supunha** — 5 testes em 3 describes, nao a linha unica. Confirmado tambem que **a lib nao sai junto**: `emit-stack-knowledge-events.ts:5` usa `writeTelemetryDomainEvent`. Morto era so o prompt. Deixa 5 exports sem caller — ver achado abaixo |
 | **Lista das 23 skills no hook** | 1.981 chars, 53% do banner | G1 multiplicado por 23. Se a descoberta depender so das descriptions e a premissa estiver errada, 23 skills param de disparar **em silencio**. A lista tambem carrega o protocolo "SEMPRE pergunte antes de invocar", ausente das descriptions. Precisa de verificacao real de descoberta, nao de coragem |
 | **Negacoes (pool de 1.148)** | julgamento caso a caso | O pool e em pt-BR: `\bnao\b` casa prosa comum. Contar seria transformar ruido em achado |
