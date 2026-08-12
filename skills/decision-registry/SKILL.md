@@ -1,6 +1,6 @@
 ---
 name: decision-registry
-description: "This skill should be used when the user asks to 'register a decision', 'log an architectural choice', 'add ADR', 'list decisions', 'query past decisions', or wants to track Architecture Decision Records (ADRs) for the project. Manages the project's decision history with alternatives and justifications."
+description: "Registro de decisoes arquiteturais (ADR) do projeto, com alternativas e justificativa. Use ao registrar uma decisao, listar as existentes, ou consultar decisoes passadas."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob, Write, Edit

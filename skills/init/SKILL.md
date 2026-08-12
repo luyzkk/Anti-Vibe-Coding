@@ -1,6 +1,6 @@
 ---
 name: init
-description: "This skill should be used when the user asks to 'initialize anti-vibe', 'setup anti-vibe coding', 'add anti-vibe to project', 'configure anti-vibe', or wants to onboard a project into the Anti-Vibe Coding methodology. Handles first-time setup with intelligent CLAUDE.md merge, rules deployment, and decisions registry initialization."
+description: "Onboarding de um projeto no Anti-Vibe Coding: monta o scaffold do harness, espelha CLAUDE.md/AGENTS.md, migra artefatos legados e gera o plano de populate. Use ao inicializar ou configurar o Anti-Vibe num projeto."
 user-invocable: true
 allowed-tools: Read, Grep, Glob, Write, Edit, Bash, AskUserQuestion
 argument-hint: "[project path (default: current directory)]"
