@@ -1,6 +1,6 @@
 {
   "version": "7.5.0",
-  "generatedAt": "2026-08-12T11:38:31.478Z",
+  "generatedAt": "2026-08-12T11:47:39.611Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -19,7 +19,7 @@
       "path": "skills/architecture/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "This skill should be used when the user asks about 'SOLID principles', 'monolith vs microservices', 'CQRS', 'event sourcing', 'REST vs GraphQL', 'tech stack selection', 'architecture decision', 'ADR', 'design patterns', 'Law of Demeter', 'Tell-Don't-Ask', 'composition vs inheritance', 'dependency injection', 'DI', 'IoC container', 'constructor injection', or faces architectural trade-off decisions. Provides senior-level architecture consultation with explicit trade-off analysis."
+      "description": "Consultoria de arquitetura com trade-off explicito. Use ao decidir SOLID, monolito vs microservicos, CQRS e event sourcing, REST vs GraphQL, escolha de stack, principios de design (Lei de Demeter, Tell-Don't-Ask, composicao vs heranca), ou injecao de dependencia."
     },
     "centralize-config": {
       "path": "skills/centralize-config/",
@@ -85,7 +85,7 @@
       "path": "skills/enhance-prompt/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "This skill should be used when the user asks to 'enhance my prompt', 'optimize start.md', 'add anti-vibe to my plans', 'improve my execution prompt', 'prepare tasks for automation', 'add skills to tasks', or wants to integrate Anti-Vibe Coding into their existing plan/task structure for automated execution by Claude Code."
+      "description": "Integra o Anti-Vibe Coding numa estrutura de plano/task existente, para execucao automatizada pelo Claude Code. Use ao pedir enhance do prompt de execucao, ou ao preparar tasks para automacao."
     },
     "execute-plan": {
       "path": "skills/execute-plan/",
@@ -133,7 +133,7 @@
       "path": "skills/iterate/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "Ciclo pos-deploy: incident response com regression test, hardening defensivo e centralizacao de config. A quarta pata do pipeline: Ensinar → Planejar → Verificar → Iterar. Use quando um bug foi relatado em producao ou quando uma feature estavel esta pronta para hardening."
+      "description": "Ciclo pos-deploy: incident response com regression test, hardening defensivo e centralizacao de config. Use quando um bug foi relatado em producao, ou quando uma feature estavel esta pronta para hardening."
     },
     "learn": {
       "path": "skills/learn/",
@@ -151,7 +151,7 @@
       "path": "skills/pair-programming-with-agent/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "Tutorial da dinâmica 'humano navega, agente pilota'. Quando interromper o agente, como injetar contexto de domínio, tabela Akita de capacidades (faz bem / faz mal), e exemplos reais de interrupção por over-engineering, contexto insuficiente e decisão conjunta."
+      "description": "Tutorial da dinâmica 'humano navega, agente pilota': hierarquia de confiança dos arquivos de contexto, tabela Akita de capacidades, quando interromper o agente e como injetar contexto de domínio."
     },
     "parity-audit": {
       "path": "skills/parity-audit/",
@@ -193,7 +193,7 @@
       "path": "skills/source-driven-development/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "Source-Driven Development: ancora cada decisao de implementacao em documentacao oficial. Use para codigo framework-especifico onde correcao importa. Diferente de consultant (que ensina trade-offs), SDD CITA fontes canonicas. Usa hierarquia docs oficiais > changelog > MDN; Stack Overflow nunca primaria; pattern UNVERIFIED quando doc nao encontrada."
+      "description": "Source-Driven Development: ancora cada decisao de implementacao em documentacao oficial, citando a fonte. Use para codigo framework-especifico onde correcao importa mais que velocidade."
     },
     "sync": {
       "path": "skills/sync/",
@@ -679,8 +679,8 @@
     },
     "skills/architecture/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "0a8db3c78c2c741da083593337cdffff4db561e033bfdacb2e02da89ef6df8e6",
-      "lastModified": "2026-05-17",
+      "checksum": "fa16163ccff79601465b486e9b810be36611e5f47e00eb917e03fbc30136e0c1",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/architecture/references/api-architecture.md": {
@@ -1027,8 +1027,8 @@
     },
     "skills/enhance-prompt/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "4c16de0485be424f99e0aeae1e50fd85af3cd46cd39b95b8a2da52fbcf46ab48",
-      "lastModified": "2026-06-05",
+      "checksum": "8ef82db3ed682eae774188a0034853befa550e23c56246bde38063df6d939d39",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/execute-plan/SKILL.md": {
@@ -2023,8 +2023,8 @@
     },
     "skills/iterate/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "eecd3438b90ee838a0682201993b1f023a95fcb02262e9b374aaaf2d0ef03ed6",
-      "lastModified": "2026-08-11",
+      "checksum": "1026a51f4c3c9dad8ad794b6c36bc1e0b8b3255ca5b3e8e8e3dc588e6cefae30",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/learn/SKILL.md": {
@@ -2047,8 +2047,8 @@
     },
     "skills/pair-programming-with-agent/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "d90c038a163a8c0f15bf9d330ba5f1d668d930c607520509bf2cd9b6570770bc",
-      "lastModified": "2026-06-05",
+      "checksum": "93d109599b8042c13016efd2c6273c1e1b76fbb16fac6353aa2bfebca15689c9",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/parity-audit/SKILL.md": {
@@ -2221,8 +2221,8 @@
     },
     "skills/source-driven-development/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "1adf1ec351cd679047202f02bea08982b20602aaf6cd8e4bfbcece6aa7fa54ae",
-      "lastModified": "2026-06-05",
+      "checksum": "8cdb186afddb6a3f0f7ff9a1ea25d9eacd479c7bf197f9d7a5e7bf0b83ad10d0",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/sync/SKILL.md": {
