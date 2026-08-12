@@ -1,6 +1,6 @@
 ---
 name: consultant
-description: "Phase Zero consultation for uncertain decisions, trade-off analysis, and irreversible choices. Use when facing database schema design, auth pattern selection, critical library choices, infrastructure decisions, or when the user asks 'how should I implement', 'best approach', 'which pattern'. Teaches before coding — presents options with pros/cons instead of jumping to implementation."
+description: "Fase Zero: consultoria para decisao incerta, trade-off e escolha irreversivel. Use ao enfrentar schema de banco, padrao de auth, escolha de biblioteca ou de infra — ou quando a pergunta e 'como implementar', 'melhor abordagem', 'qual pattern'."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob, WebSearch

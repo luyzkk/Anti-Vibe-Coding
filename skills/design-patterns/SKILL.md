@@ -1,6 +1,6 @@
 ---
 name: design-patterns
-description: "This skill should be used when the user asks about 'code smells', 'code quality', 'Result Pattern', 'error handling patterns', 'structured logging', 'domain types', 'JavaScript internals', 'closures', 'event loop', 'race conditions', 'design patterns', 'GoF', 'Observer pattern', 'Factory pattern', 'Singleton', 'Decorator', 'Strategy pattern', 'Adapter', or requests a code quality analysis. Provides expert consultation on 26 code quality concepts covering code smells, error handling, logging, domain modeling, GoF design patterns, and JavaScript/TypeScript advanced patterns."
+description: "Consultoria de qualidade de codigo — 26 conceitos. Use ao investigar code smells, error handling (Result Pattern), structured logging, tipos de dominio, internals de JavaScript/TypeScript (closures, event loop), race conditions, ou patterns GoF (Observer, Factory, Singleton, Decorator, Strategy, Adapter)."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob, WebSearch
