@@ -380,7 +380,9 @@ projetado, e `git status` limpo em `skills/` antes de comecar. Ambos satisfeitos
 
 ## Delta real da fase-04
 
-Executada em 2026-08-12, aprovacao humana por lote. **14 commits de codigo, 7 de registro.**
+Executada em 2026-08-12, aprovacao humana por lote. **17 commits de codigo, 11 de registro**
+(contados por `git log 0c964a0^..HEAD`; a versao anterior desta linha dizia 11/5 e depois 14/7 —
+ambos errados, vinham de contar lotes em vez de commits).
 Numeros medidos por `bun scripts/audit-skill-docs.ts .` apos cada lote — nao projetados.
 
 | Metrica | Antes | Depois | Delta |
@@ -388,6 +390,8 @@ Numeros medidos por `bun scripts/audit-skill-docs.ts .` apos cada lote — nao p
 | `descriptionChars` | 13.499 | **9.139** | **−4.360 (−32,3%)** |
 | Corpo dos `SKILL.md` (lote 6) | — | — | **−15.256** (10 skills) |
 | Corpo dos `SKILL.md` (lote 5a) | — | — | **−2.635** (3 skills) |
+| Corpo dos `SKILL.md` (lote 5b) | — | — | **−1.450** (3 skills) |
+| **Corpo, total da fase** | — | — | **−19.341** (13 skills tocadas) |
 | Banner `SessionStart` | 4.131/sessao | **3.757** | −374 |
 | `hookDescriptionChars` | 2.081 | **1.937** | −144 |
 | Maior ofensor | `infrastructure` 792 | **`security` 419** | (crescido de proposito) |
@@ -396,7 +400,7 @@ Numeros medidos por `bun scripts/audit-skill-docs.ts .` apos cada lote — nao p
 | Negacoes no corpo | 1.148 | **1.138** | −10 (os guard comments do lote 6) |
 
 A projecao deste relatorio era o repo terminar em **~9.475**. Fechou em **9.139**. Somando o corpo
-cortado pelo lote 6, a fase-04 tirou **~19,6k chars** do que o agente carrega.
+cortado pelos lotes 6, 5a e 5b, a fase-04 tirou **~23,7k chars** do que o agente carrega.
 
 **Como medir delta de corpo neste repo:** em LF, contra os blobs
 (`git show <sha>:<path> | wc -c`), **nunca** com `wc -c` no working tree. `core.autocrlf=true` e o
@@ -470,7 +474,7 @@ provar que o grep acha o caso positivo.**
 
 | Item | Volume medido | Por que ficou |
 |---|---|---|
-| **Lote 5 — secoes de fechamento (S1)** — **5a** (`379e10a`) e **5b** (`a45c04c`) aplicados, resto aberto | pool nominal **20.938**; real **~12,9k** depois de tirar `verify-work` (5.895 de fonte unica), os `### Escape Hatches` (1.130) e os 2 blocos `<constraints>` (2.005) | Tres verificacoes seguidas renderam menos que o relatorio previa: o subtipo 1 nao existia (5a), a maior entrada era falso positivo (5b recusado) e o ratio real de reprojecao e **56%**, nao ~90% (5b aplicado). O que resta sao ~12 secoes de 275 a 1.4k, cada uma exigindo contagem item a item para render ~50%. **Rendimento esperado do lote 5 inteiro: ~6k, nao 28k.** O subtipo 3 (contradicoes) ja saiu no lote 1 |
+| ~~**Lote 5 — secoes de fechamento (S1)**~~ **FECHADO por decisao do humano em 2026-08-12**, com **5a** (`379e10a`) e **5b** (`a45c04c`) aplicados | rendeu **−4.085**; deixa ~20.938 nominais / **~12,9k reais** na mesa | **Fechado por rendimento medido, nao por estar completo.** Tres verificacoes seguidas renderam menos que este relatorio previa: o subtipo 1 nao existia (5a), a maior entrada da tabela era falso positivo (`verify-work`, 5b recusado) e o ratio real de reprojecao e **56%**, nao ~90% (5b aplicado). O que sobra sao ~12 secoes de 275 a 1.1k chars, cada uma exigindo contagem item a item para render ~50% — **~6k no total, contra risco de derrubar regra viva em lista de regras**. O subtipo 3 (contradicoes) ja tinha saido no lote 1. Reabrir exige medir de novo: a estimativa de 28.281 nunca se sustentou |
 | ~~**Lote 6 — telemetria (S2)**~~ **CONCLUIDO** (`59bad47` + `057398c`) | **−15.256 medidos**, 20 blocos em 10 skills | A superficie de teste era mesmo **maior que este relatorio supunha** — 5 testes em 3 describes, nao a linha unica. Confirmado tambem que **a lib nao sai junto**: `emit-stack-knowledge-events.ts:5` usa `writeTelemetryDomainEvent`. Morto era so o prompt. Deixa 5 exports sem caller — ver achado abaixo |
 | **Lista das 23 skills no hook** | 1.981 chars, 53% do banner | G1 multiplicado por 23. Se a descoberta depender so das descriptions e a premissa estiver errada, 23 skills param de disparar **em silencio**. A lista tambem carrega o protocolo "SEMPRE pergunte antes de invocar", ausente das descriptions. Precisa de verificacao real de descoberta, nao de coragem |
 | **Negacoes (pool de 1.148)** | julgamento caso a caso | O pool e em pt-BR: `\bnao\b` casa prosa comum. Contar seria transformar ruido em achado |
