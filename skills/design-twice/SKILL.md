@@ -94,6 +94,17 @@ Selecionar dominio baseado nas constraints coletadas (ver secao abaixo).
 | B | "Client-rich. Optimistic updates, offline support, local state." | Client-centric |
 | C | "Progressive. Works without JS, enhanced with it. Accessibility first." | Progressive |
 
+### Dominio 5: Interface de Modulo
+**Quando usar:** o que esta em jogo e o que **uma peca expoe** — assinatura, encapsulamento, onde a fronteira fica. Dominio 1 decide como as pecas se organizam; este decide o que uma delas mostra.
+
+| Agente | Restricao (enviada ao subagente) | Filosofia |
+|--------|----------------------------------|-----------|
+| A | "Minimize a interface: no maximo 1-3 pontos de entrada. Maximize leverage por ponto que o caller precisa aprender." | Deep radical |
+| B | "Otimize para o caller mais comum. Torne o caso default trivial, mesmo que o caso raro fique verboso." | Caller-first |
+| C | "Desenhe em torno de ports & adapters: assuma que a dependencia atravessa um seam e precisa de dois adapters, producao e teste." | Ports & adapters |
+
+"Maximize flexibility" fica de fora de proposito: em interface ela converge com C e violaria a regra 1. Neste dominio o brief cita [deep-modules](../tdd-workflow/references/deep-modules.md) para as 3 propostas nomearem igual; `tradeoffs[].axis` usa **depth**, **locality** e **seam**; e `human_readable` carrega duas secoes — *Interface completa* (invariantes, restricoes de ordem, modos de erro, config obrigatoria — nao so tipos) e *Atras do seam* (o que fica escondido, e qual das 4 categorias de dependencia decide a estrategia de teste).
+
 ### Heuristicas de Selecao de Dominio
 
 | Sinal nas constraints | Dominio recomendado |
@@ -102,6 +113,7 @@ Selecionar dominio baseado nas constraints coletadas (ver secao abaixo).
 | "Qual lib usar", framework, tool, dependency | Escolha de Tecnologia |
 | "Modelo de dados", schema, tabelas, relacoes, banco | Schema de Dados |
 | "Tela", componente, UI, layout, formulario, pagina | Frontend |
+| "Que interface expor", assinatura, encapsulamento, o que esconder, onde por a fronteira | Interface de Modulo |
 | Multiplos sinais | Usar dominio MAIS relevante ou perguntar ao dev |
 
 Se o problema nao encaixa em nenhum dominio dominante, gerar as 3 restricoes a partir do menu de `## Divergence Lenses` (escolher 3 lentes que produzam direcoes estruturalmente diferentes — ex: Inversion + Simplification + 10x). Catalogo completo em `references/divergence-lenses.md`.
