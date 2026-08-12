@@ -1,6 +1,6 @@
 {
   "version": "7.5.0",
-  "generatedAt": "2026-08-12T17:51:07.586Z",
+  "generatedAt": "2026-08-12T18:44:06.462Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -338,7 +338,7 @@
     "hooks/hooks.json": {
       "version": "7.5.0",
       "checksum": "595c29c5c7a1fb2d66ac5da9e03504b9f1829e5b74ce4257deaf913f25e87c71",
-      "lastModified": "2026-08-11",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "hooks/pre-mutation-gate.cjs": {
@@ -536,7 +536,7 @@
     "scripts/audit-skill-docs.ts": {
       "version": "7.5.0",
       "checksum": "51b70f30cf2debd8a9d589d69831299f44c02912404e5642e0f9b3ffd7c13038",
-      "lastModified": "2026-08-11",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "scripts/bump-version.js": {
@@ -565,8 +565,8 @@
     },
     "scripts/harness-validate.ts": {
       "version": "7.5.0",
-      "checksum": "50198ecd6139084c8cee0edf25605f39e886dfe0f06c946138276aa57e50d8be",
-      "lastModified": "2026-08-11",
+      "checksum": "3e27b0f02dcd398e3b58e5db50324e6a19ad1e4822e816c6711f279738e8ac92",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "scripts/init-cli.ts": {
@@ -1016,7 +1016,7 @@
     "skills/doubt-driven-development/SKILL.md": {
       "version": "7.5.0",
       "checksum": "904455bf96bc46c9684c951d101227a5088c4c63fec865803eb3f4f14c937c81",
-      "lastModified": "2026-08-11",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/doubt-driven-development/references/orchestration-patterns.md": {
@@ -1046,7 +1046,7 @@
     "skills/git-workflow-and-versioning/SKILL.md": {
       "version": "7.5.0",
       "checksum": "98a9c4270fa682bd4f164eb8910a43edd5db75276e156613c3cce45896c34d69",
-      "lastModified": "2026-08-11",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/grill-me/SKILL.md": {
@@ -1070,7 +1070,7 @@
     "skills/infrastructure/SKILL.md": {
       "version": "7.5.0",
       "checksum": "cd12af01f3de2a9046ddf2874f5849b8ba98427d41227b212193797eabc2f199",
-      "lastModified": "2026-08-11",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/infrastructure/references/deployment-patterns.md": {
@@ -2030,12 +2030,12 @@
     "skills/learn/SKILL.md": {
       "version": "7.5.0",
       "checksum": "88bc933f55ff058535dbfe9e1520843c181b1344ec1f9a398091e8d16e9f6854",
-      "lastModified": "2026-08-11",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/lessons-learned/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "6a5c5e3e0909b9db983540a20ec8683c6597e9a78daf637a1f593d2e9c20a353",
+      "checksum": "8630d8f0cd18df5aadbb6c3811f0795decbd440c3e75f817f7ecaa56ed91efbc",
       "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
@@ -2138,7 +2138,7 @@
     "skills/react-patterns/SKILL.md": {
       "version": "7.5.0",
       "checksum": "d60ce0c19cca072aa9584b1ab3ea440360096de029bbd924e35dc659e601f32e",
-      "lastModified": "2026-08-11",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/react-patterns/references/data-fetching.md": {
@@ -2234,7 +2234,7 @@
     "skills/system-design/SKILL.md": {
       "version": "7.5.0",
       "checksum": "b2eeeb18831ad2fab2a2e898b2c47cd132b8867ac079569e375b0775ba064672",
-      "lastModified": "2026-08-11",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/system-design/references/cache-strategies.md": {
@@ -2408,13 +2408,13 @@
     "skills/writing-for-agents/SKILL.md": {
       "version": "7.5.0",
       "checksum": "4877a753d93ff16e7a408647d5dd88a9faf0977c543264b1c6ecdc255e2f1e7a",
-      "lastModified": "2026-08-11",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/writing-for-agents/references/SKILL-MECHANICS.md": {
       "version": "7.5.0",
       "checksum": "248eba48b061d40523ef43153d999bd2f56beef66791fcf398da918eac19a9f5",
-      "lastModified": "2026-08-11",
+      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/lib/adr-writer.ts": {
