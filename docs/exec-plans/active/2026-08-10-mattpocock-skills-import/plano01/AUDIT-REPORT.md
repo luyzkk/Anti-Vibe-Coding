@@ -345,6 +345,10 @@ projetado, e `git status` limpo em `skills/` antes de comecar. Ambos satisfeitos
 Executada em 2026-08-12, aprovacao humana por lote. **11 commits de codigo, 5 de registro.**
 Numeros medidos por `bun scripts/audit-skill-docs.ts .` apos cada lote — nao projetados.
 
+> **Estado desta secao: pre-lote-6.** O lote **6a** (`59bad47`) ja entrou e nao move nenhuma linha
+> da tabela abaixo — corta corpo, nao description. Esta secao e reescrita ao fim do lote 6, com 6a
+> e 6b juntos.
+
 | Metrica | Antes | Depois | Delta |
 |---|---|---|---|
 | `descriptionChars` | 13.499 | **9.139** | **−4.360 (−32,3%)** |
@@ -404,7 +408,7 @@ foi o unico metodo que pegou os dois tipos.
 | Item | Volume medido | Por que ficou |
 |---|---|---|
 | **Lote 5 — secoes terminais (S1, subtipos 1 e 2)** | pool de 28.281 chars, 21 skills | Maior pool da auditoria, mas o subtipo 2 tem **residuo de fonte unica** que morre se cortado em bloco. Exige conferir twin linha a linha em 21 skills (~5 sub-lotes). O subtipo 3 (contradicoes) ja saiu no lote 1 |
-| **Lote 6 — telemetria (S2)** | **15.591 chars**, 2 blocos em 10 skills | Comprovadamente morta, mas a superficie de teste e **maior que o relatorio supunha**: `telemetry-utils.test.ts` tem 44 testes e ao menos 2 grupos (`consultiva`, `pipeline-core`) com assertions em `:192`, `:202`, `:211`, `:228`, `:568` — nao a linha unica projetada |
+| ~~**Lote 6 — telemetria (S2)**~~ **6a aplicado** (`59bad47`), **6b pendente** | 6a: **−7.527 medidos** nas 5 consultivas. 6b: 5 pipeline-core, ~−7.9k projetados | A superficie de teste era mesmo **maior que este relatorio supunha** — 5 testes em 3 describes, nao a linha unica. Confirmado tambem que **a lib nao sai junto**: `emit-stack-knowledge-events.ts:5` usa `writeTelemetryDomainEvent`. Morto e so o prompt |
 | **Lista das 23 skills no hook** | 1.981 chars, 53% do banner | G1 multiplicado por 23. Se a descoberta depender so das descriptions e a premissa estiver errada, 23 skills param de disparar **em silencio**. A lista tambem carrega o protocolo "SEMPRE pergunte antes de invocar", ausente das descriptions. Precisa de verificacao real de descoberta, nao de coragem |
 | **Negacoes (pool de 1.148)** | julgamento caso a caso | O pool e em pt-BR: `\bnao\b` casa prosa comum. Contar seria transformar ruido em achado |
 
@@ -421,6 +425,28 @@ foi o unico metodo que pegou os dois tipos.
 - **Hardcodar gerenciador de pacote em skill distribuida** e fragil nos dois sentidos: `bun run test`
   quebra em projeto-alvo que usa npm, tanto quanto `npm test` quebrava aqui. A regra da lente manda
   deixar o lookup de um comando para o environment. Alinhado com as irmas por ora (3 skills).
+- **O lote 6 deixa 5 exports de `skills/lib/telemetry-utils.ts` sem caller — nao 4, e nao agora.**
+  Achado do 6a, **registrado e nao aplicado**. Verificado por grep sobre `.ts`/`.js`/`.json`/`.md`
+  fora de `node_modules`:
+
+  | Export | Situacao apos o lote 6 | Evidencia |
+  |---|---|---|
+  | `INSTRUMENTED_SKILLS` | orfao **hoje** | zero referencia em runtime, inclusive dentro da propria lib — `inferFasePipeline` le `SKILL_TO_FASE`, nao esta constante. So o teste asserta o length |
+  | `writeTelemetryStart` | orfao **depois do 6b** | ainda aparece nos 5 `SKILL.md` pipeline-core |
+  | `writeTelemetryEnd` | orfao **depois do 6b** | idem |
+  | `serializeEntry` | orfao **depois do 6b** — nao estava na lista | usado so por start/end (`:89`, `:113`). O comentario em `:137` diz explicitamente que `writeTelemetryDomainEvent` **nao** o reutiliza |
+  | `inferFasePipeline` | orfao **hoje** | zero caller; morre junto com `SKILL_TO_FASE` |
+
+  **Sobrevivem:** `writeTelemetryDomainEvent` (caller real em
+  `skills/init/lib/emit-stack-knowledge-events.ts:5`) e, com ele, `computeMonthlyPath` (`:145`) e
+  `appendJsonlLine` (`:146`) — esses dois nao tem caller **externo**, mas sao usados dentro da lib.
+  Viram internos sem `export`, nao delecoes.
+
+  Duas condicoes para o lote de limpeza: **(a)** so depois do 6b, senao start/end ainda estao
+  citados em 5 `SKILL.md`; **(b)** `docs/TELEMETRY.md` e `skills/lib/telemetry-utils.md` documentam
+  a API inteira — cortar export sem toca-los cria o ponteiro morto (S3) que o lote 2 acabou de
+  limpar.
+
 - **A lista de 22 descriptions deste relatorio nao era exaustiva.** Ao terminar as 22, os 4 maiores
   ofensores do repo eram skills que ela nunca listou (`design-patterns` 579, `consultant` 386,
   `security` 386, `defensive-patterns` 362) — dai o lote 4f. **Proxima auditoria: re-ranquear depois

@@ -2,8 +2,9 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** **fase-04 concluida** (lotes 1, 2, 3, 4 e 7). Lotes 5 e 6 adiados com motivo — ver
-`AUDIT-REPORT.md` §O que NAO foi feito. Plano 01 pronto para PR.
+**Status:** **fase-04 em curso** — lotes 1, 2, 3, 4, 7 e **6a** aplicados. Falta o **6b** (a metade
+pipeline-core do lote 6). Lote 5 (secoes terminais) segue adiado com motivo — ver
+`AUDIT-REPORT.md` §O que NAO foi feito.
 **Branch:** `feat/writing-for-agents-port` (criada 2026-08-11, a partir de `main`)
 
 ## Progresso
@@ -17,7 +18,7 @@ Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
 Lotes aplicados: **1** (`0c964a0`, `357d154`) · **2** (`436dec7`, `e3a33b8`) · **3** (`c61e941`) ·
 **4** (`c3b87d4`, `3328eef`, `497ded2`, `6d71d8e`, `22b9efc`, `184470f`) · **7** (`3bfdb4b`,
-`7d8bea5`). Lotes **5** (secoes terminais) e **6** (telemetria) adiados com motivo medido.
+`7d8bea5`) · **6a** (`59bad47`). Lote **5** (secoes terminais) segue adiado com motivo medido.
 
 ### Delta acumulado da fase-04 (medido, nao projetado)
 
@@ -31,6 +32,10 @@ Lotes aplicados: **1** (`0c964a0`, `357d154`) · **2** (`436dec7`, `e3a33b8`) ·
 
 A auditoria projetou o repo terminando em **~9.475**; fechou em **9.231**. A cauda longa de
 outliers acabou: depois do 419, a distribuicao e 338 / 306 / 305 / 299.
+
+O lote **6a** nao mexe em nenhuma metrica desta tabela — corta **corpo**, nao description. Delta
+dele: **−7.527 chars** nos 5 `SKILL.md` (72.241 → 64.714 bytes). Unica metrica do audit que se
+moveu: `negacoes no corpo` 1.148 → **1.143**, os 5 `nao` do guard comment removido.
 
 Modo de aprovacao escolhido pelo humano: **por lote**, com a lista do lote na tela antes de aplicar
 (a alternativa era por achado, ~70 pausas). Lote 1 do relatorio virou **1a + 1b** — ver DI abaixo.
@@ -564,6 +569,39 @@ Dividido em 6 sub-lotes por delta decrescente (22 skills nao cabem no cap de 5).
   tanto quanto `npm test` falhava aqui. A regra da lente manda deixar o lookup de um comando para o
   environment (`package.json`). Nao inventei uma terceira convencao em 3 skills; fica como achado
   aberto no `AUDIT-REPORT.md`.
+
+### fase-04 — lote 6a (telemetria, metade consultiva), commit `59bad47`
+
+- **DI-Plano01-fase04-guard-comment-e-condicao-nao-veto**: cada bloco abria com "nao remover sem
+  registrar em MEMORY.md". Isso e uma **condicao**, nao um veto: esta secao a satisfaz. Registrado
+  porque o texto do guard e facil de ler como proibicao e ja tinha travado o lote uma vez.
+
+- **DI-Plano01-fase04-lib-viva-prompt-morto**: o relatorio tratava "telemetria" como uma coisa so.
+  Sao duas. O **prompt** esta morto — `SKILL.md` nao executa (compound `2026-05-12`),
+  `grep -c telemetry hooks/hooks.json` = **0**, e nenhum arquivo em `scripts/`, `hooks/` ou `tests/`
+  cita os simbolos. A **lib** esta viva: `skills/init/lib/emit-stack-knowledge-events.ts:5` importa
+  `writeTelemetryDomainEvent`. Removi so os blocos.
+
+- **DI-Plano01-fase04-superficie-de-teste-5-nao-1**: o brief original falava em "leva
+  `telemetry-utils.test.ts:192` junto" — **uma** linha. Sao **5 testes em 3 describes**. Removidos
+  os 2 smoke de `consultivas` (`:192`, `:202`); mantido `architecture skill preserves Tracer Bullet`
+  sem a assertion de `writeTelemetryStart` (o `architectureProfile` que ele protege vive no bloco
+  `profile-aware-preface`, intocado); `all 10 instrumented skills` estreitado para as 5
+  pipeline-core e **renomeado** — um teste chamado "all 10" que checa 5 e exatamente o rotulo
+  enganoso que a lente combate. Nao tocados: `exactly 10 skills are instrumented` (asserta a
+  constante da lib, nao `SKILL.md`) e o `runtime smoke`. 44 → **42 testes**, 0 fail.
+
+- **DI-Plano01-fase04-medido-acima-do-projetado**: projetado **−7.257**, medido **−7.527** (+270).
+  A diferenca e explicada byte a byte: cada bloco 1 repete o nome da skill em 2 sites
+  (`__telemetry_skillName` e `__telemetry_fasePipeline`), entao o custo por skill e
+  `1.485 + 2 × len(nome)`. `iterate` 1.499 · `consultant` 1.505 · `architecture` 1.509 ·
+  `design-twice` 1.509 · `quick-plan` 1.505. **O 6b deve vir acima do projetado tambem.**
+
+- **DI-Plano01-fase04-ancora-de-conteudo-nao-linha**: os 10 patches foram ancorados em conteudo
+  (`---` + heading seguinte; prosa terminal + fence), nunca em numero de linha — o bloco 1 sai
+  primeiro e desloca todo o resto do arquivo. Em `architecture` isso e critico: o fence de
+  fechamento da telemetria e vizinho de `<!-- profile-aware-preface:start -->`, que e load-bearing
+  (`scripts/harness-validate.ts:643`). Verificado depois: `harness:validate` passa, 361 md.
 
 ## Pendencias abertas (fase-01)
 
