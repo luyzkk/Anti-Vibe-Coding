@@ -1872,320 +1872,315 @@
       "descriptionChars": 250,
       "descriptionLineChars": 265,
       "quotedTriggerCount": 0,
-      "bodyLines": 916,
+      "bodyLines": 868,
       "negations": [
         {
-          "line": 11,
-          "term": "nao",
-          "text": "// === Telemetria passiva (Plano 03 fase-02) — nao remover sem registrar em MEMORY.md ==="
-        },
-        {
-          "line": 100,
+          "line": 75,
           "term": "nao",
           "text": "   Proxima invocacao detecta status: completed em active/ e ignora (nao re-executa)."
         },
         {
-          "line": 116,
+          "line": 91,
           "term": "nao",
           "text": "1. Se `.planning/` nao existe: skip — ir para Step 1."
         },
         {
-          "line": 128,
+          "line": 103,
           "term": "nao",
           "text": "        Portanto esse caso nao chega aqui — PLAN.md flat puro nao eh legacy pelo algoritmo."
         },
         {
-          "line": 128,
+          "line": 103,
           "term": "nao",
           "text": "        Portanto esse caso nao chega aqui — PLAN.md flat puro nao eh legacy pelo algoritmo."
         },
         {
-          "line": 141,
+          "line": 116,
           "term": "Nao",
           "text": "      - \"Nao — executar legacy em modo v1 a partir de .planning/ raiz (nao migra)\""
         },
         {
-          "line": 141,
+          "line": 116,
           "term": "nao",
           "text": "      - \"Nao — executar legacy em modo v1 a partir de .planning/ raiz (nao migra)\""
         },
         {
-          "line": 147,
+          "line": 122,
           "term": "Nao",
           "text": "   h. Se \"Nao — legacy v1\":"
         },
         {
-          "line": 151,
+          "line": 126,
           "term": "nao",
           "text": "      - Nota: na proxima invocacao, Step 0 vai perguntar de novo (nao ha estado entre sessoes)"
         },
         {
-          "line": 157,
+          "line": 132,
           "term": "Nao",
           "text": "- \"Nao (legacy v1)\" vale SO para esta invocacao"
         },
         {
-          "line": 159,
+          "line": 134,
           "term": "nao",
           "text": "Nota sobre CA-12 (projeto em execucao nao interrompido):"
         },
         {
-          "line": 176,
+          "line": 151,
           "term": "NAO",
           "text": "Se NAO forneceu caminho:"
         },
         {
-          "line": 178,
+          "line": 153,
           "term": "nao",
           "text": "     - Pastas em `docs/exec-plans/completed/` ficam fora (estado terminal — nao listadas no default)"
         },
         {
-          "line": 180,
+          "line": 155,
           "term": "nao",
           "text": "       (STATE.md usa \"**Phase:**\" bold — buscar com regex, nao grep literal)"
         },
         {
-          "line": 198,
+          "line": 173,
           "term": "NAO",
           "text": "Se apos enumeracao NAO houver nenhuma pasta datada:"
         },
         {
-          "line": 201,
+          "line": 176,
           "term": "Nao",
           "text": "  - Senao: \"Nao encontrei nenhum PRD em docs/exec-plans/active/. Quer criar um com /write-prd?\""
         },
         {
-          "line": 224,
+          "line": 199,
           "term": "Nao",
           "text": "  - Nao existem subpastas `plano*/`"
         },
         {
-          "line": 246,
+          "line": 221,
           "term": "nao",
           "text": "  - Encerrar (nao re-executar sem confirmacao explicita)"
         },
         {
-          "line": 258,
+          "line": 233,
           "term": "nao",
           "text": "### Se STATE.md nao existe:"
         },
         {
-          "line": 308,
+          "line": 283,
           "term": "nao",
           "text": "       - Se valor e string simples (nao vazia): lista com 1 elemento"
         },
         {
-          "line": 310,
+          "line": 285,
           "term": "nao",
           "text": "     - Se nao encontrada ou bloco ausente: requires = []"
         },
         {
-          "line": 317,
+          "line": 292,
           "term": "nao",
           "text": "      - Se nao encontrou: status = \"nao encontrado\""
         },
         {
-          "line": 317,
+          "line": 292,
           "term": "nao",
           "text": "      - Se nao encontrou: status = \"nao encontrado\""
         },
         {
-          "line": 321,
+          "line": 296,
           "term": "nao",
           "text": "      - Extrair campo `**Phase:**` com regex (nao grep literal)"
         },
         {
-          "line": 322,
+          "line": 297,
           "term": "nao",
           "text": "      - Se Phase == \"completed\": dependencia OK — nao aparece no aviso"
         },
         {
-          "line": 323,
+          "line": 298,
           "term": "nao",
           "text": "4. Montar lista de dependencias com problema (nao-completed, nao-encontradas, ambiguas)"
         },
         {
-          "line": 323,
+          "line": 298,
           "term": "nao",
           "text": "4. Montar lista de dependencias com problema (nao-completed, nao-encontradas, ambiguas)"
         },
         {
-          "line": 327,
+          "line": 302,
           "term": "nao",
           "text": "   \"AVISO: Dependencias nao concluidas:"
         },
         {
-          "line": 329,
+          "line": 304,
           "term": "nao",
           "text": "     - {slug}: nao encontrado"
         },
         {
-          "line": 365,
+          "line": 340,
           "term": "NAO",
           "text": "   - NAO passar a MEMORY inteira — apenas a secao de \"Notas para Planos Seguintes\""
         },
         {
-          "line": 407,
+          "line": 382,
           "term": "Nunca",
           "text": "  - Nunca em paralelo com sua dependencia"
         },
         {
-          "line": 421,
+          "line": 396,
           "term": "nao",
           "text": "  - Estado atual: relevant-only do `{PASTA_ATIVA}/STATE.md` (progresso, nao logs completos)"
         },
         {
-          "line": 422,
+          "line": 397,
           "term": "nao",
           "text": "  - Padrao de codigo existente (1-2 arquivos de referencia do codebase do projeto — nao do docs/exec-plans/active/)"
         },
         {
-          "line": 425,
+          "line": 400,
           "term": "nao",
           "text": "  - Instrucao: \"Commits e edits de codigo vao para o repositorio DO PROJETO, nao dentro de PASTA_ATIVA."
         },
         {
-          "line": 428,
+          "line": 403,
           "term": "NAO",
           "text": "  NAO RECEBE:"
         },
         {
-          "line": 446,
+          "line": 421,
           "term": "NAO",
           "text": "  - NAO recebe: implementacao existente"
         },
         {
-          "line": 452,
+          "line": 427,
           "term": "NAO",
           "text": "  - NAO recebe: PRD, descricao da feature"
         },
         {
-          "line": 454,
+          "line": 429,
           "term": "NUNCA",
           "text": "  - Anchor imutavel: NUNCA modifica testes"
         },
         {
-          "line": 456,
+          "line": 431,
           "term": "NAO",
           "text": "Se a fase NAO tem TDD explicito (ex: migration pura, config):"
         },
         {
-          "line": 472,
+          "line": 447,
           "term": "nao",
           "text": "   - Se status === \"blocked\": registrar blocker no STATE.md, nao consolida payload"
         },
         {
-          "line": 480,
+          "line": 455,
           "term": "NAO",
           "text": "     - payload.domain_status === \"partial\" NAO e blocker lifecycle — fase parcial, mas segue (D2)"
         },
         {
-          "line": 588,
+          "line": 563,
           "term": "NAO",
           "text": "Durante execucao de uma fase, monitore arquivos lidos/editados. Se detectar trabalho **fora do campo `Scope`** do frontmatter do plano em curso, NAO tente corrigir — proponha adicao a `TODO.md`."
         },
         {
-          "line": 596,
+          "line": 571,
           "term": "NAO",
           "text": "   - Se path NAO bate → potencial out-of-scope."
         },
         {
-          "line": 609,
+          "line": 584,
           "term": "nao",
           "text": "// 3. Default N (D4 — sugestivo, nao bloqueante)"
         },
         {
-          "line": 617,
+          "line": 592,
           "term": "nao",
           "text": "Se o plano nao tem campo `Scope` parseavel:"
         },
         {
-          "line": 618,
+          "line": 593,
           "term": "NAO",
           "text": "- NAO oferecer captura automatica."
         },
         {
-          "line": 741,
+          "line": 716,
           "term": "nao",
           "text": "   - Armadilhas do stack/framework que nao sao obvias"
         },
         {
-          "line": 769,
+          "line": 744,
           "term": "Nao",
           "text": "2. **Modo legacy v1 (opt-in via Step 0 \"Nao\"):** Dev escolheu nao migrar. PLAN.md flat"
         },
         {
-          "line": 769,
+          "line": 744,
           "term": "nao",
           "text": "2. **Modo legacy v1 (opt-in via Step 0 \"Nao\"):** Dev escolheu nao migrar. PLAN.md flat"
         },
         {
-          "line": 788,
+          "line": 763,
           "term": "nao",
           "text": "- Sem MEMORY.md por plano (nao ha planos separados)"
         },
         {
-          "line": 822,
+          "line": 797,
           "term": "nunca",
           "text": "1. **Isolamento e absoluto** — subagentes GREEN nunca veem requisitos, apenas testes"
         },
         {
-          "line": 823,
+          "line": 798,
           "term": "nao",
           "text": "2. **O orchestrador nao implementa** — escrever codigo e trabalho de subagente. O orchestrador faz spawn, atualiza estado e roda a validacao pos-fase (Step 5)"
         },
         {
-          "line": 825,
+          "line": 800,
           "term": "nunca",
           "text": "4. **Sempre confirma antes de executar** — Step 3 e obrigatorio, nunca pule"
         },
         {
-          "line": 828,
+          "line": 803,
           "term": "nao",
           "text": "7. **MEMORY.md e preenchida durante execucao** — nao apos"
         },
         {
-          "line": 890,
+          "line": 865,
           "term": "nao",
           "text": "| \"O plano estava errado, vou improvisar\" | Improviso durante execucao gera desvios nao documentados. Correto: pausar, atualizar o plano com a decisao, entao prosseguir. O plano e o registro de decisao — improvisacao apaga rastro. |"
         },
         {
-          "line": 891,
+          "line": 866,
           "term": "nao",
           "text": "| \"Esse arquivo extra nao conta como desvio de escopo\" | Todo arquivo fora do escopo declarado e uma decisao nao registrada. Se vale tocar, vale registrar no plano. |"
         },
         {
-          "line": 891,
+          "line": 866,
           "term": "nao",
           "text": "| \"Esse arquivo extra nao conta como desvio de escopo\" | Todo arquivo fora do escopo declarado e uma decisao nao registrada. Se vale tocar, vale registrar no plano. |"
         },
         {
-          "line": 892,
+          "line": 867,
           "term": "nao",
           "text": "| \"Vou passar pela fase sem validar — sei que funcionou\" | Verificacao sem evidencia nao e verificacao. Checklist nao executado e teatro de qualidade. |"
         },
         {
-          "line": 892,
+          "line": 867,
           "term": "nao",
           "text": "| \"Vou passar pela fase sem validar — sei que funcionou\" | Verificacao sem evidencia nao e verificacao. Checklist nao executado e teatro de qualidade. |"
         },
         {
-          "line": 893,
+          "line": 868,
           "term": "nao",
           "text": "| \"Posso pular a fase de testes — os tipos ja garantem\" | Types nao testam comportamento em runtime. Fases de teste existem precisamente porque o compilador nao consegue garantir tudo. |"
         },
         {
-          "line": 893,
+          "line": 868,
           "term": "nao",
           "text": "| \"Posso pular a fase de testes — os tipos ja garantem\" | Types nao testam comportamento em runtime. Fases de teste existem precisamente porque o compilador nao consegue garantir tudo. |"
         },
         {
-          "line": 897,
+          "line": 872,
           "term": "nao",
           "text": "- Sub-agente que toca mais de 5 arquivos nao relacionados sem justificativa no plano"
         },
         {
-          "line": 900,
+          "line": 875,
           "term": "nao",
           "text": "- Decisao tomada durante execucao que nao foi registrada no MEMORY.md do plano"
         }
@@ -2251,315 +2246,310 @@
       "descriptionChars": 185,
       "descriptionLineChars": 200,
       "quotedTriggerCount": 0,
-      "bodyLines": 454,
+      "bodyLines": 406,
       "negations": [
         {
-          "line": 11,
-          "term": "nao",
-          "text": "// === Telemetria passiva (Plano 03 fase-02) — nao remover sem registrar em MEMORY.md ==="
-        },
-        {
-          "line": 37,
+          "line": 12,
           "term": "Nao",
           "text": "Skill ativa. Modo: entrevistador implacavel. Nao aceita ambiguidade. Nao gera codigo. Nunca."
         },
         {
-          "line": 37,
+          "line": 12,
           "term": "Nao",
           "text": "Skill ativa. Modo: entrevistador implacavel. Nao aceita ambiguidade. Nao gera codigo. Nunca."
         },
         {
-          "line": 37,
+          "line": 12,
           "term": "Nunca",
           "text": "Skill ativa. Modo: entrevistador implacavel. Nao aceita ambiguidade. Nao gera codigo. Nunca."
         },
         {
-          "line": 41,
+          "line": 16,
           "term": "NÃO",
           "text": "Esta skill exige um humano presente e responsivo. NÃO invocar em contextos não-interativos (CI, runs agendados, `/loop`, loop autônomo). Se estiver em um desses e a descrição estiver subespecificada, sinalizar isso como BLOQUEIO para o humano — nunca auto-responder as perguntas."
         },
         {
-          "line": 41,
+          "line": 16,
           "term": "não",
           "text": "Esta skill exige um humano presente e responsivo. NÃO invocar em contextos não-interativos (CI, runs agendados, `/loop`, loop autônomo). Se estiver em um desses e a descrição estiver subespecificada, sinalizar isso como BLOQUEIO para o humano — nunca auto-responder as perguntas."
         },
         {
-          "line": 41,
+          "line": 16,
           "term": "nunca",
           "text": "Esta skill exige um humano presente e responsivo. NÃO invocar em contextos não-interativos (CI, runs agendados, `/loop`, loop autônomo). Se estiver em um desses e a descrição estiver subespecificada, sinalizar isso como BLOQUEIO para o humano — nunca auto-responder as perguntas."
         },
         {
-          "line": 73,
+          "line": 48,
           "term": "não",
           "text": "- Se confiança > 70%, verificar: consegue predizer as respostas das próximas 3 perguntas? Se não, o número está inflado"
         },
         {
-          "line": 82,
+          "line": 57,
           "term": "não",
           "text": "O GUESS expõe o modelo mental do entrevistador. Dev que discorda do GUESS ativa uma correção mais rica do que um simples \"sim/não\"."
         },
         {
-          "line": 95,
+          "line": 70,
           "term": "nao",
           "text": "Objetivo: fazer perguntas CONTEXTUALIZADAS, nao genericas."
         },
         {
-          "line": 105,
+          "line": 80,
           "term": "nunca",
           "text": "- UMA decisao por pergunta (nunca agrupar)"
         },
         {
-          "line": 108,
+          "line": 83,
           "term": "Nao",
           "text": "- \"Nao sei\" → apresentar trade-offs e RECOMENDAR uma opcao"
         },
         {
-          "line": 109,
+          "line": 84,
           "term": "NAO",
           "text": "- \"Tanto faz\" → NAO aceitar (ver Passo 4)"
         },
         {
-          "line": 110,
+          "line": 85,
           "term": "Nunca",
           "text": "- Nunca gerar codigo durante a entrevista"
         },
         {
-          "line": 116,
+          "line": 91,
           "term": "NAO",
           "text": "| ESCOPO | O que esta IN e OUT? Quais casos de uso NAO serão cobertos na v1? |"
         },
         {
-          "line": 124,
+          "line": 99,
           "term": "nao",
           "text": "Para cada \"nao sei\" do dev:"
         },
         {
-          "line": 190,
+          "line": 165,
           "term": "nao",
           "text": "- Categorias sem relevancia para a feature podem ser puladas — nao forcar 7 categorias em feature trivial"
         },
         {
-          "line": 203,
+          "line": 178,
           "term": "NAO",
           "text": "\"Tanto faz\" → NAO aceitar. Tornar a consequencia concreta:"
         },
         {
-          "line": 204,
+          "line": 179,
           "term": "Nao",
           "text": "> \"Essa decisao afeta [parte especifica do sistema]. Nao pode ficar implicita porque [razao]."
         },
         {
-          "line": 216,
+          "line": 191,
           "term": "não",
           "text": "As respostas mais perigosas não são as vagas — são as que SOAM como boa engenharia mas escondem que o dev não sabe o que quer. Sinais:"
         },
         {
-          "line": 216,
+          "line": 191,
           "term": "não",
           "text": "As respostas mais perigosas não são as vagas — são as que SOAM como boa engenharia mas escondem que o dev não sabe o que quer. Sinais:"
         },
         {
-          "line": 222,
+          "line": 197,
           "term": "não",
           "text": "> \"Se você não tivesse que justificar isso pra ninguém, o que você realmente quer aqui?\""
         },
         {
-          "line": 224,
+          "line": 199,
           "term": "NÃO",
           "text": "Essa pergunta costuma render mais que as cinco anteriores. NÃO registrar um buzzword como decisão no CONTEXT.md sem essa sondagem."
         },
         {
-          "line": 240,
+          "line": 215,
           "term": "NÃO",
           "text": "- Fora de escopo: {uma linha — o que explicitamente NÃO vamos fazer}"
         },
         {
-          "line": 242,
+          "line": 217,
           "term": "não",
           "text": "Sim / não / ajustar?"
         },
         {
-          "line": 245,
+          "line": 220,
           "term": "NÃO",
           "text": "A linha \"Fora de escopo\" é OBRIGATÓRIA: metade do desalinhamento é discordância silenciosa sobre o que NÃO está sendo construído."
         },
         {
-          "line": 247,
+          "line": 222,
           "term": "NÃO",
           "text": "O gate é um \"sim\" EXPLÍCITO. Os seguintes NÃO contam como sim:"
         },
         {
-          "line": 248,
+          "line": 223,
           "term": "não",
           "text": "- \"tanto faz\" / \"você decide\" → delegação, não decisão. Re-perguntar com duas opções concretas."
         },
         {
-          "line": 249,
+          "line": 224,
           "term": "não",
           "text": "- \"parece bom\" → ambíguo. Perguntar \"algo a ajustar?\". Silêncio não é confirmação."
         },
         {
-          "line": 250,
+          "line": 225,
           "term": "não",
           "text": "- \"vai logo\" / \"bora\" → muitas vezes saída educada, não endosso. Mesmo follow-up."
         },
         {
-          "line": 251,
+          "line": 226,
           "term": "não",
           "text": "- silêncio seguido de \"ok, começa\" → o dev desistiu da entrevista, não convergiu. Parar e perguntar o que ficou faltando."
         },
         {
-          "line": 262,
+          "line": 237,
           "term": "não",
           "text": "Se sim, há entendimento compartilhado — parar e ir para o Passo 4.5 (sintetizar). Se não, fazer a próxima pergunta. Isso é um teste verificável, não um \"feeling\"."
         },
         {
-          "line": 262,
+          "line": 237,
           "term": "não",
           "text": "Se sim, há entendimento compartilhado — parar e ir para o Passo 4.5 (sintetizar). Se não, fazer a próxima pergunta. Isso é um teste verificável, não um \"feeling\"."
         },
         {
-          "line": 264,
+          "line": 239,
           "term": "não",
           "text": "Piso de não-convergência: se já passou de várias rodadas e a confiança NÃO sobe / você ainda não consegue prever, isso é informação sobre o pedido, não motivo pra continuar moendo até as 20 perguntas. Parar e dizer:"
         },
         {
-          "line": 264,
+          "line": 239,
           "term": "NÃO",
           "text": "Piso de não-convergência: se já passou de várias rodadas e a confiança NÃO sobe / você ainda não consegue prever, isso é informação sobre o pedido, não motivo pra continuar moendo até as 20 perguntas. Parar e dizer:"
         },
         {
-          "line": 264,
+          "line": 239,
           "term": "não",
           "text": "Piso de não-convergência: se já passou de várias rodadas e a confiança NÃO sobe / você ainda não consegue prever, isso é informação sobre o pedido, não motivo pra continuar moendo até as 20 perguntas. Parar e dizer:"
         },
         {
-          "line": 264,
+          "line": 239,
           "term": "não",
           "text": "Piso de não-convergência: se já passou de várias rodadas e a confiança NÃO sobe / você ainda não consegue prever, isso é informação sobre o pedido, não motivo pra continuar moendo até as 20 perguntas. Parar e dizer:"
         },
         {
-          "line": 265,
+          "line": 240,
           "term": "não",
           "text": "> \"Já fiz {N} perguntas e ainda não consigo prever suas reações. Algo fundamental está faltando. Quer dar um passo atrás?\""
         },
         {
-          "line": 277,
+          "line": 252,
           "term": "nao",
           "text": "2. Se `{folder}` nao existe: criar e salvar `{folder}/CONTEXT.md`"
         },
         {
-          "line": 307,
+          "line": 282,
           "term": "nao",
           "text": "- [ ] /write-prd (se feature nao-trivial)"
         },
         {
-          "line": 314,
+          "line": 289,
           "term": "Nao",
           "text": "**Integracao com /consultant:** se o dev ja usou /consultant para a feature, perguntar se quer importar as decisoes. Se sim, buscar no output e importar com `Origem: importado-consultant`. Nao re-perguntar o que ja foi decidido."
         },
         {
-          "line": 354,
+          "line": 329,
           "term": "Nao",
           "text": "## Requisitos Nao-Funcionais"
         },
         {
-          "line": 373,
+          "line": 348,
           "term": "NAO",
           "text": "Se o dev disser NAO: encerrar normalmente. O CONTEXT.md continua disponivel para uso futuro."
         },
         {
-          "line": 388,
+          "line": 363,
           "term": "Nunca",
           "text": "1. Nunca gera codigo. Nunca. Apenas decisoes."
         },
         {
-          "line": 388,
+          "line": 363,
           "term": "Nunca",
           "text": "1. Nunca gera codigo. Nunca. Apenas decisoes."
         },
         {
-          "line": 390,
+          "line": 365,
           "term": "NÃO",
           "text": "3. Minimo 5 perguntas, maximo 20. O teto de 20 é limite, NÃO objetivo — parar antes pela Condição de Parada (95%); o piso de 5 não obriga continuar se já consegue prever."
         },
         {
-          "line": 390,
+          "line": 365,
           "term": "não",
           "text": "3. Minimo 5 perguntas, maximo 20. O teto de 20 é limite, NÃO objetivo — parar antes pela Condição de Parada (95%); o piso de 5 não obriga continuar se já consegue prever."
         },
         {
-          "line": 392,
+          "line": 367,
           "term": "nao",
           "text": "5. Se ja existe um CONTEXT.md anterior, fazer merge (nao sobrescrever)."
         },
         {
-          "line": 393,
+          "line": 368,
           "term": "nao",
           "text": "6. Salvar em `docs/exec-plans/active/{date}-{slug}/CONTEXT.md` (criar pasta datada se nao existir)."
         },
         {
-          "line": 405,
+          "line": 380,
           "term": "não",
           "text": "| \"Já entendo o suficiente para começar\" | Assumir entendimento sem validar é a fonte mais comum de retrabalho. O custo de uma pergunta é zero; o custo de uma semana de código errado não é. |"
         },
         {
-          "line": 406,
+          "line": 381,
           "term": "não",
           "text": "| \"O usuário sabe o que quer\" | Usuários descrevem soluções, não problemas. O trabalho do entrevistador é escavar até o problema real por baixo da solução proposta. |"
         },
         {
-          "line": 408,
+          "line": 383,
           "term": "não",
           "text": "| \"Posso inferir o contexto do nome do projeto\" | Nomes de projeto são rótulos, não specs. Dois projetos com o mesmo nome podem ter arquiteturas e restrições completamente diferentes. |"
         },
         {
-          "line": 409,
+          "line": 384,
           "term": "não",
           "text": "| \"Ele disse que quer algo 'escalável/clean/moderno', isso é claro\" | Buzzword não é spec. É o dev dizendo o que soa bem, não o que ele quer. Sondar: \"se não tivesse que justificar pra ninguém, o que você realmente quer?\" antes de registrar como decisão. |"
         },
         {
-          "line": 409,
+          "line": 384,
           "term": "não",
           "text": "| \"Ele disse que quer algo 'escalável/clean/moderno', isso é claro\" | Buzzword não é spec. É o dev dizendo o que soa bem, não o que ele quer. Sondar: \"se não tivesse que justificar pra ninguém, o que você realmente quer?\" antes de registrar como decisão. |"
         },
         {
-          "line": 409,
+          "line": 384,
           "term": "não",
           "text": "| \"Ele disse que quer algo 'escalável/clean/moderno', isso é claro\" | Buzzword não é spec. É o dev dizendo o que soa bem, não o que ele quer. Sondar: \"se não tivesse que justificar pra ninguém, o que você realmente quer?\" antes de registrar como decisão. |"
         },
         {
-          "line": 413,
+          "line": 388,
           "term": "não",
           "text": "- Código sendo gerado durante o grill-me (entrevista não concluída)"
         },
         {
-          "line": 417,
+          "line": 392,
           "term": "não",
           "text": "- Hipótese não declarada antes de fazer perguntas (modelo mental oculto)"
         },
         {
-          "line": 431,
+          "line": 406,
           "term": "não",
           "text": "- [ ] \"Sim\" explícito obtido (não \"tanto faz\", não \"parece bom\", não silêncio)"
         },
         {
-          "line": 431,
+          "line": 406,
           "term": "não",
           "text": "- [ ] \"Sim\" explícito obtido (não \"tanto faz\", não \"parece bom\", não silêncio)"
         },
         {
-          "line": 431,
+          "line": 406,
           "term": "não",
           "text": "- [ ] \"Sim\" explícito obtido (não \"tanto faz\", não \"parece bom\", não silêncio)"
         },
         {
-          "line": 432,
+          "line": 407,
           "term": "não",
           "text": "- [ ] No ponto de parada, era possível prever as próximas 3 perguntas (ou o piso de não-convergência foi acionado)"
         },
         {
-          "line": 433,
+          "line": 408,
           "term": "não",
           "text": "- [ ] Handoff downstream (/write-prd, /plan-feature) enquadrado na intenção confirmada, não no pedido original vago"
         }
@@ -3491,375 +3481,370 @@
       "descriptionChars": 241,
       "descriptionLineChars": 256,
       "quotedTriggerCount": 0,
-      "bodyLines": 973,
+      "bodyLines": 925,
       "negations": [
         {
-          "line": 11,
-          "term": "nao",
-          "text": "// === Telemetria passiva (Plano 03 fase-02) — nao remover sem registrar em MEMORY.md ==="
-        },
-        {
-          "line": 115,
+          "line": 90,
           "term": "nao",
           "text": "1. Se `.planning/` nao existe E `docs/exec-plans/active/` existe: skip Step 0, ir para Step 1."
         },
         {
-          "line": 126,
+          "line": 101,
           "term": "Nao",
           "text": "   - AskUserQuestion: opcoes \"Sim, migrar\" / \"Nao — usarei .planning/ (modo compatibilidade)\" / \"Cancelar\""
         },
         {
-          "line": 128,
+          "line": 103,
           "term": "nao",
           "text": "     (criar docs/exec-plans/active/ se nao existir)"
         },
         {
-          "line": 129,
+          "line": 104,
           "term": "Nao",
           "text": "   - Se \"Nao\": setar BASE_PATH = \".planning/\" e prosseguir (compatibilidade)"
         },
         {
-          "line": 132,
+          "line": 107,
           "term": "nao",
           "text": "3. Verificar v4 legacy (apenas se nao havia v5 legacy):"
         },
         {
-          "line": 156,
+          "line": 131,
           "term": "Nao",
           "text": "        - \"Nao — prosseguir com plan-feature em modo greenfield (legacy fica intocado)\""
         },
         {
-          "line": 167,
+          "line": 142,
           "term": "Nao",
           "text": "   g. Se \"Nao\":"
         },
         {
-          "line": 168,
+          "line": 143,
           "term": "nao",
           "text": "      - Confirmar: \"Prosseguindo em modo greenfield. Legacy em .planning/ nao foi tocado.\""
         },
         {
-          "line": 175,
+          "line": 150,
           "term": "NAO",
           "text": "- Se migracao falhou (rolled_back): NAO insistir automaticamente — deixar dev corrigir"
         },
         {
-          "line": 186,
+          "line": 161,
           "term": "Nunca",
           "text": "dentro de PASTA_ATIVA. Nunca fora da pasta do PRD."
         },
         {
-          "line": 202,
+          "line": 177,
           "term": "nao",
           "text": "      - Se nao existir: \"Nao encontrei PRD.md em {PASTA_ATIVA}. Quer criar com /write-prd?\""
         },
         {
-          "line": 202,
+          "line": 177,
           "term": "Nao",
           "text": "      - Se nao existir: \"Nao encontrei PRD.md em {PASTA_ATIVA}. Quer criar com /write-prd?\""
         },
         {
-          "line": 208,
+          "line": 183,
           "term": "nao",
           "text": "   - Se nao for PRD valido: \"Este arquivo nao parece ser um PRD. Quer criar com /write-prd?\""
         },
         {
-          "line": 208,
+          "line": 183,
           "term": "nao",
           "text": "   - Se nao for PRD valido: \"Este arquivo nao parece ser um PRD. Quer criar com /write-prd?\""
         },
         {
-          "line": 215,
+          "line": 190,
           "term": "nao",
           "text": "          - Se valor e string simples (nao vazia): lista com 1 elemento"
         },
         {
-          "line": 217,
+          "line": 192,
           "term": "nao",
           "text": "        - Se nao encontrada ou bloco ausente: requires = []"
         },
         {
-          "line": 227,
+          "line": 202,
           "term": "nao",
           "text": "1. Se nao forneceu caminho:"
         },
         {
-          "line": 232,
+          "line": 207,
           "term": "nao",
           "text": "        (STATE.md usa \"**Phase:**\" bold — buscar com regex, nao grep literal)"
         },
         {
-          "line": 250,
+          "line": 225,
           "term": "nao",
           "text": "      - Oferecer Caminho C (PRD nao existe)"
         },
         {
-          "line": 259,
+          "line": 234,
           "term": "nao",
           "text": "### Caminho C: PRD nao existe"
         },
         {
-          "line": 262,
+          "line": 237,
           "term": "Nao",
           "text": "1. Informar: \"Nao encontrei nenhum PRD em docs/exec-plans/active/.\""
         },
         {
-          "line": 274,
+          "line": 249,
           "term": "NAO",
           "text": "1. Glob `docs/exec-plans/active/YYYY-MM-DD-*/` (APENAS pastas ativas — NAO incluir `docs/exec-plans/_archive/`)"
         },
         {
-          "line": 283,
+          "line": 258,
           "term": "nao",
           "text": "      - Se nao encontrado ou ambiguo: ignorar silenciosamente (fase-01 ja reporta dangling)"
         },
         {
-          "line": 287,
+          "line": 262,
           "term": "nao",
           "text": "   - Se nao (PRD sendo criado, sem pasta ainda): usar chave `__current__`"
         },
         {
-          "line": 300,
+          "line": 275,
           "term": "nao",
           "text": "       se dep nao esta em cores: ignorar (referencia externa nao resolvida)"
         },
         {
-          "line": 300,
+          "line": 275,
           "term": "nao",
           "text": "       se dep nao esta em cores: ignorar (referencia externa nao resolvida)"
         },
         {
-          "line": 319,
+          "line": 294,
           "term": "Nao",
           "text": "       Nao vou bloquear — apenas sinalizo.\""
         },
         {
-          "line": 320,
+          "line": 295,
           "term": "NAO",
           "text": "   - NAO usar AskUserQuestion aqui (aviso informativo, nao pergunta)"
         },
         {
-          "line": 320,
+          "line": 295,
           "term": "nao",
           "text": "   - NAO usar AskUserQuestion aqui (aviso informativo, nao pergunta)"
         },
         {
-          "line": 327,
+          "line": 302,
           "term": "nao",
           "text": "- **`_archive/` ignorado:** Pastas arquivadas nao entram no grafo."
         },
         {
-          "line": 328,
+          "line": 303,
           "term": "nao",
           "text": "- **PRD legacy sem frontmatter:** Parser retorna `requires = []`, entra no grafo com lista vazia — DFS nao detecta ciclo."
         },
         {
-          "line": 329,
+          "line": 304,
           "term": "nao",
           "text": "- **Dangling (referencia nao resolvida):** Ignorar silenciosamente (fase-01 ja reporta)."
         },
         {
-          "line": 365,
+          "line": 340,
           "term": "nao",
           "text": "Output intermediario (interno, nao mostrado ao dev):"
         },
         {
-          "line": 377,
+          "line": 352,
           "term": "Nao",
           "text": "- Nao chutar — \"nao detectado\" e preferivel a suposicao"
         },
         {
-          "line": 377,
+          "line": 352,
           "term": "nao",
           "text": "- Nao chutar — \"nao detectado\" e preferivel a suposicao"
         },
         {
-          "line": 399,
+          "line": 374,
           "term": "nao",
           "text": "Antes de fatiar, mapeie a dependencia ENTRE CAMADAS (nao entre fases). A ordem"
         },
         {
-          "line": 434,
+          "line": 409,
           "term": "nao",
           "text": "4. Regra de ouro: se leva mais de 2h, nao e fino o suficiente"
         },
         {
-          "line": 438,
+          "line": 413,
           "term": "NAO",
           "text": "- NAO e tracer bullet: \"criar toda a API de notificacoes\" (isso e horizontal layer)"
         },
         {
-          "line": 447,
+          "line": 422,
           "term": "Nao",
           "text": "   - Nao (depende de outro): agrupar no mesmo slice ou wave posterior"
         },
         {
-          "line": 448,
+          "line": 423,
           "term": "NAO",
           "text": "3. Could Have e Won't Have NAO viram slices — sao backlog"
         },
         {
-          "line": 460,
+          "line": 435,
           "term": "NAO",
           "text": "Este e o passo critico. A decisao de quantos planos e quantas fases NAO usa thresholds arbitrarios."
         },
         {
-          "line": 467,
+          "line": 442,
           "term": "nao",
           "text": "   Se nao cabe em uma frase, e grande demais."
         },
         {
-          "line": 486,
+          "line": 461,
           "term": "NAO",
           "text": "6. VERTICAL, NAO HORIZONTAL"
         },
         {
-          "line": 488,
+          "line": 463,
           "term": "Nao",
           "text": "   Nao \"criar todos os tipos\" — mas \"criar tipo + migration + query para entidade X\"."
         },
         {
-          "line": 493,
+          "line": 468,
           "term": "NAO",
           "text": "Analisar o PRD buscando estes sinais (NAO contar KBs ou linhas):"
         },
         {
-          "line": 533,
+          "line": 508,
           "term": "Nao",
           "text": "Nao e pre-determinada. O modelo analisa e decide."
         },
         {
-          "line": 537,
+          "line": 512,
           "term": "nao",
           "text": "O numero e consequencia do julgamento, nao meta."
         },
         {
-          "line": 595,
+          "line": 570,
           "term": "NÃO",
           "text": "4. NÃO gerar os planos detalhados ainda — apenas o overview"
         },
         {
-          "line": 630,
+          "line": 605,
           "term": "nao",
           "text": "   - Maximo 3 iteracoes — se nao convergir, sugerir /grill-me"
         },
         {
-          "line": 646,
+          "line": 621,
           "term": "nao",
           "text": "   (nota: colisao de v2 nao se aplica aqui — ja estamos DENTRO da pasta do PRD)"
         },
         {
-          "line": 662,
+          "line": 637,
           "term": "NUNCA",
           "text": "O orchestrador NUNCA gera todos os planos de uma vez."
         },
         {
-          "line": 680,
+          "line": 655,
           "term": "NAO",
           "text": "   NAO RECEBE:"
         },
         {
-          "line": 703,
+          "line": 678,
           "term": "NAO",
           "text": "   - NAO recebe as fases detalhadas do Plano 1"
         },
         {
-          "line": 712,
+          "line": 687,
           "term": "nao",
           "text": "2. Incluir code snippets de referencia quando a task nao e trivial:"
         },
         {
-          "line": 718,
+          "line": 693,
           "term": "nao",
           "text": "4. Checklist de verificacao com itens especificos (nao genericos)"
         },
         {
-          "line": 729,
+          "line": 704,
           "term": "NAO",
           "text": "Oferecer ao dev (NAO forcar):"
         },
         {
-          "line": 767,
+          "line": 742,
           "term": "NAO",
           "text": "- **Se NAO encontrar:** Prosseguir com o fluxo normal — perguntar ao dev o que planejar (Caminho C)."
         },
         {
-          "line": 824,
+          "line": 799,
           "term": "nao",
           "text": "2. Se o plano estiver errado, corrigir o PLANO (nao improvisar durante execucao)"
         },
         {
-          "line": 826,
+          "line": 801,
           "term": "NUNCA",
           "text": "4. A quantidade de planos e fases e decidida por analise semantica, NUNCA por thresholds fixos"
         },
         {
-          "line": 828,
+          "line": 803,
           "term": "NUNCA",
           "text": "6. Planos sao gerados sob demanda — NUNCA gerar todos de uma vez"
         },
         {
-          "line": 830,
+          "line": 805,
           "term": "NUNCA",
           "text": "8. NUNCA gerar overview sem aprovacao do dev (Step 7 e obrigatorio)"
         },
         {
-          "line": 831,
+          "line": 806,
           "term": "NUNCA",
           "text": "9. NUNCA salvar plano se dev cancelar a aprovacao"
         },
         {
-          "line": 834,
+          "line": 809,
           "term": "nao",
           "text": "12. A decisao de quantos planos depende do julgamento senior da LLM, nao de regras fixas"
         },
         {
-          "line": 860,
+          "line": 835,
           "term": "nao",
           "text": "- Tem incerteza tecnica nao resolvida (precisa de spike antes)"
         },
         {
-          "line": 910,
+          "line": 885,
           "term": "nunca",
           "text": "| **Precisa de coordenacao** | Fases/planos que compartilham um contrato de API (types, rota, payload) | **Definir o contrato PRIMEIRO, depois paralelizar** — nunca correr sobre um contrato ainda nao acordado |"
         },
         {
-          "line": 910,
+          "line": 885,
           "term": "nao",
           "text": "| **Precisa de coordenacao** | Fases/planos que compartilham um contrato de API (types, rota, payload) | **Definir o contrato PRIMEIRO, depois paralelizar** — nunca correr sobre um contrato ainda nao acordado |"
         },
         {
-          "line": 948,
+          "line": 923,
           "term": "nao",
           "text": "| \"O plano esta na minha cabeca\" | Plano nao escrito nao e plano — e intencao. Intencao nao passa por revisao nem por sub-agente. |"
         },
         {
-          "line": 948,
+          "line": 923,
           "term": "nao",
           "text": "| \"O plano esta na minha cabeca\" | Plano nao escrito nao e plano — e intencao. Intencao nao passa por revisao nem por sub-agente. |"
         },
         {
-          "line": 948,
+          "line": 923,
           "term": "nao",
           "text": "| \"O plano esta na minha cabeca\" | Plano nao escrito nao e plano — e intencao. Intencao nao passa por revisao nem por sub-agente. |"
         },
         {
-          "line": 949,
+          "line": 924,
           "term": "nao",
           "text": "| \"Essa feature e simples, nao precisa de PRD\" | Features \"simples\" sem spec sao as maiores fontes de retrabalho. A simplificacao e visivel antes de comecar, nao depois. |"
         },
         {
-          "line": 949,
+          "line": 924,
           "term": "nao",
           "text": "| \"Essa feature e simples, nao precisa de PRD\" | Features \"simples\" sem spec sao as maiores fontes de retrabalho. A simplificacao e visivel antes de comecar, nao depois. |"
         },
         {
-          "line": 950,
+          "line": 925,
           "term": "nao",
           "text": "| \"Vou ajustar as fases durante a execucao\" | Ajustes durante execucao nao documentados geram desvios invisiveis. Correto e pausar, corrigir o plano, entao prosseguir. |"
         },
         {
-          "line": 957,
+          "line": 932,
           "term": "nao",
           "text": "- Dependencia entre fases nao declarada explicitamente"
         }
@@ -5688,280 +5673,275 @@
       "descriptionChars": 196,
       "descriptionLineChars": 211,
       "quotedTriggerCount": 0,
-      "bodyLines": 610,
+      "bodyLines": 562,
       "negations": [
         {
-          "line": 11,
-          "term": "nao",
-          "text": "// === Telemetria passiva (Plano 03 fase-02) — nao remover sem registrar em MEMORY.md ==="
-        },
-        {
-          "line": 40,
+          "line": 15,
           "term": "nao",
           "text": "// G7: checks sao perguntas descritivas, nao comandos prescritivos."
         },
         {
-          "line": 75,
+          "line": 50,
           "term": "nao",
           "text": "   - Se nao → inferir do branch atual (git branch) ou ultimo commit (git log -1)"
         },
         {
-          "line": 79,
+          "line": 54,
           "term": "nao",
           "text": "   Se nao existir → usar defaults:"
         },
         {
-          "line": 85,
+          "line": 60,
           "term": "nao",
           "text": "   Se comando nao existir: \"bun run test nao encontrado. Verificar package.json.\""
         },
         {
-          "line": 85,
+          "line": 60,
           "term": "nao",
           "text": "   Se comando nao existir: \"bun run test nao encontrado. Verificar package.json.\""
         },
         {
-          "line": 90,
+          "line": 65,
           "term": "nao",
           "text": "   Se comando nao existir: registrar como \"lint nao configurado\" (nao bloqueia)"
         },
         {
-          "line": 90,
+          "line": 65,
           "term": "nao",
           "text": "   Se comando nao existir: registrar como \"lint nao configurado\" (nao bloqueia)"
         },
         {
-          "line": 90,
+          "line": 65,
           "term": "nao",
           "text": "   Se comando nao existir: registrar como \"lint nao configurado\" (nao bloqueia)"
         },
         {
-          "line": 100,
+          "line": 75,
           "term": "nao",
           "text": "      - Output de erro (linhas relevantes, nao dump inteiro)"
         },
         {
-          "line": 156,
+          "line": 131,
           "term": "nao",
           "text": "- **Heuristica pratica (Consolidado de anti-vibe-review):** nomes grepáveis — para identificadores de funcoes/tipos/constantes criados, rodar `grep -c <nome> src/` e verificar se retorna <5 hits nao relacionados. Se >10 hits, o nome e generico demais e dificulta refatoracao segura. Esta heuristica complementa o auditor automatizado (que detecta padroes mas nao mede greppability)."
         },
         {
-          "line": 156,
+          "line": 131,
           "term": "nao",
           "text": "- **Heuristica pratica (Consolidado de anti-vibe-review):** nomes grepáveis — para identificadores de funcoes/tipos/constantes criados, rodar `grep -c <nome> src/` e verificar se retorna <5 hits nao relacionados. Se >10 hits, o nome e generico demais e dificulta refatoracao segura. Esta heuristica complementa o auditor automatizado (que detecta padroes mas nao mede greppability)."
         },
         {
-          "line": 178,
+          "line": 153,
           "term": "nao",
           "text": "   Se model profiles nao existir → herdar modelo do contexto pai"
         },
         {
-          "line": 202,
+          "line": 177,
           "term": "nao",
           "text": "Patterns CRITICO (teste nao testa nada):"
         },
         {
-          "line": 208,
+          "line": 183,
           "term": "nao",
           "text": "- Apenas happy path (nao testa edge cases ou erros)"
         },
         {
-          "line": 223,
+          "line": 198,
           "term": "nao",
           "text": "   - Metodo chamado nao existe no arquivo importado → CRITICO"
         },
         {
-          "line": 224,
+          "line": 199,
           "term": "nao",
           "text": "   - Referencia a variavel nao encontrada no escopo → WARNING"
         },
         {
-          "line": 246,
+          "line": 221,
           "term": "Nunca",
           "text": "IMPORTANTE: mutacoes sao SEMPRE revertidas. Nunca persistir."
         },
         {
-          "line": 267,
+          "line": 242,
           "term": "nao",
           "text": "  * Promise.allSettled (1 agent falhar nao derruba pipeline — G1)"
         },
         {
-          "line": 284,
+          "line": 259,
           "term": "nunca",
           "text": "            dados sensiveis expostos, teste que nunca falha por design"
         },
         {
-          "line": 368,
+          "line": 343,
           "term": "nao",
           "text": "   - Spawn agent por CATEGORIA (nao 1 agent por finding)"
         },
         {
-          "line": 370,
+          "line": 345,
           "term": "nao",
           "text": "   - Apos fix → re-rodar APENAS o auditor da categoria (nao pipeline inteiro)"
         },
         {
-          "line": 384,
+          "line": 359,
           "term": "NAO",
           "text": "Oferecer apos resolucao (NAO forcar):"
         },
         {
-          "line": 392,
+          "line": 367,
           "term": "nao",
           "text": "  - Por que e um problema (consequencia real, nao teorica)"
         },
         {
-          "line": 396,
+          "line": 371,
           "term": "nao",
           "text": "Se nao:"
         },
         {
-          "line": 413,
+          "line": 388,
           "term": "NAO",
           "text": "- **Se NAO existir:** Prosseguir com o fluxo normal de verificacao."
         },
         {
-          "line": 454,
+          "line": 429,
           "term": "nao",
           "text": "     (STATE.md usa \"**Phase:**\" bold — buscar com regex, nao grep literal \"phase:\")"
         },
         {
-          "line": 456,
+          "line": 431,
           "term": "NAO",
           "text": "   - Status NAO terminais (bloqueiam): `pending`, `in-progress`, `paused`, `blocked`"
         },
         {
-          "line": 459,
+          "line": 434,
           "term": "NAO",
           "text": "   Se NAO pode arquivar:"
         },
         {
-          "line": 460,
+          "line": 435,
           "term": "nao",
           "text": "     \"Auditoria concluida, mas a pasta {pasta} tem planos nao terminais: {motivo}."
         },
         {
-          "line": 461,
+          "line": 436,
           "term": "Nao",
           "text": "      Nao vou oferecer arquivamento — verifique se algum plano ficou inacabado."
         },
         {
-          "line": 469,
+          "line": 444,
           "term": "Nao",
           "text": "    [2] Nao, manter em docs/exec-plans/active/ (pode mover depois manualmente)"
         },
         {
-          "line": 475,
+          "line": 450,
           "term": "nao",
           "text": "     a. Criar `docs/exec-plans/completed/` se nao existir"
         },
         {
-          "line": 476,
+          "line": 451,
           "term": "NAO",
           "text": "     b. Verificar que `docs/exec-plans/completed/{basename}` NAO existe"
         },
         {
-          "line": 487,
+          "line": 462,
           "term": "nao",
           "text": "     - Se MEMORY.md nao existir: marcar como ausente (nao falhar — G13)"
         },
         {
-          "line": 487,
+          "line": 462,
           "term": "nao",
           "text": "     - Se MEMORY.md nao existir: marcar como ausente (nao falhar — G13)"
         },
         {
-          "line": 503,
+          "line": 478,
           "term": "nao",
           "text": "Se falha (template nao encontrado, erro de leitura):"
         },
         {
-          "line": 504,
+          "line": 479,
           "term": "NAO",
           "text": "  - NAO bloquear arquivamento automaticamente"
         },
         {
-          "line": 506,
+          "line": 481,
           "term": "nao",
           "text": "    Arquivar mesmo assim (sem consolidado)? [sim/nao]\""
         },
         {
-          "line": 508,
+          "line": 483,
           "term": "nao",
           "text": "  - Se nao: abortar arquivamento"
         },
         {
-          "line": 517,
+          "line": 492,
           "term": "Nao",
           "text": "     - Nao fazer nada, nao consolidar memoria"
         },
         {
-          "line": 517,
+          "line": 492,
           "term": "nao",
           "text": "     - Nao fazer nada, nao consolidar memoria"
         },
         {
-          "line": 532,
+          "line": 507,
           "term": "nao",
           "text": "- Se pipeline nao foi usado, o SUMMARY.md nao existira — a skill funciona normalmente sem ele"
         },
         {
-          "line": 532,
+          "line": 507,
           "term": "nao",
           "text": "- Se pipeline nao foi usado, o SUMMARY.md nao existira — a skill funciona normalmente sem ele"
         },
         {
-          "line": 554,
+          "line": 529,
           "term": "não",
           "text": "| \"Os testes passaram, então está correto\" | Testes verdes provam que o que você testou funciona — não que você testou o que importa. Veja Test Quality Audit (Step 2e). |"
         },
         {
-          "line": 555,
+          "line": 530,
           "term": "não",
           "text": "| \"Lint limpo significa código bom\" | Lint pega estilo, não bugs de lógica nem N+1. Rode o audit pipeline. |"
         },
         {
-          "line": 556,
+          "line": 531,
           "term": "não",
           "text": "| \"Eu mesmo escrevi, não precisa de fresh-context review\" | Quem escreveu não enxerga o próprio over-engineering. A Fase Final existe por isso. |"
         },
         {
-          "line": 556,
+          "line": 531,
           "term": "não",
           "text": "| \"Eu mesmo escrevi, não precisa de fresh-context review\" | Quem escreveu não enxerga o próprio over-engineering. A Fase Final existe por isso. |"
         },
         {
-          "line": 564,
+          "line": 539,
           "term": "NAO",
           "text": "1. Esta skill NAO modifica codigo diretamente — apenas coordena agents"
         },
         {
-          "line": 566,
+          "line": 541,
           "term": "nao",
           "text": "3. Fix automatico re-roda apenas o auditor da categoria (nao pipeline inteiro)"
         },
         {
-          "line": 568,
+          "line": 543,
           "term": "nunca",
           "text": "5. Mutation testing SEMPRE reverte mutacoes — nunca persistir"
         },
         {
-          "line": 569,
+          "line": 544,
           "term": "nao",
           "text": "6. Se bun run test nao existir, reportar gracefully e continuar com lint + audit"
         },
         {
-          "line": 570,
+          "line": 545,
           "term": "nao",
           "text": "7. Se nenhum agent estiver disponivel (plano 11 nao implementado), degradar para anti-vibe-review"
         },
         {
-          "line": 571,
+          "line": 546,
           "term": "nao",
           "text": "8. Config e lida uma vez no inicio — nao reler em cada step"
         },
         {
-          "line": 584,
+          "line": 559,
           "term": "NÃO",
           "text": "NÃO compartilhe com o subagente:"
         }
@@ -5978,245 +5958,240 @@
       "descriptionChars": 172,
       "descriptionLineChars": 187,
       "quotedTriggerCount": 0,
-      "bodyLines": 482,
+      "bodyLines": 432,
       "negations": [
         {
-          "line": 11,
-          "term": "nao",
-          "text": "// === Telemetria passiva (Plano 03 fase-02) — nao remover sem registrar em MEMORY.md ==="
-        },
-        {
-          "line": 77,
+          "line": 52,
           "term": "nao",
           "text": "   b. legacy v5 (fallback): Glob \".planning/CONTEXT-*.md\" — apenas se (a) nao retornar nada"
         },
         {
-          "line": 93,
+          "line": 68,
           "term": "nao",
           "text": "Usar AskUserQuestion para CADA pergunta (uma por vez, nao em bloco):"
         },
         {
-          "line": 98,
+          "line": 73,
           "term": "NAO",
           "text": "4. \"O que esta FORA do escopo? O que essa feature NAO deve fazer?\""
         },
         {
-          "line": 103,
+          "line": 78,
           "term": "Nao",
           "text": "- \"Nao sei\" → registrar como \"A DEFINIR\" e prosseguir"
         },
         {
-          "line": 104,
+          "line": 79,
           "term": "NAO",
           "text": "- NAO fazer mais de 5 perguntas — o PRD nao precisa ser perfeito no primeiro rascunho"
         },
         {
-          "line": 104,
+          "line": 79,
           "term": "nao",
           "text": "- NAO fazer mais de 5 perguntas — o PRD nao precisa ser perfeito no primeiro rascunho"
         },
         {
-          "line": 151,
+          "line": 126,
           "term": "nao",
           "text": "Formato de output intermediario (interno, nao mostrado ao dev):"
         },
         {
-          "line": 162,
+          "line": 137,
           "term": "nao",
           "text": "1. Se nao detectar algo, registrar como \"nao detectado\" — NAO chutar"
         },
         {
-          "line": 162,
+          "line": 137,
           "term": "nao",
           "text": "1. Se nao detectar algo, registrar como \"nao detectado\" — NAO chutar"
         },
         {
-          "line": 162,
+          "line": 137,
           "term": "NAO",
           "text": "1. Se nao detectar algo, registrar como \"nao detectado\" — NAO chutar"
         },
         {
-          "line": 164,
+          "line": 139,
           "term": "nao",
           "text": "3. Focar no diretorio mais relevante para a feature — nao explorar tudo"
         },
         {
-          "line": 169,
+          "line": 144,
           "term": "nao",
           "text": "serao \"assadas\" no rascunho. Surgir aqui (e nao no Step 4, ja com o draft pronto)"
         },
         {
-          "line": 175,
+          "line": 150,
           "term": "nao",
           "text": "2. Modelo de auth: {ex: sessao por cookie, nao JWT}"
         },
         {
-          "line": 176,
+          "line": 151,
           "term": "nao",
           "text": "3. Fonte de dados: {ex: reutilizar tabela `users` existente, nao criar entidade nova}"
         },
         {
-          "line": 180,
+          "line": 155,
           "term": "nao",
           "text": "Regra: derivar cada item do que o Step 2 detectou; onde nao detectou, marcar"
         },
         {
-          "line": 181,
+          "line": 156,
           "term": "NAO",
           "text": "\"[A DEFINIR]\" em vez de chutar. Isto NAO substitui o \"⚠️ Assumido:\" do Step 4 —"
         },
         {
-          "line": 196,
+          "line": 171,
           "term": "nao",
           "text": "| Should Have | Funcionalidades importantes mas nao bloqueantes |"
         },
         {
-          "line": 199,
+          "line": 174,
           "term": "Nao",
           "text": "| Nao-funcionais | WCAG 2.0, performance (API < 200ms), seguranca, observabilidade |"
         },
         {
-          "line": 208,
+          "line": 183,
           "term": "NAO",
           "text": "3. NAO gerar requisitos que o dev nao mencionou — apenas organizar e estruturar"
         },
         {
-          "line": 208,
+          "line": 183,
           "term": "nao",
           "text": "3. NAO gerar requisitos que o dev nao mencionou — apenas organizar e estruturar"
         },
         {
-          "line": 223,
+          "line": 198,
           "term": "nao",
           "text": "1. DECISOES ASSUMIDAS — marcar com \"⚠️ Assumido:\" antes de cada decisao nao confirmada"
         },
         {
-          "line": 245,
+          "line": 220,
           "term": "nao",
           "text": "1. Criar diretorio `docs/exec-plans/active/` se nao existir"
         },
         {
-          "line": 250,
+          "line": 225,
           "term": "nao",
           "text": "   - Se CONTEXT foi importado do Caminho A fonte (a) v6: REUSAR o `folder` da pasta encontrada (mesmo date+slug), nao derivar novo"
         },
         {
-          "line": 252,
+          "line": 227,
           "term": "NAO",
           "text": "   - Caso especial pipeline: se `{folder}/CONTEXT.md` existe MAS `{folder}/PRD.md` NAO existe → grill-me criou a pasta primeiro, este e o fluxo esperado. Escrever `{folder}/PRD.md` direto (sem prompt)."
         },
         {
-          "line": 254,
+          "line": 229,
           "term": "NAO",
           "text": "4. Se NAO existir:"
         },
         {
-          "line": 265,
+          "line": 240,
           "term": "NAO",
           "text": "   - Se NAO existe: criar pasta + salvar PRD.md nu (fluxo normal)"
         },
         {
-          "line": 296,
+          "line": 271,
           "term": "nao",
           "text": "       - Se `{pasta}-v2/` nao existe: usar `-v2`"
         },
         {
-          "line": 302,
+          "line": 277,
           "term": "nao",
           "text": "     - Pasta v2 nao recebe CONTEXT.md automaticamente (v2 eh reformulacao; dev roda /grill-me se precisar)"
         },
         {
-          "line": 305,
+          "line": 280,
           "term": "Nao",
           "text": "     - Nao criar nada"
         },
         {
-          "line": 306,
+          "line": 281,
           "term": "nao",
           "text": "     - \"PRD nao foi salvo. Ajuste o slug com /write-prd {novo-nome} se quiser pasta diferente.\""
         },
         {
-          "line": 314,
+          "line": 289,
           "term": "nao",
           "text": "1. Glob `.planning/CONTEXT-*.md` na raiz de `.planning/` (nao subpastas)"
         },
         {
-          "line": 315,
+          "line": 290,
           "term": "nao",
           "text": "2. Se 0 matches: nao fazer nada (sem legacy — prosseguir)"
         },
         {
-          "line": 329,
+          "line": 304,
           "term": "Nao",
           "text": "         [c] Nao sei — deixar em paz\""
         },
         {
-          "line": 332,
+          "line": 307,
           "term": "nao",
           "text": "      - Se [b] ou [c]: nao mover, prosseguir"
         },
         {
-          "line": 334,
+          "line": 309,
           "term": "NAO",
           "text": "5. Se mv falhar (permissao, etc): logar o erro mas NAO derrubar a skill"
         },
         {
-          "line": 335,
+          "line": 310,
           "term": "Nao",
           "text": "   Informar: \"Nao consegui migrar CONTEXT-{slug}.md: {motivo}. PRD salvo normalmente — mova manualmente se necessario.\""
         },
         {
-          "line": 411,
+          "line": 386,
           "term": "nao",
           "text": "  Se o slug do CONTEXT nao bater com o slug final da pasta: perguntar ao dev (mitigacao R2)."
         },
         {
-          "line": 413,
+          "line": 388,
           "term": "NAO",
           "text": "- **Se NAO existir:** Prosseguir com o fluxo normal de coleta de informacoes."
         },
         {
-          "line": 424,
+          "line": 399,
           "term": "NAO",
           "text": "Se o dev disser NAO: encerrar normalmente. O PRD.md continua disponivel."
         },
         {
-          "line": 440,
+          "line": 415,
           "term": "NAO",
           "text": "2. A skill NAO gera PRDs genericos — DEVE contextualizar ao codebase real do projeto"
         },
         {
-          "line": 445,
+          "line": 420,
           "term": "NAO",
           "text": "7. NAO gerar requisitos que o dev nao mencionou — apenas organizar e estruturar"
         },
         {
-          "line": 445,
+          "line": 420,
           "term": "nao",
           "text": "7. NAO gerar requisitos que o dev nao mencionou — apenas organizar e estruturar"
         },
         {
-          "line": 447,
+          "line": 422,
           "term": "NAO",
           "text": "9. A skill NAO substitui o /grill-me (resolver ambiguidades) nem o /consultant (ensinar trade-offs) — gera DOCUMENTO"
         },
         {
-          "line": 456,
+          "line": 431,
           "term": "nao",
           "text": "| \"Escrevo o PRD depois do codigo\" | Isso e documentacao, nao especificacao. O valor do PRD esta em forcar clareza ANTES do codigo. |"
         },
         {
-          "line": 457,
+          "line": 432,
           "term": "nao",
           "text": "| \"Esta task e simples, nao precisa de PRD\" | Tasks simples nao precisam de PRD longo, mas ainda precisam de criterios de aceite. Um PRD de 2 linhas serve. |"
         },
         {
-          "line": 457,
+          "line": 432,
           "term": "nao",
           "text": "| \"Esta task e simples, nao precisa de PRD\" | Tasks simples nao precisam de PRD longo, mas ainda precisam de criterios de aceite. Um PRD de 2 linhas serve. |"
         },
         {
-          "line": 464,
+          "line": 439,
           "term": "nao",
           "text": "- Implementando requisitos que nao estao no PRD nem foram mencionados pelo dev."
         }
@@ -6476,7 +6451,7 @@
     "modelInvoked": 39,
     "hookListed": 23,
     "hookDescriptionChars": 1937,
-    "negations": 1143,
+    "negations": 1138,
     "satellitesUnlinked": 3
   }
 }

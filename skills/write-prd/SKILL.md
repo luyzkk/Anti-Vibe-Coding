@@ -8,31 +8,6 @@ argument-hint: "[descricao da feature ou problema a especificar]"
 ---
 
 ```typescript
-// === Telemetria passiva (Plano 03 fase-02) — nao remover sem registrar em MEMORY.md ===
-// G5: telemetria SEMPRE ativa, ignora architectureDetectorEnabled
-// G7: skill name canonico fixo
-
-import { writeTelemetryStart, writeTelemetryEnd } from '../../lib/telemetry-utils'
-import type { TelemetryStart, TelemetryEnd } from '../../lib/telemetry-types'
-
-const __telemetry_skillName = 'write-prd'
-const __telemetry_fasePipeline = 'write-prd'
-const __telemetry_startTimestamp = new Date().toISOString()
-const __telemetry_startMs = Date.now()
-
-const __telemetry_startEntry: TelemetryStart = {
-  evento: 'start',
-  skill_invocada: __telemetry_skillName,
-  timestamp_inicio: __telemetry_startTimestamp,
-  profile_arquitetura: 'disabled',
-  fase_pipeline: __telemetry_fasePipeline,
-}
-
-writeTelemetryStart(__telemetry_startEntry)
-// === Fim do bloco de inicio ===
-```
-
-```typescript
 // === Perfil arquitetural (Plano 04 fase-04) ===
 // G1: UMA leitura + UMA resolucao via lookup. Sem branching profundo.
 // G2 / CA-04: profile null (flag off ou manifest ausente) → snippet vazio → template preserva v5.2
@@ -464,28 +439,3 @@ Se o dev disser NAO: encerrar normalmente. O PRD.md continua disponivel.
 - Implementando requisitos que nao estao no PRD nem foram mencionados pelo dev.
 - Tomando decisoes arquiteturais sem registra-las na tabela `## Decisoes Tecnicas`.
 - Must Have ocupando mais de 40% dos requisitos (lixeira de prioridade).
-
----
-
-```typescript
-// === Telemetria passiva (Plano 03 fase-02) — registra fim ===
-// CA-03: end emitido SEMPRE
-// Limitacao conhecida: sucesso=true hardcoded (skill declarativa sem try/catch — ver MEMORY.md G9)
-
-const __telemetry_endEntry: TelemetryEnd = {
-  evento: 'end',
-  skill_invocada: __telemetry_skillName,
-  timestamp_inicio: __telemetry_startTimestamp,
-  timestamp_fim: new Date().toISOString(),
-  duracao_ms: Date.now() - __telemetry_startMs,
-  profile_arquitetura: 'disabled',
-  fase_pipeline: __telemetry_fasePipeline,
-  tokens_aproximados_consumidos: 0,
-  arquivos_lidos: 0,
-  arquivos_modificados: 0,
-  sucesso: true,
-}
-
-writeTelemetryEnd(__telemetry_endEntry)
-// === Fim do bloco de fim ===
-```
