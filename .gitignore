@@ -38,6 +38,15 @@ discovery/*.json
 # Test run artifacts (E2E migration test output — não versionado)
 tests/fixtures/__legacy-v5-e2e-run/
 
+# 2026-08-12: fixture do bench de performance (CA-26). E gerada do zero a cada run por
+# `tests/perf/validators.bench.ts` -> `ensureFixture()`, que sempre chama o generator. O codigo
+# ja assumia que ela era ignorada ("fixture e ephemera, nao versionada"), mas 166 arquivos de
+# output estavam commitados desde 6de33e8 — e cada `bun run test` os sujava de volta.
+# O `-test-run` e o alvo do teste do proprio generator; ele limpa sozinho, isto e rede de
+# seguranca para quando o cleanup falha no Windows.
+tests/fixtures/compound-100-docs/
+tests/fixtures/compound-100-docs-test-run/
+
 # Material de consulta/referência local — NUNCA vai pro repo
 # Regra (memoria persistente feedback_git_repo_scope): apenas codigo do plugin
 # vai pro GitHub; documentos para estudo/exploracao de features ficam so locais.
