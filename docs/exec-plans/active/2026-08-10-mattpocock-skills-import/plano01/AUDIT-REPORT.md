@@ -63,9 +63,24 @@ ja disseram — muitas vezes verbatim.
 
 Medido mecanicamente: **28 secoes em 21 skills, 28.281 chars.**
 
+> **Segunda correcao (2026-08-12, verificacao do 5b).** A **maior entrada desta tabela e um falso
+> positivo.** `verify-work ## Pipeline Integration` tem 6.036 chars e **141 deles sao reprojecao** —
+> o ponteiro de Learn Point. O resto e conteudo de fonte unica:
+> `### Cleanup de Artefatos` (4.331, 91 linhas do procedimento de arquivamento do PRD — o mesmo
+> bloco cujos fences o lote 7 consertou), `### 0. Importar Contexto` (646; `SUMMARY.md` nao aparece
+> no corpo), `### Ao Finalizar a Verificacao` (632; `/commit`, `/push`, `/open-pr` e
+> `iterate harden` nao aparecem no corpo) e `### Escape Hatches` (257). Entrou no S1 **pelo nome do
+> heading**. Sozinha ela era 27% do pool restante — o pool real e menor que 22.364.
+>
+> Padrao que emergiu: `## Pipeline Integration` **nao e reprojecao dos steps** — e o contrato de
+> pipeline da skill (de onde le, onde escreve, o que vem depois, como escapar). No `write-prd` ele
+> por acaso duplicava o corpo, porque aquela skill tambem detalha import/save dentro dos Steps 5 e
+> 6. Nas outras, e o unico lugar. **E `### Escape Hatches` e fonte unica em todas** — `standalone`
+> nao aparece no corpo de `plan-feature`, `grill-me` nem `verify-work` (0 hits cada).
+
 | Skill | Secao | Chars |
 |---|---|---|
-| verify-work | `## Pipeline Integration` (:402) | 6.034 |
+| ~~verify-work~~ | ~~`## Pipeline Integration` (:402)~~ **falso positivo, ver acima** | ~~6.034~~ |
 | plan-feature | `## Pipeline Integration` (:753) | 1.875 |
 | write-prd | `## Pipeline Integration` (:397) | 1.811 |
 | design-twice | `## Regras` (:351) | 1.348 |
@@ -334,6 +349,7 @@ falta de tempo.
 |---|---|---|
 | **S3 — `docs/references/` em `source-driven-development`** (5 sites: `:16`, `:17`, `:82`, `:83`, `:84`) | **Nao e ponteiro morto.** `docs/references/` existe com exatamente os 3 arquivos citados (`testing-patterns.md`, `security-checklist.md`, `accessibility-checklist.md`), e `:80` ja os rotula "Exemplos disponiveis no Anti-Vibe Coding". A observacao verdadeira — `sync-to-global.sh:83` nao distribui `docs/` — descreve **portabilidade para projeto instalado**, nao um ponteiro quebrado; e "check `docs/references/`" degrada sem dano quando a pasta nao existe. Se virar escopo, o patch e mover material, nao consertar path | `ls docs/references/` · `sync-to-global.sh:83` |
 | **Referencias `.planning/` do Step 0** de `plan-feature` e `execute-plan` | **Intencionalmente preservadas.** Compound `2026-05-14` linha 36 as lista entre os itens mantidos: e o fallback "v5 detectado, oferece migrar" (D10). `harness-validate.ts:424` whitelista `plan-feature` pelo mesmo motivo. Migra-las para `docs/exec-plans/` quebraria a deteccao de legado, que e o unico proposito do Step 0 | `docs/compound/2026-05-14-skill-paths-tech-debt-after-v6.md:31-39` |
+| **S1 — `verify-work ## Pipeline Integration`** (6.036 chars, a maior entrada da tabela do S1) | **Nao e secao S1.** Medido subsecao a subsecao: **141 chars de reprojecao** (o ponteiro de Learn Point, twin do `## Step 5`) contra **5.895 de fonte unica** — `### Cleanup de Artefatos` sozinho tem 4.331 (91 linhas do procedimento de arquivamento). `SUMMARY.md`, `/commit`, `/push`, `/open-pr`, `iterate harden` e `standalone` **nao aparecem** no corpo (`:1-376`). Foi classificada pelo nome do heading. Cortar em bloco removeria o arquivamento do PRD inteiro | leitura das 6 subsecoes + grep no corpo `:1-376` |
 | **Fix implicito de `decision-registry`** (`.claude/decisions.md` -> `decisions.md` raiz) | **Aplicado em outra forma, porque o proposto estava errado.** `decisions.md` raiz e so o branch **v5/cru** (`index.ts:49-53`); em **v6** — default deste repo — a skill escreve `ADR-NNNN-{slug}.md` em `docs/design-docs/` (`index.ts:35-46`). Trocar o path teria produzido falsidade nova. Corrigido deferindo ao layout | `skills/decision-registry/index.ts:26-70` |
 
 ---
@@ -452,7 +468,7 @@ provar que o grep acha o caso positivo.**
 
 | Item | Volume medido | Por que ficou |
 |---|---|---|
-| **Lote 5 — secoes de fechamento (S1)** — **5a aplicado** (`379e10a`), resto aberto | pool re-medido: **22.364 chars, 22 secoes, 18 skills** (era 25.527/25/20 antes do 5a) | O 5a confirmou o motivo do adiamento: **os tres exemplos de "deletar e seguro" tinham residuo**. Exige contagem item a item, ~4 sub-lotes restantes. Maior peca isolada: `verify-work ## Pipeline Integration`, 6.036 chars (27% do pool restante). O subtipo 3 (contradicoes) ja saiu no lote 1 |
+| **Lote 5 — secoes de fechamento (S1)** — **5a aplicado** (`379e10a`), resto aberto | pool nominal **22.364**; real **~16.3k** depois de tirar `verify-work` (5.895 de fonte unica) e os `### Escape Hatches` (1.130 em 4 skills) | O 5a derrubou o subtipo 1; a verificacao do 5b derrubou a maior entrada da tabela. **Duas de duas classificacoes do S1 nao sobreviveram a leitura.** O que resta e menor e mais fragmentado do que o relatorio sugere — proximo candidato e a familia `## Regras`, nao `## Pipeline Integration`. O subtipo 3 (contradicoes) ja saiu no lote 1 |
 | ~~**Lote 6 — telemetria (S2)**~~ **CONCLUIDO** (`59bad47` + `057398c`) | **−15.256 medidos**, 20 blocos em 10 skills | A superficie de teste era mesmo **maior que este relatorio supunha** — 5 testes em 3 describes, nao a linha unica. Confirmado tambem que **a lib nao sai junto**: `emit-stack-knowledge-events.ts:5` usa `writeTelemetryDomainEvent`. Morto era so o prompt. Deixa 5 exports sem caller — ver achado abaixo |
 | **Lista das 23 skills no hook** | 1.981 chars, 53% do banner | G1 multiplicado por 23. Se a descoberta depender so das descriptions e a premissa estiver errada, 23 skills param de disparar **em silencio**. A lista tambem carrega o protocolo "SEMPRE pergunte antes de invocar", ausente das descriptions. Precisa de verificacao real de descoberta, nao de coragem |
 | **Negacoes (pool de 1.148)** | julgamento caso a caso | O pool e em pt-BR: `\bnao\b` casa prosa comum. Contar seria transformar ruido em achado |
