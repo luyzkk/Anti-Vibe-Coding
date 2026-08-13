@@ -66,7 +66,23 @@ Gerenciar o registro de decisoes do projeto, mantendo consistencia entre sessoes
 
 > Adicionado na Wave 2 (2026-05-22) — pedagogia ANTES do CRUD para ensinar QUANDO escrever ADR antes de oferecer COMO escrever.
 
-ADRs capturam o raciocinio por tras de decisoes tecnicas significativas. Escreva ADR quando:
+ADRs capturam o raciocinio por tras de decisoes tecnicas significativas.
+
+### O filtro
+
+Duas propriedades decidem se ha ADR, e as duas precisam valer:
+
+1. **Dificil de reverter** — mudar de ideia depois custa de verdade. O que e barato de reverter voce
+   simplesmente reverte; registrar nao paga.
+2. **Surpreendente sem contexto** — um leitor futuro olha o codigo e pensa "por que raios fizeram
+   assim?". Se ninguem vai se perguntar, nao ha o que responder.
+
+Uma terceira propriedade — **havia alternativa genuinamente avaliada?** — nao entra no gate, decide o
+tier (`### Dois tiers`). Fora do gate porque restricao imposta e desvio deliberado nao tem
+alternativa a comparar, e sao justamente os ADRs que impedem alguem de desfazer o que foi intencional.
+
+A tabela e catalogo, nao gate — lista onde decisao registravel costuma aparecer. Gatilho que nao
+passa nas duas propriedades acima nao vira ADR.
 
 | Gatilho | Exemplo |
 |---|---|
@@ -76,6 +92,39 @@ ADRs capturam o raciocinio por tras de decisoes tecnicas significativas. Escreva
 | Arquitetura de API | REST vs GraphQL vs tRPC vs RPC |
 | Build tool, hosting, infraestrutura | Vercel vs Cloudflare, Supabase vs RDS |
 | Qualquer decisao expensive to reverse | Trocar banco em prod, migrar de monolito para servicos |
+
+### Tres que a tabela nao pega
+
+- **Desvio deliberado do caminho obvio** — *"SQL manual em vez de ORM porque X"*. Qualquer coisa em
+  que um leitor razoavel assumiria o contrario. Impede o proximo engenheiro de "consertar" o que foi
+  intencional, e por isso e a de maior retorno da lista.
+- **Restricao invisivel no codigo** — *"nao podemos usar AWS por compliance"*, *"resposta abaixo de
+  200ms por contrato com o parceiro"*. Nao esta escrita em lugar nenhum do repo.
+- **Fronteira e escopo** — *"dados de Customer pertencem ao contexto Customer; os outros referenciam
+  por ID"*. Os **naos** explicitos valem tanto quanto os sins.
+
+As tres compartilham a mesma propriedade: nao ha alternativa avaliada a comparar. Por isso vao no
+tier leve.
+
+### Dois tiers
+
+Uma pergunta escolhe: **existe alternativa que foi genuinamente avaliada?** Sim, completo; nao, leve.
+
+| Tier | Quando | Corpo |
+|---|---|---|
+| **Completo** | alternativas reais foram avaliadas | as quatro secoes cheias, cada alternativa com Pros / Cons / Rejeitada porque |
+| **Leve** | as tres categorias acima | mesmas quatro secoes; Alternatives declara numa linha qual default foi rejeitado e que nao houve comparacao; Consequences cabe numa frase |
+
+Mesmo `adr-writer.ts`, mesma numeracao, mesmo `docs/design-docs/` — o writer sempre emite as quatro
+secoes, entao o tier leve as preenche curto em vez de deixar o stub:
+
+```markdown
+## Alternatives
+- Nenhuma avaliada: o default (ORM) foi rejeitado por X, nao comparado.
+
+## Consequences
+- Migrations passam a ser escritas a mao, em troca de controle sobre o SQL gerado.
+```
 
 ### Lifecycle de um ADR
 
@@ -98,8 +147,9 @@ ADRs capturam o raciocinio por tras de decisoes tecnicas significativas. Escreva
 ### Red Flags
 
 - Decisao arquitetural sem ADR escrito.
-- ADR sem secao "Alternatives Considered" — virou monologo, nao analise.
-- ADR sem secao "Consequences" — incapaz de avaliar trade-off depois.
+- ADR **completo** com Alternatives vazia ou ainda em stub — virou monologo, nao analise. No tier
+  leve nao se aplica: houvesse alternativa avaliada, o tier seria o outro.
+- Consequences ainda em stub — incapaz de avaliar trade-off depois. Uma frase resolve no tier leve.
 - Decisao mudada SEM superseder o ADR antigo — historico corrompido.
 - `DEPRECATED` sem motivo registrado.
 
@@ -107,8 +157,9 @@ ADRs capturam o raciocinio por tras de decisoes tecnicas significativas. Escreva
 
 Como `adr-writer.ts` sempre escreve os cabecalhos com stub, a checagem por AUSENCIA (Red Flags) nao pega um ADR preenchido pela metade — esta checklist positiva pega.
 
-- [ ] Secao Alternatives nao-vazia E nao e placeholder (cada alternativa tem Pros/Cons/Rejeitada porque)
-- [ ] Consequences preenchida (trade-off real, nao "(trade-offs...)")
+- [ ] **Completo:** Alternatives nao-vazia E nao e placeholder (cada alternativa tem Pros/Cons/Rejeitada porque)
+- [ ] **Leve:** Alternatives diz qual default foi rejeitado e que nao houve alternativa avaliada
+- [ ] Consequences preenchida (trade-off real, nao "(trade-offs...)") — uma frase basta no tier leve
 - [ ] status correto no frontmatter (`active` / `superseded` / `deprecated`)
 - [ ] ADR que supersede outro linka nos DOIS sentidos (`superseded_by` no antigo, `supersedes`/ref no novo)
 
