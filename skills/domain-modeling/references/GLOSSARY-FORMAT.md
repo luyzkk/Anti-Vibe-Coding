@@ -5,30 +5,33 @@ sondar, cruzar com o codigo — vive em [`SKILL.md`](../SKILL.md).
 
 ## Estrutura
 
-```md
-# Glossario
+Os rotulos — `## Language`, `_Avoid_` — sao fixos em ingles, como em todo doc que o `/init` instala.
+O que voce escreve dentro deles segue a lingua do projeto.
 
-Uma ou duas frases sobre o que este dominio e.
+```md
+# Glossary
+
+One or two sentences on what this domain is.
 
 ## Language
 
 **Order**:
-Um pedido de compra confirmado por um Customer, com itens e um estado de fulfillment.
-_Evitar_: Purchase, transaction
+A purchase confirmed by a Customer, with items and a fulfillment state.
+_Avoid_: Purchase, transaction
 
 **Invoice**:
-Uma cobranca enviada ao Customer depois da entrega.
-_Evitar_: Bill, payment request
+A charge sent to the Customer after delivery.
+_Avoid_: Bill, payment request
 
 **Customer**:
-Pessoa ou organizacao que faz Orders.
-_Evitar_: Client, buyer, account
+A person or organization that places Orders.
+_Avoid_: Client, buyer, account
 ```
 
 ## Regras
 
 - **Ser opinativo.** Quando varias palavras existem para o mesmo conceito, escolher a melhor e listar
-  as outras em `_Evitar_`. A palavra rejeitada e conteudo: e ela que impede o termo de voltar pela
+  as outras em `_Avoid_`. A palavra rejeitada e conteudo: e ela que impede o termo de voltar pela
   porta dos fundos na proxima sessao.
 - **Definicao curta.** Uma ou duas frases, definindo o que a coisa **e**. "Um pedido confirmado por
   um Customer" define; "valida o estoque e emite um evento" descreve comportamento, que muda sem que
