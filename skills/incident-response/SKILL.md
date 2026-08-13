@@ -9,9 +9,10 @@ argument-hint: "[log ou descrição do incidente]"
 
 # Skill: /anti-vibe-coding:incident-response
 
-<!-- Os títulos de etapa são ponteiros externos: skills/iterate/SKILL.md referencia
-     "Ingestão de Logs Brutos" e "Hardening" por nome. Renomear uma seção quebra a
-     referência em silêncio — nenhum teste pega. Renomeou? Atualize iterate junto. -->
+<!-- skills/iterate/SKILL.md aponta para esta skill em dois lugares, ambos para os satélites:
+     references/feedback-loops.md ("Bugs não-determinísticos") e references/instrumentation.md.
+     Renomear essas seções, ou mover os arquivos, quebra a referência em silêncio — nenhum
+     teste pega path-em-doc. Mexeu? Atualize iterate junto. -->
 
 Diagnóstico disciplinado de bug difícil — em produção ou em desenvolvimento.
 
@@ -21,10 +22,12 @@ Diagnóstico disciplinado de bug difícil — em produção ou em desenvolviment
 
 O fluxo obrigatório é: **logs brutos → loop *tight* → hipótese → regression test → fix → commit**.
 
-Duas coisas nessa ordem não são negociáveis. O teste vem antes do fix, para que a correção prove que
-o bug foi eliminado e não apenas escondido. E o loop vem antes da hipótese, porque é ele que **gera**
-a teoria — hipótese formulada antes de existir sinal *red* é palpite que o resto do fluxo apenas
-confirma.
+Duas ordens não são negociáveis. O teste vem antes do fix, para que a correção prove que o bug foi
+eliminado e não apenas escondido. E o loop vem antes da hipótese, porque é ele que **gera** a teoria —
+hipótese formulada antes de existir sinal *red* é palpite que o resto do fluxo apenas confirma.
+
+A única dispensa do regression test é não existir **seam correto** onde escrevê-lo, e ela não é
+atalho: quando acontece, a ausência do seam é o achado, e vai registrada (Etapa 6).
 
 ## Fluxo
 
@@ -156,25 +159,29 @@ Regressão de performance segue por outro caminho, porque log costuma ser a ferr
 baseline medido, depois bisect. Ver
 [`references/feedback-loops.md`](./references/feedback-loops.md), seção "Regressão de performance".
 
-### Etapa 6 — Regression Test (ANTES do fix)
+### Etapa 6 — Regression Test (ANTES do fix, quando há seam correto)
 
-```
-Escrever teste que:
-  - Reproduz a condição exata do incidente
-  - FALHA com o código atual (RED obrigatório)
-  - Tem nome descritivo: "returns 500 when payload is empty" (sem "should")
+O teste vem antes do fix, mas não é incondicional: ele precisa de um **seam correto** — aquele em que
+o teste exercita o **padrão real do bug**, como ele ocorre no call site. Seam raso demais (teste de
+caller único quando o bug precisa de vários; unitário que não replica a cadeia que disparou) dá
+**falsa confiança**, que é pior que não ter teste: parece coberto. Vocabulário completo de seam em
+[`tdd-workflow/references/deep-modules.md`](../tdd-workflow/references/deep-modules.md).
 
-Executar: bun run test [arquivo de teste]
-Confirmar que o teste está vermelho ANTES de prosseguir.
+**Não havendo seam correto, isso é o achado.** A arquitetura está impedindo o bug de ser travado.
+Registrar o que faltou e levar para a autópsia — em vez de escrever um teste que mente.
 
-Se o teste passar sem fix → hipótese errada. Voltar a "Formular Hipótese".
-```
+Havendo: transformar o repro minimizado da Etapa 3 em teste falhando naquele seam, com nome
+descritivo e sem "should" (`returns 500 when payload is empty`), e vê-lo **vermelho** antes de seguir.
+
+Se o teste passar sem fix → hipótese errada. Voltar a "Formular Hipóteses".
 
 ### Etapa 7 — Fix Cirúrgico
 
 Implementar só o necessário para o regression test ficar verde: sem refatoração oportunista, sem
-"melhoria" adjacente. Rodar a suite e confirmar duas coisas — o regression test verde, e a suite
-inteira verde.
+"melhoria" adjacente. Rodar a suite e confirmar o regression test verde e a suite inteira verde.
+
+Então **re-rodar o loop da Etapa 2 contra o cenário original, não o minimizado**. É o que fecha o
+ciclo: o repro mínimo prova a causa, o cenário original prova a correção.
 
 ### Etapa 8 — Hardening (hábito, não fase)
 
@@ -197,16 +204,28 @@ esperado e correto.
 fix(auth): previne panic em JWT com payload vazio
 
 - Causa raiz: jwt.Parse não validava claims antes de acessar sub
+- Hipótese confirmada: #2 (validação ausente no parse), contra #1 (payload malformado no cliente)
 - Regression test: auth.test.ts > returns 401 when JWT payload is empty
 ```
 
-As duas linhas do corpo são obrigatórias: causa raiz numa frase, e o nome do regression test.
+As três linhas do corpo são obrigatórias: causa raiz numa frase, qual hipótese se confirmou — e as
+descartadas, quando informativo — e o nome do regression test. Escrever custa segundos; reconstruir
+depois, horas.
+
+## Cleanup — antes de declarar pronto
+
+- [ ] O repro original não reproduz mais (re-rodar o loop da Etapa 2)
+- [ ] Regression test passa — **ou** a ausência de seam correto está documentada
+- [ ] Toda instrumentação `[DEBUG-...]` removida: um grep pelo prefixo. O que não tem tag fica, por
+      construção — error boundary e log de produção não são probe
+- [ ] Protótipos descartáveis deletados, ou movidos para local claramente marcado
 
 ## Sinais de Alerta
 
 | Sinal | O que fazer |
 |-------|-------------|
-| Fix sem teste | Voltar a "Regression Test" |
+| Fix sem teste, porque pulamos | Voltar a "Regression Test" |
+| Fix sem teste, porque não há seam correto | Seguir — desde que o achado esteja registrado e na autópsia |
 | Hipótese formulada sem comando *red* | Voltar a "Construir o Loop *Tight*" — o gate não é opcional |
 | Teste que passou sem fix | Hipótese errada — reler logs |
 | Múltiplos arquivos modificados | Verificar se não é refatoração disfarçada |
@@ -216,11 +235,18 @@ As duas linhas do corpo são obrigatórias: causa raiz numa frase, e o nome do r
 
 ## Autópsia Pós-Fix
 
-Após o commit, responder:
+Após o commit — nunca antes, porque agora há mais informação do que havia no começo:
 
 1. **Por que aconteceu?** (causa técnica em uma frase)
 2. **Por que passou pela revisão/testes existentes?** (gap de cobertura)
 3. **O que previne esta categoria de bug no futuro?** (regra ou cobertura nova)
+4. **O que teria prevenido este bug?** — a pergunta larga, com o fix já dentro
+
+Se a resposta da 4 envolver mudança arquitetural — ausência de seam correto, callers emaranhados,
+acoplamento escondido — encaminhar com as especificidades para
+`/anti-vibe-coding:architecture`, ou `/anti-vibe-coding:code-simplification` quando o problema for
+excesso de indireção. A recomendação vale mais aqui do que no início: o diagnóstico inteiro é a
+evidência dela.
 
 Se a autópsia revelar um padrão recorrente, registrar via `/anti-vibe-coding:lessons-learned add`.
 

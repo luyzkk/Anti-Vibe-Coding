@@ -15,7 +15,7 @@ este numero o plano acertou.
 |---|---|---|---|
 | 01 | Reenquadrar + a fase do loop | **done** | 5/5 |
 | 02 | O miolo | **done** | 1 novo + 3 modificados (plano previa 1) |
-| 03 | A saida | planned | 0/1 |
+| 03 | A saida | **done** | 1/1 |
 
 ## Decisoes de implementacao (DI)
 
@@ -79,7 +79,50 @@ Formato: `DI-Plano06-faseNN-<slug>: <o que mudou e por que>`.
   A poda real e sem perda rendeu 10 linhas: `Fix Cirurgico` (12 -> 6) e `Commit` (16 -> 11), os dois
   blocos de pseudo-codigo mais verbosos, convertidos para prosa densa.
 
-## Descricoes do fluxo que ficaram desatualizadas (resolver no fim do plano)
+### fase-03 (2026-08-13)
+
+- `DI-Plano06-fase03-principio-contradizia-o-seam`: o Passo 2 manda ajustar **os Sinais de Alerta**
+  para nao contradizer o teste do seam. Havia um segundo lugar, nao previsto: a secao `## Principio`
+  abria com *"Cada fix vem com regression test"* e *"o teste vem antes do fix"* — incondicional, que
+  e exatamente o que a Etapa 6 passa a qualificar. Ficou o alerta ajustado **e** o Principio, que
+  agora nomeia a unica dispensa (nao ha seam correto) e diz que ela nao e atalho. Mesmo G1, dois
+  sites — o plano nomeava um.
+- `DI-Plano06-fase03-comentario-do-topo-envelheceu`: o comentario HTML que a **fase-01** colocou no
+  topo avisava que `iterate` referencia "Ingestao de Logs Brutos" e "Hardening" **por nome de secao**.
+  A fase-02 mudou os dois ponteiros para os satelites, e o comentario virou falso em duas semanas de
+  distancia zero. Reescrito para nomear os arquivos reais. E o proprio modo de falha que ele descreve
+  ("path-em-doc nao quebra teste"), acontecido dentro do plano que o documenta.
+- `DI-Plano06-fase03-ponteiro-arquitetural`: `improve-codebase-architecture` nao existe (G3).
+  Encaminha para `/anti-vibe-coding:architecture`, com `code-simplification` como alternativa quando
+  o problema for excesso de indirecao. Ambas verificadas em disco. **Se `improve-codebase-architecture`
+  entrar pelo plano07, este ponteiro muda de destino** — ja estava anotado neste MEMORY, segue valendo.
+- `DI-Plano06-fase03-seam-veio-do-plano02`: o sentido tecnico de `seam` usado aqui e o de
+  `tdd-workflow/references/deep-modules.md` (plano02 fase-01), que inclui a linha diretamente
+  aplicavel — *"callers e testes atravessam o mesmo seam; se o teste precisa chegar alem da interface,
+  o achado e a forma do modulo"*. O ponteiro aponta para la em vez de redefinir o termo.
+
+## Tamanho final e o teto (fechamento do plano06)
+
+| Momento | Linhas do `SKILL.md` |
+|---|---|
+| Antes do plano | 176 |
+| Apos fase-01 | 218 |
+| Apos fase-02 | 229 |
+| **Apos fase-03** | **255** |
+
+O teto de ~220 do plano nao se sustentou — ver `DI-Plano06-fase02-teto-220-nao-cabe`. Nao foi por
+falta de poda: foram **tres extracoes para satelite** (perf, rubrica de instrumentacao, arvore de
+flakiness), duas conversoes de pseudo-codigo verboso para prosa, e nenhuma linha de fluxo removida.
+O que a skill ganhou nas tres fases — loop com gate, minimizacao, 3-5 hipoteses, instrumentacao,
+teste de seam, cleanup, quarta pergunta da autopsia — sao **9 etapas**, e 255 linhas e o custo real
+disso com o material de reference ja empurrado para 2 satelites (95 + 29 linhas).
+
+Proximo corte possivel, se alguem quiser voltar a ~220: dividir **por sequencia** (diagnostico ate o
+loop red · da minimizacao ao commit). E o corte que a lente recomenda para documento com muitos
+steps, e o unico que sobra sem tirar conteudo vivo. Nao feito aqui: e mudanca de superficie de
+invocacao, nao de conteudo, e mereceria plano proprio.
+
+## Descricoes do fluxo — RESOLVIDAS na fase-03
 
 A sequencia antiga — "logs brutos -> hipotese -> regression test -> fix" — aparece descrita em tres
 lugares fora da skill. Com o loop entrando no meio, ficam **incompletas, nao falsas**; nenhuma e link
@@ -91,9 +134,10 @@ quebrado:
 | `README.md:358` | mesma sequencia, no bloco de comandos |
 | `skills/tdd-workflow/SKILL.md:346` | "fluxo completo pos-deploy (logs brutos -> hipotese -> ...)" |
 
-Deixadas para depois da fase-03 de proposito: as fases 02 e 03 ainda mexem nas etapas, e reescrever
-a descricao duas vezes seria trabalho dobrado. `README.md:279` (diagrama de pipeline) e
-`README.md:590` (lista de skills) nao descrevem etapas — nao precisam mudar.
+Atualizadas na fase-03, depois de o fluxo estabilizar — reescrever a cada fase teria sido trabalho
+triplicado. Os tres agora nomeiam o loop; o do `tdd-workflow` tambem trocou "pos-deploy" pelo escopo
+novo (producao **ou** desenvolvimento) e lista as etapas do miolo. `README.md:279` (diagrama de
+pipeline) e `README.md:590` (lista de skills) nao descrevem etapas — nao precisaram mudar.
 
 ## Estado do alvo antes da mudanca
 
