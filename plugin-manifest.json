@@ -1,6 +1,6 @@
 {
   "version": "7.5.0",
-  "generatedAt": "2026-08-13T18:27:58.735Z",
+  "generatedAt": "2026-08-13T20:27:10.232Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -110,6 +110,12 @@
       "version": "7.5.0",
       "introduced": "v7.5.0",
       "description": "Entrevista pre-implementacao que resolve ambiguidade antes de codar. Gera CONTEXT.md com decisoes indexadas. Use antes de planejar feature complexa, ou quando os requisitos estao vagos."
+    },
+    "improve-codebase-architecture": {
+      "path": "skills/improve-codebase-architecture/",
+      "version": "7.5.0",
+      "introduced": "v7.5.0",
+      "description": "Periodic architecture sweep. Run it every few days to surface deepening opportunities — shallow modules, leaky seams, code that is hard to test through its current interface — scoped to the repo's git hot spots and ranked by strength."
     },
     "incident-response": {
       "path": "skills/incident-response/",
@@ -1079,9 +1085,21 @@
       "lastModified": "2026-08-13",
       "updateStrategy": "replace"
     },
+    "skills/improve-codebase-architecture/SKILL.md": {
+      "version": "7.5.0",
+      "checksum": "f451da7b06f8d831b658b309d8f7ff66dac2e06ed90af7025e6303184a026fec",
+      "lastModified": "2026-08-13",
+      "updateStrategy": "replace"
+    },
+    "skills/improve-codebase-architecture/references/HTML-REPORT.md": {
+      "version": "7.5.0",
+      "checksum": "627115af95045b3b17ee8cd77fdb98a76c6834c856ffb6a9fd705652115674d3",
+      "lastModified": "2026-08-13",
+      "updateStrategy": "replace"
+    },
     "skills/incident-response/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "54112a90223c78f80fad7d2d47187c03643c8b5274eafc228eff1018cb0a66b1",
+      "checksum": "9f64ac7b987e818aa0d1f9414a40247aa2bc666bb6f1f321fb239ca2bf072c09",
       "lastModified": "2026-08-13",
       "updateStrategy": "replace"
     },
