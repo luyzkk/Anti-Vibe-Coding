@@ -2,21 +2,40 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** planned — nenhuma fase executada
-**Depende de:** plano01 fase-01 (a lente). Auto-contido no resto.
+**Status:** fase-01 executada (2026-08-13)
+**Depende de:** plano01 fase-01 (a lente) — **entregue**. Auto-contido no resto.
 
 ## Progresso
 
 | Fase | Nome | Status | Arquivos |
 |---|---|---|---|
-| 01 | A skill | planned | 0/2 |
+| 01 | A skill | **done** | 2/2 |
 | 02 | Ponteiro + dogfood | planned | 0/1 |
 
 ## Decisoes de implementacao (DI)
 
 Formato: `DI-Plano09-faseNN-<slug>: <o que mudou e por que>`.
 
-(vazio — nada executado ainda)
+### fase-01 (executada)
+
+- `DI-Plano09-fase01-teto-de-90-medido`: a skill fechou em **95 linhas** contra o teto de ~90. O
+  teto existe como **proxy** para "os compounds foram copiados em vez de citados" — e essa condicao
+  esta satisfeita e verificada direto: 1 citacao cada, com gatilho e consequencia, 3-4 linhas. O que
+  excede sao `Common Rationalizations` + `Red Flags`, **19 linhas** de convencao do repo que o plano
+  nao contava. Sem elas: **76 linhas**, dentro do teto. Um no-op foi cortado no caminho (a frase
+  "consertar o que o merge quebrou faz parte da resolucao" duplicava o passo 4 e foi fundida nele).
+- `DI-Plano09-fase01-sem-marcador-literal`: G5 avisa que escrever `<`x7 na SKILL.md pode confundir
+  ferramenta que varre o repo procurando conflito real, e sugere marcar o exemplo como ilustrativo.
+  **Resolvido por construcao:** a skill nao escreve marcador nenhum — a description nomeia o estado
+  por `MERGE_HEAD`/`REBASE_HEAD`, "unmerged paths" e "conflict markers" em prosa. Zero literais,
+  medido. Melhor que escrever e avisar.
+- `DI-Plano09-fase01-abort-no-passo-1`: a fonte poe "never `--abort`" dentro do passo 3 (resolver os
+  hunks). Aqui a **regra** ficou na abertura e a **pergunta do escape** no passo 1, porque e ali que
+  a decisao acontece de fato — voce ve o estado e percebe que a branch era errada. No passo 3 ela
+  chegaria depois de a pessoa ja ter gastado o esforco que o escape existiria para poupar.
+- `DI-Plano09-fase01-criterio-do-passo-2`: a fonte diz "understand deeply why each change was made".
+  Bound vago convida premature completion (a lente do plano01). Trocado por criterio checavel:
+  **voce consegue enunciar a intencao de cada lado sem olhar o diff**.
 
 ## Verificacao do gap (2026-08-10)
 

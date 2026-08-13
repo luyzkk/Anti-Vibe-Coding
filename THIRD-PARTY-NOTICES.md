@@ -187,6 +187,24 @@ The hand-off to `/improve-codebase-architecture` was listed here as not ported w
 - The `docs/GLOSSARY.md` degradation rule — upstream says "write for a non-developer"; this port names where the domain vocabulary comes from when the project has a glossary, and what to fall back on when it does not
 - The anti-patterns are stated as what each one kills rather than as a list of prohibitions, so the target behaviour is the thing named
 
+`skills/resolving-merge-conflicts/` is **derived** from the `resolving-merge-conflicts` skill in the same repository, at the same commit `84fdeff`.
+
+**Upstream files used:**
+
+1. `skills/engineering/resolving-merge-conflicts/SKILL.md`
+
+**Derived** (translated to pt-BR; `hunk` kept in English as an anchor term):
+
+- `SKILL.md`: the five steps in their original order — see the current state before opening files, find the primary sources behind each side, resolve hunk by hunk preserving both intents where possible and noting the trade-off where not, discover and run the project's automated checks, finish the merge or rebase — plus the "do not invent new behaviour" and "always resolve" rules
+
+**Original to this repository** (no upstream counterpart):
+
+- The escape hatch to upstream's absolute "never `--abort`". Aborting is correct when the *merge itself* was wrong (wrong branch, wrong base, wrong direction), and the skill says so — written as a question (*is the merge wrong, or is the resolution hard?*) so it cannot widen into a back door. Difficulty is explicitly not a reason
+- The completion criterion for step 2: you can state each side's intent **without looking at the diff**. Upstream says "understand deeply" — that is a vague bound, and vague bounds invite premature completion
+- Three compound notes from real incidents in this repo, each cited (never copied) **at the step where its decision is taken**, rather than in a related-reading section: annotated-tag-versus-rebase and the `git stash` silent revert in step 1, revert range syntax in step 5
+- `Common Rationalizations`, `Red Flags`, and the frontmatter (upstream declares two fields; this plugin has eight)
+- The description names a detectable **state** rather than a topic, which is what makes model invocation fire at the right moment
+
 Upstream's `agents/openai.yaml` was **not** ported — it is an OpenAI-specific display manifest with no counterpart in this plugin's frontmatter model.
 
 #### MIT License (verbatim from upstream LICENSE):
