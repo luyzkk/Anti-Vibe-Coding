@@ -172,11 +172,14 @@ The hand-off to `/improve-codebase-architecture` was listed here as not ported w
 
 1. `skills/engineering/prototype/SKILL.md`
 2. `skills/engineering/prototype/LOGIC.md`
+3. `skills/engineering/prototype/UI.md`
 
 **Derived** (translated to pt-BR; `free-play` and `walkthrough` kept in English as anchor terms):
 
 - `SKILL.md`: the thesis ("a prototype is throwaway code that answers a question; the question decides the shape"), the branch router including the tie-break rule (ambiguous question plus absent user → pick by the surrounding code and state the assumption at the top of the prototype), and all six rules that apply to both branches
 - `references/LOGIC.md` (upstream keeps it beside `SKILL.md`; this plugin's satellites live in `references/`, which is what `generate-manifest.js` indexes): the five process steps, the four shapes the liftable module can take with the "pick by the question, not by what is easiest to wire" criterion, the four-block page layout, the scenario-choice rule (happy path, tricky edge, something that should be illegal), the reset-on-walkthrough-start rule, and all six anti-patterns
+
+- `references/UI.md`: the two sub-shapes with the strong preference for A and its justification (a prototype is easier to judge butting up against the real app; an isolated route is a vacuum where every variant looks fine), the default of 3 variants capped at 5, the structural-difference rule with the redo remedy, the switcher pseudo-code, the four properties of the floating bar (framework router, arrow keys with the focused-field exception, visually distinct, hidden in production), the per-sub-shape capture, and the four anti-patterns
 
 **Original to this repository** (no upstream counterpart):
 

@@ -24,7 +24,7 @@ desperdica o prototipo inteiro.**
 | A pergunta | O ramo | O que sai |
 |---|---|---|
 | *"essa logica / esse modelo de estado parece certo?"* | [LOGIC.md](./references/LOGIC.md) | Um HTML unico e compartilhavel, com botoes de *free-play* e *walkthroughs* em abas, que empurra o modelo pelos casos dificeis de raciocinar no papel — e que um nao-desenvolvedor dirige |
-| *"como isso deveria parecer?"* | **UI** | Varias variantes radicalmente diferentes na mesma rota, trocaveis por search param e uma barra flutuante. Estruturalmente diferentes: tres grades de card ajustadas nao sao tres variantes, sao uma |
+| *"como isso deveria parecer?"* | [UI.md](./references/UI.md) | Varias variantes radicalmente diferentes na mesma rota, trocaveis por search param e por uma barra flutuante — de preferencia embutidas numa pagina que ja existe, porque toda variante parece boa no vacuo |
 
 Pergunta genuinamente ambigua e usuario fora de alcance: escolher pelo codigo em volta — modulo de
 backend puxa **logic**, pagina ou componente puxa **UI** — e **declarar a suposicao no topo do
@@ -62,7 +62,6 @@ valem os termos que o usuario usa falando. **Degradar, nao quebrar.**
 | "Escrevo um teste para provar que o modelo fecha" | Prototipo que precisa de teste deixou de ser prototipo. O teste prova o que voce ja imaginou; o clique revela o que voce nao imaginou |
 | "Aproveito e ja deixo pronto para produção" | Codigo escrito sob restricao de prototipo (sem teste, sem tratamento de erro) chega em producao como divida. Quando a variante vencer, **reescrever direito** |
 | "Ligo no banco real, e mais fiel" | Fidelidade que voce paga em setup e a que impede o prototipo de ser jogado fora. Memoria, salvo se a pergunta for sobre persistencia |
-| "Faco tres variantes ajustando espacamento e cor" | Isso e ajuste. Variante e estruturalmente diferente, senao as tres respondem a mesma pergunta |
 | "Uso o framework do projeto, ja esta configurado" | O prototipo LOGIC vale por abrir com dois cliques na maquina de quem nao programa. Bundler mata isso |
 
 ## Red Flags
