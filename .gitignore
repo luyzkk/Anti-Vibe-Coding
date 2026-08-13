@@ -16,6 +16,12 @@ node_modules/
 .claude/prd-v5/
 .claude/prompts/
 
+# Secrets
+# 2026-08-13: o wizard gerado em scripts/setup-new-machine.sh (plano03 do import
+# mattpocock/skills) grava valores capturados num .env na raiz via write_env. O arquivo existe
+# em qualquer maquina que rode o setup, e nunca deve ser versionado.
+.env
+
 # Logs
 *.log
 .planning.v5-backup/
