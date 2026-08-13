@@ -118,6 +118,12 @@ Um candidato por card:
 Feche com a **recomendacao principal**: qual voce atacaria primeiro, e por que. Levantamento que
 trata 12 candidatos como equivalentes empurra a escolha inteira de volta para o humano.
 
+Os cards vao para um HTML auto-contido no temp do sistema, aberto no navegador — **nada entra no
+repo**: o relatorio envelhece em dias, e o que sobrevive e o candidato escolhido. O scaffold, os
+padroes de diagrama before/after, a resolucao do temp dir e o comando de abrir por plataforma estao
+em [HTML-REPORT.md](./references/HTML-REPORT.md). Imprima o caminho absoluto do arquivo abrindo ou
+nao.
+
 Entao pergunte: **"Qual destes voce quer explorar?"**
 
 A varredura entrega candidatos e para ai. Desenhar a interface do modulo aprofundado e trabalho do

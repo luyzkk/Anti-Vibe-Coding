@@ -143,10 +143,13 @@ The hand-off to `/improve-codebase-architecture` was listed here as not ported w
 **Upstream files used:**
 
 1. `skills/engineering/improve-codebase-architecture/SKILL.md`
+2. `skills/engineering/improve-codebase-architecture/HTML-REPORT.md`
 
 **Derived** (translated to pt-BR; `deep`, `shallow`, `seam`, `leverage`, `locality` and `deletion test` kept in English as anchor terms):
 
 - `SKILL.md`: the "scope before you scan — YAGNI" ordering (user direction → `git log` hot spots → widen the net) and its justification, the five friction questions the sub-agent explores organically, the deletion test as the entry filter, the ADR-conflict rule (only surface when the friction warrants reopening the decision, and mark it in the card), the card fields (files / problem / solution / benefits in leverage and locality / recommendation strength), the `Strong` / `Worth exploring` / `Speculative` badges, the closing top-recommendation section, and the stop at "which of these would you like to explore?"
+- `references` split and the ephemeral-report design: a self-contained HTML file written to the OS temp directory, opened in the browser, with the absolute path always printed
+- `references/HTML-REPORT.md` (upstream keeps it beside `SKILL.md`; this plugin's satellites live in `references/`, which is also what `generate-manifest.js` indexes): the HTML scaffold, the Mermaid-versus-hand-drawn rule (Mermaid when the relationship is graph-shaped; divs and SVG when the visual should be editorial), the four diagram patterns (graph, cross-section, mass diagram, call-graph collapse), the badge colour scheme (emerald / amber / slate), the dependency-category tag, the editorial style guidance (~320px diagrams, one accent colour, schematic labels), and the "if the diagram needs a paragraph, redraw the diagram" rule
 
 **Original to this repository** (no upstream counterpart):
 
@@ -155,6 +158,8 @@ The hand-off to `/improve-codebase-architecture` was listed here as not ported w
 - The three-outcome deletion test table (complexity vanishes / reappears scattered / reappears concentrated), which splits upstream's binary "concentrate or move" into the two signals that actually decide a candidate's strength
 - The rule that a finding a previous audit refused for a load-bearing reason stays refused until the reason changes
 - Per-step completion criteria, `Common Rationalizations`, `Red Flags`, and the frontmatter (upstream declares two fields; this plugin has eight)
+- The whole Windows story in `HTML-REPORT.md`. Upstream resolves the temp dir from `$TMPDIR` falling back to `/tmp` (or `%TEMP%`) and opens with `start` — neither works in Git Bash, where `start` is a `cmd` builtin and `explorer.exe` needs a `cygpath -w` path and exits 1 even on success. Measured here: `/tmp` **is** the user's `%TEMP%`, so `${TMPDIR:-/tmp}` covers all three platforms with no Windows branch
+- The offline story. Upstream states the CDNs as fact; this port wraps the Mermaid import in a `try/catch` that flags `data-offline`, revealing a banner and rendering the diagram source as a readable code block, plus an inline CSS floor so the page survives the Tailwind CDN failing too
 
 **Not ported:**
 
