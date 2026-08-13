@@ -1,6 +1,6 @@
 {
   "version": "7.5.0",
-  "generatedAt": "2026-08-13T12:13:00.908Z",
+  "generatedAt": "2026-08-13T15:12:51.587Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -115,7 +115,7 @@
       "path": "skills/incident-response/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "Fluxo disciplinado de resposta a incidentes pós-deploy. Raw logs → hipótese → regression test (ANTES do fix) → fix → commit. Cada fix vem com regression test — hardening é hábito, não fase."
+      "description": "Diagnostico de bug dificil ou regressao de performance, em producao ou em desenvolvimento. Use quando pedirem para diagnosticar ou debugar, quando algo quebra, lanca excecao ou falha, quando ficou lento, ou num incidente pos-deploy com log."
     },
     "incremental-implementation": {
       "path": "skills/incremental-implementation/",
@@ -1081,8 +1081,20 @@
     },
     "skills/incident-response/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "1a21c9579cd4434ef0f1bdbc11591ccd6d7874d0924640deea809c6a319db08b",
-      "lastModified": "2026-06-05",
+      "checksum": "54112a90223c78f80fad7d2d47187c03643c8b5274eafc228eff1018cb0a66b1",
+      "lastModified": "2026-08-13",
+      "updateStrategy": "replace"
+    },
+    "skills/incident-response/references/feedback-loops.md": {
+      "version": "7.5.0",
+      "checksum": "df2c8f82ecad6fe5f9cbde8ee1ba9b97b9b79dbb6e59de078077150ccb1ab462",
+      "lastModified": "2026-08-13",
+      "updateStrategy": "replace"
+    },
+    "skills/incident-response/references/instrumentation.md": {
+      "version": "7.5.0",
+      "checksum": "ad5cb3b2cc4f1550510e1696ac0ef959ed3dd00c0dbecfbfc254574e1eccc3ed",
+      "lastModified": "2026-08-13",
       "updateStrategy": "replace"
     },
     "skills/incremental-implementation/SKILL.md": {
@@ -2053,8 +2065,8 @@
     },
     "skills/iterate/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "a6e8cfe7aeb857735f405d99cab48c0033db3c1f00a285fb2c8e9622a52c6613",
-      "lastModified": "2026-08-12",
+      "checksum": "3c5ad6ff74413f2133718eba4ac3078c324402f13e4eb18147abf86f241152f8",
+      "lastModified": "2026-08-13",
       "updateStrategy": "replace"
     },
     "skills/learn/SKILL.md": {
@@ -2359,8 +2371,8 @@
     },
     "skills/tdd-workflow/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "fe73e8c56546d3404b2166b529df71ebc57f1d9eeeceeaf511a41852d1c0f739",
-      "lastModified": "2026-08-12",
+      "checksum": "6334b490493eb68f7a166f83c924a659aaa6ed78c4360e0558ca1afb97afbfe8",
+      "lastModified": "2026-08-13",
       "updateStrategy": "replace"
     },
     "skills/tdd-workflow/references/deep-modules.md": {

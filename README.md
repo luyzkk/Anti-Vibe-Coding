@@ -154,7 +154,7 @@ Para correções triviais, **não use o pipeline** — vai direto. O TDD Gate ex
 | Skill | Comando | Propósito |
 |-------|---------|-----------|
 | Iterate | `/anti-vibe-coding:iterate` | Ciclo pós-deploy: incident → hardening → centralize |
-| Incident Response | `/anti-vibe-coding:incident-response` | Investigação disciplinada: raw logs → hipótese → regression test → fix |
+| Incident Response | `/anti-vibe-coding:incident-response` | Bug difícil ou regressão de perf: raw logs → loop *tight* → hipótese → regression test → fix |
 | Defensive Patterns | `/anti-vibe-coding:defensive-patterns` | Menu de hardening: rate limit, circuit breaker, retry, timeout |
 | Centralize Config | `/anti-vibe-coding:centralize-config` | Migração de config espalhada para fonte única |
 | TODO Pick | `/anti-vibe-coding:todo-pick` | Puxa 1 item do `TODO.md` por vez para correção |
@@ -355,7 +355,7 @@ Para correções triviais, **não use o pipeline** — vai direto:
 /anti-vibe-coding:iterate
 
 # Ou passo a passo:
-/anti-vibe-coding:incident-response       # raw logs → hipótese → regression test → fix
+/anti-vibe-coding:incident-response       # raw logs → loop tight → hipótese → regression test → fix
 /anti-vibe-coding:defensive-patterns      # menu de hardening
 /anti-vibe-coding:centralize-config       # migra config espalhada para fonte única
 ```
