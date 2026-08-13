@@ -2,7 +2,7 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** fase-01 executada (2026-08-13)
+**Status:** **concluido** — fases 01 e 02 executadas (2026-08-13)
 **Depende de:** plano01 fase-01 (a lente) · **plano02 fase-01** (vocabulario — dura). **Ambas
 entregues** — a tabela de bloqueadores do README e o estado de quando o plano foi escrito.
 
@@ -11,7 +11,7 @@ entregues** — a tabela de bloqueadores do README e o estado de quando o plano 
 | Fase | Nome | Status | Arquivos |
 |---|---|---|---|
 | 01 | Escopar, varrer, detectar conflito | **done** | 5/5 |
-| 02 | O relatorio HTML | planned | 0/2 |
+| 02 | O relatorio HTML | **done** | 2/2 |
 
 ## Decisoes de implementacao (DI)
 
@@ -51,12 +51,47 @@ Formato: `DI-Plano07-faseNN-<slug>: <o que mudou e por que>`.
   `improve-codebase-architecture` sob **"Not ported"** do `incident-response`. Ficou falso no
   instante em que a skill entrou — corrigido na mesma fase.
 
-### Obrigatorias na fase-02
-- `DI-Plano07-fase02-tmpdir`: qual ordem de resolucao do temp dir? `$TMPDIR` nao existe em Git Bash;
-  `$TEMP`/`$TMP` existem com caminho Windows; `/tmp` existe e mapeia para o temp do MSYS. Escolher
-  uma e escrever.
-- `DI-Plano07-fase02-offline`: Mermaid vem de CDN. Sem rede os diagramas nao renderizam. Fallback
-  textual visivel, ou aceitar? O card nao pode parecer completo com buraco no lugar do diagrama.
+### fase-02 (executada)
+
+- `DI-Plano07-fase02-tmpdir`: **`${TMPDIR:-/tmp}`, uma expressao, zero branch de Windows.** O plano
+  supunha que `/tmp` no Git Bash mapearia para o temp do MSYS, *diferente* do `%TEMP%` do usuario.
+  **Medido nesta maquina: e o mesmo diretorio** — `cd /tmp && pwd -W` devolve
+  `C:/Users/luizf/AppData/Local/Temp`, identico a `$TEMP` e `$TMP`, e `cygpath -w` fecha o roundtrip.
+  Com isso a resolucao de tres plataformas cabe numa linha, e o branch `$TEMP`/`$TMP` que o plano
+  previa **nao precisou ser escrito**. (`$TMPDIR` confirmado ausente aqui, presente no macOS.)
+- `DI-Plano07-fase02-offline`: **degradacao admitida, nao silenciosa.** `<pre class="mermaid">` ja
+  degrada sozinho — sem o script o navegador mostra o fonte do flowchart, que e legivel. O que
+  faltava era o leitor saber **por que** esta vendo texto. O `import()` do Mermaid vai num
+  `try/catch` que marca `data-offline` no `<html>`; o CSS revela uma faixa ambar e formata o `pre`
+  como bloco de codigo. Sem buraco silencioso, que era a condicao do Passo 8.
+- `DI-Plano07-fase02-tailwind-tambem-cai`: o Passo 8 so considera o Mermaid, mas **Tailwind tambem
+  vem de CDN** — sem rede a pagina inteira perde o layout, o que e pior que perder os diagramas.
+  Por isso o `<style>` carrega um **piso de legibilidade** inline (`body`, `main`, `pre`), que
+  mantem a pagina lida mesmo com os dois CDNs fora.
+- `DI-Plano07-fase02-sri-nao-se-aplica`: o hook de seguranca da sessao pediu `integrity="sha384-..."`
+  nos scripts de CDN. **Nao se aplica limpo aqui**: o Play CDN do Tailwind serve script que gera CSS
+  em runtime, e `import()` dinamico nao aceita o atributo. O que restou foi versao pinada
+  (`mermaid@11`) mais uma nota no doc — a pagina carrega paths e a leitura da arquitetura do repo,
+  entao em codebase sensivel a orientacao e gerar **sem os dois CDNs**, caindo no piso inline.
+- `DI-Plano07-fase02-sem-consolidar-open`: agora ha dois call sites de "abrir arquivo"
+  (`wizard/template.sh` e esta skill), o que pela regra do plano02 faria um seam real. **Nao
+  consolidados**, porque nao sao dois callers do mesmo codigo: um e script `.sh` distribuido, o
+  outro e prosa que o agente le e executa. Nao existe lib de shell compartilhada entre skills para
+  receber a extracao. O que se duplica e o **conhecimento** (`explorer.exe` sai 1), e o doc aponta
+  para `wizard/template.sh` como a fonte da medicao em vez de repetir a explicacao.
+- `DI-Plano07-fase02-satelite-em-references`: o plano manda criar
+  `skills/improve-codebase-architecture/HTML-REPORT.md`, irmao do `SKILL.md`, copiando o layout do
+  upstream. **Movido para `references/HTML-REPORT.md`.** Motivo medido:
+  `scripts/generate-manifest.js:180-202` indexa `SKILL.md` + `references/` + `templates/` + `lib/` +
+  `assets/` — um `.md` solto na raiz da skill **nao entra no manifest**. `sync-to-global.sh:75` copia
+  a pasta inteira, entao o arquivo chegaria ao cache global, mas ficaria sem checksum e fora da
+  estrategia de update. Confirmado pelo contador: **410 -> 411 arquivos** depois da movida. E e a
+  convencao que os tres portes anteriores desta feature ja seguem (`SKILL-MECHANICS.md`,
+  `GLOSSARY-FORMAT.md`, `feedback-loops.md`). Os 4 links relativos do satelite subiram um nivel.
+- `DI-Plano07-fase02-card-sem-duplicar`: a lista de campos do card existia na SKILL.md (Passo 5) e
+  se repetiria inteira no satelite. Recorte aplicado: **SKILL.md define o que o card carrega,
+  `HTML-REPORT.md` define so a forma** (cor do selo, `font-mono`, caixa ambar, duas colunas). Sem
+  isso seriam dois lugares para editar o mesmo significado.
 
 ## O que esta skill e, e nao e
 
@@ -76,14 +111,19 @@ acha candidatos reais, mas nao desemaranha a lama.
 
 Esta fase concentra os problemas de plataforma do plano inteiro:
 
-| Problema | Realidade em Git Bash |
-|---|---|
-| `start <arquivo>` | **nao existe** — e builtin do `cmd`. Usar `explorer.exe` ou `cmd //c start "" ...` |
-| Caminho | `/c/Users/...` nao e entendido por `explorer.exe`. Converter com `cygpath -w` |
-| `$TMPDIR` | geralmente ausente. `$TEMP`/`$TMP` existem, estilo Windows |
+Medidas nesta maquina durante a fase-02, nao herdadas:
 
-Parente do defeito D2 do plano03 (`explorer.exe` e exit code). **Nao consolidar preventivamente** —
-so quando houver dois call sites reais ("1 adapter = seam hipotetico, 2 = real", plano02).
+| Problema | Realidade em Git Bash (medido 2026-08-13) |
+|---|---|
+| `start <arquivo>` | **nao existe** — e builtin do `cmd`. Usar `explorer.exe "$(cygpath -w "$out")"` |
+| Caminho | `cygpath -w /tmp/x.html` -> `C:\Users\luizf\AppData\Local\Temp\x.html`, roundtrip confirmado |
+| `$TMPDIR` | **ausente**. `$TEMP`/`$TMP` = `C:\Users\luizf\AppData\Local\Temp` |
+| `/tmp` | **e o mesmo diretorio que `%TEMP%`** — nao o temp do MSYS, como o plano supunha. Por isso `${TMPDIR:-/tmp}` basta |
+| `explorer.exe` exit code | **1 mesmo tendo aberto** — reproduzido nesta fase. Com `\|\| true`, 0 |
+
+Parente do defeito D2 do plano03 (`explorer.exe` e exit code). Os dois call sites agora existem, e
+**seguem nao consolidados** — ver `DI-Plano07-fase02-sem-consolidar-open`: um e `.sh` distribuido, o
+outro e prosa. Nao sao dois callers do mesmo codigo.
 
 ## Pendencia resolvida por este plano
 
