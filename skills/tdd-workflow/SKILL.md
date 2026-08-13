@@ -343,7 +343,7 @@ Escreva primeiro um teste que reproduz o bug e confirme que ele FALHA (bug confi
 So entao implemente o fix, rode o teste (deve passar) e rode a suite completa (sem regressoes).
 Antes (errado): editar o codigo "que parece o culpado" e testar manualmente.
 Depois (certo): teste vermelho que prova o bug -> fix minimo -> teste verde -> suite verde.
-Para o fluxo completo pos-deploy (logs brutos -> hipotese -> regression test -> fix cirurgico -> hardening -> autopsia), use `/anti-vibe-coding:incident-response`.
+Para o fluxo completo de bug dificil, em producao ou em desenvolvimento (logs brutos -> loop tight -> minimizar -> hipoteses -> instrumentar -> regression test -> fix cirurgico -> hardening -> autopsia), use `/anti-vibe-coding:incident-response`.
 
 <step id="4" name="TDD Green — Implementacao Minima (Naive First)">
 <instructions>
