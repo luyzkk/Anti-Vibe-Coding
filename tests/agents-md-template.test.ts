@@ -8,7 +8,12 @@ const TEMPLATE_PATH = path.join(
   '../skills/init/assets/templates/AGENTS.md.tpl',
 )
 
-const AGENTS_MAX_LINES = 40
+// 2026-08-13 (Luiz/dev): 40 -> 41, plano05 fase-02 — a linha do docs/GLOSSARY.md (DI-12).
+// O template estava EXATAMENTE no teto antes disto: zero folga. Este cap e um gate de context
+// load (o AGENTS.md viaja em todo turno), entao subiu o minimo. Antes de subir de novo, procure
+// linha morta — hoje nao ha: os 5 core links, os 4 anti-vibe e o DELIVERY_LOOP_SLOT sao travados
+// por testes neste mesmo arquivo, e o resto e conteudo unico.
+const AGENTS_MAX_LINES = 41
 
 const ANTI_VIBE_LINKS = [
   '[docs/MERGE_GATES.md](./docs/MERGE_GATES.md)',

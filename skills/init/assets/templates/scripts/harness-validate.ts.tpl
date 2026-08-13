@@ -37,7 +37,10 @@ const REQUIRED_FILES = [
   'scripts/compound-check.ts',
 ] as const
 
-const AGENTS_MAX_LINES = 40
+// 2026-08-13 (Luiz/dev): 40 -> 41, plano05 fase-02 — o AGENTS.md.tpl ganhou a linha do
+// docs/GLOSSARY.md e estava exatamente no teto. Este cap e o que roda no projeto do usuario:
+// sem subir aqui, todo projeto que rodasse /init falhava em `bun run harness:validate`.
+const AGENTS_MAX_LINES = 41
 
 // Required links inside AGENTS.md — sinal do harness do Andre.
 const AGENTS_REQUIRED_LINKS = [
