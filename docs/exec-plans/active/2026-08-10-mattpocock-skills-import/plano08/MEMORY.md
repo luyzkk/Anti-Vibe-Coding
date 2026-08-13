@@ -2,7 +2,7 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** fase-01 executada (2026-08-13)
+**Status:** fases 01 e 02 executadas (2026-08-13)
 **Depende de:** plano01 fase-01 (a lente) — **entregue**. Auto-contido no resto.
 
 ## Progresso
@@ -10,7 +10,7 @@ Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 | Fase | Nome | Status | Arquivos |
 |---|---|---|---|
 | 01 | Roteador de ramo + LOGIC + dogfood | **done** | 3/3 |
-| 02 | O ramo UI | planned | 0/2 |
+| 02 | O ramo UI | **done** (so leitura — ver Divida) | 2/2 |
 | 03 | Ponteiros e captura | planned | 0/3 |
 
 Fase 03 depende so da fase-01.
@@ -41,6 +41,21 @@ Formato: `DI-Plano08-faseNN-<slug>: <o que mudou e por que>`.
   `DI-Plano03-fase01-meta-test-D4-sem-comentario`: grep de token em texto completo pega comentario.
   O modulo e puro — confirmado rodando ele headless.
 
+### fase-02 (executada)
+
+- `DI-Plano08-fase02-ponteiros-fechados`: os dois links adiados pela fase-01 foram escritos —
+  `SKILL.md` -> `./references/UI.md` e `references/LOGIC.md` -> `./UI.md`. `harness:validate` passou
+  a 371 md.
+- `DI-Plano08-fase02-regra-estrutural-desce`: quando a fase-01 tirou o link, a regra do INV-03
+  ("tres grades de card ajustadas nao sao tres variantes") foi parar na tabela do roteador para o
+  ramo nao ficar oco. Com o satelite existindo, **ela desceu**: o roteador serve para *escolher o
+  ramo*, e a regra estrutural guia a *execucao*. Ficou so a razao da preferencia por sub-forma A, que
+  e o que ajuda a escolher.
+- `DI-Plano08-fase02-rationalization-cortada`: a linha *"Faco tres variantes ajustando espacamento e
+  cor"* saiu de `Common Rationalizations`. Era o anti-padrao 1 do `UI.md` escrito de novo, num
+  arquivo **sempre carregado**, servindo a um branch que so se alcanca depois de abrir o satelite —
+  quem esta fazendo variantes ja leu a regra la. Duplicacao de significado, pela lente do plano01.
+
 ## Verificacao do gap (2026-08-10)
 
 | Termo | Hits | O que eram |
@@ -53,17 +68,28 @@ Formato: `DI-Plano08-faseNN-<slug>: <o que mudou e por que>`.
 **Nenhuma skill constroi codigo descartavel para responder uma pergunta.** Gap confirmado por
 conceito, nao por nome.
 
-## Divida de cobertura declarada (fase-02)
+## Divida de cobertura declarada (fase-02) — CONFIRMADA na execucao
 
 **O ramo UI nao da para dogfoodar neste repo** — plugin CLI, sem rotas, sem framework de UI, sem
 pagina para hospedar variante.
 
-A fase-02 fica **verificada so por leitura** ate o primeiro uso em projeto-alvo Next.js. Esse
-primeiro uso e o teste de verdade.
+**Foi assim que a fase-02 fechou, em 2026-08-13: `references/UI.md` esta verificada so por leitura.**
+Nada nela foi executado. Especificamente **nao** exercitados:
+
+| O que ficou sem prova | Onde |
+|---|---|
+| O switcher por `?variant=` funcionar com router de framework real | Passo 3 e 4 |
+| O gate `NODE_ENV` de fato esconder a barra num build de producao (INV-04) | Passo 4 |
+| As setas do teclado nao roubarem digitacao de `<input>`/`<textarea>` focado (G4) | Passo 4 |
+| Tres variantes saírem estruturalmente diferentes na pratica (INV-03) | Passo 2 |
+
+**O primeiro uso real em projeto-alvo Next.js e o teste de verdade.** Contraste com o ramo LOGIC, que
+rodou end-to-end na fase-01 (prototipo gerado, aberto, clicado, modulo rodado headless).
 
 Registrado por causa do compound `2026-05-12-skill-md-code-blocks-do-not-execute`: 224 testes
 verdes, 10 skills "instrumentadas", 7 dias de uso e zero telemetria — porque a integracao nunca foi
-testada end-to-end.
+testada end-to-end. E do `2026-08-13-suite-verde-nao-exercita-validador-distribuido`, que e o mesmo
+buraco visto do outro lado.
 
 ## Dogfood do ramo LOGIC (fase-01 Passo 8)
 

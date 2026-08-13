@@ -16,7 +16,7 @@ a do codigo.
 - *"quero sentir como a API deveria ser antes de escrever."*
 - Qualquer coisa em que alguem queira **apertar botao e ver o estado mudar**.
 
-Quando a pergunta e *"como isso deveria parecer?"*, o ramo e outro — o de **UI**.
+Quando a pergunta e *"como isso deveria parecer?"*, o ramo e outro: [UI.md](./UI.md).
 
 ## 1. Enunciar a pergunta
 
