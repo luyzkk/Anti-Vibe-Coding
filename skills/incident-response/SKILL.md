@@ -248,6 +248,11 @@ acoplamento escondido — encaminhar com as especificidades para
 excesso de indireção. A recomendação vale mais aqui do que no início: o diagnóstico inteiro é a
 evidência dela.
 
+E quando o atrito for de forma de módulo — seam no lugar errado, um módulo shallow que concentraria
+complexidade se fosse aprofundado — o diagnóstico já é a direção que uma varredura precisa: recomende
+ao dev rodar `/anti-vibe-coding:improve-codebase-architecture` com esse ponto de dor como escopo. Ela
+é user-invoked, e a decisão de varrer é dele.
+
 Se a autópsia revelar um padrão recorrente, registrar via `/anti-vibe-coding:lessons-learned add`.
 
 ## Ação Solicitada

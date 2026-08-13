@@ -103,6 +103,12 @@ temos hoje — `architecture` ou `code-simplification` — e deixar registrado n
 
 Nao prometer skill que nao existe.
 
+> **Resolvido em 2026-08-13, pelo plano07 fase-01.** `improve-codebase-architecture` entrou. O
+> ponteiro vivo e `skills/incident-response/SKILL.md`, secao `## Autopsia Pos-Fix` — nao este doc,
+> que fica como registro do estado em que a fase-03 foi executada. Os dois destinos originais
+> continuam; o branch novo (atrito de **forma de modulo**) **recomenda ao dev rodar** a skill, em vez
+> de encaminhar por invocacao, porque ela e `disable-model-invocation: true`.
+
 ### Passo 6: passar a lente do plano01
 
 Alvo final: ler a skill inteira de ponta a ponta. Depois de tres fases de adicao, e a leitura

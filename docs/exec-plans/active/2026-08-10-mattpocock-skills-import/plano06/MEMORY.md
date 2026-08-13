@@ -185,6 +185,10 @@ portada**. A fase-03 aponta para `architecture` ou `code-simplification`.
 **Se `improve-codebase-architecture` entrar, este ponteiro muda de destino.** Anotado aqui para nao
 virar link morto.
 
+**Entrou — plano07 fase-01, 2026-08-13.** A skill existe e o ponteiro em `skills/incident-response/`
+ganhou o branch de forma de modulo. Como ela e user-invoked, o ponteiro **recomenda ao dev rodar**
+em vez de encaminhar por invocacao. Nada mais pendurado aqui.
+
 ## Teto de tamanho
 
 176 linhas hoje. Teto de ~220 apos as tres fases. Satelites previstos:

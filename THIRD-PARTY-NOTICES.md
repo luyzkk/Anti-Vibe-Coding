@@ -135,7 +135,36 @@ SOFTWARE.
 **Not ported:**
 
 - Upstream's `CONTEXT.md` read instruction — this plugin's per-feature `CONTEXT.md` is a different artifact (CO-01)
-- The hand-off to `/improve-codebase-architecture`, which has no counterpart skill here
+
+The hand-off to `/improve-codebase-architecture` was listed here as not ported while that skill had no counterpart. It does now (below), and the post-fix autopsy points at it — as a recommendation for the developer to run, since the skill is user-invoked in this plugin.
+
+`skills/improve-codebase-architecture/` is **derived** from the `improve-codebase-architecture` skill in the same repository, at the same commit `84fdeff`.
+
+**Upstream files used:**
+
+1. `skills/engineering/improve-codebase-architecture/SKILL.md`
+2. `skills/engineering/improve-codebase-architecture/HTML-REPORT.md`
+
+**Derived** (translated to pt-BR; `deep`, `shallow`, `seam`, `leverage`, `locality` and `deletion test` kept in English as anchor terms):
+
+- `SKILL.md`: the "scope before you scan — YAGNI" ordering (user direction → `git log` hot spots → widen the net) and its justification, the five friction questions the sub-agent explores organically, the deletion test as the entry filter, the ADR-conflict rule (only surface when the friction warrants reopening the decision, and mark it in the card), the card fields (files / problem / solution / benefits in leverage and locality / recommendation strength), the `Strong` / `Worth exploring` / `Speculative` badges, the closing top-recommendation section, and the stop at "which of these would you like to explore?"
+- `references` split and the ephemeral-report design: a self-contained HTML file written to the OS temp directory, opened in the browser, with the absolute path always printed
+- `references/HTML-REPORT.md` (upstream keeps it beside `SKILL.md`; this plugin's satellites live in `references/`, which is also what `generate-manifest.js` indexes): the HTML scaffold, the Mermaid-versus-hand-drawn rule (Mermaid when the relationship is graph-shaped; divs and SVG when the visual should be editorial), the four diagram patterns (graph, cross-section, mass diagram, call-graph collapse), the badge colour scheme (emerald / amber / slate), the dependency-category tag, the editorial style guidance (~320px diagrams, one accent colour, schematic labels), and the "if the diagram needs a paragraph, redraw the diagram" rule
+
+**Original to this repository** (no upstream counterpart):
+
+- The catalogue rule in the sub-agent brief — reference material read on demand is flat and long by design, so size is not a signal and the largest file in the repo is not a candidate for being large. Upstream has no equivalent guard, and without it the sweep reports valid content as architectural friction
+- The `git rev-list --count HEAD` check before trusting the hot-spot ranking: a shallow clone yields truncated history and a ranking that is an artifact of the cut
+- The three-outcome deletion test table (complexity vanishes / reappears scattered / reappears concentrated), which splits upstream's binary "concentrate or move" into the two signals that actually decide a candidate's strength
+- The rule that a finding a previous audit refused for a load-bearing reason stays refused until the reason changes
+- Per-step completion criteria, `Common Rationalizations`, `Red Flags`, and the frontmatter (upstream declares two fields; this plugin has eight)
+- The whole Windows story in `HTML-REPORT.md`. Upstream resolves the temp dir from `$TMPDIR` falling back to `/tmp` (or `%TEMP%`) and opens with `start` — neither works in Git Bash, where `start` is a `cmd` builtin and `explorer.exe` needs a `cygpath -w` path and exits 1 even on success. Measured here: `/tmp` **is** the user's `%TEMP%`, so `${TMPDIR:-/tmp}` covers all three platforms with no Windows branch
+- The offline story. Upstream states the CDNs as fact; this port wraps the Mermaid import in a `try/catch` that flags `data-offline`, revealing a banner and rendering the diagram source as a readable code block, plus an inline CSS floor so the page survives the Tailwind CDN failing too
+
+**Not ported:**
+
+- The grilling loop (upstream's step 3) and its inline side effects — glossary updates and ADR offers as decisions crystallise. Deferred (DI-25); this port ends at the question and hands off to `/anti-vibe-coding:design-twice`, Domain 5
+- Upstream's `CONTEXT.md` as the domain glossary — this plugin keeps the domain language in `docs/GLOSSARY.md`, per DI-12/DI-13
 
 Upstream's `agents/openai.yaml` was **not** ported — it is an OpenAI-specific display manifest with no counterpart in this plugin's frontmatter model.
 
