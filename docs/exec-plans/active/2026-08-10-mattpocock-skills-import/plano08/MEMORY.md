@@ -2,7 +2,7 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** fases 01 e 02 executadas (2026-08-13)
+**Status:** **concluido** — fases 01, 02 e 03 executadas (2026-08-13)
 **Depende de:** plano01 fase-01 (a lente) — **entregue**. Auto-contido no resto.
 
 ## Progresso
@@ -11,7 +11,7 @@ Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 |---|---|---|---|
 | 01 | Roteador de ramo + LOGIC + dogfood | **done** | 3/3 |
 | 02 | O ramo UI | **done** (so leitura — ver Divida) | 2/2 |
-| 03 | Ponteiros e captura | planned | 0/3 |
+| 03 | Ponteiros e captura | **done** | 3/3 |
 
 Fase 03 depende so da fase-01.
 
@@ -55,6 +55,30 @@ Formato: `DI-Plano08-faseNN-<slug>: <o que mudou e por que>`.
   cor"* saiu de `Common Rationalizations`. Era o anti-padrao 1 do `UI.md` escrito de novo, num
   arquivo **sempre carregado**, servindo a um branch que so se alcanca depois de abrir o satelite —
   quem esta fazendo variantes ja leu a regra la. Duplicacao de significado, pela lente do plano01.
+
+### fase-03 (executada)
+
+- `DI-Plano08-fase03-prefixo-nao-congelado`: a captura precisava de um nome de branch, e a
+  convencao **diverge de si mesma neste repo**: `git-workflow-and-versioning:162` documenta
+  `feature/<desc>`, mas os merges reais usam `feat/` (10x), `fix/` (7x), `docs/` (3x), `chore/` (3x),
+  `release/` (1x) — medido em `git log --merges -40`. Alterar aquela skill esta **fora do escopo**
+  desta fase. Solucao: a `prototype/SKILL.md` escreve o formato `<prefixo>/prototype-<slug>` e
+  **aponta** para `git-workflow-and-versioning` em vez de congelar um prefixo. Ganha duas vezes —
+  nao escolhe lado numa divergencia que nao e desta fase, e degrada certo em projeto-alvo com outra
+  convencao. **Divida aberta:** `feature/` vs `feat/` na skill de git.
+- `DI-Plano08-fase03-branch-do-dogfood-renomeada`: a branch criada na fase-01 era `proto/adr-lifecycle`
+  — prefixo que nao existe em convencao nenhuma. Renomeada para **`feat/prototype-adr-lifecycle`**,
+  que e o formato que a skill passou a escrever. Era local e nao pushada; renomear foi trivial.
+- `DI-Plano08-fase03-ponteiro-passou-de-1-linha`: a checklist pede "no maximo 1 linha" por ponteiro.
+  O do `design-twice` **e** 1 linha de tabela, mas carrega 3 de fronteira abaixo; o do `qa-visual`
+  tem 2 frases. Mantidos: sem a fronteira o ponteiro do `design-twice` dispararia sempre (G1), e a
+  segunda frase do `qa-visual` e o *porque* que o Passo 2 da fase manda escrever — comparar na mesma
+  dimensao ser mais justo que impressao sequencial. Linha extra que muda comportamento nao e sprawl.
+- `DI-Plano08-fase03-encaixe-no-step-8`: o ponteiro do `design-twice` entrou na tabela do
+  **Step 8 — Sugerir Proximo Passo**, que ja e cenario -> sugestao. O encaixe resolve G1 por
+  construcao: numa tabela de cenarios, o gatilho e condicional por forma, nao por redacao. E a
+  fronteira que escrevi (tecnologia e schema nao se decidem clicando) cai exatamente sobre os
+  **Dominios 2 e 3** da propria skill.
 
 ## Verificacao do gap (2026-08-10)
 

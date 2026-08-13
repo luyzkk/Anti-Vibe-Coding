@@ -44,9 +44,24 @@ tarde.
    aprender rapido.
 5. **Expor o estado.** Depois de cada acao (logic) ou troca de variante (UI), mostrar o estado
    relevante inteiro, para a mudanca ficar visivel.
-6. **Capturar quando acabar.** A decisao validada entra no codigo real; o prototipo vai para uma
-   **branch descartavel como fonte primaria**, com ponteiro de contexto na issue. Capturar tambem a
-   **resposta** — o veredito e a pergunta que ele fechou. A `main` fica so com a decisao.
+6. **Capturar quando acabar.** A `main` fica so com a decisao validada. O prototipo e a resposta que
+   ele produziu tem cada um o seu destino — secao **Capturar**, abaixo.
+
+## Capturar
+
+Um prototipo respondido produz **tres coisas**, e cada uma tem destino proprio:
+
+| O que | Onde vai |
+|---|---|
+| **A decisao validada** | O codigo real — o reducer sobe para o modulo; a variante vencedora e **reescrita direito** na pagina, nao promovida como esta |
+| **O prototipo inteiro** | Branch descartavel, como fonte primaria. Nome no formato `<prefixo>/prototype-<slug>`, com o prefixo que o projeto ja usa — a convencao esta em [`git-workflow-and-versioning`](../git-workflow-and-versioning/SKILL.md). **Nao mergear** |
+| **A resposta** | O plano ou o PRD da feature que o prototipo serviu, em `docs/exec-plans/` — o veredito **e** a pergunta que ele fechou |
+
+O terceiro e o que mais se perde, e o que mais custa. Prototipo guardado sem a conclusao vira
+artefato mudo: quem abre a branch seis meses depois ve **o que foi construido**, nunca **o que aquilo
+decidiu**. A branch e a fonte primaria; o ponteiro para ela mora junto da resposta.
+
+A `main` nao recebe nada disso — nem a casca HTML, nem as variantes perdedoras, nem a barra de troca.
 
 ## Linguagem de dominio
 
