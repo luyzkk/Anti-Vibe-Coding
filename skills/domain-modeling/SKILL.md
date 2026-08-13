@@ -81,5 +81,5 @@ lugares, cada um no seu.
 - Entrada de glossario citando nome de classe, tabela ou endpoint.
 - Termo que qualquer projeto de qualquer dominio teria.
 - Definicao que diz o que a coisa faz em vez do que ela e.
-- Entrada sem `_Evitar_` quando havia sinonimo em disputa — a palavra rejeitada e o conteudo.
+- Entrada sem `_Avoid_` quando havia sinonimo em disputa — a palavra rejeitada e o conteudo.
 - Glossario crescendo numa sessao que so consumiu o modelo, sem muda-lo.

@@ -81,14 +81,15 @@ describe('harness-validate advanced', () => {
     expect(r.stdout).toContain('required files')
   })
 
-  it('CA-27 (regressao do minimal): exits 1 when AGENTS.md > 40 lines', async () => {
+  // 2026-08-13 (Luiz/dev): cap 40 -> 41 (plano05 fase-02). A fixture tem 54 linhas — segue acima.
+  it('CA-27 (regressao do minimal): exits 1 when AGENTS.md excede o cap', async () => {
     const fat = '# Agent\n'
       + Array.from({ length: 50 }, (_, i) => `line ${i}`).join('\n')
       + '\n[ARCHITECTURE.md](./ARCHITECTURE.md)\n[docs/QUALITY_SCORE.md](./docs/QUALITY_SCORE.md)\n[docs/PRODUCT_SENSE.md](./docs/PRODUCT_SENSE.md)\n'
     await fs.writeFile(path.join(FIXTURE, 'AGENTS.md'), fat, 'utf8')
     const r = await runValidator(FIXTURE)
     expect(r.code).toBe(1)
-    expect(r.stderr).toContain('40 lines or fewer')
+    expect(r.stderr).toContain('41 lines or fewer')
   })
 
   it('CA-28: exits 1 on orphan active plan', async () => {

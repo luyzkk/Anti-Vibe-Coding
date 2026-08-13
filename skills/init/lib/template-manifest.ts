@@ -93,6 +93,10 @@ export const TEMPLATE_MANIFEST: ReadonlyArray<TemplateEntry> = [
   // Categoria anti-vibe-extension pois nao faz parte dos 22 docs canonicos do Andre Prado (DT-09).
   // D1 do CONTEXT.md: nome canonico = docs/CODE_STYLE.md.
   { src: 'docs/CODE_STYLE.md.tpl',                 dst: 'docs/CODE_STYLE.md',                 required: true,  category: 'anti-vibe-extension'  },
+  // 2026-08-13 (Luiz/dev): plano05 fase-02 — glossario de ubiquitous language (DI-12).
+  // anti-vibe-extension: nao esta entre os 22 docs canonicos do Andre Prado. required: true
+  // acompanha todas as demais entradas; scaffoldFullTree ja preserva arquivo pre-existente.
+  { src: 'docs/GLOSSARY.md.tpl',                   dst: 'docs/GLOSSARY.md',                   required: true,  category: 'anti-vibe-extension'  },
 
   // Camada 2: design-docs/
   { src: 'docs/design-docs/index.md.tpl',          dst: 'docs/design-docs/index.md',          required: true,  category: 'canon-andre'          },

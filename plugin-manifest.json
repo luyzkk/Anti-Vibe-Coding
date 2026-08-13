@@ -1,6 +1,6 @@
 {
   "version": "7.5.0",
-  "generatedAt": "2026-08-13T11:36:35.705Z",
+  "generatedAt": "2026-08-13T11:57:47.054Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -1027,13 +1027,13 @@
     },
     "skills/domain-modeling/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "9b8318c5abe4372235a58952b76ad5e89f8337604d4c3cf65d4c672ddb671ceb",
+      "checksum": "e4cf57c4e379c5b9bcaaf532b97cc47fc55c94630c2b4cae610303a407cbb437",
       "lastModified": "2026-08-13",
       "updateStrategy": "replace"
     },
     "skills/domain-modeling/references/GLOSSARY-FORMAT.md": {
       "version": "7.5.0",
-      "checksum": "84b2a5926ffdffc41ebad74cab47891fc10b901ec036ef73907a332cb2bf6c1e",
+      "checksum": "1f1312d76d6ca5e2663a7a9694c414c92b6999716f38c9b3eb785530885a38e9",
       "lastModified": "2026-08-13",
       "updateStrategy": "replace"
     },
@@ -1675,8 +1675,8 @@
     },
     "skills/init/lib/template-manifest.ts": {
       "version": "7.5.0",
-      "checksum": "29603c584e8ac69673f9a2ac22a0b27f2f350fde8d94a2ea8200858522ab5b38",
-      "lastModified": "2026-05-24",
+      "checksum": "49f9152a67a4113a94634eedf18de4f903aa10f65412903b1eeb0612d64e5bf0",
+      "lastModified": "2026-08-13",
       "updateStrategy": "replace"
     },
     "skills/init/lib/validator-allowlist.ts": {
@@ -1879,8 +1879,8 @@
     },
     "skills/init/assets/templates/AGENTS.md.tpl": {
       "version": "7.5.0",
-      "checksum": "22755b27228767ecf209a539b71661d2f5ca63dec1fea3e338440e1efa3f594c",
-      "lastModified": "2026-05-25",
+      "checksum": "314bf97ded5973f6bfaa7ad0f0e109fd0f9ad4b3d1c8f139ec6add85a53e504a",
+      "lastModified": "2026-08-13",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/ARCHITECTURE.md.tpl": {
@@ -1943,6 +1943,12 @@
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
+    "skills/init/assets/templates/docs/GLOSSARY.md.tpl": {
+      "version": "7.5.0",
+      "checksum": "779981ecfe09293f7d0c7e6881397677e32ff2ed915a9b4ed82033ad8d048305",
+      "lastModified": "2026-08-13",
+      "updateStrategy": "replace"
+    },
     "skills/init/assets/templates/docs/MERGE_GATES.md.tpl": {
       "version": "7.5.0",
       "checksum": "4ad7404e4e3b3b934df289a434d4437e5709d1a4e5f113edaa05e747b6d81015",
@@ -1951,8 +1957,8 @@
     },
     "skills/init/assets/templates/docs/PLANS.md.tpl": {
       "version": "7.5.0",
-      "checksum": "cc3cfec4f47e02b086fc937191e923df8fbe10b8739c797218f251313e7f1baa",
-      "lastModified": "2026-05-13",
+      "checksum": "bf5701a69318b8b70e25975901557cb91926a083c330308dafb1b7b4cf99792c",
+      "lastModified": "2026-08-13",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/docs/product-specs/index.md.tpl": {
@@ -2029,8 +2035,8 @@
     },
     "skills/init/assets/templates/scripts/harness-validate.ts.tpl": {
       "version": "7.5.0",
-      "checksum": "dfcdcf6a6dcf9169171eb5b0542eee8276f0866c37886d64de1dda868697148f",
-      "lastModified": "2026-05-20",
+      "checksum": "9706a313e01992328af7b794f7de7f44e2ae14eb50166e8fa2e7ec724fc65fe1",
+      "lastModified": "2026-08-13",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/scripts/new-plan.ts.tpl": {
