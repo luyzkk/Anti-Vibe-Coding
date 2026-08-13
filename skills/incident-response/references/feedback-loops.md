@@ -44,9 +44,35 @@ O objetivo não é um repro limpo, é uma **taxa de reprodução maior**. Rodar 
 paralelizar, adicionar estresse, estreitar janelas de timing, injetar sleeps. Um bug que falha em 50%
 das vezes é depurável; em 1% não é — seguir elevando a taxa até virar depurável.
 
-A classificação da Etapa 1 (timing / ambiente / estado / verdadeiramente aleatório) diz **por onde**
-elevar: janela de race pede sleep injetado e timestamps; dependência de estado pede isolamento;
-dependência de ambiente pede rodar em CI. Lá se classifica, aqui se eleva.
+Classificar primeiro — a categoria diz por onde elevar, e cada uma tem uma ação diferente:
+
+```
+├── Dependente de timing   → timestamps ao redor da área suspeita; ampliar
+│                            artificialmente as janelas de race condition
+├── Dependente de ambiente → rodar em CI para obter ambiente limpo; comparar
+│                            variáveis de ambiente entre local e produção
+├── Dependente de estado   → rodar em isolamento para revelar estado vazado;
+│                            checar fixtures/mocks que compartilham estado entre testes
+└── Verdadeiramente aleatório → logging defensivo + alerta na assinatura do erro;
+                                aguardar nova ocorrência já com dados instrumentados
+```
+
+Não seguir para hipótese sem ao menos um dado observado da categoria identificada.
+
+## Regressão de performance
+
+Para perf, log é quase sempre a ferramenta errada — ele diz *que* passou por ali, não *quanto* custou.
+O loop aqui é uma **medida**, e a ordem é **medir primeiro, corrigir depois**:
+
+1. Estabelecer o baseline com o instrumento certo: harness de tempo, `performance.now()`, profiler ou
+   plano de query (`EXPLAIN`) quando o suspeito é o banco.
+2. Fixar o que varia — mesma máquina, mesmo dataset, mesmo estado de cache — senão o ruído engole o
+   sinal e qualquer mudança "parece" ter funcionado.
+3. Bisect contra essa medida, com as formas 8 e 9 acima: o harness de bisect automatiza "sobe no
+   estado X, mede, repete", e o loop diferencial compara versão antiga contra nova no mesmo input.
+
+Sem baseline não há como provar que a correção melhorou alguma coisa — só que o número de hoje é
+diferente do número que ninguém anotou ontem.
 
 ## Quando genuinamente não dá para construir um loop
 

@@ -14,7 +14,7 @@ este numero o plano acertou.
 | Fase | Nome | Status | Arquivos |
 |---|---|---|---|
 | 01 | Reenquadrar + a fase do loop | **done** | 5/5 |
-| 02 | O miolo | planned | 0/1 |
+| 02 | O miolo | **done** | 1 novo + 3 modificados (plano previa 1) |
 | 03 | A saida | planned | 0/1 |
 
 ## Decisoes de implementacao (DI)
@@ -44,6 +44,40 @@ Formato: `DI-Plano06-faseNN-<slug>: <o que mudou e por que>`.
   419 para 420 com dois arquivos novos. Nao e regressao: `skills/wizard/template.sh` (plano03)
   tambem esta fora. Exec bit garantido no index via `git update-index --add --chmod=+x` (`100755`,
   igual ao do wizard).
+
+### fase-02 (2026-08-13)
+
+- `DI-Plano06-fase02-teto-220-nao-cabe`: **o teto de ~220 linhas foi estimado antes do conteudo
+  existir e nao cabe.** Medido: so as tres etapas novas do miolo somam **63 linhas** (Reproduzir e
+  Minimizar 18 · Formular Hipoteses 26 · Instrumentar 19), e sao o fluxo principal — nao ha o que
+  remover delas. Fechou em **229**. Para chegar la foram feitas tres extracoes e duas podas, todas
+  registradas abaixo. **A fase-03 ainda adiciona seam, cleanup e post-mortem** — o teto precisa ser
+  renegociado ali, nao espremido.
+- `DI-Plano06-fase02-tres-satelites`: o fase doc previa **1 arquivo modificado**; foram 1 novo + 3
+  modificados. O Passo 7 nomeia o branch de perf como "candidato natural a satelite", mas ele custa
+  8 linhas — sozinho nao resolvia 40. As tres extracoes, por coesao e nao por corte cego:
+
+  | O que saiu | Para onde | Por que ali |
+  |---|---|---|
+  | Branch de performance | `references/feedback-loops.md` §Regressao de performance | o satelite ja tinha harness de bisect e loop diferencial, que sao as ferramentas do branch |
+  | Rubrica de instrumentacao | `references/instrumentation.md` (novo) | so e alcancada por quem instrumentou — reference de branch, nao de fluxo |
+  | Arvore de flakiness | `references/feedback-loops.md` §Bugs nao-deterministicos | **o Passo 7 da fase-01 pedia "cruzar as duas explicitamente"; junta-las no mesmo arquivo e o cruzamento mais forte.** Classificar e elevar a taxa viraram uma coisa so |
+
+  INV-01 preservado: as quatro coisas nossas continuam existindo — tres no `SKILL.md`, a arvore de
+  flakiness no satelite da propria skill.
+- `DI-Plano06-fase02-ponteiros-do-iterate-mudaram-de-novo`: as duas referencias que a fase-01 acabou
+  de trocar para ancora nomeada **mudaram outra vez**, agora para os satelites:
+  `iterate:83` -> `references/feedback-loops.md` §Bugs nao-deterministicos, e `iterate:222` ->
+  `references/instrumentation.md`. Ficou **melhor** que ancora de secao: apontam direto ao alvo em
+  vez de a uma secao que o contem. Nao e churn evitavel — a fase-01 nao tinha como saber que o teto
+  forcaria extracao na fase-02.
+- `DI-Plano06-fase02-poda-por-duplicacao-rendeu-pouco`: a hipotese inicial era podar a rubrica de
+  instrumentacao do Hardening por duplicar a Etapa 5 nova. **Medido item a item, quase nada
+  duplicava**: "quando adicionar" e criterio de decisao, "log com dado sensivel sai na hora" e regra
+  unica, e "o que fica permanente" e o alvo do ponteiro do `iterate`. Cortar teria removido conteudo
+  vivo — o erro do §Descartados do plano01. Virou extracao inteira para satelite, nao poda.
+  A poda real e sem perda rendeu 10 linhas: `Fix Cirurgico` (12 -> 6) e `Commit` (16 -> 11), os dois
+  blocos de pseudo-codigo mais verbosos, convertidos para prosa densa.
 
 ## Descricoes do fluxo que ficaram desatualizadas (resolver no fim do plano)
 
