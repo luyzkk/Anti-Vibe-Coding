@@ -211,6 +211,48 @@ describe('grill-me — contrato de saida (INV-01)', () => {
     ).toBe(true)
   })
 
+  test('existe UM template de CONTEXT.md, e o segundo nao voltou', () => {
+    // De 2026-05 a 2026-08 o grill-me carregou dois templates contraditorios: o Passo 5, com
+    // `## Decisions` / `### D1:` e campos indexados, e o `## Pipeline Integration`, com
+    // `## Decisoes Confirmadas`. O segundo veio de um plano v5 separado
+    // (.claude/tasks/prd-v5/17/task-02) e nunca foi reconciliado com o primeiro.
+    expect(
+      skill.includes('## Decisoes Confirmadas'),
+      `[divida fechada 2026-08-13] "## Decisoes Confirmadas" de volta no grill-me. Era o heading do ` +
+        `segundo template de CONTEXT.md: com os dois no arquivo, o formato gravado depende de qual ` +
+        `pesou mais na leitura, e nenhum teste acusa. Existe UM template, no Passo 5 — mudanca de ` +
+        `formato se faz la, nao criando outro.`,
+    ).toBe(false)
+  })
+
+  test.each([
+    ['## Resumo Executivo', 'o que se le ao voltar ao documento meses depois'],
+    ['## Requisitos Funcionais', 'o rascunho de comportamento que saiu da conversa'],
+    ['## Requisitos Nao-Funcionais', 'performance, escala, seguranca, acessibilidade'],
+    ['## Restricoes', 'tecnicas, de negocio, de prazo'],
+    ['## Trade-offs Discutidos', 'o trade-off com a decisao tomada, ligado ao D correspondente'],
+    ['## Riscos Identificados', 'os riscos levantados durante a entrevista'],
+  ])('a fusao dos dois templates preservou "%s"', (heading, why) => {
+    // Os dois CONTEXT.md reais do repo — wont-capture-skill (2026-05-20) e workflow-awareness
+    // (2026-05-28) — resolveram a contradicao FUNDINDO os dois formatos, com a mesma estrutura e
+    // oito dias de diferenca. A uniao virou o template unico; estas secoes vieram do que foi
+    // removido, e sao usadas na pratica.
+    expect(
+      section('Passo 5').includes(heading),
+      `[divida fechada 2026-08-13] Secao ausente do template unico: ${heading} — ${why}. Remover ` +
+        `aqui e diminuir o formato que os CONTEXT.md existentes ja usam, nao simplifica-lo.`,
+    ).toBe(true)
+  })
+
+  test('as cinco secoes absorvidas seguem marcadas como opcionais', () => {
+    expect(
+      /OPCIONAIS/.test(section('Passo 5')),
+      `[divida fechada 2026-08-13] Sumiu a marca de que as cinco secoes absorvidas sao opcionais. ` +
+        `Sem ela, entrevista trivial passa a gerar requisito e risco vazios, e o CONTEXT.md comeca ` +
+        `a duplicar o PRD em vez de alimenta-lo — que e o trabalho do /write-prd.`,
+    ).toBe(true)
+  })
+
   test('a decisao indexada mantem os campos que o consumidor le', () => {
     const step5 = section('Passo 5')
     const fields = ['**Categoria:**', '**Pergunta:**', '**Resposta:**', '**Razao:**', '**Origem:**']

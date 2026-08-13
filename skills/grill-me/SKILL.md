@@ -284,6 +284,11 @@ Template do conteudo:
 **Decisions:** {total count}
 **Complexity:** {trivial | medium | complex}
 
+## Resumo Executivo
+
+{2-4 linhas: o que a feature e, e o que esta entrevista resolveu. E o que alguem le ao voltar
+ao documento meses depois, antes de decidir se precisa das decisoes uma a uma.}
+
 ## Decisions
 
 ### D1: {Titulo curto da decisao}
@@ -295,6 +300,26 @@ Template do conteudo:
 **Origem:** {dev | recomendacao-aceita | importado-consultant}
 
 ### D2: ...
+
+<!-- As cinco secoes abaixo sao OPCIONAIS: incluir so as que a entrevista de fato produziu, e
+     omitir o heading das outras. Aqui fica o rascunho que saiu da conversa; requisito detalhado,
+     MoSCoW e criterio de aceite sao trabalho do /write-prd, que le este arquivo. Entrevista
+     trivial costuma fechar sem nenhuma delas. -->
+
+## Requisitos Funcionais
+- {comportamento que o dev enunciou como esperado}
+
+## Requisitos Nao-Funcionais
+- {performance, escala, seguranca, acessibilidade — quando discutidos}
+
+## Restricoes
+- {tecnicas, de negocio, de prazo}
+
+## Trade-offs Discutidos
+- {o trade-off e a decisao tomada, referenciando o D correspondente}
+
+## Riscos Identificados
+- {riscos levantados durante a entrevista}
 
 ## Open Questions
 - {perguntas que ficaram sem resposta, com motivo}
@@ -333,32 +358,14 @@ Se o dev disser sim, identificar o topico mais relevante da entrevista e sugerir
 Ao finalizar a entrevista (todas as perguntas respondidas, contexto suficiente coletado):
 
 ### 1. Salvar Contexto
-Salvar o resultado consolidado em `docs/exec-plans/active/{date}-{slug}/CONTEXT.md` (ver Passo 5):
 
-```
-# CONTEXT.md — Resultado do /grill-me
+Salvar o resultado consolidado em `docs/exec-plans/active/{date}-{slug}/CONTEXT.md`, **no template
+do Passo 5** — que e o unico. Ele ja carrega decisao indexada, resumo executivo e as cinco secoes
+opcionais (requisitos, restricoes, trade-offs, riscos).
 
-**Feature:** [nome ou descricao curta]
-**Data:** [data da sessao]
-
-## Decisoes Confirmadas
-[lista de decisoes tomadas durante a entrevista]
-
-## Requisitos Funcionais
-[lista extraida das respostas]
-
-## Requisitos Nao-Funcionais
-[performance, escala, seguranca, etc]
-
-## Restricoes
-[tecnicas, de negocio, de prazo]
-
-## Trade-offs Discutidos
-[cada trade-off com a decisao tomada]
-
-## Riscos Identificados
-[riscos levantados durante a entrevista]
-```
+> Ate 2026-08-13 esta secao trazia um segundo template, com headings proprios. O agente lia os dois
+> e o CONTEXT.md saia diferente conforme qual tivesse pesado mais. Ha **um** template, no Passo 5;
+> mudanca de formato se faz la.
 
 ### 2. Sugerir Proximo Passo
 
