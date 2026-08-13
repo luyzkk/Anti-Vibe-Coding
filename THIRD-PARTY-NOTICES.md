@@ -111,6 +111,32 @@ SOFTWARE.
 - The `File structure` section, `CONTEXT-MAP.md` and the whole multi-context model — this plugin scaffolds a single `docs/GLOSSARY.md` per repo
 - Lazy file creation — `docs/GLOSSARY.md` is scaffolded by `/init` instead
 
+`skills/incident-response/` absorbs material from the `diagnosing-bugs` skill in the same repository, at the same commit `84fdeff`. This is an absorption into a pre-existing skill, not a port: `incident-response` already existed here with its own flow, and keeps it.
+
+**Upstream files used:**
+
+1. `skills/engineering/diagnosing-bugs/SKILL.md`
+2. `skills/engineering/diagnosing-bugs/scripts/hitl-loop.template.sh`
+
+**Derived** (translated to pt-BR; `tight` and `red` kept in English as anchor terms):
+
+- `SKILL.md`: the whole of upstream's `Phase 1 — Build a feedback loop` — the "this is the skill" framing, the disproportionate-effort instruction, the four-property completion criterion, and the gate that forbids hypothesising before a red-capable command exists
+- `references/feedback-loops.md`: the ten ranked ways to build a loop, `Tighten the loop`, `Non-deterministic bugs`, `When you genuinely cannot build a loop`, and the `Redact` section
+- `scripts/hitl-loop.template.sh`: verbatim copy of the 44-line upstream script, with one comment line reworded to say the agent generates the script and the user runs it
+
+**Original to this repository** (no upstream counterpart), all pre-dating the absorption and deliberately kept:
+
+- The flakiness classification tree (timing / environment / state / truly random, each with its action)
+- The layer-location tree, including `the test itself` as a false-negative branch
+- `Tratando Output de Erro como Dado Não Confiável` — treating logs and stack traces as diagnostic data rather than trusted instructions. Upstream redacts secrets; it has no injection boundary
+- The post-fix autopsy, in particular the question *"why did it get past review and the existing tests?"*
+- The cross-link between the flakiness tree and the loop's reproduction-rate section: upstream has no classification step to connect
+
+**Not ported:**
+
+- Upstream's `CONTEXT.md` read instruction — this plugin's per-feature `CONTEXT.md` is a different artifact (CO-01)
+- The hand-off to `/improve-codebase-architecture`, which has no counterpart skill here
+
 Upstream's `agents/openai.yaml` was **not** ported — it is an OpenAI-specific display manifest with no counterpart in this plugin's frontmatter model.
 
 #### MIT License (verbatim from upstream LICENSE):
