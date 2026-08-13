@@ -1,6 +1,6 @@
 {
   "version": "7.5.0",
-  "generatedAt": "2026-08-13T12:13:00.908Z",
+  "generatedAt": "2026-08-13T14:49:46.242Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -115,7 +115,7 @@
       "path": "skills/incident-response/",
       "version": "7.5.0",
       "introduced": "v7.5.0",
-      "description": "Fluxo disciplinado de resposta a incidentes pós-deploy. Raw logs → hipótese → regression test (ANTES do fix) → fix → commit. Cada fix vem com regression test — hardening é hábito, não fase."
+      "description": "Diagnostico de bug dificil ou regressao de performance, em producao ou em desenvolvimento. Use quando pedirem para diagnosticar ou debugar, quando algo quebra, lanca excecao ou falha, quando ficou lento, ou num incidente pos-deploy com log."
     },
     "incremental-implementation": {
       "path": "skills/incremental-implementation/",
@@ -1081,8 +1081,14 @@
     },
     "skills/incident-response/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "1a21c9579cd4434ef0f1bdbc11591ccd6d7874d0924640deea809c6a319db08b",
-      "lastModified": "2026-06-05",
+      "checksum": "eb457a8dffd6783a9ac36cf5104c0d2abc529172376455f30c01e00e43db880d",
+      "lastModified": "2026-08-13",
+      "updateStrategy": "replace"
+    },
+    "skills/incident-response/references/feedback-loops.md": {
+      "version": "7.5.0",
+      "checksum": "e4b66e7bc1153a3c5830aaf8a918dafceb9914ee2a865f7907db1cc44f341e97",
+      "lastModified": "2026-08-13",
       "updateStrategy": "replace"
     },
     "skills/incremental-implementation/SKILL.md": {
@@ -2053,8 +2059,8 @@
     },
     "skills/iterate/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "a6e8cfe7aeb857735f405d99cab48c0033db3c1f00a285fb2c8e9622a52c6613",
-      "lastModified": "2026-08-12",
+      "checksum": "6f2f769885fd7d52cc010dae60d80241bc5d83e4e5aac61a5a48f7bd74442ff3",
+      "lastModified": "2026-08-13",
       "updateStrategy": "replace"
     },
     "skills/learn/SKILL.md": {
