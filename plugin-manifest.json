@@ -1,6 +1,6 @@
 {
   "version": "7.5.0",
-  "generatedAt": "2026-08-13T20:27:10.232Z",
+  "generatedAt": "2026-08-13T22:47:50.572Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -176,6 +176,12 @@
       "version": "7.5.0",
       "introduced": "v7.5.0",
       "description": "Converts PRD into executable hierarchical plan. Analyzes complexity like a senior engineer, decomposes into multiple plans with detailed phases, generates folder structure with memory per plan. Uses isolated subagents for each plan creation."
+    },
+    "prototype": {
+      "path": "skills/prototype/",
+      "version": "7.5.0",
+      "introduced": "v7.5.0",
+      "description": "Build throwaway code that answers one design question. Use when sanity-checking whether a state model or a piece of logic feels right, or when exploring what a screen should look like before committing to it."
     },
     "qa-visual": {
       "path": "skills/qa-visual/",
@@ -2181,6 +2187,18 @@
       "version": "7.5.0",
       "checksum": "97591357b9a706a713073e883be25ba6f35e0724ec81597b14381b8e3086b14a",
       "lastModified": "2026-05-09",
+      "updateStrategy": "replace"
+    },
+    "skills/prototype/SKILL.md": {
+      "version": "7.5.0",
+      "checksum": "47f7f3ccba7b3ff37b6ed113707072bc9655179eed9e002e51174fd61bbb8034",
+      "lastModified": "2026-08-13",
+      "updateStrategy": "replace"
+    },
+    "skills/prototype/references/LOGIC.md": {
+      "version": "7.5.0",
+      "checksum": "fd55e4bcd6b629412c5dea7e0a30801e58aa94faba8fba1ddcd4ca45deb782c0",
+      "lastModified": "2026-08-13",
       "updateStrategy": "replace"
     },
     "skills/qa-visual/SKILL.md": {

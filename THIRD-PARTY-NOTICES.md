@@ -166,6 +166,24 @@ The hand-off to `/improve-codebase-architecture` was listed here as not ported w
 - The grilling loop (upstream's step 3) and its inline side effects — glossary updates and ADR offers as decisions crystallise. Deferred (DI-25); this port ends at the question and hands off to `/anti-vibe-coding:design-twice`, Domain 5
 - Upstream's `CONTEXT.md` as the domain glossary — this plugin keeps the domain language in `docs/GLOSSARY.md`, per DI-12/DI-13
 
+`skills/prototype/` is **derived** from the `prototype` skill in the same repository, at the same commit `84fdeff`.
+
+**Upstream files used:**
+
+1. `skills/engineering/prototype/SKILL.md`
+2. `skills/engineering/prototype/LOGIC.md`
+
+**Derived** (translated to pt-BR; `free-play` and `walkthrough` kept in English as anchor terms):
+
+- `SKILL.md`: the thesis ("a prototype is throwaway code that answers a question; the question decides the shape"), the branch router including the tie-break rule (ambiguous question plus absent user → pick by the surrounding code and state the assumption at the top of the prototype), and all six rules that apply to both branches
+- `references/LOGIC.md` (upstream keeps it beside `SKILL.md`; this plugin's satellites live in `references/`, which is what `generate-manifest.js` indexes): the five process steps, the four shapes the liftable module can take with the "pick by the question, not by what is easiest to wire" criterion, the four-block page layout, the scenario-choice rule (happy path, tricky edge, something that should be illegal), the reset-on-walkthrough-start rule, and all six anti-patterns
+
+**Original to this repository** (no upstream counterpart):
+
+- `Common Rationalizations` and `Red Flags` in `SKILL.md`, and the frontmatter (upstream declares two fields; this plugin has eight)
+- The `docs/GLOSSARY.md` degradation rule — upstream says "write for a non-developer"; this port names where the domain vocabulary comes from when the project has a glossary, and what to fall back on when it does not
+- The anti-patterns are stated as what each one kills rather than as a list of prohibitions, so the target behaviour is the thing named
+
 Upstream's `agents/openai.yaml` was **not** ported — it is an OpenAI-specific display manifest with no counterpart in this plugin's frontmatter model.
 
 #### MIT License (verbatim from upstream LICENSE):
