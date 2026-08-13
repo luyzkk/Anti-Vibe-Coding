@@ -402,6 +402,10 @@ Este QA Visual complementa (nao substitui) os testes unitarios do TDD.
 - QA Visual valida experiencia via browser real
 
 Ordem recomendada: TDD → Implementacao → QA Visual → Anti-Vibe Review → Commit
+
+Quando houver prototipo de UI no ar com variantes em `?variant=` (`/anti-vibe-coding:prototype`),
+varrer uma por uma em vez de o dev clicar a mao: mesma viewport, mesmos dados, mesma checagem de a11y
+por variante. Comparar na mesma dimensao e mais justo que impressao sequencial.
 </context>
 
 ## Contexto do teste

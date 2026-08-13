@@ -337,3 +337,8 @@ Baseado no contexto:
 | Complexidade >= 4 | "Feature complexa. Recomendo /write-prd para especificar antes de implementar." |
 | Complexidade <= 2 | "Feature simples. /plan-feature deve ser suficiente." |
 | Moderada | "Quer /write-prd para documentar ou /plan-feature para ir direto?" |
+| As propostas divergem sobre algo que se **sente clicando** — modelo de estado, fluxo, tela | "Quer tornar uma delas executavel antes de escolher? /anti-vibe-coding:prototype" |
+
+A ultima linha vale **quando a divergencia se resolve experimentando**, nao depois de todo
+`design-twice`. Escolha de tecnologia e schema de dados nao se decidem clicando — ali a tabela
+comparativa do Step 4 ja e a ferramenta certa.

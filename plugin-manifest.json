@@ -1,6 +1,6 @@
 {
   "version": "7.5.0",
-  "generatedAt": "2026-08-13T20:27:10.232Z",
+  "generatedAt": "2026-08-13T23:24:33.207Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -176,6 +176,12 @@
       "version": "7.5.0",
       "introduced": "v7.5.0",
       "description": "Converts PRD into executable hierarchical plan. Analyzes complexity like a senior engineer, decomposes into multiple plans with detailed phases, generates folder structure with memory per plan. Uses isolated subagents for each plan creation."
+    },
+    "prototype": {
+      "path": "skills/prototype/",
+      "version": "7.5.0",
+      "introduced": "v7.5.0",
+      "description": "Build throwaway code that answers one design question. Use when sanity-checking whether a state model or a piece of logic feels right, or when exploring what a screen should look like before committing to it."
     },
     "qa-visual": {
       "path": "skills/qa-visual/",
@@ -1015,8 +1021,8 @@
     },
     "skills/design-twice/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "a18b5130132af9709df5a4d39146c9fc4188a04b373bda6ffb53396364f0ea5b",
-      "lastModified": "2026-08-12",
+      "checksum": "af534331d582626c9312a0598e4564d5742aa3805b02b0957c98bbfec71e4549",
+      "lastModified": "2026-08-13",
       "updateStrategy": "replace"
     },
     "skills/design-twice/references/divergence-lenses.md": {
@@ -2183,10 +2189,28 @@
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
+    "skills/prototype/SKILL.md": {
+      "version": "7.5.0",
+      "checksum": "acb46652e589edf498ce48e1b771586e2a9df7bf543fa165e9bc5f0eac8ea831",
+      "lastModified": "2026-08-13",
+      "updateStrategy": "replace"
+    },
+    "skills/prototype/references/LOGIC.md": {
+      "version": "7.5.0",
+      "checksum": "6bf190064429915b66080998c662f320e1f8ee786cb37dd6d2cedfc51d70c99e",
+      "lastModified": "2026-08-13",
+      "updateStrategy": "replace"
+    },
+    "skills/prototype/references/UI.md": {
+      "version": "7.5.0",
+      "checksum": "ea410a574bbb3c318e3af3ef6952fe28f2f02534b2dfe14000082a098bbc66a8",
+      "lastModified": "2026-08-13",
+      "updateStrategy": "replace"
+    },
     "skills/qa-visual/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "ef8e49eeac11b1f1de5a226c2846546b1658318836b073e838774c4b2f9d0440",
-      "lastModified": "2026-08-12",
+      "checksum": "ae56fae2b2dd8b40d967e3fd55264ad50565053304c881d0d9ac2e764928b703",
+      "lastModified": "2026-08-13",
       "updateStrategy": "replace"
     },
     "skills/quick-plan/SKILL.md": {
