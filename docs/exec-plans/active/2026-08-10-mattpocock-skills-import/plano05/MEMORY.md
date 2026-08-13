@@ -12,7 +12,7 @@ Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 |---|---|---|---|
 | 01 | A skill de glossario | **done** | 3/3 (+ `plugin-manifest.json` regenerado) |
 | 02 | Scaffold + ponteiro no AGENTS | **done** | 1 novo + 7 modificados (plano previa 3) |
-| 03 | Absorcao no decision-registry | planned | 0/1 |
+| 03 | Absorcao no decision-registry | **done** | 1/1 |
 
 Fase 03 e independente das outras duas.
 
@@ -100,6 +100,51 @@ Duas ja sao obrigatorias, na fase-02:
   `TEMPLATE_MANIFEST`**: "writes every template" e "preserves all existing files on re-run" cobrem
   os dois criterios de aceite automaticamente ao adicionar a entry.
 
+### fase-03 (2026-08-13)
+
+- `DI-Plano05-fase03-criterio-3-nao-e-gate`: **contradicao interna do fase doc, resolvida.** O Passo 1
+  manda "os tres precisam ser verdadeiros"; o Passo 4 amarra o tier ao criterio 3. As duas coisas nao
+  podem valer juntas — se "houve alternativa avaliada" e obrigatorio, o tier leve nunca dispara,
+  porque ele existe justamente para o caso sem alternativa (uma restricao de compliance nao tem
+  trade-off; foi imposta). Resolvido: **criterios 1 e 2 sao o gate** (ha ADR?), **o 3 seleciona o
+  tier**. O `### Dois tiers` documenta a pergunta unica.
+- `DI-Plano05-fase03-tier-leve-nao-e-3-frases`: o fase doc define o tier leve como "titulo + 1-3
+  frases". **Incompativel com o writer.** `skills/lib/adr-writer.ts:57-74` monta o corpo com as
+  quatro secoes sempre, com stub quando o campo nao vem, e `decision-registry/index.ts:37` e o unico
+  caminho de escrita em v6. Fazer "titulo + 3 frases" exigiria mexer no writer — proibido por G3 e
+  pelo escopo. O tier leve virou **mesmas quatro secoes, duas delas curtas e honestas**: Alternatives
+  declara numa linha qual default foi rejeitado e que nao houve comparacao. Preserva forma unica
+  entre ADRs, e o exemplo esta na skill.
+- `DI-Plano05-fase03-adr-writer-path`: o writer **nao** esta em `skills/decision-registry/lib/` como
+  o README e o MEMORY deste plano registravam — esta em **`skills/lib/adr-writer.ts`**. O diretorio
+  `skills/decision-registry/lib/` existe, mas so tem `decision-registry-prefaces.ts`.
+- `DI-Plano05-fase03-red-flags-3-sites`: o fase doc nomeia **1** site a ajustar (o Red Flag de
+  Alternatives). Sao **3**: os dois Red Flags (Alternatives e Consequences — o proprio diagnostico do
+  Passo 3 cita os dois) e a checklist `## Verification (apos escrever)`, que exige "Alternatives
+  nao-vazia E nao e placeholder" e "Consequences preenchida". Sem escopar a checklist, o tier leve
+  nasceria reprovado por ela — o mesmo G2, em outro lugar.
+
+## Teste retroativo da fase-03 (2026-08-13)
+
+| Teste | Resultado |
+|---|---|
+| 3 ADRs existentes passam no filtro? | **3 de 3, todos tier completo.** `ADR-0001` (checksums SHA-256), `ADR-0021` (default destrutivo do `/init`), `ADR-0022` (FasePlanInput v1). Os tres sao caros de reverter, os tres respondem um "por que raios fizeram assim?" real, e os tres tem `## Alternatives Considered` preenchida |
+| Filtro apertado demais, ou ADR desnecessario? | Nenhum dos dois — nao houve reprovacao |
+| Existe decisao real sem ADR que caberia no tier leve? | **Sim, uma desta propria sessao.** Ver abaixo |
+
+**A decisao sem ADR, e ela e do tipo mais perigoso:** na fase-02, `docs/GLOSSARY.md` foi deixado
+**fora** de `AGENTS_REQUIRED_LINKS` de proposito, nos dois validadores. Um leitor razoavel assume o
+contrario — o link esta no `AGENTS.md.tpl`, entao "obviamente" deveria estar na lista de obrigatorios.
+Quem "consertar" isso faz **todo projeto ja inicializado** passar a falhar em `harness:validate`, sem
+ter mudado nada. Desvio deliberado + restricao invisivel no codigo, sem alternativa avaliada: tier
+leve, exatamente o ADR que hoje nao seria escrito.
+
+Segunda candidata, menor: os 2 goldens do greenfield seguem `test.skip` de proposito, e o motivo
+(nao regeneraveis sem `detect-architecture`) so vive num comentario.
+
+**Conclusao:** o tier leve nao e solucao para problema inexistente — a primeira decisao que ele
+capturaria apareceu dentro do proprio plano que o criou.
+
 ## Verificacao empirica da fase-02 (scaffold em tmpdir, 2026-08-13)
 
 Nenhum teste do repo faz este caminho ponta a ponta, entao foi feito a mao:
@@ -168,7 +213,7 @@ Controle positivo do grep de gap: `ADR` aparece em 277 arquivos; `ubiqu` so nos 
 | Manifest | `skills/init/lib/template-manifest.ts` (shape: `src`, `dst`, `required`, `category`) |
 | Teste do manifest | `skills/init/lib/template-manifest.test.ts` — assevera contagem (comentario registra 24, com drift pre-existente) |
 | ADRs deste repo | `docs/design-docs/ADR-NNNN-{slug}.md` |
-| Writer de ADR | `skills/decision-registry/lib/adr-writer.ts` — conta `ADR-*.md` para next_id |
+| Writer de ADR | **`skills/lib/adr-writer.ts`** — conta `ADR-*.md` para next_id. Corrigido 2026-08-13: nao fica em `decision-registry/lib/`, que so tem `decision-registry-prefaces.ts`. Unico caller v6: `decision-registry/index.ts:37` |
 | Storage legado | `.claude/decisions.md` (append) |
 
 ## Estado do `decision-registry` antes da mudanca
