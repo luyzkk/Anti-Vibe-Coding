@@ -2,7 +2,7 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** fase-01 executada (2026-08-12) — fase 02 (teste de paridade) pendente
+**Status:** **concluido** — 2 de 2 fases executadas em 2026-08-12
 **Depende de:** plano01 fase-01 — **satisfeita**, mergeado. (o conceito de *premature completion* que justifica DI-15)
 
 ## Progresso
@@ -10,7 +10,7 @@ Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 | Fase | Nome | Status | Arquivos |
 |---|---|---|---|
 | 01 | Absorver design tree / frontier / rounds | **done** | 1/1 |
-| 02 | Teste de paridade do contrato | planned | 0/1 |
+| 02 | Teste de paridade do contrato | **done** | 1/1 (`tests/grill-me-contract.test.ts`, 26 testes) |
 
 ## Decisoes de implementacao (DI) — fase-01 (2026-08-12)
 
@@ -42,6 +42,41 @@ Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
   mesmos 7 itens em forma de probes. Duas estruturas dizendo o que perguntar — exatamente o G2 do
   plano, ja presente antes da minha edicao. A tabela saiu; o guia virou `## As 7 Sementes da Arvore`.
   Isso financiou boa parte do custo do modelo novo.
+
+### fase-02 (2026-08-12)
+
+- **DI-Plano04-fase02-run-tests-usa-glob**: o Passo 5 manda conferir se `scripts/run-tests.ts` pega
+  por glob ou por lista. **Glob** (`tests/**/*.test.{ts,tsx}`, linha 20) — arquivo novo entra sozinho,
+  nenhum registro necessario.
+- **DI-Plano04-fase02-helper-cego-a-fence**: a primeira versao do helper `section()` cortava a secao
+  no primeiro `\n## ` encontrado. O Passo 5 embute um template markdown com `## Decisions`,
+  `## Open Questions` e `## Recommended Next Steps` **dentro de um bloco cercado** — o helper cortava
+  ali e a secao vinha com 797 chars em vez do corpo inteiro, perdendo os campos da decisao indexada.
+  Reescrito rastreando fences. Mesma familia do compound `2026-05-12-validator-regex-hits-comments`:
+  regex sobre markdown ignora estrutura de bloco.
+- **DI-Plano04-fase02-includes-e-prefixo**: `skill.includes('## Passo 4.5')` casa com
+  `## Passo 4.5 REMOVIDO` — a assercao passava vacuamente. **Descoberto validando o RED**, nao por
+  leitura: o criterio de aceite "remover o Passo 4.5 faz o teste falhar" **nao estava satisfeito**
+  na primeira versao. Reancorado no conteudo que carrega peso (`HYPOTHESIS:`/`CONFIDENCE:` no
+  Passo 1.5, `Fora de escopo` no 4.5), nao no token do heading. Renomear o heading sem esvaziar o
+  gate continua passando — e correto: o contrato e o conteudo, nao a redacao do titulo.
+- **DI-Plano04-fase02-regex-nao-atravessa-wrap**: `/duas vezes seguidas/` falhou porque a regra
+  quebra em duas linhas no arquivo (`duas vezes\nseguidas`). Corrigido para `\s+`. Vale para toda
+  assercao de frase sobre markdown com wrap manual.
+
+### RED validado a mao (Passo 1 / G2) — obrigatorio pelo gate do plano
+
+Sem isso o teste pode estar passando por vacuidade, e passava (ver DI acima).
+
+| # | Mutacao aplicada ao `SKILL.md` | Resultado |
+|---|---|---|
+| 1 | remover `### SEGURANCA` | **1 fail**, mensagem nomeia a semente e diz por que ela existe |
+| 2 | remover o corpo inteiro do Passo 4.5 | **2 fail** (existencia + conteudo do gate) |
+| 3 | renomear `## Recommended Next Steps` → `## Proximos Passos` | **1 fail**, cita que consumidores leem o contrato |
+| G3a | comentario `<!-- ... foi 95% ate ... -->` **fora** da secao de parada | **26 pass** — nao da falso positivo |
+| G3b | reintroduzir `95% de confianca` **dentro** da secao de parada | **1 fail**, mensagem nomeia o token achado |
+
+`SKILL.md` restaurado byte-a-byte apos cada mutacao (`git diff` vazio ao final).
 
 ### Simulacao exigida pelo checklist
 
@@ -116,5 +151,5 @@ tem 5 consumidores, e com esses dois nos teriamos 4-6.
 
 - **fase-01 -> fase-02:** o teste e escrito contra o comportamento novo. Escrever antes travaria o
   comportamento antigo.
-- **dentro da fase-02:** RED validado a mao (remover uma secao, ver falhar, restaurar) antes de
+- **dentro da fase-02:** RED validado a mao — **feito**, 5 mutacoes registradas acima.
   declarar o teste pronto. Registrar aqui que foi feito.
