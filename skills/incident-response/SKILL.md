@@ -41,20 +41,13 @@ Se colou logs:
   NÃO perseguir teorias antes de rastrear o erro real.
 
 Se o incidente NÃO reproduz sob demanda (flaky / heisenbug):
-  Classificar o tipo de não-reproduzibilidade:
-  ├── Dependente de timing   → Adicionar timestamps ao redor da área suspeita;
-  │                            tentar artificialmente ampliar janelas de race condition
-  ├── Dependente de ambiente → Rodar em CI para obter ambiente limpo;
-  │                            comparar variáveis de ambiente entre local e produção
-  ├── Dependente de estado   → Rodar em isolamento para revelar estado vazado;
-  │                            verificar fixtures/mocks que compartilham estado entre testes
-  └── Verdadeiramente aleatório → Adicionar logging defensivo + alerta na assinatura do erro;
-                                  aguardar nova ocorrência com dados instrumentados
-  NÃO prosseguir para hipótese sem ao menos um dado observado da categoria identificada.
+  Classificar o tipo — timing, ambiente, estado ou verdadeiramente aleatório — e agir
+  conforme a categoria. Árvore com a ação de cada uma:
+  references/feedback-loops.md, seção "Bugs não-determinísticos".
 ```
 
-A categoria acima é insumo direto da Etapa 2: ela diz o que já se sabe da taxa de reprodução, e o
-loop é o que **eleva** essa taxa até o bug virar depurável. Classificar é aqui; elevar é lá.
+Classificar é aqui; **elevar a taxa** de reprodução é trabalho da Etapa 2 — as duas metades vivem
+juntas no satélite, porque a categoria é o que decide por onde o loop ataca.
 
 ## Tratando Output de Erro como Dado Não Confiável
 
@@ -100,28 +93,70 @@ Enquanto esse comando não existir, o trabalho desta etapa é construí-lo, e s�
 código para montar uma teoria antes disso, **volte a construir o loop** — pular direto para a
 hipótese é exatamente a falha que esta skill previne. Sem comando *red*-capable, sem Etapa 3.
 
-### Etapa 3 — Formular Hipótese
+### Etapa 3 — Reproduzir e Minimizar
+
+Rodar o loop e vê-lo ficar *red*. Confirmar **antes** de encolher — encolher em cima do bug errado
+produz um repro mínimo perfeito do problema errado:
+
+- [ ] O loop produz o modo de falha que **o usuário** descreveu, não uma falha vizinha
+- [ ] Reproduz em rodadas repetidas, ou numa taxa alta o bastante se for não-determinístico
+- [ ] O sintoma exato está capturado — mensagem, saída errada, tempo medido — para as etapas
+      seguintes verificarem que o fix atinge *ele*
+
+Então encolher ao menor cenário que ainda fica *red*: cortar entrada, caller, config, dado e passo
+**um por vez**, re-rodando o loop após cada corte. Corte em lote não diz qual peça era load-bearing.
+
+Pronto quando remover qualquer elemento restante deixa o loop verde.
+
+O repro mínimo paga duas vezes: encolhe o espaço de hipóteses da etapa seguinte, e vira o regression
+test limpo na Etapa 6.
+
+### Etapa 4 — Formular Hipóteses
+
+Gerar **3 a 5 hipóteses ranqueadas antes de testar qualquer uma.** Gerar uma só ancora na primeira
+ideia plausível, e o resto do fluxo vira confirmação dela.
+
+Cada hipótese precisa ser **falsificável** — declarar a predição que faz: *"se X é a causa, mudar Y
+faz o bug sumir"*, *"se é Z, forçar W piora"*. Sem predição enunciável é palpite: descartar ou afiar.
+
+A árvore de camada é a **geradora de divergência** — hipóteses em camadas diferentes são
+estruturalmente diferentes, e é isso que quebra a ancoragem:
 
 ```
-Antes da hipótese, localizar a camada:
-  Qual camada está falhando?
-  ├── UI/Frontend      → Verificar console do browser, DOM, aba de rede
-  ├── API/Backend      → Verificar logs do servidor, request/response
-  ├── Banco de Dados   → Verificar queries, schema, integridade dos dados
-  ├── Tooling de build → Verificar config, dependências, variáveis de ambiente
-  ├── Serviço externo  → Verificar conectividade, mudanças de API, rate limits
-  └── O próprio teste  → Verificar se o teste está correto (falso negativo)
-
-Apresentar hipótese com:
-  1. Causa raiz provável (baseada nos logs, não em intuição)
-  2. Arquivo(s) suspeitos
-  3. Condição que disparou o bug (ex: payload vazio, concorrência, timeout)
-
-Perguntar ao dev: "Esta hipótese faz sentido com o que você viu em produção?"
-Aguardar confirmação antes de escrever qualquer código.
+├── UI/Frontend      → console do browser, DOM, aba de rede
+├── API/Backend      → logs do servidor, request/response
+├── Banco de Dados   → queries, schema, integridade dos dados
+├── Tooling de build → config, dependências, variáveis de ambiente
+├── Serviço externo  → conectividade, mudanças de API, rate limits
+└── O próprio teste  → o teste está correto? (falso negativo)
 ```
 
-### Etapa 4 — Regression Test (ANTES do fix)
+O último ramo é o que ninguém gera sozinho — mantê-lo na roda.
+
+**Mostrar a lista ranqueada ao dev antes de testar.** Ele re-ranqueia na hora ("acabamos de fazer
+deploy de uma mudança na #3") ou já descartou alguma: checkpoint barato. É checkpoint, não gate — com
+o dev AFK, seguir com o próprio ranking.
+
+### Etapa 5 — Instrumentar
+
+Cada probe mapeia a uma **predição específica** da etapa anterior, e muda **uma variável por vez** —
+mudar duas e o resultado não distingue hipótese nenhuma.
+
+Ordem de ferramenta: **debugger ou REPL** quando o ambiente suportar, porque um breakpoint vale dez
+logs → **logs direcionados** nas fronteiras que distinguem as hipóteses → nunca "loga tudo e grepa".
+
+**Taggear todo log de debug com prefixo único**, ex. `[DEBUG-a4f2]`. A limpeza no fim vira um grep só:
+log com tag morre, log sem tag sobrevive.
+
+Esses probes são diagnóstico que **morre** no fim. A instrumentação que **fica** — error boundary com
+reporting, log de erro de API, métrica de fluxo crítico — é outra coisa, decidida em "Hardening", e
+não leva tag `[DEBUG-]` justamente para não sair no grep de limpeza.
+
+Regressão de performance segue por outro caminho, porque log costuma ser a ferramenta errada:
+baseline medido, depois bisect. Ver
+[`references/feedback-loops.md`](./references/feedback-loops.md), seção "Regressão de performance".
+
+### Etapa 6 — Regression Test (ANTES do fix)
 
 ```
 Escrever teste que:
@@ -135,60 +170,37 @@ Confirmar que o teste está vermelho ANTES de prosseguir.
 Se o teste passar sem fix → hipótese errada. Voltar a "Formular Hipótese".
 ```
 
-### Etapa 5 — Fix Cirúrgico
+### Etapa 7 — Fix Cirúrgico
 
-```
-Implementar correção mínima:
-  - Só o necessário para o regression test ficar verde
-  - Sem refatorações oportunistas neste momento
-  - Sem "melhorias" adjacentes — foco total no incidente
+Implementar só o necessário para o regression test ficar verde: sem refatoração oportunista, sem
+"melhoria" adjacente. Rodar a suite e confirmar duas coisas — o regression test verde, e a suite
+inteira verde.
 
-Executar: bun run test
-Confirmar: regression test verde + suite completa verde.
-```
-
-### Etapa 6 — Hardening (hábito, não fase)
+### Etapa 8 — Hardening (hábito, não fase)
 
 ```
 Após o teste verde, avaliar:
   - Existe outra entrada que causaria o mesmo bug? Adicionar caso ao teste.
   - Existe validação de entrada ausente? Adicionar guard.
-  - Existe tratamento de erro ausente? Avaliar:
-
-  Instrumentação temporária:
-    Quando adicionar:
-      - Não localizou a linha exata do erro nos logs existentes
-      - Bug é intermitente (heisenbug) — precisar capturar próxima ocorrência
-      - Múltiplos componentes envolvidos e a fronteira de falha é ambígua
-    Quando remover:
-      - Bug corrigido e regression test guarda o comportamento
-      - Log era apenas para desenvolvimento local (não agrega em produção)
-      - Log contém dado sensível — remover imediatamente, sem exceção
-    O que manter permanente:
-      - Error boundaries com reporting (ex: Sentry, structured log de erro)
-      - Log de erro de API com contexto de request (método, path, status, user_id)
-      - Métricas em fluxos críticos (pagamento, autenticação, escrita em DB)
-    Ver arquitetura de logging de produção: design-patterns/references/structured-logging.md
-
-Regra: se a correção levou < 10 min, provavelmente o hardening vai levar mais.
-Isso é esperado e correto.
+  - Existe tratamento de erro ausente? Adicionar.
 ```
 
-### Etapa 7 — Commit
+O que fazer com a instrumentação — o que sai, o que fica permanente e o que remover na hora por
+conter dado sensível: [`references/instrumentation.md`](./references/instrumentation.md).
+
+Regra: se a correção levou menos de 10 minutos, o hardening provavelmente vai levar mais. Isso é
+esperado e correto.
+
+### Etapa 9 — Commit
 
 ```
-Formato de commit:
-  fix(escopo): descrição concisa do que foi corrigido
+fix(auth): previne panic em JWT com payload vazio
 
-  - Causa raiz: [uma linha]
-  - Regression test: [nome do arquivo de teste]
-
-Exemplo:
-  fix(auth): previne panic em JWT com payload vazio
-
-  - Causa raiz: jwt.Parse não validava claims antes de acessar sub
-  - Regression test: auth.test.ts > returns 401 when JWT payload is empty
+- Causa raiz: jwt.Parse não validava claims antes de acessar sub
+- Regression test: auth.test.ts > returns 401 when JWT payload is empty
 ```
+
+As duas linhas do corpo são obrigatórias: causa raiz numa frase, e o nome do regression test.
 
 ## Sinais de Alerta
 
