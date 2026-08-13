@@ -58,14 +58,19 @@ O GUESS expõe o modelo mental do entrevistador. Dev que discorda do GUESS ativa
 
 ---
 
-## Passo 2 — Explorar Codebase para Contexto
+## Passo 2 — Fatos sao seus; decisoes sao do dev
 
-Antes de perguntar, usar as ferramentas disponíveis para entender:
+Regra permanente, nao uma fase que termina aqui. Antes do primeiro round, exploracao curta para
+**semear a arvore**:
 
 - Stack tecnica (package.json, README, .env.example)
 - Padroes existentes (como outras features similares foram implementadas)
 - Entidades relevantes (schemas, tipos, modelos)
 - Pontos de integracao (APIs, servicos externos)
+
+Depois, sempre que uma pergunta da fronteira depender de um **fato** do ambiente, despachar subagente
+e descobrir — nunca perguntar ao dev o que da para achar sozinho. **Sem bloquear o round:** exploracao
+em curso e pre-requisito nao resolvido, entao so as perguntas a jusante esperam; o resto vai agora.
 
 Objetivo: fazer perguntas CONTEXTUALIZADAS, nao genericas.
 
@@ -74,40 +79,46 @@ Exemplo bom: "Vejo que usam Prisma com PostgreSQL. O novo modelo `Payment` esten
 
 ---
 
-## Passo 3 — Fazer Perguntas (Minimo 5, Maximo 20)
+## Passo 3 — Rounds e Fronteira
+
+Toda decisao ramifica nas decisoes que dependem dela: o **design tree**. A **fronteira** e o conjunto
+de decisoes cujos pre-requisitos ja estao resolvidos — as perguntas que dao para fazer *agora* sem
+chutar resposta que ainda nao se ouviu.
+
+Cada **round**:
+
+1. Calcular a fronteira.
+2. Perguntar a fronteira **inteira**, numerada, cada pergunta com sua recomendacao e seu GUESS.
+3. Esperar as respostas. Cada uma remodela a arvore e empurra a fronteira.
+4. Recalcular. Proximo round.
+
+**Pergunta que depende de outra ainda aberta pertence a um round posterior**, nao a este. Perguntar
+fora de ordem obriga o dev a responder no vacuo, e a resposta muda quando a dependencia resolve.
 
 Regras inviolaveis:
 - UMA decisao por pergunta (nunca agrupar)
-- Intensidade proporcional a complexidade: 5 para trivial, ate 20 para complexo
 - Respostas vagas → reformular com opcoes concretas (A, B, C)
 - "Nao sei" → apresentar trade-offs e RECOMENDAR uma opcao
 - "Tanto faz" → NAO aceitar (ver Passo 4)
 - Nunca gerar codigo durante a entrevista
-
-Categorias de decisoes a investigar:
-
-| Categoria | O que investigar |
-|-----------|-----------------|
-| ESCOPO | O que esta IN e OUT? Quais casos de uso NAO serão cobertos na v1? |
-| DADOS | Que entidades? Campos obrigatorios/opcionais? Relacoes? Validacoes? |
-| UX | Fluxo por ator (passos, copy, modais, toasts, notificacoes entre atores)? |
-| EDGE CASES | O que acontece quando X falha? Concorrencia? Idempotencia? |
-| PERFORMANCE | Volume esperado? Cache necessario? Limites de paginacao? |
-| SEGURANCA | Quem acessa? Autorizacao por papel ou por recurso? Rate limiting? |
-| INTEGRACAO | Sistemas externos? Formato de dados? Timeouts? Fallback? |
 
 Para cada "nao sei" do dev:
 > "Deixa eu apresentar as opcoes: [A] faz X com trade-off Y. [B] faz W com trade-off Z. Para o seu caso [contexto], recomendo [A] porque [razao]. Concorda?"
 
 ---
 
-## Guia de Perguntas por Categoria
+## As 7 Sementes da Arvore
+
+As 7 categorias sao as **raizes** do design tree, plantadas antes do primeiro round — nao uma lista a
+varrer. Semente que nao se aplica **fecha explicitamente** ("sem sistema externo — ramo fechado") e
+vira linha em Open Questions. O que nao pode acontecer e um ramo nunca ter existido: arvore semeada so
+pelo que o dev mencionou fecha sem tocar em seguranca uma unica vez.
 
 ### ESCOPO — O que esta IN e OUT?
 - "Essa feature inclui [X] ou so [Y]?"
 - "MVP ou versao completa? Se MVP, o que corta?"
 - "Isso substitui [funcionalidade existente] ou coexiste com ela?"
-- Sempre perguntar ESCOPO primeiro — define limites antes de tudo.
+- ESCOPO e a raiz de que quase tudo depende — na pratica, cai sozinha no round 1.
 
 ### DADOS — Entidades, campos, relacoes
 - "Quais campos sao obrigatorios vs opcionais?"
@@ -160,9 +171,10 @@ Para cada "nao sei" do dev:
 | Migracao/refatoracao | Escopo, Dados, Edge Cases |
 
 Regras:
-- ESCOPO e sempre a primeira categoria
-- SEGURANCA e obrigatoria se detectar auth, dados sensiveis ou pagamentos
-- Categorias sem relevancia para a feature podem ser puladas — nao forcar 7 categorias em feature trivial
+- ESCOPO e sempre a primeira raiz a resolver
+- SEGURANCA ramifica obrigatoriamente se detectar auth, dados sensiveis ou pagamentos
+- Prioridade decide **profundidade**, nunca existencia: semente irrelevante fecha explicitamente numa
+  linha, e nao vira 4 perguntas forcadas numa feature trivial
 
 ---
 
@@ -229,15 +241,24 @@ Se o dev corrigir, dobrar a correção no resumo e re-confirmar. Só seguir para
 
 ---
 
-## Condição de Parada (95%)
+## Condicao de Parada — Fronteira Vazia
 
-A entrevista termina quando você responde SIM a:
-> "Consigo prever a reação do dev às próximas 3 perguntas que eu faria?"
+A entrevista termina quando a **fronteira esvazia**: todo ramo do design tree visitado, resolvido pelo
+dev ou fechado explicitamente. Nada assumido em silencio.
 
-Se sim, há entendimento compartilhado — parar e ir para o Passo 4.5 (sintetizar). Se não, fazer a próxima pergunta. Isso é um teste verificável, não um "feeling".
+Binario, e substitui piso, teto e limiar — cada um saiu por um motivo distinto: **piso de 5** (fronteira
+vazia em 2 significa feature simples; forcar mais 3 e ruido), **teto de 20** (cortaria a fronteira pela
+metade e devolveria decisao nao resolvida) e **limiar de percentual** (bound vago — o agente encerra
+quando *parece* suficiente; fronteira e enumeravel).
 
-Piso de não-convergência: se já passou de várias rodadas e a confiança NÃO sobe / você ainda não consegue prever, isso é informação sobre o pedido, não motivo pra continuar moendo até as 20 perguntas. Parar e dizer:
-> "Já fiz {N} perguntas e ainda não consigo prever suas reações. Algo fundamental está faltando. Quer dar um passo atrás?"
+Cross-check antes de sintetizar: com a fronteira vazia, voce prev a reacao do dev as proximas 3
+perguntas que faria? Se nao, algum ramo fechou cedo demais — reabra.
+
+**Fronteira que nao esvazia:** se um round produzir mais fronteira do que resolveu **duas vezes
+seguidas**, parar e nomear — achado, nao bug, e o pedido precisa de um mapa, nao de mais perguntas:
+
+> "Ja fiz {N} perguntas e cada resposta abre mais decisoes do que fecha. Isso e escopo grande demais,
+> nao entrevista incompleta. Quer fatiar a feature antes de continuar?"
 
 ---
 
@@ -295,7 +316,7 @@ Template do conteudo:
 Baseado na complexidade:
 - **Trivial** (5-8 decisoes): "/plan-feature deve ser suficiente. Quer prosseguir?"
 - **Medium** (9-14 decisoes): "Recomendo /write-prd para documentar antes de implementar."
-- **Complex** (15-20 decisoes): "Feature complexa. Recomendo /write-prd e depois /plan-feature."
+- **Complex** (15+ decisoes): "Feature complexa. Recomendo /write-prd e depois /plan-feature."
 
 ---
 
@@ -362,7 +383,7 @@ Se o dev disser NAO: encerrar normalmente. O CONTEXT.md continua disponivel para
 
 1. Nunca gera codigo. Nunca. Apenas decisoes.
 2. Cada pergunta e sobre UMA decisao.
-3. Minimo 5 perguntas, maximo 20. O teto de 20 é limite, NÃO objetivo — parar antes pela Condição de Parada (95%); o piso de 5 não obriga continuar se já consegue prever.
+3. Perguntar a fronteira inteira por round; parar quando ela esvaziar. Sem piso, sem teto.
 4. Se o dev ja passou pelo /consultant, importar decisoes de la.
 5. Se ja existe um CONTEXT.md anterior, fazer merge (nao sobrescrever).
 6. Salvar em `docs/exec-plans/active/{date}-{slug}/CONTEXT.md` (criar pasta datada se nao existir).
@@ -404,7 +425,8 @@ Depois de aplicar o grill-me:
 - [ ] >= 1 sondagem de des-justificação rodou quando apareceu resposta com buzzword
 - [ ] Restate concreto escrito (Resultado / Usuário / Por que agora / Sucesso / Restrição / Fora de escopo) no Passo 4.5
 - [ ] "Sim" explícito obtido (não "tanto faz", não "parece bom", não silêncio)
-- [ ] No ponto de parada, era possível prever as próximas 3 perguntas (ou o piso de não-convergência foi acionado)
+- [ ] A fronteira esvaziou: todo ramo resolvido ou fechado explicitamente, nenhum assumido em silêncio
+- [ ] Cross-check no ponto de parada: era possível prever as próximas 3 perguntas
 - [ ] Handoff downstream (/write-prd, /plan-feature) enquadrado na intenção confirmada, não no pedido original vago
 
 ---
