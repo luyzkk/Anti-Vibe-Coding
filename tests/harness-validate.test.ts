@@ -38,7 +38,8 @@ describe('harness-validate (minimal)', () => {
 
     const result = await runValidator(FIXTURE)
     expect(result.code).toBe(1)
-    expect(result.stderr).toContain('40 lines or fewer')
+    // 2026-08-13 (Luiz/dev): 40 -> 41 junto com AGENTS_MAX_LINES do tpl (plano05 fase-02).
+    expect(result.stderr).toContain('41 lines or fewer')
   })
 
   it('exits 0 when AGENTS.md is small and all required files exist', async () => {

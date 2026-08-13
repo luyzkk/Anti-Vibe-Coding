@@ -28,9 +28,11 @@ describe('TEMPLATE_MANIFEST', () => {
   })
 
   // 2026-05-21 (Luiz/dev): 13 = 11 originais + harness-validate.ts + package.json (fix scaffold v7).
-  it('has exactly 13 anti-vibe-extension entries', () => {
+  // 2026-08-13 (Luiz/dev): 14 = 13 + docs/GLOSSARY.md (plano05 fase-02). canon-andre segue 24 —
+  // o glossario nao entra no contrato do Andre.
+  it('has exactly 14 anti-vibe-extension entries', () => {
     const ext = TEMPLATE_MANIFEST.filter((e) => e.category === 'anti-vibe-extension')
-    expect(ext.length).toBe(13)
+    expect(ext.length).toBe(14)
   })
 
   // 2026-05-19 (Luiz/dev): MH-03 — entry CODE_STYLE.md presente no manifest.

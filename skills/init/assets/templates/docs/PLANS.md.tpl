@@ -61,7 +61,7 @@ Each plan follows the 10-section harmonized template: Goal, Scope, Assumptions, 
 
 This project ships with two validation scripts:
 
-- `bun run harness:validate` — structural requirements: required files, AGENTS.md max 40 lines, AGENTS.md must link to ARCHITECTURE.md / docs/QUALITY_SCORE.md / docs/PRODUCT_SENSE.md, all internal markdown links must resolve, no orphan plans in `docs/exec-plans/active/`.
+- `bun run harness:validate` — structural requirements: required files, AGENTS.md max 41 lines, AGENTS.md must link to ARCHITECTURE.md / docs/QUALITY_SCORE.md / docs/PRODUCT_SENSE.md, all internal markdown links must resolve, no orphan plans in `docs/exec-plans/active/`.
 - `bun run compound:check` — each note in `docs/compound/` must have YAML frontmatter (`title`, `category`, `tags`, `created`) plus required H2 sections (`## Problem`, `## Solution`, `## Prevention`).
 
 Exit codes:

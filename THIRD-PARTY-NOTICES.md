@@ -88,6 +88,29 @@ SOFTWARE.
 - `SKILL.md`: the `AskUserQuestion` boundary, `Correcoes nossas sobre o template original`, `Common Rationalizations`, `Red Flags`, and the frontmatter (upstream models two states; this plugin has eight fields)
 - `skills/wizard/template.test.ts`: static guards for the template
 
+`skills/domain-modeling/` is **derived** from the `domain-modeling` skill in the same repository, at the same commit `84fdeff`.
+
+**Upstream files used:**
+
+1. `skills/engineering/domain-modeling/SKILL.md`
+2. `skills/engineering/domain-modeling/CONTEXT-FORMAT.md`
+
+**Derived** (translated to pt-BR; `ubiquitous language` kept in English as an anchor term):
+
+- `SKILL.md`: the active-vs-passive boundary in the opening paragraph, the four session disciplines (`Challenge against the glossary`, `Sharpen fuzzy language`, `Discuss concrete scenarios`, `Cross-reference with code`) including their intervention lines, `Update CONTEXT.md inline` (as `Gravar no momento`), and the "it is a glossary and nothing else" rule (as `O que entra no glossario`)
+- `references/GLOSSARY-FORMAT.md`: the entry structure, and the `Be opinionated` / `Keep definitions tight` / `Group terms under subheadings` rules
+
+**Original to this repository** (no upstream counterpart):
+
+- `SKILL.md`: `Fronteira com o decision-registry`, `Common Rationalizations`, `Red Flags`, and the frontmatter (upstream declares two fields; this plugin has eight)
+- Upstream's `Only include terms specific to this project's context` rule moved out of the format file into `SKILL.md`, and its test was rewritten. Upstream asks whether a concept is unique to this context or general programming; that question excludes a common word carrying a divergent local meaning, which is the highest-value entry a glossary can hold
+
+**Not ported:**
+
+- `ADR-FORMAT.md` and the `Offer ADRs sparingly` section — this plugin's `decision-registry` skill already covers ADRs in more depth (numbering, lifecycle, full template), so the upstream ADR half is absorbed there rather than duplicated here
+- The `File structure` section, `CONTEXT-MAP.md` and the whole multi-context model — this plugin scaffolds a single `docs/GLOSSARY.md` per repo
+- Lazy file creation — `docs/GLOSSARY.md` is scaffolded by `/init` instead
+
 Upstream's `agents/openai.yaml` was **not** ported — it is an OpenAI-specific display manifest with no counterpart in this plugin's frontmatter model.
 
 #### MIT License (verbatim from upstream LICENSE):
