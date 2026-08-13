@@ -1,6 +1,6 @@
 {
   "version": "7.5.0",
-  "generatedAt": "2026-08-12T23:24:46.645Z",
+  "generatedAt": "2026-08-13T00:41:35.023Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -1057,8 +1057,8 @@
     },
     "skills/grill-me/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "f3758b3428720274bcf2f75a17654dafbc4fe69673fcf94df1ad2be18949c8f1",
-      "lastModified": "2026-08-12",
+      "checksum": "922339c1a31d71353a272212ab304a31a4405abb1bacc2ef60a18317f9e81a6b",
+      "lastModified": "2026-08-13",
       "updateStrategy": "replace"
     },
     "skills/incident-response/SKILL.md": {
@@ -1076,7 +1076,7 @@
     "skills/infrastructure/SKILL.md": {
       "version": "7.5.0",
       "checksum": "7b3817dc916f4f212dbe7ac9b522a25ec39e2df34f549d6584068eeca45e7398",
-      "lastModified": "2026-08-12",
+      "lastModified": "2026-08-13",
       "updateStrategy": "replace"
     },
     "skills/infrastructure/references/deployment-patterns.md": {
@@ -1094,7 +1094,7 @@
     "skills/init/SKILL.md": {
       "version": "7.5.0",
       "checksum": "dfa03eaa8825d014b9684984374eb5c86d06ad0faae91811001926d1a15945fd",
-      "lastModified": "2026-08-12",
+      "lastModified": "2026-08-13",
       "updateStrategy": "replace"
     },
     "skills/init/lib/atoms-frontmatter-validator.ts": {
@@ -2396,7 +2396,7 @@
     "skills/wizard/SKILL.md": {
       "version": "7.5.0",
       "checksum": "4122d7a3d859e4350ff67b80818fc97f3e3974623da3133f67c267ad3936e13a",
-      "lastModified": "2026-08-12",
+      "lastModified": "2026-08-13",
       "updateStrategy": "replace"
     },
     "skills/write-prd/SKILL.md": {
