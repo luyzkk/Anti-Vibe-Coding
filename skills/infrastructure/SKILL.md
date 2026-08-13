@@ -69,6 +69,8 @@ Usuario digita "meusite.com" no navegador
 
 Podem ser o mesmo servico ou diferentes. E comum comprar no registrador e apontar nameservers para Cloudflare ou Route 53 para gerenciamento.
 
+**Wizard** — quando a recomendacao terminar numa acao que o agente **nao pode** executar (apontar nameserver no registrador, revelar chave num painel, aprovar certificado, criar zona hospedada num console), ofereca `/anti-vibe-coding:wizard`: ele gera um script que abre cada URL, diz o que clicar e grava o que for capturado. Gerar e decisao do humano.
+
 ### Arvore de Decisao — Provedor DNS
 
 ```
