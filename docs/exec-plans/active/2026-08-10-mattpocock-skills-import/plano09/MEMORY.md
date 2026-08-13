@@ -2,7 +2,7 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** fase-01 executada (2026-08-13)
+**Status:** **concluido** — fases 01 e 02 executadas (2026-08-13)
 **Depende de:** plano01 fase-01 (a lente) — **entregue**. Auto-contido no resto.
 
 ## Progresso
@@ -10,7 +10,7 @@ Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 | Fase | Nome | Status | Arquivos |
 |---|---|---|---|
 | 01 | A skill | **done** | 2/2 |
-| 02 | Ponteiro + dogfood | planned | 0/1 |
+| 02 | Ponteiro + dogfood | **done** | 1/1 |
 
 ## Decisoes de implementacao (DI)
 
@@ -36,6 +36,19 @@ Formato: `DI-Plano09-faseNN-<slug>: <o que mudou e por que>`.
 - `DI-Plano09-fase01-criterio-do-passo-2`: a fonte diz "understand deeply why each change was made".
   Bound vago convida premature completion (a lente do plano01). Trocado por criterio checavel:
   **voce consegue enunciar a intencao de cada lado sem olhar o diff**.
+
+### fase-02 (executada)
+
+- `DI-Plano09-fase02-ponteiro-apos-trunk-based`: o ponteiro entrou logo depois dos tres bullets de
+  `Trunk-Based Development` (`:42-44`), nao na tabela de racionalizacoes do `:301`. Motivo: e o
+  paragrafo onde a skill ja fala de conflito como custo de branch longa — o leitor esta com o
+  conceito na cabeca e falta so o que fazer quando ele acontece. A fronteira vai escrita:
+  **decidir** como integrar (esta skill) vs **estar preso** no meio (a outra). `description` nao
+  tocada (G5).
+- `DI-Plano09-fase02-abort-precisou-de-duas-montagens`: o primeiro cenario de merge errado **nao
+  conflitou** — criei o rascunho a partir do merge commit, entao o git resolveu sozinho e nao havia
+  o que abortar. Remontado com as duas branches saindo da **base comum**. Registrado porque e o erro
+  natural de quem fabrica conflito: a divergencia precisa ser real, nao sequencial.
 
 ## Verificacao do gap (2026-08-10)
 
@@ -88,18 +101,47 @@ neste repo**:
   rastrear, e o dogfood testa a metade errada
 - ao menos um hunk em que as duas intencoes **dao para preservar**, e um em que **nao dao**
 
-### Resultados a registrar
+### Resultados (executado 2026-08-13)
+
+Repo descartavel em `scratchpad/dogfood-merge-01`, **nunca neste repo**. Conflito em `pricing.js`:
+`feat/frete-e-arredondamento` (ours) contra `feat/piso-zero` (theirs), as duas editando
+`calcularTotal` com mensagens de commit reais dos dois lados.
 
 | Observacao | Resultado |
 |---|---|
-| O passo 2 enunciou a intencao de cada lado a partir dos commits? | |
-| O hunk compativel preservou os dois, ou escolheu um lado? | |
-| O hunk incompativel veio com trade-off anotado? | |
-| Algum comportamento novo foi inventado (INV-02)? | |
-| No merge errado de proposito, recomendou abortar? | |
+| O passo 2 enunciou a intencao de cada lado a partir dos commits? | **Sim, e foi o que decidiu tudo.** ours: total bater com a nota fiscal (frete apos desconto, arredondamento, excedente vira credito). theirs: gateway rejeita cobranca negativa, 3 tickets, piso em zero, "nao emitimos credito — decisao de produto" |
+| O hunk compativel preservou os dois? | **Preservou.** Frete e arredondamento (ours) coexistem com piso zero (theirs). Verificado por 4 casos: piso zero, frete apos desconto, arredondamento de 2 casas, e piso zero **com** frete ainda cobrado |
+| O hunk incompativel veio com trade-off anotado? | **Sim**, comentario de 5 linhas no ponto da decisao, dizendo o que foi abandonado (credito) e por que |
+| Algum comportamento novo foi inventado (INV-02)? | **Nao.** A tentacao existia — criar um campo `credito` para atender os dois lados. Recusada: nenhum dos lados tem esse campo, e inventa-lo no diff de merge e exatamente o que INV-02 proibe |
+| No merge errado de proposito, recomendou abortar? | **Sim.** `--abort` executado, estado limpo, piso zero da branch de entrega intacto, rascunho nao entrou |
 
-Os dois do meio sao os que mais provavelmente falham — e onde a skill pede julgamento e o caminho
-facil e escolher um lado e seguir.
+### O achado que so o passo 2 produz
+
+Rastrear a intencao revelou que **um dos lados nao implementava a propria intencao**.
+
+O commit de `ours` diz *"o fiscal quer o excedente como credito para a proxima compra, entao devolvo
+o valor positivo"*, e o codigo faz `if (total < 0) total = -total`. Medido: carrinho de 200 com cupom
+de 500 vira `total = 300` — o cliente **paga** 300 em vez de receber 300 de credito.
+
+Ler so o diff mostraria dois tratamentos plausiveis de `total < 0` e a escolha seria estetica. A
+fonte primaria transformou a decisao em obvia: piso zero, e o credito anotado como trade-off, porque
+credito de verdade exige um campo separado do total que nenhum dos dois lados tem.
+
+**E a demonstracao mais forte do INV-01 que este dogfood podia produzir** — nao foi planejada, saiu
+de escrever duas mensagens de commit honestas.
+
+### Sobre o cenario de abort
+
+A primeira montagem **nao conflitou**: criei o rascunho a partir do merge commit, e o git resolveu
+sozinho. Remontado a partir da base comum para haver conflito real.
+
+O que decidiu foi de novo o passo 2, nao a dificuldade: a fonte primaria do lado que chega diz
+`wip: preco fixo so para medir performance — NAO MERGEAR`, entrando numa branch de release. Merge
+errado por direcao, nao resolucao dificil — exatamente a distincao do INV-03.
+
+### Nenhum buraco voltou para a fase-01
+
+Os quatro pontos do Passo 3 passaram. A fase-01 nao precisou de patch (G4 respeitado).
 
 ## Gates entre fases
 
