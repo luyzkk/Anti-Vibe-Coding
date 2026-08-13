@@ -1,6 +1,6 @@
 {
   "version": "7.5.0",
-  "generatedAt": "2026-08-13T00:41:35.023Z",
+  "generatedAt": "2026-08-13T11:36:35.705Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -74,6 +74,12 @@
       "version": "7.5.0",
       "introduced": "v7.5.0",
       "description": "Classifica o projeto em 1 de 5 perfis arquiteturais por heuristica de pastas + imports. Use ao detectar arquitetura, classificar o projeto, ou perguntar qual perfil arquitetural ele segue."
+    },
+    "domain-modeling": {
+      "path": "skills/domain-modeling/",
+      "version": "7.5.0",
+      "introduced": "v7.5.0",
+      "description": "Build and sharpen the project's ubiquitous language. Use when a term clashes with the glossary, when wording is vague or overloaded, when the domain model is under discussion, or when another skill maintains it. Changing the model, not consuming it."
     },
     "doubt-driven-development": {
       "path": "skills/doubt-driven-development/",
@@ -1017,6 +1023,18 @@
       "version": "7.5.0",
       "checksum": "f8dd0c5d730e138bcc638be0f51d3a7e75d0f7ac17194d2877b1f71c00380f89",
       "lastModified": "2026-08-12",
+      "updateStrategy": "replace"
+    },
+    "skills/domain-modeling/SKILL.md": {
+      "version": "7.5.0",
+      "checksum": "9b8318c5abe4372235a58952b76ad5e89f8337604d4c3cf65d4c672ddb671ceb",
+      "lastModified": "2026-08-13",
+      "updateStrategy": "replace"
+    },
+    "skills/domain-modeling/references/GLOSSARY-FORMAT.md": {
+      "version": "7.5.0",
+      "checksum": "84b2a5926ffdffc41ebad74cab47891fc10b901ec036ef73907a332cb2bf6c1e",
+      "lastModified": "2026-08-13",
       "updateStrategy": "replace"
     },
     "skills/doubt-driven-development/SKILL.md": {

@@ -16,7 +16,7 @@ A skill `domain-modeling` e duas skills num arquivo so, e o veredito e **oposto*
 **Metade glossario — gap total.** Zero conceito de linguagem ubiqua no plugin, verificado por grep.
 Vira skill nova (DI-17).
 
-**Metade ADR — nos ganhamos, e nao e perto.** Nosso `decision-registry` tem 260 linhas mais
+**Metade ADR — nos ganhamos, e nao e perto.** Nosso `decision-registry` tem 261 linhas mais
 `lib/adr-writer.ts`, numeracao automatica, template completo, ciclo de vida com `superseded_by`,
 cross-link codigo→ADR, Common Rationalizations, Red Flags e checklist de verificacao. O dele diz
 *"um ADR pode ser um unico paragrafo"*. Vira absorcao cirurgica de tres coisas (DI-17).
@@ -71,7 +71,7 @@ Adotamos o **scaffold com semente**, nao a criacao preguicosa. Razoes:
 |---|---|---|
 | DI-12 (glossario em `docs/GLOSSARY.md`) | `../CONTEXT.md` — resolucao de CO-01 | pronto |
 | Decisoes DI-17..DI-19 | `../CONTEXT.md` §Decisoes | pronto |
-| `decision-registry` atual (260 linhas + `lib/adr-writer.ts`) | `skills/decision-registry/SKILL.md` | pronto |
+| `decision-registry` atual (261 linhas + `lib/adr-writer.ts`) | `skills/decision-registry/SKILL.md` | pronto |
 | Convencao de template (`skills/init/assets/templates/docs/*.tpl` + `template-manifest.ts`) | verificado 2026-08-10 | pronto |
 | A lente de escrita | plano01 fase-01 | pendente |
 
