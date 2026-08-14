@@ -104,6 +104,43 @@ describe("generate-manifest", () => {
     expect(libTs.length).toBeGreaterThan(0)
   })
 
+  // 2026-08-14 (Luiz/dev): o scan per-skill so olhava references/, templates/, lib/ e assets/,
+  // entao arquivo na RAIZ de uma skill nunca ganhava checksum nem updateStrategy — apesar de
+  // sync-to-global.sh copiar a pasta inteira. Eram 11 arquivos, 7 deles index.ts de codigo real.
+  test("skills/wizard/template.sh is registered", () => {
+    expect(manifest.files["skills/wizard/template.sh"]).toBeDefined()
+  })
+
+  test("skill-root index.ts files are registered", () => {
+    const owners = [
+      "decision-registry",
+      "design-twice",
+      "execute-plan",
+      "iterate",
+      "lessons-learned",
+      "plan-feature",
+      "quick-plan",
+    ]
+    const missing = owners.filter((s) => !manifest.files[`skills/${s}/index.ts`])
+    expect(missing).toEqual([])
+  })
+
+  test("skills/consultant/prompts.md is registered", () => {
+    expect(manifest.files["skills/consultant/prompts.md"]).toBeDefined()
+  })
+
+  test("skills/_shared/legacy-manifest-schema.ts is registered", () => {
+    expect(manifest.files["skills/_shared/legacy-manifest-schema.ts"]).toBeDefined()
+  })
+
+  // Guarda a fronteira que o scan de raiz alargou: teste nao e artefato distribuido.
+  test("test files stay out of the manifest", () => {
+    const tests = Object.keys(manifest.files).filter(
+      (k) => k.includes(".test.") || k.includes(".spec.")
+    )
+    expect(tests).toEqual([])
+  })
+
   test("doc-only paths are excluded (AGENTS.md, ARCHITECTURE.md, docs/)", () => {
     const excluded = Object.keys(manifest.files).filter(
       (k) => k === "AGENTS.md" || k === "ARCHITECTURE.md" || k.startsWith("docs/")
