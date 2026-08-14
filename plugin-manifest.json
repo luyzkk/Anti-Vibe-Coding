@@ -1,6 +1,6 @@
 {
   "version": "7.5.0",
-  "generatedAt": "2026-08-13T23:24:33.207Z",
+  "generatedAt": "2026-08-13T23:59:00.902Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -200,6 +200,12 @@
       "version": "7.5.0",
       "introduced": "v7.5.0",
       "description": "React e Next.js patterns. Use when the user asks about useEffect, data fetching (TanStack Query), closure stale, memoization (useMemo, useCallback), state management, or reviewing a component (re-renders, virtualization, code splitting)."
+    },
+    "resolving-merge-conflicts": {
+      "path": "skills/resolving-merge-conflicts/",
+      "version": "7.5.0",
+      "introduced": "v7.5.0",
+      "description": "Use when a git merge or rebase is in progress and conflicted — MERGE_HEAD or REBASE_HEAD exists, git reports unmerged paths, or files carry conflict markers."
     },
     "security": {
       "path": "skills/security/",
@@ -1081,8 +1087,8 @@
     },
     "skills/git-workflow-and-versioning/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "98a9c4270fa682bd4f164eb8910a43edd5db75276e156613c3cce45896c34d69",
-      "lastModified": "2026-08-12",
+      "checksum": "4d5e2340a1d2088fdcaf490808a37004dbc8c7a70a51d166b1f4ec32e4634df1",
+      "lastModified": "2026-08-13",
       "updateStrategy": "replace"
     },
     "skills/grill-me/SKILL.md": {
@@ -2235,6 +2241,12 @@
       "version": "7.5.0",
       "checksum": "f3cf2a397987b92d90f7a12659f1d266235cfb5adbf1fa47c8babe1c57fb13ec",
       "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "skills/resolving-merge-conflicts/SKILL.md": {
+      "version": "7.5.0",
+      "checksum": "5afa1e426984e55e8ce4bc6e7dff36adbb083bb60ab472b6cdca557f9262eafb",
+      "lastModified": "2026-08-13",
       "updateStrategy": "replace"
     },
     "skills/security/SKILL.md": {

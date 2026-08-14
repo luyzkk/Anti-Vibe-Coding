@@ -43,6 +43,9 @@ This is the recommended default. Teams using gitflow or long-lived branches can 
 - **Release branches are acceptable.** When you need to stabilize a release while main moves forward.
 - **Feature flags > long branches.** Prefer deploying incomplete work behind flags rather than keeping it on a branch for weeks.
 
+Esta skill e sobre **decidir** como commitar, ramificar e integrar. Quando o conflito ja aconteceu e
+o merge ou rebase esta parado no meio, o procedimento e outro: `/anti-vibe-coding:resolving-merge-conflicts`.
+
 ### 1. Commit Early, Commit Often
 
 Each successful increment gets its own commit. Don't accumulate large uncommitted changes.
