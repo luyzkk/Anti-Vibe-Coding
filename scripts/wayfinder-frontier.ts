@@ -6,9 +6,10 @@
 //
 // Le e imprime. Quem muta ticket e o agente, pelo modo work da skill.
 
+// Importa so `node:` — este arquivo e copiado literal para o projeto-alvo pelo /init, e la nao ha
+// dependencia de terceiro instalada. Mesma regra de compound-check.ts.tpl e harness-validate.ts.tpl.
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
-import yaml from 'js-yaml'
 
 // Tolerante a CRLF: todo .md deste repo fica CRLF no working tree do Windows
 // (compound 2026-05-19-crlf-breaks-frontmatter-regex).
@@ -44,17 +45,49 @@ export interface FrontierReport {
   warnings: string[]
 }
 
+function stripQuotes(s: string): string {
+  return (s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))
+    ? s.slice(1, -1)
+    : s
+}
+
 /**
- * YAML CORE_SCHEMA le `003` como o inteiro 3, entao os zeros a esquerda somem antes de chegarem
- * aqui. Sem re-padding, um `blocked-by: [003]` nunca casaria com o ticket de `id: 003`.
+ * Parser de frontmatter plano — `chave: valor` mais array inline `[a, b]`. E o que o formato do
+ * ticket usa, e nada alem disso.
+ *
+ * Todo valor sai **string**, o que resolve de graca um problema que um parser YAML de verdade cria:
+ * `blocked-by: [003]` viraria o inteiro `3` e perderia os zeros, deixando de casar com o ticket de
+ * `id: 003`.
  */
-function normalizeId(value: unknown): string {
-  const raw = typeof value === 'number' ? String(value) : String(value ?? '').trim()
+function parseFlatYaml(raw: string): Record<string, string | string[]> {
+  const data: Record<string, string | string[]> = {}
+  for (const line of raw.split(/\r?\n/)) {
+    if (line.trim() === '' || line.trim().startsWith('#')) continue
+    const m = line.match(/^([a-zA-Z_][a-zA-Z0-9_-]*)\s*:\s*(.*)$/)
+    if (!m) continue
+    const rest = m[2]!.trim()
+    if (rest.startsWith('[') && rest.endsWith(']')) {
+      const inner = rest.slice(1, -1).trim()
+      data[m[1]!] = inner === '' ? [] : inner.split(',').map((s) => stripQuotes(s.trim()))
+    } else {
+      data[m[1]!] = stripQuotes(rest)
+    }
+  }
+  return data
+}
+
+function asText(value: string | string[] | undefined): string {
+  return typeof value === 'string' ? value.trim() : ''
+}
+
+/** Aceita `id: 7` alem de `id: 007` — o que ordena o arquivo e resolve bloqueio e a forma padded. */
+function normalizeId(value: string | string[] | undefined): string {
+  const raw = asText(value)
   return /^\d+$/.test(raw) ? raw.padStart(3, '0') : raw
 }
 
-function parseClaim(raw: unknown): ClaimInfo | null {
-  const text = String(raw ?? '').trim()
+function parseClaim(raw: string | string[] | undefined): ClaimInfo | null {
+  const text = asText(raw)
   if (text === '') return null
   const [stamp = '', ...rest] = text.split(/\s+/)
   const parsed = new Date(stamp)
@@ -62,37 +95,31 @@ function parseClaim(raw: unknown): ClaimInfo | null {
   return { raw: text, at, by: rest.join(' '), stale: false }
 }
 
-function parseTicket(body: string, file: string): Ticket | null {
+type Loaded = { ticket: Ticket; claim: ClaimInfo | null }
+
+function parseTicket(body: string, file: string): Loaded | null {
   const match = body.match(FRONTMATTER_RE)
   if (!match?.[1]) return null
 
-  let data: Record<string, unknown>
-  try {
-    const loaded = yaml.load(match[1], { schema: yaml.CORE_SCHEMA })
-    if (loaded === null || typeof loaded !== 'object' || Array.isArray(loaded)) return null
-    data = loaded as Record<string, unknown>
-  } catch {
-    return null
-  }
-
+  const data = parseFlatYaml(match[1])
   const blockedByRaw = data['blocked-by']
   const blockedBy = Array.isArray(blockedByRaw)
-    ? blockedByRaw.map(normalizeId).filter((id) => id !== '')
+    ? blockedByRaw.map((v) => normalizeId(v)).filter((id) => id !== '')
     : []
 
   return {
-    id: normalizeId(data['id']),
-    title: String(data['title'] ?? '').trim() || file,
-    type: String(data['type'] ?? '').trim(),
-    status: data['status'] === 'closed' ? 'closed' : 'open',
-    blockedBy,
-    outOfScope: data['out-of-scope'] === true,
-    file,
+    ticket: {
+      id: normalizeId(data['id']),
+      title: asText(data['title']) || file,
+      type: asText(data['type']),
+      status: asText(data['status']) === 'closed' ? 'closed' : 'open',
+      blockedBy,
+      outOfScope: asText(data['out-of-scope']) === 'true',
+      file,
+    },
+    claim: parseClaim(data['claimed']),
   }
 }
-
-/** Guarda o frontmatter cru do ticket, para o claim ser lido junto do resto. */
-type Loaded = { ticket: Ticket; claim: ClaimInfo | null }
 
 async function loadTickets(effortDir: string): Promise<Loaded[]> {
   const dir = path.join(effortDir, 'tickets')
@@ -106,17 +133,7 @@ async function loadTickets(effortDir: string): Promise<Loaded[]> {
   const loaded = await Promise.all(
     names.map(async (name) => {
       const body = await fs.readFile(path.join(dir, name), 'utf8')
-      const ticket = parseTicket(body, `tickets/${name}`)
-      if (!ticket) return null
-      const fm = body.match(FRONTMATTER_RE)?.[1] ?? ''
-      let claim: ClaimInfo | null = null
-      try {
-        const data = yaml.load(fm, { schema: yaml.CORE_SCHEMA }) as Record<string, unknown>
-        claim = parseClaim(data?.['claimed'])
-      } catch {
-        claim = null
-      }
-      return { ticket, claim }
+      return parseTicket(body, `tickets/${name}`)
     }),
   )
 
@@ -183,12 +200,12 @@ async function checkMapDivergence(effortDir: string, tickets: Ticket[]): Promise
 
   for (const t of tickets) {
     if (t.status === 'closed' && !linked.has(t.file)) {
-      warnings.push(`ticket fechado fora de "Decisions so far" do mapa: ${nameOf(t)}`)
+      warnings.push(`closed ticket missing from the map's "Decisions so far": ${nameOf(t)}`)
     }
   }
   for (const target of linked) {
     if (!byFile.has(target)) {
-      warnings.push(`"Decisions so far" aponta para ticket inexistente: ${target}`)
+      warnings.push(`"Decisions so far" points at a ticket that does not exist: ${target}`)
     }
   }
   return warnings
@@ -210,13 +227,13 @@ export async function analyseEffort(effortDir: string, now: Date = new Date()): 
 
   for (const cycle of findCycles(byId)) {
     const names = cycle.map((id) => byId.get(id)!.title).join(' -> ')
-    report.errors.push(`ciclo de bloqueio: ${names} -> ${byId.get(cycle[0]!)!.title}`)
+    report.errors.push(`blocking cycle: ${names} -> ${byId.get(cycle[0]!)!.title}`)
   }
 
   for (const ticket of tickets) {
     const ghosts = ticket.blockedBy.filter((id) => !byId.has(id))
     for (const ghost of ghosts) {
-      report.errors.push(`blocked-by aponta para id inexistente ${ghost}: ${nameOf(ticket)}`)
+      report.errors.push(`blocked-by points at unknown id ${ghost}: ${nameOf(ticket)}`)
     }
 
     if (ticket.status === 'closed' || ticket.outOfScope) continue
@@ -235,7 +252,7 @@ export async function analyseEffort(effortDir: string, now: Date = new Date()): 
       const stale = claim.at !== null && now.getTime() - claim.at.getTime() > STALE_CLAIM_MS
       if (stale) {
         report.warnings.push(
-          `reivindicacao vencida (>24h, ${claim.raw}) — de volta a fronteira: ${nameOf(ticket)}`,
+          `claim expired (>24h, ${claim.raw}) — back on the frontier: ${nameOf(ticket)}`,
         )
         report.frontier.push(ticket)
       } else {
@@ -255,26 +272,26 @@ export function renderReport(report: FrontierReport, effortDir: string): string 
   const lines: string[] = [`wayfinder — ${effortDir}`, '']
 
   if (report.errors.length > 0) {
-    lines.push('ERROS', ...report.errors.map((e) => `  ! ${e}`), '')
+    lines.push('ERRORS', ...report.errors.map((e) => `  ! ${e}`), '')
   }
 
   const nothingOpen =
     report.frontier.length === 0 && report.blocked.length === 0 && report.claimed.length === 0
 
   if (nothingOpen) {
-    lines.push('Nenhum ticket aberto — o caminho esta claro.', '')
+    lines.push('No open tickets — the way is clear.', '')
   } else {
     lines.push(
-      `FRONTEIRA (${report.frontier.length}) — da para pegar agora`,
+      `FRONTIER (${report.frontier.length}) — takeable now`,
       ...(report.frontier.length > 0
         ? report.frontier.map((t) => `  - ${nameOf(t)}`)
-        : ['  (vazia)']),
+        : ['  (empty)']),
       '',
     )
 
     if (report.claimed.length > 0) {
       lines.push(
-        `REIVINDICADO (${report.claimed.length}) — em andamento em outra sessao`,
+        `CLAIMED (${report.claimed.length}) — in progress in another session`,
         ...report.claimed.map((c) => `  - ${nameOf(c.ticket)} — ${c.claim.by || c.claim.raw}`),
         '',
       )
@@ -282,9 +299,9 @@ export function renderReport(report: FrontierReport, effortDir: string): string 
 
     if (report.blocked.length > 0) {
       lines.push(
-        `BLOQUEADO (${report.blocked.length}) — falta fechar`,
+        `BLOCKED (${report.blocked.length}) — waiting on`,
         ...report.blocked.map(
-          (b) => `  - ${nameOf(b.ticket)} — espera: ${b.waitingOn.map((w) => w.title).join(', ')}`,
+          (b) => `  - ${nameOf(b.ticket)} — waits on: ${b.waitingOn.map((w) => w.title).join(', ')}`,
         ),
         '',
       )
@@ -292,7 +309,7 @@ export function renderReport(report: FrontierReport, effortDir: string): string 
   }
 
   if (report.warnings.length > 0) {
-    lines.push('AVISOS', ...report.warnings.map((w) => `  ~ ${w}`), '')
+    lines.push('WARNINGS', ...report.warnings.map((w) => `  ~ ${w}`), '')
   }
 
   return lines.join('\n')
@@ -307,7 +324,7 @@ async function resolveEffortDir(arg: string | undefined): Promise<string> {
   try {
     entries = await fs.readdir(activeRoot)
   } catch {
-    throw new Error(`nenhum esforco ativo encontrado em ${activeRoot} — passe o caminho como argumento`)
+    throw new Error(`no active effort found in ${activeRoot} — pass the effort path as an argument`)
   }
 
   const withMap: string[] = []
@@ -323,10 +340,10 @@ async function resolveEffortDir(arg: string | undefined): Promise<string> {
 
   if (withMap.length === 1) return withMap[0]!
   if (withMap.length === 0) {
-    throw new Error('nenhum esforco ativo tem MAP.md — passe o caminho como argumento')
+    throw new Error('no active effort has a MAP.md — pass the effort path as an argument')
   }
   throw new Error(
-    `varios esforcos com MAP.md — escolha um:\n${withMap.map((d) => `  ${d}`).join('\n')}`,
+    `several efforts have a MAP.md — pick one:\n${withMap.map((d) => `  ${d}`).join('\n')}`,
   )
 }
 

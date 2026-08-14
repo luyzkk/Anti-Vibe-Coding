@@ -1,6 +1,6 @@
 {
   "version": "7.5.0",
-  "generatedAt": "2026-08-14T14:19:06.479Z",
+  "generatedAt": "2026-08-14T14:46:39.017Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -637,7 +637,7 @@
     },
     "scripts/wayfinder-frontier.ts": {
       "version": "7.5.0",
-      "checksum": "a68e0292036e5438dda2c47877f8730157202c44f7ee2cdcfb187c5b61f5e10f",
+      "checksum": "bfbfe7f09c7dbe96493e048310878dc96f7c454255eb665256ab786dd89e9344",
       "lastModified": "2026-08-14",
       "updateStrategy": "replace"
     },
@@ -1753,8 +1753,8 @@
     },
     "skills/init/lib/template-manifest.ts": {
       "version": "7.5.0",
-      "checksum": "49f9152a67a4113a94634eedf18de4f903aa10f65412903b1eeb0612d64e5bf0",
-      "lastModified": "2026-08-13",
+      "checksum": "c986e0759b804618aafd67a39f5561ee3f14fae9597eaab64136e8090ce098df",
+      "lastModified": "2026-08-14",
       "updateStrategy": "replace"
     },
     "skills/init/lib/validator-allowlist.ts": {
@@ -2095,8 +2095,8 @@
     },
     "skills/init/assets/templates/package.json.tpl": {
       "version": "7.5.0",
-      "checksum": "57e5535b60653841f4eb018fcbc2509bc7a8dbc1fb23acaf60eec300d162d7f3",
-      "lastModified": "2026-05-12",
+      "checksum": "d83f306b9d4c3f833d8d9513f6283131f04cfd655afa296538f72e4b4f8fb14b",
+      "lastModified": "2026-08-14",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/README.md": {
@@ -2121,6 +2121,12 @@
       "version": "7.5.0",
       "checksum": "ce7b1c1c5bc6043d0b06adbd18631e4efcc0714494d97ba9c3538897374dacf2",
       "lastModified": "2026-05-13",
+      "updateStrategy": "replace"
+    },
+    "skills/init/assets/templates/scripts/wayfinder-frontier.ts.tpl": {
+      "version": "7.5.0",
+      "checksum": "bfbfe7f09c7dbe96493e048310878dc96f7c454255eb665256ab786dd89e9344",
+      "lastModified": "2026-08-14",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/TODO.md.tpl": {
