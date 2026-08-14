@@ -82,11 +82,16 @@ function getUpdateStrategy(filePath) {
 /**
  * Escana diretorio recursivamente e coleta arquivos com extensoes aceitas.
  * Exclui arquivos .test.ts, .test.cjs e diretorios __tests__, __fixtures__.
+ *
+ * `recursive: false` limita a varredura aos arquivos diretamente dentro de absDir.
+ * Usado no scan de raiz de skill, onde os subdiretorios ja tem scans proprios com
+ * listas de extensao distintas — recursar ali alargaria essas listas por acidente.
  */
-function scanDir(absDir, relBase, extensions, files) {
+function scanDir(absDir, relBase, extensions, files, { recursive = true } = {}) {
   if (!fs.existsSync(absDir)) return;
   fs.readdirSync(absDir, { withFileTypes: true }).forEach(entry => {
     if (entry.isDirectory()) {
+      if (!recursive) return;
       if (entry.name === '__tests__' || entry.name === '__fixtures__' || entry.name === 'node_modules') return;
       scanDir(path.join(absDir, entry.name), `${relBase}/${entry.name}`, extensions, files);
     } else if (entry.isFile()) {
@@ -191,6 +196,12 @@ function collectManagedFiles() {
           updateStrategy: getUpdateStrategy(relPath)
         };
       }
+
+      // Arquivos na raiz da skill: index.ts (7 skills), prompts.md, template.sh.
+      // sync-to-global.sh:75 ja copiava a pasta inteira, entao eles chegavam ao cache global
+      // sem checksum e fora da estrategia de update. Shallow de proposito — os subdiretorios
+      // abaixo tem scans proprios. scanDir ja exclui *.test.* e *.spec.*.
+      scanDir(skillBase, `skills/${skillName}`, ['.md', '.ts', '.sh'], files, { recursive: false });
 
       // references/*.md
       scanDir(path.join(skillBase, 'references'), `skills/${skillName}/references`, ['.md'], files);
