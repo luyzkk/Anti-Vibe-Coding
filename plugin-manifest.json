@@ -1,6 +1,6 @@
 {
   "version": "7.5.0",
-  "generatedAt": "2026-08-13T23:59:00.902Z",
+  "generatedAt": "2026-08-14T11:55:26.510Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -254,6 +254,12 @@
       "version": "7.5.0",
       "introduced": "v7.5.0",
       "description": "Verificacao pos-execucao: testes e lint, auditoria multi-agente paralela, test quality audit (cobertura real, testes fracos, alucinacoes) e debug automatico. Use apos concluir uma fase ou feature."
+    },
+    "wayfinder": {
+      "path": "skills/wayfinder/",
+      "version": "7.5.0",
+      "introduced": "v7.5.0",
+      "description": "Chart a large effort as a map of decision tickets, then work them one at a time. Run it when an idea is too big for one agent session and the way to the destination is still fogged — you can see where you want to land, but cannot yet name the questions in between."
     },
     "wizard": {
       "path": "skills/wizard/",
@@ -1088,7 +1094,7 @@
     "skills/git-workflow-and-versioning/SKILL.md": {
       "version": "7.5.0",
       "checksum": "4d5e2340a1d2088fdcaf490808a37004dbc8c7a70a51d166b1f4ec32e4634df1",
-      "lastModified": "2026-08-13",
+      "lastModified": "2026-08-14",
       "updateStrategy": "replace"
     },
     "skills/grill-me/SKILL.md": {
@@ -2246,7 +2252,7 @@
     "skills/resolving-merge-conflicts/SKILL.md": {
       "version": "7.5.0",
       "checksum": "5afa1e426984e55e8ce4bc6e7dff36adbb083bb60ab472b6cdca557f9262eafb",
-      "lastModified": "2026-08-13",
+      "lastModified": "2026-08-14",
       "updateStrategy": "replace"
     },
     "skills/security/SKILL.md": {
@@ -2481,6 +2487,18 @@
       "version": "7.5.0",
       "checksum": "80ef537478e90af638068c6156e38890bb1273a1ddcaa9749fa98a2a8a62eb6b",
       "lastModified": "2026-05-23",
+      "updateStrategy": "replace"
+    },
+    "skills/wayfinder/SKILL.md": {
+      "version": "7.5.0",
+      "checksum": "baa242414df271ca997c596fb8d27bcfc41db443a8cba91dbc09fc6ce6ed7720",
+      "lastModified": "2026-08-14",
+      "updateStrategy": "replace"
+    },
+    "skills/wayfinder/references/FORMATS.md": {
+      "version": "7.5.0",
+      "checksum": "b64f42eacbcc7922f38332bde087d0ecfc19f50715661e97cafebde731a71c30",
+      "lastModified": "2026-08-14",
       "updateStrategy": "replace"
     },
     "skills/wizard/SKILL.md": {
