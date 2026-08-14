@@ -91,6 +91,8 @@ Formato: `DI-Plano10-faseNN-<slug>: <o que mudou e por que>`.
   casaria com o ticket de `id: 003`, e **todo bloqueio viraria referencia fantasma** — o script
   reportaria erro em cima de um mapa correto. `normalizeId` re-padda para 3 digitos na leitura, e ha
   teste dedicado. Nao estava previsto em nenhum dos 11 casos da fase.
+  **Dissolvido na distribuicao** (`DI-Plano10-fase02-sem-deps`): sem `js-yaml`, todo valor sai string
+  e os zeros nunca se perdem. `normalizeId` ficou como rede — aceita `id: 7` alem de `id: 007`.
 
 - `DI-Plano10-fase02-ciclo-nao-trava`: o **G3 partia de premissa errada**. Ciclo nao vira loop
   infinito aqui, porque "desbloqueado" olha so os bloqueadores **diretos**
@@ -120,6 +122,50 @@ Formato: `DI-Plano10-faseNN-<slug>: <o que mudou e por que>`.
   nunca a mao — e artefato gerado, e o generator novo rodando sobre a working tree produz a uniao por
   construcao. Verificado que os dois lados sobreviveram: as 10 entradas de raiz da `main` e as 2 do
   wayfinder.
+
+### Distribuicao para projeto-alvo (decisao do humano, 2026-08-14)
+
+O gap sinalizado ao fim da fase-02 foi resolvido: **distribuir junto**. Isso mudou tres coisas no
+artefato ja commitado, e cada uma foi medida antes de mexer.
+
+- `DI-Plano10-fase02-sem-deps`: **o `js-yaml` saiu.** Os `.tpl` distribuidos importam **somente
+  `node:fs` e `node:path`** — medido em `compound-check.ts.tpl` e `harness-validate.ts.tpl`, e por
+  isso o `compound-check.ts.tpl` parseia frontmatter a mao mesmo com a versao do repo usando
+  `js-yaml`. O projeto-alvo nao tem dependencia instalada.
+  **Como apareceu:** o script scaffoldado morreu ao rodar —
+  `SyntaxError: Missing 'default' export in module js-yaml@5.3.0`, resolvido de um cache qualquer do
+  bun. **A suite inteira estava verde**; so rodar dentro de um projeto scaffoldado revelou. E o
+  compound `2026-08-13-suite-verde-nao-exercita-validador-distribuido` se pagando de novo.
+  Substituido por `parseFlatYaml` (~20 linhas, mesma forma do `parseYamlInline` do
+  `compound-check.ts.tpl`): `chave: valor` mais array inline, que e tudo que o formato do ticket usa.
+
+- `DI-Plano10-fase02-saida-en`: **a saida ao usuario virou EN.** Medido script a script: os tres
+  distribuidos (`harness-validate`, `compound-check`, `new-plan`) imprimem EN; so o repo-only
+  (`audit-skill-docs`) imprime pt-BR. A regra e **distribuido → EN**, e distribuir moveu o
+  wayfinder-frontier para essa categoria. Comentarios seguem pt-BR, como no `harness-validate.ts.tpl`.
+  `"o caminho esta claro"` da fase-02 virou `"the way is clear"` — o criterio de aceite pede que a
+  fronteira vazia **comunique** o fim do mapa, nao uma string literal. Ha teste guardando o chrome da
+  saida contra palavras pt-BR, com controle positivo no mesmo assert.
+
+- `DI-Plano10-fase02-tpl-copia-literal`: o `.tpl` e **copia byte a byte** do script do repo. Difere
+  do `harness-validate.ts.tpl`, que e variante adaptada — aqui, sem dependencia e com saida EN, nao
+  sobra nada a adaptar. O que mantem honesto e um teste de drift, com **RED validado**: perturbei o
+  `.tpl`, o teste ficou vermelho, restaurei.
+
+- `DI-Plano10-fase02-goldens-intocados`: `init-greenfield.tree.json` e `.stdout.txt` **nao foram
+  atualizados**. Os testes que os consomem estao `test.skip` desde 2026-05-21 e **nao podem ser
+  regenerados** — greenfield aborta com code=20 sem `/detect-architecture` pre-rodado, e a decisao
+  "golden v7 vs delecao" segue aberta. Editar um golden a mao inventaria dado: ele vale por ter sido
+  **produzido** pelo sistema. Para quem fechar aquela decisao: **o scaffold passou de 38 para 39
+  arquivos**, e `scripts/wayfinder-frontier.ts` e o novo.
+  Nota: o MEMORY global dizia "5 testes ativos e verdes (todos sem `test.skip`)" — **caduco**, 4 dos
+  5 estao skipados. Nenhum teste **ativo** quebrou: todas as assercoes de contagem sao relativas a
+  `TEMPLATE_MANIFEST.length`, nao numeros fixos. As duas fixas que existiam foram atualizadas —
+  `anti-vibe-extension` de 14 para 15.
+
+**Verificado ponta a ponta, nao pela suite:** `scaffoldFullTree` num tmpdir escreveu 39 arquivos com
+o script incluso, e `bun run wayfinder:frontier` rodou **dentro do projeto-alvo**, sem deps
+instaladas, achando o esforco por auto-discovery e imprimindo fronteira e bloqueado corretos.
 
 ## Verificacao do gap (2026-08-10)
 
@@ -257,12 +303,11 @@ mensagem clara em vez de crash.
 - O passo 2 do modo work manda rodar `bun run wayfinder:frontier`. **O script aceita o caminho do
   esforco como argumento** — usar, e nao depender do auto-discovery, que so resolve quando ha
   exatamente um esforco ativo com `MAP.md`.
-- **Gap de distribuicao, em aberto e nao resolvido pela fase-02:** o `/init` distribui 3 scripts para
-  projeto-alvo (`harness-validate`, `compound-check`, `new-plan`, via `TEMPLATE_MANIFEST`), e
-  `wayfinder-frontier.ts` **nao** esta entre eles. A `SKILL.md` e distribuida e nomeia o comando,
-  entao num projeto-alvo o ponteiro morre. Custaria 4 arquivos (`.tpl`, entry no `TEMPLATE_MANIFEST`,
-  `package.json.tpl`, e o teste que o cobre) — fora do escopo declarado da fase-02. **Decisao do
-  humano** antes da fase-03 escrever o passo 2.
+- **Gap de distribuicao — RESOLVIDO.** O humano decidiu distribuir junto (2026-08-14). O script vai
+  para o projeto-alvo pelo `TEMPLATE_MANIFEST`, e `wayfinder:frontier` esta no `package.json.tpl`.
+  A fase-03 pode escrever `bun run wayfinder:frontier` no modo work sem ponteiro morto. Ver o bloco
+  *Distribuicao para projeto-alvo* acima — em especial `DI-Plano10-fase02-saida-en`, porque a saida
+  do script agora e **EN** e a `SKILL.md` da fase-03 nao deve prometer texto em pt-BR.
 - HITL/AFK ja esta **definido** na tabela de tipos da `SKILL.md` ("ticket HITL resolve pela troca ao
   vivo: o lado humano e do humano"). O passo 3 da fase-03 deve **expandir** com o modo de falha
   nomeado (*um agente de grilling que responde as proprias perguntas*), nao reafirmar a definicao.

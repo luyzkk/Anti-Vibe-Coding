@@ -140,7 +140,7 @@ describe('wayfinder-frontier', () => {
     await writeTicket({ id: '001', title: 'Lado A', blockedBy: '[002]' })
     await writeTicket({ id: '002', title: 'Lado B', blockedBy: '[001]' })
     const report = await analyseEffort(effortDir)
-    expect(report.errors.join(' ').toLowerCase()).toContain('ciclo')
+    expect(report.errors.join(' ').toLowerCase()).toContain('cycle')
     expect(report.errors.join(' ')).toContain('Lado A')
     expect(report.errors.join(' ')).toContain('Lado B')
   })
@@ -209,7 +209,7 @@ describe('wayfinder-frontier', () => {
       await writeTicket({ id: '001', title: 'Tudo resolvido', status: 'closed' })
       await writeMap('- [Tudo resolvido](tickets/001-slug.md) — feito')
       const report = await analyseEffort(effortDir)
-      expect(renderReport(report, effortDir)).toContain('o caminho esta claro')
+      expect(renderReport(report, effortDir)).toContain('the way is clear')
     })
 
     test('refere por nome, com o caminho do arquivo junto', async () => {
@@ -222,8 +222,39 @@ describe('wayfinder-frontier', () => {
     test('fronteira com ticket aberto nao anuncia caminho claro', async () => {
       await writeTicket({ id: '001', title: 'Ainda aberto' })
       const out = renderReport(await analyseEffort(effortDir), effortDir)
-      expect(out).not.toContain('o caminho esta claro')
+      expect(out).not.toContain('the way is clear')
     })
+
+    // Distribuido para projeto-alvo pelo /init, onde a saida da ferramenta e EN — como em
+    // harness-validate, compound-check e new-plan. Comentario em pt-BR segue o padrao dos .tpl.
+    // Titulos ASCII neutros de proposito: o alvo e o chrome da ferramenta, nao o dado do usuario.
+    test('chrome da saida nao tem palavra em pt-BR', async () => {
+      await writeTicket({ id: '001', title: 'Alpha' })
+      await writeTicket({ id: '002', title: 'Beta', blockedBy: '[001]' })
+      await writeTicket({ id: '003', title: 'Gamma', claimed: '2026-08-14T11:00 feat/x' })
+      await writeTicket({ id: '004', title: 'Delta', status: 'closed' })
+      await writeMap('- nada indexado')
+      const out = renderReport(await analyseEffort(effortDir, new Date('2026-08-14T12:00Z')), effortDir)
+      const ptBr = /\b(fronteira|bloqueado|reivindicado|avisos?|erros|esforco|caminho|vazia|espera|ticket fechado)\b/i
+      expect(out.match(ptBr)?.[0] ?? null).toBeNull()
+      // Controle positivo: o regex realmente casa quando a palavra existe.
+      expect('FRONTEIRA (1)'.match(ptBr)?.[0]).toBe('FRONTEIRA')
+    })
+  })
+
+  // O /init distribui este script para o projeto-alvo. Diferente do harness-validate.ts.tpl, que e
+  // uma variante adaptada, este nao precisa de adaptacao nenhuma — entao a copia e literal, e a
+  // unica coisa que a mantem honesta e este teste. Sem ele, o projeto-alvo silenciosamente roda uma
+  // versao velha da fronteira.
+  test('template distribuido pelo /init e identico a este script', async () => {
+    const here = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'))
+    const source = await fs.readFile(path.join(here, 'wayfinder-frontier.ts'), 'utf8')
+    const tpl = await fs.readFile(
+      path.join(here, '..', 'skills/init/assets/templates/scripts/wayfinder-frontier.ts.tpl'),
+      'utf8',
+    )
+    // Normaliza CRLF: o working tree do Windows converte, o conteudo canonico e LF.
+    expect(tpl.replace(/\r\n/g, '\n')).toBe(source.replace(/\r\n/g, '\n'))
   })
 
   test('nao escreve em lugar nenhum (G5)', async () => {
