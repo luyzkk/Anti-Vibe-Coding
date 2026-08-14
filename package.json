@@ -17,6 +17,7 @@
     "compound:check": "bun scripts/compound-check.ts .",
     "new-plan": "bun run scripts/new-plan.ts",
     "parity:audit": "bun run scripts/parity-audit.ts",
+    "wayfinder:frontier": "bun run scripts/wayfinder-frontier.ts",
     "preface:simulate": "bun run scripts/preface-simulate.ts",
     "state:regenerate": "bun run skills/lib/state-md-generator.ts $PWD",
     "prepare": "husky",
