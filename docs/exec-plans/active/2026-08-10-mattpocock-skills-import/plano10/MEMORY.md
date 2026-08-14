@@ -2,7 +2,7 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** fase-01 concluida (2026-08-14) — fases 02 e 03 pendentes
+**Status:** fases 01 e 02 concluidas (2026-08-14) — fase 03 pendente
 **Depende de:** plano01 fase-01 (a lente)
 **Branch:** `feat/wayfinder`
 
@@ -11,7 +11,7 @@ Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 | Fase | Nome | Status | Arquivos |
 |---|---|---|---|
 | 01 | Formato + modo chart | **done** | 3/3 |
-| 02 | Script de fronteira | planned | 0/3 |
+| 02 | Script de fronteira | **done** | 3/3 |
 | 03 | Modo work + pipeline | planned | 0/4 |
 
 Linear: o script precisa do formato; o modo work precisa da fronteira.
@@ -85,6 +85,41 @@ Formato: `DI-Plano10-faseNN-<slug>: <o que mudou e por que>`.
   (`<titulo do ticket fechado, como link para tickets/NNN-slug.md>`), com uma frase fora do fence
   dizendo que a linha e link markdown. Sem precedente no repo — `GLOSSARY-FORMAT.md` e `LOGIC.md` so
   usam links reais.
+
+- `DI-Plano10-fase02-ids-yaml-int`: **o `js-yaml` com `CORE_SCHEMA` le `003` como o inteiro `3`** —
+  os zeros a esquerda somem antes de o codigo ver o valor. Sem tratamento, `blocked-by: [003]` nunca
+  casaria com o ticket de `id: 003`, e **todo bloqueio viraria referencia fantasma** — o script
+  reportaria erro em cima de um mapa correto. `normalizeId` re-padda para 3 digitos na leitura, e ha
+  teste dedicado. Nao estava previsto em nenhum dos 11 casos da fase.
+
+- `DI-Plano10-fase02-ciclo-nao-trava`: o **G3 partia de premissa errada**. Ciclo nao vira loop
+  infinito aqui, porque "desbloqueado" olha so os bloqueadores **diretos**
+  (`blocked-by.every(fechado)`) — e O(1) por ticket, sem recursao. O risco so existiria com bloqueio
+  transitivo, que o formato nao tem. Mas ciclo continua sendo bug real: e **deadlock**, nenhum dos
+  tickets pode ser desbloqueado nunca. Entao a deteccao entrou explicita (DFS com cores), reportada
+  como erro pelo que ela e — bug de autoria da ligacao em segunda passada (G4 da fase-01) — e nao
+  como defesa contra travamento. Verificado no CLI com `timeout 30`: retorna na hora.
+
+- `DI-Plano10-fase02-g6-tpl-nao-repo`: o G6 mandava conferir `tests/package-json-scripts.test.ts`.
+  **Ele nao assevera os scripts deste repo** — assevera
+  `skills/init/assets/templates/package.json.tpl`, o template dos projetos-alvo. Adicionar
+  `wayfinder:frontier` ao `package.json` da raiz nao o toca, e nenhuma atualizacao foi necessaria.
+
+- `DI-Plano10-fase02-erro-vs-aviso`: id fantasma e ciclo sao **erro** (exit 1); divergencia
+  mapa-tickets e **aviso** (exit 0), como a fase pediu. Mas o relatorio **imprime tudo antes de sair**
+  — sair cedo esconderia a fronteira justamente quando o mapa tem um defeito e voce mais precisa ver
+  o estado.
+
+- `DI-Plano10-fase02-status-coercao`: `status` diferente de `closed` e tratado como `open`, sem
+  validar. Deliberado: os 11 casos da fase mais o 12o sao o contrato, e adicionar classes de erro
+  nao pedidas significaria ramo sem teste. **Candidato a follow-up** — um `status: opne` hoje passa
+  silencioso como aberto.
+
+- `DI-Plano10-fase02-merge-main`: antes da fase-02, a `main` foi trazida para a branch (ela ganhou o
+  fix de manifest do PR #30). Conflito unico em `plugin-manifest.json`, resolvido por **regeneracao**,
+  nunca a mao — e artefato gerado, e o generator novo rodando sobre a working tree produz a uniao por
+  construcao. Verificado que os dois lados sobreviveram: as 10 entradas de raiz da `main` e as 2 do
+  wayfinder.
 
 ## Verificacao do gap (2026-08-10)
 
@@ -203,8 +238,31 @@ skills).
 - A `SKILL.md` cita o script como `wayfinder:frontier` **entre crases, nunca como link** — o alvo so
   existe na fase-02, e o `harness:validate` reprova link quebrado.
 
+## O que a fase-02 entregou
+
+Arquivos: `scripts/wayfinder-frontier.ts` (~300 linhas) · `scripts/wayfinder-frontier.test.ts`
+(21 testes) · `package.json` (entry `wayfinder:frontier`) · `plugin-manifest.json` regenerado.
+
+API exportada, que a fase-03 vai alcancar pelo CLI: `analyseEffort(effortDir, now?)` →
+`FrontierReport { frontier, blocked, claimed, errors, warnings }` · `renderReport(report, effortDir)`
+· `STALE_CLAIM_MS`.
+
+**Exercitado no CLI, nao so na suite** (compound `2026-08-13-suite-verde-nao-exercita-validador-distribuido`):
+esforco fixture com 4 tickets imprimiu fronteira/reivindicado/bloqueado corretos · id fantasma e
+ciclo sairam com exit 1 sem travar · mapa fechado disse *"o caminho esta claro"* · sem argumento,
+mensagem clara em vez de crash.
+
 **Para a fase-03** — para nao duplicar o que ja esta escrito:
 
+- O passo 2 do modo work manda rodar `bun run wayfinder:frontier`. **O script aceita o caminho do
+  esforco como argumento** — usar, e nao depender do auto-discovery, que so resolve quando ha
+  exatamente um esforco ativo com `MAP.md`.
+- **Gap de distribuicao, em aberto e nao resolvido pela fase-02:** o `/init` distribui 3 scripts para
+  projeto-alvo (`harness-validate`, `compound-check`, `new-plan`, via `TEMPLATE_MANIFEST`), e
+  `wayfinder-frontier.ts` **nao** esta entre eles. A `SKILL.md` e distribuida e nomeia o comando,
+  entao num projeto-alvo o ponteiro morre. Custaria 4 arquivos (`.tpl`, entry no `TEMPLATE_MANIFEST`,
+  `package.json.tpl`, e o teste que o cobre) — fora do escopo declarado da fase-02. **Decisao do
+  humano** antes da fase-03 escrever o passo 2.
 - HITL/AFK ja esta **definido** na tabela de tipos da `SKILL.md` ("ticket HITL resolve pela troca ao
   vivo: o lado humano e do humano"). O passo 3 da fase-03 deve **expandir** com o modo de falha
   nomeado (*um agente de grilling que responde as proprias perguntas*), nao reafirmar a definicao.

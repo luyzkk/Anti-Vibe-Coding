@@ -1,6 +1,6 @@
 {
   "version": "7.5.0",
-  "generatedAt": "2026-08-14T14:09:52.256Z",
+  "generatedAt": "2026-08-14T14:19:06.479Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -633,6 +633,12 @@
       "version": "7.5.0",
       "checksum": "d918afb5003d33d8dd2b078ab4f71461cf0e4e32d0eca5e662d9a378e0c34d21",
       "lastModified": "2026-08-12",
+      "updateStrategy": "replace"
+    },
+    "scripts/wayfinder-frontier.ts": {
+      "version": "7.5.0",
+      "checksum": "a68e0292036e5438dda2c47877f8730157202c44f7ee2cdcfb187c5b61f5e10f",
+      "lastModified": "2026-08-14",
       "updateStrategy": "replace"
     },
     "skills/anti-vibe-review/SKILL.md": {
