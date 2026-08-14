@@ -32,8 +32,8 @@ Nao e "planejar coisa grande" — isso ja temos:
 | Ja temos | Onde |
 |---|---|
 | Decomposicao hierarquica | `plan-feature` — PRD → planos → fases |
-| Declaracao de dependencia (DAG) | `plan-feature:721` — *"Depende de: fase-01" ou "Independente"* |
-| Dependencia entre requisitos | `plan-feature:501` |
+| Declaracao de dependencia (DAG) | `plan-feature:696` — *"Depende de: fase-01" ou "Independente"* |
+| Dependencia entre requisitos | `plan-feature:476` |
 | Estado multi-sessao | `STATE.md` + `MEMORY.md` por plano |
 
 O que falta sao tres artefatos que so existem no estagio de descoberta:
