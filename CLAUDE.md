@@ -10,7 +10,7 @@ Plan before code. Test before implement. Capture lessons after merge. Discipline
 
 | Situation | Read |
 |---|---|
-| Understanding the plugin pipeline (grill-me → write-prd → plan-feature → execute-plan → verify-work → iterate) | `docs/PIPELINE.md` |
+| Understanding the plugin pipeline (wayfinder / grill-me → write-prd → plan-feature → execute-plan → verify-work → iterate) | `docs/PIPELINE.md` |
 | Configuring model profiles per agent (quality/balanced/budget) | `docs/MODEL_PROFILES.md` |
 | Listing available subagent auditors | `docs/AGENTS_LIST.md` |
 | Versioning, manifest checksums, update strategies | `docs/UPGRADE.md` |

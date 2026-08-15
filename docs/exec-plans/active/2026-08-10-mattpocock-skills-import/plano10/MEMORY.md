@@ -2,7 +2,7 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** fases 01 e 02 concluidas (2026-08-14) — fase 03 pendente
+**Status:** **plano10 concluido** (2026-08-14) — as 3 fases fechadas
 **Depende de:** plano01 fase-01 (a lente)
 **Branch:** `feat/wayfinder`
 
@@ -11,8 +11,8 @@ Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 | Fase | Nome | Status | Arquivos |
 |---|---|---|---|
 | 01 | Formato + modo chart | **done** | 3/3 |
-| 02 | Script de fronteira | **done** | 3/3 |
-| 03 | Modo work + pipeline | planned | 0/4 |
+| 02 | Script de fronteira | **done** | 3/3 (+4 da distribuicao) |
+| 03 | Modo work + pipeline | **done** | 7/4 — ver `DI-Plano10-fase03-sete-arquivos` |
 
 Linear: o script precisa do formato; o modo work precisa da fronteira.
 
@@ -167,6 +167,31 @@ artefato ja commitado, e cada uma foi medida antes de mexer.
 o script incluso, e `bun run wayfinder:frontier` rodou **dentro do projeto-alvo**, sem deps
 instaladas, achando o esforco por auto-discovery e imprimindo fronteira e bloqueado corretos.
 
+- `DI-Plano10-fase03-sete-arquivos`: a fase previa **4 arquivos**; sairam **7**. Os tres extras vem
+  do proprio G5, que mandava conferir consistencia do pipeline: `AGENTS.md` e `CLAUDE.md` (mirror
+  canonico dele) carregam a linha do pipeline na tabela *When to Read What*, e o
+  `THIRD-PARTY-NOTICES.md` precisava da obrigacao de atribuicao do `Work through the map`. O G5
+  nomeava `AGENTS.md` e `README.md`; medido, o `README.md` **nao cita** o pipeline e o `CLAUDE.md`
+  cita. Padrao repetido da serie: o plano nomeia N sites e existem outros.
+
+- `DI-Plano10-fase03-duas-entradas`: o diagrama do `PIPELINE.md` **nao** e
+  `wayfinder → grill-me → write-prd`. Escrevi assim primeiro e estava errado: sugeria que o grill-me
+  consome a saida do wayfinder. Sao **duas entradas alternativas que convergem no `write-prd`** —
+  foggy entra por wayfinder, descritivel entra por grill-me, e mapa fechado alimenta o `write-prd`
+  direto (o grilling ja aconteceu dentro dos tickets). Diagrama refeito com as duas linhas, e a linha
+  do `AGENTS.md`/`CLAUDE.md` usa `wayfinder / grill-me` — a barra le como "ou", que e o fato.
+
+- `DI-Plano10-fase03-product-sense-intocado`: `docs/PRODUCT_SENSE.md:11` tambem cita o pipeline
+  (*"Plan before code (grill-me → write-prd → plan-feature)"*), e **nao foi alterado de proposito**.
+  Aquela linha e a proposta de valor do plugin — o default disciplinado. Wayfinder e **condicional**;
+  inclui-lo ali diria "toda feature comeca no wayfinder", que e exatamente o G3 da fase.
+
+- `DI-Plano10-fase03-hitl-sem-duplicar`: a frase-modo-de-falha da fonte (*um agente de grilling que
+  responde as proprias perguntas*) ja vivia na tabela `Common Rationalizations` desde a fase-01. O
+  modo work enuncia a **regra** ("humano indisponivel significa ticket que continua aberto; o agente
+  nao fala pelo lado humano") sem repetir a frase. Trabalhos diferentes: a linha da tabela responde a
+  tentacao, o passo da o comando.
+
 ## Verificacao do gap (2026-08-10)
 
 Nao e "planejar coisa grande" — isso ja temos:
@@ -265,6 +290,38 @@ vai gerar mapa para tudo.
 
 - **fase-01 -> fase-02:** o formato do ticket e o input do script.
 - **fase-02 -> fase-03:** o modo work comeca rodando a fronteira.
+
+## O que a fase-03 entregou
+
+`skills/wayfinder/SKILL.md` (modo work + `Plan, don't do`) · `docs/PIPELINE.md` (estagio novo, duas
+entradas, condicao de entrada) · `skills/write-prd/SKILL.md` e `skills/plan-feature/SKILL.md`
+(ponteiros) · `AGENTS.md` + `CLAUDE.md` (linha do pipeline) · `THIRD-PARTY-NOTICES.md`.
+
+**Teste de fluxo: executado, nao percorrido no papel.** Com o script da fase-02 pronto, deu para
+rodar o ciclo inteiro num esforco fixture em vez de imaginar:
+
+| Momento | Fronteira | O que provou |
+|---|---|---|
+| T0 — mapa recem-cartografado | `{001, 003}`, bloqueado `{002}` | o grafo de bloqueio resolve |
+| T1 — fecha 001, **de proposito sem indexar** | `{002, 003}` + aviso | INV-01 e guardado mecanicamente: *"closed ticket missing from the map's Decisions so far"* |
+| T2 — indexa, gradua o fog, cria o 004 | `{002, 003, 004}`, zero avisos | graduacao **com limpeza** (G2) — *Not yet specified* ficou com 0 linhas de conteudo |
+
+O mapa mudou de forma coerente nos tres momentos. O segundo teste de fluxo (a saida do passo 2 do
+chart, para ideia que cabia numa sessao) e comportamental — verificado por leitura, com a saida
+presente em tres lugares (`Quando o mapa nao se paga`, negrito no passo 2, e um Red Flag).
+
+## Estado final do plano10
+
+Pipeline: **`wayfinder` / `grill-me` → `write-prd` → `plan-feature` → `execute-plan` → `verify-work`
+→ `iterate`**.
+
+A skill e user-invoked (`disable-model-invocation: true`), distribuida ao projeto-alvo junto com
+`scripts/wayfinder-frontier.ts`, e o comando `wayfinder:frontier` existe nos dois `package.json` —
+o do repo e o do template.
+
+**Debito conhecido, herdado e nao criado aqui:** `status: opne` num ticket passa silencioso como
+`open` (`DI-Plano10-fase02-status-coercao`), e os goldens do `/init` seguem desatualizados por
+decisao alheia (`DI-Plano10-fase02-goldens-intocados`) — o scaffold foi de 38 para 39 arquivos.
 
 ## O que a fase-01 entregou, e o que as seguintes herdam
 

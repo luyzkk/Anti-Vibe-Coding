@@ -23,6 +23,17 @@ planejamento comecar, ou uma mudanca feita no lugar. O mapa e agnostico de domin
 
 O formato do mapa e do ticket vive em [`FORMATS.md`](./references/FORMATS.md).
 
+## Plan, don't do
+
+Wayfinder e **planejamento** por padrao: cada ticket resolve uma decisao, e o mapa acaba quando nada
+resta a decidir antes de alguem ir fazer.
+
+**A vontade de simplesmente fazer o trabalho e o sinal de que voce chegou na borda do mapa** — e a
+hora de passar adiante, nao de comecar a implementar.
+
+Um esforco pode sobrescrever isso nas suas `## Notes`, carregando execucao para dentro do mapa. Sem
+isso, produza decisoes.
+
 ## Quando o mapa nao se paga
 
 A maioria das features **cabe** numa sessao, e para essas o mapa e burocracia. O passo 2 do modo
@@ -133,6 +144,41 @@ Usuario invoca com uma ideia solta.
 5. **Disparar os subagentes de research** dos tickets `research` criados, em paralelo, cada um
    gravando numa branch descartavel com um ponteiro a partir do ticket
 6. **Parar.** Cartografar e o trabalho de uma sessao inteira, e nao resolve ticket nenhum
+
+## Modo work — resolver
+
+Usuario invoca com um mapa. O ticket e **opcional**: sem ele, quem escolhe o proximo e o agente.
+
+1. **Carregar o mapa** — a visao de baixa resolucao, nao o corpo de cada ticket
+2. **Escolher o ticket.** Se o usuario nomeou um, usar. Senao, rodar
+   `bun run wayfinder:frontier <caminho do esforco>` e pegar o primeiro do bloco `FRONTIER`.
+   **Reivindicar antes de qualquer trabalho** — o campo `claimed`, no formato do `FORMATS.md` — para
+   uma sessao concorrente pular o ticket
+3. **Resolver, dando zoom conforme precisar.** Buscar sob demanda o corpo de qualquer ticket
+   relacionado ou ja fechado; invocar as skills que o bloco `## Notes` do mapa nomeia. Na duvida,
+   `/grill-me` e `/domain-modeling`
+4. **Registrar a resolucao**: a resposta no proprio ticket, `status: closed`, e **uma linha** em
+   *Decisions so far* do mapa, com o link. Ativos criados no caminho entram como link, nunca colados
+5. **Atualizar o mapa.** Criar os tickets que a resposta revelou — de novo criando primeiro e ligando
+   depois — e **graduar** o fog que ela tornou especificavel, **apagando de *Not yet specified* o
+   trecho graduado**, para ele passar a viver so como ticket. Se a resposta revelar que um ticket
+   esta alem do destino, **por fora de escopo** em vez de resolve-lo na rota. Se a decisao invalidar
+   partes do mapa, atualizar ou apagar aqueles tickets
+
+O passo 5 e o que mantem o mapa vivo: sem a limpeza, o fog nunca diminui e o mapa vira lista de
+desejos.
+
+**Um ticket por sessao**, com `research` como excecao por ser AFK e paralelizavel. A razao precisa
+estar dita, senao parece arbitrario: **o mapa existe porque o trabalho excede um contexto.** Resolver
+varios por sessao recria exatamente o problema que o mapa resolve — a terceira decisao sai pior que a
+primeira, e ninguem percebe.
+
+**Ticket HITL espera o humano.** `grilling`, `prototype` e `task`-HITL so resolvem pela troca ao
+vivo. Humano indisponivel significa ticket que continua aberto: nao ha meia resolucao, e o agente nao
+fala pelo lado humano.
+
+Outras sessoes podem estar editando os mesmos arquivos em paralelo — por isso a reivindicacao vem
+antes do trabalho, e nao depois.
 
 ## Common Rationalizations
 
