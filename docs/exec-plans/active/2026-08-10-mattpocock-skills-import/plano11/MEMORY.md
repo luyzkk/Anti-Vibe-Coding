@@ -2,13 +2,14 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** planned — nenhuma fase executada
+**Status:** fase-01 concluida (2026-08-14) — fases 02 e 03 pendentes
+**Branch:** `feat/absorcoes-finais` (a partir da `main` em `14b28d4`)
 
 ## Progresso
 
 | Fase | Nome | Status | Arquivos | Depende de |
 |---|---|---|---|---|
-| 01 | `code-review` — 8 smells, direcao dupla, ponto fixo | planned | 0/3 | plano01 fase-01 |
+| 01 | `code-review` — 8 smells, direcao dupla, ponto fixo | **done** | 4/3 (+ notices) | plano01 fase-01 |
 | 02 | `tdd` — tautologico, seams, divergencia | planned | 0/2 | plano01 fase-01 + **plano02 fase-01** |
 | 03 | `grill-with-docs` — ponteiro | planned | 0/1 | **plano05** |
 
@@ -21,9 +22,54 @@ Formato: `DI-Plano11-faseNN-<slug>: <o que mudou e por que>`.
 
 Tres ja sao obrigatorias:
 
-- `DI-Plano11-fase01-diff-input`: `Divergent Change` precisa saber **o que** mudou em cada arquivo,
-  nao so que mudou. Passar o diff alem da lista de arquivos, ou deixar o smell de fora ate o input
-  mudar? Adicionar a descricao sem mudar o input e adicionar linha morta.
+- `DI-Plano11-fase01-diff-input` — **RESOLVIDA: passar o diff.** Medido antes de decidir: o
+  `code-smell-detector` tem `tools: Read, Grep, Glob` — **sem `Bash`**, entao nao consegue buscar o
+  diff sozinho, e a terceira opcao (o agente se vira) nao existe. O `verify-work` ja calcula a lista
+  a partir de um `git diff`, e o ponto fixo do Passo 4 faz ele calcular um diff de verdade — entao o
+  dado ja esta na mao de quem invoca.
+  O input virou "arquivos modificados **mais o diff, quando houver**". E a parte que evita a linha
+  morta: quando **nao** houver diff (caminho `git status`, arquivo novo nao rastreado), o `#13`
+  **reporta-se como nao avaliado** em vez de adivinhar. O smell se auto-limita em vez de mentir.
+  O `#12 Shotgun Surgery` fica detectavel so com a lista, porque e sobre espalhamento pelo conjunto.
+
+- `DI-Plano11-fase01-linhas-caducas`: a fase citava `verify-work:126-128` para a base do diff. Real:
+  **`:101-103`**. E a prioridade `1. Argumento fornecido → usar como escopo` **ja existia** — o
+  argumento era tratado como escopo de caminho, nunca como ref git. O ponto fixo virou o sub-ramo
+  `1a` (ref que resolve) com `1b` preservando o comportamento antigo, entao o default fica intacto
+  sem precisar de branch novo no topo.
+
+- `DI-Plano11-fase01-notices-4o-arquivo`: a fase lista 3 arquivos; sairam **4**. O
+  `THIRD-PARTY-NOTICES.md` nao estava previsto, mas o `CONTEXT.md` obriga atribuicao para **todo**
+  material portado, e os 8 smells vem com a forma (o-que-e → como-corrigir) e as duas regras da
+  skill `code-review` da fonte.
+  **Conflito garantido com o PR #31 (plano10):** os dois adicionam um bloco imediatamente antes do
+  `#### MIT License` da secao do Matt Pocock. A resolucao e **manter os dois blocos** — sao aditivos e
+  nao se sobrepoem. Nao tentar regenerar: e prosa, nao artefato gerado.
+
+## Teste retroativo (fase-01) — RODADO, e dois dos 8 dispararam
+
+Alvo: `git diff main...feat/wayfinder` — o codigo do plano10, mudanca real de 1.735 linhas em 19
+arquivos. A pergunta do checklist era *"algum dos 8 novos disparou?"*, com a instrucao de registrar o
+motivo caso nenhum disparasse.
+
+**`#12 Shotgun Surgery` — achado real e acionavel.** O commit `430363f` ("distribui
+wayfinder-frontier") e **uma mudanca logica** — adicionar um arquivo ao scaffold — e forcou edicao em
+**4 lugares a mao**: `template-manifest.ts` (a entrada), `template-manifest.test.ts` (a contagem
+`14 → 15`, hardcoded), `package.json.tpl` (o script) e `tests/package-json-scripts.test.ts` (o
+assert). A contagem hardcoded e a peca que garante o espalhamento: derivar de `TEMPLATE_MANIFEST` em
+vez de fixar o numero mataria uma das quatro edicoes. **Candidato a follow-up** — nao corrigido aqui,
+que e escopo do plano10 e vive noutro PR.
+
+**`#14 Speculative Generality` — achado menor, verificado.** `export const STALE_CLAIM_MS` em
+`scripts/wayfinder-frontier.ts` nao tem **nenhum** caller externo (grep na branch inteira, fora do
+proprio arquivo, volta vazio). Exportado para um consumidor hipotetico.
+
+**`#13 Divergent Change` — limitrofe, registrado como tal.** O mesmo commit editou
+`wayfinder-frontier.ts` por dois motivos (tirar `js-yaml`; traduzir a saida), mas ambos descendem da
+unica decisao "distribuir". Nao reportado como achado.
+
+**Conclusao:** as descricoes sao acionaveis — dois dos oito dispararam num diff real, ambos
+confirmados por medicao e nao por leitura. O checklist previa o caso contrario; nao foi necessario.
 - `DI-Plano11-fase02-tautologico-canonico`: a definicao afiada entra em `tdd-verifier` (pegar depois)
   **e** em `tdd-workflow` (evitar enquanto escreve). Onde fica a canonica, e quem cita?
 - `DI-Plano11-fase03-gate`: o registro no glossario cabe no gate de sintetizar-e-confirmar (Passo 4.5

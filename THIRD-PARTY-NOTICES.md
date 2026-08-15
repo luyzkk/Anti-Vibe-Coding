@@ -207,6 +207,30 @@ The hand-off to `/improve-codebase-architecture` was listed here as not ported w
 
 Upstream's `agents/openai.yaml` was **not** ported — it is an OpenAI-specific display manifest with no counterpart in this plugin's frontmatter model.
 
+`agents/code-smell-detector.md`, `agents/code-reviewer.md` and `skills/verify-work/SKILL.md` absorb material from the `code-review` skill in the same repository, at the same commit `84fdeff`. This is an absorption into pre-existing agents and a pre-existing skill, not a port — no new skill was created.
+
+**Upstream files used:**
+
+1. `skills/engineering/code-review/SKILL.md`
+2. `skills/engineering/code-review/agents/` (the Standards and Spec reviewer prompts)
+
+**Derived** (translated to pt-BR; smell names kept in English, since they are Fowler's catalogue terms and translating them would lose the reference):
+
+- `agents/code-smell-detector.md`: the eight catalogue entries this plugin lacked — `Mysterious Name`, `Repeated Switches`, `Shotgun Surgery`, `Divergent Change`, `Speculative Generality`, `Message Chains`, `Middle Man`, `Refused Bequest` — each in upstream's what-it-is → how-to-fix shape; plus the two rules upstream binds to the catalogue: the project's documented standard outranks the baseline, and every smell is a labelled heuristic rather than a hard violation
+- `agents/code-reviewer.md`: the three-category split of the spec axis (missing/partial, not-asked-for, implemented-wrong) and the requirement that every conformance finding cites the spec line
+- `skills/verify-work/SKILL.md`: the user-supplied fixed point with three-dot diff against the merge-base, and the rule against re-ranking across the spec and quality axes
+
+**Original to this repository** (no upstream counterpart):
+
+- The observation that `Shotgun Surgery` and `Divergent Change` are undetectable from this plugin's existing auditor input. Upstream's reviewers receive a diff by construction; this plugin's auditors receive a file list, so the two smells arrive with an explicit input requirement and `Divergent Change` reports itself as *not evaluated* when no diff is present, rather than guessing
+- The `Middle Man` caveat that an adapter isolating an external dependency has a role and is not a middle man — this plugin's `deep-modules.md` treats `adapter` as a named role
+- Validating the fixed point (`git rev-parse`, non-empty diff) **before** spawning the auditor fleet, which upstream does not need because it has no parallel fleet to waste
+- The five smells that are this plugin's own (`Funcoes Longas`, `God Objects`, `Condicionais Gigantes`, `Numeros Magicos`, `Comentarios Inuteis`) are untouched — absorbing is not replacing
+
+**Not ported:**
+
+- The split into two parallel subagents (Standards and Spec). This plugin already runs a fleet of domain auditors; a second axis-split would duplicate `verify-work`'s 619 lines. The rule that mattered — never re-rank across the two axes — was kept and applied to the report instead
+
 #### MIT License (verbatim from upstream LICENSE):
 
 ```
