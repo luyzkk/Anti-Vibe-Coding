@@ -97,10 +97,21 @@ Spawnar auditores em paralelo (quando config.parallel_auditors = true).
 
 ```
 Prioridade (em ordem):
-1. Argumento fornecido → usar como escopo
+1. Argumento fornecido:
+   a. Se resolve como ref git (`git rev-parse --verify <arg>`) → PONTO FIXO.
+      Escopo = `git diff --name-only <ref>...HEAD` (TRES pontos — compara contra o
+      merge-base, que e o que se quer ao revisar uma branch inteira).
+      Contexto extra = `git log <ref>..HEAD --oneline` (os commits sob revisao)
+      e `git diff <ref>...HEAD` (o diff, que os smells #12 e #13 exigem).
+      VALIDAR ANTES DE SPAWNAR: ref que nao resolve, ou diff vazio, falha aqui —
+      nao dentro de auditores paralelos, depois de gastar o fleet.
+   b. Senao → usar como escopo de caminho (comportamento atual)
 2. git diff --name-only HEAD~1 → arquivos do ultimo commit
 3. git diff --name-only → staged files
 4. git status → arquivos modificados
+
+Revisar uma branch inteira e outro escopo que revisar o ultimo commit. Sem argumento,
+nada muda: 2-4 continuam sendo o default.
 
 Classificar por dominio para determinar auditores domain-specific:
 | Pattern no caminho/conteudo | Dominio | Agent |
@@ -125,8 +136,11 @@ Classificar por dominio para determinar auditores domain-specific:
 - Skippado se: config.auditors.security = false
 
 **code-smell-detector:**
-- Input: todos os arquivos modificados
-- Verifica: God objects, funcoes longas, DRY violations, magic numbers
+- Input: todos os arquivos modificados **mais o diff, quando houver** (ponto fixo do passo 2a, ou
+  `git diff HEAD~1`). Os smells #12 *Shotgun Surgery* e #13 *Divergent Change* so existem no nivel da
+  mudanca — o 12 precisa do conjunto de arquivos, o 13 precisa do diff. Sem diff, o detector reporta
+  o #13 como nao avaliado em vez de adivinhar
+- Verifica: os 17 smells — God objects, funcoes longas, DRY violations, magic numbers, os 8 de Fowler
 - Skippado se: config.auditors.code_quality = false
 - **Heuristica pratica (Consolidado de anti-vibe-review):** nomes grepáveis — para identificadores de funcoes/tipos/constantes criados, rodar `grep -c <nome> src/` e verificar se retorna <5 hits nao relacionados. Se >10 hits, o nome e generico demais e dificulta refatoracao segura. Esta heuristica complementa o auditor automatizado (que detecta padroes mas nao mede greppability).
 
@@ -263,6 +277,14 @@ IMPORTANTE: mutacoes sao SEMPRE revertidas. Nunca persistir.
           nomes de teste genericos, sugestoes de refatoracao
 
 2. Ordenar: CRITICO → ALTO → MEDIO
+
+2b. NAO re-ranquear entre eixos. Conformidade com spec e qualidade de codigo sao
+    perguntas independentes: um codigo pode seguir todo standard e implementar a coisa
+    errada, ou fazer exatamente o que a spec pediu e quebrar toda convencao. Ordenar
+    tudo numa fila so deixa um eixo mascarar o outro — o achado de spec afunda sob
+    tres smells ALTO, e some.
+    O pior achado de **conformidade com spec** e o pior de **qualidade** aparecem lado
+    a lado no topo, sem escolher vencedor entre eles.
 
 3. Limitar a config.max_report_lines (default: 50):
    - Se exceder: agrupar findings similares (ex: "3 funcoes longas em parser.ts")
