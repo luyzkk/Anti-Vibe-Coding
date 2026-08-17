@@ -241,6 +241,14 @@ dentro de PASTA_ATIVA. Nunca fora da pasta do PRD.
 4. Prosseguir (ou encerrar se dev quiser criar PRD primeiro)
 ```
 
+**Quando nem da para escrever o PRD.** Se a descricao do dev revelar que as decisoes de base ainda
+nao foram tomadas — nao e falta de documento, e falta de resposta —, planejar em cima disso e
+planejar sobre premissa. Oferecer [`wayfinder`](../wayfinder/SKILL.md), que carta essas decisoes como
+tickets antes de existir plano.
+
+A fronteira e estreita, e vale respeita-la: **a maioria das features cabe direto no `/write-prd`.**
+Este desvio e para a ideia que ainda esta em neblina, nao para toda feature sem PRD.
+
 ---
 
 ## Step 1.5 — Detectar Ciclos em Requires

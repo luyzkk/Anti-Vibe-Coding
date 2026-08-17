@@ -39,6 +39,13 @@ Diferenca das outras skills:
 - **consultant**: ensina conceitos e apresenta trade-offs para UMA decisao
 - **grill-me**: resolve ambiguidades fazendo perguntas implacaveis
 - **write-prd**: gera DOCUMENTO estruturado (PRD) a partir de contexto coletado
+- **wayfinder**: descobre **quais sao as perguntas**, quando nem da para nomear a feature ainda
+
+Esta skill pressupoe que voce **consegue descrever** a feature. Quando a ideia e grande demais para
+uma sessao e voce ainda nao sabe o que precisa decidir, o estagio anterior e
+[`wayfinder`](../wayfinder/SKILL.md) — ele carta as decisoes em tickets e devolve, com o mapa
+fechado, um *Decisions so far* que entra aqui como contexto, do mesmo jeito que o `CONTEXT.md` do
+`/grill-me`.
 
 ---
 
