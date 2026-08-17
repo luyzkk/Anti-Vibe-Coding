@@ -57,14 +57,13 @@ describe('Stack Knowledge Rails — E2E full (CA-01..CA-11)', () => {
     const stack = await detectStack(target)
     expect(stack.primary).toBe('rails')
 
-    const t0 = performance.now()
     const result = await runStackKnowledgeInit({ targetDir: target, pluginRoot, logger: () => {} })
-    // 2026-05-18 (Luiz/dev): D24 — limite 200ms absorve flake CI Windows com cold I/O
-    const elapsed = performance.now() - t0
 
     expect(result.stackPrimary).toBe('rails')
     expect(result.copyResult.status).toBe('copied')
-    expect(elapsed).toBeLessThan(200)
+    // 2026-08-17 (Luiz/dev): saiu o budget de 200ms. O comentario que ele carregava — "D24: limite
+    // 200ms absorve flake CI Windows com cold I/O" — ja dizia que o numero media I/O da maquina, nao
+    // o codigo. Afrouxar de novo so adiaria; wall-clock nao pertence a um gate funcional.
     expect(existsSync(join(target, '.claude/knowledge/INDEX.md'))).toBe(true)
 
     const atoms = readdirSync(join(target, '.claude/knowledge/atoms')).filter((f) => f.endsWith('.md'))
