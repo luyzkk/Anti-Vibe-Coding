@@ -4,6 +4,7 @@
 import { describe, it, expect } from 'bun:test'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import { TEMPLATE_MANIFEST } from '../skills/init/lib/template-manifest'
 
 const TPL_PATH = path.resolve(
   import.meta.dir,
@@ -31,6 +32,17 @@ describe('package.json.tpl template', () => {
     expect(parsed.scripts['harness:validate']).toBe('bun run scripts/harness-validate.ts')
     expect(parsed.scripts['compound:check']).toBe('bun run scripts/compound-check.ts')
     expect(parsed.scripts['harness:all']).toBe('bun run harness:validate && bun run compound:check')
+  })
+
+  // 2026-08-14 (Luiz/dev): plano10 fase-02 — a skill wayfinder e distribuida e nomeia este comando.
+  // Cada script aqui precisa do arquivo correspondente no TEMPLATE_MANIFEST, ou o comando existe e
+  // aponta para nada.
+  it('has wayfinder:frontier script, and the script it names is scaffolded', async () => {
+    const body = await fs.readFile(TPL_PATH, 'utf8')
+    const parsed = JSON.parse(body) as PackageJsonTpl
+    expect(parsed.scripts['wayfinder:frontier']).toBe('bun run scripts/wayfinder-frontier.ts')
+    const scaffolded = TEMPLATE_MANIFEST.map((e) => e.dst)
+    expect(scaffolded).toContain('scripts/wayfinder-frontier.ts')
   })
 
   it('has placeholder for project name (replaced by /init)', async () => {

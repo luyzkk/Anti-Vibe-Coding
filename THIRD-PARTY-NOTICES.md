@@ -207,6 +207,30 @@ The hand-off to `/improve-codebase-architecture` was listed here as not ported w
 
 Upstream's `agents/openai.yaml` was **not** ported — it is an OpenAI-specific display manifest with no counterpart in this plugin's frontmatter model.
 
+`skills/wayfinder/` is **derived** from the `wayfinder` skill in the same repository, at the same commit `84fdeff`.
+
+**Upstream files used:**
+
+1. `skills/engineering/wayfinder/SKILL.md`
+
+**Derived** (translated to pt-BR; `fog of war` kept in English as an anchor term):
+
+- `SKILL.md`: the opening framing (wayfinding is finding the way, not charging at the destination; naming the destination is the first act of charting because it fixes the scope), `Plan, don't do` including the pull-to-just-do-the-work signal and the `Notes` override, `Refer by name`, `The map is an index, not a store`, the whole of `Fog of war` including the state-the-question-precisely test and the do-not-pre-slice rule, the whole of `Out of scope` including the close-it-and-leave-one-line remedy and never-graduates, the four ticket types with their HITL/AFK split and the rule that the agent never stands in for the human's side, the `Chart the map` steps, the `Work through the map` steps (load the low-res map, claim before working, zoom on demand, record the resolution, then graduate the fog and clear the graduated patch), and the never-more-than-one-ticket-per-session rule with `research` as its exception
+- `references/FORMATS.md`: the map body skeleton (`Destination`, `Notes`, `Decisions so far`, `Not yet specified`, `Out of scope`) and the ticket body
+
+**Original to this repository** (no upstream counterpart):
+
+- The whole local-markdown layout. Upstream's map is an issue on the repo's tracker with tickets as child issues and blocking via the tracker's native dependency relationship; here the map is `MAP.md` and the tickets are `tickets/NNN-slug.md` inside the effort's dated folder, with blocking as a `blocked-by` list in frontmatter. Upstream names local markdown as its own fallback, and it is the only option consistent with this plugin being local-first
+- `claimed` as an ISO-8601 timestamp plus an identifier, with a **24-hour staleness rule** that returns the ticket to the frontier. Upstream's claim is the tracker's assignee field, which a human can see and clear; a local file has neither, so a boolean flag would strand a ticket forever when a session dies mid-work
+- **Supersession** in `Decisions so far` — a closed decision that a later session proves wrong is corrected by a new line naming the old one, rather than by overwriting it. Upstream's format assumes resolution is monotonic. Found by running this plugin's own skill-import effort through the format retroactively, where three closed triage decisions had been reversed by re-verification and the reason each one looked right was the most valuable thing the effort produced
+- The continuity between this frontier and the design-tree frontier already in `grill-me` — same graph, same question, two scales — plus the pickup of `grill-me`'s existing hand-off, which stops and says the request needs a map when a round produces more frontier than it resolves twice running
+- `Common Rationalizations`, `Red Flags`, and the frontmatter (upstream declares two fields; this plugin has eight)
+
+**Not ported:**
+
+- `agents/openai.yaml` — same OpenAI-specific display manifest as above
+- The tracker-specific indirection (`wayfinder:map` / `wayfinder:<type>` labels, the "consult the tracker doc's Wayfinding operations section" step, the native-blocking-versus-body-convention branch). With a single local format there is one way to express each of these, so the branch has nothing to select between
+
 #### MIT License (verbatim from upstream LICENSE):
 
 ```
