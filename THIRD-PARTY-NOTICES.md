@@ -231,6 +231,27 @@ Upstream's `agents/openai.yaml` was **not** ported — it is an OpenAI-specific 
 
 - The split into two parallel subagents (Standards and Spec). This plugin already runs a fleet of domain auditors; a second axis-split would duplicate `verify-work`'s 619 lines. The rule that mattered — never re-rank across the two axes — was kept and applied to the report instead
 
+`skills/tdd-workflow/SKILL.md` and `agents/tdd-verifier.md` absorb material from the `tdd` skill in the same repository, at the same commit `84fdeff`. Absorption into a pre-existing skill and agent, not a port — this plugin's adaptive three-level TDD workflow is unchanged.
+
+**Upstream files used:**
+
+1. `skills/engineering/tdd/SKILL.md`
+
+**Derived** (translated to pt-BR; `seam` kept in English as an anchor term, matching `references/deep-modules.md`):
+
+- `skills/tdd-workflow/SKILL.md`: the recomputation form of a tautological assertion (the expected value produced by the same operation the implementation uses, so the test passes by construction and can never disagree with the code) together with its remedy, that the expected value must come from an independent source; the rule that no test is written against an unconfirmed seam, with the question upstream asks the user and the reason behind it (you cannot test everything); and `horizontal slicing` named as an anti-pattern
+- `agents/tdd-verifier.md`: the detection form of the same recomputation pattern, added as Rule 3b beside the pre-existing trivial-tautology rule
+
+**Original to this repository** (no upstream counterpart):
+
+- The worked example pair (`normalizeId` recomputed via `padStart` versus the independent literal `'007'`), drawn from this repo's own `scripts/wayfinder-frontier.ts`, plus the observation that makes the sharpening pay: the recomputation form **passes this plugin's pre-existing Rule 3**, because that rule only demanded an assertion on a concrete result — which a recomputed expectation satisfies
+- The single-source split: the canonical definition lives in the skill, where the goal is to avoid the pattern while writing; the agent carries only the detection shape and points back. Two different jobs, one definition
+- Three reasons spelled out for why horizontal slicing fails, where upstream states it as a rule
+
+**Not ported — deliberate divergence:**
+
+- *"Refactoring is not part of the loop; it belongs to the review step, not the red → green cycle."* **Rejected.** Refactoring with a green test in hand *is* the safety net that makes refactoring safe, and it is when the code is freshest; deferring it to review separates understanding the code from improving it. This plugin keeps RED-GREEN-REFACTOR, and records the disagreement in the skill itself (section `Refactor Fica no Ciclo — Divergencia Consciente`) rather than silently omitting it. Upstream's underlying concern — a large refactor hidden inside a feature commit — is real, but it is a commit-granularity problem, already addressed by this plugin's `git-workflow-and-versioning`
+
 #### MIT License (verbatim from upstream LICENSE):
 
 ```
