@@ -30,7 +30,7 @@ describe('TEMPLATE_MANIFEST', () => {
   // 2026-05-21 (Luiz/dev): 13 = 11 originais + harness-validate.ts + package.json (fix scaffold v7).
   // 2026-08-13 (Luiz/dev): 14 = 13 + docs/GLOSSARY.md (plano05 fase-02). canon-andre segue 24 —
   // o glossario nao entra no contrato do Andre.
-  // 2026-08-14 (Luiz/dev): 15 = 14 + scripts/wayfinder-frontier.ts (plano10 fase-02). A skill
+  // 2026-08-17 (Luiz/dev): 15 = 14 + scripts/wayfinder-frontier.ts (plano10 fase-02). A skill
   // wayfinder e distribuida e nomeia o comando; sem o script o ponteiro morre no projeto-alvo.
   it('has exactly 15 anti-vibe-extension entries', () => {
     const ext = TEMPLATE_MANIFEST.filter((e) => e.category === 'anti-vibe-extension')

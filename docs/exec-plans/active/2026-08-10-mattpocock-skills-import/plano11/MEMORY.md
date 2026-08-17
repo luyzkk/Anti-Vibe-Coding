@@ -2,7 +2,7 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** **plano11 concluido** (2026-08-14) — as 3 fases fechadas. Ultimo plano da feature.
+**Status:** **plano11 concluido** (2026-08-17) — as 3 fases fechadas. Ultimo plano da feature.
 **Branch:** `feat/absorcoes-finais` (a partir da `main` em `14b28d4`)
 
 ## Progresso

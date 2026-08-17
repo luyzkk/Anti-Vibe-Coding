@@ -2,7 +2,7 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** **plano10 concluido** (2026-08-14) — as 3 fases fechadas
+**Status:** **plano10 concluido** (2026-08-17) — as 3 fases fechadas
 **Depende de:** plano01 fase-01 (a lente)
 **Branch:** `feat/wayfinder`
 
@@ -123,7 +123,7 @@ Formato: `DI-Plano10-faseNN-<slug>: <o que mudou e por que>`.
   construcao. Verificado que os dois lados sobreviveram: as 10 entradas de raiz da `main` e as 2 do
   wayfinder.
 
-### Distribuicao para projeto-alvo (decisao do humano, 2026-08-14)
+### Distribuicao para projeto-alvo (decisao do humano, 2026-08-17)
 
 O gap sinalizado ao fim da fase-02 foi resolvido: **distribuir junto**. Isso mudou tres coisas no
 artefato ja commitado, e cada uma foi medida antes de mexer.
@@ -207,7 +207,7 @@ Termos ausentes, verificados: `fog` (1 hit, sentido diferente) · `frontier` (0)
 (0) · `multi-session` (0). `fronteira` (10) e `blocking` (9) nao aparecem em nenhum `SKILL.md` no
 sentido relevante.
 
-> **Caduco em 2026-08-14 (fase-01):** a linha do `fronteira` foi medida **antes do plano04**. Hoje o
+> **Caduco em 2026-08-17 (fase-01):** a linha do `fronteira` foi medida **antes do plano04**. Hoje o
 > `grill-me` usa `fronteira` em 15 linhas e **exatamente no sentido relevante**. `frontier` em ingles
 > continua 0. Resolvido em `DI-Plano10-fase01-fronteira` — nao era colisao, era o mesmo conceito em
 > duas escalas.
@@ -259,7 +259,7 @@ colisoes descobertas no meio e escopo se revelando aos poucos — foi um caso de
 
 Se o formato nao der conta de representa-lo retroativamente, **o formato esta errado.**
 
-Rodado em 2026-08-14 contra o material real (`CONTEXT.md`: 37 DIs, 3 TRs, 2 CFs, 3 COs + os 11
+Rodado em 2026-08-17 contra o material real (`CONTEXT.md`: 37 DIs, 3 TRs, 2 CFs, 3 COs + os 11
 planos). Artefato de verificacao no scratchpad da sessao, nao commitado.
 
 **O que o formato absorveu sem esforco** — e a evidencia mais forte de que o gap era real:
@@ -360,7 +360,7 @@ mensagem clara em vez de crash.
 - O passo 2 do modo work manda rodar `bun run wayfinder:frontier`. **O script aceita o caminho do
   esforco como argumento** — usar, e nao depender do auto-discovery, que so resolve quando ha
   exatamente um esforco ativo com `MAP.md`.
-- **Gap de distribuicao — RESOLVIDO.** O humano decidiu distribuir junto (2026-08-14). O script vai
+- **Gap de distribuicao — RESOLVIDO.** O humano decidiu distribuir junto (2026-08-17). O script vai
   para o projeto-alvo pelo `TEMPLATE_MANIFEST`, e `wayfinder:frontier` esta no `package.json.tpl`.
   A fase-03 pode escrever `bun run wayfinder:frontier` no modo work sem ponteiro morto. Ver o bloco
   *Distribuicao para projeto-alvo* acima — em especial `DI-Plano10-fase02-saida-en`, porque a saida
@@ -373,6 +373,6 @@ mensagem clara em vez de crash.
 - `THIRD-PARTY-NOTICES.md` ja tem a secao do wayfinder cobrindo o que a fase-01 portou. A fase-03
   precisa **estender** a lista `Derived` com o `Work through the map`.
 - O G6 da fase-03 pergunta se e o terceiro toque em `plan-feature`: os numeros de linha do
-  `README.md` do plano estao velhos. Medido em 2026-08-14 — DAG entre fases e **`plan-feature:696`**
+  `README.md` do plano estao velhos. Medido em 2026-08-17 — DAG entre fases e **`plan-feature:696`**
   (o README diz 721), dependencia entre requisitos Must Have e **`:476`** (o README diz 501). O
   arquivo tem 928 linhas.

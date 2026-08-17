@@ -104,9 +104,9 @@ describe("generate-manifest", () => {
     expect(libTs.length).toBeGreaterThan(0)
   })
 
-  // 2026-08-14 (Luiz/dev): o scan per-skill so olhava references/, templates/, lib/ e assets/,
+  // 2026-08-17 (Luiz/dev): o scan per-skill so olhava references/, templates/, lib/ e assets/,
   // entao arquivo na RAIZ de uma skill nunca ganhava checksum nem updateStrategy — apesar de
-  // sync-to-global.sh copiar a pasta inteira. Eram 11 arquivos, 7 deles index.ts de codigo real.
+  // sync-to-global.sh copiar a pasta inteira. Eram 10 arquivos, 7 deles index.ts de codigo real.
   test("skills/wizard/template.sh is registered", () => {
     expect(manifest.files["skills/wizard/template.sh"]).toBeDefined()
   })
