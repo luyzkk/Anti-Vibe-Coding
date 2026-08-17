@@ -30,12 +30,10 @@ describe('linkClaudeAgentsStep (additive-merge branch)', () => {
     expect(report.summary).toMatch(/dry-run/)
   })
 
-  // 2026-05-19 (Luiz/dev): Plano 01 fase-03 — Step 11 (move-docs-with-stub) removido.
-  // Este teste verificava o conteudo do arquivo deletado. Plano 05 fase-04 reescreve os testes E2E/unit.
-  test.skip('Step 11 does NOT branch on additive-merge flag', async () => {
-    const src = await import('node:fs').then((m) => m.promises.readFile('skills/init/lib/steps/11-move-docs-with-stub.ts', 'utf8'))
-    expect(src).not.toMatch(/additive-merge/)
-  })
+  // 2026-08-17 (Luiz/dev): removido o test.skip 'Step 11 does NOT branch on additive-merge flag'.
+  // Ele lia `skills/init/lib/steps/11-move-docs-with-stub.ts`, deletado no Plano 01 fase-03 —
+  // se rodasse, estouraria ENOENT. Nao ha invariante a preservar: o step que poderia ramificar no
+  // flag nao existe mais.
 })
 
 describe('linkClaudeAgentsStep', () => {
