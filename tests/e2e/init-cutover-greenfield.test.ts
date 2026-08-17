@@ -99,19 +99,25 @@ describe('E2E cutover — greenfield (CA-01)', () => {
     await rm(tmpDir, { recursive: true, force: true })
   })
 
-  // 2026-05-21 (Luiz/dev): init-refactor-v7 — greenfield agora aborta com code=20 (DR-2)
-  // quando stack=null. Goldens nao podem ser regenerados sem `/anti-vibe-coding:detect-architecture`
-  // pre-rodado. Cobertura equivalente vive em `tests/e2e/init-v7-final-acceptance.test.ts`
-  // (CA-01..CA-09 + NFR). Estes 2 testes ficam skipados ate decidirmos golden v7 vs delecao.
-  test.skip('greenfield init generates expected file tree matching golden', async () => {
-    await captureLog(() =>
-      runInit([], {
-        cwd: tmpDir,
-        // 2026-05-17 (Luiz/dev): delivery-loop requer askUser; sem injeccao retorna needsUser
-        // mas dispatcher nao tem askUser — skip silencioso. Injetar stub para evitar no-op.
-        askUser: async () => 'N',
-      }),
-    )
+  // 2026-08-17 (Luiz/dev): reativados. O skip de 2026-05-21 dizia que greenfield abortava com
+  // code=20 (DR-2) e que os goldens nao eram regeneraveis sem /detect-architecture pre-rodado.
+  // Isso caducou uma semana depois: `07-generate-populate-plans.ts:45` (2026-05-28) trocou o hard
+  // abort por um gate, e o proprio /init hoje imprime que /detect-architecture e OPCIONAL. Medido:
+  // greenfield roda ate o fim, kind=ok, sem erro.
+  //
+  // O stub `askUser: async () => 'N'` foi REMOVIDO destes testes, e isso e obrigatorio, nao gosto.
+  // Com stack=null o gate do Step 07 so aceita 's' (skip) ou 'a' (abort) — nenhuma resposta
+  // interativa gera o populate-plan. Com o stub, a arvore perde as 21 entradas do plano e o teste
+  // do CA-01 (que exige populate-harness/PLAN.md) nao teria como passar. O caminho nao-interativo
+  // re-detecta o stack do disco pos-scaffold e produz o scaffold completo.
+  // A justificativa original do stub ("delivery-loop vira no-op sem askUser") tambem caducou:
+  // medido, o step emite `[delivery-loop]` identico nos dois modos.
+  //
+  // Regenerar apos mudanca intencional no scaffold: rodar runInit sobre a fixture, normalizar com
+  // os helpers acima e reescrever os dois arquivos de __golden__. Nunca editar golden a mao — ele
+  // so vale por ter sido produzido.
+  test('greenfield init generates expected file tree matching golden', async () => {
+    await captureLog(() => runInit([], { cwd: tmpDir }))
 
     const tree = normalizeTree(await readTreeSorted(tmpDir))
     const expectedTree = normalizeTree(
@@ -120,36 +126,20 @@ describe('E2E cutover — greenfield (CA-01)', () => {
     expect(tree).toEqual(expectedTree)
   })
 
-  // 2026-05-21 (Luiz/dev): init-refactor-v7 — ver nota acima. Skip ate decisao sobre golden v7.
-  test.skip('greenfield init produces stdout matching golden (normalized)', async () => {
-    const { lines } = await captureLog(() =>
-      runInit([], {
-        cwd: tmpDir,
-        askUser: async () => 'N',
-      }),
-    )
+  // 2026-08-17 (Luiz/dev): reativado — ver nota acima.
+  test('greenfield init produces stdout matching golden (normalized)', async () => {
+    const { lines } = await captureLog(() => runInit([], { cwd: tmpDir }))
 
     const stdout = lines.join('\n')
     const expectedStdout = await fs.readFile(GOLDEN_STDOUT, 'utf8')
     expect(normalizeStdout(stdout, tmpDir)).toBe(normalizeStdout(expectedStdout, '<TMP>'))
   })
 
-  // 2026-05-21 (Luiz/dev): init-refactor-v7 — capabilities-discovery step deletado em Plano 05 fase-04.
-  // O fluxo LLM-driven nao tem mais soft-fail por arquitetura ausente; gate atual e DR-2 (abort code=20).
-  test.skip('capabilities-discovery soft-fails when architecture profile absent (CA-06)', async () => {
-    // 2026-05-17 (Luiz/dev): fixture greenfield nao tem .anti-vibe/architecture-profile.json
-    // -> readArchitectureProfile retorna null -> step retorna wording de skip.
-    // GT-P04F04-1: wording exato observado via inspeção de 15-capabilities-discovery.ts linha 23:
-    //   '[capabilities-discovery] skipped — architecture profile not detected. Run /anti-vibe-coding:detect-architecture first.'
-    // O dispatcher adiciona prefix `[capabilities-discovery] ` ao summary — logo o log final tem ID duplicado.
-    const { lines } = await captureLog(() =>
-      runInit([], { cwd: tmpDir, askUser: async () => 'N' }),
-    )
-    const joined = lines.join('\n')
-    expect(joined).toContain(
-      '[capabilities-discovery] skipped — architecture profile not detected',
-    )
-  })
+  // 2026-08-17 (Luiz/dev): DELETADO o teste 'capabilities-discovery soft-fails when architecture
+  // profile absent (CA-06)'. Nao foi reativado porque o comportamento que ele exercitava nao existe:
+  // o step `15-capabilities-discovery.ts` foi removido no Plano 05 fase-04. Verificado — o arquivo
+  // nao existe e o registry (12 steps) nao o referencia. Teste skipado sobre step deletado nao e
+  // divida a reativar, e peso morto que finge cobertura.
 
   test('tier 3 copy-with-hook generates CLAUDE.md mirror and hook entry in settings (CA-08)', async () => {
     // 2026-05-17 (Luiz/dev): simula tier 3 (copy-with-hook) via linker stub injetado no step.
@@ -213,11 +203,11 @@ describe('E2E cutover — greenfield (CA-01)', () => {
     expect(JSON.stringify(settings)).toContain('PostToolUse')
   })
 
-  // 2026-05-21 (Luiz/dev): init-refactor-v7 — greenfield aborta com code=20 (DR-2) antes de
-  // gerar populate-harness. Cobertura equivalente: `init-v7-final-acceptance.test.ts` CA-05.
-  test.skip('greenfield init produces populate-harness PLAN.md (CA-01)', async () => {
+  // 2026-08-17 (Luiz/dev): reativado. Este e o teste que prova por que o stub askUser tinha de sair:
+  // com ele, o gate do Step 07 pula o populate-plan e o PLAN.md exigido aqui nunca aparece.
+  test('greenfield init produces populate-harness PLAN.md (CA-01)', async () => {
     const { result } = await captureLog(() =>
-      runInit([], { cwd: tmpDir, log: () => {}, askUser: async () => 'N' }),
+      runInit([], { cwd: tmpDir, log: () => {} }),
     )
     expect((result as { kind: string }).kind).toBe('ok')
     const tree = await readTreeSorted(tmpDir)
