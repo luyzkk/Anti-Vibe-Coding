@@ -34,7 +34,7 @@ describe('package.json.tpl template', () => {
     expect(parsed.scripts['harness:all']).toBe('bun run harness:validate && bun run compound:check')
   })
 
-  // 2026-08-14 (Luiz/dev): plano10 fase-02 — a skill wayfinder e distribuida e nomeia este comando.
+  // 2026-08-17 (Luiz/dev): plano10 fase-02 — a skill wayfinder e distribuida e nomeia este comando.
   // Cada script aqui precisa do arquivo correspondente no TEMPLATE_MANIFEST, ou o comando existe e
   // aponta para nada.
   it('has wayfinder:frontier script, and the script it names is scaffolded', async () => {

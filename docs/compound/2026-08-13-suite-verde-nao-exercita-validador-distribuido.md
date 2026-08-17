@@ -1,8 +1,9 @@
 ---
 title: "Suite verde nao diz nada sobre o validador que o plugin distribui — o cap que mordia estava no .tpl"
 category: armadilha
-tags: [init, templates, scaffold, harness-validate, gate-duplicado, artefato-distribuido, falso-verde]
+tags: [init, templates, scaffold, harness-validate, gate-duplicado, artefato-distribuido, falso-verde, dependencia]
 created: 2026-08-13
+updated: 2026-08-17
 ---
 
 ## Problem
@@ -40,6 +41,29 @@ adicionar". Eu conferi — o de 70, que tinha folga de sobra.
 Sem a verificacao manual, o merge entregaria `bun run harness:validate` quebrado em **todo projeto
 novo**, com a suite do plugin verde o tempo inteiro.
 
+### Segunda ocorrencia (2026-08-17) — outro mecanismo, mesmo desfecho
+
+Distribuindo `scripts/wayfinder-frontier.ts` pelo `/init` (plano10 fase-02), o script scaffoldado
+morreu no projeto-alvo:
+
+```
+SyntaxError: Missing 'default' export in module js-yaml@5.3.0
+```
+
+O script usava `js-yaml`, que e dependencia **deste** repo. O projeto-alvo nao tem nenhuma
+dependencia instalada, entao o `bun` resolveu uma versao qualquer de cache, incompativel. A suite do
+plugin estava inteira verde — 1759 pass — porque testa a funcao importada daqui, onde `js-yaml`
+existe.
+
+A regra que faltava estava escrita no codigo o tempo todo, so nao em prosa: **`compound-check.ts.tpl`
+e `harness-validate.ts.tpl` importam somente `node:fs` e `node:path`.** O `compound-check.ts.tpl`
+chega a **parsear frontmatter a mao** (`parseYamlInline`) enquanto a versao do repo usa `js-yaml` —
+divergencia deliberada, nao descuido.
+
+Substituido por um `parseFlatYaml` de ~20 linhas. Efeito colateral que compensou o trabalho: sem
+parser YAML, todo valor sai **string**, e o bug de `blocked-by: [003]` virar o inteiro `3` (perdendo
+os zeros a esquerda, e transformando todo bloqueio em referencia fantasma) **desapareceu na raiz**.
+
 ## Solution
 
 Cap para 41 nos tres, mais os dois testes que asseravam a string `'40 lines or fewer'`
@@ -70,6 +94,11 @@ Dois gotchas do caminho, ambos capazes de produzir verificacao falsamente tranqu
   Custa um comando e e a unica coisa que fala pelo usuario final.
 - **Antes de adicionar linha a arquivo com cap, medir a folga.** Nao presumir que "cap alto" e o cap
   que vale; medir o arquivo e comparar com o menor cap que o alcanca.
+- **Script distribuido importa somente `node:`.** O projeto-alvo nao roda `install` de nada do
+  plugin, entao qualquer `import` de terceiro resolve para o que estiver no cache — ou falha. Antes
+  de distribuir um `.ts`, rodar `grep '^import' <arquivo>` e conferir que so ha `node:*`; se houver
+  outro, ou o codigo perde a dependencia, ou nao se distribui. Os dois `.tpl` que ja existiam sao a
+  referencia viva dessa regra, inclusive com parser YAML escrito a mao para cumpri-la.
 - Le junto com `docs/compound/2026-05-20-validation-gate-path-drift.md`: la o teste que pegaria
   existia e foi skipado; aqui **nunca existiu**. Mesmo desfecho — gate quebrado invisivel por
   semanas — por dois mecanismos diferentes.
