@@ -27,7 +27,7 @@ por achado.
 ## Arquivos Afetados
 
 **NOVOS**
-- `docs/exec-plans/active/2026-08-10-mattpocock-skills-import/plano01/AUDIT-REPORT.md`
+- `docs/exec-plans/completed/2026-08-10-mattpocock-skills-import/plano01/AUDIT-REPORT.md`
 
 **FORA do escopo**
 - Toda e qualquer edicao em `skills/` (INV-03)

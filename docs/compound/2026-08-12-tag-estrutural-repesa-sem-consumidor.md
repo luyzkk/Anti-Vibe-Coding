@@ -81,4 +81,4 @@ Quando os tres batem, a secao sai de escopo ate alguem decidir mudar a **convenc
 - `skills/tdd-workflow/SKILL.md:404-417` — mesma forma
 - `docs/exec-plans/completed/2026-06-04-skill-parity-refresh/COMPARISON-MATRIX.md:195,416` — a
   auditoria anterior que defende a convencao
-- `docs/exec-plans/active/2026-08-10-mattpocock-skills-import/plano01/AUDIT-REPORT.md` — §Descartados
+- `docs/exec-plans/completed/2026-08-10-mattpocock-skills-import/plano01/AUDIT-REPORT.md` — §Descartados
