@@ -70,8 +70,9 @@ describe('runInit dispatcher', () => {
     expect(seenCwd).toBe('C:\\Users\\luiz\\projeto')
   })
 
-  test.skip('CA-07 convergencia: Step 91 substituido por Step 7 real no Plano 04 fase-04', () => {
-    // 2026-05-21 (Luiz/dev): Plano 04 fase-01 DEV-01 — Step 91 deletado (V2 generator removido).
-    // Reescrita para Step 7 real ocorre em Plano 04 fase-04.
-  })
+  // 2026-08-17 (Luiz/dev): removido o test.skip 'CA-07 convergencia: Step 91 substituido por
+  // Step 7 real'. Corpo vazio (so comentario), sobre um step deletado
+  // (91-generate-populate-plan.ts nao existe). A reescrita que ele prometia aconteceu: o Step 7
+  // real esta coberto por tests/e2e/init-v7-populate-plans-{node,rails,no-stack}.test.ts, 9 testes
+  // ativos e verdes.
 })

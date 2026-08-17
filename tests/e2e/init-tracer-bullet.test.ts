@@ -37,14 +37,15 @@ describe('E2E tracer bullet — runInit dispatcher (CA-10, R5)', () => {
     await rm(cwd, { recursive: true, force: true })
   })
 
-  // 2026-05-21 (Luiz/dev): init-refactor-v7 — greenfield aborta DR-2 code=20 antes de gerar
-  // populate-harness/PLAN.md. Cobertura tracer-bullet equivalente vive em
-  // `tests/e2e/init-v7-tracer-bullet.test.ts` (fixture com stack pre-detectada).
-  it.skip('greenfield: runInit emits scaffold + PLAN.md + warning-mode validator + final message', async () => {
+  // 2026-08-17 (Luiz/dev): reativado. O skip dizia que greenfield abortava com DR-2 code=20 antes
+  // de gerar o PLAN.md; `07-generate-populate-plans.ts:45` trocou o abort por um gate em
+  // 2026-05-28. O stub `askUser` saiu junto: com stack=null toda resposta interativa pula o
+  // populate-plan, e as assercoes 3 e 4 abaixo dependem dele.
+  it('greenfield: runInit emits scaffold + PLAN.md + warning-mode validator + final message', async () => {
     const overallStart = Date.now()
 
     const { lines, result } = await captureLog(() =>
-      runInit([], { cwd, log: (s: string) => console.log(s), askUser: async () => 'N' }),
+      runInit([], { cwd, log: (s: string) => console.log(s) }),
     )
 
     // 1. dispatch terminou em ok
@@ -77,12 +78,15 @@ describe('E2E tracer bullet — runInit dispatcher (CA-10, R5)', () => {
     // 4. Fase files individuais existem e tem 4 blocos canonicos
     const phaseFiles = (await fs.readdir(populateFolder)).filter((f) => f.startsWith('fase-'))
     expect(phaseFiles.length).toBeGreaterThanOrEqual(10)
-    // Verificar 4 blocos canonicos em um fase file representativo
+    // 2026-08-17 (Luiz/dev): os 4 blocos esperados aqui ('Inputs (docs', 'Inputs (codigo)',
+    // 'Instrucao LLM', 'Criterio de done') eram do formato V2 e teriam derrubado quem reativasse
+    // o teste as cegas. As fases hoje usam o formato canonico — os mesmos marcadores pinados por
+    // skills/init/lib/populate-plan-generator.test.ts:102, que esta vivo e verde.
     const samplePhase = await fs.readFile(path.join(populateFolder, phaseFiles[0]!), 'utf-8')
-    expect(samplePhase).toContain('Inputs (docs')
-    expect(samplePhase).toContain('Inputs (codigo)')
-    expect(samplePhase).toContain('Instrucao LLM')
-    expect(samplePhase).toContain('Criterio de done')
+    expect(samplePhase).toContain('**Guidance file:**')
+    expect(samplePhase).toContain('## Goal')
+    expect(samplePhase).toContain('## Execution Steps')
+    expect(samplePhase).toContain('## Final Report Contract')
 
     // 5. Step 90 rodou em modo warning (nao abortou) — CA-07
     // Step id e 'final-validation' (sem prefixo numerico 90-)
@@ -95,13 +99,10 @@ describe('E2E tracer bullet — runInit dispatcher (CA-10, R5)', () => {
     expect(tail).toContain('/anti-vibe-coding:execute-plan')
     expect(tail).toContain('populate-harness')
 
-    // 7. progress.txt presente -> docs/compound/_imported/ populado
-    const progressPath = path.join(cwd, '.claude', 'progress.txt')
-    if (await fs.stat(progressPath).then(() => true).catch(() => false)) {
-      const imported = await fs.readdir(path.join(cwd, 'docs', 'compound', '_imported'))
-      expect(imported).toContain('INDEX.md')
-      expect(imported.filter((f) => /^\d{4}-/.test(f)).length).toBeGreaterThanOrEqual(1)
-    }
+    // 2026-08-17 (Luiz/dev): removida a assercao 7 (progress.txt -> docs/compound/_imported/).
+    // O step `13-import-progress-txt` nao existe mais: arquivo ausente e fora do registry (12
+    // steps). O guard `if (progress.txt existe)` passava — a fixture ainda traz o arquivo — e o
+    // readdir seguinte estourava ENOENT. Nao e regressao a consertar; e feature removida.
 
     // 8. budget
     const totalMs = Date.now() - overallStart

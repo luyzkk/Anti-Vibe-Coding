@@ -25,21 +25,12 @@ describe('E2E cutover — legacy v5 (CA-02 + CA-07)', () => {
     await rm(tmpDir, { recursive: true, force: true })
   })
 
-  // 2026-05-21 (Luiz/dev): init-refactor-v7 — legacy v5 nao mais aborta com code=1.
-  // Novo fluxo: detect-legacy-and-stack DETECTA artefatos, migrate-planning-and-manifest
-  // MIGRA inline, e abort ocorre em generate-populate-plans com code=20 (DR-2) quando stack=null.
-  // Cobertura migrate inline esta nos outros 3 testes deste arquivo (orchestrateMigration direto).
-  test.skip('detect-legacy gate aborts dispatcher for legacy project with code 1 (CA-02 gate)', async () => {
-    // 2026-05-17 (Luiz/dev): DEV-P04F04-1 — detect-legacy nao verifica migrate mode.
-    // Comportamento correto: AbortError code 1 com artifacts listados.
-    // Usuario entao executa orchestrateMigration (helper) diretamente.
-    const result = await runInit([], { cwd: tmpDir })
-    expect(result.kind).toBe('aborted')
-    if (result.kind === 'aborted') {
-      expect(result.code).toBe(1)
-      expect(result.reason).toContain('planning-dir')
-    }
-  })
+  // 2026-08-17 (Luiz/dev): removido o test.skip 'detect-legacy gate aborts dispatcher for legacy
+  // project with code 1'. Ele assertava um abort que nao existe mais em nenhuma forma: o v7 passou
+  // a DETECTAR e MIGRAR inline em vez de abortar, e o proprio DR-2 (code=20) que o substituiu virou
+  // gate em 2026-05-28. Medido: /init num projeto legacy roda ate o fim e o harness valida limpo —
+  // e o que tests/e2e/migration.test.ts passa a assertar. A cobertura de migracao inline segue nos
+  // outros 3 testes deste arquivo, via orchestrateMigration direto.
 
   test('legacy v5 migrates planning + lessons + decisions via orchestrateMigration (CA-02)', async () => {
     // 2026-05-17 (Luiz/dev): migration via helper direto (comportamento real do sistema).
