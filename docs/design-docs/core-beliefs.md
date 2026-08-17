@@ -24,6 +24,11 @@ on critical operations, KISS, YAGNI, zero clutter, functional programming when a
   known positive. A malformed pattern returns silence, not an error (`grep -E` reads `\|` as a
   literal pipe), and silence is exactly what confirms a "not found" hypothesis — the failure
   mode is self-confirming.
+- A factual claim in your own planning document is a dated measurement, not a fact. Line
+  numbers, occurrence counts and "X does not exist" were true when written and age silently
+  between planning and execution — re-run the command before editing against them. And when
+  the document names N sites, look for the N+1: the list was written against one snapshot of
+  the repo, and the grep of right now is the source.
 
 Skill: /anti-vibe-coding:consultant (Phase Zero teaching).
 
@@ -48,8 +53,16 @@ Skill: /anti-vibe-coding:security
 
 ## Code Quality
 
-- **9 Code Smells**: long functions, God Objects, DRY 3+, giant conditionals, magic numbers,
-  Feature Envy, data clumps, useless comments, primitive types
+- **17 Code Smells**: long functions, God Objects, DRY 3+, giant conditionals, magic numbers,
+  Feature Envy, data clumps, useless comments, primitive types — plus Fowler's mysterious name,
+  repeated switches, shotgun surgery, divergent change, speculative generality, message chains,
+  middle man, refused bequest. The last two of the first Fowler group only exist at the level of
+  a *change*, not a file: shotgun surgery needs the set of touched files, divergent change needs
+  the diff
+- Code shipped to someone else's machine imports only the standard library. The target project
+  never installs your dependencies, so a third-party import resolves to whatever happens to be
+  cached — or fails. Your suite stays green either way, because it exercises the copy that lives
+  next to your `node_modules`
 - Errors: Result Pattern `(error, value)` > generic try/catch (generic try/catch swallows errors)
 - Logs: Wide Events (1 rich event per request), NEVER `console.log` in prod
 - Types: domain types (Email, Money) with validation in construction
