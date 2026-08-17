@@ -35,14 +35,36 @@ describe('package.json.tpl template', () => {
   })
 
   // 2026-08-17 (Luiz/dev): plano10 fase-02 — a skill wayfinder e distribuida e nomeia este comando.
-  // Cada script aqui precisa do arquivo correspondente no TEMPLATE_MANIFEST, ou o comando existe e
-  // aponta para nada.
-  it('has wayfinder:frontier script, and the script it names is scaffolded', async () => {
+  // Fica pinado a parte: o contrato aqui e o NOME exato do comando que a skill manda rodar.
+  it('has wayfinder:frontier script named exactly as the distributed skill invokes it', async () => {
     const body = await fs.readFile(TPL_PATH, 'utf8')
     const parsed = JSON.parse(body) as PackageJsonTpl
     expect(parsed.scripts['wayfinder:frontier']).toBe('bun run scripts/wayfinder-frontier.ts')
-    const scaffolded = TEMPLATE_MANIFEST.map((e) => e.dst)
-    expect(scaffolded).toContain('scripts/wayfinder-frontier.ts')
+  })
+
+  // 2026-08-17 (Luiz/dev): generalizado do assert que era so do wayfinder. Antes, cada script novo no
+  // package.json.tpl pedia um teste novo aqui — uma das edicoes manuais que somar um script ao
+  // scaffold custava. Agora a varredura cobre os futuros sozinha.
+  //
+  // Direcao unica de proposito: comando que nomeia scripts/X.ts exige X no manifest, senao o comando
+  // existe e aponta para nada no projeto-alvo. A RECIPROCA nao vale — scripts/new-plan.ts e
+  // scaffoldado sem comando npm, e docs/PLANS.md.tpl o chama pelo caminho direto.
+  it('no script command points at a scripts/*.ts file missing from the manifest', async () => {
+    const body = await fs.readFile(TPL_PATH, 'utf8')
+    const parsed = JSON.parse(body) as PackageJsonTpl
+    const scaffolded = new Set(TEMPLATE_MANIFEST.map((e) => e.dst))
+
+    const referenced = Object.entries(parsed.scripts)
+      .map(([name, cmd]) => [name, cmd.match(/scripts\/[\w.-]+\.ts/)?.[0]] as const)
+      .filter((pair): pair is readonly [string, string] => pair[1] !== undefined)
+
+    // Guard de vacuidade: se a regex parar de casar, o loop abaixo passa sem verificar nada.
+    expect(referenced.length).toBeGreaterThan(0)
+
+    const dangling = referenced
+      .filter(([, file]) => !scaffolded.has(file))
+      .map(([name, file]) => `${name} -> ${file}`)
+    expect(dangling).toEqual([])
   })
 
   it('has placeholder for project name (replaced by /init)', async () => {
