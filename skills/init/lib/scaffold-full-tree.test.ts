@@ -49,14 +49,9 @@ describe('scaffoldFullTree', () => {
     }
   })
 
-  it('completes in under 1 second on empty fixture (perf budget — feeds CA-06 ≤60s)', async () => {
-    const result = await scaffoldFullTree({
-      targetDir: FIXTURE_DIR,
-      projectName: 'perf-fixture',
-      stack: 'unknown',
-    })
-    expect(result.durationMs).toBeLessThan(1000)
-  })
+  // 2026-08-17 (Luiz/dev): removido o budget de 1s. Media wall-clock sob carga variavel da maquina:
+  // falhava e passava na re-rodada sem o codigo mudar, que e treinar todo mundo a ignorar vermelho.
+  // `result.durationMs` continua no contrato — quem quiser medir, mede fora do gate funcional.
 
   // 2026-05-18 (Luiz/dev): Quick Plan /init v6.4.0 fix — bug 3 (re-run sobrescrevia tudo).
   // Antes: filesWritten === TEMPLATE_MANIFEST.length em re-run (overwrite cego).

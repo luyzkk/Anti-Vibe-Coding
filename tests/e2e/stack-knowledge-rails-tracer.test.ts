@@ -33,17 +33,16 @@ describe('stack-knowledge Rails tracer bullet (Plano 01 fase-06)', () => {
       'utf8',
     )
 
-    const start = performance.now()
     const result = await runStackKnowledgeInit({
       targetDir: project,
       pluginRoot: PLUGIN_ROOT,
       logger: () => {},
     })
-    const elapsed = performance.now() - start
 
     expect(result.stackPrimary).toBe('rails')
     expect(result.copyResult.status).toBe('copied')
-    expect(elapsed).toBeLessThan(200)
+    // 2026-08-17 (Luiz/dev): saiu o budget de 200ms, gemeo do que estava em
+    // stack-knowledge-rails-full.test.ts. Wall-clock sob carga nao e determinismo.
 
     expect(existsSync(join(project, '.claude', 'knowledge', 'INDEX.md'))).toBe(true)
     expect(existsSync(join(project, '.claude', 'knowledge', 'atoms', 'rails-conventions-and-magic.md'))).toBe(true)

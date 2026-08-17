@@ -71,10 +71,7 @@ describe('Architecture Detector E2E', () => {
     }
   })
 
-  test('end-to-end flow completes in < 500ms per fixture (RNF performance)', () => {
-    const start = performance.now()
-    runFullFlow('nextjs')
-    const elapsed = performance.now() - start
-    expect(elapsed).toBeLessThan(500)
-  })
+  // 2026-08-17 (Luiz/dev): saiu o teste de RNF < 500ms. Media a carga da maquina, nao o fluxo:
+  // falhava e passava na re-rodada com o codigo identico. `runFullFlow` segue coberto pelo teste
+  // acima, que roda todas as fixtures e assere o profile gerado.
 })

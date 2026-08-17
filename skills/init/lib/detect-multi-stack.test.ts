@@ -1,4 +1,4 @@
-// 2026-05-16 (Luiz/dev): casos cobertos — CA-02 (Node+TS), CA-03 (Rails puro), CA-06 (sem anchor), CA-07 (multi-stack), G4 (perf bounded).
+// 2026-05-16 (Luiz/dev): casos cobertos — CA-02 (Node+TS), CA-03 (Rails puro), CA-06 (sem anchor), CA-07 (multi-stack), G4 (walk limitado).
 import { describe, it, expect } from 'bun:test'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
@@ -115,7 +115,11 @@ describe('detectMultiStack', () => {
     expect(result.primary).not.toBe('nextjs')
   })
 
-  it('completes detection within 500ms even with bounded walk (NFR perf, G4)', async () => {
+  // 2026-08-17 (Luiz/dev): era 'completes detection within 500ms'. O budget media a carga da maquina
+  // e falhava sob concorrencia, mas a fixture de 200 arquivos existe por um motivo real: provar que o
+  // walk limitado atravessa uma arvore grande sem perder ancora. Isso vira assercao deterministica
+  // sobre o resultado — se o walk parar cedo, `anchor_files` perde o Gemfile e o teste cai.
+  it('bounded walk still finds both anchors across a 200-file tree (G4)', async () => {
     const dir = await mkProject({
       'package.json': JSON.stringify({ devDependencies: { typescript: '^5' } }),
       'Gemfile': 'gem "rails"\n',
@@ -123,9 +127,8 @@ describe('detectMultiStack', () => {
       ...Object.fromEntries(Array.from({ length: 100 }, (_, i) => [`src/a${i}.ts`, '//x'])),
       ...Object.fromEntries(Array.from({ length: 100 }, (_, i) => [`app/b${i}.rb`, '#x'])),
     })
-    const start = Date.now()
-    await detectMultiStack(dir)
-    const elapsed = Date.now() - start
-    expect(elapsed).toBeLessThan(500)
+    const result = await detectMultiStack(dir)
+    expect(result.anchor_files.slice().sort()).toEqual(['Gemfile', 'package.json'])
+    expect([result.primary, ...result.secondary].sort()).toEqual(['nodejs-typescript', 'rails'])
   })
 })
