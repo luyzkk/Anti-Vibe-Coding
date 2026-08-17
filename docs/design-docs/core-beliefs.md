@@ -29,6 +29,11 @@ on critical operations, KISS, YAGNI, zero clutter, functional programming when a
   between planning and execution — re-run the command before editing against them. And when
   the document names N sites, look for the N+1: the list was written against one snapshot of
   the repo, and the grep of right now is the source.
+- The stated reason for a disabled test is a dated claim, not evidence. Conditional skips
+  ("until X lands") outlive the condition, and while a test is dark its own assertions rot
+  alongside it — so the red you get on re-enabling is the start of the diagnosis, not proof
+  the skip was right. Re-enable first, read the failure, then decide: a stale assertion is
+  corrected against the generated artifact; removed behaviour is deleted, never re-skipped.
 
 Skill: /anti-vibe-coding:consultant (Phase Zero teaching).
 
