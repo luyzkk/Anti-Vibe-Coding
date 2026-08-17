@@ -143,6 +143,11 @@ export const TEMPLATE_MANIFEST: ReadonlyArray<TemplateEntry> = [
   // scaffoldTemplates (lib antiga com lista hardcoded). harness-validate.ts.tpl + package.json.tpl
   // ficaram orfaos. Migrados do hardcoded para o manifest: agora scaffoldFullTree os copia.
   { src: 'scripts/harness-validate.ts.tpl',        dst: 'scripts/harness-validate.ts',        required: true,  category: 'anti-vibe-extension'  },
+  // 2026-08-14 (Luiz/dev): plano10 fase-02 — a fronteira do /wayfinder. A skill e distribuida e
+  // nomeia `bun run wayfinder:frontier`; sem esta entrada o ponteiro morre no projeto-alvo.
+  // Copia literal de scripts/wayfinder-frontier.ts (nao precisa de adaptacao), com teste de drift
+  // em scripts/wayfinder-frontier.test.ts guardando as duas em sincronia.
+  { src: 'scripts/wayfinder-frontier.ts.tpl',      dst: 'scripts/wayfinder-frontier.ts',      required: true,  category: 'anti-vibe-extension'  },
 
   // Raiz obrigatoria (harness required-files)
   // 2026-05-12 (Luiz/dev): Plano 04 fase-03 — README.md e .github/pull_request_template.md
