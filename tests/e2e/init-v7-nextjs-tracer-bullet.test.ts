@@ -98,10 +98,9 @@ describe('init Next.js + React tracer bullet (Plano 01 fase-05)', () => {
       expect(content).toMatch(/^## Decision criteria/m)
     })
 
-    it('CA-07: pipeline completes in <500ms', async () => {
-      const { elapsedMs } = await runPipeline(project)
-      expect(elapsedMs).toBeLessThan(500)
-    })
+    // 2026-08-17 (Luiz/dev): removido o budget de 500ms do CA-07. Wall-clock sob carga da maquina
+    // falhava e passava na re-rodada sem o codigo mudar. `runPipeline` segue coberto pelos testes
+    // acima, que assertam o resultado; `elapsedMs` continua no retorno para medicao fora do gate.
   })
 
   // CA-02: Vite-puro — detectStack retorna 'react', STACK_ID_TO_MATRIX_FOLDER mapeia para 'nextjs' (D6)
