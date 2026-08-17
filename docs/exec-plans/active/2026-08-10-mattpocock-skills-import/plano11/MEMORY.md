@@ -2,7 +2,7 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** fase-01 concluida (2026-08-14) — fases 02 e 03 pendentes
+**Status:** fases 01 e 02 concluidas (2026-08-14) — fase 03 pendente
 **Branch:** `feat/absorcoes-finais` (a partir da `main` em `14b28d4`)
 
 ## Progresso
@@ -10,7 +10,7 @@ Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 | Fase | Nome | Status | Arquivos | Depende de |
 |---|---|---|---|---|
 | 01 | `code-review` — 8 smells, direcao dupla, ponto fixo | **done** | 4/3 (+ notices) | plano01 fase-01 |
-| 02 | `tdd` — tautologico, seams, divergencia | planned | 0/2 | plano01 fase-01 + **plano02 fase-01** |
+| 02 | `tdd` — tautologico, seams, divergencia | **done** | 3/2 (+ notices) | plano01 fase-01 + **plano02 fase-01** |
 | 03 | `grill-with-docs` — ponteiro | planned | 0/1 | **plano05** |
 
 **As tres fases sao independentes entre si.** Podem rodar fora de ordem conforme os outros planos
@@ -70,8 +70,46 @@ unica decisao "distribuir". Nao reportado como achado.
 
 **Conclusao:** as descricoes sao acionaveis — dois dos oito dispararam num diff real, ambos
 confirmados por medicao e nao por leitura. O checklist previa o caso contrario; nao foi necessario.
-- `DI-Plano11-fase02-tautologico-canonico`: a definicao afiada entra em `tdd-verifier` (pegar depois)
-  **e** em `tdd-workflow` (evitar enquanto escreve). Onde fica a canonica, e quem cita?
+- `DI-Plano11-fase02-tautologico-canonico` — **RESOLVIDA: canonica no `tdd-workflow`, o agente cita.**
+  A secao `## Assertions Tautologicas` da skill carrega a definicao, as duas formas, os exemplos e o
+  remedio; o `tdd-verifier` ganha a **Regra 3b** com so a *forma de deteccao* e um ponteiro de volta.
+  Razao: sao trabalhos diferentes, nao o mesmo texto duas vezes — a skill **previne** (e prevenir
+  exige o raciocinio), o agente **reconhece** (e reconhecer exige a forma inline, porque ele roda
+  isolado). E a direcao do ponteiro agente → doc ja e a estabelecida no repo: o `tdd-verifier` ja
+  cita `docs/design-docs/subagent-contract-v1.md`. O inverso (skill apontando para as regras internas
+  de um agente) inverteria a hierarquia.
+
+## Teste da afiacao (fase-02) — RODADO, e a afiacao se paga
+
+O checklist pedia construir um tautologico-por-recomputacao que **passaria** no `tdd-verifier` de
+hoje — com a instrucao de registrar, caso nao fosse possivel, que a versao trivial ja cobria.
+
+**Foi possivel, e o exemplo veio de codigo real deste repo** (`scripts/wayfinder-frontier.ts`):
+
+```ts
+expect(normalizeId('7')).toBe('7'.padStart(3, '0'))
+```
+
+**Por que passa na Regra 3 atual:** ela proibe uma lista fechada (`expect(true).toBe(true)`, snapshot
+vazio, `expect(undefined).toBeUndefined()` sem setup) e exige *"assertion sobre resultado concreto do
+codigo em teste"*. O exemplo **satisfaz a exigencia** — assere sobre o retorno concreto de
+`normalizeId` — e nao esta na lista. Passa limpo.
+
+**E por que e tautologico mesmo assim:** o esperado e produzido pela mesma operacao que a
+implementacao usa. Trocar `padStart(3)` por `padStart(4)` no codigo muda o teste junto e ele
+**continua verde**. Nenhum bug de `normalizeId` sobrevive a esse teste — porque nenhum bug o quebra.
+
+**Conclusao: a afiacao se paga.** A Regra 3b entrou com o alerta que a distingue da Regra 3 —
+*isto parece um teste legitimo; procurar deliberadamente, nao esperar saltar aos olhos.*
+
+- `DI-Plano11-fase02-termo-acordad`: o MEMORY listava `acordad` entre os termos ausentes a preencher.
+  O texto ficou com **`confirmado`** ("nenhum teste e escrito num seam nao confirmado") e **`acordar`**
+  ("acordar os seams antes"), entao um grep por `acordad` volta 0. O conceito esta la; o termo do
+  plano era proxy. Nao re-abrir por causa do grep.
+
+- `DI-Plano11-fase02-notices`: terceiro arquivo de novo, pela mesma razao da fase-01 — atribuicao
+  obrigatoria. Inclui a **divergencia** do DI-36 na secao `Not ported`, para que o registro exista
+  tambem no doc de licenca, e nao so dentro da skill.
 - `DI-Plano11-fase03-gate`: o registro no glossario cabe no gate de sintetizar-e-confirmar (Passo 4.5
   do `grill-me`), ou precisa de confirmacao propria?
 

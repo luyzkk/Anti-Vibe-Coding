@@ -81,6 +81,8 @@ Regras ESPECIFICAS do dominio de TDD:
 
 3. **Never accept `expect(true).toBe(true)` ou snapshot vazio como teste valido.** Assertions tautologicas — incluindo `toMatchSnapshot()` em snapshots nunca revisados, `expect(undefined).toBeUndefined()` sem setup relevante — sempre passam e nao verificam comportamento real. Sinalizar como `high` e exigir assertion sobre resultado concreto do codigo em teste.
 
+3b. **Never accept assertion cujo valor esperado e recomputado pela mesma operacao da implementacao.** Forma de deteccao: o lado direito do `expect` aplica a mesma funcao, formula ou transformacao que o codigo em teste — `expect(add(a,b)).toBe(a + b)`, `expect(fmt(d)).toBe(d.toISOString())`, snapshot derivado a mao pela mesma logica. Passa por construcao e **nunca pode discordar do codigo**, entao sobrevive a qualquer bug que a implementacao introduza. Diferente da Regra 3, isto **parece um teste legitimo** — procurar deliberadamente, nao esperar saltar aos olhos. Sinalizar como `high` e exigir valor esperado de fonte independente (literal conhecido-bom, exemplo trabalhado, spec). Definicao canonica e exemplos: `skills/tdd-workflow/SKILL.md`, secao `Assertions Tautologicas`.
+
 4. **Never aprovar GREEN sem evidencia de RED registrado.** Se nao existe commit anterior com o teste falhando (tdd-phase.json, historico de CI, ou comentario de pair) e o teste nao tem historico de falha observavel, o ciclo Red-Green-Refactor nao foi respeitado. Sinalizar como `high` — GREEN sem RED e apenas codigo com teste sobreposto, nao TDD.
 
 ## Composition
