@@ -95,7 +95,7 @@ function parseClaim(raw: string | string[] | undefined): ClaimInfo | null {
   return { raw: text, at, by: rest.join(' '), stale: false }
 }
 
-type Loaded = { ticket: Ticket; claim: ClaimInfo | null }
+type Loaded = { ticket: Ticket; claim: ClaimInfo | null; unknownStatus: string | null }
 
 function parseTicket(body: string, file: string): Loaded | null {
   const match = body.match(FRONTMATTER_RE)
@@ -107,17 +107,26 @@ function parseTicket(body: string, file: string): Loaded | null {
     ? blockedByRaw.map((v) => normalizeId(v)).filter((id) => id !== '')
     : []
 
+  // Resolver por igualdade a 'closed' faz de QUALQUER outra coisa um 'open' — inclusive `opne`.
+  // O default segue sendo 'open' de proposito: typo no arquivo nao pode travar a fronteira. Mas o
+  // valor errado vira aviso, senao o ticket parece aberto e ninguem descobre o erro. Ausente e
+  // diferente de errado: sem `status` o default e legitimo e nao merece ruido.
+  const rawStatus = asText(data['status'])
+  const unknownStatus =
+    rawStatus !== '' && rawStatus !== 'open' && rawStatus !== 'closed' ? rawStatus : null
+
   return {
     ticket: {
       id: normalizeId(data['id']),
       title: asText(data['title']) || file,
       type: asText(data['type']),
-      status: asText(data['status']) === 'closed' ? 'closed' : 'open',
+      status: rawStatus === 'closed' ? 'closed' : 'open',
       blockedBy,
       outOfScope: asText(data['out-of-scope']) === 'true',
       file,
     },
     claim: parseClaim(data['claimed']),
+    unknownStatus,
   }
 }
 
@@ -228,6 +237,14 @@ export async function analyseEffort(effortDir: string, now: Date = new Date()): 
   for (const cycle of findCycles(byId)) {
     const names = cycle.map((id) => byId.get(id)!.title).join(' -> ')
     report.errors.push(`blocking cycle: ${names} -> ${byId.get(cycle[0]!)!.title}`)
+  }
+
+  for (const { ticket, unknownStatus } of loaded) {
+    if (unknownStatus !== null) {
+      report.warnings.push(
+        `unknown status "${unknownStatus}" — treated as open: ${nameOf(ticket)}`,
+      )
+    }
   }
 
   for (const ticket of tickets) {
