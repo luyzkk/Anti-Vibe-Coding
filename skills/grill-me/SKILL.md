@@ -105,6 +105,20 @@ Regras inviolaveis:
 Para cada "nao sei" do dev:
 > "Deixa eu apresentar as opcoes: [A] faz X com trade-off Y. [B] faz W com trade-off Z. Para o seu caso [contexto], recomendo [A] porque [razao]. Concorda?"
 
+**Registro duravel, quando a rodada produzir um destes — e so entao:** termo novo ou disputado
+aparecendo na conversa → **oferecer** registrar em `docs/GLOSSARY.md` com
+[`domain-modeling`](../domain-modeling/SKILL.md); decisao dificil de reverter sendo tomada →
+**oferecer** ADR, pelo filtro de [`decision-registry`](../decision-registry/SKILL.md). Cada metade
+tem gatilho proprio: entrevista sem termo novo nao dispara o glossario, e decisao barata de reverter
+nao dispara ADR — rodada inteira sem nenhum dos dois e o caso comum, nao falha.
+
+Oferecer, nunca gravar sozinho: os dois escrevem em arquivo permanente do projeto. E oferecer **no
+momento em que cristaliza**, sem acumular para o fim — termo acumulado e termo perdido, porque a
+distincao que estava nitida na conversa some meia hora depois.
+
+Destino, que nao se confunde: **decisao daquela feature → `CONTEXT.md`; termo do dominio do projeto →
+`GLOSSARY.md`.** Termo gravado no `CONTEXT.md` some de vista quando o plano migra para `completed/`.
+
 ---
 
 ## As 7 Sementes da Arvore
