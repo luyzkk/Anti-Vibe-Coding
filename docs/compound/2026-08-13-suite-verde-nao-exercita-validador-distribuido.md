@@ -111,4 +111,4 @@ Dois gotchas do caminho, ambos capazes de produzir verificacao falsamente tranqu
 - `tests/agents-md-template.test.ts:16` · `tests/harness-validate.test.ts:41` ·
   `tests/harness-validate-advanced.test.ts:91` — os tres gates do lado do repo
 - `scripts/harness-validate.ts:10` — `process.cwd()`, ignora argv
-- `docs/exec-plans/active/2026-08-10-mattpocock-skills-import/plano05/MEMORY.md` — DI da fase-02
+- `docs/exec-plans/completed/2026-08-10-mattpocock-skills-import/plano05/MEMORY.md` — DI da fase-02

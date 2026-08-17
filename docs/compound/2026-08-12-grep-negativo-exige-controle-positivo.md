@@ -65,7 +65,7 @@ resolveu foi abrir `design-twice:95-138` e ver os dois itens com os olhos.
 
 ## Affected files
 
-- `docs/exec-plans/active/2026-08-10-mattpocock-skills-import/plano01/MEMORY.md` — DI
+- `docs/exec-plans/completed/2026-08-10-mattpocock-skills-import/plano01/MEMORY.md` — DI
   `DI-Plano01-fase04-5a-meu-grep-quebrado`
-- `docs/exec-plans/active/2026-08-10-mattpocock-skills-import/plano01/AUDIT-REPORT.md` — §Onde a
+- `docs/exec-plans/completed/2026-08-10-mattpocock-skills-import/plano01/AUDIT-REPORT.md` — §Onde a
   auditoria errou, com a nota de que a regra vale para quem verifica tambem
