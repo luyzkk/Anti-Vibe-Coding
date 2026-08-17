@@ -149,8 +149,8 @@ Target ~100 lines per commit/PR. Changes over ~1000 lines should be split. Veja 
 ```
 main (always deployable)
   │
-  ├── feature/task-creation    ← One feature per branch
-  ├── feature/user-settings    ← Parallel work
+  ├── feat/task-creation       ← One feature per branch
+  ├── feat/user-settings       ← Parallel work
   └── fix/duplicate-tasks      ← Bug fixes
 ```
 
@@ -162,11 +162,17 @@ main (always deployable)
 ### Branch Naming
 
 ```
-feature/<short-description>   → feature/task-creation
+feat/<short-description>      → feat/task-creation
 fix/<short-description>       → fix/duplicate-tasks
+docs/<short-description>      → docs/api-reference
+test/<short-description>      → test/checkout-flow
 chore/<short-description>     → chore/update-deps
 refactor/<short-description>  → refactor/auth-module
 ```
+
+The prefix is the same `<type>` from the **Types** section above — what you commit as `feat:` you
+branch as `feat/`. One vocabulary for both, so the optional hook in **Appendix: Optional commit-msg
+Hook (opt-in)** validates the same list you branch from.
 
 ## Working with Worktrees
 
@@ -174,8 +180,8 @@ For parallel AI agent work, use git worktrees to run multiple branches simultane
 
 ```bash
 # Create a worktree for a feature branch
-git worktree add ../project-feature-a feature/task-creation
-git worktree add ../project-feature-b feature/user-settings
+git worktree add ../project-feature-a feat/task-creation
+git worktree add ../project-feature-b feat/user-settings
 
 # Each worktree is a separate directory with its own branch
 # Agents can work in parallel without interfering
