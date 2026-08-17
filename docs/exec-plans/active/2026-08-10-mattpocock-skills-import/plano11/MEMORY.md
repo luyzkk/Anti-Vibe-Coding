@@ -2,7 +2,7 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** fases 01 e 02 concluidas (2026-08-14) — fase 03 pendente
+**Status:** **plano11 concluido** (2026-08-14) — as 3 fases fechadas. Ultimo plano da feature.
 **Branch:** `feat/absorcoes-finais` (a partir da `main` em `14b28d4`)
 
 ## Progresso
@@ -11,7 +11,20 @@ Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 |---|---|---|---|---|
 | 01 | `code-review` — 8 smells, direcao dupla, ponto fixo | **done** | 4/3 (+ notices) | plano01 fase-01 |
 | 02 | `tdd` — tautologico, seams, divergencia | **done** | 3/2 (+ notices) | plano01 fase-01 + **plano02 fase-01** |
-| 03 | `grill-with-docs` — ponteiro | planned | 0/1 | **plano05** |
+| 03 | `grill-with-docs` — ponteiro | **done** | 1/1 | **plano05** |
+
+**Gate do Passo 0 verificado antes de rodar a fase-03** (INV-04): `skills/domain-modeling/` existe, e
+`docs/GLOSSARY.md.tpl` esta no `TEMPLATE_MANIFEST:99`. Sem os dois, o ponteiro seria link morto e o
+`harness:validate` quebraria.
+
+## Invariantes ao fim do plano
+
+| ID | Verificado como |
+|---|---|
+| INV-01 — nenhuma skill nova | `skills/` nao ganhou diretorio; as 3 fases so modificaram existentes |
+| INV-02 — os 5 smells nossos ficam | grep nominal dos 5, todos presentes, com controle positivo |
+| INV-03 — RED-GREEN-REFACTOR permanece | 2 hits em `tdd-workflow`, e o bloco `<constraints>` intacto |
+| INV-04 — nao apontar para o que nao existe | gate do Passo 0 medido; links do ponteiro conferidos por `fs` e por `harness:validate` |
 
 **As tres fases sao independentes entre si.** Podem rodar fora de ordem conforme os outros planos
 entregarem.
@@ -110,8 +123,47 @@ implementacao usa. Trocar `padStart(3)` por `padStart(4)` no codigo muda o teste
 - `DI-Plano11-fase02-notices`: terceiro arquivo de novo, pela mesma razao da fase-01 — atribuicao
   obrigatoria. Inclui a **divergencia** do DI-36 na secao `Not ported`, para que o registro exista
   tambem no doc de licenca, e nao so dentro da skill.
-- `DI-Plano11-fase03-gate`: o registro no glossario cabe no gate de sintetizar-e-confirmar (Passo 4.5
-  do `grill-me`), ou precisa de confirmacao propria?
+- `DI-Plano11-fase03-gate` — **RESOLVIDA: nao cabe no Passo 4.5; precisa de oferta propria, no
+  momento.** Tres razoes, medidas lendo o gate:
+  1. **Tempo.** O 4.5 roda **uma vez, no fim**, antes de gravar o `CONTEXT.md`. A oferta de glossario
+     acontece **sempre que um termo aparece**, possivelmente varias vezes por entrevista — e a regra
+     e gravar quando cristaliza, nao acumular.
+  2. **Forma.** O 4.5 tem template fixo de 6 linhas sobre a feature (Resultado / Usuario / Por que
+     agora / Sucesso / Restricao / Fora de escopo). Um termo de dominio nao cabe em nenhuma delas.
+  3. **Destino.** O 4.5 e o gate do `CONTEXT.md` — efemero, migra para `completed/` com o plano. O
+     glossario e `docs/GLOSSARY.md`, permanente e do projeto inteiro. Ciclos de vida diferentes
+     pedem gates diferentes; e a mesma fronteira do CO-01.
+  A oferta ficou como **uma pergunta no momento**, nao uma cerimonia de gate.
+
+- `DI-Plano11-fase03-filtro-2-nao-3`: a fase mandava oferecer ADR *"pelo filtro de 3 criterios do
+  plano05 fase-03"*. Medido em `decision-registry:71` — **o filtro do gate tem 2 propriedades**
+  (dificil de reverter · surpreendente sem contexto), e as duas precisam valer. A terceira
+  (*havia alternativa genuinamente avaliada?*) **nao entra no gate** — ela decide o **tier** do ADR
+  (`:109`, `Dois tiers`). O ponteiro cita o filtro por nome, sem afirmar contagem.
+
+- `DI-Plano11-fase03-treze-linhas`: o criterio de aceite pedia `+1 linha`. Sairam **13**. A "uma
+  linha" do Passo 2 era sobre **forma** — ponteiro, nao secao nova, nada na `description` — e isso
+  foi respeitado (`description` intocada, verificado por diff). Mas o proprio checklist exige cinco
+  conteudos distintos: as duas metades do gatilho, o inline com o porque, o verbo *oferecer*, e a
+  fronteira de destino. Nao cabem em uma linha sem virar frase corrida.
+
+- `DI-Plano11-fase03-negativa-precisa`: a primeira versao dizia *"entrevista que so resolve
+  implementacao nao dispara nenhum dos dois"* — **superafirmacao**, e eu mesmo escrevi. Decisao de
+  implementacao **dificil de reverter** (escolher Postgres, fixar um formato de wire) deve disparar
+  o ADR; suprimir seria o bug oposto. Reescrito para dar gatilho proprio a cada metade, e para
+  nomear que rodada sem nenhum dos dois e o **caso comum, nao falha** — que e a defesa real contra
+  transformar `grill-me` em sessao de glossario.
+
+## Teste de disparo (fase-03) — os dois cenarios do Passo 5
+
+| Cenario | Esperado | Resultado |
+|---|---|---|
+| Usuario usa "conta" para duas coisas diferentes | dispara o glossario | **dispara** — "termo novo ou disputado aparecendo na conversa" cobre termo em disputa, nao so termo inedito |
+| Entrevista so de decisao de implementacao, sem termo novo | **nao** dispara o glossario | **nao dispara** — o gatilho e condicional, e o texto nomeia que rodada sem nenhum dos dois e o caso comum |
+
+O segundo era o que importava. E a nuance que a versao inicial errava: nesse mesmo cenario, uma
+decisao de implementacao **dificil de reverter** ainda dispara o ADR — e isso e correto, nao falso
+positivo. As duas metades sao independentes.
 
 ## Estado verificado (2026-08-10)
 
