@@ -20,21 +20,67 @@ describe('TEMPLATE_MANIFEST', () => {
     }
   })
 
-  // 2026-05-21 (Luiz/dev): contagem real 24 (drift pre-existente do "22 do Andre"; ARCHITECTURE.md
-  // e AGENTS.md foram adicionados como canon-andre em PRD populate-plan-andre-port).
-  it('has exactly 24 canon-andre entries', () => {
-    const canon = TEMPLATE_MANIFEST.filter((e) => e.category === 'canon-andre')
-    expect(canon.length).toBe(24)
-  })
+  // 2026-08-17 (Luiz/dev): substitui as duas contagens fixas (`toBe(24)` canon-andre e `toBe(15)`
+  // anti-vibe-extension) por inventario. Elas falhavam com "expected 15, received 16" — mensagem que
+  // nao diz QUAL arquivo entrou, e que se satisfaz bumpando o numero por reflexo, sem decidir nada.
+  // O mapa abaixo falha nomeando o dst, entao satisfazer exige declarar a intencao.
+  //
+  // NAO derivar do TEMPLATE_MANIFEST: assert recomputado da propria fonte que ele protege passa
+  // sempre, inclusive para entrada adicionada sem querer. Este mapa e uma SEGUNDA afirmacao,
+  // mantida a mao — mesma mecanica de EXPECTED_COMPOUND_DSTS mais abaixo.
+  //
+  // Historico que as contagens carregavam, preservado aqui:
+  // - canon-andre = 24 e drift pre-existente do "22 do Andre" (ARCHITECTURE.md e AGENTS.md entraram
+  //   como canonicos no PRD populate-plan-andre-port).
+  // - anti-vibe-extension foi 11 -> 13 (harness-validate.ts + package.json, fix scaffold v7)
+  //   -> 14 (docs/GLOSSARY.md, plano05 fase-02) -> 15 (scripts/wayfinder-frontier.ts, plano10
+  //   fase-02). O glossario e a fronteira nao entram no contrato do Andre.
+  const EXPECTED_CATEGORY_BY_DST: Record<string, 'canon-andre' | 'anti-vibe-extension'> = {
+    'docs/DESIGN.md':                          'canon-andre',
+    'docs/FRONTEND.md':                        'canon-andre',
+    'docs/PLANS.md':                           'canon-andre',
+    'docs/PRODUCT_SENSE.md':                   'canon-andre',
+    'docs/QUALITY_SCORE.md':                   'canon-andre',
+    'docs/RELIABILITY.md':                     'canon-andre',
+    'docs/SECURITY.md':                        'canon-andre',
+    'docs/design-docs/index.md':               'canon-andre',
+    'docs/design-docs/core-beliefs.md':        'canon-andre',
+    'docs/exec-plans/active/README.md':        'canon-andre',
+    'docs/exec-plans/completed/README.md':     'canon-andre',
+    'docs/exec-plans/tech-debt-tracker.md':    'canon-andre',
+    'docs/compound/README.md':                 'canon-andre',
+    'docs/review-checklists/README.md':        'canon-andre',
+    'docs/review-checklists/security.md':      'canon-andre',
+    'docs/review-checklists/reliability.md':   'canon-andre',
+    'docs/review-checklists/agent-api.md':     'canon-andre',
+    'docs/review-checklists/frontend-ui.md':   'canon-andre',
+    'docs/review-checklists/production-readiness.md': 'canon-andre',
+    'docs/product-specs/index.md':             'canon-andre',
+    'docs/references/README.md':               'canon-andre',
+    'docs/STATE.md':                           'canon-andre',
+    'ARCHITECTURE.md':                         'canon-andre',
+    'AGENTS.md':                               'canon-andre',
 
-  // 2026-05-21 (Luiz/dev): 13 = 11 originais + harness-validate.ts + package.json (fix scaffold v7).
-  // 2026-08-13 (Luiz/dev): 14 = 13 + docs/GLOSSARY.md (plano05 fase-02). canon-andre segue 24 —
-  // o glossario nao entra no contrato do Andre.
-  // 2026-08-17 (Luiz/dev): 15 = 14 + scripts/wayfinder-frontier.ts (plano10 fase-02). A skill
-  // wayfinder e distribuida e nomeia o comando; sem o script o ponteiro morre no projeto-alvo.
-  it('has exactly 15 anti-vibe-extension entries', () => {
-    const ext = TEMPLATE_MANIFEST.filter((e) => e.category === 'anti-vibe-extension')
-    expect(ext.length).toBe(15)
+    'docs/MERGE_GATES.md':                     'anti-vibe-extension',
+    'docs/COMPOUND_ENGINEERING.md':            'anti-vibe-extension',
+    'docs/CODE_STYLE.md':                      'anti-vibe-extension',
+    'docs/GLOSSARY.md':                        'anti-vibe-extension',
+    'docs/smoke-flows/README.md':              'anti-vibe-extension',
+    'docs/generated/db-schema.md':             'anti-vibe-extension',
+    'TODO.md':                                 'anti-vibe-extension',
+    'scripts/compound-check.ts':               'anti-vibe-extension',
+    'scripts/new-plan.ts':                     'anti-vibe-extension',
+    'scripts/harness-validate.ts':             'anti-vibe-extension',
+    'scripts/wayfinder-frontier.ts':           'anti-vibe-extension',
+    'README.md':                               'anti-vibe-extension',
+    '.github/pull_request_template.md':        'anti-vibe-extension',
+    'package.json':                            'anti-vibe-extension',
+    '.claude/CLAUDE.md':                       'anti-vibe-extension',
+  }
+
+  it('inventario por categoria bate exatamente — adicao, remocao ou troca falha nomeando o dst', () => {
+    const actual = Object.fromEntries(TEMPLATE_MANIFEST.map((e) => [e.dst, e.category]))
+    expect(actual).toEqual(EXPECTED_CATEGORY_BY_DST)
   })
 
   // 2026-05-19 (Luiz/dev): MH-03 — entry CODE_STYLE.md presente no manifest.
