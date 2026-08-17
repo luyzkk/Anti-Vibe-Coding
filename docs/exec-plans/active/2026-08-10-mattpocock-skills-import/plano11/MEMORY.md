@@ -2,15 +2,29 @@
 
 Estado rolante do plano. Atualizado ao fim de cada fase pelo executor.
 
-**Status:** planned — nenhuma fase executada
+**Status:** **plano11 concluido** (2026-08-14) — as 3 fases fechadas. Ultimo plano da feature.
+**Branch:** `feat/absorcoes-finais` (a partir da `main` em `14b28d4`)
 
 ## Progresso
 
 | Fase | Nome | Status | Arquivos | Depende de |
 |---|---|---|---|---|
-| 01 | `code-review` — 8 smells, direcao dupla, ponto fixo | planned | 0/3 | plano01 fase-01 |
-| 02 | `tdd` — tautologico, seams, divergencia | planned | 0/2 | plano01 fase-01 + **plano02 fase-01** |
-| 03 | `grill-with-docs` — ponteiro | planned | 0/1 | **plano05** |
+| 01 | `code-review` — 8 smells, direcao dupla, ponto fixo | **done** | 4/3 (+ notices) | plano01 fase-01 |
+| 02 | `tdd` — tautologico, seams, divergencia | **done** | 3/2 (+ notices) | plano01 fase-01 + **plano02 fase-01** |
+| 03 | `grill-with-docs` — ponteiro | **done** | 1/1 | **plano05** |
+
+**Gate do Passo 0 verificado antes de rodar a fase-03** (INV-04): `skills/domain-modeling/` existe, e
+`docs/GLOSSARY.md.tpl` esta no `TEMPLATE_MANIFEST:99`. Sem os dois, o ponteiro seria link morto e o
+`harness:validate` quebraria.
+
+## Invariantes ao fim do plano
+
+| ID | Verificado como |
+|---|---|
+| INV-01 — nenhuma skill nova | `skills/` nao ganhou diretorio; as 3 fases so modificaram existentes |
+| INV-02 — os 5 smells nossos ficam | grep nominal dos 5, todos presentes, com controle positivo |
+| INV-03 — RED-GREEN-REFACTOR permanece | 2 hits em `tdd-workflow`, e o bloco `<constraints>` intacto |
+| INV-04 — nao apontar para o que nao existe | gate do Passo 0 medido; links do ponteiro conferidos por `fs` e por `harness:validate` |
 
 **As tres fases sao independentes entre si.** Podem rodar fora de ordem conforme os outros planos
 entregarem.
@@ -21,13 +35,135 @@ Formato: `DI-Plano11-faseNN-<slug>: <o que mudou e por que>`.
 
 Tres ja sao obrigatorias:
 
-- `DI-Plano11-fase01-diff-input`: `Divergent Change` precisa saber **o que** mudou em cada arquivo,
-  nao so que mudou. Passar o diff alem da lista de arquivos, ou deixar o smell de fora ate o input
-  mudar? Adicionar a descricao sem mudar o input e adicionar linha morta.
-- `DI-Plano11-fase02-tautologico-canonico`: a definicao afiada entra em `tdd-verifier` (pegar depois)
-  **e** em `tdd-workflow` (evitar enquanto escreve). Onde fica a canonica, e quem cita?
-- `DI-Plano11-fase03-gate`: o registro no glossario cabe no gate de sintetizar-e-confirmar (Passo 4.5
-  do `grill-me`), ou precisa de confirmacao propria?
+- `DI-Plano11-fase01-diff-input` — **RESOLVIDA: passar o diff.** Medido antes de decidir: o
+  `code-smell-detector` tem `tools: Read, Grep, Glob` — **sem `Bash`**, entao nao consegue buscar o
+  diff sozinho, e a terceira opcao (o agente se vira) nao existe. O `verify-work` ja calcula a lista
+  a partir de um `git diff`, e o ponto fixo do Passo 4 faz ele calcular um diff de verdade — entao o
+  dado ja esta na mao de quem invoca.
+  O input virou "arquivos modificados **mais o diff, quando houver**". E a parte que evita a linha
+  morta: quando **nao** houver diff (caminho `git status`, arquivo novo nao rastreado), o `#13`
+  **reporta-se como nao avaliado** em vez de adivinhar. O smell se auto-limita em vez de mentir.
+  O `#12 Shotgun Surgery` fica detectavel so com a lista, porque e sobre espalhamento pelo conjunto.
+
+- `DI-Plano11-fase01-linhas-caducas`: a fase citava `verify-work:126-128` para a base do diff. Real:
+  **`:101-103`**. E a prioridade `1. Argumento fornecido → usar como escopo` **ja existia** — o
+  argumento era tratado como escopo de caminho, nunca como ref git. O ponto fixo virou o sub-ramo
+  `1a` (ref que resolve) com `1b` preservando o comportamento antigo, entao o default fica intacto
+  sem precisar de branch novo no topo.
+
+- `DI-Plano11-fase01-notices-4o-arquivo`: a fase lista 3 arquivos; sairam **4**. O
+  `THIRD-PARTY-NOTICES.md` nao estava previsto, mas o `CONTEXT.md` obriga atribuicao para **todo**
+  material portado, e os 8 smells vem com a forma (o-que-e → como-corrigir) e as duas regras da
+  skill `code-review` da fonte.
+  **Conflito garantido com o PR #31 (plano10):** os dois adicionam um bloco imediatamente antes do
+  `#### MIT License` da secao do Matt Pocock. A resolucao e **manter os dois blocos** — sao aditivos e
+  nao se sobrepoem. Nao tentar regenerar: e prosa, nao artefato gerado.
+
+## Teste retroativo (fase-01) — RODADO, e dois dos 8 dispararam
+
+Alvo: `git diff main...feat/wayfinder` — o codigo do plano10, mudanca real de 1.735 linhas em 19
+arquivos. A pergunta do checklist era *"algum dos 8 novos disparou?"*, com a instrucao de registrar o
+motivo caso nenhum disparasse.
+
+**`#12 Shotgun Surgery` — achado real e acionavel.** O commit `430363f` ("distribui
+wayfinder-frontier") e **uma mudanca logica** — adicionar um arquivo ao scaffold — e forcou edicao em
+**4 lugares a mao**: `template-manifest.ts` (a entrada), `template-manifest.test.ts` (a contagem
+`14 → 15`, hardcoded), `package.json.tpl` (o script) e `tests/package-json-scripts.test.ts` (o
+assert). A contagem hardcoded e a peca que garante o espalhamento: derivar de `TEMPLATE_MANIFEST` em
+vez de fixar o numero mataria uma das quatro edicoes. **Candidato a follow-up** — nao corrigido aqui,
+que e escopo do plano10 e vive noutro PR.
+
+**`#14 Speculative Generality` — achado menor, verificado.** `export const STALE_CLAIM_MS` em
+`scripts/wayfinder-frontier.ts` nao tem **nenhum** caller externo (grep na branch inteira, fora do
+proprio arquivo, volta vazio). Exportado para um consumidor hipotetico.
+
+**`#13 Divergent Change` — limitrofe, registrado como tal.** O mesmo commit editou
+`wayfinder-frontier.ts` por dois motivos (tirar `js-yaml`; traduzir a saida), mas ambos descendem da
+unica decisao "distribuir". Nao reportado como achado.
+
+**Conclusao:** as descricoes sao acionaveis — dois dos oito dispararam num diff real, ambos
+confirmados por medicao e nao por leitura. O checklist previa o caso contrario; nao foi necessario.
+- `DI-Plano11-fase02-tautologico-canonico` — **RESOLVIDA: canonica no `tdd-workflow`, o agente cita.**
+  A secao `## Assertions Tautologicas` da skill carrega a definicao, as duas formas, os exemplos e o
+  remedio; o `tdd-verifier` ganha a **Regra 3b** com so a *forma de deteccao* e um ponteiro de volta.
+  Razao: sao trabalhos diferentes, nao o mesmo texto duas vezes — a skill **previne** (e prevenir
+  exige o raciocinio), o agente **reconhece** (e reconhecer exige a forma inline, porque ele roda
+  isolado). E a direcao do ponteiro agente → doc ja e a estabelecida no repo: o `tdd-verifier` ja
+  cita `docs/design-docs/subagent-contract-v1.md`. O inverso (skill apontando para as regras internas
+  de um agente) inverteria a hierarquia.
+
+## Teste da afiacao (fase-02) — RODADO, e a afiacao se paga
+
+O checklist pedia construir um tautologico-por-recomputacao que **passaria** no `tdd-verifier` de
+hoje — com a instrucao de registrar, caso nao fosse possivel, que a versao trivial ja cobria.
+
+**Foi possivel, e o exemplo veio de codigo real deste repo** (`scripts/wayfinder-frontier.ts`):
+
+```ts
+expect(normalizeId('7')).toBe('7'.padStart(3, '0'))
+```
+
+**Por que passa na Regra 3 atual:** ela proibe uma lista fechada (`expect(true).toBe(true)`, snapshot
+vazio, `expect(undefined).toBeUndefined()` sem setup) e exige *"assertion sobre resultado concreto do
+codigo em teste"*. O exemplo **satisfaz a exigencia** — assere sobre o retorno concreto de
+`normalizeId` — e nao esta na lista. Passa limpo.
+
+**E por que e tautologico mesmo assim:** o esperado e produzido pela mesma operacao que a
+implementacao usa. Trocar `padStart(3)` por `padStart(4)` no codigo muda o teste junto e ele
+**continua verde**. Nenhum bug de `normalizeId` sobrevive a esse teste — porque nenhum bug o quebra.
+
+**Conclusao: a afiacao se paga.** A Regra 3b entrou com o alerta que a distingue da Regra 3 —
+*isto parece um teste legitimo; procurar deliberadamente, nao esperar saltar aos olhos.*
+
+- `DI-Plano11-fase02-termo-acordad`: o MEMORY listava `acordad` entre os termos ausentes a preencher.
+  O texto ficou com **`confirmado`** ("nenhum teste e escrito num seam nao confirmado") e **`acordar`**
+  ("acordar os seams antes"), entao um grep por `acordad` volta 0. O conceito esta la; o termo do
+  plano era proxy. Nao re-abrir por causa do grep.
+
+- `DI-Plano11-fase02-notices`: terceiro arquivo de novo, pela mesma razao da fase-01 — atribuicao
+  obrigatoria. Inclui a **divergencia** do DI-36 na secao `Not ported`, para que o registro exista
+  tambem no doc de licenca, e nao so dentro da skill.
+- `DI-Plano11-fase03-gate` — **RESOLVIDA: nao cabe no Passo 4.5; precisa de oferta propria, no
+  momento.** Tres razoes, medidas lendo o gate:
+  1. **Tempo.** O 4.5 roda **uma vez, no fim**, antes de gravar o `CONTEXT.md`. A oferta de glossario
+     acontece **sempre que um termo aparece**, possivelmente varias vezes por entrevista — e a regra
+     e gravar quando cristaliza, nao acumular.
+  2. **Forma.** O 4.5 tem template fixo de 6 linhas sobre a feature (Resultado / Usuario / Por que
+     agora / Sucesso / Restricao / Fora de escopo). Um termo de dominio nao cabe em nenhuma delas.
+  3. **Destino.** O 4.5 e o gate do `CONTEXT.md` — efemero, migra para `completed/` com o plano. O
+     glossario e `docs/GLOSSARY.md`, permanente e do projeto inteiro. Ciclos de vida diferentes
+     pedem gates diferentes; e a mesma fronteira do CO-01.
+  A oferta ficou como **uma pergunta no momento**, nao uma cerimonia de gate.
+
+- `DI-Plano11-fase03-filtro-2-nao-3`: a fase mandava oferecer ADR *"pelo filtro de 3 criterios do
+  plano05 fase-03"*. Medido em `decision-registry:71` — **o filtro do gate tem 2 propriedades**
+  (dificil de reverter · surpreendente sem contexto), e as duas precisam valer. A terceira
+  (*havia alternativa genuinamente avaliada?*) **nao entra no gate** — ela decide o **tier** do ADR
+  (`:109`, `Dois tiers`). O ponteiro cita o filtro por nome, sem afirmar contagem.
+
+- `DI-Plano11-fase03-treze-linhas`: o criterio de aceite pedia `+1 linha`. Sairam **13**. A "uma
+  linha" do Passo 2 era sobre **forma** — ponteiro, nao secao nova, nada na `description` — e isso
+  foi respeitado (`description` intocada, verificado por diff). Mas o proprio checklist exige cinco
+  conteudos distintos: as duas metades do gatilho, o inline com o porque, o verbo *oferecer*, e a
+  fronteira de destino. Nao cabem em uma linha sem virar frase corrida.
+
+- `DI-Plano11-fase03-negativa-precisa`: a primeira versao dizia *"entrevista que so resolve
+  implementacao nao dispara nenhum dos dois"* — **superafirmacao**, e eu mesmo escrevi. Decisao de
+  implementacao **dificil de reverter** (escolher Postgres, fixar um formato de wire) deve disparar
+  o ADR; suprimir seria o bug oposto. Reescrito para dar gatilho proprio a cada metade, e para
+  nomear que rodada sem nenhum dos dois e o **caso comum, nao falha** — que e a defesa real contra
+  transformar `grill-me` em sessao de glossario.
+
+## Teste de disparo (fase-03) — os dois cenarios do Passo 5
+
+| Cenario | Esperado | Resultado |
+|---|---|---|
+| Usuario usa "conta" para duas coisas diferentes | dispara o glossario | **dispara** — "termo novo ou disputado aparecendo na conversa" cobre termo em disputa, nao so termo inedito |
+| Entrevista so de decisao de implementacao, sem termo novo | **nao** dispara o glossario | **nao dispara** — o gatilho e condicional, e o texto nomeia que rodada sem nenhum dos dois e o caso comum |
+
+O segundo era o que importava. E a nuance que a versao inicial errava: nesse mesmo cenario, uma
+decisao de implementacao **dificil de reverter** ainda dispara o ADR — e isso e correto, nao falso
+positivo. As duas metades sao independentes.
 
 ## Estado verificado (2026-08-10)
 
