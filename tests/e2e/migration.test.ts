@@ -7,6 +7,7 @@ import path from 'node:path'
 import { spawn } from 'node:child_process'
 import { orchestrateMigration } from '../../skills/init/lib/migrate-orchestrator'
 import { renderDryRunReport } from '../../skills/init/lib/dry-run-renderer'
+import { runInit } from '../../skills/init/lib/run-init'
 
 const FIXTURE_SOURCE = path.join(import.meta.dir, '..', 'fixtures', 'legacy-v5')
 const FIXTURE_RUN = path.join(import.meta.dir, '..', 'fixtures', '__legacy-v5-e2e-run')
@@ -148,13 +149,28 @@ describe('E2E: fixture legacy-v5 → /init migrate → harness:validate (CA-09)'
   })
 })
 
-// NOTE: O teste seguinte so passa quando Plano 01 fase-04 (harness-validate.ts) estiver pronto.
-// Em desenvolvimento isolado do Plano 03, mantido como `it.skip` ate Plano 04 mergeado.
-describe.skip('E2E + harness:validate (depende de Plano 01 fase-04)', () => {
-  it('CA-09 verbatim: validator exit 0 apos migracao', async () => {
+// 2026-08-17 (Luiz/dev): reativado E corrigido. O skip dizia "so passa quando Plano 01 fase-04
+// (harness-validate.ts) estiver pronto — mantido ate Plano 04 mergeado". Os dois aconteceram ha
+// meses. Mas ao reativar, o teste falhou — e o motivo escrito no skip estava errado desde o inicio.
+//
+// A falha nao era o validador faltando: era `orchestrateMigration` sozinho nunca poder satisfazer
+// o gate. Ele migra .planning/ -> docs/exec-plans/ e mais nada; quem cria os 28 required files e o
+// scaffold, outro step do /init. Medido: apos so a migracao, o validador reclama de 23 arquivos
+// ausentes (AGENTS.md, package.json, docs/PLANS.md...).
+//
+// O fluxo que o CA-09 descreve e o do usuario: rodar /init num projeto legacy e o harness validar
+// limpo. Medido nesse fluxo, exit 0 com 28 required files. E o que este teste passa a assertar.
+//
+// runValidator faz spawn com cwd=targetDir, entao o process.cwd() do validador cai na fixture —
+// nao ha risco de validar o repo por engano e passar por motivo errado.
+describe('E2E + harness:validate', () => {
+  it('CA-09: validator exit 0 apos /init completo em projeto legacy', async () => {
     await copyFixture(FIXTURE_SOURCE, FIXTURE_RUN)
-    await orchestrateMigration(FIXTURE_RUN, { dryRun: false })
+    await runInit([], { cwd: FIXTURE_RUN, log: () => {} })
     const result = await runValidator(FIXTURE_RUN)
+    // Assertar a linha de sucesso ANTES do exit code: se falhar, a mensagem mostra o que o
+    // validador reclamou, em vez de um "expected 0, received 1" mudo.
+    expect(result.stdout + result.stderr).toContain('Harness validation passed')
     expect(result.exitCode).toBe(0)
   })
 })
