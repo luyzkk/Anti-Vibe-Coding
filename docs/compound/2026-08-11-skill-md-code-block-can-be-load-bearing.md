@@ -77,4 +77,4 @@ mudariam codigo — o custo da reverificacao se paga.
 - `skills/lib/telemetry-utils.test.ts:192` — guard da classe telemetria
 - `skills/lib/__tests__/stale-warning.test.ts` — declara "SYNC OBRIGATORIO nas 6 SKILL.md"
 - `docs/compound/2026-05-12-skill-md-code-blocks-do-not-execute.md` — a nota que esta refina
-- `docs/exec-plans/active/2026-08-10-mattpocock-skills-import/plano01/AUDIT-REPORT.md` — §Sistemico 2
+- `docs/exec-plans/completed/2026-08-10-mattpocock-skills-import/plano01/AUDIT-REPORT.md` — §Sistemico 2

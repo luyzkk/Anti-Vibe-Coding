@@ -66,7 +66,7 @@ Com a regua certa, a formula fecha byte a byte: bloco de telemetria fase-03 cust
 ## Affected files
 
 - `.gitattributes` — cobre so fixtures/snaps/husky; `SKILL.md` fica com o default do autocrlf
-- `docs/exec-plans/active/2026-08-10-mattpocock-skills-import/plano01/MEMORY.md` — DI
+- `docs/exec-plans/completed/2026-08-10-mattpocock-skills-import/plano01/MEMORY.md` — DI
   `DI-Plano01-fase04-medir-em-LF-nao-no-working-tree`, onde o numero errado foi corrigido
-- `docs/exec-plans/active/2026-08-10-mattpocock-skills-import/plano01/AUDIT-REPORT.md` — §Delta real
+- `docs/exec-plans/completed/2026-08-10-mattpocock-skills-import/plano01/AUDIT-REPORT.md` — §Delta real
   da fase-04 carrega a regra como nota de metodo

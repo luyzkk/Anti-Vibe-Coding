@@ -64,9 +64,9 @@ o oposto do que o plano sugeria — nao renomear, e escrever a continuidade.
 
 ## Affected files
 
-- `docs/exec-plans/active/2026-08-10-mattpocock-skills-import/plano10/MEMORY.md` — DIs
+- `docs/exec-plans/completed/2026-08-10-mattpocock-skills-import/plano10/MEMORY.md` — DIs
   `fronteira`, `chart-6-passos`, `di34-caducou`, `link-check-em-code-fence`
-- `docs/exec-plans/active/2026-08-10-mattpocock-skills-import/plano11/MEMORY.md` — DIs
+- `docs/exec-plans/completed/2026-08-10-mattpocock-skills-import/plano11/MEMORY.md` — DIs
   `linhas-caducas`, `filtro-2-nao-3`, `notices-4o-arquivo`
 - `docs/compound/2026-05-14-skill-paths-tech-debt-after-v6.md` — o mecanismo do path que envelhece calado
 - `docs/compound/2026-08-12-grep-negativo-exige-controle-positivo.md` — o controle positivo

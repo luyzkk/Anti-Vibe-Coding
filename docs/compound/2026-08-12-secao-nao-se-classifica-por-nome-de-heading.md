@@ -71,8 +71,8 @@ de fonte unica, que foi exatamente o que aconteceu com `### Escape Hatches` e `#
 
 ## Affected files
 
-- `docs/exec-plans/active/2026-08-10-mattpocock-skills-import/plano01/AUDIT-REPORT.md` — §S1 com as
+- `docs/exec-plans/completed/2026-08-10-mattpocock-skills-import/plano01/AUDIT-REPORT.md` — §S1 com as
   duas correcoes, §Descartados com `verify-work` registrado para nao ser re-sugerido
-- `docs/exec-plans/active/2026-08-10-mattpocock-skills-import/plano01/MEMORY.md` — DIs
+- `docs/exec-plans/completed/2026-08-10-mattpocock-skills-import/plano01/MEMORY.md` — DIs
   `5a-subtipo1-nao-existe`, `5b-verify-work-e-falso-positivo`, `5b-ratio-real-56-porcento`
 - `skills/verify-work/SKILL.md:377-510` — a secao que nao foi tocada

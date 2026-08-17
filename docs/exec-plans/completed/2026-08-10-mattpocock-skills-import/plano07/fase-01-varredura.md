@@ -29,7 +29,7 @@ ainda sem renderizacao.
 - `skills/improve-codebase-architecture/SKILL.md`
 
 **MODIFICADOS**
-- `docs/exec-plans/active/2026-08-10-mattpocock-skills-import/plano06/fase-03-saida.md` — o ponteiro
+- `docs/exec-plans/completed/2026-08-10-mattpocock-skills-import/plano06/fase-03-saida.md` — o ponteiro
   arquitetural do post-mortem passa a ter destino real
 - `THIRD-PARTY-NOTICES.md`
 
