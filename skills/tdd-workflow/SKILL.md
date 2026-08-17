@@ -103,6 +103,17 @@ Antes de qualquer feature, implementar o caminho mais fino de ponta a ponta:
 - Ruim: "implementar toda a camada de repositorio"
 - Bom: "usuario autenticado pode criar uma tarefa e ela aparece na listagem"
 
+**O anti-padrao tem nome: horizontal slicing** — escrever todos os testes primeiro, depois toda a
+implementacao. Parece TDD, e nao e, por tres razoes que se somam:
+
+1. Teste em lote verifica comportamento **imaginado** — voce testa a forma que supos, nao a que o
+   codigo revela quando existe
+2. Os testes ficam insensiveis a mudanca real, porque foram escritos contra a mesma suposicao
+3. Voce se compromete com a estrutura de teste **antes** de entender a implementacao, e mudar essa
+   estrutura depois custa mais que escreve-la certa uma de cada vez
+
+Um teste por vez, e cada um atravessando o slice inteiro.
+
 ---
 
 ## Deep Modules na Fase RED
@@ -119,6 +130,50 @@ Se ao escrever testes voce perceber que precisa expor detalhes de implementacao:
 → Redesenhe a interface antes de implementar
 
 Referencia completa: [`skills/tdd-workflow/references/deep-modules.md`](./references/deep-modules.md)
+
+**Nenhum teste e escrito num seam nao confirmado.** Antes do primeiro teste, anotar em quais **seams**
+voce vai testar e confirmar com o usuario:
+
+> "Qual e a interface publica, e em quais seams devemos testar?"
+
+O porque, sem o qual isto vira ritual: **voce nao consegue testar tudo.** Acordar os seams antes e
+como o esforco cai nos caminhos criticos e na logica complexa em vez de se espalhar por toda borda —
+e e mais barato acordar agora que descobrir na review que metade da suite testa a fronteira errada.
+
+Quando o que esta em questao e a **forma** da interface — quao profundo o modulo deveria ser, onde o
+seam pertence, o que a interface precisa expor — a referencia acima e o lugar. E referencia a
+consultar, nao sessao a rodar.
+
+---
+
+## Assertions Tautologicas
+
+Uma assertion tautologica **passa por construcao**: ela nao consegue discordar do codigo, entao nao
+carrega informacao. Existe em duas formas, e a segunda e a que passa despercebida.
+
+**Trivial** — `expect(true).toBe(true)`, snapshot vazio, `expect(undefined).toBeUndefined()` sem
+setup. Obvia em review.
+
+**Por recomputacao** — a assertion recalcula o valor esperado **do mesmo jeito que o codigo faz**:
+
+```ts
+// Tautologico: o esperado e produzido pela mesma operacao que a implementacao usa.
+expect(add(a, b)).toBe(a + b)
+expect(normalizeId('7')).toBe('7'.padStart(3, '0'))
+```
+
+Se a implementacao mudar de `padStart(3)` para `padStart(4)`, o teste muda junto e **continua
+verde**. Ele parece um teste de verdade — e essa e exatamente a razao de passar batido.
+
+**O remedio:** o valor esperado vem de **fonte independente** — um literal conhecido-bom, um exemplo
+trabalhado a mao, ou a spec.
+
+```ts
+// Independente: o 007 foi decidido por um humano lendo o formato, nao derivado do codigo.
+expect(normalizeId('7')).toBe('007')
+```
+
+Esta e a definicao canonica; `agents/tdd-verifier.md` a aplica na deteccao pos-fato.
 
 ---
 
@@ -416,6 +471,23 @@ Sugerir ao desenvolvedor executar `/anti-vibe-coding:anti-vibe-review`.
 - Para features E2E: User Story → Example Mapping → Gherkin e o fluxo de maior ROI com IA
 </constraints>
 
+## Refactor Fica no Ciclo — Divergencia Consciente
+
+Existe uma escola de TDD que tira o refactor do ciclo e o move para a etapa de review, deixando o
+loop como `red → green`. **Divergimos, e o registro fica aqui para nao parecer que passou batido.**
+
+Refatorar com o teste verde na mao **e** a rede de seguranca que torna o refactor seguro: voce muda a
+forma sabendo, a cada passo, que o comportamento nao mudou. E e o momento em que o codigo esta mais
+fresco na cabeca. Empurrar para a review separa o momento em que voce **entende** o codigo do momento
+em que voce o **melhora** — e o segundo chega sem o primeiro.
+
+A preocupacao daquela escola e legitima: refactor grande escondido dentro de um commit de feature,
+onde ninguem consegue revisar nem um nem outro. Mas o remedio e outro — `git-workflow-and-versioning`
+ja pede commits atomicos, e refactor amplo merece commit proprio. **E problema de granularidade de
+commit, nao de posicao no ciclo.**
+
+RED-GREEN-REFACTOR permanece.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
@@ -430,6 +502,8 @@ Sugerir ao desenvolvedor executar `/anti-vibe-coding:anti-vibe-review`.
 
 - `test.skip` ou `xit` sem comentário com data e ticket vinculado
 - `expect(true).toBe(true)` ou qualquer assertion que sempre passa
+- Assertion cujo valor esperado e **recomputado** pela mesma operacao que a implementacao usa — passa por construcao, e parece um teste de verdade
+- Teste escrito num seam que o usuario nao confirmou
 - Teste sem nenhuma assertion (`expect` ausente)
 - 0% de cobertura em arquivo com lógica de negócio
 - Teste que só roda com `--testNamePattern` específico (jamais na suite completa)

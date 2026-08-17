@@ -1,6 +1,6 @@
 {
   "version": "7.5.0",
-  "generatedAt": "2026-08-15T13:08:59.449Z",
+  "generatedAt": "2026-08-17T11:40:09.018Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -284,7 +284,7 @@
     "CLAUDE.md": {
       "version": "7.5.0",
       "checksum": "5e5aa1fd2178bd6bac8e9133d93c9d1ee18efca40e540392e97e9bcc5f3d6836",
-      "lastModified": "2026-08-15",
+      "lastModified": "2026-08-17",
       "updateStrategy": "merge"
     },
     "rules/api-standards.md": {
@@ -439,14 +439,14 @@
     },
     "agents/code-reviewer.md": {
       "version": "7.5.0",
-      "checksum": "7b843482cb9f3fcd300f9d3a9d4848c3438a43038b5eedb3ae3abade89e02cd0",
-      "lastModified": "2026-06-05",
+      "checksum": "218168e656bba94ff4253bf4f62d649299ff5b4b3f9ec6b18fdea7d92abd87b2",
+      "lastModified": "2026-08-17",
       "updateStrategy": "replace"
     },
     "agents/code-smell-detector.md": {
       "version": "7.5.0",
-      "checksum": "032721de18c08659db8566cdd022ee3bff685e0415096c464aa6e962a3dfcfac",
-      "lastModified": "2026-06-05",
+      "checksum": "e9999b96e57011ef6be38499502dbb4eb211cb4236dc8a27ecda352851aa4f9a",
+      "lastModified": "2026-08-17",
       "updateStrategy": "replace"
     },
     "agents/database-analyzer.md": {
@@ -511,8 +511,8 @@
     },
     "agents/tdd-verifier.md": {
       "version": "7.5.0",
-      "checksum": "7e1310710f6a7a913d62415328077897fbc15403568af08b899eb1dfa3256f4a",
-      "lastModified": "2026-06-05",
+      "checksum": "6b88581bad01533d256b1500ba39109c7a41cfde718e4af05d809a510419689c",
+      "lastModified": "2026-08-17",
       "updateStrategy": "replace"
     },
     "agents/_contract/README.md": {
@@ -638,7 +638,7 @@
     "scripts/wayfinder-frontier.ts": {
       "version": "7.5.0",
       "checksum": "bfbfe7f09c7dbe96493e048310878dc96f7c454255eb665256ab786dd89e9344",
-      "lastModified": "2026-08-14",
+      "lastModified": "2026-08-17",
       "updateStrategy": "replace"
     },
     "skills/anti-vibe-review/SKILL.md": {
@@ -1129,8 +1129,8 @@
     },
     "skills/grill-me/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "4cd8a2171e820c3e135ab76b0431309d396dca5d10ed0974f663ea7dbecbeca4",
-      "lastModified": "2026-08-13",
+      "checksum": "dab0578e7384c4eaffef88067e8b2afa074d26cc89a505c72ce574e229dad129",
+      "lastModified": "2026-08-17",
       "updateStrategy": "replace"
     },
     "skills/improve-codebase-architecture/SKILL.md": {
@@ -1754,7 +1754,7 @@
     "skills/init/lib/template-manifest.ts": {
       "version": "7.5.0",
       "checksum": "c986e0759b804618aafd67a39f5561ee3f14fae9597eaab64136e8090ce098df",
-      "lastModified": "2026-08-14",
+      "lastModified": "2026-08-17",
       "updateStrategy": "replace"
     },
     "skills/init/lib/validator-allowlist.ts": {
@@ -2096,7 +2096,7 @@
     "skills/init/assets/templates/package.json.tpl": {
       "version": "7.5.0",
       "checksum": "d83f306b9d4c3f833d8d9513f6283131f04cfd655afa296538f72e4b4f8fb14b",
-      "lastModified": "2026-08-14",
+      "lastModified": "2026-08-17",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/README.md": {
@@ -2126,7 +2126,7 @@
     "skills/init/assets/templates/scripts/wayfinder-frontier.ts.tpl": {
       "version": "7.5.0",
       "checksum": "bfbfe7f09c7dbe96493e048310878dc96f7c454255eb665256ab786dd89e9344",
-      "lastModified": "2026-08-14",
+      "lastModified": "2026-08-17",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/TODO.md.tpl": {
@@ -2420,7 +2420,7 @@
     "skills/plan-feature/SKILL.md": {
       "version": "7.5.0",
       "checksum": "d9443be597af68bf544d251356c4a5c6c2edf37b153ea8bd589abb68e617d2c0",
-      "lastModified": "2026-08-15",
+      "lastModified": "2026-08-17",
       "updateStrategy": "replace"
     },
     "skills/plan-feature/index.ts": {
@@ -2713,8 +2713,8 @@
     },
     "skills/tdd-workflow/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "6334b490493eb68f7a166f83c924a659aaa6ed78c4360e0558ca1afb97afbfe8",
-      "lastModified": "2026-08-13",
+      "checksum": "2241b43ec08ad03a018c2c86c90e342715d9f836d54e64f7386e9671fce6a0d9",
+      "lastModified": "2026-08-17",
       "updateStrategy": "replace"
     },
     "skills/tdd-workflow/references/deep-modules.md": {
@@ -2755,8 +2755,8 @@
     },
     "skills/verify-work/SKILL.md": {
       "version": "7.5.0",
-      "checksum": "18d0000fbca058926450057685a4ac3d7f796b0dc6de548e8ea48e8b7a2b7104",
-      "lastModified": "2026-08-12",
+      "checksum": "15c9c6e68dedfbcf69f56095833c70d84f2980ea60d02c78f6f7e4efe46ff3da",
+      "lastModified": "2026-08-17",
       "updateStrategy": "replace"
     },
     "skills/verify-work/lib/adherence-checks.ts": {
@@ -2774,13 +2774,13 @@
     "skills/wayfinder/SKILL.md": {
       "version": "7.5.0",
       "checksum": "5ecde6e08a4f2f40229d26fe7b90b9169a9cfcd2a581026ff7b8bbdc652677b8",
-      "lastModified": "2026-08-15",
+      "lastModified": "2026-08-17",
       "updateStrategy": "replace"
     },
     "skills/wayfinder/references/FORMATS.md": {
       "version": "7.5.0",
       "checksum": "b64f42eacbcc7922f38332bde087d0ecfc19f50715661e97cafebde731a71c30",
-      "lastModified": "2026-08-14",
+      "lastModified": "2026-08-17",
       "updateStrategy": "replace"
     },
     "skills/wizard/SKILL.md": {
@@ -2798,7 +2798,7 @@
     "skills/write-prd/SKILL.md": {
       "version": "7.5.0",
       "checksum": "f0276897ebb4fca5a94cd356fe83bfdbf19db4c1553aa54ff3ce663e7d5dd666",
-      "lastModified": "2026-08-15",
+      "lastModified": "2026-08-17",
       "updateStrategy": "replace"
     },
     "skills/write-prd/templates/prd-template.md": {

@@ -230,6 +230,50 @@ Upstream's `agents/openai.yaml` was **not** ported — it is an OpenAI-specific 
 
 - `agents/openai.yaml` — same OpenAI-specific display manifest as above
 - The tracker-specific indirection (`wayfinder:map` / `wayfinder:<type>` labels, the "consult the tracker doc's Wayfinding operations section" step, the native-blocking-versus-body-convention branch). With a single local format there is one way to express each of these, so the branch has nothing to select between
+`agents/code-smell-detector.md`, `agents/code-reviewer.md` and `skills/verify-work/SKILL.md` absorb material from the `code-review` skill in the same repository, at the same commit `84fdeff`. This is an absorption into pre-existing agents and a pre-existing skill, not a port — no new skill was created.
+
+**Upstream files used:**
+
+1. `skills/engineering/code-review/SKILL.md`
+2. `skills/engineering/code-review/agents/` (the Standards and Spec reviewer prompts)
+
+**Derived** (translated to pt-BR; smell names kept in English, since they are Fowler's catalogue terms and translating them would lose the reference):
+
+- `agents/code-smell-detector.md`: the eight catalogue entries this plugin lacked — `Mysterious Name`, `Repeated Switches`, `Shotgun Surgery`, `Divergent Change`, `Speculative Generality`, `Message Chains`, `Middle Man`, `Refused Bequest` — each in upstream's what-it-is → how-to-fix shape; plus the two rules upstream binds to the catalogue: the project's documented standard outranks the baseline, and every smell is a labelled heuristic rather than a hard violation
+- `agents/code-reviewer.md`: the three-category split of the spec axis (missing/partial, not-asked-for, implemented-wrong) and the requirement that every conformance finding cites the spec line
+- `skills/verify-work/SKILL.md`: the user-supplied fixed point with three-dot diff against the merge-base, and the rule against re-ranking across the spec and quality axes
+
+**Original to this repository** (no upstream counterpart):
+
+- The observation that `Shotgun Surgery` and `Divergent Change` are undetectable from this plugin's existing auditor input. Upstream's reviewers receive a diff by construction; this plugin's auditors receive a file list, so the two smells arrive with an explicit input requirement and `Divergent Change` reports itself as *not evaluated* when no diff is present, rather than guessing
+- The `Middle Man` caveat that an adapter isolating an external dependency has a role and is not a middle man — this plugin's `deep-modules.md` treats `adapter` as a named role
+- Validating the fixed point (`git rev-parse`, non-empty diff) **before** spawning the auditor fleet, which upstream does not need because it has no parallel fleet to waste
+- The five smells that are this plugin's own (`Funcoes Longas`, `God Objects`, `Condicionais Gigantes`, `Numeros Magicos`, `Comentarios Inuteis`) are untouched — absorbing is not replacing
+
+**Not ported:**
+
+- The split into two parallel subagents (Standards and Spec). This plugin already runs a fleet of domain auditors; a second axis-split would duplicate `verify-work`'s 619 lines. The rule that mattered — never re-rank across the two axes — was kept and applied to the report instead
+
+`skills/tdd-workflow/SKILL.md` and `agents/tdd-verifier.md` absorb material from the `tdd` skill in the same repository, at the same commit `84fdeff`. Absorption into a pre-existing skill and agent, not a port — this plugin's adaptive three-level TDD workflow is unchanged.
+
+**Upstream files used:**
+
+1. `skills/engineering/tdd/SKILL.md`
+
+**Derived** (translated to pt-BR; `seam` kept in English as an anchor term, matching `references/deep-modules.md`):
+
+- `skills/tdd-workflow/SKILL.md`: the recomputation form of a tautological assertion (the expected value produced by the same operation the implementation uses, so the test passes by construction and can never disagree with the code) together with its remedy, that the expected value must come from an independent source; the rule that no test is written against an unconfirmed seam, with the question upstream asks the user and the reason behind it (you cannot test everything); and `horizontal slicing` named as an anti-pattern
+- `agents/tdd-verifier.md`: the detection form of the same recomputation pattern, added as Rule 3b beside the pre-existing trivial-tautology rule
+
+**Original to this repository** (no upstream counterpart):
+
+- The worked example pair (`normalizeId` recomputed via `padStart` versus the independent literal `'007'`), drawn from this repo's own `scripts/wayfinder-frontier.ts`, plus the observation that makes the sharpening pay: the recomputation form **passes this plugin's pre-existing Rule 3**, because that rule only demanded an assertion on a concrete result — which a recomputed expectation satisfies
+- The single-source split: the canonical definition lives in the skill, where the goal is to avoid the pattern while writing; the agent carries only the detection shape and points back. Two different jobs, one definition
+- Three reasons spelled out for why horizontal slicing fails, where upstream states it as a rule
+
+**Not ported — deliberate divergence:**
+
+- *"Refactoring is not part of the loop; it belongs to the review step, not the red → green cycle."* **Rejected.** Refactoring with a green test in hand *is* the safety net that makes refactoring safe, and it is when the code is freshest; deferring it to review separates understanding the code from improving it. This plugin keeps RED-GREEN-REFACTOR, and records the disagreement in the skill itself (section `Refactor Fica no Ciclo — Divergencia Consciente`) rather than silently omitting it. Upstream's underlying concern — a large refactor hidden inside a feature commit — is real, but it is a commit-granularity problem, already addressed by this plugin's `git-workflow-and-versioning`
 
 #### MIT License (verbatim from upstream LICENSE):
 
