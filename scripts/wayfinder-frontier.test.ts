@@ -122,6 +122,33 @@ describe('wayfinder-frontier', () => {
     expect(report.claimed).toEqual([])
   })
 
+  // O parser resolve status por igualdade a 'closed', entao QUALQUER outra coisa virava 'open' —
+  // inclusive `opne`. O default seguro esta certo (nao trava a fronteira por typo), mas ficar calado
+  // nao: o ticket parece aberto e ninguem descobre que o arquivo esta errado.
+  test('status desconhecido vira aviso e o ticket segue tratado como aberto', async () => {
+    await writeTicket({ id: '001', title: 'Typo no status', status: 'opne' })
+    const report = await analyseEffort(effortDir)
+    expect(titles(report.frontier)).toEqual(['Typo no status'])
+    expect(report.warnings.join(' ')).toContain('opne')
+    expect(report.warnings.join(' ')).toContain('Typo no status')
+    expect(report.errors).toEqual([])
+  })
+
+  test('status ausente nao gera aviso — vazio e default legitimo de aberto', async () => {
+    await writeTicket({ id: '001', title: 'Sem status', status: '' })
+    const report = await analyseEffort(effortDir)
+    expect(titles(report.frontier)).toEqual(['Sem status'])
+    expect(report.warnings).toEqual([])
+  })
+
+  test('open e closed nao geram aviso', async () => {
+    await writeTicket({ id: '001', title: 'Aberto', status: 'open' })
+    await writeTicket({ id: '002', title: 'Fechado', status: 'closed' })
+    await writeMap('- [Fechado](tickets/002-slug.md) — resolvido')
+    const report = await analyseEffort(effortDir)
+    expect(report.warnings).toEqual([])
+  })
+
   test('ticket out-of-scope nunca entra na fronteira mesmo aberto', async () => {
     await writeTicket({ id: '001', title: 'Alem do destino', outOfScope: true })
     const report = await analyseEffort(effortDir)
