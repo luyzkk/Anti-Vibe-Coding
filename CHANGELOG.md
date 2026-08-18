@@ -3,6 +3,72 @@
 Todas as mudanças notáveis do plugin Anti-Vibe Coding serão documentadas aqui.
 
 
+## [7.6.1] - 2026-08-18
+
+> **Patch release — Zeragem do TODO.md**
+>
+> Os 6 itens abertos do `TODO.md` fechados, mais 1 flake descoberto e corrigido no caminho.
+> Nenhuma skill nova, nenhum comando novo, nada removido — por isso patch. **5 dos 6 itens
+> estavam mal escopados**, e sempre na mesma direção: o item registrava o defeito que era
+> visível, não o que estava quebrado. Notas compound **51 → 55**; `core-beliefs.md` ganhou
+> 4 entradas em *Verification of Premises*.
+
+### Fixed
+
+- **CRLF em 3 parsers de frontmatter** ([#44]). O item apontava `scripts/harness-validate.ts`,
+  que era o único arquivo **não** quebrado — já normalizava desde 2026-05-19. Os afetados eram
+  `exec-plan-reader.ts` (o pior: caía no fallback `{frontmatter: ''}` e `isComplete()` devolvia
+  `false` **sem erro**, fazendo plano completo parecer incompleto), `atoms-frontmatter-validator.ts`
+  e `compound-writer.ts`. Correção: `normalize` na entrada + `\r?` como defense-in-depth — só
+  tolerar `\r?` na regex externa é meia correção, porque o `\r` vaza para os valores capturados.
+- **Validador distribuído 3 meses atrás do repo** ([#44]). `harness-validate.ts.tpl` não recebeu a
+  correção de 2026-05-19 que o repo recebeu. Mesma classe de
+  `docs/compound/2026-08-13-suite-verde-nao-exercita-validador-distribuido.md`.
+- **Suite sujava o working tree** ([#44]). 4 arquivos de teste (o item dizia 2) escreviam em
+  `tests/fixtures/` a cada run. Dois deles faziam `rmSync` na pasta versionada e a reconstruíam —
+  os 5 `.md` commitados ali eram **saída de teste**. Agora em `os.tmpdir()`; as duas fixtures
+  descartáveis saíram do git, restaurando decisão que o `plano06/MEMORY.md` L48 já registrava.
+- **`registry.test.ts` flaky (~1 em 6 runs)** ([#47]). Rodava os Steps 9-11 contra `process.cwd()`.
+  O Step 10 gravava `.claude/stack.json` no repo de dev e o Step 11 lia esse mesmo arquivo,
+  lançando `AbortError` sem `.claude/knowledge/INDEX.md` — poluidor e vítima no mesmo teste. A
+  poluição era invisível: o caminho está no `.gitignore`, então `git status` nunca denunciou.
+- **`atoms-frontmatter-validator` rejeitava array YAML válido** ([#48]). O parser hand-rolled só
+  entendia array inline e recusava bloco com `"must be an array, not a string"`. Migrado para
+  `js-yaml`/`CORE_SCHEMA`, mesmo caminho que `scripts/compound-check.ts` tomou em 2026-05-13.
+  YAML malformado agora vira erro de validação legível em vez de cascata de `missing required field`.
+- **`lessons-learned` inferia origem por recência** ([#51]). O passo 4b mandava apontar
+  `**Origem:**` para a pasta mais recente de `docs/exec-plans/`, produzindo atribuição falsa
+  sempre que a lição não nascia de plano. Origem passa a ser explícita ou omitida. O passo também
+  não dizia nada sobre o formato v6 — daí **0 de 56** notas terem a linha.
+
+### Changed
+
+- **`parseRailsAnchor()` compartilhado** ([#46]). As duas regexes de `gem 'rails'` não eram
+  duplicatas: `detect-stack` testava presença, `format-knowledge-preview` exigia versão, e elas
+  **discordavam** em Gemfile sem constraint (git source, versão no lockfile).
+- **Piso do knowledge Rails em constante** ([#46]). `MIN_SUPPORTED_RAILS_MAJOR/MINOR` exportadas,
+  com a mensagem derivando delas — extrair a constante e deixar `"7.1+"` hardcoded ao lado seria
+  o mesmo defeito com outra cara.
+- **Extração de frontmatter sem regex** ([#48]). `indexOf` no lugar do `[\s\S]*?`. O item rotulava
+  "ReDoS teórico"; medindo, o comportamento é **linear** (4 MB → 8,7 ms; 320 mil quase-fechamentos
+  → 3,3 ms). Nem ReDoS nem quadrático — as duas afirmações eram raciocínio sobre complexidade
+  apresentado como fato.
+
+### Added
+
+- `.editorconfig` com `end_of_line = lf` — a prevenção "Imediato" que
+  `docs/compound/2026-05-19-crlf-breaks-frontmatter-regex.md` prescreveu em maio e nunca foi aplicada.
+- 4 notas compound e 4 entradas em `core-beliefs.md` ([#45], [#49]), incluindo a correção da nota
+  de 2026-05-19, cuja seção *Prevention* prescrevia a meia correção de CRLF.
+
+[#44]: https://github.com/luyzkk/Anti-Vibe-Coding/pull/44
+[#45]: https://github.com/luyzkk/Anti-Vibe-Coding/pull/45
+[#46]: https://github.com/luyzkk/Anti-Vibe-Coding/pull/46
+[#47]: https://github.com/luyzkk/Anti-Vibe-Coding/pull/47
+[#48]: https://github.com/luyzkk/Anti-Vibe-Coding/pull/48
+[#49]: https://github.com/luyzkk/Anti-Vibe-Coding/pull/49
+[#51]: https://github.com/luyzkk/Anti-Vibe-Coding/pull/51
+
 ## [7.6.0] - 2026-08-17
 
 > **Minor release — Import mattpocock/skills**
