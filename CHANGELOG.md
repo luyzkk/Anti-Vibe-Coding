@@ -908,7 +908,7 @@ Tempo médio: <30min por skill.
 ### Changed
 
 - **4 orquestradores agora consomem via handler generico**: `execute-plan` (mini-tracer-bullet — `plan-verifier` + `plan-executor` via `kind: verification`), `design-twice` (3x `design-explorer` paralelos via `kind: proposal`), `verify-work` (ate 8 auditores via `kind: audit` com deduplicacao de findings cross-agent), `anti-vibe-review` (replica padrao do verify-work). Codigo de parsing markdown por-agente removido. Adicionar auditor novo passa a custar zero mudanca nas skills (CA-06).
-- **`/init` (`docs/exec-plans/active/2026-05-14-init-migration-mode/PRD.md`)** declara `requires: [v6.1.0-subagent-contract]`. Reconciler/Explorer/Compound do /init nascerao ja conformes.
+- **`/init` (`docs/exec-plans/completed/2026-05-14-init-migration-mode/PRD.md`)** declara `requires: [v6.1.0-subagent-contract]`. Reconciler/Explorer/Compound do /init nascerao ja conformes.
 
 ### Security
 
