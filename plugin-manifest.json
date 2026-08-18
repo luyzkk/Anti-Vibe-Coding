@@ -1,6 +1,6 @@
 {
   "version": "7.6.0",
-  "generatedAt": "2026-08-18T12:37:10.658Z",
+  "generatedAt": "2026-08-18T14:40:47.121Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -1279,8 +1279,8 @@
     },
     "skills/init/lib/detect-stack.ts": {
       "version": "7.6.0",
-      "checksum": "d41306b5d9df10e363ab6496752f2b3d8ba11a6e4f8612a92f49479dae9ef04e",
-      "lastModified": "2026-05-25",
+      "checksum": "e6a6cffbe5c049bec63b9d379b5772347975e048b4a5baf9f26ca846c5998aed",
+      "lastModified": "2026-08-18",
       "updateStrategy": "replace"
     },
     "skills/init/lib/detect-v5-legacy.ts": {
@@ -1333,8 +1333,8 @@
     },
     "skills/init/lib/format-knowledge-preview.ts": {
       "version": "7.6.0",
-      "checksum": "02357a000cc8e8115688f3888023f4280be28137d5b017022063d0805d9a7ebe",
-      "lastModified": "2026-05-25",
+      "checksum": "02a2a952ab56e3300df80863c2c5f22fe5be134ce456f937967f3ee67751ceae",
+      "lastModified": "2026-08-18",
       "updateStrategy": "replace"
     },
     "skills/init/lib/idempotency.ts": {
@@ -1527,6 +1527,12 @@
       "version": "7.6.0",
       "checksum": "3f855a8254583752a803813a75529a47677941c6a853d7e739784411e64b6afb",
       "lastModified": "2026-05-14",
+      "updateStrategy": "replace"
+    },
+    "skills/init/lib/rails-anchor.ts": {
+      "version": "7.6.0",
+      "checksum": "525186a569e62514016a78cee2918d9be6e03e214bbbbd6ee90aa5000a7c24cb",
+      "lastModified": "2026-08-18",
       "updateStrategy": "replace"
     },
     "skills/init/lib/read-plugin-version.ts": {
