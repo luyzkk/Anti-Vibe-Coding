@@ -159,3 +159,36 @@ describe('isComplete', () => {
     await fs.rm(dir, { recursive: true })
   })
 })
+
+// 2026-08-18 (Luiz/dev): TODO.md #6 — CRLF. readExecPlan stripa BOM mas nao normaliza \r\n,
+// entao splitFrontmatter cai no fallback {frontmatter: '', body: text} e isComplete devolve
+// false silenciosamente (status !== 'active'). Plano com CRLF parecia incompleto sem erro nenhum.
+// Ref: docs/compound/2026-05-19-crlf-breaks-frontmatter-regex.md
+describe('exec-plan-reader — CRLF (Windows line endings)', () => {
+  it('parses frontmatter of a plan saved with CRLF', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'exec-plan-reader-crlf-'))
+    const p = await writeTmp(dir, 'plan.md', ACTIVE_PLAN.replace(/\n/g, '\r\n'))
+    const plan = await readExecPlan(p)
+    expect(plan.frontmatter.status).toBe('active')
+    expect(plan.frontmatter.title).toBe('Test Plan')
+    expect(plan.frontmatter.mode).toBe('full')
+    await fs.rm(dir, { recursive: true })
+  })
+
+  it('detects completion of a CRLF plan identically to LF', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'exec-plan-reader-crlf-'))
+    const p = await writeTmp(dir, 'plan.md', ACTIVE_PLAN.replace(/\n/g, '\r\n'))
+    const plan = await readExecPlan(p)
+    expect(isComplete(plan)).toBe(true)
+    await fs.rm(dir, { recursive: true })
+  })
+
+  it('splits H2 sections of a CRLF plan without trailing carriage returns', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'exec-plan-reader-crlf-'))
+    const p = await writeTmp(dir, 'plan.md', ACTIVE_PLAN.replace(/\n/g, '\r\n'))
+    const plan = await readExecPlan(p)
+    expect(Object.keys(plan.bodyByH2)).toContain('Exit Criteria')
+    expect(plan.bodyByH2['Exit Criteria']).not.toContain('\r')
+    await fs.rm(dir, { recursive: true })
+  })
+})

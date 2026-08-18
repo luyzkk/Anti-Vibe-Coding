@@ -1,20 +1,33 @@
 // 2026-05-12 (Luiz/dev): tests for state-md-hook PostToolUse handler
 'use strict'
-const { describe, it, expect, beforeEach } = require('bun:test')
+const { describe, it, expect, beforeEach, afterEach } = require('bun:test')
 const fs = require('fs')
 const path = require('path')
 const os = require('os')
 const { handle } = require('./state-md-hook.cjs')
 
-const FIXTURE = path.resolve(__dirname, '..', 'tests', 'fixtures', 'v6-state-fixture')
+// 2026-08-18 (Luiz/dev): TODO.md #1 — copia a fixture para tmpdir por teste. O handle() chama
+// regenerateStateMd no project_root que recebe; apontando para a arvore versionada, cada
+// `bun run test` reescrevia tests/fixtures/v6-state-fixture/docs/STATE.md com um timestamp novo.
+const FIXTURE_SRC = path.resolve(__dirname, '..', 'tests', 'fixtures', 'v6-state-fixture')
 const LOCK_PATH = path.join(os.homedir(), '.claude', 'cache', 'state-md-last-run.json')
+
+let FIXTURE
 
 function resetLock() {
   if (fs.existsSync(LOCK_PATH)) fs.unlinkSync(LOCK_PATH)
 }
 
 describe('state-md-hook', () => {
-  beforeEach(() => resetLock())
+  beforeEach(() => {
+    resetLock()
+    FIXTURE = fs.mkdtempSync(path.join(os.tmpdir(), 'state-md-hook-'))
+    fs.cpSync(FIXTURE_SRC, FIXTURE, { recursive: true })
+  })
+
+  afterEach(() => {
+    fs.rmSync(FIXTURE, { recursive: true, force: true })
+  })
 
   it('regenerates STATE.md when Edit touches docs/compound/', async () => {
     const result = await handle({
