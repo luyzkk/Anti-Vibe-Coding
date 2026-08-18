@@ -39,6 +39,15 @@ on critical operations, KISS, YAGNI, zero clutter, functional programming when a
   operation — the counter may measure a proxy (files on disk) under a label that names the
   thing (plans), which reads correct only while the two are 1:1. Measure the fresh output
   against reality before committing it: a frozen number can be less wrong than a fresh one.
+- A bug report names where the symptom surfaced, not where the bug lives. The loudest copy
+  enters the record; the ones that fail silently never do. Before closing an item, grep for
+  the *pattern* — the regex, the constant, the call — not the file the item names. And an
+  item already marked done once may have been fixed only where it hurt: the untouched copy
+  is usually a template, or anything the suite does not execute.
+- When a control experiment produces failures the subject does not have, the control is
+  contaminated — discard it, do not interpret it. And a *new but consistent* failure right
+  after you touched the environment is evidence about the environment, not the code: a
+  stable, reproducible failure feels like a real bug, which is exactly why it misleads.
 
 Skill: /anti-vibe-coding:consultant (Phase Zero teaching).
 
