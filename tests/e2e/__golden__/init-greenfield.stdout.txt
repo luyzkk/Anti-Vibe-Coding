@@ -23,7 +23,7 @@ Knowledge cobre: type, generic, branded, discriminated, satisfies, ESM, CJS, eve
 [copy-knowledge] copy-knowledge: stack=nodejs-typescript, status=copied
 [copy-knowledge] (mutated disk)
 [final-validation] validator: 0 warnings — scaffold canonico intacto
-[write-anti-vibe-manifest] manifest written (pluginVersion=7.5.0)
+[write-anti-vibe-manifest] manifest written (pluginVersion=<VERSION>)
 [write-anti-vibe-manifest] (mutated disk)
 
 Harness scaffold criado. Plano populate em docs/exec-plans/active/<DATE>-populate-harness/PLAN.md

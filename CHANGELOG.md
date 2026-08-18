@@ -3,6 +3,82 @@
 Todas as mudanças notáveis do plugin Anti-Vibe Coding serão documentadas aqui.
 
 
+## [7.6.0] - 2026-08-17
+
+> **Minor release — Import mattpocock/skills**
+>
+> Análise das 35 skills de [mattpocock/skills](https://github.com/mattpocock/skills) (MIT, commit
+> `84fdeff`) contra o inventário do plugin: **13 aprovadas, 22 descartadas com motivo**. O material
+> aprovado entrou por duas vias — skill nova quando o domínio não existia aqui, absorção in-place
+> quando já havia skill dona do assunto. Junto veio a auditoria das 39 skills existentes contra a
+> lente da `writing-for-agents`. Frota de skills **39 → 46**; notas compound **40 → 51**;
+> `core-beliefs.md` ganhou 7 entradas.
+
+### Added — 7 skills novas
+
+- **`writing-for-agents`** — lente de escrita para agente. Portada primeiro de propósito: as outras
+  30 fases do import foram escritas contra ela.
+- **`wizard`** — setup guiado, com dogfood real em máquina nova.
+- **`domain-modeling`** — glossário de linguagem ubíqua. O `/init` passa a scaffoldar
+  `docs/GLOSSARY.md` e apontá-lo no `AGENTS.md`.
+- **`improve-codebase-architecture`** — varredura periódica de arquitetura, com relatório HTML.
+- **`prototype`** — código descartável que responde uma pergunta (+ ramo UI e convenção de captura).
+- **`resolving-merge-conflicts`** — dogfood num conflito real.
+- **`wayfinder`** — mapa e fronteira do trabalho, modo `work` e modo `chart`. Distribui
+  `scripts/wayfinder-frontier.ts` para o projeto-alvo.
+
+### Added — absorções em skills existentes
+
+- **`deep-modules`** — vocabulário de seam; `architecture`, `design-twice` e `code-simplification`
+  passam a apontar para ela.
+- **`grill-me`** — Modelo de Frontier: design tree e rounds no lugar da varredura de checklist;
+  ponteiro para glossário e ADR durante a entrevista; um template só de `CONTEXT.md` (havia dois,
+  que se contradiziam).
+- **`incident-response`** — Loop-First: o loop tight vem antes da hipótese; minimizar, 3–5 hipóteses
+  falsificáveis, instrumentar; quarta pergunta na autópsia.
+- **`tdd-workflow`** — tautológico por recomputação, seams pré-acordados, divergência.
+- **`code-review` (agent)** — 8 smells, direção dupla, ponto fixo.
+- **`decision-registry`** — filtro de 3 critérios, 3 categorias e tier leve de ADR.
+- **`design-twice`** — Domínio 5: Interface de Módulo.
+
+### Changed — auditoria das 39 skills (Plano 01)
+
+- **22 `description` colapsadas** — incluindo o maior ofensor (−913 chars) e um trigger que roteava
+  para a skill errada. `system-design` foi de 75 gatilhos para 11 branches nomeados.
+- **10 blocos de telemetria morta removidos** das 5 consultivas e das 5 pipeline-core.
+- **19 regras reprojetadas podadas** de 3 listas de fechamento.
+- **Banner do `SessionStart` −374 chars/sessão.**
+- **15 referências `legacy-*` religadas** para `skills/lib/`; 7 ponteiros mortos corrigidos; 4 fences
+  aninhados que trocavam conteúdo de lado; 3 satélites órfãos religados; `npm` → `bun`.
+
+### Fixed
+
+- **`generate-manifest` indexa arquivos na raiz das skills** — antes chegavam ao usuário sem checksum,
+  e o sync copia a pasta inteira, então nada denunciava.
+- **`bun run test` em lotes** — o runner estourava o limite de argumento no Windows.
+- **`version-bump.test.ts` deriva a versão do `package.json`** em vez de pinar numa constante que
+  envelhecia a cada release.
+- **`wayfinder-frontier` avisa em `status` desconhecido** em vez de tratar como aberto calado.
+- **`state-md-generator` conta planos por entrada de topo** — varria `.md` recursivamente e rotulava
+  o total como "planos": 752 concluídos para 32 reais, 37 ativos para 6.
+- **13 ponteiros para `exec-plans/active/`** religados para `completed/` em ADRs, notas compound e
+  CHANGELOG.
+
+### Tests
+
+- **Suite sem nenhum `test.skip`** — 4 reativados, 8 deletados.
+- **Goldens de greenfield reativados** e regenerados contra o pipeline atual.
+- **Budgets de wall-clock fora da suite funcional** — falhavam sob carga da máquina.
+- **Gate do manifest por inventário** em vez de contagem fixa.
+
+### Docs
+
+- **11 notas compound novas** (40 → 51) e **7 entradas novas em `core-beliefs.md`**, 5 delas na seção
+  Verification of Premises.
+- **`THIRD-PARTY-NOTICES.md`** — atribuição MIT (Copyright (c) 2026 Matt Pocock).
+- Import `mattpocock/skills` movido para `docs/exec-plans/completed/` com `SUMMARY.md`.
+
+
 ## [7.5.0] - 2026-06-17
 
 > **Minor release — System Design Coverage Gaps**
