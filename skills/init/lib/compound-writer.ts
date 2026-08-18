@@ -67,10 +67,16 @@ const VALID_COMPOUND_CATEGORIES: Set<string> = new Set([
  *
  * @param content Conteúdo completo da nota (incluindo frontmatter)
  */
-export function validateCA29Frontmatter(content: string): CA29ValidationResult {
+export function validateCA29Frontmatter(rawContent: string): CA29ValidationResult {
   const errors: string[] = []
 
-  const fmMatch = content.match(/^---\n([\s\S]*?)\n---/)
+  // 2026-08-18 (Luiz/dev): TODO.md #6 — normaliza CRLF->LF antes das regex. API publica que recebe
+  // conteudo cru; com \r\n a nota valida era rejeitada como "Frontmatter YAML ausente", e mesmo
+  // casando o `created:\s*(\d{4}-\d{2}-\d{2})$` falharia com o \r entre os digitos e o fim de linha.
+  // Ref: docs/compound/2026-05-19-crlf-breaks-frontmatter-regex.md
+  const content = rawContent.replace(/\r\n/g, '\n')
+
+  const fmMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---/)
   if (!fmMatch?.[1]) {
     return { valid: false, errors: ['Frontmatter YAML ausente (esperado: ---\\n...\\n---)'] }
   }

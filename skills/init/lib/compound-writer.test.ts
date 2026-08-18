@@ -124,3 +124,36 @@ Um arquivo com mais de 500 linhas de documentacao forca o agente a ler conteudo 
     }
   })
 })
+
+// 2026-08-18 (Luiz/dev): TODO.md #6 — CRLF. validateCA29Frontmatter e API publica que recebe
+// conteudo cru; sem normalizar \r\n o regex de abertura nao casa e a nota valida e rejeitada como
+// "Frontmatter YAML ausente". Mesmo casando, `created:\s*(\d{4}-\d{2}-\d{2})$` falha porque o \r
+// fica entre os digitos e o fim de linha.
+// Ref: docs/compound/2026-05-19-crlf-breaks-frontmatter-regex.md
+describe('validateCA29Frontmatter — CRLF (Windows line endings)', () => {
+  const LF_NOTE = [
+    '---',
+    'title: Titulo valido de teste',
+    'category: anti-pattern',
+    'tags: [migration, docs, test]',
+    'created: 2026-05-14',
+    '---',
+    '',
+    '# Corpo da nota',
+    '',
+    'Corpo com folga suficiente para passar o minimo de 100 caracteres exigido pela CA-29,',
+    'de modo que este teste isole exclusivamente a questao de line endings CRLF vs LF.',
+  ].join('\n')
+
+  it('accepts a note saved with CRLF', () => {
+    const result = validateCA29Frontmatter(LF_NOTE.replace(/\n/g, '\r\n'))
+    expect(result.errors).toEqual([])
+    expect(result.valid).toBe(true)
+  })
+
+  it('reports the same verdict for CRLF and LF of the same note', () => {
+    const lf = validateCA29Frontmatter(LF_NOTE)
+    const crlf = validateCA29Frontmatter(LF_NOTE.replace(/\n/g, '\r\n'))
+    expect(crlf).toEqual(lf)
+  })
+})
