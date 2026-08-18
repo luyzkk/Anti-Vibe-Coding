@@ -34,6 +34,11 @@ on critical operations, KISS, YAGNI, zero clutter, functional programming when a
   alongside it — so the red you get on re-enabling is the start of the diagnosis, not proof
   the skip was right. Re-enable first, read the failure, then decide: a stale assertion is
   corrected against the generated artifact; removed behaviour is deleted, never re-skipped.
+- A generated document carries the authority of its stamp, not the truth of its numbers.
+  `AUTO-GENERATED` attests to origin only, and regenerating a stale one is not a safe
+  operation — the counter may measure a proxy (files on disk) under a label that names the
+  thing (plans), which reads correct only while the two are 1:1. Measure the fresh output
+  against reality before committing it: a frozen number can be less wrong than a fresh one.
 
 Skill: /anti-vibe-coding:consultant (Phase Zero teaching).
 

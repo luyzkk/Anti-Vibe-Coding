@@ -78,11 +78,11 @@ export async function regenerateStateMd(projectRoot: string): Promise<string> {
 
 async function countResources(paths: ResolvedPaths, projectRoot: string): Promise<ResourceCounts> {
   const [compoundNotes, compoundArchived, adrs, activePlans, completedPlans, todo] = await Promise.all([
-    countMdFiles(paths.compoundDir, { excludeSubdirs: true }),
+    countMdFiles(paths.compoundDir),
     countMdFilesInDir(path.join(paths.compoundDir, '_archived')),
     countAdrFiles(paths.designDocsDir),
-    countMdFiles(paths.execPlansActiveDir),
-    countMdFiles(paths.execPlansCompletedDir),
+    countPlans(paths.execPlansActiveDir),
+    countPlans(paths.execPlansCompletedDir),
     countTodoItems(path.join(projectRoot, 'TODO.md')),
   ])
 
@@ -90,10 +90,9 @@ async function countResources(paths: ResolvedPaths, projectRoot: string): Promis
 }
 
 /**
- * Counts .md files in a directory, skipping README and index files.
- * opts.excludeSubdirs: skip subdirectories entirely (don't recurse)
+ * Counts .md files directly in a directory, skipping README and index files.
  */
-async function countMdFiles(dir: string, opts?: { excludeSubdirs?: boolean }): Promise<number> {
+async function countMdFiles(dir: string): Promise<number> {
   const entries = await fs.readdir(dir, { withFileTypes: true }).catch(() => [])
   let count = 0
   for (const entry of entries) {
@@ -101,19 +100,31 @@ async function countMdFiles(dir: string, opts?: { excludeSubdirs?: boolean }): P
     if (!entry.name.endsWith('.md')) continue
     const lower = entry.name.toLowerCase()
     if (lower === 'readme.md' || lower === 'index.md') continue
-    // If excludeSubdirs is set, we already skip dirs above; this flag only affects
-    // whether we *enter* subdirs — since we skip all dirs, it's already satisfied.
     count++
   }
+  return count
+}
 
-  // If not excludeSubdirs, recurse into subdirectories (except _archived)
-  if (!opts?.excludeSubdirs) {
-    for (const entry of entries) {
-      if (!entry.isDirectory()) continue
-      count += await countMdFiles(path.join(dir, entry.name))
+/**
+ * Counts plans in an exec-plans dir — um por entrada de topo.
+ * Plano e um .md solto OU uma pasta com as fases dentro; varrer .md recursivamente
+ * reportaria cada fase como se fosse um plano (era o bug: 752 "concluidos" para 32 planos).
+ * Ignora README/index e entradas com prefixo `_` (`_legacy-detail`, `_archived`).
+ */
+async function countPlans(dir: string): Promise<number> {
+  const entries = await fs.readdir(dir, { withFileTypes: true }).catch(() => [])
+  let count = 0
+  for (const entry of entries) {
+    if (entry.name.startsWith('_')) continue
+    if (entry.isDirectory()) {
+      count++
+      continue
     }
+    if (!entry.name.endsWith('.md')) continue
+    const lower = entry.name.toLowerCase()
+    if (lower === 'readme.md' || lower === 'index.md') continue
+    count++
   }
-
   return count
 }
 

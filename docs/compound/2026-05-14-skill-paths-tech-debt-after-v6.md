@@ -22,7 +22,7 @@ Mesmo assim, 9 SKILL.md ainda diziam ao agente que devia escrever em `.planning/
 - `skills/design-twice/SKILL.md`: 1
 - `templates/SUMMARY.md`: 1
 
-Resultado real (descoberto investigando o PRD `docs/exec-plans/active/2026-05-14-init-migration-mode/PRD.md`): um PRD criado em 2026-05-14 aterrou em `.planning/2026-05-14-init-migration-mode/` pela orientacao da skill, mesmo que a v6 ja estivesse vigente e `/init` ja apontasse para `docs/`. O agente seguiu a instrucao da SKILL.md ao pe da letra — porque skills sao contratos para o agente, nao codigo executavel.
+Resultado real (descoberto investigando o PRD `docs/exec-plans/completed/2026-05-14-init-migration-mode/PRD.md`): um PRD criado em 2026-05-14 aterrou em `.planning/2026-05-14-init-migration-mode/` pela orientacao da skill, mesmo que a v6 ja estivesse vigente e `/init` ja apontasse para `docs/`. O agente seguiu a instrucao da SKILL.md ao pe da letra — porque skills sao contratos para o agente, nao codigo executavel.
 
 Categoria do bug: __divergencia silenciosa entre instrucao-em-doc e estado-real-do-repo__.
 
