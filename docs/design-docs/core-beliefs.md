@@ -48,6 +48,17 @@ on critical operations, KISS, YAGNI, zero clutter, functional programming when a
   contaminated — discard it, do not interpret it. And a *new but consistent* failure right
   after you touched the environment is evidence about the environment, not the code: a
   stable, reproducible failure feels like a real bug, which is exactly why it misleads.
+- A path in `.gitignore` is invisible to the detector you actually use. `git status` is the
+  side-effect alarm that runs most often, so a defect whose symptom lands on an ignored path
+  never enters the backlog — while the identical defect on a tracked path becomes an item
+  within days. When a test writes into the repo, hunt its siblings by the path they write,
+  not by what `git status` shows. And confidence that a flake is fixed comes from watching
+  the cause disappear, not from counting green runs.
+- Correcting someone else's unmeasured claim with your own unmeasured claim is not
+  verification — it is a second guess in the costume of an audit, and it survives longer
+  precisely because it reads as already-checked. Complexity and performance labels ("ReDoS",
+  "O(n²)", "slow on large files") enter the record only with the command that measured them.
+  The most dangerous claim is the one you wrote five minutes ago: nothing about it looks stale.
 
 Skill: /anti-vibe-coding:consultant (Phase Zero teaching).
 
