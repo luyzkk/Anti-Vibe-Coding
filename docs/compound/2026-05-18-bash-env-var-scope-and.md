@@ -45,4 +45,4 @@ Impacto desta corrupcao especifica: cache global do plugin v6.4.1 ficou inutiliz
 
 - `skills/init/lib/run-init.ts` (recebeu o `cwd` errado por causa do fallback para `process.cwd()`)
 - `C:\Users\luizf\.claude\plugins\cache\local-plugins\anti-vibe-coding\6.4.1\` (corrompido; movido para `_trash-2026-05-18-corrupted-6.4.1/`)
-- `docs/exec-plans/active/2026-05-18-init-cascade-fix.md` (plano de remediacao)
+- `docs/exec-plans/completed/2026-05-18-init-cascade-fix.md` (plano de remediacao)

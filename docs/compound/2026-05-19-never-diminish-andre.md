@@ -67,7 +67,7 @@ PRD `populate-plan-andre-port` adotou gate **mecanico + claro + revisao humana**
 - Test gate mecanico: `tests/e2e/populate-plan-parity.test.ts`
 - Golden snapshot com diff humano: `tests/e2e/__golden__/populate-plan-andre-parity.md`
 - Audit log de cobertura (observability): `skills/init/lib/populate-plan-coverage.ts` (`docsCoveredByStack`, `docsWithoutCodeEvidence`, `phasesCreatedVsExpected`)
-- PRD original com CA-04/CA-07/CA-08: `docs/exec-plans/active/2026-05-19-populate-plan-andre-port/PRD.md`
+- PRD original com CA-04/CA-07/CA-08: `docs/exec-plans/completed/2026-05-19-populate-plan-andre-port/PRD.md`
 
 ## Pontos do plugin onde a regra deve ser aplicada (gaps conhecidos)
 

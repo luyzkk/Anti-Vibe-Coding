@@ -114,8 +114,8 @@ Totalmente reversivel:
 
 ## Referencias
 
-- PRD: `docs/exec-plans/active/2026-05-17-refactor-init-harness-populate-merge/PRD.md`
-- CONTEXT (30 decisoes): `docs/exec-plans/active/2026-05-17-refactor-init-harness-populate-merge/CONTEXT.md`
+- PRD: `docs/exec-plans/completed/2026-05-17-refactor-init-harness-populate-merge/PRD.md`
+- CONTEXT (30 decisoes): `docs/exec-plans/completed/2026-05-17-refactor-init-harness-populate-merge/CONTEXT.md`
 - CHANGELOG seccao v6.4.0 `### Breaking Changes (Behavior)`
 - Decisoes do PRD: D2, D4, D9, D10, D17, D20, D24, D26, D28, D29, D30
 - SKILL.md regra reescrita: `skills/init/SKILL.md` (entregue por Plano 04 fase-07)

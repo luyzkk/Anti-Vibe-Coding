@@ -36,8 +36,8 @@ Uma observação adicional (DI-2 do MEMORY.md): skills meta-orquestradoras (`/le
 
 ## See Also
 
-- PRD: `docs/exec-plans/active/2026-05-14-v6.3.0-adaptive-coaching/PRD.md`
+- PRD: `docs/exec-plans/completed/2026-05-14-v6.3.0-adaptive-coaching/PRD.md`
 - ADR: `docs/design-docs/ADR-0020-adaptive-coaching.md`
 - Doc canônico: `docs/design-docs/adaptive-coaching-framework.md`
 - Referência: `skills/architecture/SKILL.md`
-- Plano: `docs/exec-plans/active/2026-05-14-v6.3.0-adaptive-coaching/plano04/`
+- Plano: `docs/exec-plans/completed/2026-05-14-v6.3.0-adaptive-coaching/plano04/`
