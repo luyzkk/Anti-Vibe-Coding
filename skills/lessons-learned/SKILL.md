@@ -126,33 +126,40 @@ Uma licao SO deve ser registrada se atender a PELO MENOS 2 destes criterios:
    **Contexto:** [Por que essa regra existe — maximo 2 linhas]
    ```
 
-4b. Inferir origem do plano mais recente em `docs/exec-plans/`:
+4b. Registrar a origem da licao — **somente quando ela e conhecida**:
 
-   1. Glob `docs/exec-plans/completed/YYYY-MM-DD-*/` e `docs/exec-plans/active/YYYY-MM-DD-*/` — buscar pastas cujo nome comeca com data no formato `YYYY-MM-DD-`
-   2. Se resultado vazio nos dois:
-      - NAO adicionar linha de origem (comportamento preservado)
-      - Prosseguir ao Passo 5
-   3. Se encontrou pastas:
-      - Ordenar descendente por nome (ordenacao lexicografica = cronologica para formato `YYYY-MM-DD`)
-      - Preferir `completed/` quando a mesma data aparecer nos dois
-      - Pegar a primeira (mais recente)
-      - Construir linha: `**Origem:** docs/exec-plans/{completed|active}/{nome-da-pasta}/SUMMARY.md`
-   4. Injetar a linha como TERCEIRA linha do bloco da licao, apos `**Contexto:**`:
+   A origem responde "o que produziu esta licao": uma fase de plano, um bug de producao, um
+   code review, um item de backlog. Ela **nao se infere** — ou o contexto da sessao diz qual
+   foi, ou nao existe linha de origem.
 
-      ```
-      ### [Categoria] Titulo conciso da licao
-      **Regra:** ...
-      **Contexto:** ...
-      **Origem:** docs/exec-plans/completed/2026-04-20-auth/SUMMARY.md
-      ```
+   1. Veio de uma fase/plano que voce acabou de executar → `docs/exec-plans/{completed|active}/{pasta}/SUMMARY.md`
+   2. Veio de outra coisa (bug relatado, review, item do `TODO.md`, exploracao) → cite essa
+      coisa: o arquivo, o item, o PR
+   3. Nao sabe → **omita**. Prosseguir ao Passo 5 sem linha de origem
 
-   5. Prosseguir ao Passo 5 com a licao ja formatada com a linha de origem
+   Onde a linha entra depende do formato de saida:
+   - **Formato v5** (`### [Categoria]` + `**Regra:**` + `**Contexto:**`): linha `**Origem:** <ref>`
+     como TERCEIRA linha, apos `**Contexto:**`. Ordem obrigatoria: Regra → Contexto → Origem.
+
+     ```
+     ### [Categoria] Titulo conciso da licao
+     **Regra:** ...
+     **Contexto:** ...
+     **Origem:** docs/exec-plans/completed/2026-04-20-auth/SUMMARY.md
+     ```
+
+   - **Formato v6** (compound note em `docs/compound/`): a procedencia entra como item da secao
+     `## Affected files`, que e onde as notas deste repo ja a registram — junto dos arquivos
+     tocados e das notas irmas. Nao existe linha `**Origem:**` no formato v6.
 
    Notas:
-   - **Ordenacao:** `YYYY-MM-DD-slug` ordena cronologicamente em ordem alfabetica — nao precisa parsear data
-   - **SUMMARY.md ausente na pasta:** ainda assim incluir a linha — link quebrado e preferivel a falha silenciosa (auditabilidade)
-   - **Posicao da linha:** APOS `**Contexto:**`, NUNCA antes de `**Regra:**` — ordem obrigatoria: Regra → Contexto → Origem
-   - **Mesmo dia (sufixo -v2):** pegar qualquer uma (sort estavel) — nao e critico
+   - **NUNCA inferir origem por recencia.** A versao anterior deste passo mandava pegar a pasta
+     mais recente de `docs/exec-plans/` e apontar para ela. Isso produz atribuicao falsa toda vez
+     que a licao nao nasceu de plano nenhum — e o ponteiro resultante fica valido, plausivel e
+     errado, que e pior que ausente: link quebrado se ve, link correto para o plano errado nao.
+   - **SUMMARY.md ausente na pasta que voce sabe ser a origem:** incluir a linha assim mesmo —
+     link quebrado e preferivel a falha silenciosa (auditabilidade). Isto vale para a origem
+     **conhecida**, nunca como desculpa para chutar uma.
 
 5. Se nao passar no filtro de qualidade, explicar por que nao qualifica
 6. **Avaliar promocao a principio senior:** perguntar ao usuario se a licao atende aos 4 criterios de promocao (ver abaixo). Se o usuario confirmar, adicionar ao `docs/design-docs/core-beliefs.md` na secao apropriada
