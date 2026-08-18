@@ -84,7 +84,7 @@ describe('atom frontmatter schema — rails_versions optional', () => {
       'layer: both',
       'sources: []',
       'tier: 1',
-      'triggers: [],',
+      'triggers: []',
       'related_skills: []',
       'updated: 2026-05-18',
       'rails_versions: []', // array vazio — REJEITAR (se tem o campo, precisa ter conteúdo)
@@ -93,6 +93,9 @@ describe('atom frontmatter schema — rails_versions optional', () => {
     writeFileSync(join(fixture, 'bad-empty.md'), badAtom)
     const result = validateAtomFrontmatter(join(fixture, 'bad-empty.md'))
     expect(result.valid).toBe(false)
+    // 2026-08-18 (Luiz/dev): assercao do MOTIVO, nao so do veredito. Este fixture tinha o typo
+    // `triggers: [],` e o teste passava por YAML malformado, sem nunca exercitar o array vazio.
+    expect(result.errors.some(e => e.includes('must not be empty'))).toBe(true)
   })
 
   it('Rails atom com range malformado é inválido (CA-10 robustez)', () => {
@@ -170,5 +173,62 @@ describe('atom frontmatter — CRLF (Windows line endings)', () => {
     const result = validateAtomFrontmatter(join(fixture, 'crlf-rails-atom.md'))
     expect(result.errors).toEqual([])
     expect(result.valid).toBe(true)
+  })
+})
+
+// 2026-08-18 (Luiz/dev): TODO.md #3 — migracao do parser hand-rolled (regex por campo +
+// split manual de array inline) para js-yaml/CORE_SCHEMA, mesmo caminho que o
+// scripts/compound-check.ts tomou em 2026-05-13. Fixa o que muda e o que nao muda.
+describe('atom frontmatter — parser YAML (TODO #3)', () => {
+  let fixture: string
+  beforeEach(() => { fixture = mkdtempSync(join(tmpdir(), 'atom-yaml-')) })
+  afterEach(() => { rmSync(fixture, { recursive: true, force: true }) })
+
+  const BASE = [
+    'topic: x',
+    'stack: rails',
+    'layer: both',
+    'sources: []',
+    'tier: 1',
+    'triggers: []',
+    'related_skills: []',
+    'updated: 2026-05-18',
+  ]
+
+  function writeAtom(name: string, extra: string[] = []): string {
+    writeFileSync(join(fixture, name), ['---', ...BASE, ...extra, '---', '# Body'].join('\n'))
+    return join(fixture, name)
+  }
+
+  it('YAML malformado vira erro de validacao, nao excecao', () => {
+    writeFileSync(join(fixture, 'broken.md'), ['---', 'topic: [', '---'].join('\n'))
+    let result: ReturnType<typeof validateAtomFrontmatter> | null = null
+    expect(() => { result = validateAtomFrontmatter(join(fixture, 'broken.md')) }).not.toThrow()
+    expect(result!.valid).toBe(false)
+    expect(result!.errors.join(' ')).toMatch(/YAML/i)
+  })
+
+  it('rails_versions em bloco e aceito (era rejeitado pelo parser antigo, que so via array inline)', () => {
+    const p = writeAtom('block.md', ['rails_versions:', '  - ">=7.1"'])
+    const result = validateAtomFrontmatter(p)
+    expect(result.errors).toEqual([])
+    expect(result.valid).toBe(true)
+  })
+
+  it('rails_versions com item nao-string e invalido', () => {
+    const p = writeAtom('numeric.md', ['rails_versions: [7.1]'])
+    expect(validateAtomFrontmatter(p).valid).toBe(false)
+  })
+
+  it('frontmatter que nao e um mapa e invalido', () => {
+    writeFileSync(join(fixture, 'seq.md'), ['---', '- a', '- b', '---'].join('\n'))
+    const result = validateAtomFrontmatter(join(fixture, 'seq.md'))
+    expect(result.valid).toBe(false)
+  })
+
+  it('campo presente com valor vazio continua contando como presente', () => {
+    // Contrato do parser antigo: hasField so olhava `^campo:`, sem inspecionar o valor.
+    const p = writeAtom('empty-value.md', [])
+    expect(validateAtomFrontmatter(p).valid).toBe(true)
   })
 })
