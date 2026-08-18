@@ -1,6 +1,7 @@
 // 2026-05-17 (Luiz/dev): RF10 — parser do INDEX.md + formato do preview (PRD §Could Haves, Plano 06 fase-05)
 // M1.1 (2026-05-17): parseTopKeywords migrado para async (fs.promises) — elimina sync I/O no pipeline async.
 import { promises as fs } from 'node:fs'
+import { parseRailsAnchor } from './rails-anchor'
 
 // G3 deste plano: top-N = 8 mantém output scanable; lista completa polui (~14 átomos × 5 keywords = 70).
 // 2026-05-17 (Luiz/dev): Wave 5 CS3 — exportar constante elimina magic number em SKILL.md Step 3 e callers.
@@ -79,15 +80,22 @@ export function formatKnowledgePreview(keywords: string[]): string {
 
 // 2026-05-18 (Luiz/dev): RF11 — warning quando Gemfile declara Rails <7.1
 // Razão: PRD CA-04 + D23 (risk resolution pre-exec) — knowledge cobre 7.1+
-const RAILS_VERSION_RX = /^\s*gem\s+['"]rails['"]\s*,\s*['"][~^>=<]*\s*(\d+)\.(\d+)/m
+// 2026-08-18 (Luiz/dev): TODO.md #4 e #5 — a regex saiu daqui para `rails-anchor.ts`
+// (era a segunda cópia; a outra vivia em detect-stack.ts) e o piso 7.1 virou constante.
+// O piso é sobre a COBERTURA DO KNOWLEDGE, não sobre parsing de Gemfile — por isso mora
+// aqui e não no util. A mensagem deriva das constantes: mexer no piso não deixa o texto mentindo.
+export const MIN_SUPPORTED_RAILS_MAJOR = 7
+export const MIN_SUPPORTED_RAILS_MINOR = 1
 
 export function extractRailsVersionWarning(gemfileContent: string): string | null {
-  const m = RAILS_VERSION_RX.exec(gemfileContent)
-  if (!m) return null
-  const major = Number(m[1])
-  const minor = Number(m[2])
-  if (major < 7 || (major === 7 && minor < 1)) {
-    return '⚠️ Knowledge Rails cobre 7.1+. Alguns padrões podem não se aplicar.'
+  const { major, minor } = parseRailsAnchor(gemfileContent)
+  // Gemfile sem constraint de versão (`gem 'rails'`, git source) não permite julgar o piso.
+  if (major === null || minor === null) return null
+  const belowFloor =
+    major < MIN_SUPPORTED_RAILS_MAJOR ||
+    (major === MIN_SUPPORTED_RAILS_MAJOR && minor < MIN_SUPPORTED_RAILS_MINOR)
+  if (belowFloor) {
+    return `⚠️ Knowledge Rails cobre ${MIN_SUPPORTED_RAILS_MAJOR}.${MIN_SUPPORTED_RAILS_MINOR}+. Alguns padrões podem não se aplicar.`
   }
   return null
 }
