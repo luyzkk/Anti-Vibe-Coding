@@ -4,7 +4,7 @@ Plugin Claude Code para desenvolvimento disciplinado. Substitui "vibe coding" po
 
 Baseado na metodologia Anti-Vibe Coding (Fabio Akita / XP) e em 60+ princípios técnicos extraídos de referências sêniores.
 
-**Versão atual:** 7.5.0
+**Versão atual:** 7.6.1
 
 ---
 
@@ -53,7 +53,7 @@ A partir daí, todas as skills `/anti-vibe-coding:*` ficam disponíveis em qualq
 /anti-vibe-coding:sync
 ```
 
-Mostra a versão do plugin global e força invalidação de cache. Deve reportar `v7.5.0`.
+Mostra a versão do plugin global e força invalidação de cache. Deve reportar `v7.6.1`.
 
 ---
 
@@ -141,6 +141,7 @@ Para correções triviais, **não use o pipeline** — vai direto. O TDD Gate ex
 
 | Skill | Comando | Propósito |
 |-------|---------|-----------|
+| Wayfinder | `/anti-vibe-coding:wayfinder` | Mapa e fronteira do trabalho — o que está pronto, o que está bloqueado, o que vem agora |
 | Grill Me | `/anti-vibe-coding:grill-me` | Entrevista implacável pré-implementação (5–25 perguntas) |
 | Design Twice | `/anti-vibe-coding:design-twice` | 3+ propostas arquiteturais divergentes em paralelo |
 | Write PRD | `/anti-vibe-coding:write-prd` | Especificação completa via entrevista interativa |
@@ -171,6 +172,7 @@ Para correções triviais, **não use o pipeline** — vai direto. O TDD Gate ex
 | React Patterns | `/anti-vibe-coding:react-patterns` | useEffect, data fetching, memoization, state |
 | Design Patterns | `/anti-vibe-coding:design-patterns` | Code smells, error handling, refactoring |
 | Infrastructure | `/anti-vibe-coding:infrastructure` | DNS, hosting, deploy, CDN, serverless |
+| Domain Modeling | `/anti-vibe-coding:domain-modeling` | Glossário de linguagem ubíqua — nomes do domínio antes do código |
 | Learn | `/anti-vibe-coding:learn` | Explicações adaptativas pelo nível |
 
 ### Workflow e qualidade
@@ -185,6 +187,10 @@ Para correções triviais, **não use o pipeline** — vai direto. O TDD Gate ex
 | Code Simplification | `/anti-vibe-coding:code-simplification` | Identifica over-engineering, duplicação, complexidade |
 | Incremental Implementation | `/anti-vibe-coding:incremental-implementation` | Divide features em incrementos verificáveis |
 | Pair Programming | `/anti-vibe-coding:pair-programming-with-agent` | Sessão estruturada humano-navega-IA-pilota |
+| Prototype | `/anti-vibe-coding:prototype` | Código descartável que responde uma pergunta, sem virar produção |
+| Improve Codebase Architecture | `/anti-vibe-coding:improve-codebase-architecture` | Varredura periódica de arquitetura, com relatório |
+| Resolving Merge Conflicts | `/anti-vibe-coding:resolving-merge-conflicts` | Resolve conflito entendendo as duas intenções, não escolhendo um lado |
+| Writing for Agents | `/anti-vibe-coding:writing-for-agents` | Lente de escrita para agente — instrução que sobrevive ao contexto |
 
 ### Memória e decisões
 
@@ -201,6 +207,7 @@ Para correções triviais, **não use o pipeline** — vai direto. O TDD Gate ex
 
 | Skill | Comando | Propósito |
 |-------|---------|-----------|
+| Wizard | `/anti-vibe-coding:wizard` | Setup guiado passo a passo, para primeira instalação |
 | Init | `/anti-vibe-coding:init` | Setup inicial + atualização incremental (greenfield-aware) |
 | Update | `/anti-vibe-coding:update` | Verifica status de atualizações |
 | Sync | `/anti-vibe-coding:sync` | Invalida cache e mostra versões |
