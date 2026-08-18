@@ -63,6 +63,12 @@ tmp/
 CONVERSA_INIT.MD
 wonts/
 
+# Config local do ai-memory (2026-08-12): fixa este repo no projeto "Anti-Vibe-Coding"
+# para o servidor rodando na maquina do dev. E configuracao por-maquina, nao material de
+# referencia — por isso fora do bloco acima. Quem clonar o repo sem o servidor nao precisa
+# dela, e quem tiver o servidor num host diferente precisa de valores proprios.
+.ai-memory.toml
+
 # Workspace de planejamento skill-parity-refresh — mantido local (decisao do dev 2026-06-05).
 # Contem 2 COMPARISON-MATRIX (~180KB cada, material de referencia) + tracking de execucao
 # lido do disco pelo /execute-plan. Os grafts (deliverable) sao commitados em skills/.
