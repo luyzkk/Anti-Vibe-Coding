@@ -5,6 +5,7 @@
 
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import { parseRailsAnchor } from './rails-anchor'
 
 // 2026-05-18 (Luiz/dev): D22 multi-stack contract. 'unknown' preservado em StackId para
 // compatibilidade com detect-multi-stack.ts (usa como placeholder interno para go.mod).
@@ -125,7 +126,9 @@ const probeNodeTs: Probe = async (dir) => {
 const probeRails: Probe = async (dir) => {
   const gemfile = await readTextSafe(path.join(dir, 'Gemfile'))
   if (!gemfile) return null
-  if (/^\s*gem\s+["']rails["']/m.test(gemfile)) {
+  // 2026-08-18 (Luiz/dev): TODO.md #5 — regex movida para rails-anchor.ts (era copia da que
+  // vivia em format-knowledge-preview.ts). Aqui so a presenca importa; a versao e ignorada.
+  if (parseRailsAnchor(gemfile).present) {
     return { id: 'rails', signalSource: 'Gemfile#gem "rails"' }
   }
   return null
