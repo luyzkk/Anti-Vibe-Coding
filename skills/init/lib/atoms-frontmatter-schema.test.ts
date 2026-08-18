@@ -131,3 +131,44 @@ describe('atom frontmatter schema — fixture combinada Node + Rails', () => {
     }
   })
 })
+
+// 2026-08-18 (Luiz/dev): TODO.md #6 — CRLF. validateAtomFrontmatter le o arquivo com readFileSync
+// e passa direto para extractFrontmatter, sem normalizar \r\n. Atom salvo no Windows sem
+// .editorconfig era rejeitado com "missing frontmatter block" estando visualmente correto.
+// Ref: docs/compound/2026-05-19-crlf-breaks-frontmatter-regex.md
+describe('atom frontmatter — CRLF (Windows line endings)', () => {
+  let fixture: string
+  beforeEach(() => { fixture = mkdtempSync(join(tmpdir(), 'atom-crlf-')) })
+  afterEach(() => { rmSync(fixture, { recursive: true, force: true }) })
+
+  const ATOM_LINES = [
+    '---',
+    'topic: type-system-idioms',
+    'stack: nodejs-typescript',
+    'layer: both',
+    'sources:',
+    '  - research: f8f4e50c (claude-code/knowledge/Nodejs/x.md)',
+    'tier: 1',
+    'triggers: [type, generic]',
+    'related_skills: [/design-patterns]',
+    'updated: 2026-05-16',
+    '---',
+    '# Type System Idioms',
+  ]
+
+  it('accepts an atom saved with CRLF', () => {
+    writeFileSync(join(fixture, 'crlf-atom.md'), ATOM_LINES.join('\r\n'))
+    const result = validateAtomFrontmatter(join(fixture, 'crlf-atom.md'))
+    expect(result.errors).toEqual([])
+    expect(result.valid).toBe(true)
+  })
+
+  it('validates rails_versions of a CRLF atom', () => {
+    const railsAtom = [...ATOM_LINES]
+    railsAtom.splice(railsAtom.length - 2, 0, 'rails_versions: [">=7.1"]')
+    writeFileSync(join(fixture, 'crlf-rails-atom.md'), railsAtom.join('\r\n'))
+    const result = validateAtomFrontmatter(join(fixture, 'crlf-rails-atom.md'))
+    expect(result.errors).toEqual([])
+    expect(result.valid).toBe(true)
+  })
+})

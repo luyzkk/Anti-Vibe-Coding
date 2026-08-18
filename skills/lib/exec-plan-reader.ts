@@ -18,7 +18,11 @@ export type ExecPlanFile = {
 export async function readExecPlan(filePath: string): Promise<ExecPlanFile> {
   const raw = await fs.readFile(filePath, 'utf-8')
   // 2026-05-12 (Luiz/dev): strip BOM defensivo (Plano 03 G4 herdado)
-  const text = raw.replace(/^\uFEFF/, '')
+  // 2026-08-18 (Luiz/dev): TODO.md #6 \u2014 normaliza CRLF->LF junto. Sem isso splitFrontmatter cai no
+  // fallback {frontmatter: '', body: text} e o plano vira status undefined: isComplete() devolve
+  // false sem erro nenhum. Falha silenciosa, nao excecao.
+  // Ref: docs/compound/2026-05-19-crlf-breaks-frontmatter-regex.md
+  const text = raw.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n')
   const { frontmatter, body } = splitFrontmatter(text)
   const bodyByH2 = parseH2Sections(body)
   return { filePath, frontmatter: parseFrontmatter(frontmatter), bodyByH2 }
@@ -36,7 +40,8 @@ export function isComplete(plan: ExecPlanFile): boolean {
 }
 
 function splitFrontmatter(text: string): { frontmatter: string; body: string } {
-  const m = text.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/)
+  // 2026-08-18 (Luiz/dev): \r? como defense-in-depth — readExecPlan ja normaliza (TODO.md #6).
+  const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/)
   if (m == null) return { frontmatter: '', body: text }
   // GT-novo-02: guard for regex captures before indexing
   if (m[1] == null || m[2] == null) return { frontmatter: '', body: text }

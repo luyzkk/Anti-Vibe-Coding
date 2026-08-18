@@ -237,9 +237,13 @@ async function checkMarkdownFiles(files: ReadonlyArray<string>, failures: Failur
       // BUG-08-04: agents/*.md tem HTML comment entre frontmatter e H1 — strip leading comments/blank tambem.
       // Normalize CRLF -> LF antes de stripar; SKILL.md em Windows pode ter line endings mistos
       // e o regex de frontmatter so casa com \n puro.
+      // 2026-08-18 (Luiz/dev): regex aceita \r?\n como defense-in-depth caso o normalize acima seja
+      // removido/alterado no futuro. Alinha o validador distribuido com scripts/harness-validate.ts
+      // do repo, que ja recebeu essa correcao em 2026-05-19 (TODO.md #6 — o .tpl ficou para tras).
+      // Ref: docs/compound/2026-05-19-crlf-breaks-frontmatter-regex.md
       const normalized = content.replace(/\r\n/g, '\n')
       const stripped = normalized
-        .replace(/^---\n[\s\S]*?\n---\n*/, '')   // remove frontmatter YAML
+        .replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n*/, '')   // remove frontmatter YAML
         .replace(/^(?:<!--[\s\S]*?-->\s*)+/, '') // remove HTML comments lideres
         .replace(/^\s+/, '')                       // remove leading whitespace
 

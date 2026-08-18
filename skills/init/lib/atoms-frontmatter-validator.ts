@@ -12,7 +12,10 @@ const REQUIRED_FIELDS = ['topic', 'stack', 'layer', 'sources', 'tier', 'triggers
 const SEMVER_RANGE = /^(>=|<=|>|<|=|~>)\s*\d+\.\d+(\.\d+)?$/
 
 function extractFrontmatter(content: string): string | null {
-  const match = content.match(/^---\n([\s\S]*?)\n---/)
+  // 2026-08-18 (Luiz/dev): TODO.md #6 — \r? como defense-in-depth caso o normalize do caller
+  // seja removido. O normalize continua sendo a correcao primaria: sem ele o \r vaza para dentro
+  // dos valores capturados (ex.: `updated: 2026-05-16\r`) e quebra as regex de campo abaixo.
+  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/)
   return match ? (match[1] ?? null) : null
 }
 
@@ -50,7 +53,10 @@ function parseRailsVersionsField(frontmatter: string): { isArray: boolean; items
 }
 
 export function validateAtomFrontmatter(filePath: string): FrontmatterValidationResult {
-  const content = readFileSync(filePath, 'utf-8')
+  // 2026-08-18 (Luiz/dev): normaliza CRLF->LF antes de qualquer regex. Atom salvo no Windows sem
+  // .editorconfig era rejeitado com "missing frontmatter block" estando visualmente correto.
+  // Ref: docs/compound/2026-05-19-crlf-breaks-frontmatter-regex.md
+  const content = readFileSync(filePath, 'utf-8').replace(/\r\n/g, '\n')
   const errors: string[] = []
 
   const frontmatter = extractFrontmatter(content)
