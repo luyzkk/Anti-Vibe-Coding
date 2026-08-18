@@ -1,6 +1,6 @@
 {
   "version": "7.6.0",
-  "generatedAt": "2026-08-18T11:48:20.289Z",
+  "generatedAt": "2026-08-18T12:37:10.658Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -1195,8 +1195,8 @@
     },
     "skills/init/lib/atoms-frontmatter-validator.ts": {
       "version": "7.6.0",
-      "checksum": "142d94ba73e472a0ae890e21d9ed1005b119288b452051c02f190b6854761cd3",
-      "lastModified": "2026-05-20",
+      "checksum": "35cc3f2a8800b41830a21e795db2929ca0c07bb37569d4298448ae59ff0dfe94",
+      "lastModified": "2026-08-18",
       "updateStrategy": "replace"
     },
     "skills/init/lib/audit-log-writer-factory.ts": {
@@ -1237,8 +1237,8 @@
     },
     "skills/init/lib/compound-writer.ts": {
       "version": "7.6.0",
-      "checksum": "24f68e3cb355017344c48cabee58b26866c77ff52ea4d74d21c229f51473f5c6",
-      "lastModified": "2026-05-20",
+      "checksum": "e4c13b2711c305ad460b88002a8ee940cb5179f2c522f27f16e4e49767759dc8",
+      "lastModified": "2026-08-18",
       "updateStrategy": "replace"
     },
     "skills/init/lib/copy-knowledge.ts": {
@@ -2113,8 +2113,8 @@
     },
     "skills/init/assets/templates/scripts/harness-validate.ts.tpl": {
       "version": "7.6.0",
-      "checksum": "9706a313e01992328af7b794f7de7f44e2ae14eb50166e8fa2e7ec724fc65fe1",
-      "lastModified": "2026-08-13",
+      "checksum": "f125ce2cd92f69424911d4098ee5a015416302a9c1fe7e521f1c3f1982c41798",
+      "lastModified": "2026-08-18",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/scripts/new-plan.ts.tpl": {
@@ -2215,8 +2215,8 @@
     },
     "skills/lib/exec-plan-reader.ts": {
       "version": "7.6.0",
-      "checksum": "2d8c0c80fec3e9f3c7261ea6d4d76b7b0c84e3bcac47628741734416c46de497",
-      "lastModified": "2026-05-20",
+      "checksum": "38062e93242facdbdd9f55fa252fba6d34b5d796fe28250869f3797cab9462d7",
+      "lastModified": "2026-08-18",
       "updateStrategy": "replace"
     },
     "skills/lib/exec-plan-sections.ts": {
