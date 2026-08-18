@@ -385,12 +385,12 @@ Candidato a correcao na fase-05 (cleanup) ou em plano separado de bug fix.
 ## PRD 2026-05-17 — Refactor /init Harness Populate Merge (D1-D30)
 
 > **Origem:** este bloco indexa as 30 decisoes consolidadas em
-> `docs/exec-plans/active/2026-05-17-refactor-init-harness-populate-merge/CONTEXT.md`
+> `docs/exec-plans/completed/2026-05-17-refactor-init-harness-populate-merge/CONTEXT.md`
 > (sessao 1: D1-D20 em 2026-05-17, sessao 2: D21-D30 em 2026-05-18) e formalizadas
 > no PRD irmao. Os IDs `D1`..`D30` deste bloco coexistem sem colisao com `DI-XX` /
 > `GT-XX` / `CA-XX` do refactor Rails-style anterior (prefixos diferentes). Cada
 > decisao lista `**Consumido por:**` apontando steps em `skills/init/lib/steps/`
-> ou planos hierarquicos em `docs/exec-plans/active/2026-05-17-refactor-init-harness-populate-merge/`.
+> ou planos hierarquicos em `docs/exec-plans/completed/2026-05-17-refactor-init-harness-populate-merge/`.
 
 ### D1 — Aplicabilidade por modo do /init
 

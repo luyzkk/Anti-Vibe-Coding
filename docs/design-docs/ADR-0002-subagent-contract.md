@@ -16,7 +16,7 @@ etc.). A generic orchestrator is impossible — each consumer skill needs its ow
 regex-plus-mapping layer. Domain decisions (absolute severity) are baked into the tool
 output with no room for free-form `reasoning` and no explicit lifecycle signal.
 
-Full inventory in `docs/exec-plans/active/2026-05-14-v6.1.0-subagent-contract/INVENTORY.md`
+Full inventory in `docs/exec-plans/completed/2026-05-14-v6.1.0-subagent-contract/INVENTORY.md`
 and PRD §Problem.
 
 ## Decision
@@ -83,8 +83,8 @@ Partially reversible:
 
 ## References
 
-- PRD: `docs/exec-plans/active/2026-05-14-v6.1.0-subagent-contract/PRD.md`
-- Inventory: `docs/exec-plans/active/2026-05-14-v6.1.0-subagent-contract/INVENTORY.md`
+- PRD: `docs/exec-plans/completed/2026-05-14-v6.1.0-subagent-contract/PRD.md`
+- Inventory: `docs/exec-plans/completed/2026-05-14-v6.1.0-subagent-contract/INVENTORY.md`
 - Canonical doc: `docs/design-docs/subagent-contract-v1.md` (created in phase-02)
 - Schema: `agents/_contract/v1.schema.json` (created in phase-03)
 - Every guide: "Agent-native Architectures" — Eixo 1 (completion signal, reasoning,
