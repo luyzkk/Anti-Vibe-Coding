@@ -1,6 +1,6 @@
 {
   "version": "7.6.0",
-  "generatedAt": "2026-08-18T14:40:47.121Z",
+  "generatedAt": "2026-08-18T18:35:08.681Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -1195,7 +1195,7 @@
     },
     "skills/init/lib/atoms-frontmatter-validator.ts": {
       "version": "7.6.0",
-      "checksum": "35cc3f2a8800b41830a21e795db2929ca0c07bb37569d4298448ae59ff0dfe94",
+      "checksum": "164721e31bf9d01b657e6a2dca2ec59d94306ce4495ad19caf85a24f70244156",
       "lastModified": "2026-08-18",
       "updateStrategy": "replace"
     },
@@ -2161,8 +2161,8 @@
     },
     "skills/lessons-learned/SKILL.md": {
       "version": "7.6.0",
-      "checksum": "8630d8f0cd18df5aadbb6c3811f0795decbd440c3e75f817f7ecaa56ed91efbc",
-      "lastModified": "2026-08-12",
+      "checksum": "845ac0206dfa3c73c5ec07c979f55a424f204f354582e905ac944afc31061ea2",
+      "lastModified": "2026-08-18",
       "updateStrategy": "replace"
     },
     "skills/lessons-learned/index.ts": {
