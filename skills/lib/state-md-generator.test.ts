@@ -1,13 +1,29 @@
 // 2026-05-12 (Luiz/dev): testes RED para state-md-generator — cobre 7 casos (M13/CA-45)
-import { describe, it, expect } from 'bun:test'
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as os from 'os'
 import { regenerateStateMd } from './state-md-generator'
 
-const FIXTURE = path.resolve(import.meta.dir, '..', '..', 'tests', 'fixtures', 'v6-state-fixture')
+// 2026-08-18 (Luiz/dev): TODO.md #1 — a fixture versionada e ENTRADA (notas, ADRs, planos, TODO.md
+// com contagens especificas), diferente das fixtures de adr-revoke/lessons-crud que os testes
+// reconstroem do zero. Entao aqui copiamos a arvore para tmpdir por teste em vez de largar o
+// regenerateStateMd escrevendo docs/STATE.md dentro do repo — era isso que sujava o working tree
+// com um timestamp novo a cada `bun run test`.
+const FIXTURE_SRC = path.resolve(import.meta.dir, '..', '..', 'tests', 'fixtures', 'v6-state-fixture')
 
-// Monta uma arvore v6 descartavel em tmpdir. O FIXTURE compartilhado so tem plano-arquivo,
+let fixture: string
+
+beforeEach(() => {
+  fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'v6-state-'))
+  fs.cpSync(FIXTURE_SRC, fixture, { recursive: true })
+})
+
+afterEach(() => {
+  fs.rmSync(fixture, { recursive: true, force: true })
+})
+
+// Monta uma arvore v6 descartavel em tmpdir. O fixture compartilhado so tem plano-arquivo,
 // entao nao distingue "1 plano em pasta" de "N arquivos de fase" — que e o caso testado abaixo.
 async function writeTree(root: string, files: Record<string, string>): Promise<void> {
   for (const [rel, body] of Object.entries(files)) {
@@ -19,7 +35,7 @@ async function writeTree(root: string, files: Record<string, string>): Promise<v
 
 describe('regenerateStateMd', () => {
   it('writes docs/STATE.md with 3 expected sections', async () => {
-    const out = await regenerateStateMd(FIXTURE)
+    const out = await regenerateStateMd(fixture)
     expect(fs.existsSync(out)).toBe(true)
     const content = fs.readFileSync(out, 'utf-8')
     expect(content).toContain('## Resources')
@@ -28,30 +44,30 @@ describe('regenerateStateMd', () => {
   })
 
   it('counts compound notes excluding _archived/', async () => {
-    await regenerateStateMd(FIXTURE)
-    const content = fs.readFileSync(path.join(FIXTURE, 'docs', 'STATE.md'), 'utf-8')
+    await regenerateStateMd(fixture)
+    const content = fs.readFileSync(path.join(fixture, 'docs', 'STATE.md'), 'utf-8')
     expect(content).toMatch(/\*\*Compound notes:\*\* 2/)
     expect(content).toMatch(/\*\*Compound archived:\*\* 1/)
   })
 
   it('counts ADRs by ADR- prefix', async () => {
-    await regenerateStateMd(FIXTURE)
-    const content = fs.readFileSync(path.join(FIXTURE, 'docs', 'STATE.md'), 'utf-8')
+    await regenerateStateMd(fixture)
+    const content = fs.readFileSync(path.join(fixture, 'docs', 'STATE.md'), 'utf-8')
     expect(content).toMatch(/\*\*ADRs:\*\* 2/)
   })
 
   it('lists plans with pending-capture tag in Pending section', async () => {
-    await regenerateStateMd(FIXTURE)
-    const content = fs.readFileSync(path.join(FIXTURE, 'docs', 'STATE.md'), 'utf-8')
+    await regenerateStateMd(fixture)
+    const content = fs.readFileSync(path.join(fixture, 'docs', 'STATE.md'), 'utf-8')
     expect(content).toContain('2026-05-13-feature-x')
     expect(content).toContain('pending-capture')
   })
 
   it('is idempotent — second call produces identical content except timestamp', async () => {
-    await regenerateStateMd(FIXTURE)
-    const first = fs.readFileSync(path.join(FIXTURE, 'docs', 'STATE.md'), 'utf-8')
-    await regenerateStateMd(FIXTURE)
-    const second = fs.readFileSync(path.join(FIXTURE, 'docs', 'STATE.md'), 'utf-8')
+    await regenerateStateMd(fixture)
+    const first = fs.readFileSync(path.join(fixture, 'docs', 'STATE.md'), 'utf-8')
+    await regenerateStateMd(fixture)
+    const second = fs.readFileSync(path.join(fixture, 'docs', 'STATE.md'), 'utf-8')
     const stripTs = (s: string) => s.replace(/Last regenerated:.*?-->/, '')
     expect(stripTs(first)).toBe(stripTs(second))
   })
@@ -90,8 +106,8 @@ describe('regenerateStateMd', () => {
   })
 
   it('counts TODO items by checkbox state', async () => {
-    await regenerateStateMd(FIXTURE)
-    const content = fs.readFileSync(path.join(FIXTURE, 'docs', 'STATE.md'), 'utf-8')
+    await regenerateStateMd(fixture)
+    const content = fs.readFileSync(path.join(fixture, 'docs', 'STATE.md'), 'utf-8')
     expect(content).toMatch(/\*\*TODO items:\*\* 1 open \/ 1 done \/ 1 skipped/)
   })
 })
