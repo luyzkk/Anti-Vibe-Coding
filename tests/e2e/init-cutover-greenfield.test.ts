@@ -71,6 +71,11 @@ function normalizeStdout(text: string, tmpDir: string): string {
     .replace(/— \d+ms/g, '— <NN>ms')
     // 2026-05-19 (Luiz/dev): Plano 05 fase-04 — normaliza timestamps ISO em _imported filenames.
     .replace(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/g, '<TIMESTAMP>')
+    // 2026-08-17 (Luiz/dev): a versao do plugin muda a cada release, entao pina-la aqui fazia o
+    // golden quebrar em todo bump (pegou o 7.5.0 -> 7.6.0). Que os 4 JSON concordem na mesma
+    // versao ja e coberto por tests/repo-structure/version-bump.test.ts — este golden existe para
+    // pegar mudanca inesperada de stdout, nao para reafirmar a versao.
+    .replace(/pluginVersion=\d+\.\d+\.\d+/g, 'pluginVersion=<VERSION>')
     .split('\n')
     .map((line) => line.trimEnd())
     .join('\n')
