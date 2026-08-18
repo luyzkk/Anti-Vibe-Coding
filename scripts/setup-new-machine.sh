@@ -238,7 +238,7 @@ stage "Verificar a instalacao"
 step "Cole:"
 note "    /anti-vibe-coding:sync"
 say "Ele mostra a versao do plugin global e forca invalidacao de cache."
-ask REPORTED_VERSION "Que versao o /sync reportou? (ex: 7.5.0)"
+ask REPORTED_VERSION "Que versao o /sync reportou? (ex: 7.6.1)"
 EXPECTED_VERSION=$(grep -m1 '"version"' "$PLUGIN_DEV/plugin-manifest.json" 2>/dev/null \
   | sed -E 's/.*"version"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/')
 if [[ -n "$EXPECTED_VERSION" && "$REPORTED_VERSION" != "$EXPECTED_VERSION" ]]; then
