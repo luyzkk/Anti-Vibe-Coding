@@ -10,15 +10,45 @@ set -u  # erro em var nao-definida; mas NAO -e (queremos tolerar falhas de cp em
 
 PLUGIN_DEV="${PLUGIN_DEV:-/f/Projetos/Anti-Vibe-Coding}"
 
+# 2026-08-18 (Luiz/dev): checagem do dev movida para ANTES da derivacao da versao. Antes ela vinha
+# depois do banner, entao um PLUGIN_DEV errado imprimia primeiro uma versao chutada e so depois o
+# erro real — foi assim que apareceu "Global: .../6.7.0" ao rodar via WSL bash, que nao enxerga
+# /f/ (la o caminho seria /mnt/f/). Falhar na causa, nao no sintoma.
+if [ ! -d "$PLUGIN_DEV" ]; then
+  echo "ERRO: Diretorio de desenvolvimento nao encontrado: $PLUGIN_DEV" >&2
+  echo "      No PowerShell, 'bash' costuma resolver para o WSL, que nao enxerga /f/." >&2
+  echo "      Use o Git Bash:  & \"C:\\Program Files\\Git\\bin\\bash.exe\" scripts/sync-to-global.sh" >&2
+  echo "      Ou aponte o caminho:  PLUGIN_DEV=/mnt/f/Projetos/Anti-Vibe-Coding bash scripts/sync-to-global.sh" >&2
+  exit 1
+fi
+
 # Deriva versao do manifest do dev para evitar drift (era hard-coded em 6.0.0).
+#
+# 2026-08-18 (Luiz/dev): o fallback `${PLUGIN_VERSION:-6.7.0}` foi REMOVIDO. Ele existia para o
+# caso de a derivacao falhar, mas o efeito era pior que a falha: manifest ausente ou com formato
+# diferente produzia sync para uma pasta 6.7.0 e repontava o installed_plugins.json para la —
+# downgrade silencioso de 8 versoes, com "Sincronizacao completa" no fim. Isso recria exatamente o
+# bug que o pin (mais abaixo, L~150) foi criado para corrigir em 2026-05-19, por outro caminho.
+# Versao errada aqui e pior que nao sincronizar: aborta.
+PLUGIN_GLOBAL_OVERRIDE="${PLUGIN_GLOBAL:-}"
+
 if [ -z "${PLUGIN_GLOBAL:-}" ]; then
-  if [ -f "$PLUGIN_DEV/plugin-manifest.json" ]; then
-    PLUGIN_VERSION=$(grep -m1 '"version"' "$PLUGIN_DEV/plugin-manifest.json" | sed -E 's/.*"version"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/')
+  MANIFEST="$PLUGIN_DEV/plugin-manifest.json"
+
+  if [ ! -f "$MANIFEST" ]; then
+    echo "ERRO: manifest nao encontrado: $MANIFEST" >&2
+    echo "      Rode 'bun run generate:manifest', ou passe PLUGIN_VERSION=x.y.z / PLUGIN_GLOBAL=<path>." >&2
+    exit 1
   fi
-  # 2026-05-20 (Luiz/dev): D6 do PRD knowledge-path-cutover — bump 6.5.1 → 6.6.0.
-  # Patch 6.6.1: alinhamento de boundary tests do reentry-guard (verify-work).
-  # Minor 6.7.0: populate-plan-andre-port + gate path drift fix + caveats cleanup.
-  PLUGIN_VERSION="${PLUGIN_VERSION:-6.7.0}"
+
+  PLUGIN_VERSION="${PLUGIN_VERSION:-$(grep -m1 '"version"' "$MANIFEST" | sed -E 's/.*"version"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/')}"
+
+  if ! printf '%s' "$PLUGIN_VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+    echo "ERRO: versao invalida derivada de $MANIFEST: '$PLUGIN_VERSION'" >&2
+    echo "      Esperado semver (ex: 7.6.1). Abortando em vez de chutar uma versao." >&2
+    exit 1
+  fi
+
   PLUGIN_GLOBAL="/c/Users/luizf/.claude/plugins/cache/local-plugins/anti-vibe-coding/$PLUGIN_VERSION"
 fi
 
@@ -30,11 +60,7 @@ echo "Dev:    $PLUGIN_DEV"
 echo "Global: $PLUGIN_GLOBAL"
 echo ""
 
-# Verificar dev existe
-if [ ! -d "$PLUGIN_DEV" ]; then
-  echo "ERRO: Diretorio de desenvolvimento nao encontrado: $PLUGIN_DEV"
-  exit 1
-fi
+# (a existencia de $PLUGIN_DEV ja foi verificada antes da derivacao da versao)
 
 # Criar destino se nao existir (idempotente)
 if [ ! -d "$PLUGIN_GLOBAL" ]; then
@@ -152,8 +178,15 @@ echo ""
 # antiga quando o installPath registrado nao corresponde a versao recem-sincronizada.
 # Bug observado: cache tinha 6.5.0 e 6.5.1, mas installed_plugins.json apontava para 6.4.1
 # (pasta inexistente); Claude Code fez fallback para 6.5.0 em vez da nova 6.5.1.
+#
+# 2026-08-18 (Luiz/dev): quando PLUGIN_GLOBAL vem sobrescrito por env, o destino e customizado
+# (teste, sandbox, outra maquina) e NAO deve repontar o registro global — alem disso PLUGIN_VERSION
+# nem chega a ser derivado nesse caminho, e o `set -u` matava o script aqui com "unbound variable",
+# depois de ja ter copiado tudo. Bug pre-existente, exposto ao testar o override.
 INSTALLED_PLUGINS="/c/Users/luizf/.claude/plugins/installed_plugins.json"
-if [ -f "$INSTALLED_PLUGINS" ]; then
+if [ -n "${PLUGIN_GLOBAL_OVERRIDE:-}" ]; then
+  echo "Destino customizado via PLUGIN_GLOBAL — pin do installed_plugins.json ignorado."
+elif [ -f "$INSTALLED_PLUGINS" ]; then
   # Detectar versao atualmente pinada para anti-vibe-coding@local-plugins
   PINNED_VERSION=$(grep -A4 '"anti-vibe-coding@local-plugins"' "$INSTALLED_PLUGINS" \
     | grep '"version"' | head -1 \
