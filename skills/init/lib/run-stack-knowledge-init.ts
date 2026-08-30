@@ -6,7 +6,7 @@ import { writeStackJson } from './write-stack-json'
 import { copyKnowledge } from './copy-knowledge'
 import type { CopyKnowledgeResult } from './copy-knowledge'
 import { parseRefreshFlag } from './parse-refresh-flag'
-import { parseTopKeywords, formatKnowledgePreview, TOP_N_KEYWORDS, extractRailsVersionWarning } from './format-knowledge-preview'
+import { parseTopKeywords, formatKnowledgePreview, TOP_N_KEYWORDS, extractRailsVersionWarning, extractPythonVersionWarning } from './format-knowledge-preview'
 import { emitStackKnowledgeEvents } from './emit-stack-knowledge-events'
 import { join } from 'node:path'
 import { promises as fs } from 'node:fs'
@@ -14,7 +14,9 @@ import path from 'node:path'
 
 // 2026-05-19 (Luiz/dev): TODO.md L16 — Gemfile size cap (DoS defensiva).
 // 1MB cobre 99.9% dos Gemfiles reais; acima disso provavelmente nao e Gemfile valido.
-const GEMFILE_MAX_BYTES = 1_048_576
+// 2026-08-30 (Luiz/dev): RF8 — renomeada de GEMFILE_MAX_BYTES; o mesmo cap agora cobre
+// Gemfile e pyproject.toml. Constante local ao arquivo (rename verificado por rg).
+const MANIFEST_MAX_BYTES = 1_048_576
 
 export interface RunStackKnowledgeInitOpts {
   targetDir: string
@@ -111,19 +113,36 @@ export async function runStackKnowledgeInit(opts: RunStackKnowledgeInitOpts, ctx
   // 2026-05-18 (Luiz/dev): RF11 — propagar warning Rails legado no resultado
   // 2026-05-19 (Luiz/dev): TODO.md L16 — async I/O + size cap. Stat antes de ler;
   // ENOENT vira no-op silencioso (Gemfile pode nao existir mesmo com primary=rails se houver bug
-  // upstream — nao queremos quebrar o init por isso). Gemfile maior que GEMFILE_MAX_BYTES e ignorado.
+  // upstream — nao queremos quebrar o init por isso). Gemfile maior que MANIFEST_MAX_BYTES e ignorado.
   const warnings: string[] = []
   if (stackJson.primary === 'rails') {
     const gemfilePath = path.join(targetDir, 'Gemfile')
     try {
       const stat = await fs.stat(gemfilePath)
-      if (stat.isFile() && stat.size <= GEMFILE_MAX_BYTES) {
+      if (stat.isFile() && stat.size <= MANIFEST_MAX_BYTES) {
         const gemfileContent = await fs.readFile(gemfilePath, 'utf8')
         const warning = extractRailsVersionWarning(gemfileContent)
         if (warning) warnings.push(warning)
       }
     } catch {
       // Arquivo ausente ou nao-acessivel — sem warning (decisao silenciosa, RF11 e best-effort)
+    }
+  }
+
+  // 2026-08-30 (Luiz/dev): RF8/D7 — warning Python legado, espelho do RF11 Rails acima.
+  // ENOENT/oversize = no-op silencioso (best-effort, mesma politica do bloco Rails).
+  // Projeto requirements-only nao tem pyproject.toml e cai aqui sem warning (CA-11).
+  if (stackJson.primary === 'python') {
+    const pyprojectPath = path.join(targetDir, 'pyproject.toml')
+    try {
+      const stat = await fs.stat(pyprojectPath)
+      if (stat.isFile() && stat.size <= MANIFEST_MAX_BYTES) {
+        const pyprojectContent = await fs.readFile(pyprojectPath, 'utf8')
+        const warning = extractPythonVersionWarning(pyprojectContent)
+        if (warning) warnings.push(warning)
+      }
+    } catch {
+      // pyproject ausente (projeto requirements-only) — sem warning (CA-11)
     }
   }
 

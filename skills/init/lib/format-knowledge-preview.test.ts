@@ -2,7 +2,7 @@
 // M1.1 (2026-05-17): parseTopKeywords agora async — testes migrados para await.
 // 2026-05-18 (Luiz/dev): RF11 — warning Rails legado <7.1, alinhado com D23 + CA-04
 import { describe, it, expect, test } from 'bun:test'
-import { formatKnowledgePreview, parseTopKeywords, TOP_N_KEYWORDS, extractRailsVersionWarning } from './format-knowledge-preview'
+import { formatKnowledgePreview, parseTopKeywords, TOP_N_KEYWORDS, extractRailsVersionWarning, extractPythonVersionWarning } from './format-knowledge-preview'
 import { writeFileSync, mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -125,5 +125,48 @@ describe('extractRailsVersionWarning (RF11)', () => {
 
   test('Gemfile vazio retorna null', () => {
     expect(extractRailsVersionWarning('')).toBeNull()
+  })
+})
+
+// 2026-08-30 (Luiz/dev): warning legado Python — D7/RF8 + CA-04 do PRD stack-knowledge-python.
+// R7: parse conservador — formato nao reconhecido NUNCA gera warning (zero falso-positivo).
+describe('extractPythonVersionWarning (RF8/D7)', () => {
+  const WARNING = '⚠️ Knowledge Python cobre 3.11+, foco 3.13. Alguns padrões podem não se aplicar.'
+
+  const pyproject = (requires: string | null): string =>
+    ['[project]', 'name = "x"', 'version = "0.1.0"',
+     ...(requires === null ? [] : [`requires-python = "${requires}"`]),
+     'dependencies = ["fastapi>=0.110"]'].join('\n')
+
+  it('>=3.9 (abaixo do piso) gera warning', () => {
+    expect(extractPythonVersionWarning(pyproject('>=3.9'))).toBe(WARNING)
+  })
+
+  it('>=3.10 (abaixo do piso) gera warning', () => {
+    expect(extractPythonVersionWarning(pyproject('>=3.10'))).toBe(WARNING)
+  })
+
+  it('>=3.11 (exatamente o piso) NAO gera warning', () => {
+    expect(extractPythonVersionWarning(pyproject('>=3.11'))).toBeNull()
+  })
+
+  it('>=3.12 NAO gera warning (CA-04 lado negativo)', () => {
+    expect(extractPythonVersionWarning(pyproject('>=3.12'))).toBeNull()
+  })
+
+  it('range composto ">=3.9,<3.13" usa o lower bound e gera warning', () => {
+    expect(extractPythonVersionWarning(pyproject('>=3.9,<3.13'))).toBe(WARNING)
+  })
+
+  it('R7: formato nao reconhecido "^3.10" (poetry legacy, nao-PEP440) NAO gera warning', () => {
+    expect(extractPythonVersionWarning(pyproject('^3.10'))).toBeNull()
+  })
+
+  it('R7: requires-python ausente NAO gera warning', () => {
+    expect(extractPythonVersionWarning(pyproject(null))).toBeNull()
+  })
+
+  it('R7: conteudo que nem e TOML valido NAO gera warning nem lanca', () => {
+    expect(extractPythonVersionWarning('not a toml {{{')).toBeNull()
   })
 })
