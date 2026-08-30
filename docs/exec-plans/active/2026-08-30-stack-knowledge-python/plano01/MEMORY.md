@@ -2,7 +2,7 @@
 
 **Feature:** Stack Knowledge Python
 **Iniciado:** 2026-08-30
-**Status:** em andamento
+**Status:** concluido
 
 ---
 
@@ -122,10 +122,12 @@ distinto de "contestado virou regra dura" — vale manter a checagem explicita n
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 6 |
-| Fases concluidas | 4 (fase-00, 01, 02, 03) |
+| Fases concluidas | **6/6** (fase-00 a fase-05) |
 | Fases com desvio | 2 (fase-00 DEV-1 favoravel; fase-02 DI-3 correcao de plano) |
 | Bugs encontrados | 0 no codigo; 1 no plano (DI-3) |
-| Retries necessarios | 0 (verifier passou 5/5 na v1) |
+| Retries necessarios | 0 (verifier passou 5/5 na v1; nenhum RED precisou de 2a tentativa) |
+| Commits | 6 (`b68ca5f` audit, `00f4d07` bundle 01+02+03, `678089e` tracer, `6486811` warning, + 2 de bookkeeping) |
+| Suite ao fechar | 1809 pass / 0 fail (baseline da fase-00 era 1787) |
 
 ---
 
@@ -160,6 +162,32 @@ Preenchimento final ao concluir o Plano 01. Ja consolidado da fase-00:
   (Problema/Padrao/Quando usar/Quando NAO usar), `## Anti-padroes` com Sintoma/Correcao,
   `## Criterios de decisao` com tabela `| Cenario | Escolha |`, `## Referencias externas`.
   Espelha `knowledge/rails/atoms/active-record-fundamentals.md`.
+
+### PREMISSA 1 PROVADA — go para os Planos 02-04
+
+`tests/e2e/stack-knowledge-python-tracer.test.ts` passa 4/4. `runStackKnowledgeInit` resolve
+**sem throw** num projeto Python, devolve `stackPrimary='python'`, `copyResult.status='copied'`,
+e grava INDEX + piloto em `.claude/knowledge/`. **A infra funciona com `primary='python'` sem
+uma linha de mudanca no core** — `copyKnowledge`, `detect-stack`, `stack-aware-preface` e
+`emitStackKnowledgeEvents` seguem intocados. O AbortError de `copy-knowledge.ts:81` morreu por
+existencia da pasta, exatamente como o PRD previu.
+
+### O que os Planos 02-04 herdam sem re-decidir
+
+- **Prompt do extrator:** reusar como esta (clausula anti-drift verbatim + liberdade de nao
+  cobrir tudo + restricoes de "contestado"/versao/PT-BR + instrucao de escrever via Write).
+  Calibrado: 5/5 na v1, com o subagente descartando 4 claims por conta propria.
+- **Prompt do verifier:** protocolo de escopo verbatim (3 secoes tecnicas apenas) + as
+  checagens extras (cap de linhas, 4 secoes, placeholders, "contestado" virou regra dura,
+  conhecimento injetado). **Adicionar a checagem de amplificacao de tom** — foi o unico achado
+  real do piloto e nao estava no protocolo original.
+- **`atomCount` sempre dinamico** nos testes (`>= 1`), nunca literal. O tracer da fase-04 e o
+  teste de telemetria da fase-05 ja seguem isso e nao devem precisar de edicao quando os 17
+  atomos restantes entrarem.
+- **`MANIFEST_MAX_BYTES`** (ex-`GEMFILE_MAX_BYTES`) e a constante de cap de leitura de manifest
+  em `run-stack-knowledge-init.ts` — se algum plano futuro ler outro manifest, reusar.
+- **Warning legado ja fechado** — nao reimplementar. `>=3.9`/`>=3.10` avisam; `>=3.11`/`>=3.12`
+  nao; `^3.10`, ausente e TOML torto nao avisam por design (R7).
 
 ---
 
