@@ -1,0 +1,3 @@
+# 2026-08-30 (Luiz/dev): variante CA-11 — sem pyproject, sem marker de versao => sem warning
+fastapi>=0.110
+uvicorn[standard]>=0.30
