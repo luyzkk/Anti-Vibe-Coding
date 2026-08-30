@@ -44,7 +44,7 @@ NÃO tocar `INDEX.md` (G11).
 - Deadlock retry
 - RLS para multi-tenancy
 - Read replicas
-- Repository pattern — **conflito Percival vs Bayer marcado como CONTESTADO na fonte** (G3:
+- Repository pattern — **conflito Percival/Gregory vs tutorial oficial do FastAPI marcado como CONTESTADO na fonte** (G3:
   vira nota em Critérios de decisão, nunca regra dura)
 - Bulk ops
 - Soft delete
@@ -146,7 +146,13 @@ pool_size/max_overflow, deadlock retry, RLS multi-tenancy, read replicas, reposi
 bulk ops, soft delete, optimistic locking, JSONB, sessão e StreamingResponse.
 
 Regras específicas:
-- O conflito do repository pattern (Percival vs Bayer) está marcado como CONTESTADO na fonte:
+- **CORRIGIDO em 2026-08-30 durante a execucao:** o plano rotulava este conflito como
+  "Percival vs Bayer". A fonte NAO atribui a posicao "sessao direta" a Mike Bayer — ela cita o
+  tutorial oficial do FastAPI (*SQL Databases*, linha 1036) contra Percival e Gregory
+  (*Architecture Patterns with Python*, linha 1067). Bayer aparece na fonte apenas em contexto de
+  **Alembic** (linhas 51 e 217), que e o atomo da fase-04. O extrator preservou a atribuicao da
+  fonte em vez do rotulo do prompt e sinalizou a divergencia — comportamento correto de fidelidade.
+- O conflito do repository pattern (Percival/Gregory vs tutorial oficial do FastAPI) está marcado como CONTESTADO na fonte:
   ele NUNCA vira regra dura — apresente as duas posições como nota em Critérios de decisão,
   atribuindo à fonte a marcação de contestado.
 - Demais claims "contestado" seguem a mesma regra (nota ou omissão).
@@ -162,7 +168,7 @@ Regras específicas:
 ## Gotchas
 
 - **G2 do plano:** anti-drift verbatim — embutido.
-- **G3 do plano (crítico aqui):** Percival vs Bayer é o caso-teste do filtro "contestado" —
+- **G3 do plano (crítico aqui):** Percival/Gregory vs tutorial oficial do FastAPI é o caso-teste do filtro "contestado" —
   o verifier e o audit humano (Plano 04 fase-06) vão checar exatamente isso.
 - **G8 do plano:** `flagged_for_human_audit` no frontmatter + validador segue verde.
 - **G14 do plano (crítico aqui):** fronteira runtime vs schema — grep no Passo 3.
@@ -182,7 +188,7 @@ Regras específicas:
 ### Checklist específico da fase
 
 - [ ] Fronteira split (G14): grep Alembic/autogenerate/expand-contract/CONCURRENTLY/backfill = 0
-- [ ] Repository pattern aparece como nota de conflito contestado (Percival vs Bayer) em
+- [ ] Repository pattern aparece como nota de conflito contestado (Percival/Gregory vs tutorial oficial do FastAPI) em
   Critérios de decisão — NÃO como padrão nem anti-padrão prescritivo
 - [ ] Nota "audit humano (D11)" presente no corpo
 - [ ] MissingGreenlet coberto pelo ângulo ORM; modelo de event loop referenciado ao piloto
