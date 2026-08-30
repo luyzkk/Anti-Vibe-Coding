@@ -18,11 +18,24 @@
 
 - **DI-2 (fase-00):** gates desta feature usam **`bun run test`**, nao `bun test`. Ver GT-2.
 
+- **DI-3 (fase-02):** o exemplo dentro da mensagem de erro de item invalido e **parametrizado por
+  campo**, nao fixo. `OPTIONAL_VERSION_FIELDS` virou `ReadonlyArray<{ field, example }>` com
+  `rails_versions -> '>=7.1'` e `python_versions -> '>=3.11'`.
+  - Por que: o snippet do Passo 2 da fase-02 hardcodeava `(e.g. >=3.11)` para os dois campos, o
+    que mudaria a mensagem de `rails_versions` — contradizendo a exigencia, na MESMA fase, de
+    preservar as mensagens de Rails byte a byte. Nenhum teste assertava essa substring, entao o
+    erro teria passado silencioso ate alguem depender da mensagem.
+  - Impacto: doc da fase-02 CORRIGIDO em disco (snippet + nota na secao Gotchas). Planos 02-04
+    herdam a versao corrigida.
+  - Verificado: `rails_versions item "..." does not match semver range format (e.g. >=7.1)` e
+    `python_versions item "..." ... (e.g. >=3.11)`.
+
 ---
 
 ## Bugs Descobertos
 
-Nenhum bug de produto nesta fase (fase de auditoria, sem codigo de producao tocado).
+Nenhum bug de produto ate aqui. O defeito encontrado na fase-02 era do PLANO, nao do codigo —
+ver DI-3.
 
 ---
 
@@ -37,7 +50,10 @@ Nenhum bug de produto nesta fase (fase de auditoria, sem codigo de producao toca
     direta (Write), nao heredoc. Nao usar `AVC_ALLOW_DESTRUCTIVE=1` para contornar — o guard esta
     correto em ser conservador; o custo e trivial.
   - Vale para Planos 02-04: os atomos de seguranca/deployment/debugging vao citar comandos perigosos
-    como exemplo. **Escrever atomo sempre via Write, nunca via heredoc.**
+    como exemplo. **Escrever atomo sempre via Write, nunca via heredoc.** Instrucao ja incluida no
+    prompt do extrator da fase-03 — manter nos prompts dos proximos batches.
+  - 2026-08-30: o guard foi endurecido em `1401233` (cobre `update-ref`, formas longas de `-D` e
+    poda de reflog). Mais um motivo para nao tentar contornar por Bash.
 
 - **GT-2 — `bun test` (builtin) diverge de `bun run test` (suite canonica).**
   - Descoberto em: fase-00, baseline.
@@ -74,15 +90,42 @@ Nenhum bug de produto nesta fase (fase de auditoria, sem codigo de producao toca
 
 ---
 
+## Calibracao do protocolo extrator+verifier (piloto — herdado pelos Planos 02-04)
+
+O piloto existe para calibrar o gate ANTES dos 17 atomos restantes. Numeros reais:
+
+| Medida | Valor | Leitura |
+|---|---|---|
+| Verifier v1 | **5/5 (100%)** | Gate e >=4/5. Passou de primeira, sem ciclo de polish |
+| Corpo do atomo | **182 / 200 linhas** | Fonte de 506 linhas -> 182. Taxa de compressao ~2.8:1 |
+| Arquivo total | 195 / 220 linhas | |
+| Patterns | 13 | todos com Regra-fonte identificada |
+| Anti-padroes | 6 | |
+| Ciclos de rework | 0 | |
+| `python_versions` | `['>=3.11']` | confirmado (piso: `asyncio.TaskGroup` e 3.11+) |
+
+**O prompt do extrator funcionou de primeira** — a clausula anti-drift verbatim fez o subagente
+DESCARTAR 4 claims por conta propria (lock distribuido tipo Redlock, ferramentas de deteccao de
+race, numeros de throughput hipoteticos, e um "quando NAO usar" de idempotencia), todas
+plausiveis e todas ausentes da fonte. E exatamente o modo de falha que a compound lesson de
+2026-05-16 descreve. **Reusar o prompt como esta nos Planos 02-04.**
+
+**Achado que vale herdar no prompt do verifier:** alem de rastreabilidade, o verifier pegou uma
+**amplificacao de tom** — o atomo escrevia "nunca `wait_for`" enquanto a fonte (Regra 2.2) diz
+"em vez de", preferencia idiomatica marcada como Consenso simples. O "Nunca" da fonte pertence a
+outra clausula (nunca engula `CancelledError`). Substancia rastreavel, certeza inflada.
+Corrigido cirurgicamente para "preferivel a `wait_for`". Isso e um eixo DISTINTO do gate X/5 e
+distinto de "contestado virou regra dura" — vale manter a checagem explicita nos proximos batches.
+
 ## Metricas
 
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 6 |
-| Fases concluidas | 1 (fase-00) |
-| Fases com desvio | 1 (fase-00 — DEV-1, desvio favoravel) |
-| Bugs encontrados | 0 |
-| Retries necessarios | 0 |
+| Fases concluidas | 4 (fase-00, 01, 02, 03) |
+| Fases com desvio | 2 (fase-00 DEV-1 favoravel; fase-02 DI-3 correcao de plano) |
+| Bugs encontrados | 0 no codigo; 1 no plano (DI-3) |
+| Retries necessarios | 0 (verifier passou 5/5 na v1) |
 
 ---
 
@@ -105,6 +148,18 @@ Preenchimento final ao concluir o Plano 01. Ja consolidado da fase-00:
   os 10 compass artifacts com os IDs citados no plano (incl. `63884763`, fonte do piloto),
   6 `deep-research-report*.md` e 5 skill packages.
 - Ver GT-1 (escrever atomo via Write, nunca heredoc) e GT-2 (`bun run test`, nao `bun test`).
+- **Commit bundle 01+02+03 fechado em `00f4d07`.** `harness:validate` subiu de 374 para 376 md
+  (INDEX + atomo entraram no crawl de `knowledge/`, que — diferente de `docs/exec-plans/` — nao
+  esta em SKIP_DIRS). G1 fechado: nunca houve commit intermediario com `atoms/` vazia.
+- **Backlog do cap registrado no TODO.md** (2026-08-30): Regras 2.3, 4.2-parcial, 5.1, 8.2 e 9.2
+  da fonte ficaram de fora do piloto. Candidatos naturais ja mapeados —
+  `background-jobs-and-queues` (Plano 04 fase-01) absorve 4.2/5.1;
+  `deployment-and-production` (Plano 03 fase-08) absorve 9.2.
+- **Formato do atomo que passou no gate:** H1, `## Quando consultar` (4-6 bullets),
+  `## Padroes senior` com `### Pattern: {nome}` + 4 bullets em negrito
+  (Problema/Padrao/Quando usar/Quando NAO usar), `## Anti-padroes` com Sintoma/Correcao,
+  `## Criterios de decisao` com tabela `| Cenario | Escolha |`, `## Referencias externas`.
+  Espelha `knowledge/rails/atoms/active-record-fundamentals.md`.
 
 ---
 

@@ -122,9 +122,17 @@ helper e aplicá-lo aos dois campos. Não duplicar o bloco — mesma regra, uma 
 // 2026-08-30 (Luiz/dev): python_versions opcional — mesmo contrato de rails_versions
 // (array de ranges semver-style, não-vazio). Generalizado em helper para nao duplicar
 // a regra por stack — D9/RF3 + CA-03 do PRD stack-knowledge-python.
-const OPTIONAL_VERSION_FIELDS = ['rails_versions', 'python_versions'] as const
+const OPTIONAL_VERSION_FIELDS: ReadonlyArray<{ field: string; example: string }> = [
+  { field: 'rails_versions', example: '>=7.1' },
+  { field: 'python_versions', example: '>=3.11' },
+]
 
-function validateVersionsField(data: Record<string, unknown>, field: string, errors: string[]): void {
+function validateVersionsField(
+  data: Record<string, unknown>,
+  field: string,
+  example: string,
+  errors: string[],
+): void {
   if (!(field in data)) return
   const value = data[field]
 
@@ -136,7 +144,7 @@ function validateVersionsField(data: Record<string, unknown>, field: string, err
     for (const item of value) {
       if (typeof item !== 'string' || !SEMVER_RANGE.test(item)) {
         errors.push(
-          `${field} item "${String(item)}" does not match semver range format (e.g. >=3.11)`,
+          `${field} item "${String(item)}" does not match semver range format (e.g. ${example})`,
         )
       }
     }
@@ -147,8 +155,8 @@ function validateVersionsField(data: Record<string, unknown>, field: string, err
 E no corpo de `validateAtomFrontmatter`, substituir o bloco inline por:
 
 ```typescript
-for (const field of OPTIONAL_VERSION_FIELDS) {
-  validateVersionsField(data, field, errors)
+for (const { field, example } of OPTIONAL_VERSION_FIELDS) {
+  validateVersionsField(data, field, example, errors)
 }
 ```
 
@@ -180,6 +188,11 @@ antigos assertam substring `'must not be empty'` e `'rails_versions'`).
 - **Local:** as mensagens de erro existentes de `rails_versions` são contrato de teste
   (`rails_versions must be an array, not a string`, etc.). O helper generalizado gera as
   MESMAS strings com o nome do campo interpolado — conferir que nenhum teste antigo quebrou.
+  - **CORRIGIDO em 2026-08-30 durante a execucao:** o snippet original do Passo 2 hardcodeava
+    `(e.g. >=3.11)` na mensagem de item invalido, o que mudaria a mensagem de `rails_versions`
+    de `(e.g. >=7.1)` para `(e.g. >=3.11)` — contradizendo esta propria gotcha. O snippet acima
+    foi corrigido para parametrizar o exemplo por campo (`OPTIONAL_VERSION_FIELDS` virou lista de
+    `{ field, example }`). Nenhum teste assertava essa substring, entao o erro passaria silencioso.
 - **Local:** não adicionar `python_versions` ao `REQUIRED_FIELDS` — é opcional (átomos de
   linguagem sem sensibilidade de versão não o usam).
 - **G1 do README:** NÃO commitar ao fim desta fase — bundle na fase-03.
