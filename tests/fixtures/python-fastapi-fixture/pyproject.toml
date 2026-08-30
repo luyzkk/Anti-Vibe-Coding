@@ -1,0 +1,7 @@
+# 2026-08-30 (Luiz/dev): fixture CA-02 — pyproject com fastapi + requires-python >= 3.12
+# (sem warning de versao, CA-04 lado negativo) — RF6 do PRD stack-knowledge-python
+[project]
+name = "python-fastapi-fixture"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = ["fastapi>=0.110", "uvicorn[standard]>=0.30"]

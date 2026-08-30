@@ -99,3 +99,43 @@ export function extractRailsVersionWarning(gemfileContent: string): string | nul
   }
   return null
 }
+
+// 2026-08-30 (Luiz/dev): RF8/D7 — warning quando pyproject declara requires-python < 3.11.
+// Piso deriva de constantes (mexer no piso nao deixa o texto mentindo), espelho do bloco Rails.
+// R7 (parse conservador): so reconhece lower bound `>=X.Y[.Z]` — qualquer outro formato
+// (^3.10 poetry-legacy, ==3.*, ausente, TOML torto) retorna null. Falso-negativo e aceitavel;
+// falso-positivo nao. TaskGroup e 3.11+, TypeIs e 3.13+ — D7 do PRD stack-knowledge-python.
+export const MIN_SUPPORTED_PYTHON_MAJOR = 3
+export const MIN_SUPPORTED_PYTHON_MINOR = 11
+export const PYTHON_FOCUS_VERSION = '3.13'
+
+const REQUIRES_PYTHON_LINE = /^\s*requires-python\s*=\s*["']([^"']+)["']\s*$/m
+const LOWER_BOUND = />=\s*(\d+)\.(\d+)(?:\.\d+)?/
+
+/**
+ * Le `requires-python` de um pyproject.toml e devolve o warning de cobertura se o piso
+ * declarado for menor que 3.11. Regex line-based de proposito: ler 1 chave canonica de
+ * `[project]` nao justifica um parser TOML completo, e o modo de falha escolhido e o
+ * silencio (formato estranho => null), nunca o warning errado.
+ *
+ * @example extractPythonVersionWarning('requires-python = ">=3.9"') // warning
+ * @example extractPythonVersionWarning('requires-python = "^3.10"') // null (nao-PEP440)
+ */
+export function extractPythonVersionWarning(pyprojectContent: string): string | null {
+  const line = REQUIRES_PYTHON_LINE.exec(pyprojectContent)
+  if (!line || line[1] === undefined) return null
+
+  const bound = LOWER_BOUND.exec(line[1])
+  if (!bound || bound[1] === undefined || bound[2] === undefined) return null
+
+  const major = Number(bound[1])
+  const minor = Number(bound[2])
+  const belowFloor =
+    major < MIN_SUPPORTED_PYTHON_MAJOR ||
+    (major === MIN_SUPPORTED_PYTHON_MAJOR && minor < MIN_SUPPORTED_PYTHON_MINOR)
+
+  if (belowFloor) {
+    return `⚠️ Knowledge Python cobre ${MIN_SUPPORTED_PYTHON_MAJOR}.${MIN_SUPPORTED_PYTHON_MINOR}+, foco ${PYTHON_FOCUS_VERSION}. Alguns padrões podem não se aplicar.`
+  }
+  return null
+}

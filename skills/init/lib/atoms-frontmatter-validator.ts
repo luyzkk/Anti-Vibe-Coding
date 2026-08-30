@@ -16,6 +16,16 @@ const REQUIRED_FIELDS = ['topic', 'stack', 'layer', 'sources', 'tier', 'triggers
 
 const SEMVER_RANGE = /^(>=|<=|>|<|=|~>)\s*\d+\.\d+(\.\d+)?$/
 
+// 2026-08-30 (Luiz/dev): python_versions opcional — mesmo contrato de rails_versions
+// (array de ranges semver-style, nao-vazio). Generalizado em helper para nao duplicar
+// a regra por stack — D9/RF3 + CA-03 do PRD stack-knowledge-python.
+// O exemplo na mensagem de erro e por campo de proposito: a mensagem de rails_versions e
+// contrato de teste desde 2026-05-18 e precisa continuar byte a byte igual.
+const OPTIONAL_VERSION_FIELDS: ReadonlyArray<{ field: string; example: string }> = [
+  { field: 'rails_versions', example: '>=7.1' },
+  { field: 'python_versions', example: '>=3.11' },
+]
+
 const FRONTMATTER_OPEN = '---\n'
 const FRONTMATTER_CLOSE = '\n---'
 
@@ -36,6 +46,39 @@ function extractFrontmatter(raw: string): string | null {
   const close = content.indexOf(FRONTMATTER_CLOSE, FRONTMATTER_OPEN.length)
   if (close === -1) return null
   return content.slice(FRONTMATTER_OPEN.length, close)
+}
+
+/**
+ * Valida um campo opcional de versoes (array de ranges semver-style, nao-vazio).
+ * Ausencia do campo e valida — o campo e opcional por design: atomos sem sensibilidade
+ * de versao nao o declaram.
+ *
+ * @example validateVersionsField({ python_versions: ['>=3.11'] }, 'python_versions', '>=3.11', [])
+ */
+function validateVersionsField(
+  data: Record<string, unknown>,
+  field: string,
+  example: string,
+  errors: string[],
+): void {
+  if (!(field in data)) return
+  const value = data[field]
+
+  if (!Array.isArray(value)) {
+    errors.push(`${field} must be an array, not a string`)
+    return
+  }
+  if (value.length === 0) {
+    errors.push(`${field} array must not be empty`)
+    return
+  }
+  for (const item of value) {
+    if (typeof item !== 'string' || !SEMVER_RANGE.test(item)) {
+      errors.push(
+        `${field} item "${String(item)}" does not match semver range format (e.g. ${example})`,
+      )
+    }
+  }
 }
 
 export function validateAtomFrontmatter(filePath: string): FrontmatterValidationResult {
@@ -69,23 +112,8 @@ export function validateAtomFrontmatter(filePath: string): FrontmatterValidation
     }
   }
 
-  // Validate rails_versions if present
-  if ('rails_versions' in data) {
-    const value = data['rails_versions']
-
-    if (!Array.isArray(value)) {
-      errors.push('rails_versions must be an array, not a string')
-    } else if (value.length === 0) {
-      errors.push('rails_versions array must not be empty')
-    } else {
-      for (const item of value) {
-        if (typeof item !== 'string' || !SEMVER_RANGE.test(item)) {
-          errors.push(
-            `rails_versions item "${String(item)}" does not match semver range format (e.g. >=7.1)`,
-          )
-        }
-      }
-    }
+  for (const { field, example } of OPTIONAL_VERSION_FIELDS) {
+    validateVersionsField(data, field, example, errors)
   }
 
   return { valid: errors.length === 0, errors }
