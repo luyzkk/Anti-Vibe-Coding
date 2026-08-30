@@ -121,7 +121,7 @@ python_versions: ['>=3.11']
 - **Problema:** assumir que um `lru_cache` com `maxsize` grande compartilha hits/invalidação entre workers Uvicorn — memória process-local não é mecanismo de coerência distribuída.
 - **Padrão:** use `lru_cache`/memória local para estado que pode legitimamente existir de forma independente em cada processo (ex.: settings imutáveis); se todos os workers/réplicas precisam compartilhar hits, invalidação ou capacidade, coloque essa cache num serviço compartilhado, como Redis.
 - **Quando usar local:** `lru_cache(maxsize=1)` para settings — cada processo pode ter sua própria cópia sem problema.
-- **Quando NÃO usar local:** dados que precisam de coerência entre workers — a consequência de usar cache local nesse caso é multiplicação de RAM e divergência de freshness entre workers; um cache local ainda pode servir deliberadamente como L1 na frente de um cache distribuído, se stale data e invalidação independente forem toleráveis.
+- **Quando NÃO usar local:** dados que precisam de coerência entre workers — a consequência de usar cache local nesse caso é multiplicação de RAM e potencial divergência de freshness entre workers; um cache local ainda pode servir deliberadamente como L1 na frente de um cache distribuído, se stale data e invalidação independente forem toleráveis.
 
 ### Pattern: PERF-CACHE-02 + PERF-CACHE-04 — HTTP caching/CDN e invalidação por semântica, não TTL cego
 
@@ -133,7 +133,7 @@ python_versions: ['>=3.11']
 ### Pattern: PERF-CACHE-03 — Proteger cache miss popular contra stampede
 
 - **Problema:** o TTL de uma chave muito quente expira e centenas de requests simultâneos recebem miss, todos executando a mesma query/HTTP/computação cara ao mesmo tempo.
-- **Padrão:** em resposta HTTP/CDN, prefira `stale-while-revalidate` quando a semântica tolerar stale temporário; em cache distribuída da aplicação, serialize a recomputação por chave com lease/expiração (ex.: `SET cache-lock:{key} <token> NX PX 30000`), deixando que só o vencedor reconstrua a entrada — a liberação precisa confirmar o token do dono, já que um `DEL` indiscriminado pode apagar um lock já reassumido por outro cliente (Redis 8.4 adiciona `DELEX ... IFEQ` para isso; versões anteriores usam script Lua equivalente).
+- **Padrão:** em resposta HTTP/CDN, prefira `stale-while-revalidate` quando a semântica tolerar stale temporário; em cache distribuída da aplicação, serialize a recomputação por chave com lease/expiração (ex.: `SET cache-lock:{key} <token> NX PX 30000`), deixando que só o vencedor reconstrua a entrada — a liberação precisa confirmar o token do dono, já que um `DEL` indiscriminado pode apagar um lock já reassumido por outro cliente (Redis 8.4 adiciona `DELEX ... IFEQ` para isso; versões anteriores podem usar script Lua equivalente).
 - **Quando usar:** chave muito quente, pico periódico de backend, cache regenerada por operação cara.
 - **Quando NÃO usar:** `stale-while-revalidate` muda a semântica de freshness e não cabe a saldo financeiro, autorização ou resposta que não tolere stale; locks distribuídos adicionam latência/failure modes — use-os só quando o custo do stampede justificar o mecanismo.
 
