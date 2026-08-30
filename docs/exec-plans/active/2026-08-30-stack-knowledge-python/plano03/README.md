@@ -146,7 +146,7 @@ deste plano.
 - **G3 — Claims "contestado" nunca viram regra dura:** claim marcada como contestada na fonte
   vira nota em Critérios de decisão ("fonte marca como contestado") ou é omitida — NUNCA entra
   como padrão/anti-padrão prescritivo. Neste plano o caso mais visível é o repository pattern
-  (Percival vs Bayer) na fase-03.
+  (Percival/Gregory vs tutorial oficial do FastAPI) na fase-03.
 - **G4 — Normalização de versões entre fontes:** divergência (FastAPI 0.136 vs 0.141; Ruff 0.15
   vs 0.16) → usar a mais recente citada nas fontes do átomo. Conflito real de recomendação vira
   nota em Critérios de decisão. Versões FastAPI ficam inline no corpo (D9) — nunca em campo de
