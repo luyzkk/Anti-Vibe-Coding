@@ -303,6 +303,55 @@ SOFTWARE.
 
 ---
 
+### ECC — Everything Claude Code (Affaan Mustafa, MIT License)
+
+Two atoms in `knowledge/python/atoms/` are **partly distilled** from skill packages whose frontmatter
+declares `origin: ECC`:
+
+- `python-idioms-and-antipatterns.md` — secondary source `Infos/knowledge/Python/python-patterns/SKILL.md`
+- `pytest-and-testing-strategy.md` — secondary source `Infos/knowledge/Python/python-testing/SKILL.md`
+
+**Provenance traced on 2026-08-30 (RF12 of the stack-knowledge-python PRD).** The `origin: ECC` marker
+was the only provenance metadata present locally — the skill folders carry no LICENSE or README. ECC
+resolves to **Everything Claude Code**, published at <https://github.com/affaan-m/ECC> (also surfaced
+via <https://ecc.tools/skills>), which declares the **MIT License**. The upstream skills live at
+`skills/python-patterns/SKILL.md` and `skills/python-testing/SKILL.md`.
+
+**Note on the local copies:** the upstream SKILL.md files are in **English**; the copies under
+`Infos/knowledge/Python/` are **Spanish translations** carrying the same `name` and the same
+`origin: ECC` marker. They are therefore derivative works of the MIT-licensed originals, which MIT
+expressly permits (the license grants the right to modify and distribute). The Anti-Vibe-Coding atoms
+are a further derivative: PT-BR distillations into the atom format (frontmatter + 4 mandatory
+sections), with the source path recorded in each atom's `sources:` field for audit traceability.
+
+#### MIT License (verbatim from <https://github.com/affaan-m/ECC> LICENSE):
+
+```
+MIT License
+
+Copyright (c) 2026 Affaan Mustafa
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+---
+
 ## Future expansion
 
 If future stacks (Phoenix? Go? Elixir?) include derivative content from third-party works, append additional sections (`### <upstream-name> (<author>, <license>)`) to this file. Keep this single file as the canonical NOTICES — do not split across matrix folders.
