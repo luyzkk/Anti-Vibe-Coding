@@ -32,6 +32,26 @@ const cases = [
   { name: 'git restore .', payload: { tool_name: 'Bash', tool_input: { command: 'git restore .' } }, expectCode: 2, expectPattern: 'git-checkout-discard' },
   { name: 'git commit --no-verify', payload: { tool_name: 'Bash', tool_input: { command: 'git commit -m "fix" --no-verify' } }, expectCode: 2, expectPattern: 'git-no-verify' },
 
+  // 2026-08-30: as tres brechas abaixo tornavam o bloqueio de `git branch -D` contornavel sem
+  // nenhuma intencao de burla — bastava escrever o mesmo comando de outro jeito.
+  //
+  // update-ref: plumbing que apaga ou reaponta uma ref direto, sem passar por `git branch`.
+  { name: 'git update-ref -d (apaga branch por plumbing)', payload: { tool_name: 'Bash', tool_input: { command: 'git update-ref -d refs/heads/feature/foo' } }, expectCode: 2, expectPattern: 'git-update-ref' },
+  { name: 'git update-ref --delete', payload: { tool_name: 'Bash', tool_input: { command: 'git update-ref --delete refs/heads/foo' } }, expectCode: 2, expectPattern: 'git-update-ref' },
+  { name: 'git update-ref reaponta main', payload: { tool_name: 'Bash', tool_input: { command: 'git update-ref refs/heads/main abc1234' } }, expectCode: 2, expectPattern: 'git-update-ref' },
+
+  // Formas longas/combinadas do proprio `-D` que o regex antigo nao via.
+  { name: 'git branch --delete --force', payload: { tool_name: 'Bash', tool_input: { command: 'git branch --delete --force feature/foo' } }, expectCode: 2, expectPattern: 'git-branch-delete-force' },
+  { name: 'git branch --force --delete (ordem trocada)', payload: { tool_name: 'Bash', tool_input: { command: 'git branch --force --delete feature/foo' } }, expectCode: 2, expectPattern: 'git-branch-delete-force' },
+  { name: 'git branch -fd (flags combinadas)', payload: { tool_name: 'Bash', tool_input: { command: 'git branch -fd feature/foo' } }, expectCode: 2, expectPattern: 'git-branch-delete-force' },
+  { name: 'git branch -Df', payload: { tool_name: 'Bash', tool_input: { command: 'git branch -Df feature/foo' } }, expectCode: 2, expectPattern: 'git-branch-delete-force' },
+
+  // A rede de recuperacao: o guard recusa `-D` porque "perde commits", mas eles sobrevivem no
+  // reflog. Expirar o reflog ou podar agora torna a perda definitiva — proteger o `-D` e deixar
+  // isto passar e uma protecao so no nome.
+  { name: 'git reflog expire --all', payload: { tool_name: 'Bash', tool_input: { command: 'git reflog expire --expire=now --all' } }, expectCode: 2, expectPattern: 'git-history-prune' },
+  { name: 'git gc --prune=now', payload: { tool_name: 'Bash', tool_input: { command: 'git gc --prune=now' } }, expectCode: 2, expectPattern: 'git-history-prune' },
+
   // ALLOW cases (expect exit 0)
   { name: 'safe ls', payload: { tool_name: 'Bash', tool_input: { command: 'ls -la' } }, expectCode: 0 },
   { name: 'safe git status', payload: { tool_name: 'Bash', tool_input: { command: 'git status' } }, expectCode: 0 },
@@ -39,6 +59,12 @@ const cases = [
   { name: 'rm without -rf', payload: { tool_name: 'Bash', tool_input: { command: 'rm /tmp/single-file.txt' } }, expectCode: 0 },
   { name: 'git branch -d (lowercase)', payload: { tool_name: 'Bash', tool_input: { command: 'git branch -d merged-feature' } }, expectCode: 0 },
   { name: 'non-Bash tool (Edit)', payload: { tool_name: 'Edit', tool_input: { file_path: '/tmp/x.md' } }, expectCode: 0 },
+  // Os padroes novos nao podem virar rede de arrasto: ler o reflog e rodar um gc comum sao
+  // operacoes de rotina, e um guard que grita no caminho normal deixa de ser lido.
+  { name: 'git reflog (leitura)', payload: { tool_name: 'Bash', tool_input: { command: 'git reflog -n 20' } }, expectCode: 0 },
+  { name: 'git gc sem prune agressivo', payload: { tool_name: 'Bash', tool_input: { command: 'git gc --auto' } }, expectCode: 0 },
+  { name: 'git branch --list', payload: { tool_name: 'Bash', tool_input: { command: 'git branch --list "feat/*"' } }, expectCode: 0 },
+  { name: 'git show-ref (leitura de refs)', payload: { tool_name: 'Bash', tool_input: { command: 'git show-ref refs/heads/main' } }, expectCode: 0 },
 
   // OVERRIDE case
   { name: 'rm -rf with AVC_ALLOW_DESTRUCTIVE=1', payload: { tool_name: 'Bash', tool_input: { command: 'rm -rf /tmp/x' } }, env: { AVC_ALLOW_DESTRUCTIVE: '1' }, expectCode: 0 },
