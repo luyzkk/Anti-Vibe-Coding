@@ -51,7 +51,7 @@ Checks adicionais que o verifier deste batch DEVE incluir (por átomo, além das
 - Corpo ≤200 linhas (hard cap — reprova automática acima)
 - 4 seções obrigatórias presentes; zero placeholders `[A DEFINIR]`
 - Nenhuma claim marcada "contestado" na fonte promovida a regra dura (G3 — spot-check;
-  atenção especial ao repository pattern Percival vs Bayer na fase-03)
+  atenção especial ao repository pattern Percival/Gregory vs tutorial oficial do FastAPI na fase-03)
 
 ---
 
