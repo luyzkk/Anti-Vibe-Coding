@@ -232,3 +232,67 @@ describe('atom frontmatter — parser YAML (TODO #3)', () => {
     expect(validateAtomFrontmatter(p).valid).toBe(true)
   })
 })
+
+// 2026-08-30 (Luiz/dev): python_versions opcional, mesmo contrato de rails_versions —
+// D9/RF3 + CA-03 do PRD stack-knowledge-python. RED escrito antes da implementação.
+describe('atom frontmatter schema — python_versions optional', () => {
+  let fixture: string
+  beforeEach(() => { fixture = mkdtempSync(join(tmpdir(), 'atom-py-schema-')) })
+  afterEach(() => { rmSync(fixture, { recursive: true, force: true }) })
+
+  const PY_BASE = [
+    'topic: async-and-concurrency',
+    'stack: python',
+    'layer: backend',
+    'sources:',
+    '  - Infos/knowledge/Python/compass_artifact_wf-63884763-1cc1-5739-9753-a968138a53ba_text_markdown.md',
+    'tier: 1',
+    'triggers: [asyncio, TaskGroup, GIL]',
+    'related_skills: [/system-design]',
+    'updated: 2026-08-30',
+  ]
+
+  function writePyAtom(name: string, extra: string[] = []): string {
+    writeFileSync(join(fixture, name), ['---', ...PY_BASE, ...extra, '---', '# Body'].join('\n'))
+    return join(fixture, name)
+  }
+
+  it("aceita python_versions: ['>=3.11'] (array semver-style, D9)", () => {
+    const result = validateAtomFrontmatter(writePyAtom('ok-311.md', ["python_versions: ['>=3.11']"]))
+    expect(result.errors).toEqual([])
+    expect(result.valid).toBe(true)
+  })
+
+  it("aceita python_versions: ['>=3.13'] (padrões 3.13-only: TypeIs, free-threading)", () => {
+    expect(validateAtomFrontmatter(writePyAtom('ok-313.md', ["python_versions: ['>=3.13']"])).valid).toBe(true)
+  })
+
+  it('átomo python SEM python_versions continua válido (campo é opcional)', () => {
+    expect(validateAtomFrontmatter(writePyAtom('no-field.md')).valid).toBe(true)
+  })
+
+  it('rejeita python_versions como string (CA-03: erro claro, não veredito seco)', () => {
+    const result = validateAtomFrontmatter(writePyAtom('bad-string.md', ["python_versions: '>=3.11'"]))
+    expect(result.valid).toBe(false)
+    expect(result.errors.some(e => e.includes('python_versions') && e.includes('array'))).toBe(true)
+  })
+
+  it('rejeita python_versions array vazio', () => {
+    const result = validateAtomFrontmatter(writePyAtom('bad-empty.md', ['python_versions: []']))
+    expect(result.valid).toBe(false)
+    expect(result.errors.some(e => e.includes('must not be empty'))).toBe(true)
+  })
+
+  it('rejeita range texto-livre e item não-string', () => {
+    expect(validateAtomFrontmatter(writePyAtom('bad-free.md', ["python_versions: ['python-3-and-newer']"])).valid).toBe(false)
+    expect(validateAtomFrontmatter(writePyAtom('bad-num.md', ['python_versions: [3.11]'])).valid).toBe(false)
+  })
+
+  it('valida python_versions em átomo salvo com CRLF (compound 2026-05-19)', () => {
+    const lines = ['---', ...PY_BASE, "python_versions: ['>=3.11']", '---', '# Body']
+    writeFileSync(join(fixture, 'crlf.md'), lines.join('\r\n'))
+    const result = validateAtomFrontmatter(join(fixture, 'crlf.md'))
+    expect(result.errors).toEqual([])
+    expect(result.valid).toBe(true)
+  })
+})
