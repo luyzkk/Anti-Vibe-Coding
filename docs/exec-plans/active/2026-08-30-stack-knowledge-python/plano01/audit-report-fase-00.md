@@ -56,7 +56,7 @@ matrix específica (ver tabela de não-afetados). `knowledge/python/` ainda não
 
 | # | Arquivo | O que enumera | Quebra quando `knowledge/python/` aparecer? | Fase que corrige |
 |---|---------|---------------|---------------------------------------------|------------------|
-| 1 | `scripts/harness-validate.ts` (`checkKnowledgePresence`, L686-723) | `fs.readdir(knowledge/)` — itera **toda** subpasta e exige `INDEX.md` + ≥1 `.md` em `atoms/` | **SIM.** É o único ponto do repo que varre a árvore inteira. `knowledge/python/` com `atoms/` vazia gera 2 failures `[knowledge-presence]` | fase-03 (commit bundle 01+02+03) |
+| 1 | `scripts/harness-validate.ts` (`checkKnowledgePresence`, L670-723) | `fs.readdir(knowledge/)` — itera **toda** subpasta e exige `INDEX.md` + ≥1 `.md` em `atoms/` | **SIM.** É o único ponto do repo que varre a árvore inteira. `knowledge/python/` com `atoms/` vazia gera 2 failures `[knowledge-presence]` | fase-03 (commit bundle 01+02+03) |
 
 **Só há um afetado.** Isso é a prova mecânica do **G1**: não existe estado intermediário
 commitável entre "criar a pasta" e "ter o primeiro átomo". Por isso as fases 01+02+03 entram num
