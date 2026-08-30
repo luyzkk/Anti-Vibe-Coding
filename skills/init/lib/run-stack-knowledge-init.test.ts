@@ -133,3 +133,43 @@ describe('runStackKnowledgeInit (Wave 5 D2)', () => {
     expect(result).toBeDefined()
   })
 })
+
+// 2026-08-30 (Luiz/dev): RF8 integracao + RF10 confirmacao — CA-04 do PRD stack-knowledge-python
+describe('warning legado python + telemetria (RF8/RF10)', () => {
+  const PY_WARNING = '⚠️ Knowledge Python cobre 3.11+, foco 3.13. Alguns padrões podem não se aplicar.'
+  let project: string
+
+  const pyproject = (name: string, requires: string): string =>
+    `[project]\nname = "${name}"\nversion = "0.1.0"\nrequires-python = "${requires}"\ndependencies = ["fastapi"]\n`
+
+  beforeEach(() => { project = mkdtempSync(join(tmpdir(), 'rski-py-')) })
+  afterEach(() => { rmSync(project, { recursive: true, force: true }) })
+
+  it('CA-04: pyproject requires-python >=3.9 -> knowledge copiado E warning presente', async () => {
+    writeFileSync(join(project, 'pyproject.toml'), pyproject('legacy', '>=3.9'))
+    const result = await runStackKnowledgeInit({ targetDir: project, pluginRoot: PLUGIN_ROOT, logger: () => {} })
+    expect(result.copyResult.status).toBe('copied') // warning NAO bloqueia a copia
+    expect(result.warnings).toContain(PY_WARNING)
+  })
+
+  it('CA-04: requires-python >=3.12 -> sem warning', async () => {
+    writeFileSync(join(project, 'pyproject.toml'), pyproject('modern', '>=3.12'))
+    const result = await runStackKnowledgeInit({ targetDir: project, pluginRoot: PLUGIN_ROOT, logger: () => {} })
+    expect(result.warnings).toBeUndefined()
+  })
+
+  it('RF10: knowledge_copied emitido com stack=python e atom_count real (sem mudanca de codigo)', async () => {
+    writeFileSync(join(project, 'pyproject.toml'), pyproject('telemetry', '>=3.12'))
+    const result = await runStackKnowledgeInit({ targetDir: project, pluginRoot: PLUGIN_ROOT, logger: () => {} })
+
+    // writeTelemetryDomainEvent grava em {targetDir}/.claude/metrics/{YYYY-MM}.jsonl
+    const monthlyFile = join(project, '.claude', 'metrics', new Date().toISOString().slice(0, 7) + '.jsonl')
+    const lines = readFileSync(monthlyFile, 'utf8').trim().split('\n').map((l) => JSON.parse(l))
+    const copied = lines.find((e) => e.evento === 'knowledge_copied')
+    expect(copied).toBeDefined()
+    expect(copied.stack).toBe('python')
+    // G5: dinamico contra copyResult — NAO hardcodear 18 (nem 1)
+    expect(copied.atom_count).toBe(result.copyResult.atomCount)
+    expect(copied.atom_count).toBeGreaterThanOrEqual(1)
+  })
+})
