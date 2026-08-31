@@ -3,6 +3,42 @@
 Todas as mudanças notáveis do plugin Anti-Vibe Coding serão documentadas aqui.
 
 
+## [7.7.0] - 2026-08-31
+
+> **Minor release — 4ª stack: Python**
+
+### Added
+
+- **Stack knowledge Python** (`knowledge/python/`): 18 átomos PT-BR (6 T1 + 9 T2 + 3 T3),
+  Python 3.11+/foco 3.13, padrões web FastAPI-native declarados no INDEX (D2). Destilados de
+  ~700KB de pesquisa com cláusula anti-drift verbatim nos prompts de extração e verifier refined
+  (rastreabilidade ≥80% — resultado: 18/18 em 5/5, zero ciclos de rework) + audit humano assinado
+  em 3 átomos (D11).
+- `validateAtomFrontmatter` reconhece `python_versions` (array semver-style, opcional) sem
+  regressão nos átomos Rails/Node (CA-03). A regra de `rails_versions` virou helper parametrizado
+  em vez de bloco duplicado; as mensagens de erro do Rails seguem idênticas.
+- Warning de projeto legado: `requires-python` < 3.11 no `pyproject.toml` → aviso no `/init` (D7).
+  Parse conservador — formato não reconhecido (ex.: `^3.10`, que não é PEP 440) não avisa, porque
+  falso-positivo é pior que falso-negativo aqui.
+- Nota informativa Django/Flask no `/init` quando o projeto declara um dos dois nas dependências
+  (D8), em canal próprio `notes` — nota não é warning.
+- Entrada MIT `python-debugpy` no `THIRD-PARTY-NOTICES.md` (RF7); o átomo de debugging não contém
+  contexto proprietário da fonte (CA-10, verificado por grep em 3 checagens independentes).
+- Entrada MIT **ECC — Everything Claude Code** no `THIRD-PARTY-NOTICES.md`: a proveniência dos dois
+  skill packages em espanhol foi rastreada até `github.com/affaan-m/ECC` (RF12). O risco de licença
+  que o PRD havia *aceito* passou a *resolvido*.
+- E2E: `stack-knowledge-python-tracer` (4 testes) + `stack-knowledge-python-full` (12 testes, 18/18).
+
+### Fixed
+
+- **`/init` abortava em projeto Python.** `probePython` detectava a stack e
+  `STACK_ID_TO_MATRIX_FOLDER['python']` estava mapeado desde a v6.x, mas `knowledge/python/` nunca
+  foi criada: `copyKnowledge` lançava `AbortError` bloqueante ("Matrix 'python' não encontrada") e
+  o init inteiro morria. Com a matrix populada, o fluxo completa — sem nenhuma mudança no detector.
+  Quem rodou `/init` em projeto Python antes da 7.7.0 (init abortado), ou tem `.claude/knowledge/`
+  de versão anterior: rodar `/init` com `--refresh-knowledge` para receber a matrix.
+
+
 ## [7.6.1] - 2026-08-18
 
 > **Patch release — Zeragem do TODO.md**
