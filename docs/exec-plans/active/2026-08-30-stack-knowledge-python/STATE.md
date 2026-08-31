@@ -18,13 +18,19 @@
 
 Fases done: 22/29 (76%)
 
-## Audit Humano (Plano 04 fase-06)
+## Audit Humano (RF5 / CA-08 / D11)
 
-Assinatura do dev exigida antes do closeout (RF5, CA-08). Pendente.
+**CONCLUÍDO — 3/3 aprovados, 0 fixes pedidos.** Conduzido de forma interativa (G21), um átomo
+por vez, na ordem D11 (onde erro custa mais primeiro). Nenhuma aprovação foi dada em nome do dev.
 
-- [ ] `security-fastapi-owasp` — Aprovado por Luiz em ____-__-__
-- [ ] `sqlalchemy-async-and-orm` — Aprovado por Luiz em ____-__-__
-- [ ] `debugging-pdb-debugpy` — Aprovado por Luiz em ____-__-__
+| Átomo | Fixes antes do aprove | Assinatura |
+|-------|----------------------|------------|
+| security-fastapi-owasp | 0 | Aprovado por Luiz em 2026-08-31 |
+| sqlalchemy-async-and-orm | 0 | Aprovado por Luiz em 2026-08-31 |
+| debugging-pdb-debugpy | 0 | Aprovado por Luiz em 2026-08-31 |
+
+Os três foram selados após a aprovação: `flagged_for_human_audit` e a nota D11 removidas do
+frontmatter e do corpo, `validateAtomFrontmatter` reconfirmado. Zero flags restantes nos 18.
 
 ## Log
 
@@ -35,3 +41,4 @@ Assinatura do dev exigida antes do closeout (RF5, CA-08). Pendente.
 - 2026-08-30: **Plano 01 CONCLUIDO (6/6).** fase-04 — fixtures `python-fastapi-fixture` (pyproject, `requires-python = ">=3.12"`) e `python-requirements-fixture` (requirements-only) + tracer e2e 4/4 verde em `678089e`: **Premissa 1 PROVADA** — `/init` em projeto Python resolve sem AbortError, `primary='python'`, INDEX + piloto copiados, com ZERO mudanca em copyKnowledge/detect-stack/preface/telemetria. fase-05 — `extractPythonVersionWarning` (TDD, RED com 3 assertion failures) com parse conservador R7 (`^3.10` nao avisa por nao ser PEP 440) + branch python no orquestrador + `GEMFILE_MAX_BYTES` -> `MANIFEST_MAX_BYTES`; RF10 confirmado por teste (telemetria `knowledge_copied` ja sai com `stack='python'` e `atom_count` correto sem mudanca de codigo) em `6486811`. Suite final: **1809 pass / 0 fail** (baseline era 1787), typecheck limpo, harness 376 md, compound 55 notas. **Go para o Plano 02.**
 - 2026-08-30: **Plano 02 CONCLUIDO (6/6).** 5 atomos T1 destilados em 2 waves paralelas (fases 01-03 e 04-05), todos com clausula anti-drift verbatim. **Verifier batch: 4 atomos 5/5 e 1 atomo 4/5 — 5 de 5 PASS, G12 nao disparou, zero ciclos v2.** Uma falha real de conteudo (security: CVE-2024-53981 pareada com fix de regex, quando a fonte a atribui a logging por byte em loop — modo de falha "ID como fachada de rastreio") + 4 warns de amplificacao de tom, todos corrigidos cirurgicamente. **Rastreio ECC (RF12) BEM-SUCEDIDO:** ECC = Everything Claude Code, repo `affaan-m/ECC`, licenca **MIT** — entrada verbatim adicionada ao THIRD-PARTY-NOTICES.md; risco D5 resolvido, nao so aceito. Achado extra: upstream em ingles, copias locais sao traducoes ES (dupla derivacao, permitida por MIT). Gates: 1809 pass / 0 fail, typecheck limpo, harness 381 md, compound 55. Backlog do cap dos 5 atomos + 2 atomos no teto + defeito do link checker vs generics PEP 695 registrados no TODO.md.
 - 2026-08-30: **Plano 03 CONCLUIDO (10/10).** 9 atomos T2 em 3 waves paralelas. **Verifier batch: 9/9 em 5/5 — zero falhas de conteudo, G12 nao disparou, zero ciclos v2** (45 claims amostradas, 45 rastreadas). A matrix python vai a **15 atomos**. A clausula de preservacao de hedge, introduzida neste plano a partir do achado do Plano 02, derrubou a incidencia de warn de tom de 80% dos atomos (4/5) para 22% (2/9); os 2 warns foram corrigidos e 1 terceiro foi aceito com justificativa (ADD COLUMN espelha a Justificativa categorica da fonte, e a distincao volatil/nao-volatil esta intacta). **Correcao de plano:** o rotulo "Percival vs Bayer" da fase-03 estava errado — a fonte atribui o lado "sessao direta" ao tutorial do FastAPI; Bayer so aparece em contexto de Alembic. Corrigido em 3 docs. **Lacuna fechada:** a subarea "constraints vs validacao na aplicacao" nao estava em nenhum dos dois atomos que dividem a fonte; alocada em migrations. **Divergencia cross-atomo registrada, nao harmonizada** (formula de pool: piloto tem "x replicas", PERF-DB-02 so "workers" — compativeis, nao contraditorias). Gates: 1809 pass / 0 fail, typecheck limpo, harness 390 md, compound 55. 4 itens novos no TODO, incl. o sub-escopo da fase-08 e os SEIS atomos no teto do cap.
+- 2026-08-31: audit humano D11 concluído — 3/3 aprovados, 0 fixes aplicados. Selagem removeu flag + nota dos 3 átomos; 18/18 validam e nenhum corpo passa de 200 linhas (medição precisa pós-frontmatter: máximo 199).
