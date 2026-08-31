@@ -59,6 +59,26 @@ on critical operations, KISS, YAGNI, zero clutter, functional programming when a
   precisely because it reads as already-checked. Complexity and performance labels ("ReDoS",
   "O(n²)", "slow on large files") enter the record only with the command that measured them.
   The most dangerous claim is the one you wrote five minutes ago: nothing about it looks stale.
+- A citation is a pointer, not a verification. When a claim carries a reference — a rule id, a
+  CVE, an RFC section, a line number — the check has two steps: does the pointer resolve, and does
+  the thing it points at say what the claim says? Stopping at the first audits the bibliography,
+  not the text, and it fails in the direction that looks safest: the reference exists, so the
+  claim reads as already-verified. Resolve cheaply and mechanically; spend the expensive read on
+  the content. And look hardest where one claim cites two references — a fix that serves only the
+  first is invisible under a shared citation.
+- The same failure before and after a fix means the fix did not reach where you think it did.
+  Identical output is not "still broken" — it is evidence that the artifact under test is not the
+  artifact you edited. Rule out transport before logic: the bytes on disk may not be the bytes you
+  wrote (escaping, encoding, a control character that renders as nothing), the path under test may
+  not be the file you changed, or the build may be stale. Re-reading the code is the instinct and
+  the most expensive of the three.
+- Splitting one source across several tasks creates territory no task claims. Boundaries get
+  written as inclusion lists, and whatever falls outside all of them is silently dropped — each
+  worker assuming a sibling took it. A traceability gate cannot catch this: it samples what was
+  written and looks for it in the source, so it measures fabrication, never omission. Declare each
+  boundary in both directions, name what belongs to the sibling, and require workers to report
+  what they excluded and why — a deliberate exclusion they cannot confirm is the only signal the
+  process gets.
 
 Skill: /anti-vibe-coding:consultant (Phase Zero teaching).
 
