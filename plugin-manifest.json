@@ -1,6 +1,6 @@
 {
   "version": "7.7.0",
-  "generatedAt": "2026-08-31T11:26:48.839Z",
+  "generatedAt": "2026-08-31T11:36:05.437Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -385,7 +385,7 @@
     },
     "hooks/pre-tool-use-destructive-guard.cjs": {
       "version": "7.7.0",
-      "checksum": "ad9d50b2571f4da13f9544f19fa710cc0be2ee56cf28afe5b800df454d126239",
+      "checksum": "9e5b932d5f348170a816a63bd8fe86a040b13a1bae1ef169ed3b277f7b057de9",
       "lastModified": "2026-08-31",
       "updateStrategy": "replace"
     },
