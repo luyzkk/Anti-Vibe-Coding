@@ -84,6 +84,12 @@ writeJson(pluginPath, plugin);
 console.log('✓ .claude-plugin/plugin.json');
 
 // 3. .claude-plugin/marketplace.json
+// 2026-08-31 (Luiz/dev): o `version` de TOPO do marketplace tambem acompanha a versao do
+// plugin. Antes so a entrada aninhada era atualizada, e o topo ficava para tras ate alguem
+// notar e corrigir a mao num commit de release (ex.: cbe59b3 "align everything to 7.4.0").
+// Drift observado em 7.3.0, 7.4.0 e 7.7.0 — sempre o mesmo defeito.
+mkt.version = newVersion;
+
 const entry = mkt.plugins?.find(p => p.name === 'anti-vibe-coding');
 if (entry) {
   entry.version = newVersion;
