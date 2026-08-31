@@ -1,8 +1,8 @@
 # State: Stack Knowledge Python
 
 **Plan:** ./PLAN.md
-**Phase:** in-progress
-**Current Plan:** 04/4
+**Phase:** completed
+**Current Plan:** 4/4 — concluído
 **Last Updated:** 2026-08-30
 
 ## Progress por Plano
@@ -12,11 +12,11 @@
 | 01 | Infra + Validador + Piloto + Tracer Bullet | 6 | 6/6 | completed |
 | 02 | Atoms T1 + verifier + rastreio ECC | 6 | 6/6 | completed |
 | 03 | Atoms T2 (waves) + verifier | 10 | 10/10 | completed |
-| 04 | Atoms T3 + INDEX final + audit humano + E2E full | 7 | 0/7 | pending |
+| 04 | Atoms T3 + INDEX final + audit humano + E2E full | 7 | 7/7 | completed |
 
 ## Progress Global
 
-Fases done: 22/29 (76%)
+Fases done: 29/29 (100%)
 
 ## Audit Humano (RF5 / CA-08 / D11)
 
@@ -42,3 +42,4 @@ frontmatter e do corpo, `validateAtomFrontmatter` reconfirmado. Zero flags resta
 - 2026-08-30: **Plano 02 CONCLUIDO (6/6).** 5 atomos T1 destilados em 2 waves paralelas (fases 01-03 e 04-05), todos com clausula anti-drift verbatim. **Verifier batch: 4 atomos 5/5 e 1 atomo 4/5 — 5 de 5 PASS, G12 nao disparou, zero ciclos v2.** Uma falha real de conteudo (security: CVE-2024-53981 pareada com fix de regex, quando a fonte a atribui a logging por byte em loop — modo de falha "ID como fachada de rastreio") + 4 warns de amplificacao de tom, todos corrigidos cirurgicamente. **Rastreio ECC (RF12) BEM-SUCEDIDO:** ECC = Everything Claude Code, repo `affaan-m/ECC`, licenca **MIT** — entrada verbatim adicionada ao THIRD-PARTY-NOTICES.md; risco D5 resolvido, nao so aceito. Achado extra: upstream em ingles, copias locais sao traducoes ES (dupla derivacao, permitida por MIT). Gates: 1809 pass / 0 fail, typecheck limpo, harness 381 md, compound 55. Backlog do cap dos 5 atomos + 2 atomos no teto + defeito do link checker vs generics PEP 695 registrados no TODO.md.
 - 2026-08-30: **Plano 03 CONCLUIDO (10/10).** 9 atomos T2 em 3 waves paralelas. **Verifier batch: 9/9 em 5/5 — zero falhas de conteudo, G12 nao disparou, zero ciclos v2** (45 claims amostradas, 45 rastreadas). A matrix python vai a **15 atomos**. A clausula de preservacao de hedge, introduzida neste plano a partir do achado do Plano 02, derrubou a incidencia de warn de tom de 80% dos atomos (4/5) para 22% (2/9); os 2 warns foram corrigidos e 1 terceiro foi aceito com justificativa (ADD COLUMN espelha a Justificativa categorica da fonte, e a distincao volatil/nao-volatil esta intacta). **Correcao de plano:** o rotulo "Percival vs Bayer" da fase-03 estava errado — a fonte atribui o lado "sessao direta" ao tutorial do FastAPI; Bayer so aparece em contexto de Alembic. Corrigido em 3 docs. **Lacuna fechada:** a subarea "constraints vs validacao na aplicacao" nao estava em nenhum dos dois atomos que dividem a fonte; alocada em migrations. **Divergencia cross-atomo registrada, nao harmonizada** (formula de pool: piloto tem "x replicas", PERF-DB-02 so "workers" — compativeis, nao contraditorias). Gates: 1809 pass / 0 fail, typecheck limpo, harness 390 md, compound 55. 4 itens novos no TODO, incl. o sub-escopo da fase-08 e os SEIS atomos no teto do cap.
 - 2026-08-31: audit humano D11 concluído — 3/3 aprovados, 0 fixes aplicados. Selagem removeu flag + nota dos 3 átomos; 18/18 validam e nenhum corpo passa de 200 linhas (medição precisa pós-frontmatter: máximo 199).
+- 2026-08-31: **FEATURE CONCLUÍDA — 29/29 fases.** fase-07: e2e full `stack-knowledge-python-full.test.ts` 12/12 (18/18 átomos, INDEX ≤100 com H1 na linha 1, CA-01/02/04/05/06/07/11 + RF9/RF14/RF15 pós-cópia). Regressão CA-09 nominal verde: rails-tracer 4, rails-full 10, nextjs-tracer 10, cutover-greenfield 4, python-tracer 4, full-e2e Node 5, preface-all-skills 14. Suíte global **1836 pass / 0 fail** (baseline pré-feature: 1787), typecheck limpo, harness 393 md, compound 55. CHANGELOG v7.7.0 + bump propagado (package.json, plugin.json, marketplace.json, manifest). README atualizado — a linha "Rails, Laravel, Python (knowledge genérico)" estava factualmente errada após esta feature e virou lista com contagem real por matrix. RF17 + 3 débitos novos no TODO.md.

@@ -37,7 +37,6 @@ tooling, debugging e performance servem qualquer projeto Python; **os padrões w
 ### Para /infrastructure
 - **deployment-and-production** (T2) — uvicorn workers, Docker, graceful shutdown, health check, rollback
 - **dependencies-and-packaging-uv** (T2) — uv, lockfile com hash, pinning, Trusted Publishing
-- **performance-and-profiling** (T2) — orçamento de latência, compressão, sizing de servidor
 
 ### Para /tdd-workflow
 - **pytest-and-testing-strategy** (T1) — fixtures, AsyncClient, dependency_overrides, smells de IA
