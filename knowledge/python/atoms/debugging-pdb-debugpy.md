@@ -9,12 +9,9 @@ triggers: [debug, debugging, pdb, breakpoint, PYTHONBREAKPOINT, debugpy, DAP, re
 related_skills: [/tdd-workflow, /design-patterns]
 updated: 2026-08-30
 python_versions: ['>=3.11']
-flagged_for_human_audit: true
 ---
 
 # Debugging: pdb e debugpy
-
-> **Audit humano obrigatório (D11):** este átomo será revisado por Luiz contra a fonte antes da aprovação do batch final.
 
 ## Quando consultar
 

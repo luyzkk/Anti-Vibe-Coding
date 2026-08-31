@@ -9,12 +9,9 @@ triggers: [OWASP, segurança, SQL injection, SQLAlchemy text, NoSQL injection, c
 related_skills: [/security, /api-design, /infrastructure]
 updated: 2026-08-30
 python_versions: ['>=3.11']
-flagged_for_human_audit: true
 ---
 
 # Segurança em FastAPI — OWASP
-
-> **Audit humano obrigatório (D11):** este átomo será revisado por Luiz contra a fonte antes da aprovação do batch final.
 
 ## Quando consultar
 
