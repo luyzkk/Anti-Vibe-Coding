@@ -1,8 +1,17 @@
 #!/usr/bin/env node
 // 2026-05-13 (Luiz/dev): Destructive-Bash Guard (D29 item 7, plano08-fase01 audit defer)
 // Blocks rm -rf, git reset --hard, git push --force, git clean -f, git branch -D,
-// git checkout -- / git restore ., and --no-verify on commit/push.
+// git update-ref, reflog/gc pruning, git checkout -- / git restore ., and --no-verify.
+//
+// 2026-08-30: tres brechas fechadas depois de um caso real — o bloqueio de `git branch -D` foi
+// contornado sem nenhuma intencao de burla, so escrevendo o mesmo comando de outro jeito
+// (`git update-ref -d refs/heads/<branch>`). Junto vieram as formas longas de `-D` e a poda de
+// reflog/gc, que destroi a recuperabilidade que torna a delecao reversivel.
+//
 // Set AVC_ALLOW_DESTRUCTIVE=1 to bypass (e.g. intentional cleanup).
+// ⚠️ A env e lida do ambiente do HOOK, nao do comando: prefixar `AVC_ALLOW_DESTRUCTIVE=1 git ...`
+// no proprio comando NAO funciona (a var iria para o shell do comando, e o hook ja decidiu antes).
+// Para liberar de fato, exporte a var no ambiente que lanca o Claude Code.
 // Pattern: PreToolUse Bash matcher, exit 2 + stderr to block (Claude Code convention).
 'use strict'
 
@@ -30,8 +39,28 @@ const PATTERNS = [
   },
   {
     id: 'git-branch-delete-force',
-    re: /\bgit\s+branch\s+(?:[^\n]*\s)?-D\b/,
+    // Cobre -D, as flags combinadas (-fd/-Df) e as formas longas em qualquer ordem. O regex antigo
+    // via so `-D`, entao `git branch --delete --force` passava batido — mesmo comando, outra grafia.
+    re: /\bgit\s+branch\b[^\n]*(?:\s-[A-Za-z]*D[A-Za-z]*(?:\s|$)|\s-[A-Za-z]*(?:df|fd)[A-Za-z]*(?:\s|$)|--delete\b[^\n]*--force\b|--force\b[^\n]*--delete\b)/,
     msg: 'git branch -D force-deletes a branch with unmerged commits. Use -d for safe delete, or set AVC_ALLOW_DESTRUCTIVE=1.',
+  },
+  {
+    id: 'git-update-ref',
+    // Plumbing que apaga (`-d`) ou reaponta uma ref sem passar por `git branch` — o caminho lateral
+    // que tornava o bloqueio acima contornavel sem nenhuma intencao de burla.
+    // Bloqueia o comando inteiro, e nao so `-d`: reapontar refs/heads/main destroi historia do mesmo
+    // jeito. update-ref nao aparece em fluxo normal; quem precisa dele sabe o que esta fazendo.
+    re: /\bgit\s+update-ref\b/,
+    msg: 'git update-ref deletes or rewrites a ref directly, bypassing branch safety. Use git branch -d, or set AVC_ALLOW_DESTRUCTIVE=1.',
+  },
+  {
+    id: 'git-history-prune',
+    // A rede de recuperacao. Este guard recusa `-D` porque "perde commits" — mas eles sobrevivem no
+    // reflog, e e de la que se recupera uma branch apagada por engano. Expirar o reflog ou podar
+    // agora torna a perda definitiva: proteger o `-D` e deixar isto passar e protecao so no nome.
+    // `git gc --auto` e `git reflog` (leitura) continuam livres — o guard nao pode gritar na rotina.
+    re: /\bgit\s+reflog\s+expire\b|\bgit\s+gc\b[^\n]*--prune=(?!never\b)/,
+    msg: 'This makes orphaned commits unrecoverable — it destroys the reflog safety net that makes branch deletion reversible. Set AVC_ALLOW_DESTRUCTIVE=1 if that is the intent.',
   },
   {
     id: 'git-checkout-discard',
