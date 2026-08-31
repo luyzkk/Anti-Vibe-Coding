@@ -1,6 +1,6 @@
 {
   "version": "7.7.0",
-  "generatedAt": "2026-08-31T11:18:09.326Z",
+  "generatedAt": "2026-08-31T11:26:48.839Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -386,7 +386,7 @@
     "hooks/pre-tool-use-destructive-guard.cjs": {
       "version": "7.7.0",
       "checksum": "ad9d50b2571f4da13f9544f19fa710cc0be2ee56cf28afe5b800df454d126239",
-      "lastModified": "2026-08-30",
+      "lastModified": "2026-08-31",
       "updateStrategy": "replace"
     },
     "hooks/prompt-guard.cjs": {
@@ -577,8 +577,8 @@
     },
     "scripts/bump-version.js": {
       "version": "7.7.0",
-      "checksum": "a19d34f7cd57032da5a452f987e8ace1d354fb8d100eac6de51fdb7f6e61e3c5",
-      "lastModified": "2026-05-14",
+      "checksum": "1860af61a9771712fea7aca6fb0abd2fe6908be09010cd669ccc921c2f1be3bf",
+      "lastModified": "2026-08-31",
       "updateStrategy": "replace"
     },
     "scripts/compound-check.ts": {
@@ -1196,7 +1196,7 @@
     "skills/init/lib/atoms-frontmatter-validator.ts": {
       "version": "7.7.0",
       "checksum": "4b50b8a7e1e947749f3d17a830dd5371c02089b11880372f8ef155053fec3f39",
-      "lastModified": "2026-08-30",
+      "lastModified": "2026-08-31",
       "updateStrategy": "replace"
     },
     "skills/init/lib/audit-log-writer-factory.ts": {
