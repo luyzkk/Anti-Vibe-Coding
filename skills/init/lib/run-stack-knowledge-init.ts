@@ -6,7 +6,7 @@ import { writeStackJson } from './write-stack-json'
 import { copyKnowledge } from './copy-knowledge'
 import type { CopyKnowledgeResult } from './copy-knowledge'
 import { parseRefreshFlag } from './parse-refresh-flag'
-import { parseTopKeywords, formatKnowledgePreview, TOP_N_KEYWORDS, extractRailsVersionWarning, extractPythonVersionWarning } from './format-knowledge-preview'
+import { parseTopKeywords, formatKnowledgePreview, TOP_N_KEYWORDS, extractRailsVersionWarning, extractPythonVersionWarning, extractPythonWebFrameworkNote } from './format-knowledge-preview'
 import { emitStackKnowledgeEvents } from './emit-stack-knowledge-events'
 import { join } from 'node:path'
 import { promises as fs } from 'node:fs'
@@ -57,6 +57,9 @@ export interface RunStackKnowledgeInitResult {
   previewEmitted: boolean
   /** RF11: warnings emitidos durante o init (ex: Rails legado <7.1). Additive — consumers antigos ignoram. */
   warnings?: string[]
+  // 2026-08-31 (Luiz/dev): RF14/D8 — notas informativas (nao sao warnings; canal separado).
+  /** Notas informativas do init (ex: Django/Flask detectado). Additive — consumers antigos ignoram. */
+  notes?: string[]
 }
 
 export async function runStackKnowledgeInit(opts: RunStackKnowledgeInitOpts, ctx?: RunStackKnowledgeInitContext): Promise<RunStackKnowledgeInitResult> {
@@ -115,6 +118,7 @@ export async function runStackKnowledgeInit(opts: RunStackKnowledgeInitOpts, ctx
   // ENOENT vira no-op silencioso (Gemfile pode nao existir mesmo com primary=rails se houver bug
   // upstream — nao queremos quebrar o init por isso). Gemfile maior que MANIFEST_MAX_BYTES e ignorado.
   const warnings: string[] = []
+  const notes: string[] = []
   if (stackJson.primary === 'rails') {
     const gemfilePath = path.join(targetDir, 'Gemfile')
     try {
@@ -133,18 +137,37 @@ export async function runStackKnowledgeInit(opts: RunStackKnowledgeInitOpts, ctx
   // ENOENT/oversize = no-op silencioso (best-effort, mesma politica do bloco Rails).
   // Projeto requirements-only nao tem pyproject.toml e cai aqui sem warning (CA-11).
   if (stackJson.primary === 'python') {
+    let pyprojectContent: string | null = null
     const pyprojectPath = path.join(targetDir, 'pyproject.toml')
     try {
       const stat = await fs.stat(pyprojectPath)
       if (stat.isFile() && stat.size <= MANIFEST_MAX_BYTES) {
-        const pyprojectContent = await fs.readFile(pyprojectPath, 'utf8')
+        pyprojectContent = await fs.readFile(pyprojectPath, 'utf8')
         const warning = extractPythonVersionWarning(pyprojectContent)
         if (warning) warnings.push(warning)
       }
     } catch {
       // pyproject ausente (projeto requirements-only) — sem warning (CA-11)
     }
+
+    // 2026-08-31 (Luiz/dev): RF14/D8 — nota Django/Flask. Reusa o pyproject ja lido acima
+    // (nao le duas vezes) e complementa com requirements.txt, mesma politica best-effort.
+    let requirementsContent: string | null = null
+    const requirementsPath = path.join(targetDir, 'requirements.txt')
+    try {
+      const stat = await fs.stat(requirementsPath)
+      if (stat.isFile() && stat.size <= MANIFEST_MAX_BYTES) {
+        requirementsContent = await fs.readFile(requirementsPath, 'utf8')
+      }
+    } catch {
+      // requirements ausente — projeto so com pyproject; sem nota por este canal
+    }
+    const note = extractPythonWebFrameworkNote(pyprojectContent, requirementsContent)
+    if (note) {
+      notes.push(note)
+      logger(note)
+    }
   }
 
-  return { stackPrimary: stackJson.primary, stackJsonMessage, copyResult, previewEmitted, ...(warnings.length > 0 ? { warnings } : {}) }
+  return { stackPrimary: stackJson.primary, stackJsonMessage, copyResult, previewEmitted, ...(warnings.length > 0 ? { warnings } : {}), ...(notes.length > 0 ? { notes } : {}) }
 }
