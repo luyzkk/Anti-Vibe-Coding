@@ -270,17 +270,29 @@ Referências entrando como regression desde Plano 01 fase-03:
 
 ## Exit Criteria
 
-- [ ] 18 átomos + INDEX.md em `knowledge/python/` commitados; verifier refined 18/18; audit
-  humano 3 átomos assinado por Luiz no STATE.md
-- [ ] `/init` em projeto Python completa sem AbortError (tracer + full e2e verdes)
-- [ ] Validador estendido com `python_versions`; zero regressão em átomos existentes
-- [ ] Warning legado + nota Django/Flask (poderá ser cortada — could-have) funcionando conforme CA-04
-- [ ] THIRD-PARTY-NOTICES.md com entrada MIT python-debugpy; rastreio ECC tentado e documentado (RF12)
-- [ ] Suite completa verde: `bun test`, `bun run typecheck`, `bun run harness:validate`,
-  `bun run compound:check`
-- [ ] STATE.md marca 4 planos completed; pasta migrada para `docs/exec-plans/completed/`
-- [ ] CHANGELOG documenta nova stack (v7.7.0) + correção do AbortError
-- [ ] Débito "reconciliar schema frontmatter Next" registrado no TODO.md (RF17)
+- [x] **18 átomos + INDEX.md commitados; verifier refined 18/18; audit humano assinado.**
+  18 átomos (6 T1 + 9 T2 + 3 T3) + INDEX de 99 linhas. Verifier: 18/18 em 5/5 nos quatro batches,
+  zero ciclos v2, 1 única falha de conteúdo em todo o projeto (CVE pareada com fix errado, no
+  Plano 02, corrigida). Audit humano 3/3 aprovado com 0 fixes, assinado no STATE.md.
+- [x] **`/init` em projeto Python completa sem AbortError.** `stack-knowledge-python-tracer` 4/4
+  e `stack-knowledge-python-full` 12/12. A resolução sem throw é a asserção — era em
+  `copy-knowledge.ts:81` que o init morria.
+- [x] **Validador estendido com `python_versions`; zero regressão.** TDD (RED com 3 assertion
+  failures reais). A regra de `rails_versions` virou helper parametrizado; as mensagens do Rails
+  seguem byte a byte idênticas (verificado por execução direta, não por inspeção).
+- [x] **Warning legado + nota Django/Flask funcionando (CA-04).** Ambos TDD, ambos com parse
+  conservador: formato não-PEP-440 (`^3.10`) não avisa, e só dependência declarada dispara a nota.
+  RF14 não foi cortada.
+- [x] **NOTICES com MIT python-debugpy; rastreio ECC (RF12).** Mais do que o pedido: o rastreio
+  ECC teve êxito — `github.com/affaan-m/ECC`, MIT, entrada verbatim adicionada. O risco D5 passou
+  de *aceito* a *resolvido*.
+- [x] **Suite completa verde.** 1836 pass / 0 fail (baseline pré-feature 1787), typecheck limpo,
+  harness 393 md, compound 55 notas.
+- [x] **STATE.md com 4 planos completed; pasta migrada para `completed/`.**
+- [x] **CHANGELOG v7.7.0 + correção do AbortError**, com instrução de `--refresh-knowledge` para
+  quem já rodou `/init` antes.
+- [x] **Débito RF17 registrado no TODO.md** — mais 3 débitos encontrados na execução (preface
+  perdido em Rails E Next, excedentes de cap, gotcha de regex por heredoc).
 
 ---
 

@@ -9,12 +9,9 @@ triggers: [sqlalchemy, orm, async session, MissingGreenlet, lazy loading, select
 related_skills: [/api-design, /system-design]
 updated: 2026-08-30
 python_versions: ['>=3.11']
-flagged_for_human_audit: true
 ---
 
 # SQLAlchemy — Sessões Async e ORM em Runtime
-
-> **Audit humano obrigatório (D11):** este átomo será revisado por Luiz contra a fonte antes da aprovação do batch final.
 
 ## Quando consultar
 

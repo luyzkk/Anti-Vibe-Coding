@@ -4,7 +4,7 @@ Plugin Claude Code para desenvolvimento disciplinado. Substitui "vibe coding" po
 
 Baseado na metodologia Anti-Vibe Coding (Fabio Akita / XP) e em 60+ princípios técnicos extraídos de referências sêniores.
 
-**Versão atual:** 7.6.1
+**Versão atual:** 7.7.0
 
 ---
 
@@ -53,7 +53,7 @@ A partir daí, todas as skills `/anti-vibe-coding:*` ficam disponíveis em qualq
 /anti-vibe-coding:sync
 ```
 
-Mostra a versão do plugin global e força invalidação de cache. Deve reportar `v7.6.1`.
+Mostra a versão do plugin global e força invalidação de cache. Deve reportar `v7.7.0`.
 
 ---
 
@@ -508,10 +508,12 @@ bun run harness:validate   # valida estrutura docs/
 A partir da v7.3.0, o plugin instala knowledge stack-específico em `.claude/knowledge/atoms/`. Exemplo Next.js: 15 atoms cobrindo App Router, Server Components, Server Actions, middleware, Suspense, performance Turbopack, testing strategy, Supabase integration. Extraídos de 9 fontes oficiais com cláusula anti-drift.
 
 Stacks suportadas com knowledge nativo:
+- Python (18 atoms — Python 3.11+/foco 3.13; linguagem, typing, testes e tooling servem qualquer projeto, os padrões web são FastAPI-native)
 - Next.js (15 atoms)
-- Node-TS (16 atoms genéricos: type, generic, branded, discriminated, satisfies, ESM, CJS, event loop, etc.)
-- React (Vite)
-- Rails, Laravel, Python (knowledge genérico)
+- Node-TS (14 atoms: type, generic, branded, discriminated, satisfies, ESM, CJS, event loop, etc.)
+- Rails (14 atoms)
+- React (Vite) — compartilha a matrix do Next.js
+- Laravel: detector ativo, matrix ainda não criada
 
 ---
 
