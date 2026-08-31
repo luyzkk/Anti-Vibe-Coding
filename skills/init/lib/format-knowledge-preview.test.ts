@@ -2,7 +2,7 @@
 // M1.1 (2026-05-17): parseTopKeywords agora async — testes migrados para await.
 // 2026-05-18 (Luiz/dev): RF11 — warning Rails legado <7.1, alinhado com D23 + CA-04
 import { describe, it, expect, test } from 'bun:test'
-import { formatKnowledgePreview, parseTopKeywords, TOP_N_KEYWORDS, extractRailsVersionWarning, extractPythonVersionWarning } from './format-knowledge-preview'
+import { formatKnowledgePreview, parseTopKeywords, TOP_N_KEYWORDS, extractRailsVersionWarning, extractPythonVersionWarning, extractPythonWebFrameworkNote } from './format-knowledge-preview'
 import { writeFileSync, mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -168,5 +168,72 @@ describe('extractPythonVersionWarning (RF8/D7)', () => {
 
   it('R7: conteudo que nem e TOML valido NAO gera warning nem lanca', () => {
     expect(extractPythonVersionWarning('not a toml {{{')).toBeNull()
+  })
+})
+
+// 2026-08-31 (Luiz/dev): nota Django/Flask — D8/RF14 do PRD stack-knowledge-python (could-have).
+// Conservador como R7: detecta so dependencia declarada; falso-negativo ok, falso-positivo nao.
+describe('extractPythonWebFrameworkNote (RF14/D8)', () => {
+  const NOTE = 'ℹ️ Padrões web dos átomos são FastAPI-native. Átomos de linguagem/tooling servem qualquer Python.'
+
+  it('django nas dependencies do pyproject gera nota', () => {
+    const pyproject = '[project]\nname = "x"\ndependencies = ["django>=5.0", "celery"]\n'
+    expect(extractPythonWebFrameworkNote(pyproject, null)).toBe(NOTE)
+  })
+
+  it('flask nas dependencies do pyproject gera nota', () => {
+    const pyproject = '[project]\nname = "x"\ndependencies = ["flask>=3.0"]\n'
+    expect(extractPythonWebFrameworkNote(pyproject, null)).toBe(NOTE)
+  })
+
+  it('fastapi-only NAO gera nota', () => {
+    const pyproject = '[project]\nname = "x"\ndependencies = ["fastapi>=0.110", "uvicorn"]\n'
+    expect(extractPythonWebFrameworkNote(pyproject, null)).toBeNull()
+  })
+
+  it('requirements.txt com flask gera nota', () => {
+    expect(extractPythonWebFrameworkNote(null, 'flask>=3.0\ngunicorn\n')).toBe(NOTE)
+  })
+
+  it('R7: pacote que apenas CONTEM a palavra nao dispara', () => {
+    const pyproject = '[project]\nname = "x"\ndependencies = ["django-stubs-ext-notreal", "fastapi"]\n'
+    expect(extractPythonWebFrameworkNote(pyproject, null)).toBe(NOTE) // django-stubs-ext COMECA com django
+    expect(extractPythonWebFrameworkNote('[project]\ndependencies = ["myflaskutils"]\n', null)).toBeNull()
+  })
+
+  it('R7: nome do projeto chamado django NAO dispara (so o array dependencies conta)', () => {
+    expect(extractPythonWebFrameworkNote('[project]\nname = "django-clone"\ndependencies = ["fastapi"]\n', null)).toBeNull()
+  })
+
+  it('R7: comentario no requirements NAO dispara', () => {
+    expect(extractPythonWebFrameworkNote(null, '# migrando de django para fastapi\nfastapi>=0.110\n')).toBeNull()
+  })
+
+  it('R7: ambos ausentes/nulos -> null, sem lancar', () => {
+    expect(extractPythonWebFrameworkNote(null, null)).toBeNull()
+    expect(extractPythonWebFrameworkNote('', '')).toBeNull()
+  })
+})
+
+// 2026-08-31 (Luiz/dev): RF15 — preview de keywords contra o INDEX Python REAL da matrix.
+describe('parseTopKeywords sobre knowledge/python/INDEX.md final (RF15)', () => {
+  const PYTHON_INDEX = join(import.meta.dir, '..', '..', '..', 'knowledge', 'python', 'INDEX.md')
+
+  it('retorna 8 keywords nao-vazias do INDEX final', async () => {
+    const keywords = await parseTopKeywords(PYTHON_INDEX)
+    expect(keywords.length).toBe(TOP_N_KEYWORDS)
+    expect(keywords.every((k) => k.length > 0)).toBe(true)
+  })
+
+  it('primeiras rows da tabela alimentam o preview (fluxo UX do PRD)', async () => {
+    const keywords = await parseTopKeywords(PYTHON_INDEX)
+    expect(keywords).toContain('asyncio')
+    expect(keywords).toContain('pytest')
+    expect(keywords).toContain('SQLAlchemy')
+  })
+
+  it('preview formatado nao fica vazio', async () => {
+    const keywords = await parseTopKeywords(PYTHON_INDEX)
+    expect(formatKnowledgePreview(keywords)).toContain('Knowledge cobre:')
   })
 })

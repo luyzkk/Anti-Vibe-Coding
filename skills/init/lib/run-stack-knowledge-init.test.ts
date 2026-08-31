@@ -173,3 +173,44 @@ describe('warning legado python + telemetria (RF8/RF10)', () => {
     expect(copied.atom_count).toBeGreaterThanOrEqual(1)
   })
 })
+
+// 2026-08-31 (Luiz/dev): RF14/D8 integracao — nota Django/Flask no canal `notes`
+describe('nota Django/Flask no init (RF14/D8)', () => {
+  const NOTE = 'ℹ️ Padrões web dos átomos são FastAPI-native. Átomos de linguagem/tooling servem qualquer Python.'
+  let project: string
+
+  beforeEach(() => { project = mkdtempSync(join(tmpdir(), 'rski-rf14-')) })
+  afterEach(() => { rmSync(project, { recursive: true, force: true }) })
+
+  it('django no pyproject -> notes contem a nota, knowledge copiado normalmente', async () => {
+    writeFileSync(join(project, 'pyproject.toml'),
+      '[project]\nname = "legacy-django"\nversion = "0.1.0"\nrequires-python = ">=3.12"\ndependencies = ["django>=5.0"]\n')
+    const result = await runStackKnowledgeInit({ targetDir: project, pluginRoot: PLUGIN_ROOT, logger: () => {} })
+    expect(result.stackPrimary).toBe('python')
+    expect(result.copyResult.status).toBe('copied') // nota nao bloqueia a copia
+    expect(result.notes).toContain(NOTE)
+  })
+
+  it('fastapi-only -> notes undefined', async () => {
+    writeFileSync(join(project, 'pyproject.toml'),
+      '[project]\nname = "modern"\nversion = "0.1.0"\nrequires-python = ">=3.12"\ndependencies = ["fastapi>=0.110"]\n')
+    const result = await runStackKnowledgeInit({ targetDir: project, pluginRoot: PLUGIN_ROOT, logger: () => {} })
+    expect(result.notes).toBeUndefined()
+  })
+
+  it('requirements-only com flask -> nota presente (sem pyproject)', async () => {
+    writeFileSync(join(project, 'requirements.txt'), 'flask>=3.0\ngunicorn\n')
+    writeFileSync(join(project, 'main.py'), 'from flask import Flask\n')
+    const result = await runStackKnowledgeInit({ targetDir: project, pluginRoot: PLUGIN_ROOT, logger: () => {} })
+    expect(result.stackPrimary).toBe('python')
+    expect(result.notes).toContain(NOTE)
+  })
+
+  it('a nota vai para o logger (output user-facing do /init)', async () => {
+    writeFileSync(join(project, 'pyproject.toml'),
+      '[project]\nname = "x"\nversion = "0.1.0"\ndependencies = ["flask>=3.0"]\n')
+    const captured: string[] = []
+    await runStackKnowledgeInit({ targetDir: project, pluginRoot: PLUGIN_ROOT, logger: (l) => captured.push(l) })
+    expect(captured.some((l) => l.includes('FastAPI-native'))).toBe(true)
+  })
+})

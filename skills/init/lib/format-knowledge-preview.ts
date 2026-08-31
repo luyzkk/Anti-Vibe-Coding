@@ -139,3 +139,35 @@ export function extractPythonVersionWarning(pyprojectContent: string): string | 
   }
   return null
 }
+
+// 2026-08-31 (Luiz/dev): RF14/D8 — nota informativa quando django/flask aparecem nas deps.
+// Complementa D2 (preambulo do INDEX): evita dev Django aplicar padrao FastAPI sem perceber.
+// Conservador (espelho do R7 do warning de versao): so linha de dependencia DECLARADA — no
+// pyproject, item do array `dependencies`; no requirements, linha que COMECA com o nome.
+// Comentario, `name` do projeto e pacote que apenas CONTEM a palavra nao disparam. Um pacote
+// que COMECA com o nome (ex.: django-stubs) dispara de proposito: e ecossistema do framework.
+export const FASTAPI_NATIVE_NOTE =
+  'ℹ️ Padrões web dos átomos são FastAPI-native. Átomos de linguagem/tooling servem qualquer Python.'
+
+/** Item de array do pyproject: aspas seguidas do nome do framework. */
+const DEP_ENTRY = /["']\s*(django|flask)\b/i
+/** Linha do requirements.txt que COMECA com o nome (ancorado, ignora comentario). */
+const REQ_LINE = /^\s*(django|flask)\b/im
+
+/**
+ * Nota informativa (nao warning) quando o projeto declara Django ou Flask.
+ *
+ * @example extractPythonWebFrameworkNote('dependencies = ["django>=5.0"]', null) // nota
+ * @example extractPythonWebFrameworkNote('dependencies = ["fastapi"]', null)     // null
+ */
+export function extractPythonWebFrameworkNote(
+  pyprojectContent: string | null,
+  requirementsContent: string | null,
+): string | null {
+  if (pyprojectContent) {
+    const depsBlock = /dependencies\s*=\s*\[([\s\S]*?)\]/.exec(pyprojectContent)
+    if (depsBlock?.[1] !== undefined && DEP_ENTRY.test(depsBlock[1])) return FASTAPI_NATIVE_NOTE
+  }
+  if (requirementsContent && REQ_LINE.test(requirementsContent)) return FASTAPI_NATIVE_NOTE
+  return null
+}
