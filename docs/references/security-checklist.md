@@ -1,7 +1,7 @@
 ---
 title: "Security Checklist"
-source_url: "https://owasp.org/www-project-top-ten/"
-last_verified: "2026-05-22"
+source_url: "https://owasp.org/Top10/2025/"
+last_verified: "2026-09-01"
 ---
 
 # Security Checklist
@@ -18,6 +18,7 @@ Quick reference for web application security. Use before shipping any feature th
 - [CORS Configuration](#cors-configuration)
 - [Data Protection](#data-protection)
 - [Dependency Security](#dependency-security)
+- [Supply Chain](#supply-chain-a032025)
 - [Error Handling](#error-handling)
 - [OWASP Top 10 Quick Reference](#owasp-top-10-quick-reference)
 
@@ -105,6 +106,16 @@ npm audit --audit-level=critical
 npx npm-check-updates
 ```
 
+## Supply Chain (A03:2025)
+
+- [ ] Lockfile versionado no repositorio e usado no CI (`--frozen-lockfile`)
+- [ ] Dependencias novas passam pelo portao de pre-adocao (ver `/security`, "Dependency Discipline")
+- [ ] Findings de audit triados, nao apenas listados — procedimento de triagem documentado (severidade x alcancabilidade x disponibilidade de fix)
+- [ ] Assets de CDN com `integrity` + `crossorigin` (SRI)
+- [ ] Actions/steps de CI fixados por SHA, nao por tag movel
+- [ ] Token de CI com permissao minima e escopo por job
+- [ ] Nenhum script de `postinstall` nao auditado em dependencia direta
+
 ## Error Handling
 
 ```typescript
@@ -123,15 +134,19 @@ res.status(500).json({
 
 ## OWASP Top 10 Quick Reference
 
+Edicao 2025 (ver `source_url` no frontmatter). Numeracao e ordem mudaram frente a edicao 2021: SSRF
+deixou de ser categoria propria e foi absorvido em A01, Security Misconfiguration subiu para #2, e
+Software Supply Chain Failures entra como categoria nova em #3.
+
 | # | Vulnerability | Prevention |
 |---|---|---|
-| 1 | Broken Access Control | Auth checks on every endpoint, ownership verification |
-| 2 | Cryptographic Failures | HTTPS, strong hashing, no secrets in code |
-| 3 | Injection | Parameterized queries, input validation |
-| 4 | Insecure Design | Threat modeling, spec-driven development |
-| 5 | Security Misconfiguration | Security headers, minimal permissions, audit deps |
-| 6 | Vulnerable Components | `bun audit`, keep deps updated, minimal deps |
-| 7 | Auth Failures | Strong passwords, rate limiting, session management |
-| 8 | Data Integrity Failures | Verify updates/dependencies, signed artifacts |
-| 9 | Logging Failures | Log security events, never log secrets |
-| 10 | SSRF | Validate/allowlist URLs, restrict outbound requests |
+| A01 | Broken Access Control (inclui SSRF) | Auth em todo endpoint, verificacao de ownership, allowlist de URLs de saida |
+| A02 | Security Misconfiguration | Security headers, defaults seguros, superficie minima, debug off em producao |
+| A03 | Software Supply Chain Failures | Lockfile versionado, audit de dependencias com triagem, artefatos assinados, CI com permissao minima |
+| A04 | Cryptographic Failures | HTTPS, hashing forte, sem secrets no codigo |
+| A05 | Injection | Queries parametrizadas, validacao de input |
+| A06 | Insecure Design | Threat modeling, desenvolvimento orientado a spec |
+| A07 | Authentication Failures | Senhas fortes, rate limiting, gestao de sessao |
+| A08 | Software or Data Integrity Failures | Verificar updates/dependencias, artefatos assinados |
+| A09 | Security Logging and Alerting Failures | Logar eventos de seguranca, nunca logar secrets, alertar sobre anomalias |
+| A10 | Mishandling of Exceptional Conditions | Fail-closed, erro generico ao cliente, nenhum caminho de excecao que ignore a checagem de autorizacao |

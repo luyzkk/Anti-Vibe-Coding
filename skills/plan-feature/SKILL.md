@@ -436,6 +436,59 @@ Regras:
 - Slices devem ter tamanho de 1 PR (se possivel)
 ```
 
+### Classificacao de Risco do Slice
+
+<!-- 2026-09-01 (Luiz/dev): risco e propriedade do slice, nao impressao do executor — PRD §RF-06 -->
+
+Ao nomear cada slice, marcar se ele e **de risco**. E de risco quando toca ao menos um dos seis
+gatilhos — os mesmos da secao "Ameacas & Dados" do PRD e do Abuse-It do `/anti-vibe-coding:tdd-workflow`:
+
+`auth/authz` · `PII/sensivel` · `input externo` · `upload` · `pagamento` · `integracao terceira`
+
+Notacao, direto no nome do slice:
+
+```
+Slice 3: usuario autenticado ve apenas os proprios pedidos  [RISCO: auth/authz]
+Slice 4: importar planilha de alunos                        [RISCO: input externo, PII/sensivel]
+Slice 5: trocar a cor do badge de status
+```
+
+Slice sem gatilho **nao recebe marca** — nao existe `[RISCO: nenhum]`. A ausencia e a marca, e e o
+que mantem o plano legivel: se tudo e marcado, nada e.
+
+A marca tem quatro consequencias (nao e etiqueta decorativa):
+
+1. O slice carrega ao menos UM criterio de aceite de seguranca `CA-SEC-*` (formato abaixo).
+2. A fase gerada dele preenche o bloco `### Seguranca` do `## Verificacao` (`templates/fase-template.md`).
+3. O `/anti-vibe-coding:tdd-workflow` exige teste de abuso no RED antes da defesa (Abuse-It).
+4. Vale o principio 5 do Step 4 — **risco pede task MENOR**. Slice marcado que estourou 2h se divide;
+   nao se aceita "e maior porque e mais delicado".
+
+**Formato do criterio de aceite de seguranca.** Um `CA-SEC-*` diz o que o atacante tenta, o que o
+sistema responde e — a parte que costuma faltar — o que NAO pode acontecer:
+
+```
+CA-SEC-{n}: Dado {ator sem direito, ou input hostil},
+            quando {acao de abuso},
+            entao {defesa observavel: 403 / 401 / rejeicao na validacao / evento no log}
+            — e NAO {vazar existencia do recurso / persistir / cobrar / gravar sem sanitizar}
+```
+
+Exemplo preenchido (assim, nao com placeholders):
+
+```
+CA-SEC-1: Dado um usuario autenticado que NAO e dono do pedido, quando faz GET /api/orders/{id},
+          entao a API responde 403 — e NAO permite distinguir "nao e seu" de "nao existe"
+CA-SEC-2: Dado um CSV com formula `=cmd|...` numa celula, quando o admin importa,
+          entao o valor e gravado como texto — e NAO e interpretado na exportacao
+```
+
+**De onde vem o conteudo:** se o PRD tem a secao "Ameacas & Dados", cada caso de abuso `AB-*` de la
+vira um `CA-SEC-*` aqui — traducao direta, um para um. Se o slice e de risco e o PRD **nao** tem a
+secao, o gatilho se perdeu na especificacao: registrar como risco no `README.md` do plano e sinalizar
+ao dev. Nao montar o modelo de ameaca sozinho durante o planejamento — e a mesma regra de "nao
+inventar requisito que o dev nao mencionou".
+
 ---
 
 ## Step 4 — Analise de Complexidade (Julgamento Senior)
@@ -557,6 +610,7 @@ Uma fase DEVE conter:
 - Codigo de referencia (snippets, tipos, SQL) quando aplicavel
 - Gotchas conhecidos do PRD/CONTEXT
 - Checklist de verificacao
+- Criterio de aceite de seguranca (CA-SEC-*), quando a fase vem de slice marcado [RISCO]
 - Sizing estimado (0.5h / 1h / 1.5h / 2h)
 ```
 

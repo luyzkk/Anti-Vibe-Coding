@@ -1,0 +1,29 @@
+{
+  "note": "Fixture sintetico para validar o formato do envelope de contrato v2.0.0 do dependency-auditor — nao e um advisory real. O CVE-2026-00000, a versao vulneravel de gray-matter e o package.json abaixo pertencem a um projeto de exemplo (\"example-plugin\"), nao ao package.json real deste repositorio.",
+  "files": [
+    {
+      "path": "package.json",
+      "content": "{\n  \"name\": \"example-plugin\",\n  \"version\": \"1.0.0\",\n  \"license\": \"MIT\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"test\": \"bun test\",\n    \"test:watch\": \"bun test --watch\",\n    \"build\": \"tsc --noEmit\",\n    \"lint\": \"biome check .\",\n    \"format\": \"biome format --write .\",\n    \"start\": \"node dist/index.js\",\n    \"dev\": \"bun run --watch src/index.ts\",\n    \"typecheck\": \"tsc --noEmit --strict\",\n    \"prepare\": \"husky\"\n  },\n  \"devDependencies\": {\n    \"@types/node\": \"^20.11.0\",\n    \"@types/bun\": \"^1.1.0\",\n    \"@biomejs/biome\": \"^1.8.0\",\n    \"husky\": \"^9.1.7\",\n    \"typescript\": \"^5.4.0\"\n  },\n  \"engines\": {\n    \"node\": \">=20\"\n  },\n  \"dependencies\": {\n    \"gray-matter\": \"^4.0.3\",\n    \"js-yaml\": \"^4.1.1\",\n    \"zod\": \"^4.4.3\"\n  }\n}\n"
+    },
+    {
+      "path": "src/lib/frontmatter-loader.ts",
+      "content": "/**\n * Frontmatter loader para arquivos de configuracao do usuario.\n *\n * Le o arquivo indicado e retorna o frontmatter YAML parseado junto com o\n * conteudo. Usado pelo parser de manifestos do plugin.\n */\nimport matter from 'gray-matter'\nimport { readFileSync } from 'fs'\n\nexport interface ParsedFrontmatter {\n  data: Record<string, unknown>\n  content: string\n}\n\nexport function loadFrontmatter(filePath: string): ParsedFrontmatter {\n  const raw = readFileSync(filePath, 'utf8')\n  // Nenhuma sanitizacao aplicada antes do parse — arquivo vem do projeto do usuario.\n  return matter(raw)\n}\n"
+    }
+  ],
+  "audit_output": {
+    "source": "bun audit --json (sintetico — nao e output real de nenhum audit)",
+    "vulnerabilities": [
+      {
+        "package": "gray-matter",
+        "installed": "4.0.3",
+        "severity": "high",
+        "cve": "CVE-2026-00000",
+        "ghsa": "GHSA-xxxx-yyyy-zzzz",
+        "title": "Prototype pollution no parser de front matter YAML",
+        "patched_versions": ">=4.0.4",
+        "dependency_path": "example-plugin > gray-matter"
+      }
+    ]
+  },
+  "scope": "Rodar o audit da stack, enriquecer o finding com EPSS/KEV, tracar reachability e reportar conforme skills/security/references/sca-triage.md"
+}
