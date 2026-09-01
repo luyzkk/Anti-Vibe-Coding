@@ -1,8 +1,18 @@
+// 2026-09-01 (Luiz/dev): +8 kinds — port das familias default do gitleaks (MIT), derivadas
+// por conceito (nao copiadas do TOML). PRD §RF-02 / §Decisões D5.
 export type SecretKind =
   | 'aws-key'
+  | 'aws-secret-key'
+  | 'gcp-api-key'
+  | 'gcp-service-account'
+  | 'azure-storage-key'
   | 'stripe-live'
   | 'github-token'
+  | 'slack-token'
+  | 'slack-webhook'
+  | 'private-key'
   | 'postgres-url'
+  | 'db-connection-url'
   | 'email'
   | 'jwt'
   | 'high-entropy'
@@ -79,20 +89,58 @@ function isHighEntropySecret(rawMatch: string): boolean {
   return shannonEntropy(rawMatch) >= ENTROPY_MIN_BITS_PER_CHAR
 }
 
+// 2026-09-01 (Luiz/dev): linhas que carregam blob base64 legitimo e PUBLICO. Suprimem
+// SOMENTE a heuristica de entropia — as regras especificas continuam valendo na linha.
+// PRD §RF-02: falso positivo em massa mata a adocao do scanner. GT-2 da fase-01: o eixo
+// entropia+sequencia nao resolve essa classe por design (chave publica tem entropia real).
+const ENTROPY_LINE_SUPPRESSORS: ReadonlyArray<RegExp> = [
+  /\bssh-(?:rsa|ed25519|dss)\b/, // chave PUBLICA — nao e secret
+  /\b(?:sha256|sha384|sha512)-[A-Za-z0-9+/=]/, // SRI e integrity de lockfile
+  /\bdata:[a-z]+\/[a-z0-9.+-]+;base64,/i, // data URI embutido
+  /-----(?:BEGIN|END) [A-Z ]+-----/, // corpo PEM: private-key ja marcou a linha do header
+]
+
+function suppressesEntropy(line: string): boolean {
+  return ENTROPY_LINE_SUPPRESSORS.some((re) => re.test(line))
+}
+
 // 2026-05-18 (Luiz/dev): regex literais do PRD SH-01 + D16. NAO usar lookbehind
 // (compatibilidade com runtimes JS antigos). 'g' flag obrigatoria — scanSecrets
 // itera matches.
-// 2026-09-01 (Luiz/dev): +github-token e +high-entropy — PRD §RF-02 / CA-02.
-// ORDEM E PRIORIDADE: usedRanges faz o primeiro match vencer. 'high-entropy' e a regra
-// mais generica e fica SEMPRE por ultimo, senao engole aws-key/stripe-live/jwt/github-token.
+// 2026-09-01 (Luiz/dev): +8 kinds — familias default do gitleaks (MIT) derivadas por
+// conceito, licenca confirmada no MEMORY do plano — PRD §Decisões D5 / §RF-02.
+// ORDEM = PRIORIDADE (usedRanges): especificas -> semi-genericas -> genericas -> entropia.
+// 'high-entropy' e a regra mais generica e fica SEMPRE por ultimo, senao engole os demais.
 const SECRET_PATTERNS: ReadonlyArray<SecretRule> = [
-  { kind: 'aws-key',      pattern: /AKIA[0-9A-Z]{16}/g },
-  { kind: 'stripe-live',  pattern: /sk_live_[A-Za-z0-9]{24,}/g },
-  { kind: 'github-token', pattern: /ghp_[0-9A-Za-z]{36}/g },
-  { kind: 'postgres-url', pattern: /postgres(?:ql)?:\/\/[^\s]+:[^\s]+@[^\s/]+/g },
-  { kind: 'email',        pattern: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g },
-  { kind: 'jwt',          pattern: /eyJ[A-Za-z0-9_-]+?\.[A-Za-z0-9_-]+?\.[A-Za-z0-9_-]+/g },
-  { kind: 'high-entropy', pattern: ENTROPY_CANDIDATE, validate: isHighEntropySecret },
+  // --- credenciais de cloud, shape unico ---
+  { kind: 'aws-key',            pattern: /AKIA[0-9A-Z]{16}/g },
+  // AWS secret key nao tem prefixo distintivo: 40 chars base64 e shape generico demais.
+  // Ancorar pela palavra-chave a esquerda DENTRO do match (sem lookbehind, G5).
+  { kind: 'aws-secret-key',     pattern: /aws_secret_access_key["'\s:=]+[A-Za-z0-9/+=]{40}/gi },
+  { kind: 'gcp-api-key',        pattern: /AIza[0-9A-Za-z_-]{35}/g },
+  { kind: 'gcp-service-account', pattern: /"type"\s*:\s*"service_account"/g },
+  { kind: 'azure-storage-key',  pattern: /AccountKey=[A-Za-z0-9+/=]{20,}/g },
+
+  // --- tokens de plataforma, prefixo distintivo ---
+  { kind: 'stripe-live',        pattern: /sk_live_[A-Za-z0-9]{24,}/g },
+  { kind: 'github-token',       pattern: /ghp_[0-9A-Za-z]{36}/g },
+  // slack-webhook antes de slack-token: a URL contem segmentos que casam com o shape do
+  // token, o webhook precisa reservar o range primeiro.
+  { kind: 'slack-webhook',      pattern: /https:\/\/hooks\.slack\.com\/services\/[A-Za-z0-9_/]{20,}/g },
+  { kind: 'slack-token',        pattern: /xox[baprs]-[0-9A-Za-z-]{20,}/g },
+
+  // --- material de chave ---
+  { kind: 'private-key',        pattern: /-----BEGIN (?:RSA |EC |DSA |OPENSSH |PGP )?PRIVATE KEY(?: BLOCK)?-----/g },
+
+  // --- connection strings (postgres separado por retrocompatibilidade do kind) ---
+  { kind: 'postgres-url',       pattern: /postgres(?:ql)?:\/\/[^\s]+:[^\s]+@[^\s/]+/g },
+  // exige user:pass@ — sem credencial, sem match (mongodb://localhost:27017/app fica limpo).
+  { kind: 'db-connection-url',  pattern: /(?:mysql|mongodb(?:\+srv)?|redis|rediss|amqps?):\/\/[^\s:@/]+:[^\s@/]+@[^\s/]+/g },
+
+  // --- genericas ---
+  { kind: 'email',              pattern: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g },
+  { kind: 'jwt',                pattern: /eyJ[A-Za-z0-9_-]+?\.[A-Za-z0-9_-]+?\.[A-Za-z0-9_-]+/g },
+  { kind: 'high-entropy',       pattern: ENTROPY_CANDIDATE, validate: isHighEntropySecret },
 ]
 
 export function scanSecrets(content: string): readonly SecretMatch[] {
@@ -104,8 +152,11 @@ export function scanSecrets(content: string): readonly SecretMatch[] {
     // 2026-05-18 (Luiz/dev): rastrear intervalos usados para nao duplicar matches sobrepostos
     // (ex: email dentro de postgres-url). Padroes de maior prioridade vem primeiro no array.
     const usedRanges: Array<[number, number]> = []
+    // 2026-09-01 (Luiz/dev): checar uma vez por linha, nao por match. PRD §RF-02.
+    const entropySuppressed = suppressesEntropy(line)
 
     for (const { kind, pattern, validate } of SECRET_PATTERNS) {
+      if (kind === 'high-entropy' && entropySuppressed) continue
       // 2026-05-18 (Luiz/dev): clonar regex para nao compartilhar lastIndex entre linhas.
       const localPattern = new RegExp(pattern.source, pattern.flags)
       let m: RegExpExecArray | null

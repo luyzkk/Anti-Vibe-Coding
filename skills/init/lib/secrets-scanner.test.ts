@@ -120,4 +120,79 @@ describe('scanSecrets', () => {
     const matches = scanSecrets('const seq = "abcdefghij0123456789ABCDEFGHIJ"')
     expect(matches).toHaveLength(0)
   })
+
+  // 2026-09-01 (Luiz/dev): familias default do gitleaks (MIT) — PRD §RF-02 / §Decisões D5.
+
+  test('detecta AWS secret access key ancorada por palavra-chave', () => {
+    const matches = scanSecrets('aws_secret_access_key = wJalrXUtnFEMIK7MDENGbPxRfiCYzEXAMPLEKEY0')
+    expect(matches.some((m) => m.kind === 'aws-secret-key')).toBe(true)
+  })
+
+  test('detecta GCP API key (AIza)', () => {
+    const matches = scanSecrets('GOOGLE_KEY=AIzaSyD-0a1B2c3D4e5F6g7H8i9J0k1L2m3N4o5P')
+    expect(matches[0]?.kind).toBe('gcp-api-key')
+  })
+
+  test('detecta marcador de service account do GCP', () => {
+    const matches = scanSecrets('{ "type": "service_account", "project_id": "demo" }')
+    expect(matches.some((m) => m.kind === 'gcp-service-account')).toBe(true)
+  })
+
+  test('detecta connection string de storage do Azure', () => {
+    const line =
+      'CONN=DefaultEndpointsProtocol=https;AccountName=demostorage;AccountKey=Zm9vYmFyYmF6cXV4MTIzNDU2Nzg5MEFCQ0RFRg==;'
+    const matches = scanSecrets(line)
+    expect(matches.some((m) => m.kind === 'azure-storage-key')).toBe(true)
+  })
+
+  test('detecta token do Slack (xoxb-)', () => {
+    const matches = scanSecrets('SLACK=xoxb-1234567890-0987654321-AbCdEfGhIjKlMnOpQrStUvWx')
+    expect(matches[0]?.kind).toBe('slack-token')
+  })
+
+  test('detecta webhook do Slack', () => {
+    const matches = scanSecrets('https://hooks.slack.com/services/T00000000/B11111111/AbCdEfGhIjKlMnOpQrStUvWx')
+    expect(matches.some((m) => m.kind === 'slack-webhook')).toBe(true)
+  })
+
+  test('detecta cabecalho de chave privada PEM', () => {
+    // NAO usar toHaveLength: o corpo base64 da chave tambem dispara high-entropy por linha.
+    const pem = ['-----BEGIN RSA PRIVATE KEY-----', 'MIIEowIBAAKCAQEA0mZ1Kq', '-----END RSA PRIVATE KEY-----'].join('\n')
+    const matches = scanSecrets(pem)
+    expect(matches.some((m) => m.kind === 'private-key')).toBe(true)
+  })
+
+  test('detecta chave privada OPENSSH e PGP', () => {
+    expect(scanSecrets('-----BEGIN OPENSSH PRIVATE KEY-----').some((m) => m.kind === 'private-key')).toBe(true)
+    expect(scanSecrets('-----BEGIN PGP PRIVATE KEY BLOCK-----').some((m) => m.kind === 'private-key')).toBe(true)
+  })
+
+  test('detecta connection string de mongodb/mysql/redis com credenciais', () => {
+    expect(scanSecrets('mongodb+srv://admin:s3cr3tpass@cluster0.example.net/db')[0]?.kind).toBe('db-connection-url')
+    expect(scanSecrets('mysql://root:s3cr3tpass@db.internal:3306/app')[0]?.kind).toBe('db-connection-url')
+    expect(scanSecrets('redis://default:s3cr3tpass@cache.internal:6379')[0]?.kind).toBe('db-connection-url')
+  })
+
+  // ---- Guardas de FALSO POSITIVO ----
+  // Precedente do arquivo: 'NAO confunde sk_test_ com sk_live_'. Cada regra generica
+  // precisa de uma guarda, senao o scanner vira ruido e para de ser usado.
+
+  test('NAO reporta connection string sem credenciais', () => {
+    expect(scanSecrets('mongodb://localhost:27017/app')).toHaveLength(0)
+    expect(scanSecrets('redis://cache.internal:6379')).toHaveLength(0)
+  })
+
+  test('NAO reporta prefixo xoxb- curto demais', () => {
+    expect(scanSecrets('exemplo de token: xoxb-123')).toHaveLength(0)
+  })
+
+  test('NAO reporta chave publica SSH como secret', () => {
+    const line = 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC7vbQmXk9RtLpZa1cD2eF3gH4iJ5kL6m luiz@host'
+    expect(scanSecrets(line)).toHaveLength(0)
+  })
+
+  test('NAO reporta hash de integridade (SRI / lockfile) como secret', () => {
+    const line = '<script src="/app.js" integrity="sha384-oqVuAfXRKap7fdgcCY5uykM6+R9GqQ8K/uxy9rx7HNQlGYl1kPzQho1wx4JwY8w"></script>'
+    expect(scanSecrets(line)).toHaveLength(0)
+  })
 })

@@ -1,6 +1,6 @@
 {
   "version": "7.7.0",
-  "generatedAt": "2026-09-01T17:10:21.535Z",
+  "generatedAt": "2026-09-01T17:19:42.180Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -1603,7 +1603,7 @@
     },
     "skills/init/lib/secrets-scanner.ts": {
       "version": "7.7.0",
-      "checksum": "38d15396b0aaf8665e2f2e64699a2f5034d902e6e0b57bf7b470a61339bd6751",
+      "checksum": "c13d8bc8541b6978ad918f21f078841d9ab0d717e7166e0fb16b0f2e023d0cbd",
       "lastModified": "2026-09-01",
       "updateStrategy": "replace"
     },
