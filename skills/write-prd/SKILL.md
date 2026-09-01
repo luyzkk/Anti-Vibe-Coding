@@ -179,6 +179,7 @@ Ler o template em `skills/write-prd/templates/prd-template.md` e preencher cada 
 | Could Have | Nice-to-haves mencionados pelo dev |
 | Won't Have | Fora de escopo Q4 |
 | Nao-funcionais | WCAG 2.0, performance (API < 200ms), seguranca, observabilidade |
+| Ameacas & Dados | **Condicional** — triagem de risco abaixo. Sem gatilho: omitir e justificar em 1 linha nos Nao-funcionais |
 | Decisoes tecnicas | Decisoes detectadas com alternativa rejeitada + razao |
 | Criterios de aceite | Derivados dos Must Have — formato Dado/Quando/Entao |
 | Dependencias | Detectadas na exploracao (servicos, APIs, libs, features pre-req) |
@@ -189,6 +190,31 @@ Regras de geracao:
 2. Informacao insuficiente → preencher com "[A DEFINIR — perguntar ao dev]" em vez de inventar
 3. NAO gerar requisitos que o dev nao mencionou — apenas organizar e estruturar
 4. Must Have MINIMALISTA — aplicar teste: "Se mover para Should, a feature ainda resolve o problema core?"
+
+### Triagem de risco — decidir a secao "Ameacas & Dados" (RF-04 / D2)
+
+<!-- 2026-09-01 (Luiz/dev): secao condicional preserva "PRD cabe em 1-2 paginas" — PRD §Decisoes D2 -->
+
+Antes de escrever o PRD, responder SIM/NAO aos seis gatilhos. **Um SIM basta** para a secao existir:
+
+| # | Gatilho | Sinal na descricao ou no Step 2 |
+|---|---------|--------------------------------|
+| 1 | Autenticacao ou autorizacao | login, sessao, token, role, permissao, RLS, "so o dono" |
+| 2 | Dados sensiveis / PII | email, CPF, telefone, endereco, saude, documento, foto |
+| 3 | Input externo | body de request, query param, webhook, CSV importado, conteudo de terceiro |
+| 4 | Upload de arquivo | multipart, storage bucket, avatar, anexo |
+| 5 | Pagamento / financeiro | cobranca, saldo, split, gateway, assinatura, reembolso |
+| 6 | Integracao com terceiro | OAuth provider, SDK externo, API de parceiro, webhook recebido |
+
+- **Ao menos 1 SIM** → incluir `## Ameacas & Dados` PREENCHIDA (nao com os placeholders do template).
+  Cada caso de abuso `AB-*` vira criterio de aceite aqui e teste de abuso no RED do
+  `/anti-vibe-coding:tdd-workflow`.
+- **Zero SIM** → OMITIR a secao e gravar UMA linha nos Nao-funcionais:
+  `**Seguranca:** nenhum gatilho de risco disparado — secao Ameacas & Dados omitida.`
+  A justificativa e obrigatoria: sem ela, "nao tem secao" fica indistinguivel de "ninguem pensou no
+  assunto", e o dev perde a chance de discordar.
+- **Na duvida entre incluir e omitir: incluir.** Falso positivo custa oito linhas de PRD; falso
+  negativo custa uma vulnerabilidade que nasce dentro do codigo e so aparece na auditoria do fim.
 
 Exemplo de transformacao (requisito vago -> criterio mensuravel):
   Vago:       "Deixe o dashboard mais rapido"
@@ -214,6 +240,11 @@ Apresentar o PRD gerado destacando:
    - "Revise o PRD acima. O que voce mudaria?"
    - "As decisoes assumidas estao corretas?"
    - "A priorizacao MoSCoW reflete suas prioridades reais?"
+
+5. AMEACAS — se a secao "Ameacas & Dados" existe: listar os gatilhos disparados e os casos AB-*, e
+   perguntar "falta algum abuso obvio que alguem tentaria? Cada AB-* vira teste ANTES do codigo".
+   Se a secao foi omitida: dizer em uma linha qual justificativa foi gravada, para o dev poder
+   discordar da triagem em vez de descobrir a omissao depois.
 ```
 
 Fluxo de ajuste:
@@ -373,6 +404,8 @@ Antes de sugerir `/plan-feature`, confirmar:
 - [ ] Os criterios de aceite sao testaveis (formato Dado/Quando/Entao).
 - [ ] Must Have <= 40% dos requisitos totais.
 - [ ] O PRD foi salvo em `docs/exec-plans/active/{date}-{slug}/PRD.md`.
+- [ ] A triagem de risco foi feita: a secao "Ameacas & Dados" esta presente e preenchida, OU ausente
+      com justificativa de 1 linha nos Nao-funcionais.
 
 ---
 

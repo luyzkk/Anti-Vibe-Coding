@@ -1,6 +1,6 @@
 {
   "version": "7.7.0",
-  "generatedAt": "2026-09-01T18:31:03.340Z",
+  "generatedAt": "2026-09-01T18:57:23.938Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -2432,7 +2432,7 @@
     "skills/plan-feature/SKILL.md": {
       "version": "7.7.0",
       "checksum": "d9443be597af68bf544d251356c4a5c6c2edf37b153ea8bd589abb68e617d2c0",
-      "lastModified": "2026-08-17",
+      "lastModified": "2026-09-01",
       "updateStrategy": "replace"
     },
     "skills/plan-feature/index.ts": {
@@ -2444,7 +2444,7 @@
     "skills/plan-feature/templates/fase-template.md": {
       "version": "7.7.0",
       "checksum": "a7de04714697138c4a79235fbb63b1287dc71fae0877146b789e09192eed5e76",
-      "lastModified": "2026-05-09",
+      "lastModified": "2026-09-01",
       "updateStrategy": "replace"
     },
     "skills/plan-feature/templates/memory-prd-template.md": {
@@ -2732,7 +2732,7 @@
     "skills/tdd-workflow/SKILL.md": {
       "version": "7.7.0",
       "checksum": "2241b43ec08ad03a018c2c86c90e342715d9f836d54e64f7386e9671fce6a0d9",
-      "lastModified": "2026-08-17",
+      "lastModified": "2026-09-01",
       "updateStrategy": "replace"
     },
     "skills/tdd-workflow/references/deep-modules.md": {
@@ -2815,14 +2815,14 @@
     },
     "skills/write-prd/SKILL.md": {
       "version": "7.7.0",
-      "checksum": "f0276897ebb4fca5a94cd356fe83bfdbf19db4c1553aa54ff3ce663e7d5dd666",
-      "lastModified": "2026-08-17",
+      "checksum": "05ba3f7dee422d3c199e33471ba7a0fede5940e27b6a97424956935e6000a978",
+      "lastModified": "2026-09-01",
       "updateStrategy": "replace"
     },
     "skills/write-prd/templates/prd-template.md": {
       "version": "7.7.0",
-      "checksum": "c4d50a9b788339ba2d48dc4d33a3f144962a73321354d057b126ed3ecd0eeb38",
-      "lastModified": "2026-06-05",
+      "checksum": "fd17f0ed05b51bc1f76c5bc6b33954a6e3c7e950991c774a8f29b6ae027a04ba",
+      "lastModified": "2026-09-01",
       "updateStrategy": "replace"
     },
     "skills/write-prd/lib/structure-snippets.ts": {
