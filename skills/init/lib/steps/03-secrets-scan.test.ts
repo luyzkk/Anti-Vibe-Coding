@@ -54,4 +54,39 @@ describe('secretsScanStep (Step 3 real)', () => {
     const report = await secretsScanStep.run({ cwd: tmp, args: [], flags: {} })
     expect(report.summary).toContain('0 arquivos varridos')
   })
+
+  // 2026-09-01 (Luiz/dev): escopo estendido de markdown-only para arquivos de codigo —
+  // PRD §RF-02 / CA-02.
+  test('arquivo .ts com secret sintetico eh varrido e entra em blockedFiles', async () => {
+    await fs.mkdir(path.join(tmp, 'src'), { recursive: true })
+    await fs.writeFile(
+      path.join(tmp, 'src', 'config.ts'),
+      'const gh = "ghp_A1b2C3d4E5f6G7h8I9j0KlMnOpQrStUvWxYz"',
+    )
+
+    const report = await secretsScanStep.run({ cwd: tmp, args: [], flags: {} })
+    expect(report.summary).toContain('1 arquivos com match')
+
+    const persisted = await readDiscoveryArtifact<{
+      blockedFiles: ReadonlyArray<{ relativePath: string }>
+    }>(tmp, 'secrets-scan-result')
+    expect(persisted?.blockedFiles).toHaveLength(1)
+    expect(persisted?.blockedFiles[0]?.relativePath).toBe('src/config.ts')
+  })
+
+  // 2026-09-01 (Luiz/dev): lockfile fica de fora mesmo dentro do escopo .json — hash
+  // sha512- de integridade dispararia a heuristica de entropia em massa. PRD §RF-02.
+  test('package-lock.json com hashes sha512- NAO entra em blockedFiles nem scannedCount', async () => {
+    await fs.writeFile(
+      path.join(tmp, 'package-lock.json'),
+      '{ "integrity": "sha512-aZ9kQ2mX7pL4vB8nR1tY6wE3sD5gH0jFwErTyUiOpAsDf" }',
+    )
+
+    const report = await secretsScanStep.run({ cwd: tmp, args: [], flags: {} })
+    expect(report.summary).toContain('0 arquivos varridos')
+    expect(report.summary).toContain('0 arquivos com match')
+
+    const persisted = await readDiscoveryArtifact<{ blockedFiles: unknown[] }>(tmp, 'secrets-scan-result')
+    expect(persisted?.blockedFiles).toHaveLength(0)
+  })
 })

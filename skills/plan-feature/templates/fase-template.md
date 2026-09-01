@@ -99,6 +99,22 @@ CREATE POLICY "users_own_notifications"
   - Comando: `bun run test -- --grep '{nome do teste}'`
   - Resultado esperado: `{N} passed, 0 failed`
 
+### Seguranca (apenas fase de slice [RISCO])
+
+<!-- 2026-09-01 (Luiz/dev): criterio de seguranca first-class na fase — PRD §RF-06 -->
+<!-- OPCIONAL — OMITIR este bloco inteiro quando a fase NAO vem de slice marcado [RISCO] no
+     Step 3 do /plan-feature (auth/authz, PII/sensivel, input externo, upload, pagamento,
+     integracao terceira). Fase trivial nao paga o atrito. -->
+
+- [ ] **Teste de abuso no RED:** o teste do abuso FALHOU antes de a defesa existir (Abuse-It)
+  - Comando: `{comando que roda so o teste de abuso}`
+  - Resultado esperado no RED: o ataque passa — a defesa ainda nao existe
+- [ ] **{CA-SEC-N}:** {colar o criterio inteiro} — verificado por `{comando}`
+- [ ] **Nenhum gatilho de aprovacao humana foi auto-aplicado.** Se a fase tocou novo fluxo de auth,
+      nova categoria de PII/pagamento, integracao terceira, configuracao de CORS, handler de upload,
+      role elevado ou rate limiting: o diff foi apresentado e confirmado antes de aplicar
+- [ ] Nenhum secret literal entrou no codigo ou na fixture (valor sintetico apenas)
+
 ### Checklist
 
 - [ ] {Verificacao especifica 1 — ex: "Migration roda sem erros: bun run db:migrate"}

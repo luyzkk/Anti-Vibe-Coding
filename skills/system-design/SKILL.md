@@ -494,6 +494,34 @@ Falha induzida por carga (cliente abusivo / poison request) pode propagar?
 
 ---
 
+## 12. Defaults Seguros de Plataforma
+
+<!-- 2026-09-01 (Luiz/dev): defaults seguros escolhidos no design da plataforma — PRD §RF-07 -->
+
+Decisoes de plataforma carregam seguranca junto, e quase sempre de um jeito que nao aparece em code
+review — o codigo esta certo, a plataforma e que entrega o dado para a pessoa errada.
+
+| Decisao | Default seguro | Por que no design |
+|---------|----------------|-------------------|
+| **Cache de resposta** | Se o conteudo varia por ator, a chave inclui o ator. Conteudo por-ator nunca em cache compartilhado | Cache compartilhado entrega o dado de A para B — e o bug parece "intermitente", que e o pior tipo de bug para diagnosticar |
+| **Fila / worker** | O payload leva o `id` do ator; o consumidor **reautoriza**. Nunca carregar "ja autorizado" | Mensagem e replayavel e frequentemente persistida: autorizacao congelada vira bypass com data de validade infinita |
+| **Replica de leitura** | A replica herda a mesma fronteira de tenant da primaria (RLS / filtro), nao so o mesmo schema | "Replica so pra relatorio" sem RLS e um vazamento com outro nome |
+| **CDN** | Conteudo autenticado nao passa por cache compartilhado (`Cache-Control: private` / `no-store`) | Um `public` num endpoint autenticado vaza para todo mundo, e o TTL decide por quanto tempo |
+| **Secrets em serverless** | Injetados por env do provider; nunca no bundle, nunca em log de cold start | Bundle e artefato distribuido — quem tem o artefato tem o secret |
+
+### Arvore de Decisao — posso cachear esta resposta?
+
+```
+A resposta muda conforme QUEM pediu?
+  NAO → cache compartilhado ok (TTL normal)
+  SIM → e dado sensivel / PII?
+    NAO → cache com chave que INCLUI o ator; nunca em CDN publica
+    SIM → nao cachear em camada compartilhada.
+          Se a latencia exigir, cache no cliente + `no-store` no proxy
+```
+
+---
+
 ## Cheat Sheet — Referencia Rapida
 
 | Decisao | Padrao Seguro | Mude Quando |
@@ -510,6 +538,9 @@ Falha induzida por carga (cliente abusivo / poison request) pode propagar?
 | Sobrecarga | load shedding (fast-reject) p/ preservar goodput | shedding caro/sem instrumentação = pior |
 | Cadeia de chamadas | propague deadline (tempo restante) | timeout fixo por hop; clock wall em vez de monotônico |
 | Isolar tenant/falha | shuffle sharding (blast radius exponencialmente menor) | poison-request que derruba qualquer worker |
+| Cache de resposta por-ator | chave inclui o ator; CDN publica so p/ conteudo anonimo | nunca — `public` em endpoint autenticado e vazamento |
+| Autorizacao em fila/worker | payload leva o ator; consumidor reautoriza | nunca congelar "ja autorizado" no payload |
+| Replica de leitura | mesma fronteira de tenant da primaria | nunca "replica so pra relatorio" sem RLS |
 
 ---
 
@@ -520,6 +551,8 @@ Falha induzida por carga (cliente abusivo / poison request) pode propagar?
 - **Pular etapas na progressao de escala** — sharding antes de otimizar queries e jogar dinheiro fora
 - **Ignorar metricas** — tomar decisoes de arquitetura sem dados (latencia, hit rate, replication lag)
 - **Over-engineering desde o dia 1** — polyglot persistence, microservicos e sharding para um MVP
+- **Cachear resposta autenticada em camada compartilhada** — o dado de um usuario aparece para outro, e o sintoma parece intermitencia de rede
+- **Confiar em autorizacao congelada no payload da fila** — a mensagem e replayavel; quem consome reautoriza
 
 ---
 

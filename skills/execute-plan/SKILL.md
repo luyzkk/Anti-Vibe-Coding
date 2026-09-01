@@ -395,13 +395,20 @@ Spawn do agent plan-executor com contexto:
   - "Notas para Planos Seguintes" de `{PASTA_ATIVA}/plano{01..NN-1}/MEMORY.md`
   - Estado atual: relevant-only do `{PASTA_ATIVA}/STATE.md` (progresso, nao logs completos)
   - Padrao de codigo existente (1-2 arquivos de referencia do codebase do projeto — nao do docs/exec-plans/active/)
+  - Se a fase tem o bloco `### Seguranca (apenas fase de slice [RISCO])` no `## Verificacao`:
+    - A secao "Ameacas & Dados" do PRD — SO ela, recortada; nao o PRD inteiro
+    - Os criterios `CA-SEC-*` da fase
+    - Instrucao: "Este slice e de risco. Escreva o teste de abuso ANTES da defesa (Abuse-It,
+      /anti-vibe-coding:tdd-workflow). Nenhum gatilho de aprovacao humana se auto-aplica —
+      apresente o diff e aguarde."
   - Instrucao: "Execute APENAS esta fase. Siga TDD. Commit atomico por passo."
   - Instrucao: "Reporte: decisoes tomadas, bugs encontrados, desvios do plano."
   - Instrucao: "Commits e edits de codigo vao para o repositorio DO PROJETO, nao dentro de PASTA_ATIVA.
     PASTA_ATIVA eh apenas para artefatos de planejamento (MEMORY.md, STATE.md updates)."
 
   NAO RECEBE:
-  - PRD completo (o subagente ve apenas a fase)
+  - PRD completo (o subagente ve apenas a fase — a unica excecao e a secao "Ameacas & Dados",
+    recortada, e somente quando a fase e de risco)
   - Outras fases do plano
   - MEMORY.md completa de planos anteriores (so "Notas para Planos Seguintes")
   - Contexto de conversas anteriores
@@ -418,6 +425,8 @@ Se a fase tem secao TDD com RED/GREEN:
 
   Subagente RED (contexto isolado):
   - Recebe: especificacao da fase (arquivos, descricao, verificacao)
+  - Recebe, se a fase e de risco: a secao "Ameacas & Dados" do PRD + os CA-SEC-* da fase
+    — sem isso o RED escreve so o happy path e a defesa nunca chega ao GREEN
   - NAO recebe: implementacao existente
   - Produz: teste que FALHA por assertion failure
   - Registra: .tdd-phase.json
