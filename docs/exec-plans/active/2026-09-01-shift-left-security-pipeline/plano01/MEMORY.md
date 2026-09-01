@@ -67,6 +67,14 @@ Formato: o que foi decidido + por que + impacto.
   Server-Side Request Forgery (SSRF)"). CWEs de A03 (secao "List of Mapped CWEs" da pagina): 477,
   1035, 1104, 1329, 1357, 1395 (6 no total, bate com "CWEs Mapped: 6" da score table) — ver GT-5 sobre
   um typo na propria pagina OWASP nesse ponto.
+- **Premissa #2 do PRD (endpoints EPSS e CISA KEV respondem) — CONFIRMADA em 2026-09-01 (fase-04).**
+  Ambos HTTP 200 via curl. EPSS (`https://api.first.org/data/v1/epss?cve=CVE-2021-44228`): shape
+  `{ data: [{ cve, epss, percentile, date }] }` — **`epss` e `percentile` vem como STRING**
+  (`"0.999990000"`), nao numero; `parseFloat()` obrigatorio antes de comparar com limiar (ver GT-6).
+  CISA KEV (`https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json`):
+  ~1.6 MB, 1687 entradas (`catalogVersion: "2026.08.31"`), campos por entrada incluem `cveID`,
+  `dateAdded`, `dueDate`, `knownRansomwareCampaignUse` (`"Known"`/`"Unknown"`) e `cwes[]` — o campo
+  `knownRansomwareCampaignUse` e sinal extra util, nao previsto no PRD original.
 
 ---
 
@@ -130,6 +138,13 @@ Apenas gotchas que NAO eram obvios antes de implementar.
     "Mapped CWEs" do site sem checar a prosa/MITRE — mesma logica do GT-4, agora aplicada a fonte
     externa em vez de a um grep interno.
 
+- **GT-6 (fase-04):** a API EPSS (`api.first.org/data/v1/epss`) retorna `data[0].epss` e
+  `data[0].percentile` como **STRING JSON** (`"0.999990000"`), nao como numero nativo.
+  - Impacto: qualquer consumidor (ex: fase-06 `dependency-auditor`) que compare direto com um
+    limiar numerico (`epss >= 0.10`) sem `parseFloat()` corre risco de comparacao string-vs-numero
+    silenciosamente errada. Documentado em `references/sca-triage.md` Passo 2. Mesmo espirito do
+    GT-4/GT-5: verificar o shape real antes de assumir o tipo.
+
 ---
 
 ## Desvios do Plano
@@ -145,6 +160,19 @@ Se nada mudou, manter vazio (bom sinal).
 - **DEV-2 (fase-01):** `hooks/hooks.json` e `plugin-manifest.json` ja apareciam como modificados
   ANTES desta execucao (estado inicial da sessao). Nao sao desta fase — nao atribuir.
 
+- **DEV-3 (fase-04):** branch dedicada e commit da fase NAO foram feitos, apesar do Passo 1 da spec
+  (`git checkout -b docs/sca-triage-reference`) e da G13 do plano (branch + PR por fase, mesmo em
+  doc).
+  - Motivo: instrucao explicita do prompt de execucao desta fase — "Branch ativa:
+    feat/secrets-scanner-tracer — continue nela. NAO crie branch, NAO va para main" e "NAO commite".
+    Instrucao do orquestrador tem precedencia sobre a spec da fase quando as duas divergem.
+  - Impacto: as mudancas da fase-04 (`sca-triage.md` novo, pointer da secao 9 no `SKILL.md`,
+    `plugin-manifest.json` regenerado, mais este MEMORY.md) ficam **nao commitadas** na working tree
+    de `feat/secrets-scanner-tracer`, misturadas com o estado ja commitado das fases 01-03 nesse
+    mesmo branch (`5276d33`, `1c2dc19`, `7a2a627`). Quem retomar o plano precisa decidir: commit
+    separado so da fase-04, ou incorporar ao proximo commit da trilha. Conteudo em si esta completo
+    e todas as verificacoes (Passo abaixo) passaram — o que falta e so o commit/PR.
+
 ---
 
 ## Metricas
@@ -152,8 +180,8 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 6 |
-| Fases concluidas | 3 |
-| Fases com desvio | 1 |
+| Fases concluidas | 4 |
+| Fases com desvio | 2 |
 | Bugs encontrados | 1 |
 | Retries necessarios | 0 |
 

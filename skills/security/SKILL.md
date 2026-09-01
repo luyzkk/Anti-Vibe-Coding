@@ -445,7 +445,7 @@ curl "https://[project].supabase.co/rest/v1/[tabela_sensivel]?select=*&limit=1" 
 
 ## 9. Triagem de Vulnerabilidades de Dependencias
 
-> Referencia: `references/application-security.md`
+> Referencia: `references/sca-triage.md`  (procedimento operacional: audit → EPSS/KEV → reachability → decisao)
 
 <constraints>
 - **`npm audit fix` automatico nao e triagem** — o atalho de IA de rodar `npm audit fix` e seguir em frente ignora breaking changes e pode introduzir regressoes
