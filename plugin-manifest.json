@@ -1,6 +1,6 @@
 {
   "version": "7.7.0",
-  "generatedAt": "2026-08-31T11:36:05.437Z",
+  "generatedAt": "2026-09-01T17:09:55.551Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -373,8 +373,8 @@
     },
     "hooks/hooks.json": {
       "version": "7.7.0",
-      "checksum": "597ded93e8bbe1a3048091d31f170b113926f2cdc0ec6b1cb6ef210b20c1587d",
-      "lastModified": "2026-08-18",
+      "checksum": "88287837bef9005bd917b9483822f92edf49dce07459b2521635c260ca9fae68",
+      "lastModified": "2026-08-31",
       "updateStrategy": "replace"
     },
     "hooks/pre-mutation-gate.cjs": {
@@ -1604,7 +1604,7 @@
     "skills/init/lib/secrets-scanner.ts": {
       "version": "7.7.0",
       "checksum": "b85230f5e30c4863e1a803c152440af644b811cfabf7f34175c9eb27c8081239",
-      "lastModified": "2026-05-18",
+      "lastModified": "2026-09-01",
       "updateStrategy": "replace"
     },
     "skills/init/lib/semver-compare.ts": {
@@ -1670,7 +1670,7 @@
     "skills/init/lib/steps/03-secrets-scan.ts": {
       "version": "7.7.0",
       "checksum": "a7a8e87f1340148ecec7b3f3835da3964280ad52b71c3228ebb9e2fc923414f1",
-      "lastModified": "2026-06-06",
+      "lastModified": "2026-09-01",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/04-migrate-planning-and-manifest.ts": {
