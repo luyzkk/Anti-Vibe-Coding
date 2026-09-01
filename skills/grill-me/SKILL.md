@@ -168,6 +168,27 @@ pelo que o dev mencionou fecha sem tocar em seguranca uma unica vez.
 - "Rate limiting necessario nesse endpoint?"
 - "RLS (Row Level Security) aplicavel?"
 
+Ramos de abuso — a pergunta que muda o design nao e "isso esta seguro?", e "o que alguem
+mal-intencionado tentaria?". Ramificar quando as respostas acima acenderem um dos seis gatilhos de
+risco (`auth/authz` · `PII/sensivel` · `input externo` · `upload` · `pagamento` ·
+`integracao terceira`):
+
+- "Se o usuario A trocar o id na URL pelo id do usuario B, o que acontece hoje?"
+- "Que dado dessa feature vem de fora e ninguem valida? Onde ele e usado depois — query, HTML,
+  caminho de arquivo, comando?"
+- "Se um arquivo for enviado com a extensao trocada, o que barra?"
+- "Se a mesma requisicao chegar duas vezes (retry, replay), o efeito acontece duas vezes?"
+- "Se o webhook do terceiro vier de um remetente falso, o que verifica a assinatura?"
+- "Quem, alem do dono, PRECISA enxergar esse dado?" — a resposta honesta costuma ser "ninguem", e e
+  ela que define o default de authz.
+
+Cada resposta aqui vira um caso de abuso `AB-*` na secao "Ameacas & Dados" do PRD, e de la um teste
+de abuso no RED (`/anti-vibe-coding:tdd-workflow`). Ramo que nao se aplica **fecha explicitamente**
+numa linha, como qualquer outra semente — "sem input externo, ramo fechado".
+
+<!-- 2026-09-01 (Luiz/dev): ramos de abuso na semente SEGURANCA — PRD §RF-07. Heading preservado:
+     `### SEGURANCA` e token asserido em tests/grill-me-contract.test.ts. -->
+
 ### INTEGRACAO — Sistemas externos
 - "Comunica com qual sistema externo?"
 - "Formato: JSON, REST, GraphQL, webhook?"
@@ -186,7 +207,7 @@ pelo que o dev mencionou fecha sem tocar em seguranca uma unica vez.
 
 Regras:
 - ESCOPO e sempre a primeira raiz a resolver
-- SEGURANCA ramifica obrigatoriamente se detectar auth, dados sensiveis ou pagamentos
+- SEGURANCA ramifica obrigatoriamente se detectar auth, dados sensiveis ou pagamentos — e tambem input externo, upload de arquivo ou integracao com terceiro (os seis gatilhos de risco)
 - Prioridade decide **profundidade**, nunca existencia: semente irrelevante fecha explicitamente numa
   linha, e nao vira 4 perguntas forcadas numa feature trivial
 

@@ -338,6 +338,42 @@ Quantas classes com dependencias?
 
 ---
 
+## 8. Defaults Seguros no Design
+
+<!-- 2026-09-01 (Luiz/dev): seguranca e decisao arquitetural, cai no design e nao na auditoria — PRD §RF-07 -->
+
+Quatro decisoes de seguranca sao **arquiteturais**: trocar depois custa migracao, nao patch. Fechar
+junto com as outras decisoes de design — nao no fim, quando o codigo ja assumiu uma delas em silencio.
+
+| Decisao | Default seguro | Custo de adiar |
+|---------|----------------|-----------------|
+| **Modelo de authz** | Deny-by-default; checagem no servidor, por recurso (dono + role) — nunca "todo logado ve tudo" | Cada endpoint novo herda o buraco; o retrofit toca toda rota existente |
+| **Gestao de secrets** | Fora do repo e fora do banco: env / secret manager, injetado no runtime | Secret em codigo vaza no historico do git — e historico nao se apaga, so se rotaciona a chave |
+| **Dado em repouso** | Classificar antes de modelar (`publico` / `interno` / `PII` / `credencial` / `financeiro`). Credencial e **hasheada** (bcrypt/Argon2), nunca encriptada | Migracao de coluna com dado ja em producao |
+| **Isolamento de tenant** | A fronteira do tenant fica na camada mais BAIXA possivel (RLS ou filtro no repositorio), nao repetida em cada handler | Um handler que esqueceu o `where tenant_id` vaza tudo — e a auditoria de codigo nao encontra o que nao esta escrito |
+
+### Arvore de Decisao — onde a autorizacao mora
+
+```
+A checagem de "pode?" esta em quantos lugares?
+  Repetida em cada handler/rota
+    → um handler novo vai esquecer; e questao de tempo. Puxe a checagem para baixo.
+  Numa camada unica (middleware / policy / repositorio)
+    → o default e NEGAR quando nenhuma regra casa?
+        SIM  → ok
+        NAO  → allow-by-default disfarcado; e o mesmo buraco com menos linhas
+  No banco (RLS)
+    → mais forte. Confirme que os servicos internos NAO usam a conexao que ignora RLS
+      (service_role / superuser) para operacao de usuario final
+```
+
+Consequencia no fluxo: cada default **aceito** aqui vira linha da secao "Ameacas & Dados" do PRD;
+cada default **recusado** vira linha da tabela `## Decisoes Tecnicas`, com a razao e a alternativa.
+Seguranca recusada sem registro nao e trade-off — e esquecimento com aparencia de decisao.
+Para consultoria de profundidade (OWASP, authn/authz, cripto): `/anti-vibe-coding:security`.
+
+---
+
 ## Template de Analise Arquitetural
 
 Ao analisar uma decisao arquitetural, seguir este template:
@@ -387,3 +423,4 @@ Documentar a decisao no formato:
 3. **Trade-offs explicitos** — toda decisao tem custos, deixar claros
 4. **Boring technology primeiro** — provar que a solucao simples nao funciona antes de adotar complexidade
 5. **Ensinar o raciocinio** — mais importante que a resposta e o processo de chegar nela
+6. **Seguranca e decisao de design, nao revisao** — authz, secrets, dado em repouso e isolamento de tenant fecham junto com as outras decisoes (secao 8), nao na auditoria do fim
