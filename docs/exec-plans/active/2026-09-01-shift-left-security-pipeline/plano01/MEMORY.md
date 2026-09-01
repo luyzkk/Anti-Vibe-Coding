@@ -2,7 +2,7 @@
 
 **Feature:** Shift-Left Security no Pipeline Anti-Vibe-Coding
 **Iniciado:** 2026-09-01
-**Status:** em andamento
+**Status:** concluido
 
 ---
 
@@ -252,7 +252,7 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 6 |
-| Fases concluidas | 5 |
+| Fases concluidas | 6 |
 | Fases com desvio | 3 |
 | Bugs encontrados | 1 |
 | Retries necessarios | 0 |
@@ -264,17 +264,68 @@ Se nada mudou, manter vazio (bom sinal).
 Informacoes que o proximo plano PRECISA saber antes de comecar.
 O subagente do proximo plano le este campo.
 
-<!-- Preencher ao fechar o plano. O que o Plano 02 e o Plano 03 esperam encontrar aqui:
-- Edicao e numeracao do OWASP Top 10 efetivamente confirmadas na fase-03 (o Plano 02 fase-01 usa
-  esse vocabulario nos gatilhos de risco da secao "Ameacas & Dados")
-- Versao do ASVS confirmada na fase-05 (4.0.3 vs 5.0) e o mapa categoria -> capitulo aplicado
-- Nome final e enum de `payload.domain_status` do dependency-auditor (o Plano 03 fase-02 le esse
-  status no relatorio do verify-work)
-- Limiar de entropia e lista final de supressores do secrets-scanner (referencia para qualquer
-  regra nova futura)
-- Se as premissas #4 (licenca gitleaks MIT) e #5 (licencas OWASP CC BY-SA) foram confirmadas ou
-  se alguma restringiu o port
--->
+**Plano 01 FECHADO em 2026-09-01 — 6/6 fases. Branch `feat/secrets-scanner-tracer`, 9 commits.**
+
+### Vocabulario OWASP — use este, o de 2021 esta morto (Plano 02 fase-01)
+
+Edicao confirmada na fonte: **Top 10 2025**. A numeracao mudou de verdade, nao so de ordem:
+`A01` Broken Access Control **inclui SSRF** (nao existe mais categoria propria de SSRF) ·
+`A02` Security Misconfiguration · `A03` **Software Supply Chain Failures** (nova) ·
+`A04` Cryptographic Failures · `A05` **Injection** (era #1 em 2021) · `A06` Insecure Design ·
+`A07` Authentication Failures · `A08` Software or Data Integrity Failures ·
+`A09` Security Logging and Alerting Failures · `A10` **Mishandling of Exceptional Conditions** (nova).
+
+Os gatilhos de risco da secao "Ameacas & Dados" (Plano 02 fase-01) devem usar esses rotulos.
+Atencao: **A10 e nova e mapeia direto para "caminho de excecao que ignora checagem de autorizacao"** —
+e um caso de abuso obvio para o `Abuse-It` do Plano 02 fase-02.
+
+### ASVS — a versao e 5.0.0, nao 4.0.3 (Plano 02 fase-03)
+
+O rascunho do plano usava a numeracao 4.0.3. **A 5.0.0 reagrupou capitulos**, nao so renumerou
+(o V5 da 4.0.3 virou V1+V2; OAuth/OIDC ganhou capitulo proprio). O checklist da `/security` ja esta
+sob os 13 capitulos da 5.0.0. Qualquer criterio de aceite de seguranca por slice (Plano 02 fase-03)
+deve citar a numeracao 5.0.0 — conferir contra o CSV oficial, que tem coluna de nivel; a pagina HTML
+nao tem. **Quatro itens do checklist sao L2, nao L1, e estao rotulados como tal** — nao "promova"
+para L1 sem conferir.
+
+### dependency-auditor — contrato para o Plano 03 fase-02 ler
+
+Agente: `agents/dependency-auditor.md`. `payload.domain_status` usa o enum
+`"clean" | "vulnerabilities_found" | "critical_issues"`. Chave de config: `config.auditors.dependencies`
+(em `config/verify-work.json`), e o relatorio do `verify-work` ja tem a linha `Dependencies:`.
+O passe dinamico do Plano 03 deve seguir esse mesmo formato de linha no relatorio.
+
+### secrets-scanner — parametros finais
+
+`ENTROPY_MIN_BITS_PER_CHAR = 4.0`, `MAX_SEQUENTIAL_RUN = 6`, candidato `[A-Za-z0-9+/=_-]{20,}`.
+15 regras no total. `high-entropy` e SEMPRE a ultima do array. Supressao em dois niveis:
+`validate` por match (charset + corrida sequencial) e `ENTROPY_LINE_SUPPRESSORS` por linha
+(`ssh-rsa`, SRI `sha384-`). **Regra generica nova precisa passar pelos dois eixos** — ver DI-1/BUG-1.
+
+### Premissas do PRD — ambas fechadas, uma COM correcao
+
+- **#4 gitleaks:** MIT confirmada (Copyright 2019 Zachary Rice). Port de conceito, nao de TOML.
+- **#5 OWASP:** **CC BY 3.0, nao CC BY-SA** como o PRD supunha. A estrategia (reescrever + atribuir
+  via `source_url`) satisfaz as duas, entao nada mudou na pratica — mas o PRD esta impreciso.
+
+### Divida tecnica achada, NAO corrigida (fora de escopo — candidata a TODO)
+
+- **ajv 6 vs 7 em `skills/lib/subagent-contract.ts`:** o codigo mapeia erros via `instancePath`
+  (API ajv 7+), mas o runtime instalado e `ajv@6.15.0`, que expoe `dataPath`. Efeito: violacoes de
+  schema **falham corretamente**, mas a mensagem final nao cita o nome do campo (`path: ''`).
+  Afeta TODOS os contratos v2, nao so o fixture novo. Diagnostico confirmado inspecionando o ajv cru.
+- **`skills/anti-vibe-review/SKILL.md`:** `generate:manifest` emite warning de frontmatter malformado.
+  Pre-existente, nao tocado por este plano.
+
+### Armadilha de metodo que custou tempo (vale para os dois planos seguintes)
+
+`bun run test` roda em **2 lotes** (limite de linha de comando no Windows). O numero que aparece no
+fim do output e **so o lote 2**. Total real: **1858 pass / 0 fail em 267 arquivos**. Ler so o ultimo
+numero da uma leitura errada do baseline — capture os dois lotes.
+
+E o **GT-4**: os greps escritos como criterio de aceite nas specs contam errado com frequencia.
+Sempre confira O QUE o grep casa antes de aceita-lo como gate (mesmo espirito do GT-1: verificacao
+que passa pelo motivo errado nao e verificacao).
 
 ---
 
