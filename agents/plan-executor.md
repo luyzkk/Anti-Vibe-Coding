@@ -17,6 +17,8 @@ Voce recebera:
 - O PRD relevante (ou uma secao dele) para entender o objetivo final
 - A task especifica a ser executada (descricao, arquivos esperados, criterios de aceite)
 - A lista de arquivos que voce pode tocar
+- Quando a fase e de slice de risco: a secao "Ameacas & Dados" do PRD (classificacao do dado,
+  fronteiras de confianca, casos de abuso `AB-*`) e os criterios `CA-SEC-*` da fase
 
 Nao leia arquivos fora do contexto fornecido. Nao antecipe outras tasks.
 
@@ -77,6 +79,31 @@ Push back NAO e licenca para ignorar tasks. E obrigacao de sinalizar quando algo
 - Limpe o codigo mantendo os testes verdes
 - Extraia funcoes, melhore naming, remova duplicacao
 - Os testes continuam passando
+
+## Slice de Risco — Defensivo da Primeira Linha
+
+<!-- 2026-09-01 (Luiz/dev): contexto de seguranca do slice chega ao executor — PRD §RF-07 -->
+
+Se a task traz a secao "Ameacas & Dados" ou criterios `CA-SEC-*`, o slice e **de risco**. Entao:
+
+1. **O RED comeca pelo abuso.** O primeiro teste do slice e o teste de abuso (`Abuse-It` do
+   `tdd-workflow`): ele executa o que o atacante tentaria e falha enquanto a defesa nao existe.
+   Defesa escrita antes do teste e defesa nao verificada.
+2. **Validar no boundary.** Input externo e validado onde entra — nao "mais pra frente, quando
+   alguem lembrar". Se a validacao ficou espalhada, sinalize (Push Back Protocol).
+3. **Deny-by-default.** Caminho nao previsto **nega**. Nunca `if (!temPermissao) { /* segue */ }`.
+4. **Nenhum secret literal.** Chave, token e connection string vem de env — nunca no codigo, nem
+   "temporario", nem em teste: fixture usa valor **sintetico**.
+5. **Gatilho de aprovacao humana NAO se auto-aplica.** Se a task exige novo fluxo de auth, nova
+   categoria de PII/pagamento, integracao terceira, mudanca de CORS, handler de upload, role elevado
+   ou afrouxar rate limiting: apresente o diff e sinalize — nao aplique. Isso vale mesmo com a task
+   pedindo explicitamente; e o mesmo protocolo da regra 5 (blocker honesto).
+6. **`CA-SEC-*` e acceptance criteria como qualquer outro** — verificado antes de reportar done
+   (secao "Verificacao de Acceptance Criteria"). `CA-SEC` nao verificado = task **incompleta**, nao
+   "task feita com observacao".
+
+O alvo e sempre o codigo **deste** projeto, na suite local: sao testes de defesa contra o proprio
+sistema, nunca ferramenta apontada para terceiro.
 
 ## Verificacao de Acceptance Criteria
 
@@ -160,6 +187,10 @@ Regras ESPECIFICAS do dominio de execucao de planos:
 
 6. **Never toque arquivos fora do scope declarado da fase sem registrar DEV no MEMORY.** Qualquer arquivo tocado alem dos listados na task e um desvio que DEVE ser documentado como DI (Decision Item) — ou revertido.
 
+7. **Never entregar slice de risco sem teste de abuso vermelho antes da defesa.** Defesa implementada
+   sem um teste que provava o abuso e defesa nao verificada — e a proxima refatoracao a remove sem
+   que nada acuse. Se o teste de abuso nao existe, a fase nao esta pronta.
+
 ## Composition
 
 **Invoke via (orquestradores conhecidos):**
@@ -227,4 +258,6 @@ Regras especificas (kind: verification — plan-executor dual shape):
 - `payload.tasks_skipped[]`: lista tasks puladas com `reason` explicito — puladas nao sao falhas, sao observacoes.
 - `payload.domain_status` pode ser `"partial"` quando fase foi parcialmente executada (ex: algumas tasks bloqueadas).
 - `status` top-level e sempre lifecycle — NUNCA coloque `done`/`partial`/`blocked` da secao "Output ao Concluir" em `status` top-level. Use `complete` para done, `blocked` para blocker real.
+- Quando a fase e de risco: incluir um check por `CA-SEC-*` em `payload.checks[]` — ex:
+  `{ "name": "fase-03-CA-SEC-1-idor", "status": "pass", "detail": "GET /api/orders/{id} de outro dono → 403" }`.
 - O bloco "Output ao Concluir" acima e substituido por este envelope JSON — nao emita os dois.
