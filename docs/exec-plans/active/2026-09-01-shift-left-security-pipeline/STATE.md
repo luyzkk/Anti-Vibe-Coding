@@ -2,7 +2,7 @@
 
 **Plan:** ./PLAN.md
 **Phase:** in-progress
-**Current Plan:** 01/3
+**Current Plan:** 03/3
 **Last Updated:** 2026-09-01
 
 ## Progress por Plano
@@ -10,12 +10,12 @@
 | Plano | Nome | Fases | Done | Status |
 |-------|------|-------|------|--------|
 | 01 | Conhecimento (base das auditorias) | 6 | 6/6 | **completed** |
-| 02 | Pipeline (código nasce seguro) | 5 | 0/5 | ready (fases detalhadas) |
+| 02 | Pipeline (código nasce seguro) | 5 | 5/5 | completed |
 | 03 | Teste dinâmico white-box | 2 | 0/2 | ready (fases detalhadas) |
 
 ## Progress Global
 
-Fases done: 6/13 (46%)
+Fases done: 11/13 (85%)
 
 ## Fases concluidas
 
@@ -46,3 +46,7 @@ Todas na branch `feat/secrets-scanner-tracer` (9 commits, PR ainda NAO aberto).
 - 2026-09-01: Metodo — `bun run test` roda em 2 lotes e so o lote 2 aparece no fim do output. Baseline real do repo e **1858 pass**, nao 618. Registrado nas Notas do Plano 01 para nao repetir.
 - 2026-09-01: Divida tecnica achada e NAO corrigida (fora de escopo): `subagent-contract.ts` usa `instancePath` (ajv 7+) com runtime `ajv@6.15.0` (`dataPath`) — schema falha certo, mas a mensagem nao nomeia o campo; afeta todos os contratos v2. E warning de frontmatter em `skills/anti-vibe-review/SKILL.md`.
 - Proximo: Planos 02 e 03 (podem rodar em paralelo, cada um em sua branch). Ler as "Notas para Planos Seguintes" do `plano01/MEMORY.md` antes.
+- 2026-09-01: **Plano 02 CONCLUIDO** (5/5). Fases 01-03 rodaram em paralelo (arquivos disjuntos), 04 e 05 depois. 5 commits em `feat/shift-left-pipeline`. 1872 pass / 0 fail; gate do grill-me intacto em 34 pass.
+- 2026-09-01: Gate novo `tests/write-prd-contract.test.ts` (14 assercoes). Duas nasceram vacuas e foram corrigidas; mordida provada por remocao (13/14 falham sem as secoes).
+- 2026-09-01: Perda de agentes de background no encerramento da sessao — fase-05 tinha gravado em disco (verificada e commitada), fase-04 nao deixou rastro e foi refeita. Registrado como GT-4 do Plano 02.
+- 2026-09-01: Restante: **Plano 03** (2 fases, ~3.5h) — teste dinamico white-box.
