@@ -9,19 +9,29 @@
 
 | Plano | Nome | Fases | Done | Status |
 |-------|------|-------|------|--------|
-| 01 | Conhecimento (base das auditorias) | 6 | 1/6 | in-progress |
+| 01 | Conhecimento (base das auditorias) | 6 | 6/6 | **completed** |
 | 02 | Pipeline (código nasce seguro) | 5 | 0/5 | ready (fases detalhadas) |
 | 03 | Teste dinâmico white-box | 2 | 0/2 | ready (fases detalhadas) |
 
 ## Progress Global
 
-Fases done: 1/13 (8%)
+Fases done: 6/13 (46%)
 
 ## Fases concluidas
 
-| Fase | Plano | Branch | Resultado |
-|------|-------|--------|-----------|
-| fase-01-secrets-scanner-tracer | 01 | `feat/secrets-scanner-tracer` | 605 pass / 0 fail; typecheck exit 0; harness verde; CA-02 exato |
+Todas na branch `feat/secrets-scanner-tracer` (9 commits, PR ainda NAO aberto).
+
+| Fase | Plano | Entrega | Verificacao |
+|------|-------|---------|-------------|
+| fase-01-secrets-scanner-tracer | 01 | `ghp_` + entropia (2 eixos) + escopo de codigo | CA-02 exato; BUG-01 resolvido |
+| fase-02-secrets-scanner-full-rules | 01 | 8 familias gitleaks + supressores por linha | `ssh-rsa` deixa de ser falso positivo |
+| fase-03-owasp-2025-checklist | 01 | Top 10 2021 -> 2025 | CA-01 verificado na fonte oficial |
+| fase-04-sca-triage-reference | 01 | `references/sca-triage.md` (EPSS + KEV + reachability) | CA-04 offline; endpoints verificados ao vivo |
+| fase-05-asvs-l1-checklist | 01 | Checklist sob ASVS 5.0.0 | 40 -> 54 itens, zero perdidos (provado por `comm`) |
+| fase-06-dependency-auditor-agent | 01 | `agents/dependency-auditor.md` + wire | 5 pontos de registro; D6 preservada |
+
+**Gates finais do Plano 01:** 1858 pass / 0 fail (267 arquivos, 2 lotes) · `agents:contract` 36 pass ·
+`typecheck` exit 0 · `harness:validate` exit 0 (395 markdowns).
 
 ## Log
 
@@ -32,3 +42,7 @@ Fases done: 1/13 (8%)
 - 2026-09-01: **fase-01 CONCLUIDA** (tracer bullet). BUG-01 encontrado e resolvido em sessao — a regra de entropia da spec derrubava um teste pre-existente; causa raiz e que Shannon mede diversidade, nao imprevisibilidade (monotonica 5.17 > secret real 5.00). Fix: guard de corrida sequencial como eixo independente. Spec da fase corrigida + MEMORY atualizada (DI-1, DI-2, BUG-1, GT-1..3, DEV-1, DEV-2).
 - 2026-09-01: GT-3 invalida a premissa GT-01 do README do Plano 01 — `bun run typecheck` retorna exit 0, zero erros. Fases seguintes podem exigir typecheck limpo em absoluto.
 - 2026-09-01: Branch `feat/secrets-scanner-tracer` com 3 commits: `chore(hooks)` (bump pendente, isolado), `docs(exec-plans)` (PRD + 3 planos), `feat(security)` (a fase). PR ainda NAO aberto.
+- 2026-09-01: **PLANO 01 CONCLUIDO — 6/6 fases**, 9 commits na branch. Correcoes de fato feitas contra a fonte durante a execucao: OWASP e 2025 (injection caiu de #1 para A05; SSRF absorvido em A01), ASVS e **5.0.0** e nao 4.0.3 (reagrupou capitulos, nao so renumerou), licenca OWASP e **CC BY 3.0** e nao CC BY-SA (PRD impreciso), e a API do EPSS devolve numero como **string**.
+- 2026-09-01: Metodo — `bun run test` roda em 2 lotes e so o lote 2 aparece no fim do output. Baseline real do repo e **1858 pass**, nao 618. Registrado nas Notas do Plano 01 para nao repetir.
+- 2026-09-01: Divida tecnica achada e NAO corrigida (fora de escopo): `subagent-contract.ts` usa `instancePath` (ajv 7+) com runtime `ajv@6.15.0` (`dataPath`) — schema falha certo, mas a mensagem nao nomeia o campo; afeta todos os contratos v2. E warning de frontmatter em `skills/anti-vibe-review/SKILL.md`.
+- Proximo: Planos 02 e 03 (podem rodar em paralelo, cada um em sua branch). Ler as "Notas para Planos Seguintes" do `plano01/MEMORY.md` antes.
