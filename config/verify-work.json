@@ -13,7 +13,8 @@
     "code_quality": true,
     "dependencies": true,
     "domain_specific": true,
-    "test_quality": true
+    "test_quality": true,
+    "dynamic": false
   },
   "model_profiles": {
     "debug_agent": "default",
