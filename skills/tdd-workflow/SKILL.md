@@ -186,6 +186,10 @@ A unica fonte da verdade para implementacao sao os testes.
 
 **Subagente RED (escreve testes):**
 - Recebe: requisitos da task + codigo existente
+- Recebe tambem, quando o slice e de risco: a secao "Ameacas & Dados" do PRD — classificacao do
+  dado, fronteiras de confianca e os casos de abuso `AB-*`. Sem ela o RED escreve so o happy path:
+  o subagente nao tem como adivinhar um modelo de ameaca que ficou no documento que ele nao recebeu.
+  <!-- 2026-09-01 (Luiz/dev): contexto de ameaca chega ao RED — PRD §RF-05 -->
 - Produz: arquivos de teste que FALHAM por assertion
 - NAO produz codigo de producao
 
@@ -196,6 +200,10 @@ A unica fonte da verdade para implementacao sao os testes.
 - NAO recebe: requisitos em texto natural, descricao da task
 - Produz: codigo minimo para os testes passarem
 - Regra: arquivos `*.test.*` e `*.spec.*` sao read-only (ancoras imutaveis)
+
+O GREEN continua sem ver o PRD, e isso nao muda com seguranca no jogo: **os testes de abuso sao a
+forma como a ameaca chega ate ele**. A consequencia e direta — defesa que nao esta expressa num teste
+nao vai existir no codigo, porque o unico contrato que o implementador enxerga sao os testes.
 
 **Quando usar:** feature com 3+ criterios de aceite distintos, logica critica (financeiro, auth, permissoes), quando o dev quer design emergente garantido.
 
@@ -400,6 +408,53 @@ Antes (errado): editar o codigo "que parece o culpado" e testar manualmente.
 Depois (certo): teste vermelho que prova o bug -> fix minimo -> teste verde -> suite verde.
 Para o fluxo completo de bug dificil, em producao ou em desenvolvimento (logs brutos -> loop tight -> minimizar -> hipoteses -> instrumentar -> regression test -> fix cirurgico -> hardening -> autopsia), use `/anti-vibe-coding:incident-response`.
 
+### Abuse-It (slice de risco) — teste de abuso ANTES da defesa
+
+<!-- 2026-09-01 (Luiz/dev): teste de abuso no RED para slice de risco — PRD §RF-05, §CA-05.
+     Modelado sobre o Prove-It acima: mesma forma (teste vermelho primeiro), outro gatilho. -->
+
+Quando o slice e **de risco**: NAO comece implementando a defesa.
+Escreva primeiro o teste que executa o abuso e confirme que ele FALHA. Falhar aqui significa "o
+ataque passou" — a vulnerabilidade esta confirmada, do mesmo jeito que o Prove-It confirma o bug.
+So entao implemente a defesa, rode o teste (deve passar) e rode a suite completa (sem regressoes).
+Antes (errado): escrever o `checkPermission` e depois conferir manualmente se "esta funcionando".
+Depois (certo): teste em que o usuario A le o recurso de B -> vermelho (o ataque passou) -> defesa
+minima -> verde -> suite verde.
+
+**O slice e de risco quando toca ao menos um destes seis:**
+`auth/authz` · `PII/sensivel` · `input externo` (body, query, webhook, arquivo importado) ·
+`upload` · `pagamento` · `integracao terceira`.
+Sao os mesmos gatilhos da secao "Ameacas & Dados" do PRD
+(`skills/write-prd/templates/prd-template.md`). Se o PRD tem a secao, os casos de abuso `AB-*` ja
+estao escritos — cada `AB-*` vira um teste aqui, e o trabalho e traduzir, nao inventar.
+Se o slice e de risco e o PRD nao tem a secao: o gatilho se perdeu na especificacao. Diga isso ao
+dev antes de escrever o teste; nao monte o modelo de ameaca sozinho no meio do RED.
+
+**Exemplos por categoria.** O teste e sempre escrito do ponto de vista do atacante, e a assertion e
+a defesa que se espera:
+
+| Categoria | O que o teste tenta | Assertion (defesa esperada) |
+|---|---|---|
+| Autorizacao (IDOR) | usuario A pede o recurso de B pelo id | `403` — e o corpo nao permite distinguir "nao e seu" de "nao existe" |
+| Autenticacao | request sem token, e com token expirado | `401`, e nenhum efeito colateral persistido |
+| Input externo | payload com `<script>`, `' OR 1=1 --`, `../../etc/passwd` | rejeitado na validacao do boundary, antes de virar query/HTML/caminho |
+| Upload | MIME `image/png` declarado, magic bytes de outro tipo | rejeitado; o arquivo nao chega ao storage |
+| Financeiro | valor negativo; a mesma cobranca reenviada duas vezes | rejeitado / idempotente — saldo final identico |
+| Integracao terceira | webhook com assinatura HMAC invalida | descartado sem processar o corpo |
+| Excecao (A10:2025) | erro/excecao no fluxo (catch generico, retry, fallback) pula a checagem de autorizacao | `403` mesmo no caminho de excecao — o catch nao vira bypass |
+
+**Um teste de abuso por ciclo**, como qualquer outro teste (`## Deteccao: Test-First vs
+Test-Driven`). Escrever os seis de uma vez e horizontal slicing com outro nome — e o pior lugar para
+isso, porque testes de seguranca em lote sao escritos contra a ameaca **imaginada**, nao contra a que
+o codigo revela quando existe.
+
+**Onde o teste vive:** na mesma suite do slice, com o mesmo runner. Teste de abuso nao e categoria
+separada nem pasta a parte — se ele so roda com flag especial, ele nao roda (`## Red Flags`).
+
+**Escopo, sem ambiguidade:** estes testes atacam o codigo **deste projeto**, na suite local. Nao sao
+ferramenta apontada para sistema de terceiro, e o valor de payload em fixture e o minimo que prova a
+defesa — nunca um catalogo de exploracao.
+
 <step id="4" name="TDD Green — Implementacao Minima (Naive First)">
 <instructions>
 - Somente apos aprovacao dos testes pelo desenvolvedor
@@ -469,6 +524,7 @@ Sugerir ao desenvolvedor executar `/anti-vibe-coding:anti-vibe-review`.
 - Sugerir AI Judge quando feature tiver 3+ slices ou for critica (financeiro, auth, permissoes)
 - Para features de regras de negocio: humano especifica via testes — IA nao propoe requisitos de negocio
 - Para features E2E: User Story → Example Mapping → Gherkin e o fluxo de maior ROI com IA
+- Slice de risco (auth/authz, PII/sensivel, input externo, upload, pagamento, integracao terceira) NAO entra em GREEN sem ao menos um teste de abuso vermelho antes (Abuse-It)
 </constraints>
 
 ## Refactor Fica no Ciclo — Divergencia Consciente
@@ -510,11 +566,14 @@ RED-GREEN-REFACTOR permanece.
 - Mock que retorna dados de produção hardcoded sem label `FIXTURE`
 - Describe block vazio criado como placeholder sem `test.todo`
 - Rodar o mesmo comando de teste duas vezes sem nenhuma mudanca de codigo entre as execucoes
+- Slice que toca auth, PII, upload ou pagamento e cuja suite so exercita o caminho autorizado
+- Teste chamado "de seguranca" em que `401`/`403`/"rejeitado" nunca aparece em nenhuma assertion — ele testa a feature, nao a defesa
 
 ## Verification — Auto-Auditoria Antes de Reportar "Pronto"
 Antes de declarar a task concluida, TODOS os itens devem estar satisfeitos:
 - [ ] Todo novo comportamento tem um teste correspondente
 - [ ] Fix de bug inclui um teste que FALHAVA antes do fix (Prove-It)
+- [ ] Slice de risco inclui ao menos um teste de abuso que FALHAVA antes da defesa (Abuse-It)
 - [ ] Nenhum teste foi pulado ou desabilitado (`test.skip`/`xit`/`.only`)
 - [ ] Nomes de teste descrevem comportamento (sem "should", terceira pessoa)
 - [ ] Cobertura nao diminuiu (se rastreada no projeto)
