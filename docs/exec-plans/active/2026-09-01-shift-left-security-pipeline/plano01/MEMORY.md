@@ -202,6 +202,20 @@ Apenas gotchas que NAO eram obvios antes de implementar.
     capitulo ou de uma leitura parcial. Mesma familia de erro do GT-4/GT-5 — nao confiar em estrutura
     aparente sem validar contra os dados reais.
 
+- **GT-5 (pos-execucao, no push):** o **push protection do GitHub bloqueia as fixtures sinteticas**
+  do proprio scanner. Os padroes de token e webhook do Slack casaram com as regras de secret real do
+  GitHub, e o push da branch foi recusado (`GH013`).
+  - Nao e defeito da fixture — e a prova de que ela reproduz o formato real. Fixture que nao casa com
+    detector nenhum tambem nao exercita o regex que se quer testar.
+  - Fica como atrito **permanente** deste repo: e um projeto de scanner de secrets, entao toda regra
+    nova traz uma fixture que pode disparar o mesmo bloqueio.
+  - Duas saidas: liberar por falso positivo no link que o GitHub gera (rapido, preserva historico) ou
+    montar o valor por concatenacao no teste, para o literal nunca existir no arquivo (durável, mas
+    exige reescrever o commit e o literal deixa de ser legivel de bate-pronto).
+  - Nota interna: as fixtures bloqueadas (`1234567890`, `T00000000`, `AbCdEfGh...`) sao monotonicas —
+    o guard `longestSequentialRun` da fase-01 as classificaria como NAO-secret. O detector do GitHub
+    e mais agressivo que o nosso nesse eixo, por design (recall > precisao em push protection).
+
 ---
 
 ## Desvios do Plano
