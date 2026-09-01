@@ -27,14 +27,46 @@ export type SecretsScanResult = {
   readonly durationMs: number
 }
 
-const BLACKLIST_TOKENS = ['node_modules', 'dist', 'build', '.git', '.anti-vibe/backup']
+// 2026-09-01 (Luiz/dev): lockfiles entram na blacklist junto com o escopo .json —
+// hashes de integridade base64 (sha512-...) disparam a heuristica de entropia em massa.
+// Ruido puro, zero sinal: nenhum secret e escrito a mao num lockfile. PRD §RF-02.
+const BLACKLIST_TOKENS = [
+  'node_modules',
+  'dist',
+  'build',
+  '.git',
+  '.anti-vibe/backup',
+  'package-lock.json',
+  'bun.lock',
+  'bun.lockb',
+  'yarn.lock',
+  'pnpm-lock.yaml',
+]
 
 function containsBlacklisted(relPath: string): boolean {
   return BLACKLIST_TOKENS.some((t) => relPath.includes(t))
 }
 
-function hasMarkdownExtension(name: string): boolean {
-  return name.endsWith('.md') || name.endsWith('.mdx')
+// 2026-09-01 (Luiz/dev): escopo estendido de markdown-only para arquivos de codigo —
+// PRD §RF-02 / CA-02. Secret vive em .ts/.py/.env muito mais que em .md; varrer so
+// markdown era falsa sensacao de cobertura (PRD §Problema, item 3).
+const SCANNABLE_EXTENSIONS = [
+  '.md', '.mdx',
+  '.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs',
+  '.py', '.rb', '.go', '.java', '.php', '.cs',
+  '.json', '.yml', '.yaml', '.toml',
+  '.sh', '.ps1',
+]
+
+// 2026-09-01 (Luiz/dev): .env / .env.local / .env.production nao tem extensao util —
+// casar pelo nome. E o arquivo com maior densidade de secret do projeto.
+function isEnvFile(name: string): boolean {
+  return name === '.env' || name.startsWith('.env.')
+}
+
+function isScannableFile(name: string): boolean {
+  if (isEnvFile(name)) return true
+  return SCANNABLE_EXTENSIONS.some((ext) => name.endsWith(ext))
 }
 
 // 2026-06-05 (Luiz/dev): type guard para o slot __auditLog. O dispatcher deposita um
@@ -68,7 +100,7 @@ async function walkDir(
       if (recursive) await walkDir(full, true, acc, cwd)
       continue
     }
-    if (entry.isFile() && hasMarkdownExtension(entry.name)) {
+    if (entry.isFile() && isScannableFile(entry.name)) {
       acc.push(full)
     }
   }
@@ -79,6 +111,9 @@ async function listCandidateFiles(cwd: string): Promise<readonly string[]> {
   await walkDir(cwd, false, out, cwd)
   await walkDir(path.join(cwd, 'docs'), true, out, cwd)
   await walkDir(path.join(cwd, '.claude'), true, out, cwd)
+  // 2026-09-01 (Luiz/dev): src/ recursivo — convencao mais universal para codigo de app.
+  // walkDir absorve ENOENT em silencio, entao projeto sem src/ segue igual. PRD §RF-02.
+  await walkDir(path.join(cwd, 'src'), true, out, cwd)
   return out
 }
 
