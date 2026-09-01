@@ -37,6 +37,15 @@ Formato: o que foi decidido + por que + impacto.
     saber disso.
   - Impacto: verificado — `scanSecrets('ssh-rsa AAAAB3Nza...')` agora retorna `[]`.
 
+- **DI-5 (fase-03):** item de checklist "Findings de audit triados" em `## Supply Chain (A03:2025)`
+  escrito **sem** link markdown para `skills/security/references/sca-triage.md` — Opcao (b) do Passo
+  4c da spec da fase.
+  - Por que: o arquivo ainda nao existe (fase-04 pendente, verificado com `ls` antes de escrever).
+    Linkar agora quebraria `harness:validate` (link checker recursivo) assim que este PR abrisse antes
+    da fase-04 mergear.
+  - Impacto: fase-04 pode adicionar o link ao entregar `sca-triage.md`, sem depender de ordem de merge
+    entre as duas fases.
+
 ---
 
 ## Premissas Validadas
@@ -44,7 +53,20 @@ Formato: o que foi decidido + por que + impacto.
 - **Premissa #4 do PRD (licenca gitleaks) — CONFIRMADA em 2026-09-01 (fase-02).** `gitleaks/gitleaks`
   e **MIT**, Copyright 2019 Zachary Rice, verificado direto no `LICENSE` do repositorio. Portados os
   **conceitos/padroes** das familias, nao o TOML literal.
-- **Premissa #5 (licencas OWASP CC BY-SA)** — ainda pendente; sera validada nas fases 03 e 05.
+- **Premissa #5 do PRD (licenca OWASP) — CONFIRMADA em 2026-09-01 (fase-03), com correcao.** O PRD
+  assumia CC BY-SA; a licenca real (rodape de `https://owasp.org/Top10/2025/`) e **CC BY 3.0 Unported**
+  ("© Copyright 2021-2025 - OWASP Top 10 Team ... Creative Commons Attribution 3.0 Unported License") —
+  Attribution, sem clausula ShareAlike. Nao restringe o port: a estrategia adotada (reescrita propria
+  dos conceitos + atribuicao via `source_url` no frontmatter, sem copiar texto literal) satisfaz as
+  duas licencas igualmente. Fase-05 nao precisa reconfirmar, mas deve citar a mesma URL.
+- **Fonte verificada (fase-03, Passo 2).** curl (HTTP 200, rede nao bloqueada) em
+  `https://owasp.org/Top10/2025/`, `.../A01_2025-Broken_Access_Control/` e
+  `.../A03_2025-Software_Supply_Chain_Failures/`, em 2026-09-01. Lista A01..A10 2025 confirmada
+  **identica** ao rascunho do Passo 3 (mesma ordem, mesmos nomes, os 3 renames e a categoria nova
+  A10). A01 confirma absorcao de SSRF no proprio texto ("Notable CWEs included are ... CWE-918
+  Server-Side Request Forgery (SSRF)"). CWEs de A03 (secao "List of Mapped CWEs" da pagina): 477,
+  1035, 1104, 1329, 1357, 1395 (6 no total, bate com "CWEs Mapped: 6" da score table) — ver GT-5 sobre
+  um typo na propria pagina OWASP nesse ponto.
 
 ---
 
@@ -98,6 +120,16 @@ Apenas gotchas que NAO eram obvios antes de implementar.
     grep antes de usa-lo como gate (o mesmo espirito do GT-1: verificacao que passa pelo motivo
     errado nao e verificacao).
 
+- **GT-5 (fase-03):** a propria pagina OWASP `A03_2025-Software_Supply_Chain_Failures` tem um typo na
+  secao estruturada "List of Mapped CWEs" — mostra **CWE-447** rotulado como "Use of Obsolete
+  Function", mas o paragrafo "Background" da mesma pagina cita corretamente **CWE-477** para essa
+  descricao. Confirmado por consulta direta a `cwe.mitre.org`: CWE-477 = "Use of Obsolete Function";
+  CWE-447 = "Unimplemented or Unsupported Feature in UI" (categoria nao relacionada).
+  - Impacto: quem for citar CWEs de A03 textualmente (ex: fase-04 sca-triage, fase-06
+    dependency-auditor) deve usar **477**, nao 447, e nao confiar cegamente na secao estruturada de
+    "Mapped CWEs" do site sem checar a prosa/MITRE — mesma logica do GT-4, agora aplicada a fonte
+    externa em vez de a um grep interno.
+
 ---
 
 ## Desvios do Plano
@@ -120,7 +152,7 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 6 |
-| Fases concluidas | 2 |
+| Fases concluidas | 3 |
 | Fases com desvio | 1 |
 | Bugs encontrados | 1 |
 | Retries necessarios | 0 |

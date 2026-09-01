@@ -180,7 +180,7 @@ grep -r "ECB\|aes-128-ecb\|aes-256-ecb"
 - **Menor privilegio** — DB em VPC privada, service accounts com roles minimos, API keys com escopo limitado
 - **timingSafeEqual para comparacoes sensiveis** — `===` vaza timing que permite extrair dados byte a byte
 - **Defaults seguros** — CORS restritivo, cookies HttpOnly+Secure+SameSite, rate limiting, tudo ON por padrao
-- **ORM/prepared statements** — NUNCA SQL com concatenacao/interpolacao de strings (SQL injection e OWASP #1)
+- **ORM/prepared statements** — NUNCA SQL com concatenacao/interpolacao de strings (Injection e A05 no OWASP Top 10 2025; era o #1 ate a edicao 2017)
 - **Secrets em `.env` + `.gitignore`** — NUNCA hardcoded. Usar `git-secrets` ou `gitleaks` como pre-commit hook
 </constraints>
 
@@ -592,6 +592,8 @@ Checklist obrigatoria para auditar qualquer projeto em producao.
 - `eval()` em qualquer contexto com input do usuário
 - SQL concatenado com template string sem prepared statement
 - Segredo hardcoded em arquivo não ignorado pelo .gitignore
+- Dependencia adicionada sem lockfile atualizado no mesmo commit (A03:2025 — Supply Chain)
+- `catch` vazio ou `catch` que segue o fluxo feliz apos falha de autorizacao (A10:2025 — Mishandling of Exceptional Conditions)
 
 ## Contexto da Consulta
 
