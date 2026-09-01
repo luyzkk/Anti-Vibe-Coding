@@ -25,6 +25,27 @@ Formato: o que foi decidido + por que + impacto.
   - Impacto: nenhum no conteudo final; so a ordem de execucao. Spec das fases seguintes deve
     apresentar RED antes de GREEN tambem para os steps.
 
+- **DI-3 (fase-02):** o guard de dois eixos da DI-1 **generalizou sem ajuste** para as 8 familias
+  novas — GREEN fechou 29/29 na primeira tentativa.
+  - Impacto: confirma que o eixo de corrida sequencial era a peca faltante certa, nao um remendo
+    para o caso do `sk_test_`. Regra generica futura nao precisa de tratamento especial.
+
+- **DI-4 (fase-02):** `ENTROPY_LINE_SUPPRESSORS` implementado como supressor **por linha** (nao por
+  match), resolvendo `ssh-rsa` e SRI (`sha384-`).
+  - Por que: o dado suprimido e entropia genuina; o que o desqualifica e o CONTEXTO da linha
+    (chave publica, hash de integridade), nao a forma da string. Filtrar por match nao teria como
+    saber disso.
+  - Impacto: verificado — `scanSecrets('ssh-rsa AAAAB3Nza...')` agora retorna `[]`.
+
+---
+
+## Premissas Validadas
+
+- **Premissa #4 do PRD (licenca gitleaks) — CONFIRMADA em 2026-09-01 (fase-02).** `gitleaks/gitleaks`
+  e **MIT**, Copyright 2019 Zachary Rice, verificado direto no `LICENSE` do repositorio. Portados os
+  **conceitos/padroes** das familias, nao o TOML literal.
+- **Premissa #5 (licencas OWASP CC BY-SA)** — ainda pendente; sera validada nas fases 03 e 05.
+
 ---
 
 ## Bugs Descobertos
@@ -67,6 +88,15 @@ Apenas gotchas que NAO eram obvios antes de implementar.
 - **GT-3 (fase-01):** a premissa GT-01 do README esta **desatualizada**. `bun run typecheck` retorna
   **exit 0, zero erros** — os erros pre-existentes em `lazy-import.test.ts` e `subagent-contract.ts`
   nao se manifestam mais. Fases seguintes podem exigir typecheck limpo em absoluto, nao so delta.
+  - Reconfirmado na fase-02.
+
+- **GT-4 (fase-02):** os greps de checklist escritos nas specs das fases **contam errado** neste
+  arquivo. `grep -c "pattern:"` inclui a linha `readonly pattern: RegExp` do `type SecretRule`, e o
+  grep de flag `g` do checklist nao tolera o sufixo ` },` de cada entrada do array.
+  - Impacto: **nao confiar no numero do grep como criterio de aceite** sem conferir o que ele casa.
+    Defeito pre-existente desde a fase-01, herdado pelas specs seguintes. Nas fases 03-06, validar o
+    grep antes de usa-lo como gate (o mesmo espirito do GT-1: verificacao que passa pelo motivo
+    errado nao e verificacao).
 
 ---
 
@@ -90,7 +120,7 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 6 |
-| Fases concluidas | 1 |
+| Fases concluidas | 2 |
 | Fases com desvio | 1 |
 | Bugs encontrados | 1 |
 | Retries necessarios | 0 |
