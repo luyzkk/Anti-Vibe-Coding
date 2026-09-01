@@ -118,6 +118,68 @@ NÃO inclua passos de implementação aqui.
 
 ---
 
+<!-- 2026-09-01 (Luiz/dev): modelo de ameaca entra na spec, nao na auditoria — PRD §RF-04, §Decisoes D2 -->
+<!-- OPCIONAL — incluir SOMENTE se a feature dispara ao menos UM gatilho de risco:
+     autenticacao/autorizacao · dados sensiveis ou PII · input externo (body, query, webhook,
+     arquivo importado) · upload de arquivo · pagamento/financeiro · integracao com terceiro.
+     Nenhum gatilho? OMITIR a secao inteira e registrar UMA linha em "Requisitos Nao-Funcionais":
+     "Seguranca: nenhum gatilho de risco disparado — secao Ameacas & Dados omitida."
+     Feature trivial nao paga o atrito — o PRD continua cabendo em 1-2 paginas. -->
+## Ameacas & Dados (apenas features de risco)
+
+**Gatilhos disparados:** {listar os que se aplicam — se nenhum se aplica, esta secao nao deveria existir}
+
+### Classificacao do dado
+
+| Dado que a feature toca | Classe | Onde vive |
+|---|---|---|
+| {ex: email do aluno} | PII | tabela `users`, coluna `email` |
+| {ex: token do provider} | credencial | secret manager / env — nunca no banco, nunca no repo |
+
+Classes: `publico` · `interno` · `PII` · `credencial` · `financeiro`.
+Classificar ANTES de modelar: a classe decide criptografia, retencao, log e quem enxerga.
+
+### Fronteiras de confianca
+
+Onde input NAO-confiavel entra no sistema. Cada fronteira precisa de validacao **no boundary**,
+nao "mais pra frente":
+
+- {ex: body de `POST /api/enrollments` — vem do browser; nada aqui e confiavel}
+- {ex: webhook do gateway — validar assinatura HMAC ANTES de parsear o corpo}
+- {ex: CSV importado pelo admin — admin confiavel nao torna o arquivo confiavel}
+
+### Superficie nova
+
+O que passa a existir e antes nao existia (rota, endpoint, campo de formulario, job, handler):
+
+- {ex: `POST /api/uploads` — primeiro handler de arquivo do projeto}
+
+### Casos de abuso
+
+"O que um usuario mal-intencionado tentaria?" Cada linha vira criterio de aceite e, no
+`/anti-vibe-coding:tdd-workflow`, um teste de abuso escrito ANTES da defesa:
+
+| # | Abuso tentado | Defesa esperada | Vira CA |
+|---|---|---|---|
+| AB-1 | {usuario A pede `GET /api/orders/{id}` de B} | 403 — e o corpo nao revela se o id existe | CA-0X |
+| AB-2 | {upload com MIME `image/png` declarado e magic bytes de executavel} | rejeitado antes de chegar ao storage | CA-0X |
+| AB-3 | {mesma cobranca reenviada duas vezes (retry/replay)} | idempotente — saldo final identico | CA-0X |
+
+### Gatilhos de aprovacao humana
+
+Marcar os que esta feature dispara. Cada um exige **diff apresentado e confirmacao do humano** antes
+de aplicar — nunca auto-aplicar (`skills/security/SKILL.md` §Aprovacao Humana Necessaria):
+
+- [ ] Novo fluxo de autenticacao ou alteracao de logica de auth existente
+- [ ] Armazenar nova categoria de PII ou dados de pagamento
+- [ ] Nova integracao com servico terceiro (OAuth provider, webhook externo, SDK de pagamento)
+- [ ] Mudanca na configuracao de CORS (ampliar origens ou metodos permitidos)
+- [ ] Novo handler de upload de arquivos
+- [ ] Conceder roles ou permissoes elevadas
+- [ ] Alterar configuracao de rate limiting (afrouxar limites ou desabilitar)
+
+---
+
 <!-- OPCIONAL — incluir SOMENTE se a feature toca schema de banco, dependencias novas
      ou secrets. Para features comuns, omitir (guardrails globais ja vivem no
      CLAUDE.md do usuario e no AGENTS.md gerado pelo init). -->
