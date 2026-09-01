@@ -15,7 +15,8 @@
         "tdd-verifier": "sonnet",
         "infrastructure-auditor": "sonnet",
         "lesson-evaluator": "haiku",
-        "documentation-writer": "sonnet"
+        "documentation-writer": "sonnet",
+        "dependency-auditor": "sonnet"
       }
     },
     "balanced": {
@@ -33,7 +34,8 @@
         "tdd-verifier": "sonnet",
         "infrastructure-auditor": "sonnet",
         "lesson-evaluator": "haiku",
-        "documentation-writer": "haiku"
+        "documentation-writer": "haiku",
+        "dependency-auditor": "sonnet"
       }
     },
     "budget": {
@@ -51,7 +53,8 @@
         "tdd-verifier": "haiku",
         "infrastructure-auditor": "haiku",
         "lesson-evaluator": "haiku",
-        "documentation-writer": "haiku"
+        "documentation-writer": "haiku",
+        "dependency-auditor": "haiku"
       }
     }
   },
