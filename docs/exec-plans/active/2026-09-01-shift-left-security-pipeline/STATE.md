@@ -1,7 +1,7 @@
 # State: Shift-Left Security no Pipeline Anti-Vibe-Coding
 
 **Plan:** ./PLAN.md
-**Phase:** in-progress
+**Phase:** completed
 **Current Plan:** 03/3
 **Last Updated:** 2026-09-01
 
@@ -11,11 +11,11 @@
 |-------|------|-------|------|--------|
 | 01 | Conhecimento (base das auditorias) | 6 | 6/6 | **completed** |
 | 02 | Pipeline (código nasce seguro) | 5 | 5/5 | completed |
-| 03 | Teste dinâmico white-box | 2 | 0/2 | ready (fases detalhadas) |
+| 03 | Teste dinâmico white-box | 2 | 2/2 | completed |
 
 ## Progress Global
 
-Fases done: 11/13 (85%)
+Fases done: 13/13 (100%)
 
 ## Fases concluidas
 
@@ -50,3 +50,5 @@ Todas na branch `feat/secrets-scanner-tracer` (9 commits, PR ainda NAO aberto).
 - 2026-09-01: Gate novo `tests/write-prd-contract.test.ts` (14 assercoes). Duas nasceram vacuas e foram corrigidas; mordida provada por remocao (13/14 falham sem as secoes).
 - 2026-09-01: Perda de agentes de background no encerramento da sessao — fase-05 tinha gravado em disco (verificada e commitada), fase-04 nao deixou rastro e foi refeita. Registrado como GT-4 do Plano 02.
 - 2026-09-01: Restante: **Plano 03** (2 fases, ~3.5h) — teste dinamico white-box.
+- 2026-09-01: **Plano 03 CONCLUIDO** (2/2) e **FEATURE COMPLETA — 13/13 fases**. Guardrail de autorizacao coberto por teste de contrato; mordida provada duas vezes (pelo executor e pelo orquestrador, de forma independente). 1883 pass / 0 fail.
+- 2026-09-01: Passe dinamico entra como `## Step 2.5` do verify-work, opt-in (`auditors.dynamic: false`), com degradacao graciosa — sem dev server, registra e segue sem perguntar nem bloquear.

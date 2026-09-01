@@ -2,11 +2,24 @@
 
 **Feature:** Shift-Left Security no Pipeline Anti-Vibe-Coding
 **Iniciado:** 2026-09-01
-**Status:** em andamento
+**Status:** concluido (2/2 fases)
 
 ---
 
 ## Decisoes de Implementacao
+- **DI-1 (fase-01):** a secao `## Fontes` foi escrita **sem** repetir a alegacao "docs do ZAP sao
+  CC BY-SA" que o texto da spec trazia.
+  - Por que: o Plano 01 ja invalidou essa premissa para conteudo OWASP (o Top 10 e **CC BY 3.0**), e
+    nenhuma fonte foi verificada para a licenca exata do ZAP / Secure Headers Project neste contexto.
+    Afirmar licenca nao verificada em doc versionado e pior do que nao afirmar.
+
+- **DI-2 (fase-02):** o bloco do relatorio ficou `### Dynamic (dev server)` em ingles, nao
+  `### Passe Dinamico`.
+  - Por que: a propria spec era internamente contraditoria — o Passo 4b escrevia o titulo em
+    portugues, mas o criterio de aceite verificavel por maquina exigia `grep -c "Dynamic (dev
+    server)"` = 2. Resolvido pelo criterio machine-checked, que tambem e consistente com os demais
+    rotulos do Template do Relatorio (Security, Code Quality, Test Quality).
+
 
 Decisoes tomadas durante execucao que nao estavam no PRD ou plano.
 Formato: o que foi decidido + por que + impacto.
@@ -48,6 +61,17 @@ Formato: sintoma + causa raiz + fix aplicado.
 
 ## Gotchas
 
+- **GT-1 (fase-01):** grep de aceite com ponto nao escapado gera overmatch em portugues.
+  `grep -c ".invalid"` conta 9 no documento porque tambem casa **"invalido"/"invalida"** em prosa;
+  a contagem real do TLD reservado e 7. O limiar (>=2) era satisfeito de qualquer forma, mas o
+  numero por si nao provava nada.
+  - Impacto: mesma familia do GT-4 do Plano 01. Em criterio de aceite, escapar o ponto (`\.invalid`)
+    ou conferir o que casou.
+
+- **GT-2 (fase-02):** spec pode ser **internamente** contraditoria — prosa em uma lingua, criterio de
+  aceite verificavel em outra (ver DI-2). Quando isso acontece, o criterio machine-checked e o
+  desempate, porque e ele que fica no repo como gate.
+
 Armadilhas descobertas que planos futuros ou outros devs devem saber.
 Apenas gotchas que NAO eram obvios antes de implementar.
 
@@ -78,7 +102,7 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 2 |
-| Fases concluidas | 0 |
+| Fases concluidas | 2 |
 | Fases com desvio | 0 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
