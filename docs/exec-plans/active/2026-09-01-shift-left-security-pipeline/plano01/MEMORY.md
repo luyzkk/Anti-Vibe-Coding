@@ -46,6 +46,40 @@ Formato: o que foi decidido + por que + impacto.
   - Impacto: fase-04 pode adicionar o link ao entregar `sca-triage.md`, sem depender de ordem de merge
     entre as duas fases.
 
+- **Contagem do checklist (fase-05, Passo 1/6):** `## Checklist de Seguranca Minima` tinha **40**
+  itens `- [ ]` antes da reorganizacao (piso da regra "nunca diminuir"). Apos aplicar a regua ASVS
+  5.0.0 e adicionar as lacunas L1 verificadas: **54** itens (`comm -23 before after` vazio — zero
+  perdas; `comm -13` = 14 adicoes, todas revisadas contra o CSV oficial do ASVS).
+
+- **DI-6 (fase-05):** numeracao ASVS corrigida de 4.0.3 (rascunho da spec) para **5.0.0** (versao
+  corrente, confirmada via curl em 2026-09-01). A 5.0.0 renumerou E reagrupou capitulos mais fundo do
+  que "so o rotulo muda" — ex: V5 (Validation, Sanitization & Encoding) da 4.0.3 virou DOIS capitulos
+  na 5.0 (V1 Encoding and Sanitization + V2 Validation and Business Logic); V10 (OAuth and OIDC) e um
+  capitulo novo, destacado de Session Management. Mapa aplicado: V2->V6 Authentication, V3->V7 Session
+  Management, V4->V8 Authorization, V5->V1 Encoding and Sanitization, V7->V16 Security Logging and
+  Error Handling, V8->V14 Data Protection, V9->V12 Secure Communication, V12->V5 File Handling,
+  V14->V13 Configuration, Criptografia->V11 Cryptography, Dependencias->V15 Secure Coding and
+  Architecture (3rd-party component remediation, V15.1.1/V15.2.1).
+- **DI-7 (fase-05):** item "Refresh token com rotacao; reuso detectado invalida a familia" do rascunho
+  da spec estava sob "V3 Gestao de Sessao", mas o requisito real (**V10.4.5, L1**) vive no capitulo
+  **V10 — OAuth and OIDC**, que o rascunho nem listava. Texto do requisito verificado como preciso: a
+  frase completa de V10.4.5 ("refresh token rotation may be used... must invalidate the refresh token
+  after usage, and revoke all refresh tokens for that authorization if an already used and invalidated
+  refresh token is provided") cobre EXATAMENTE rotacao + revogacao-em-familia — so a localizacao de
+  capitulo mudou, o conteudo do item ficou como estava.
+- **DI-8 (fase-05):** item "Campos sensiveis excluidos das respostas de API" do rascunho estava sob
+  "V4 Controle de Acesso", mas o L1 real e **V15.3.1** (Secure Coding and Architecture / Defensive
+  Coding: "only returns the required subset of fields from a data object"), nao V4/V8 Authorization.
+  Realocado para V15 no checklist final.
+- **DI-9 (fase-05):** 3 dos 4 itens propostos para "V7 — Tratamento de Erro e Logging" (erro generico
+  ao cliente, eventos de seguranca logados, nenhum log com dado sensivel) + o item "Modo debug
+  desabilitado" (V13) sao **L2 no ASVS 5.0.0 real, nao L1** como o rascunho da spec assumia — o
+  capitulo V16 (Security Logging and Error Handling) tem **ZERO requisitos L1** (contagem no CSV
+  oficial, ver GT-7). Mantidos no checklist — a propria spec ja fixava os greps desses itens como
+  criterio de aceite obrigatorio, e o conteudo fecha uma lacuna pratica real ligada a A10:2025 (Top
+  10) — mas rotulados honestamente como L2 na nota de fechamento apos `</checklist>`, em vez de
+  reivindicar L1 sem base.
+
 ---
 
 ## Premissas Validadas
@@ -75,6 +109,20 @@ Formato: o que foi decidido + por que + impacto.
   ~1.6 MB, 1687 entradas (`catalogVersion: "2026.08.31"`), campos por entrada incluem `cveID`,
   `dateAdded`, `dueDate`, `knownRansomwareCampaignUse` (`"Known"`/`"Unknown"`) e `cwes[]` — o campo
   `knownRansomwareCampaignUse` e sinal extra util, nao previsto no PRD original.
+- **Versao do ASVS confirmada em 2026-09-01 (fase-05): 5.0.0.** Release LIVE desde Global AppSec EU
+  Barcelona 2025, confirmado via curl (HTTP 200) em
+  `https://owasp.org/www-project-application-security-verification-standard/` (texto da propria pagina:
+  "5.0.0 is released LIVE..."; `latest-stable-version---500`). Numeracao dos 17 capitulos (V1..V17)
+  extraida do CSV oficial em
+  `https://raw.githubusercontent.com/OWASP/ASVS/v5.0.0/5.0/docs_en/OWASP_Application_Security_Verification_Standard_5.0.0_en.csv`
+  (345 requisitos, coluna `L` = nivel 1/2/3 por requisito) — fonte estruturada, nao a pagina HTML
+  solta, para nao repetir o erro de confiar em prosa nao-estruturada (mesmo espirito do GT-4/GT-5).
+- **Licenca ASVS confirmada em 2026-09-01 (fase-05): CC BY-SA 4.0**
+  (`https://raw.githubusercontent.com/OWASP/ASVS/v5.0.0/LICENSE.md`) — **diferente** da licenca do
+  Top10 (CC BY 3.0, sem ShareAlike, confirmada na fase-03). Mesma organizacao (OWASP), sub-projetos
+  distintos, licencas distintas. A Premissa #5 do PRD ("licencas OWASP CC BY-SA") estava certa para o
+  ASVS especificamente, mas errada para o Top10 (que a fase-03 ja corrigiu para CC BY 3.0). Nao
+  restringe o port: reescrita propria + atribuicao satisfaz ambas as licencas.
 
 ---
 
@@ -145,6 +193,15 @@ Apenas gotchas que NAO eram obvios antes de implementar.
     silenciosamente errada. Documentado em `references/sca-triage.md` Passo 2. Mesmo espirito do
     GT-4/GT-5: verificar o shape real antes de assumir o tipo.
 
+- **GT-7 (fase-05):** o capitulo **V16 (Security Logging and Error Handling)** do ASVS 5.0.0 tem
+  **ZERO requisitos L1** — o capitulo inteiro e L2/L3. O mesmo vale para V17 (WebRTC). Confirmado por
+  contagem programatica no CSV oficial (agrupando por `chapter_id` onde `L == "1"`), nao por leitura
+  visual da pagina.
+  - Impacto: quem for citar "isto e L1 do ASVS" para qualquer item de error-handling/logging (ou
+    qualquer capitulo) deve contar no CSV estruturado antes de assumir a partir da existencia do
+    capitulo ou de uma leitura parcial. Mesma familia de erro do GT-4/GT-5 — nao confiar em estrutura
+    aparente sem validar contra os dados reais.
+
 ---
 
 ## Desvios do Plano
@@ -172,6 +229,21 @@ Se nada mudou, manter vazio (bom sinal).
     mesmo branch (`5276d33`, `1c2dc19`, `7a2a627`). Quem retomar o plano precisa decidir: commit
     separado so da fase-04, ou incorporar ao proximo commit da trilha. Conteudo em si esta completo
     e todas as verificacoes (Passo abaixo) passaram — o que falta e so o commit/PR.
+  - **Resolvido:** confirmado em 2026-09-01 (inicio da fase-05) via `git log --oneline -- skills/security/references/sca-triage.md`
+    que o commit `d2569a1 feat(security): adiciona procedimento de triagem SCA com EPSS e CISA KEV`
+    incluiu todo o conteudo da fase-04 (working tree estava limpa ao iniciar a fase-05). O commit
+    aconteceu apos este DEV-3 ter sido escrito.
+
+- **DEV-4 (fase-05):** a tabela "rascunho" de capitulos da propria spec da fase (Passo 2) tinha 2
+  imprecisoes alem da simples renumeracao 4.0.3->5.0.0: (1) o item de refresh-token-rotation pertence
+  ao capitulo V10 OAuth and OIDC, que o rascunho nem listava (ver DI-7); (2) 4 dos itens propostos
+  como "lacunas L1" (3 de error/logging + modo debug) sao L2 no ASVS 5.0.0 real, nao L1 (ver DI-9,
+  GT-7). Corrigido durante a execucao com base em fonte estruturada (CSV oficial do ASVS), nao na
+  pagina HTML solta que a spec citava. Nenhuma remocao de conteudo — apenas realocacao de capitulo e
+  rotulagem honesta de nivel na nota apos `</checklist>`.
+  - Aprovado implicitamente pela propria estrutura da fase (Passo 2 ja avisava "a numeracao pode
+    divergir... confirmar na fonte"); nenhuma decisao humana adicional foi necessaria por estar dentro
+    do escopo de verificacao que a fase pede.
 
 ---
 
@@ -180,8 +252,8 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 6 |
-| Fases concluidas | 4 |
-| Fases com desvio | 2 |
+| Fases concluidas | 5 |
+| Fases com desvio | 3 |
 | Bugs encontrados | 1 |
 | Retries necessarios | 0 |
 
