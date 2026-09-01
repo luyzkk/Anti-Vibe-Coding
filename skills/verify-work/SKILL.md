@@ -150,6 +150,12 @@ Classificar por dominio para determinar auditores domain-specific:
 - Skippado se: config.auditors.code_review = false
 - Default: `config.auditors.code_review = true` (recomendado — garante que "review this" genererico tem um target no fleet; unico auditor que cobre correctness line-level sem overlap de dominio)
 
+**dependency-auditor:**
+- Input: manifesto de dependencias do projeto (package.json/lockfile, requirements.txt, Gemfile, go.mod) + saida do audit da stack
+- Verifica: CVE por dependencia enriquecido com EPSS + CISA KEV e analise de reachability — procedimento em `skills/security/references/sca-triage.md`
+- Skippado se: config.auditors.dependencies = false
+- Degradacao: sem rede, marca "exploracao nao verificada" e completa mesmo assim — nunca falha a verificacao (PRD CA-04)
+
 ### 2c. Auditores Domain-Specific (condicional, se config.auditors.domain_specific = true)
 
 Spawn apenas dos detectados na classificacao de arquivos modificados.
@@ -305,6 +311,7 @@ IMPORTANTE: mutacoes sao SEMPRE revertidas. Nunca persistir.
 - Security: {se domainStatuses["security-auditor"] === "clean"} ✅ clean | {se "issues_found"} ⚠️ issues found | {se "critical_issues"} ❌ critical | {se incomplete} ⏸ incomplete
 - Code Quality: {se domainStatuses["code-smell-detector"] === "clean"} ✅ clean | {se "issues_found"} ⚠️ issues found | {se incomplete} ⏸ incomplete
 - Code Review: {se domainStatuses["code-reviewer"] === "clean"} ✅ clean | {se "issues_found"} ⚠️ issues found | {se "critical_issues"} ❌ critical | {se incomplete} ⏸ incomplete
+- Dependencies: {se domainStatuses["dependency-auditor"] === "clean"} ✅ clean | {se "vulnerabilities_found"} ⚠️ issues found | {se "critical_issues"} ❌ critical | {se incomplete} ⏸ incomplete
 - React: {se "react-auditor" rodou} ✅ clean | ⚠️ issues found | ❌ critical | ⏸ incomplete
 - SOLID: {se "solid-auditor" rodou} ✅ clean | ⚠️ issues found | ⏸ incomplete
 - Test Quality: ✅ solid | ⚠️ {N} weak | ❌ {N} hallucinated

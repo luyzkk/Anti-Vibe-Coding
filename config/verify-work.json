@@ -11,6 +11,7 @@
     "tdd": true,
     "security": true,
     "code_quality": true,
+    "dependencies": true,
     "domain_specific": true,
     "test_quality": true
   },
@@ -23,6 +24,7 @@
     "react_auditor": "default",
     "database_analyzer": "default",
     "infrastructure_auditor": "default",
-    "solid_auditor": "default"
+    "solid_auditor": "default",
+    "dependency_auditor": "default"
   }
 }

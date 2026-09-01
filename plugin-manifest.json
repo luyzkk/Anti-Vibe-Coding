@@ -1,6 +1,6 @@
 {
   "version": "7.7.0",
-  "generatedAt": "2026-09-01T18:09:55.533Z",
+  "generatedAt": "2026-09-01T18:31:03.340Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -455,6 +455,12 @@
       "lastModified": "2026-06-05",
       "updateStrategy": "replace"
     },
+    "agents/dependency-auditor.md": {
+      "version": "7.7.0",
+      "checksum": "ca6db2d0c36dfd7d78ff2acd975cae8e262edeba6bf7fac09f476177d9ab75f5",
+      "lastModified": "2026-09-01",
+      "updateStrategy": "replace"
+    },
     "agents/design-explorer.md": {
       "version": "7.7.0",
       "checksum": "694c1413b5e8ccedb6227b707117481c3fae5ef032acd06c8851245f636ce74c",
@@ -535,8 +541,8 @@
     },
     "config/model-profiles.json": {
       "version": "7.7.0",
-      "checksum": "a80296206a96ad44c4b20e3436918fe2d488fc5033a2a51f6538de64980edca0",
-      "lastModified": "2026-04-08",
+      "checksum": "021a491e5a88fd1ebb955a0f0dec2ed1d07e59a0e06eaea07c4bd0ec1ec255f0",
+      "lastModified": "2026-09-01",
       "updateStrategy": "replace"
     },
     "config/qa-visual.json": {
@@ -553,8 +559,8 @@
     },
     "config/verify-work.json": {
       "version": "7.7.0",
-      "checksum": "441b70dd4a6093d8a51801a88d01a3c28d25317254b1bcab019241ede59aa1c2",
-      "lastModified": "2026-04-08",
+      "checksum": "e4243a47ab0320d3c737ef9b923875c189d322ac140d5f0a97e03b5a660dd08e",
+      "lastModified": "2026-09-01",
       "updateStrategy": "replace"
     },
     "config/_schemas/adaptive-coaching-v1.schema.json": {
@@ -2767,8 +2773,8 @@
     },
     "skills/verify-work/SKILL.md": {
       "version": "7.7.0",
-      "checksum": "15c9c6e68dedfbcf69f56095833c70d84f2980ea60d02c78f6f7e4efe46ff3da",
-      "lastModified": "2026-08-17",
+      "checksum": "682244496afbb173fad9fdf5e290c4c6d2573059e90f053b40babbd8a0519c47",
+      "lastModified": "2026-09-01",
       "updateStrategy": "replace"
     },
     "skills/verify-work/lib/adherence-checks.ts": {

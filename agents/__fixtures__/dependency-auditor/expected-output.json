@@ -1,0 +1,28 @@
+{
+  "contract_version": "2.0.0",
+  "agent": "dependency-auditor",
+  "kind": "audit",
+  "status": "complete",
+  "verdict": "request_changes",
+  "positive_observations": [
+    "package.json:22 fixa typescript em ^5.4.0 no devDependencies — fora do bundle de runtime, reduz superficie de producao",
+    "package.json:27 declara apenas 3 dependencias de runtime (gray-matter, js-yaml, zod) — superficie de supply chain enxuta"
+  ],
+  "reasoning": "Audit da stack retornou 1 finding high em dependencia de runtime. EPSS 0.0042 (percentil 0.74) e ausencia do CVE no catalogo KEV indicam exploracao improvavel no curto prazo, mas a funcao vulneravel e alcancavel a partir do loader de frontmatter, que processa conteudo de arquivo nao confiavel. Procedimento aplicado: skills/security/references/sca-triage.md.",
+  "payload": {
+    "domain_status": "vulnerabilities_found",
+    "issues": [
+      {
+        "id": "DEP-001",
+        "severity": "high",
+        "description": "gray-matter@4.0.3 — CVE-2026-00000: prototype pollution no parser de YAML. Alcancavel a partir de src/lib/frontmatter-loader.ts:18, que le frontmatter de arquivo do projeto do usuario.",
+        "file": "package.json",
+        "line": 28,
+        "exploitation_scenario": "Arquivo de configuracao do projeto com frontmatter contendo __proto__ chega ao parser sem sanitizacao. EPSS 0.0042; nao consta no catalogo CISA KEV em 2026-09-01.",
+        "impact": "Poluicao de prototype no processo que carrega o arquivo do usuario. Dependencia de runtime, alcancavel — nao e dev-only.",
+        "fix_with_example": "Atualizar para gray-matter@4.0.4 (fix disponivel, sem breaking change no schema de frontmatter). Revisar em: 2026-10-01 se o bump for adiado."
+      }
+    ]
+  },
+  "metadata": { "run_id": "test-dependency-auditor-001", "duration_ms": 0, "model": "test" }
+}

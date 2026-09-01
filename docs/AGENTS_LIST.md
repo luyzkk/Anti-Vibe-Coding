@@ -1,6 +1,6 @@
 # Agents List — Plugin Subagents
 
-14 standalone subagent auditors in `agents/`, invokable from any skill via the Agent tool.
+15 standalone subagent auditors in `agents/`, invokable from any skill via the Agent tool.
 All agents are read-only unless noted. Default profile is `balanced` unless overridden.
 
 ## Subagent Auditors
@@ -12,6 +12,7 @@ All agents are read-only unless noted. Default profile is `balanced` unless over
 | documentation-writer | Creates/updates docs | balanced |
 | lesson-evaluator | Evaluates lesson quality | balanced |
 | security-auditor | Security audit (cryptography, secrets, ReDoS) | balanced |
+| dependency-auditor | Dependency audit (CVE + EPSS/KEV + reachability; Bash read-only) | balanced |
 | database-analyzer | Query analysis (N+1, indexes, cache) | balanced |
 | api-auditor | Endpoint audit (idempotency, DTOs, REST) | balanced |
 | solid-auditor | Verifies SOLID principles and design patterns | balanced |
