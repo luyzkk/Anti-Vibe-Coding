@@ -1,11 +1,38 @@
 // 2026-05-14 (Luiz/dev): Tipos espelham agents/_contract/v1.schema.json — alinhado com PRD §Decisoes #5
 // 2026-05-20 (Luiz/dev): ajv 6.15.0 transitivo (nao direto em package.json) — `AnySchema` so existe em ajv 7+,
 // `instancePath` so existe em ajv 7+ (era `dataPath` em 6.x). Mantemos os nomes ajv 7+ por intencao do autor
-// (paths comparam contra JSON Pointer `/payload` etc) — em runtime, ajv 6 retorna undefined em `instancePath`,
-// fallback `?? ''` cobre. Para suprimir os 2 erros TS sem mudar runtime: ts-ignore localizados.
+// (paths comparam contra JSON Pointer `/payload` etc). Para suprimir os 2 erros TS sem mudar runtime:
+// ts-ignore localizados.
+// 2026-09-01 (Luiz/dev): CORRECAO — o fallback `?? ''` NAO cobria. Com ajv 6 em runtime, `instancePath`
+// e sempre undefined, entao o caminho virava '' e TODO o dispatch por caminho morria em silencio:
+// INVALID_KIND e INVALID_CONTRACT_VERSION nunca disparavam, o `path` saia vazio, e os ramos de skip de
+// /reasoning e /status nao suprimiam o erro generico (relato duplicado). Agora `ajvErrorPath()` le as
+// duas majors e normaliza para JSON Pointer — ver a funcao para o porque da conversao de notacao.
 import Ajv, { type ValidateFunction } from 'ajv'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
+
+// ---------------------------------------------------------------------------
+// Compat de caminho de erro do ajv (6.x e 7+)
+// ---------------------------------------------------------------------------
+
+/**
+ * Devolve o caminho do erro do ajv normalizado como JSON Pointer, em qualquer major.
+ *
+ * As duas majors divergem em NOME e em FORMATO, e so corrigir o nome nao basta:
+ *   - ajv 7+ : `instancePath` ja em JSON Pointer   -> `/payload/issues/0/severity`
+ *   - ajv 6  : `dataPath` em notacao de ponto      -> `.payload.issues[0].severity`
+ *
+ * O dispatch abaixo compara contra JSON Pointer (`/kind`, `/payload`), entao a forma do ajv 6
+ * precisa ser convertida: `[N]` vira `.N` e todo `.` vira `/`.
+ */
+function ajvErrorPath(e: unknown): string {
+  const err = e as { instancePath?: unknown; dataPath?: unknown }
+  // ajv 7+ ja entrega o formato final — inclusive '' para erro na raiz.
+  if (typeof err.instancePath === 'string') return err.instancePath
+  if (typeof err.dataPath !== 'string' || err.dataPath === '') return ''
+  return err.dataPath.replace(/\[(\d+)\]/g, '.$1').replace(/\./g, '/')
+}
 
 // ---------------------------------------------------------------------------
 // Passo 1: Tipos TypeScript do contrato
@@ -307,9 +334,10 @@ export function validateContract(parsed: unknown): ValidationResult {
   const schemaOk = validateSchema(parsed)
   if (!schemaOk && validateSchema.errors) {
     for (const e of validateSchema.errors) {
-      // 2026-05-20 (Luiz/dev): `instancePath` so existe em ajv 7+. Em 6.x, runtime retorna undefined.
-      // Fallback `?? ''` cobre. Type cast `as { instancePath?: string }` para silenciar TS2339.
-      const instancePath = (e as { instancePath?: string }).instancePath ?? ''
+      // 2026-09-01 (Luiz/dev): le `instancePath` (ajv 7+) OU `dataPath` (ajv 6, o runtime atual) e
+      // normaliza para JSON Pointer. O nome da variavel segue `instancePath` porque e contra esse
+      // formato que os ramos abaixo comparam. Ver ajvErrorPath().
+      const instancePath = ajvErrorPath(e)
       const keyword = e.keyword ?? ''
 
       if (keyword === 'required') {

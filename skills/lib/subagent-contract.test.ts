@@ -303,3 +303,44 @@ test('withRetry com retry bem-sucedido retorna complete na segunda tentativa', a
   expect(callCount).toBe(2)
   expect(result.status).toBe('complete')
 })
+
+// 2026-09-01 (Luiz/dev): regressao do mapeamento de erro do ajv. O runtime e ajv 6.15.0, que expoe
+// `dataPath` em NOTACAO DE PONTO (`.kind`, `.payload.issues[0]`), enquanto o codigo comparava contra
+// `instancePath` em JSON Pointer (`/kind`) — campo que so existe em ajv 7+. Com `?? ''`, todo o
+// dispatch por caminho morria: INVALID_KIND nunca disparava, o path saia vazio e os ramos de skip
+// nao suprimiam o erro generico, gerando relato duplicado.
+describe('mapeamento de erro do ajv (compat 6.x e 7+)', () => {
+  const base = {
+    contract_version: '2.0.0',
+    agent: 'security-auditor',
+    status: 'complete',
+    verdict: 'approve',
+    positive_observations: ['src/a.ts:1 valida input com zod antes de tocar o banco'],
+    reasoning: 'prosa suficientemente longa para passar do minimo exigido pelo schema',
+    payload: { domain_status: 'clean', issues: [] },
+  }
+
+  test('kind invalido e classificado como INVALID_KIND, nao erro generico', () => {
+    const r = parseContract(JSON.stringify({ ...base, kind: 'nao-existe' }))
+    expect(r.valid).toBe(false)
+    expect(r.errors.some((e) => e.code === 'INVALID_KIND')).toBe(true)
+  })
+
+  test('erro de schema nomeia o campo em vez de path vazio', () => {
+    // positive_observations vazio viola minItems — o relato precisa dizer QUAL campo falhou,
+    // senao o dev recebe "should NOT have fewer than 1 items" sem saber de onde veio.
+    const r = parseContract(JSON.stringify({ ...base, kind: 'audit', positive_observations: [] }))
+    expect(r.valid).toBe(false)
+    const named = r.errors.filter((e) => typeof e.path === 'string' && e.path.length > 0)
+    expect(named.length).toBeGreaterThan(0)
+    expect(named.some((e) => String(e.path).includes('positive_observations'))).toBe(true)
+  })
+
+  test('erro dentro de payload e classificado como PAYLOAD_SCHEMA_MISMATCH pelo caminho', () => {
+    const r = parseContract(
+      JSON.stringify({ ...base, kind: 'audit', payload: { domain_status: 'clean', issues: 'nao-e-array' } }),
+    )
+    expect(r.valid).toBe(false)
+    expect(r.errors.some((e) => e.code === 'PAYLOAD_SCHEMA_MISMATCH' && String(e.path).includes('payload'))).toBe(true)
+  })
+})
