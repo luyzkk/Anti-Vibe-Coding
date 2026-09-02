@@ -1,0 +1,74 @@
+name: ZAP Baseline
+
+# Passe dinamico da LIMPEZA FINAL (PRD shift-left, Decisao 1): o agente faz o grosso white-box no
+# `/verify-work` Step 2.5 contra o dev server; este workflow e a confirmacao com ferramenta contra o
+# ambiente deployado, onde o agente nao alcanca.
+#
+# NAO roda em push/PR de proposito. O Step 2.5 so autoriza localhost e afins (guardrail CA-06,
+# dealbreaker); em CI o alvo e necessariamente externo, entao o disparo e deliberado. A autorizacao
+# do host mora na variavel de repo ZAP_TARGET_URL, que so quem tem write no repo consegue definir —
+# e esse o contrato de autorizacao que o ZAP herda do guardrail. Sem variavel, o job falha em vez de
+# adivinhar um alvo.
+#
+# Instalacao e opt-in (nao vem pelo `/init`): rode o wizard de security tooling do Anti-Vibe.
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: "URL a escanear (vazio = usa a variavel de repo ZAP_TARGET_URL)"
+        required: false
+        type: string
+  schedule:
+    - cron: '0 4 * * 1' # segunda, 04:00 UTC
+
+# Third-party actions pinned to commit SHAs (supply-chain hardening).
+# When bumping, update SHA + trailing version comment together.
+
+permissions:
+  contents: read
+
+jobs:
+  baseline:
+    name: ZAP baseline scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      # 2026-09-02: `issues: write` vem do comportamento documentado da action (ela abre/atualiza uma
+      # issue com os alertas). O README dela NAO declara as permissions — isto e inferencia, nao
+      # citacao. Se voce passar `allow_issue_writing: false`, remova esta linha.
+      issues: write
+    steps:
+      - name: Resolver e autorizar o alvo
+        id: target
+        env:
+          INPUT_URL: ${{ inputs.target_url }}
+          VAR_URL: ${{ vars.ZAP_TARGET_URL }}
+        run: |
+          url="${INPUT_URL:-$VAR_URL}"
+          if [ -z "$url" ]; then
+            echo "::error::Nenhum alvo autorizado. Defina a variavel de repo ZAP_TARGET_URL em"
+            echo "::error::Settings > Secrets and variables > Actions > Variables, ou rode o wizard."
+            echo "::error::Escanear host nao declarado e proibido pelo guardrail (CA-06)."
+            exit 1
+          fi
+          case "$url" in
+            https://*|http://*) ;;
+            *) echo "::error::ZAP_TARGET_URL precisa comecar com http:// ou https://"; exit 1 ;;
+          esac
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: ZAP baseline
+        uses: zaproxy/action-baseline@de8ad967d3548d44ef623df22cf95c3b0baf8b25 # v0.15.0
+        with:
+          target: ${{ steps.target.outputs.url }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # rules_file_name: '.zap/rules.tsv'  # descomente depois de criar o arquivo de tuning
+          # Comeca reportando, nao bloqueando, de proposito: baseline sem tuning acusa muito alerta
+          # informativo, e um gate que falha sempre e desligado na primeira sexta-feira. Vire `true`
+          # depois de triar a primeira rodada e escrever .zap/rules.tsv — porque um gate que nunca
+          # falha tambem nao e gate, e teatro.
+          fail_action: false

@@ -494,6 +494,7 @@ npm audit --audit-level=critical
 ## 10. Verificacao Dinamica no Dev Server Proprio
 
 > Referencia completa: `references/dynamic-testing.md`
+> Limpeza final com ferramenta em CI (ZAP baseline + Trivy): `references/ci-security-tooling.md`
 
 <constraints>
 - **Alvo permitido e so o dev server local ou o staging do proprio projeto** — `localhost`,
