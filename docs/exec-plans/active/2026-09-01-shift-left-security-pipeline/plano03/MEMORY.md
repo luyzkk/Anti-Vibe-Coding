@@ -126,12 +126,35 @@ dependem disso.
 Informacoes que o proximo plano PRECISA saber antes de comecar.
 O subagente do proximo plano le este campo.
 
-<!-- Este e o ultimo plano da feature — nao ha "proximo plano" dentro do PRD.
-     Preencher aqui o que a limpeza final (ZAP/Trivy, fora deste escopo) e o /wizard precisam saber:
-     - onde ficou o procedimento (skills/security/references/dynamic-testing.md)
-     - qual e o contrato do guardrail que o ZAP tambem tem que respeitar
-     - se `config.auditors.dynamic` foi documentado em algum lugar alem do proprio JSON
--->
+**Fechado em 2026-09-02** pela limpeza final (workflows + wizard). As tres perguntas do bloco
+original, respondidas:
+
+**Onde ficou o procedimento.** Duas camadas, e elas nao se sobrepoem:
+
+| Camada | Arquivo | Alvo |
+|---|---|---|
+| Agente, white-box | `skills/security/references/dynamic-testing.md` | dev server local, no Step 2.5 |
+| Ferramenta, CI | `skills/security/references/ci-security-tooling.md` | ambiente deployado |
+
+**O contrato do guardrail que o ZAP herda.** O guardrail do Step 2.5 (CA-06) so autoriza `localhost`
+e afins. Em CI o alvo e necessariamente externo, entao a allowlist nao serve — precisou de um
+substituto com a mesma forca:
+
+1. O alvo mora na variavel de repo `ZAP_TARGET_URL`, nao no arquivo do workflow. So quem tem write
+   no repo define variavel, entao a autorizacao vira ato com dono e trilha de auditoria.
+2. Sem a variavel, o job **falha em vez de adivinhar**. Scanner que escolhe alvo sozinho e
+   exatamente o comportamento que o guardrail existe para impedir.
+3. Disparo e `workflow_dispatch` ou `schedule`, nunca `push`/`pull_request` — scan contra host
+   externo e ato deliberado, nao efeito colateral de abrir PR.
+
+**`config.auditors.dynamic` esta documentado fora do JSON?** Sim, em dois lugares — nao era so o
+JSON: `skills/verify-work/SKILL.md` (Step 2.5, incluindo a regra de que chave ausente significa
+`false`) e `skills/security/SKILL.md:515`.
+
+**O que a limpeza final NAO cobriu, e por que.** ZAP autenticado ficou de fora. Passar credencial de
+staging exigiria contexto/script de auth do ZAP, e descrever esse formato sem verificar seria
+inventar. Por isso o wizard nao captura credencial de app: um `set_secret` que nenhum workflow le e
+defeito, nao preparo.
 
 ---
 
