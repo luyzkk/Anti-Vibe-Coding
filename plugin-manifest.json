@@ -1,6 +1,6 @@
 {
   "version": "7.7.0",
-  "generatedAt": "2026-09-01T20:33:36.804Z",
+  "generatedAt": "2026-09-02T18:07:47.837Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -374,7 +374,7 @@
     "hooks/hooks.json": {
       "version": "7.7.0",
       "checksum": "88287837bef9005bd917b9483822f92edf49dce07459b2521635c260ca9fae68",
-      "lastModified": "2026-08-31",
+      "lastModified": "2026-09-01",
       "updateStrategy": "replace"
     },
     "hooks/pre-mutation-gate.cjs": {
@@ -2365,8 +2365,8 @@
     },
     "skills/lib/subagent-contract.ts": {
       "version": "7.7.0",
-      "checksum": "70503e24343930961b9180d538345edfc3885c226ade62db8700bd9b93a359ee",
-      "lastModified": "2026-05-23",
+      "checksum": "2890c7f523ad1865cbdbfdf1250256df56de1ffa54159a5f6c39af106c728cda",
+      "lastModified": "2026-09-02",
       "updateStrategy": "replace"
     },
     "skills/lib/telemetry-schema.ts": {
