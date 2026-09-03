@@ -1,6 +1,3 @@
-<!-- 2026-05-14 (Luiz/dev): Agent e Bash adicionados para permitir delegacao opcional a auditores em v6.2.
-     v6.1.0 mantem checklist inline como default — Agent so e usado se dev pedir explicitamente.
-     Bash adicionado para harness/validate se aplicavel. Nao muda fluxo padrao. -->
 ---
 name: anti-vibe-review
 description: "Auditoria read-only pos-implementacao: TDD, patterns, arquitetura, error handling e seguranca. DEPRECADA — consolidada em /verify-work, que roda o mesmo pipeline e mais. Prefira /verify-work; use esta so para manter workflow existente."
@@ -11,6 +8,14 @@ context: fork
 agent: Explore
 argument-hint: "[module or directory to review]"
 ---
+
+<!-- 2026-05-14 (Luiz/dev): Agent e Bash adicionados para permitir delegacao opcional a auditores em v6.2.
+     v6.1.0 mantem checklist inline como default — Agent so e usado se dev pedir explicitamente.
+     Bash adicionado para harness/validate se aplicavel. Nao muda fluxo padrao.
+     2026-09-03 (Luiz/dev): este bloco estava ACIMA do frontmatter e quebrava o parser do
+     generate-manifest — o regex /^---/ ancora no inicio do ARQUIVO (sem flag m), entao o
+     frontmatter nao casava e a skill entrava no indice com description vazia. NAO mova de
+     volta para o topo. -->
 
 # Revisao Anti-Vibe — Auditoria Pos-Implementacao
 
