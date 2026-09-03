@@ -1,13 +1,13 @@
 {
   "version": "7.7.0",
-  "generatedAt": "2026-09-02T19:34:20.993Z",
+  "generatedAt": "2026-09-03T12:58:19.408Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
       "path": "skills/anti-vibe-review/",
       "version": "7.7.0",
       "introduced": "v7.7.0",
-      "description": ""
+      "description": "Auditoria read-only pos-implementacao: TDD, patterns, arquitetura, error handling e seguranca. DEPRECADA — consolidada em /verify-work, que roda o mesmo pipeline e mais. Prefira /verify-work; use esta so para manter workflow existente."
     },
     "api-design": {
       "path": "skills/api-design/",
@@ -649,8 +649,8 @@
     },
     "skills/anti-vibe-review/SKILL.md": {
       "version": "7.7.0",
-      "checksum": "6943a5ec1545c19c743ed7dafba69c0b1513d930cc6020b1dd72527d9517b357",
-      "lastModified": "2026-08-12",
+      "checksum": "90c42fb3d49a30cacd8f02961f1728c2c284d8368d7ad275c8376c38d4d8f834",
+      "lastModified": "2026-09-03",
       "updateStrategy": "replace"
     },
     "skills/api-design/SKILL.md": {
@@ -2552,7 +2552,7 @@
     "skills/security/SKILL.md": {
       "version": "7.7.0",
       "checksum": "c0c350c619a6eaef331d66f5f3e8683e94b2e52e8faf273a1e327629f5b01b9e",
-      "lastModified": "2026-09-02",
+      "lastModified": "2026-09-03",
       "updateStrategy": "replace"
     },
     "skills/security/references/application-security.md": {
@@ -2582,7 +2582,7 @@
     "skills/security/references/ci-security-tooling.md": {
       "version": "7.7.0",
       "checksum": "d82ecb6d36919fd0e97712195f880f68f441c9f0c5b30bd31addf86886e815e1",
-      "lastModified": "2026-09-02",
+      "lastModified": "2026-09-03",
       "updateStrategy": "replace"
     },
     "skills/security/references/cryptography.md": {
