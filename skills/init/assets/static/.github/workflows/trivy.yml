@@ -1,0 +1,88 @@
+name: Trivy
+
+# Confirmacao com ferramenta do que o agente NAO cobre. O PRD shift-left lista em Nao-objetivos:
+# "DB proprietario de pacotes maliciosos, container/IaC scanning — ficam para Trivy/Snyk". O auditor
+# de dependencias do plugin tria CVE com julgamento (exploitability, alcance no codigo); o Trivy traz
+# o banco de dados que o agente nao tem. Sao camadas complementares, nao redundantes.
+#
+# Instalacao e opt-in (nao vem pelo `/init`): rode o wizard de security tooling do Anti-Vibe.
+#
+# Third-party actions pinned to commit SHAs (supply-chain hardening).
+# When bumping, update SHA + trailing version comment together.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '0 4 * * 1' # segunda, 04:00 UTC — CVE nova aparece sem o codigo mudar
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  iac:
+    name: IaC e misconfiguration
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      security-events: write # upload do SARIF para a aba Security
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Trivy config scan
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: config
+          scan-ref: .
+          format: sarif
+          output: trivy-iac.sarif
+          severity: CRITICAL,HIGH
+          # exit-code 0 de proposito: o achado vai para a aba Security e quem bloqueia o merge e a
+          # branch protection ("Require Code scanning results"). Vire '1' se voce preferir travar no
+          # runner — util quando Code Scanning nao esta ligado (repo privado sem GHAS, por exemplo).
+          exit-code: '0'
+
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4
+        with:
+          sarif_file: trivy-iac.sarif
+          category: trivy-iac
+
+  image:
+    name: CVE da imagem base
+    # Pula quando o projeto nao publica imagem — a maioria nao publica. Para ligar, defina a variavel
+    # de repo TRIVY_IMAGE_REF (ex: ghcr.io/org/app:latest). O wizard faz isso.
+    if: vars.TRIVY_IMAGE_REF != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Trivy image scan
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        env:
+          # Necessario so para registry privado; em imagem publica ficam vazios e sao ignorados.
+          # Ressalva da doc do Trivy: credencial em variavel de ambiente vale para TODO registry que
+          # o scan encontrar, nao so o seu. Se a imagem puxar camada de outro registry, a credencial
+          # viaja junto. Para isolar, troque por `trivy registry login` antes deste passo.
+          TRIVY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+          TRIVY_PASSWORD: ${{ secrets.REGISTRY_TOKEN }}
+        with:
+          scan-type: image
+          image-ref: ${{ vars.TRIVY_IMAGE_REF }}
+          format: sarif
+          output: trivy-image.sarif
+          severity: CRITICAL,HIGH
+          exit-code: '0'
+
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4
+        with:
+          sarif_file: trivy-image.sarif
+          category: trivy-image
