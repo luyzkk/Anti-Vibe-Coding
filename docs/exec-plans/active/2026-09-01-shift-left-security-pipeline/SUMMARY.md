@@ -101,13 +101,18 @@ estavam erradas** — todas encontradas por verificar a fonte antes de escrever:
 
 ---
 
-## Divida conhecida (fora de escopo, nao corrigida)
+## Divida conhecida (todos os tres itens resolvidos em 2026-09-02/03)
 
-- `skills/lib/subagent-contract.ts` usa `instancePath` (ajv 7+) com runtime `ajv@6.15.0`
-  (`dataPath`): violacao de schema falha corretamente, mas a mensagem nao nomeia o campo. Afeta todos
-  os contratos v2.
-- Warning de frontmatter em `skills/anti-vibe-review/SKILL.md` no `generate:manifest`.
-- Artefato v4 solto em `.planning/plano08-audit-D29.md`, nao relacionado a esta feature.
+- ~~`skills/lib/subagent-contract.ts` usa `instancePath` (ajv 7+) com runtime `ajv@6.15.0`
+  (`dataPath`)~~ — **resolvido** (PR #63). `ajvErrorPath()` le as duas majors e normaliza para JSON
+  Pointer. O impacto era maior que o registrado aqui: o `?? ''` zerava o caminho e matava TODO o
+  dispatch por caminho, entao `INVALID_KIND` e `INVALID_CONTRACT_VERSION` nunca disparavam.
+- ~~Warning de frontmatter em `skills/anti-vibe-review/SKILL.md` no `generate:manifest`~~ —
+  **resolvido**. O arquivo abria com comentario HTML e o regex `/^---/` ancora no inicio do arquivo
+  (sem flag `m`), entao a skill entrava no indice com `description` vazia. Nao era cosmetico.
+- ~~Artefato v4 solto em `.planning/plano08-audit-D29.md`~~ — **resolvido**. Movido com `git mv`
+  (linhagem preservada) para `docs/exec-plans/completed/_legacy-detail/v60-harness-compound-fusion/plano08/audit-D29.md`,
+  junto das fases que o produziram. `.planning/` deixou de existir.
 
 ---
 
