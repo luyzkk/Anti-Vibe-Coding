@@ -1,13 +1,13 @@
 ---
 slug: route-auth-matrix-audit
 date: 2026-09-02
-status: draft
+status: approved
 requires: [2026-09-01-shift-left-security-pipeline]
 ---
 
 # PRD: Matriz Rota x Middleware de Auth no Auditor
 
-**Status:** Draft
+**Status:** Approved
 **Author:** Luiz + AI
 **Date:** 2026-09-02
 **Context:** conversation (RF-11 do PRD shift-left-security-pipeline)
