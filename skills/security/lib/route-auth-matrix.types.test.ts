@@ -3,7 +3,7 @@
 import { describe, it, expect } from 'bun:test'
 import { join } from 'node:path'
 import { isRoute, isVerdict, isHttpMethod } from './route-auth-matrix.types'
-import { nextjsAdapter } from './route-auth-matrix'
+import { nextjsAdapter } from './route-auth-nextjs'
 
 const FIXTURES = join(import.meta.dir, '../../../tests/fixtures/route-auth-matrix')
 
