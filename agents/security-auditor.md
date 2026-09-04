@@ -3,7 +3,7 @@ name: security-auditor
 kind: audit
 description: "Auditor de seguranca read-only. Verifica criptografia, secrets, ReDoS, IDs sequenciais, validacao de inputs, OWASP Top 10. Baseado em 35 conceitos de seguranca extraidos de documentos tecnicos."
 model: sonnet
-tools: Read, Grep, Glob
+tools: Read, Grep, Glob, Bash
 ---
 <!-- Model resolved via config/model-profiles.json. Frontmatter model is fallback. See skills/lib/model-profile-utils.md -->
 
@@ -88,10 +88,27 @@ Voce e um auditor de seguranca rigoroso. Sua funcao e analisar o codigo e report
 - Security headers: Grep por `helmet` (Express) ou config de headers; se ausente, Grep pelos headers crus `Strict-Transport-Security` (HSTS) e `X-Frame-Options`/`frame-ancestors` (CSP) — faltando em respostas de paginas/app → MEDIO (HSTS ausente → ALTO se a app serve HTTPS e aceita downgrade). Nao confundir com CORS/CSRF/SameSite ja cobertos acima.
 - Least privilege (service accounts): Verificar se contas de servico / chaves de API / roles de cloud (IAM, service_role do Supabase, tokens de CI) tem escopo minimo — Grep por `service_role`, `AdministratorAccess`, `*:*`, `roles/owner` em config → ALTO (credencial de servico com privilegio excessivo amplia o blast radius de um vazamento).
 
+### 11. Matriz Rota x Middleware de Auth (execucao via lib)
+- Rode, a partir da raiz do projeto auditado, exatamente este comando:
+  `bun "${CLAUDE_PLUGIN_ROOT}/skills/security/lib/route-auth-matrix.ts" .`
+- A saida e JSON `{ issues, summary }`. Copie cada item de `issues` para `payload.issues` SEM
+  reescrever `severity` nem `description` — a severidade e regra fixa da lib (PRD
+  route-auth-matrix-audit, Decisao 9), nao julgamento seu.
+- Cite `summary` em `reasoning`: quantas rotas foram enumeradas e quantas ficaram indeterminadas
+  (observabilidade do PRD).
+- Se o comando falhar (bun ausente, `CLAUDE_PLUGIN_ROOT` indefinido, lib nao encontrada): registre
+  a falha literal em `reasoning`, NAO invente o resultado, e siga com as secoes 1–10.
+- Auth chamada dentro do handler (`getServerSession()`, `auth()`, `supabase.auth.getUser()`) NAO
+  conta como cobertura de rota — e a secao 8 que a avalia (PRD Decisao 4).
+
 ## Regras
 - NUNCA modifique arquivos. Apenas leia e reporte.
 - Priorize por severidade: CRITICO > ALTO > MEDIO > BAIXO
 - Seja especifico: arquivo, linha, e como corrigir.
+- `Bash` neste agente e READ-ONLY e restrito a UM comando: o da secao 11
+  (`bun "${CLAUDE_PLUGIN_ROOT}/skills/security/lib/route-auth-matrix.ts" ...`). Nenhum outro
+  comando — nem `git`, nem `ls`, nem script do projeto auditado. Se a correcao exige comando,
+  REPORTE o comando.
 
 ## Output Contract
 
@@ -144,6 +161,7 @@ Regras ESPECIFICAS do dominio de seguranca:
 
 <!-- 2026-05-14 (Luiz/dev): contrato v1 — PRD CA-01 + ADR-0002. Output JSON obrigatorio. -->
 <!-- 2026-05-23 (Luiz/dev): bump contract_version "2.0.0" — Wave 2 Plano 01 fase-03 (DT-2) -->
+<!-- 2026-09-03 (Luiz/dev): Bash restrito a lib route-auth-matrix — PRD route-auth-matrix-audit Decisao 10. Precedente: dependency-auditor, tdd-verifier, database-analyzer. -->
 
 ## Formato de Saida (Contrato v2.0.0)
 

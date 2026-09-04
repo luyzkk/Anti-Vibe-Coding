@@ -1,6 +1,6 @@
 {
   "version": "7.7.0",
-  "generatedAt": "2026-09-03T12:58:19.408Z",
+  "generatedAt": "2026-09-04T23:18:06.588Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -457,8 +457,8 @@
     },
     "agents/dependency-auditor.md": {
       "version": "7.7.0",
-      "checksum": "ca6db2d0c36dfd7d78ff2acd975cae8e262edeba6bf7fac09f476177d9ab75f5",
-      "lastModified": "2026-09-01",
+      "checksum": "d3aa4c14705d0bf529fbd03207796f40da2c68025458649edb21dfc22e1bcc83",
+      "lastModified": "2026-09-04",
       "updateStrategy": "replace"
     },
     "agents/design-explorer.md": {
@@ -505,8 +505,8 @@
     },
     "agents/security-auditor.md": {
       "version": "7.7.0",
-      "checksum": "369a2f499ebccbbaaafd2beb9b62e72ec2a17113447ce971f7237b8d0f9b2e9f",
-      "lastModified": "2026-06-05",
+      "checksum": "0e07f7fe2830d9b5ae036e25a9aedecb5d4b618905199b47f823f37a4f63939b",
+      "lastModified": "2026-09-04",
       "updateStrategy": "replace"
     },
     "agents/solid-auditor.md": {
@@ -650,7 +650,7 @@
     "skills/anti-vibe-review/SKILL.md": {
       "version": "7.7.0",
       "checksum": "90c42fb3d49a30cacd8f02961f1728c2c284d8368d7ad275c8376c38d4d8f834",
-      "lastModified": "2026-09-03",
+      "lastModified": "2026-09-04",
       "updateStrategy": "replace"
     },
     "skills/api-design/SKILL.md": {
@@ -2619,6 +2619,12 @@
       "version": "7.7.0",
       "checksum": "1616945dfa0e3827fafcb8c713cb039d8bfd2186ef1649bb6f484c42b528e8e1",
       "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "skills/security/lib/route-auth-matrix.ts": {
+      "version": "7.7.0",
+      "checksum": "8b6cd35af481ac5338b723edb834cc0c7e88dd435f453d3a41322daf358681da",
+      "lastModified": "2026-09-04",
       "updateStrategy": "replace"
     },
     "skills/security/lib/security-prefaces.ts": {
