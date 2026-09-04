@@ -66,6 +66,10 @@ Formato: sintoma + causa raiz + fix aplicado.
   - Confirmado pelo orquestrador: reintroduzir `/api/admin` no comentario faz o teste falhar
     (`Expected length: 1, Received length: 0`). O teste exercita mesmo o mecanismo, nao passa por acaso.
   - Fase afetada: fase-01
+  - **RESOLVIDO ESTRUTURALMENTE na fase-02.** `readCoverage` passou a extrair so o array literal de
+    `config.matcher` por regex, entao comentario nao entra mais na decisao. Verificado do mesmo jeito
+    que o bug foi: com `/api/admin` de volta no comentario, o teste agora fica VERDE. A defesa nao e
+    mais a prosa da fixture — e o parser. A fase-04 aperta de novo, trocando regex por AST.
 
 ---
 
@@ -89,6 +93,15 @@ Apenas gotchas que NAO eram obvios antes de implementar.
   - Como foi contornado: criando o arquivo via Bash (heredoc), fora do matcher `Write|Edit` do hook.
   - Impacto: **isto e um gap do gate, nao um padrao a repetir.** Se "o hook bloqueou, uso outra
     ferramenta" virar habito, o gate perde a funcao. Correcao registrada como tarefa separada.
+  - **Segunda ocorrencia, fase-02:** o mesmo gate bloqueou a atualizacao de um COMENTARIO em
+    `middleware.ts` da fixture — uma correcao de documentacao, sem uma linha de codigo. Desta vez o
+    bloqueio foi respeitado (nao contornado) e o comentario ficou desatualizado de proposito. E o
+    padrao ja conhecido deste repo: guard que casa por nome de arquivo bloqueia a documentacao sobre
+    o assunto, e o conteudo acaba moldado pela ferramenta em vez de pela intencao.
+  - Divida concreta enquanto o gate nao muda: as linhas 2-3 de
+    `tests/fixtures/route-auth-matrix/nextjs-minimal/middleware.ts` afirmam que o match le "o arquivo
+    inteiro como texto". Isso deixou de ser verdade na fase-02 (ver BUG-fase01-1). Corrigir junto com
+    o fix do gate.
 - **GT-fase01-2: `generate:manifest` mexe no `lastModified` de arquivo nao tocado.** Ele le o mtime
   do filesystem, nao o historico do git — arquivo recriado por checkout ou merge ganha data nova com
   checksum identico.
