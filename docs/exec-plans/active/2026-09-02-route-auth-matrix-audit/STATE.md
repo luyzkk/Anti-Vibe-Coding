@@ -9,14 +9,14 @@
 
 | Plano | Nome | Fases | Done | Status |
 |-------|------|-------|------|--------|
-| 01 | Fundacao + Tracer Bullet (Next.js) | 5 | 1/5 | in-progress |
+| 01 | Fundacao + Tracer Bullet (Next.js) | 5 | 2/5 | in-progress |
 | 02 | Allowlist e veredictos completos | 3 | 0/3 | pending |
 | 03 | G2: cobertura perdida | 3 | 0/3 | pending |
 | 04 | Os outros tres adaptadores + multi-stack | 5 | 0/5 | pending |
 
 ## Progress Global
 
-Fases done: 1/16 (6%)
+Fases done: 2/16 (13%)
 
 ## Log
 
@@ -25,3 +25,4 @@ Fases done: 1/16 (6%)
   `dependency-auditor`, `tdd-verifier`, `database-analyzer`. Tracer bullet = Plano 01 fase-01.
 - 2026-09-04: Execucao iniciada via /execute-plan na branch feat/route-auth-matrix-plano01. Dev optou por rodar as 5 fases em sequencia, com validacao entre elas.
 - 2026-09-04: fase-01 (tracer bullet) concluida no commit cde2582. Cadeia end-to-end provada: fixture -> lib -> finding CRITICO -> security-auditor com Bash restrito. Suite 1887 pass / 0 fail. RED-check do orquestrador confirmou que o teste falha quando o alvo e reintroduzido. Pendente: validar que CLAUDE_PLUGIN_ROOT chega ao Bash do subagente.
+- 2026-09-04: fase-02 (contrato de tipos) concluida no commit 0c3caeb, executada direto pelo orquestrador (dev recusou o subagente). Contrato congelado: mudanca em route-auth-matrix.types.ts agora reabre os tres adaptadores do Plano 04. Campo handler acrescentado ao Route por exigencia do criterio 'por humano'. Suite 1898 pass / 0 fail.
