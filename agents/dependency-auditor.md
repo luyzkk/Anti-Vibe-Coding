@@ -119,6 +119,8 @@ Regras ESPECIFICAS do dominio de dependencias:
 **Do not invoke from:**
 - Dentro do `security-auditor` — escopos separados por design (PRD §Decisões D6). O `security-auditor`
   permanece read-only sem Bash; dar SCA a ele seria juntar o que a decisao separou.
+  (2026-09-03: o `security-auditor` passou a ter `Bash` restrito a lib `route-auth-matrix` — PRD
+  route-auth-matrix-audit, Decisao 10. SCA continua fora dele; a separacao de escopos permanece.)
 - Em PR que nao toca manifesto nem lockfile — o audit nao muda, o custo sim.
 - Em PRD/plano em fase de discovery — este agente audita DEPENDENCIAS REAIS instaladas, nao propostas.
 

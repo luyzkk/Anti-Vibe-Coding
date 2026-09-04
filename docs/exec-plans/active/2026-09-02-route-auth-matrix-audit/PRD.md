@@ -226,6 +226,7 @@ O atacante aqui e o descuido, e o alvo e o proprio check. Cada linha vira criter
 | 7 | Local da allowlist | `anti-vibe.public-routes.json` na raiz | `.anti-vibe/public-routes.json` | `.anti-vibe/` e **gitignored** (verificado em `.gitignore:62`). A allowlist la dentro nao entraria em PR nenhum, e a premissa inteira de "declaracao versionada e revisavel" cairia sem ninguem perceber |
 | 8 | `indeterminada` emite finding | Sim, MEDIO | Nao emitir, so contar no rodape | Nao emitir transforma todo limite do adaptador em aprovacao tacita — o modo de falha exato que o RF-04 existe para impedir. Ruido visivel ganha de silencio que parece aprovacao |
 | 9 | Severidade | Regra fixa (marcador de privilegio ou metodo mutante = CRITICO; senao ALTO) | Severidade unica para toda rota descoberta | Severidade unica ou afoga o achado grave no meio dos leves, ou inflaciona os leves ate o time ignorar a categoria |
+| 10 | Execução da enumeração | Bash no auditor + libs TS em skills/security/lib | Prosa pura (Read/Grep/Glob) ou enumeração no verify-work | Prosa mata CA-06 e CA-08 (regex de matcher vira interpretação do LLM); no verify-work o check some quando /security e /iterate invocam o auditor direto. Precedente: dependency-auditor, tdd-verifier, database-analyzer já têm Bash |
 
 ---
 
