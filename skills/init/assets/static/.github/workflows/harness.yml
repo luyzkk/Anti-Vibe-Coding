@@ -3,7 +3,13 @@
 # 2026-05-12 (Luiz/dev): Plano 04 fase-05 adiciona step compound:check (CA-29, M5+M6).
 # Steps separados (nao harness:all) para que falha apareca nominalmente no UI do GitHub.
 # Exit codes: 0 = clean; 1 = regra falhou; 2 = uso invalido do script.
+# 2026-09-04 (Luiz/dev): alinhado ao padrao de hardening do CI do proprio plugin — actions fixadas
+# por SHA, `permissions` explicita e `timeout-minutes`. Antes disto o plugin se aplicava um padrao
+# que nao entregava a quem ele onboarda.
 name: Harness Guardrails
+
+# Third-party actions pinned to commit SHAs (supply-chain hardening).
+# When bumping, update SHA + trailing version comment together.
 
 on:
   pull_request:
@@ -15,9 +21,14 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Sem esta declaracao o job herda o default do repositorio, que em repos criados antes de 2023
+    # ainda e `contents: write` — permissao de escrita para um job que so le e valida.
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
           bun-version: latest
       - run: bun install --frozen-lockfile
