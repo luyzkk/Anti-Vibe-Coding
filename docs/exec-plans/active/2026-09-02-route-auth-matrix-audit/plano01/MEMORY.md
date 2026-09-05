@@ -196,11 +196,56 @@ Se nada mudou, manter vazio (bom sinal).
 Informacoes que o proximo plano PRECISA saber antes de comecar.
 O subagente do proximo plano le este campo.
 
-<!-- Exemplo:
-- Tabela `notifications` criada com RLS — usar service_role para queries internas
-- Tipo `Notification` exportado de `src/types/notifications.ts`
-- Hook `useNotifications` disponivel em `src/hooks/use-notifications.ts`
--->
+**O contrato esta congelado.** `skills/security/lib/route-auth-matrix.types.ts` define `Route`,
+`CoverageRule`, `CoverageMap`, `Verdict`, `RouteVerdict`, `RouteFinding` e a interface
+`RouteAdapter`. Acrescentar variante em `CoverageRule` e **aditivo e livre**; renomear campo de
+`Route` reabre os tres adaptadores do Plano 04.
+
+**Onde cada plano encaixa:**
+
+| Plano | Encaixa em | Como |
+|---|---|---|
+| 02 (allowlist) | ANTES de `evaluateRoute` | rota que casa a allowlist recebe `publica-declarada` e nao chega ao motor. O motor nunca produz esse veredito — ele so tem `coberta`/`indeterminada`/`DESCOBERTA` |
+| 02 fase-03 (emissao MEDIO) | DEPOIS de `auditRouteCoverage` | le `result.verdicts`, filtra `indeterminada` e emite. Hoje `indeterminada` so entra em `summary.indeterminada`, sem virar finding — de proposito (D8) |
+| 03 (G2) | dentro de `auditRouteCoverage` | o conjunto-gatilho hoje e so G1 (`opts.changedFiles`). Diff que so toca `middleware.ts` produz `evaluated: 0` com nota explicita — e exatamente o buraco do G2 |
+| 04 (adaptadores) | implementa `RouteAdapter` | `RULE_MATCHERS` e hash map por `kind` com fallback `unsure` -> `indeterminada`. Variante nova sem entrada no mapa NUNCA vira `coberta` por acidente |
+
+**Assinatura publica:**
+
+```ts
+auditRouteCoverage(targetDir: string, opts: {
+  changedFiles?: string[]      // POSIX, relativos a raiz. Vazio = escopo vazio, NAO full-surface
+  coverageOverride?: CoverageMap  // seam de teste, evita fixture em disco
+}): { findings, verdicts, summary }
+```
+
+**Decisoes que valem para os proximos planos:**
+
+- **Parser proprio, sem `@typescript-eslint/parser`** (DI-fase04-parser). O Plano 04 fase-02
+  (Express) vai enfrentar a mesma escolha, e la e mais dificil: rota em Express e chamada
+  imperativa, nao literal. Ler GT-fase04-1 antes de decidir — nao repetir a investigacao.
+- **`extractExportedMethods` continua por regex.** Nao le `export { GET }` nem `export default`;
+  isso vira nota, nunca rota fantasma (RF-09).
+- **Severidade e regra, nao julgamento:** marcador de privilegio (prefixo de segmento
+  `admin|internal|billing`) OU metodo nao-GET = `critical`; senao `high`. `HEAD` e `OPTIONS` contam
+  como mutantes porque o PRD nao os excetua — se o dev quiser excetuar, e emenda no PRD.
+- **Matcher ausente = cobertura total** e um PROXY (G13): prova que o middleware roda, nao que ele
+  autentica. Fica em `notes` e no relatorio.
+
+**Dividas abertas que o Plano 02 herda:**
+
+- O TDD gate bloqueia criar/editar `middleware.ts` (GT-fase01-1). Tres fixtures que as fases 04 e 05
+  pediam nao existem; os casos viraram teste de funcao pura. Se o Plano 02 precisar de fixture de
+  middleware, **resolver o gate primeiro** — nao contornar trocando de ferramenta.
+- Comentario desatualizado nas linhas 2-3 de
+  `tests/fixtures/route-auth-matrix/nextjs-minimal/middleware.ts` (afirma que o match le o arquivo
+  inteiro; deixou de ser verdade na fase-02). Corrigir junto com o gate.
+- `skills/lib/capabilities-writer.ts` quebra quando roda do cache — mesmo defeito do parser,
+  confirmado empiricamente. Tarefa separada, fora deste plano por decisao do dev.
+- Item de checklist da fase-01 nao verificado: se `CLAUDE_PLUGIN_ROOT` de fato chega ao Bash do
+  subagente. Exige invocar `/anti-vibe-coding:security` num projeto Next.js real. **A secao 11 do
+  agente depende disso** — se a variavel nao chegar, o comando falha e o auditor cai no ramo de
+  registrar a falha. Validar antes de considerar o Plano 01 fechado de ponta a ponta.
 
 ---
 
