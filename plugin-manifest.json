@@ -1,6 +1,6 @@
 {
   "version": "7.7.0",
-  "generatedAt": "2026-09-05T21:35:54.309Z",
+  "generatedAt": "2026-09-05T21:57:54.359Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -1661,22 +1661,10 @@
       "lastModified": "2026-05-21",
       "updateStrategy": "replace"
     },
-    "skills/init/lib/steps/01-scaffold-full-tree.ts": {
-      "version": "7.7.0",
-      "checksum": "6758314253bab1dea6882a4f034a3ead7508b058452483ccb54eacb0cfa111a7",
-      "lastModified": "2026-05-18",
-      "updateStrategy": "replace"
-    },
     "skills/init/lib/steps/02-detect-legacy-and-stack.ts": {
       "version": "7.7.0",
       "checksum": "df244bc957b9335445c16fa3aea1ca994fd082e765882ab72608af26ea3a0870",
       "lastModified": "2026-05-21",
-      "updateStrategy": "replace"
-    },
-    "skills/init/lib/steps/02-link-claude-agents.ts": {
-      "version": "7.7.0",
-      "checksum": "24d731f00db072e56c3692b2cb63b92aa5b1eacb06ac4375c65d22a1564034ea",
-      "lastModified": "2026-05-18",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/03-secrets-scan.ts": {
@@ -1691,16 +1679,10 @@
       "lastModified": "2026-05-21",
       "updateStrategy": "replace"
     },
-    "skills/init/lib/steps/05-install-gh-files.ts": {
-      "version": "7.7.0",
-      "checksum": "da73733c7f997e53fb034537182df0f29e59e223e9380f70ec21b034af558fbd",
-      "lastModified": "2026-05-18",
-      "updateStrategy": "replace"
-    },
     "skills/init/lib/steps/05-scaffold-and-link.ts": {
       "version": "7.7.0",
-      "checksum": "49c8d4e405c1760ac275a18d97af2aff7c4254a72d12e46098a2a148b09e518f",
-      "lastModified": "2026-05-21",
+      "checksum": "9d05c792cda58e93ee32c9ad5259bb93e315fb2b8f937f627d3c0fb12abe1139",
+      "lastModified": "2026-09-05",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/06-install-gh-files.ts": {
@@ -2197,7 +2179,7 @@
     },
     "skills/lib/capabilities-writer.ts": {
       "version": "7.7.0",
-      "checksum": "7e10416ebee0d8f1a5e3efff72eb552b031b705feb2395997f91faadef483def",
+      "checksum": "8e33401b1c36bbec883907117641d128be60c458cfcc46fe1862ccf607c632fe",
       "lastModified": "2026-09-05",
       "updateStrategy": "replace"
     },
@@ -2425,14 +2407,14 @@
     },
     "skills/parity-audit/lib/gap-rules.ts": {
       "version": "7.7.0",
-      "checksum": "e03a35eb6758d3af695861b5269319d9fc5b70d66ecbb22f7a4155e1fc69b6ba",
-      "lastModified": "2026-05-16",
+      "checksum": "50c9763e455522ed765e0c7624835fa28144b62b254d054fc392ae31c4f13343",
+      "lastModified": "2026-09-05",
       "updateStrategy": "replace"
     },
     "skills/parity-audit/lib/parity-gaps-writer.ts": {
       "version": "7.7.0",
-      "checksum": "90751d981751b37aceb8fa5a88118f7a9065111e4c63d9f311977ec0cfc7bb38",
-      "lastModified": "2026-05-16",
+      "checksum": "32b3f4c75a0f92fe8949ceb79ea2884ee640d8228f6e3c9f17abf28e548c5656",
+      "lastModified": "2026-09-05",
       "updateStrategy": "replace"
     },
     "skills/plan-feature/SKILL.md": {

@@ -13,13 +13,18 @@
 //     `stale-capabilities-check` em 7 SKILL.md leem esse arquivo e, por design (G6), ficam
 //     silenciosos quando ele falta — entao a ausencia nunca aparece.
 //
-// Mantido, e nao deletado, porque o unico consumidor potencial e o CA-08 do `parity-audit`
-// (`crossCapabilitiesWithUsage`): `writeParityGaps` aceita `capabilities?: Capability[]`, mas
-// `scripts/parity-audit.ts` nunca as passa. Deletar aqui obrigaria a decidir o destino daquele
-// CA-08 tambem, e D5 nunca tratou disso.
+// 2026-09-05 (Luiz/dev): ATUALIZACAO — a ultima justificativa para manter este arquivo caiu.
+// Ele era preservado porque o CA-08 do `parity-audit` (`crossCapabilitiesWithUsage`) era consumidor
+// potencial. Esse CA-08 foi aposentado no mesmo dia (ver `skills/parity-audit/lib/gap-rules.ts`),
+// junto do parametro `capabilities?` que ninguem preenchia. Agora os unicos importadores sao os
+// proprios testes e o benchmark: o modulo esta 100% fora de qualquer caminho de execucao.
 //
-// Antes de reutilizar: ligue um chamador de verdade, ou o resultado continua nao chegando a lugar
-// nenhum. Antes de deletar: decida o CA-08 do parity-audit junto.
+// Deixado no repo por escopo, nao por utilidade — deletar arrasta 7 SKILL.md com blocos
+// `stale-capabilities-check` e 4 testes que travam a ordem dos marcadores, e isso e uma decisao de
+// "nunca diminuir" com dono. Se ninguem reivindicar ate a proxima limpeza, delete.
+//
+// Se a deteccao de rota morta voltar a ser desejada, a fonte NAO e este arquivo: e o
+// `enumerateNextjsRoutes` de `skills/security/lib/route-auth-nextjs.ts`, que o RF-11 trouxe.
 import { readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 // 2026-05-16 (Luiz/dev): AST real via @typescript-eslint/parser substitui regex line-by-line.
