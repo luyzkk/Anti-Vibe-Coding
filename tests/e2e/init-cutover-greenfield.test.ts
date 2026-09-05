@@ -9,7 +9,7 @@ import path from 'node:path'
 import { mkdtemp, cp, rm } from 'node:fs/promises'
 import os from 'node:os'
 import { runInit } from '../../skills/init/lib/run-init'
-import { runLinkClaudeStep } from '../../skills/init/lib/steps/02-link-claude-agents'
+import { runScaffoldAndLink } from '../../skills/init/lib/steps/05-scaffold-and-link'
 import { scaffoldTemplates } from '../../skills/init/lib/scaffold-templates'
 import { scaffoldFullTree } from '../../skills/init/lib/scaffold-full-tree'
 
@@ -149,7 +149,7 @@ describe('E2E cutover — greenfield (CA-01)', () => {
   test('tier 3 copy-with-hook generates CLAUDE.md mirror and hook entry in settings (CA-08)', async () => {
     // 2026-05-17 (Luiz/dev): simula tier 3 (copy-with-hook) via linker stub injetado no step.
     // O helper symlink-fallback nao tem CLAUDE_LINK_TIER_FORCE — usamos a interface de injecao
-    // do runLinkClaudeStep (02-link-claude-agents.ts exporta esse overload).
+    // do runScaffoldAndLink (seam portado de 02-link-claude-agents.ts, que foi deletado em 2026-09-05).
     // AGENTS.md precisa existir antes do link — scaffoldear primeiro.
     const TEMPLATES_DIR = path.join(
       import.meta.dir,
@@ -194,10 +194,14 @@ describe('E2E cutover — greenfield (CA-01)', () => {
       return { tier: 'copy-with-hook' as const, targetPath: claudePath, hookRegistered: true }
     }
 
-    const report = await runLinkClaudeStep(tmpDir, copyWithHookLinker)
+    const report = await runScaffoldAndLink(tmpDir, copyWithHookLinker)
     expect(report.summary).toContain('copy-with-hook')
-    // 2026-05-17 (Luiz/dev): wording do step — GT-P04F04-3 (02-link-claude-agents.ts linha 25).
-    expect(report.summary).toContain('Hook registered in .claude/settings.local.json')
+
+    // 2026-09-05 (Luiz/dev): aqui havia uma assercao na frase "Hook registered in
+    // .claude/settings.local.json" — wording do `02-link-claude-agents.ts`, deletado por estar fora
+    // do registry. O `05-scaffold-and-link` emite outro formato de summary. Nao substitui: o hook
+    // registrado JA e verificado em disco no fim deste mesmo teste, que e assercao mais forte que a
+    // mensagem (mensagem some num rename; hook errado quebra o mirror de verdade).
 
     const claudeContent = await fs.readFile(path.join(tmpDir, 'CLAUDE.md'), 'utf8')
     const agentsContent = await fs.readFile(path.join(tmpDir, 'AGENTS.md'), 'utf8')
