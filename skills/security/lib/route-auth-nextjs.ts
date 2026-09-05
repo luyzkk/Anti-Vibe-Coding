@@ -113,6 +113,235 @@ export function enumerateNextjsRoutes(targetDir: string): { routes: Route[]; not
   return { routes, notes }
 }
 
+// ---------------------------------------------------------------------------
+// Subset path-to-regexp v6 (o dialeto que o Next aceita no matcher) — DI-fase04-parser.
+// Parser proprio de proposito: @typescript-eslint/parser nao resolve do cache do plugin
+// (GT-fase04-1) e arrastar o TypeScript inteiro para runtime seria desproporcional.
+// ---------------------------------------------------------------------------
+
+const QUOTES = new Set(["'", '"', '`'])
+
+/** Le do indice de um delimitador ate o par correspondente, pulando strings. `null` se desbalanceado. */
+function readBalanced(source: string, start: number, open: string, close: string): { body: string; end: number } | null {
+  let depth = 0
+  let quote: string | null = null
+  for (let i = start; i < source.length; i += 1) {
+    const ch = source[i]
+    if (ch === undefined) break
+    if (quote !== null) {
+      if (ch === '\\') i += 1
+      else if (ch === quote) quote = null
+      continue
+    }
+    if (QUOTES.has(ch)) { quote = ch; continue }
+    if (ch === '\\') { i += 1; continue }
+    if (ch === open) depth += 1
+    else if (ch === close) {
+      depth -= 1
+      if (depth === 0) return { body: source.slice(start + 1, i), end: i + 1 }
+    }
+  }
+  return null
+}
+
+/**
+ * Converte uma entrada de `config.matcher` em RegExp ancorada, no subset path-to-regexp v6 que o
+ * Next aceita. Devolve `null` quando a entrada sai do subset — quem chama trata como `opaque`,
+ * e o motor entao diz `indeterminada`. Jamais `coberta` por semelhanca textual (PRD CA-06).
+ */
+export function matcherToRegExp(entry: string): RegExp | null {
+  if (!entry.startsWith('/')) return null
+  let out = '^'
+  let i = 0
+
+  while (i < entry.length) {
+    if (entry[i] !== '/') return null
+    i += 1
+    if (i >= entry.length) break
+
+    const ch = entry[i]
+    if (ch === ':') {
+      const named = /^:([A-Za-z_][A-Za-z0-9_]*)/.exec(entry.slice(i))
+      if (named === null) return null
+      i += named[0].length
+      const modifier = entry[i]
+      if (modifier === '(') {
+        const group = readBalanced(entry, i, '(', ')')
+        if (group === null) return null
+        out += '/(' + group.body + ')'
+        i = group.end
+      } else if (modifier === '*') { out += '(?:/[^/]+)*'; i += 1 }
+      else if (modifier === '+') { out += '(?:/[^/]+)+'; i += 1 }
+      else if (modifier === '?') { out += '(?:/[^/]+)?'; i += 1 }
+      else { out += '/([^/]+)' }
+      continue
+    }
+
+    if (ch === '(') {
+      const group = readBalanced(entry, i, '(', ')')
+      if (group === null) return null
+      out += '/(?:' + group.body + ')'
+      i = group.end
+      continue
+    }
+
+    let end = i
+    while (end < entry.length && entry[end] !== '/') end += 1
+    const literal = entry.slice(i, end)
+    // Token do path-to-regexp que este subset nao cobre: melhor `null` que match errado.
+    if (/[{}*+?]/.test(literal)) return null
+    out += '/' + literal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    i = end
+  }
+
+  // Barra final opcional: o Next casa `/` contra `/:path*`, e `/admin/` contra `/admin`.
+  try {
+    return new RegExp(out + '/?$')
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Instancias concretas que a rota pode assumir. Segmento dinamico nao tem valor unico, entao a
+ * cobertura so e afirmada quando TODAS as sondas casam — o resto e `partial`.
+ */
+export function probesFor(routePath: string): string[] {
+  const segments = routePath.split('/').filter((s) => s.length > 0)
+  let variants: string[][] = [[]]
+
+  for (const segment of segments) {
+    if (/^\[\[\.\.\..+\]\]$/.test(segment)) {
+      variants = variants.flatMap((v) => [v, [...v, '__dyn__'], [...v, '__dyn__', '__dyn__']])
+    } else if (/^\[\.\.\..+\]$/.test(segment)) {
+      variants = variants.flatMap((v) => [[...v, '__dyn__'], [...v, '__dyn__', '__dyn__']])
+    } else if (/^\[.+\]$/.test(segment)) {
+      variants = variants.map((v) => [...v, '__dyn__'])
+    } else {
+      variants = variants.map((v) => [...v, segment])
+    }
+  }
+
+  return variants.map((v) => '/' + v.join('/'))
+}
+
+export type MatchOutcome = 'matches' | 'no-match' | 'partial'
+
+/**
+ * `matches` so quando TODA sonda casa. Padrao fora do subset vira `partial` — o adaptador nao
+ * afirma match sobre o que nao consegue demonstrar; a decisao final e do motor (fase-05).
+ */
+export function matchRouteAgainstPattern(routePath: string, pattern: string): MatchOutcome {
+  const regex = matcherToRegExp(pattern)
+  if (regex === null) return 'partial'
+
+  const probes = probesFor(routePath)
+  if (probes.length === 0) return 'partial'
+
+  const hits = probes.filter((probe) => regex.test(probe)).length
+  if (hits === probes.length) return 'matches'
+  if (hits === 0) return 'no-match'
+  return 'partial'
+}
+
+/**
+ * Extrai as regras de cobertura do texto de um `middleware.ts`. Funcao pura de proposito
+ * (DI-fase04-fixtures-inline): parser testavel sem I/O.
+ */
+export function parseMatcherConfig(source: string, file: string): CoverageRule[] {
+  const configMatch = /export\s+const\s+config\s*=/.exec(source)
+  if (configMatch === null || configMatch.index === undefined) {
+    // G13: sem `config`, o middleware roda em TODA rota. O proxy do PRD e cobertura total.
+    const middlewareDecl = /export\s+(?:async\s+)?function\s+middleware\b/.exec(source)
+    const line = middlewareDecl?.index === undefined ? 1 : lineOf(source, middlewareDecl.index)
+    return [{ kind: 'path-pattern', pattern: '/:path*', file, line }]
+  }
+
+  const objectStart = source.indexOf('{', configMatch.index)
+  const object = objectStart === -1 ? null : readBalanced(source, objectStart, '{', '}')
+  if (object === null) {
+    return [{ kind: 'opaque', reason: 'config nao e um objeto literal', file, line: lineOf(source, configMatch.index) }]
+  }
+
+  const matcherKey = /(^|[,{\s])matcher\s*:/.exec(object.body)
+  if (matcherKey === null || matcherKey.index === undefined) {
+    const line = lineOf(source, configMatch.index)
+    return [{ kind: 'path-pattern', pattern: '/:path*', file, line }]
+  }
+
+  const valueStart = matcherKey.index + matcherKey[0].length
+  const bodyOffset = objectStart + 1
+  const rest = object.body.slice(valueStart)
+  const trimmed = rest.replace(/^\s*/, '')
+  const valueOffset = bodyOffset + valueStart + (rest.length - trimmed.length)
+  const line = lineOf(source, valueOffset)
+  const head = trimmed[0]
+
+  if (head !== undefined && QUOTES.has(head)) {
+    const closing = trimmed.indexOf(head, 1)
+    if (closing === -1) return [{ kind: 'opaque', reason: 'string do matcher nao fecha', file, line }]
+    return [{ kind: 'path-pattern', pattern: trimmed.slice(1, closing), file, line }]
+  }
+
+  if (head !== '[') {
+    // Identificador, chamada de funcao, ternario, spread: cobertura ILEGIVEL, nao ausente.
+    return [{ kind: 'opaque', reason: 'matcher computado — nao e literal', file, line }]
+  }
+
+  const array = readBalanced(trimmed, 0, '[', ']')
+  if (array === null) return [{ kind: 'opaque', reason: 'array do matcher nao fecha', file, line }]
+
+  const rules: CoverageRule[] = []
+  for (const element of splitTopLevel(array.body)) {
+    const value = element.trim()
+    const first = value[0]
+    if (first !== undefined && QUOTES.has(first)) {
+      const closing = value.indexOf(first, 1)
+      if (closing === -1) rules.push({ kind: 'opaque', reason: 'string do matcher nao fecha', file, line })
+      else rules.push({ kind: 'path-pattern', pattern: value.slice(1, closing), file, line })
+      continue
+    }
+    if (first === '{') {
+      if (/(^|[,{\s])(has|missing)\s*:/.test(value)) {
+        rules.push({ kind: 'opaque', reason: 'matcher condicional (has/missing) nao e cobertura demonstravel', file, line })
+        continue
+      }
+      const sourceProp = /(^|[,{\s])source\s*:\s*(['"`])([^'"`]*)\2/.exec(value)
+      const pattern = sourceProp?.[3]
+      if (pattern === undefined) rules.push({ kind: 'opaque', reason: 'entrada de matcher sem `source` literal', file, line })
+      else rules.push({ kind: 'path-pattern', pattern, file, line })
+      continue
+    }
+    rules.push({ kind: 'opaque', reason: 'entrada de matcher nao literal', file, line })
+  }
+
+  return rules
+}
+
+/** Separa elementos de array/objeto por virgula de topo, ignorando aninhamento e strings. */
+function splitTopLevel(body: string): string[] {
+  const parts: string[] = []
+  let depth = 0
+  let quote: string | null = null
+  let start = 0
+  for (let i = 0; i < body.length; i += 1) {
+    const ch = body[i]
+    if (ch === undefined) break
+    if (quote !== null) {
+      if (ch === '\\') i += 1
+      else if (ch === quote) quote = null
+      continue
+    }
+    if (QUOTES.has(ch)) { quote = ch; continue }
+    if (ch === '[' || ch === '{' || ch === '(') depth += 1
+    else if (ch === ']' || ch === '}' || ch === ')') depth -= 1
+    else if (ch === ',' && depth === 0) { parts.push(body.slice(start, i)); start = i + 1 }
+  }
+  const tail = body.slice(start)
+  if (tail.trim().length > 0) parts.push(tail)
+  return parts
+}
+
 /** Leitura do matcher — ainda o regex da fase-02, sem mudanca de comportamento. */
 export function readNextjsCoverage(targetDir: string): CoverageMap {
   const absolute = join(targetDir, MIDDLEWARE_FILE)
@@ -121,25 +350,16 @@ export function readNextjsCoverage(targetDir: string): CoverageMap {
   }
 
   const text = readFileSync(absolute, 'utf8')
-  const literal = text.match(/matcher:\s*\[([^\]]*)\]/)?.[1]
+  const rules = parseMatcherConfig(text, MIDDLEWARE_FILE)
+  const notes: string[] = []
 
-  if (literal === undefined) {
-    // Cobertura ILEGIVEL, nao ausente: `opaque` leva o motor a `indeterminada`, jamais a `coberta` (CA-06).
-    return {
-      stack: 'nextjs',
-      rules: [{ kind: 'opaque', reason: 'config.matcher nao e um array literal', file: MIDDLEWARE_FILE, line: 1 }],
-      sources: [MIDDLEWARE_FILE],
-      notes: [],
-    }
+  // G13: sem matcher, o middleware roda em tudo. E um PROXY de cobertura, nao prova de que a auth
+  // foi checada — o corpo do middleware pode nao autenticar nada. Fica visivel no relatorio.
+  if (!/matcher\s*:/.test(text)) {
+    notes.push('middleware.ts sem config.matcher — o middleware roda em toda rota; cobertura assumida por proxy')
   }
 
-  const rules: CoverageRule[] = []
-  for (const entry of literal.matchAll(/['"`]([^'"`]+)['"`]/g)) {
-    const pattern = entry[1]
-    if (pattern !== undefined) rules.push({ kind: 'path-pattern', pattern, file: MIDDLEWARE_FILE, line: 1 })
-  }
-
-  return { stack: 'nextjs', rules, sources: [MIDDLEWARE_FILE], notes: [] }
+  return { stack: 'nextjs', rules, sources: [MIDDLEWARE_FILE], notes }
 }
 
 export const nextjsAdapter: RouteAdapter = {

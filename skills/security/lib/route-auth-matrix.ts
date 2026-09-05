@@ -3,7 +3,7 @@
 // ingenuo e a severidade ainda e fixa — donos: fase-04 (AST) e fase-05 (regra de severidade).
 import type { IssueSeverity } from '../../lib/subagent-contract'
 import type { RouteFinding } from './route-auth-matrix.types'
-import { nextjsAdapter } from './route-auth-nextjs'
+import { matchRouteAgainstPattern, nextjsAdapter } from './route-auth-nextjs'
 
 /** Item exatamente no shape de `AuditContractV2['payload']['issues'][number]`. */
 export type ContractIssue = {
@@ -17,22 +17,41 @@ export type ContractIssue = {
 /**
  * Cruza rotas com cobertura e devolve so o que emite finding.
  *
- * `pattern.includes(path)` e falso-negativo por natureza — `/admin/:path*` "contem" `/admin`, e a
- * fase-04 existe para trocar isso por match real via AST + path-to-regexp (PRD CA-06).
+ * `coberta` exige match DEMONSTRAVEL: toda sonda da rota tem de casar alguma regra. Regra ilegivel
+ * (`opaque`) ou match apenas parcial nao cobre e nao condena — vira `indeterminada` (PRD CA-06).
+ * A severidade segue fixa; a regra CRITICO/ALTO e da fase-05.
  */
 export function auditRouteCoverage(targetDir: string): RouteFinding[] {
   const coverage = nextjsAdapter.readCoverage(targetDir)
   const patterns = coverage.rules.flatMap((rule) => (rule.kind === 'path-pattern' ? [rule.pattern] : []))
+  const hasOpaqueRule = coverage.rules.some((rule) => rule.kind === 'opaque')
+  const findings: RouteFinding[] = []
 
-  return nextjsAdapter
-    .enumerate(targetDir)
-    .filter((route) => !patterns.some((pattern) => pattern.includes(route.path)))
-    .map((route) => ({
+  for (const route of nextjsAdapter.enumerate(targetDir)) {
+    const outcomes = patterns.map((pattern) => matchRouteAgainstPattern(route.path, pattern))
+    if (outcomes.includes('matches')) continue
+
+    if (hasOpaqueRule || outcomes.includes('partial')) {
+      findings.push({
+        route,
+        verdict: 'indeterminada',
+        severity: 'critical',
+        missing: hasOpaqueRule
+          ? 'config.matcher nao e legivel estaticamente — cobertura nao demonstravel'
+          : `nenhuma regra cobre todas as instancias de ${route.path}`,
+      })
+      continue
+    }
+
+    findings.push({
       route,
       verdict: 'DESCOBERTA',
       severity: 'critical',
       missing: `nenhuma entrada de config.matcher casa ${route.path}`,
-    }))
+    })
+  }
+
+  return findings
 }
 
 export function toContractIssue(finding: RouteFinding, index: number): ContractIssue {

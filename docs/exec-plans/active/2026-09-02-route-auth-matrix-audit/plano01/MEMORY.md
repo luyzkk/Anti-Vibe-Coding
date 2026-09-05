@@ -36,6 +36,32 @@ Formato: o que foi decidido + por que + impacto.
     embutido). O executor deve parar e esperar o dev — nunca escolher sozinho. A mesma decisao vale
     para `skills/lib/capabilities-writer.ts`, que tem o mesmo defeito (tarefa separada ja registrada).
 
+- **DI-fase04-parser (decidida pelo dev em 2026-09-04, apos o gate do Passo 0):** opcao **B** —
+  parser proprio para o subset `export const config = { matcher: [...] }`, sem
+  `@typescript-eslint/parser`.
+  - Por que: GT-fase04-1 mostrou que o parser nao resolve do cache por falta do peer `typescript`,
+    e que a versao diverge (8.69.0 do cache vs 7.18.0 do checkout). A opcao A (promover para
+    `dependencies`) arrastaria o TypeScript inteiro para runtime e ainda dependeria de um `bun
+    install` que o cache nao roda. A opcao C deixaria o adaptador Next inutil justamente no caminho
+    real de uso.
+  - Impacto: zero dependencia nova; comportamento identico no checkout e no cache; imune a
+    divergencia de versao. `extractExportedMethods` permanece no regex da fase-03 (a fase previa
+    troca-lo pelo AST — nao acontece). O Plano 04 fase-02 (Express) precisa de decisao propria: la
+    o AST e mais dificil de evitar, porque rota e chamada imperativa.
+  - `skills/lib/capabilities-writer.ts` fica FORA desta fase, como tarefa separada — decisao do dev.
+    A evidencia empirica de que ele quebra do cache esta em GT-fase04-1.
+
+- **DI-fase04-fixtures-inline:** as duas fixtures novas que a fase pedia
+  (`nextjs-matcher-lookalike/middleware.ts` e `nextjs-matcher-computed/middleware.ts`) NAO foram
+  criadas em disco. O parse do matcher foi extraido como funcao pura sobre texto
+  (`parseMatcherConfig(source)`), testada com strings inline.
+  - Por que: o TDD gate bloqueia criar `middleware.ts` (GT-fase01-1) e a regra desta execucao e
+    parar em vez de contornar trocando de ferramenta. Projetar a funcao como pura resolve sem
+    contorno — e e melhor desenho: teste de parser nao precisa de I/O.
+  - Impacto: as asserções de AB-3 e CA-06 continuam existindo e sao mais diretas (funcao pura). O
+    que se perde e a cobertura de ponta-a-ponta pelo disco nessas duas fixtures; `readNextjsCoverage`
+    continua coberto pela fixture `nextjs-minimal`, que ja existe.
+
 - **DI-fase01-ordem-red:** a fase descrevia o Passo 2 (lib) antes do Passo 3 (teste). O executor
   inverteu: teste primeiro, depois a lib como stub `return []`.
   - Por que: `hooks/tdd-gate.cjs` bloqueia criar arquivo de producao sem teste colocalizado.
@@ -102,6 +128,32 @@ Apenas gotchas que NAO eram obvios antes de implementar.
     `tests/fixtures/route-auth-matrix/nextjs-minimal/middleware.ts` afirmam que o match le "o arquivo
     inteiro como texto". Isso deixou de ser verdade na fase-02 (ver BUG-fase01-1). Corrigir junto com
     o fix do gate.
+- **GT-fase04-1: o parser NAO resolve do cache do plugin, e a causa nao e a prevista.**
+  Verificado em 2026-09-04, rodando a partir do cache (nao do checkout):
+
+  ```
+  cd "C:\Users\luizf\.claude\plugins\cache\local-plugins\anti-vibe-coding\7.7.0"
+  bun -e "import('@typescript-eslint/parser')..."
+  RESOLVE: FAIL — Cannot find package 'typescript' from
+    'C:\Users\luizf\.bun\install\cache\@typescript-eslint\parser@8.69.0@@@1\dist\index.js'
+  ```
+
+  - Descoberto em: fase-04, Passo 0 (gate que a fase manda executar antes de codar).
+  - O planejamento supunha "modulo ausente". E mais sutil: o parser **e** alcancavel pelo cache
+    global do bun, mas o peer dep `typescript` dele nao resolve dali. `import('typescript')` sozinho
+    devolve ok — o problema e o parser nao enxergar o proprio peer.
+  - **Divergencia de major:** do cache o bun resolve **8.69.0**; o checkout usa **7.18.0**, que e o
+    que o `package.json` declara (`^7.0.0`). O cache nao tem `node_modules/` nem lockfile, entao a
+    resolucao ignora o pin.
+  - **Impacto alem desta fase:** `skills/lib/capabilities-writer.ts` importa o parser
+    ESTATICAMENTE e falha igual — confirmado com o mesmo teste (`IMPORT: FAIL`, mesma mensagem).
+    Ele esta quebrado quando roda do cache, que e o caminho real de uso. O `catch` na linha 57 dele
+    so cobre erro de parse, nao modulo ausente: modulo que nao resolve lanca no load, antes de
+    qualquer catch. Nao e degradacao silenciosa, e crash.
+  - Consequencia para a decisao (DI-0b): a opcao "promover para `dependencies`" ficou mais fraca do
+    que o planejamento supunha — sem `node_modules` nem lockfile no cache, nada e instalado ali, e
+    promover mudaria so o `package.json`. E arrastaria o `typescript` inteiro para dependencia de
+    runtime, o que e desproporcional para ler um array de matcher.
 - **GT-fase01-2: `generate:manifest` mexe no `lastModified` de arquivo nao tocado.** Ele le o mtime
   do filesystem, nao o historico do git — arquivo recriado por checkout ou merge ganha data nova com
   checksum identico.
