@@ -25,7 +25,10 @@ import path from 'node:path'
 // 2026-05-16 (Luiz/dev): AST real via @typescript-eslint/parser substitui regex line-by-line.
 // Cumpre RF-MH-01 do PRD v6.3.1 (CA-01 + CA-02). Enum CapabilitySource permanece 'ast' | 'llm'
 // — D1 do PRD / D4 do ADR-0020 intacto. Auditores downstream confiam em source === 'ast'.
-import { parse } from '@typescript-eslint/parser'
+// 2026-09-05 (Luiz/dev): o import era ESTATICO e derrubava o modulo inteiro no load quando o
+// parser nao resolve — o que acontece rodando do cache do plugin, que nao tem node_modules
+// (@typescript-eslint/parser e devDependency). Nao era degradacao: era crash antes de qualquer
+// catch. Agora e `await import()` com fallback VISIVEL. Ver ADR/PRD route-auth-matrix GT-fase04-1.
 import type { TSESTree } from '@typescript-eslint/types'
 
 export type CapabilitySource = 'ast' | 'llm'
@@ -64,7 +67,37 @@ async function findRouteFiles(appDir: string): Promise<string[]> {
 
 const HTTP_VERBS = new Set(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'])
 
-function extractMethods(content: string, filePath: string): Array<{ method: string; line: number }> {
+export type ParseFn = (code: string, options: Record<string, unknown>) => TSESTree.Program
+
+/** Carrega o parser sob demanda. `null` = indisponivel — nunca lanca. */
+export type ParserLoader = () => Promise<ParseFn | null>
+
+function hasParse(mod: unknown): mod is { parse: ParseFn } {
+  return typeof mod === 'object' && mod !== null && typeof (mod as { parse?: unknown }).parse === 'function'
+}
+
+/**
+ * Loader default: `await import()` do `@typescript-eslint/parser`.
+ *
+ * Devolve `null` em vez de lancar quando o pacote nao resolve — e o caso real rodando do cache do
+ * plugin, que tem `package.json` mas nao tem `node_modules`, e onde o peer `typescript` do parser
+ * tambem nao resolve. Quem chama transforma `null` em `coverage_gaps`, nunca em silencio.
+ */
+export const defaultParserLoader: ParserLoader = async () => {
+  try {
+    const mod: unknown = await import('@typescript-eslint/parser')
+    return hasParse(mod) ? mod.parse : null
+  } catch {
+    return null
+  }
+}
+
+/** Resultado explicito: vazio por AUSENCIA de verbo e coisa diferente de vazio por falha de parse. */
+type ExtractResult =
+  | { ok: true; methods: Array<{ method: string; line: number }> }
+  | { ok: false; reason: string }
+
+function extractMethods(content: string, filePath: string, parse: ParseFn): ExtractResult {
   const found: Array<{ method: string; line: number }> = []
   const isJsx = filePath.endsWith('.tsx')
   let ast: TSESTree.Program
@@ -76,9 +109,10 @@ function extractMethods(content: string, filePath: string): Array<{ method: stri
       sourceType: 'module',
       jsx: isJsx,
     })
-  } catch {
-    // 2026-05-16 (Luiz/dev): parse error degrada silenciosamente — coverage_gaps já registra no caller
-    return found
+  } catch (error) {
+    // 2026-09-05 (Luiz/dev): antes devolvia [] e o caller registrava "no HTTP method exports found"
+    // — culpando o ARQUIVO por uma falha da FERRAMENTA. O motivo real agora sobe.
+    return { ok: false, reason: `parse falhou: ${error instanceof Error ? error.message : String(error)}` }
   }
 
   for (const node of ast.body) {
@@ -108,7 +142,7 @@ function extractMethods(content: string, filePath: string): Array<{ method: stri
     }
   }
 
-  return found
+  return { ok: true, methods: found }
 }
 
 function toApiPath(relPath: string): string {
@@ -205,11 +239,12 @@ export async function discoverMvcFlatCapabilities(
 
 export async function discoverCapabilities(
   projectRoot: string,
-  profile: string
+  profile: string,
+  opts: { loadParser?: ParserLoader } = {}
 ): Promise<CapabilitiesOutput> {
   switch (profile) {
     case 'nextjs-app-router':
-      return discoverNextjsAppRouterCapabilities(projectRoot)
+      return discoverNextjsAppRouterCapabilities(projectRoot, opts)
     case 'mvc-flat':
       return discoverMvcFlatCapabilities(projectRoot)
     default:
@@ -224,7 +259,8 @@ export async function discoverCapabilities(
 }
 
 export async function discoverNextjsAppRouterCapabilities(
-  projectRoot: string
+  projectRoot: string,
+  opts: { loadParser?: ParserLoader } = {}
 ): Promise<CapabilitiesOutput> {
   const appDir = path.join(projectRoot, 'app')
   const routeFiles = await findRouteFiles(appDir)
@@ -242,6 +278,23 @@ export async function discoverNextjsAppRouterCapabilities(
   const capabilities: Capability[] = []
   const coverage_gaps: string[] = []
 
+  const parse = await (opts.loadParser ?? defaultParserLoader)()
+  if (parse === null) {
+    // Parser indisponivel: NAO da para afirmar `source: 'ast'`, e auditores downstream confiam
+    // nesse rotulo. Entao nao devolvemos capability nenhuma — devolvemos a razao. Silencio aqui
+    // viraria "projeto sem rotas", que e uma mentira sobre o projeto.
+    return {
+      capabilities: [],
+      coverage_gaps: [
+        `@typescript-eslint/parser indisponivel — nenhuma rota pode ser derivada por AST. ` +
+          `${routeFiles.length} arquivo(s) de rota ficaram sem analise.`,
+      ],
+      generated_at: new Date().toISOString(),
+      profile_at_generation: 'nextjs-app-router',
+      schema_version: '1.0',
+    }
+  }
+
   for (const filePath of routeFiles) {
     const content = await readFile(filePath, 'utf-8').catch(() => null)
     if (content === null) {
@@ -249,8 +302,13 @@ export async function discoverNextjsAppRouterCapabilities(
       coverage_gaps.push(`${relPath} — read failed`)
       continue
     }
-    const methods = extractMethods(content, filePath)
+    const extracted = extractMethods(content, filePath, parse)
     const relPath = path.relative(projectRoot, filePath).replace(/\\/g, '/')
+    if (!extracted.ok) {
+      coverage_gaps.push(`${relPath} — ${extracted.reason}`)
+      continue
+    }
+    const methods = extracted.methods
     if (methods.length === 0) {
       coverage_gaps.push(`${relPath} — no HTTP method exports found`)
       continue
