@@ -4,11 +4,13 @@
 // disco: o TDD gate bloqueia criar `middleware.ts` (GT-fase01-1) e funcao pura dispensa I/O.
 import { describe, it, expect } from 'bun:test'
 import { join } from 'node:path'
-import { auditRouteCoverage, evaluateRoute, severityFor } from './route-auth-matrix'
+import { auditRouteCoverage, evaluateRoute, severityFor, toContractIssue } from './route-auth-matrix'
 import type { CoverageMap, Route } from './route-auth-matrix.types'
 
 const FIXTURES = join(import.meta.dir, '../../../tests/fixtures/route-auth-matrix')
 const MINIMAL = join(FIXTURES, 'nextjs-minimal')
+// 2026-09-05 (Luiz/dev): Plano 02 fase-01 — fixture da allowlist (DP-13), sem middleware.ts (G1).
+const ALLOWLIST = join(FIXTURES, 'nextjs-allowlist')
 
 const route = (over: Partial<Route>): Route => ({
   method: 'GET',
@@ -107,6 +109,8 @@ describe('auditRouteCoverage — escopo G1', () => {
     expect(findings[0]?.route.file).toBe('app/api/admin/route.ts')
     expect(findings[0]?.route.line).toBeGreaterThanOrEqual(1)
     expect(findings[0]?.missing).toContain('config.matcher')
+    // DP-14: a description tambem diz que a rota nao esta declarada publica (RF-05).
+    expect(findings.map(toContractIssue)[0]?.description).toContain('anti-vibe.public-routes.json')
   })
 
   it('CA-01b: emits high, not critical, for an uncovered GET without a marker', () => {
@@ -148,5 +152,41 @@ describe('auditRouteCoverage — escopo G1', () => {
       changedFiles: ['app/api/preferences/route.ts', 'app/api/admin/route.ts'],
     })
     expect(findings.map((f) => f.severity)).toEqual(['critical', 'high'])
+  })
+})
+
+// 2026-09-05 (Luiz/dev): Plano 02 fase-01 — allowlist consultada ANTES do motor (DP-6). evaluateRoute
+// nao muda; quem casa a allowlist nem chega nele.
+describe('auditRouteCoverage — allowlist (Plano 02)', () => {
+  it('CA-03: emits nothing and counts publica-declarada for a route declared in the allowlist', () => {
+    const { findings, summary } = auditRouteCoverage(ALLOWLIST, { changedFiles: ['app/api/health/route.ts'] })
+    expect(findings).toHaveLength(0)
+    expect(summary.publicaDeclarada).toBe(1)
+    expect(summary.allowlist.present).toBe(true)
+    expect(summary.allowlist.accepted).toBe(2)
+  })
+
+  // Sem a allowlist este POST seria critical (metodo mutante). A declaracao escrita e o que muda isso.
+  it('CA-03: a declared POST is publica-declarada, not a critical finding', () => {
+    const { findings, verdicts } = auditRouteCoverage(ALLOWLIST, { changedFiles: ['app/api/webhooks/stripe/route.ts'] })
+    expect(findings).toHaveLength(0)
+    expect(verdicts.map((v) => v.verdict)).toEqual(['publica-declarada'])
+    expect(verdicts[0]?.evidence).toContain('anti-vibe.public-routes.json:4')
+  })
+
+  it('CA-04b: a rejected entry sends the route back to the engine and lists the rejection', () => {
+    const { findings, summary } = auditRouteCoverage(ALLOWLIST, { changedFiles: ['app/api/admin/route.ts'] })
+    expect(findings.map((f) => f.severity)).toEqual(['critical'])
+    expect(summary.publicaDeclarada).toBe(0)
+    expect(summary.allowlist.rejected.map((r) => r.path)).toEqual(['/api/admin'])
+    expect(summary.allowlist.rejected[0]?.line).toBe(5)
+  })
+
+  it('reports the allowlist as absent with zero declared when the project has none', () => {
+    const { summary, allowlistFindings } = auditRouteCoverage(MINIMAL, { changedFiles: ['app/api/admin/route.ts'] })
+    expect(summary.allowlist.present).toBe(false)
+    expect(summary.publicaDeclarada).toBe(0)
+    expect(summary.allowlist.notes.join(' ')).toContain('nenhuma rota declarada publica')
+    expect(allowlistFindings).toEqual([])
   })
 })
