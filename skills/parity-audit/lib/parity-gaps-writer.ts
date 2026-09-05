@@ -2,9 +2,8 @@
 
 import { writeFile, mkdir } from 'node:fs/promises'
 import path from 'node:path'
-import { GAP_RULES, crossCapabilitiesWithUsage, type GapRule, type Severity } from './gap-rules'
+import { GAP_RULES, type GapRule, type Severity } from './gap-rules'
 import type { ToolRegistrySnapshot } from '../../lib/tool-registry-inspector'
-import type { Capability } from '../../lib/capabilities-writer'
 
 export type ParityGap = {
   gap_id: string
@@ -25,12 +24,14 @@ export type ParityGapsOutput = {
 
 const SEVERITY_RANK: Record<Severity, number> = { critical: 0, important: 1, nice: 2 }
 
+// 2026-09-05 (Luiz/dev): os parametros `capabilities?` e `projectRoot?` sairam junto com o CA-08
+// (ver gap-rules.ts). Nenhum caller os passava — `scripts/parity-audit.ts:36` chama com dois
+// argumentos —, entao os `crossGaps` eram sempre `[]`. Assinatura opcional que ninguem preenche e
+// promessa de feature, nao feature.
 export async function computeParityGaps(
   snapshot: ToolRegistrySnapshot,
   taskType: string | null,
   rules: GapRule[] = GAP_RULES,
-  capabilities?: Capability[],
-  projectRoot?: string,
 ): Promise<ParityGapsOutput> {
   const filtered = taskType ? rules.filter(r => r.task_type === taskType) : rules
 
@@ -44,12 +45,7 @@ export async function computeParityGaps(
       suggestion: rule.suggestion,
     }))
 
-  const crossGaps: ParityGap[] =
-    capabilities && projectRoot
-      ? await crossCapabilitiesWithUsage(capabilities, projectRoot)
-      : []
-
-  const gaps = [...ruleGaps, ...crossGaps].sort(
+  const gaps = [...ruleGaps].sort(
     (a, b) => SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity],
   )
 
