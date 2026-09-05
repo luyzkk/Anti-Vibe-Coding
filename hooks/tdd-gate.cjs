@@ -15,8 +15,19 @@ const path = require('path');
 
 const PRODUCTION_EXTS  = /\.(ts|tsx|js|jsx)$/;
 const TEST_PATTERN     = /\.(test|spec|e2e)\.(ts|tsx|js|jsx)$|__tests__/;
-const SKIP_PATTERN     = /\.(config\.|json$|ya?ml$|toml$|env)|\.d\.ts$|\.(md|txt|mdx|css|scss|svg|png|jpg|ico|graphql|gql|prisma|sql|mjs|cjs)$|(node_modules|dist|build|\.git|\.claude|\.next|migrations|seeds)[/\\]/;
+// 2026-09-05 (Luiz/dev): `__fixtures__|fixtures` entram no skip. Arquivo sob diretorio de fixture
+// e DADO DE TESTE, nao codigo de producao — exigir teste homonimo para ele e falso positivo, e a
+// unica saida que sobrava era criar o arquivo por outra ferramenta, o que esvazia o gate.
+// O falso positivo era assimetrico e acertava por acidente: numa fixture Next, `route.ts` passava
+// por casar NEXTJS_ROUTE_FILE, enquanto `middleware.ts` ao lado era bloqueado.
+// Isto ESTREITA o falso positivo; nao afrouxa o gate para codigo de producao.
+const SKIP_PATTERN     = /\.(config\.|json$|ya?ml$|toml$|env)|\.d\.ts$|\.(md|txt|mdx|css|scss|svg|png|jpg|ico|graphql|gql|prisma|sql|mjs|cjs)$|(node_modules|dist|build|\.git|\.claude|\.next|migrations|seeds|__fixtures__|fixtures)[/\\]/;
 // Next.js route files are structural/presentational — covered by E2E, not unit tests
+// 2026-09-05 (Luiz/dev): `middleware` foi AVALIADO e deliberadamente NAO entra aqui. E arquivo de
+// convencao do Next tanto quanto `route`, mas e onde a auth mora — e o alvo do RF-11
+// (matriz rota x middleware). Isenta-lo de teste afrouxaria o gate justamente no arquivo mais
+// sensivel de uma app Next, e a regra do repo e editar guard so para APERTAR. Fixture de
+// middleware ja e coberta pelo SKIP_PATTERN acima; producao continua exigindo teste.
 const NEXTJS_ROUTE_FILE = /(^|[/\\])(page|layout|loading|error|not-found|template|default|global-error|route)\.(ts|tsx|js|jsx)$/;
 
 function allow()        { process.exit(0); }
