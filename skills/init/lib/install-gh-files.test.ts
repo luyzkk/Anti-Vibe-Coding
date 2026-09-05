@@ -26,7 +26,31 @@ describe('installGhFiles', () => {
     const yml = await fs.readFile(path.join(FIXTURE, '.github/workflows/harness.yml'), 'utf8')
     expect(yml).toContain('bun run harness:validate')
     expect(yml).not.toContain('npm run harness:validate') // D13 — bun, nao npm
-    expect(yml).toContain('oven-sh/setup-bun@v2')
+    // 2026-09-04 (Luiz/dev): era `toContain('oven-sh/setup-bun@v2')`, que exigia a tag FLUTUANTE e
+    // por isso proibia o pin. A intencao (setup-bun v2, nao v1, nao npm) esta preservada e ficou
+    // mais forte: agora exige SHA de 40 chars com a versao no comentario.
+    expect(yml).toMatch(/oven-sh\/setup-bun@[0-9a-f]{40} # v2/)
+  })
+
+  // 2026-09-04 (Luiz/dev): o CI do proprio plugin fixa actions por SHA com o comentario
+  // "supply-chain hardening", mas o template shipado usava tags moveis — o plugin se aplicava um
+  // padrao que nao entregava. Este teste trava o alinhamento.
+  it('ships every third-party action pinned to a commit SHA', async () => {
+    await installGhFiles(FIXTURE)
+    const yml = await fs.readFile(path.join(FIXTURE, '.github/workflows/harness.yml'), 'utf8')
+    const uses = yml.match(/^\s*-?\s*uses:.*$/gm) ?? []
+    expect(uses.length).toBeGreaterThan(0)
+    for (const line of uses) {
+      expect(line).toMatch(/@[0-9a-f]{40} # v\d+/)
+    }
+  })
+
+  it('ships a least-privilege permissions block and a timeout', async () => {
+    await installGhFiles(FIXTURE)
+    const yml = await fs.readFile(path.join(FIXTURE, '.github/workflows/harness.yml'), 'utf8')
+    // Sem `permissions`, o job herda o default do repo — `contents: write` em repos antigos.
+    expect(yml).toMatch(/permissions:\s*\n\s*contents:\s*read/)
+    expect(yml).toMatch(/timeout-minutes:\s*\d+/)
   })
 
   it('PR template uses bun in checklist (no npm leftovers)', async () => {
