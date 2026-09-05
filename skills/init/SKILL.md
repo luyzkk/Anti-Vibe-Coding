@@ -41,23 +41,45 @@ A tabela abaixo eh **documentacao gerada a mao**. A fonte de verdade do runtime 
 
 | # | ID | Quando roda | Helper(s) | Args/Flags |
 |---|----|----|----|----|
-| 1 | `detect-legacy` | sempre | `detect-v5-legacy.ts` | — |
-| 2 | `reuse-discovery` | sempre | `parse-refresh-flag.ts` | `--refresh`, `--reuse-discovery` |
-| 3 | `migrate-0-parse-dry-run` | sempre | inline parse | `--dry-run` |
-| 4 | `migrate-all-orchestrate` | se `--dry-run` (early-exit) | `migrate-orchestrator.ts`, `dry-run-renderer.ts` | `--dry-run` |
-| 5 | `migrate-1-backup` | se `detect-legacy.isLegacy` | `backup-planning.ts` | — |
-| 6 | `migrate-2-planning` | apos backup OK | `migrate-planning.ts` | — |
-| 7 | `migrate-3-lessons` | apos migrate-2 OK | `migrate-lessons.ts` | — |
-| 8 | `migrate-4-decisions` | apos migrate-2 OK | `migrate-decisions.ts` | — |
-| 9 | `scaffold-full-tree` | sempre | `scaffold-templates.ts`, `scaffold-full-tree.ts`, `scaffold-todo-md.ts` | — |
-| 10 | `link-claude-agents` | sempre | `symlink-fallback.ts` (3 tiers) | — |
-| 11 | `detect-stack-and-register` | sempre | `detect-stack.ts`, `state-md-init.ts` | — |
-| 12 | `persist-stack-knowledge` | sempre (idempotente) | `run-stack-knowledge-init.ts` | `--refresh-knowledge` |
-| 13 | `customize-architecture` | apos detect-stack | `customize-architecture.ts` | — |
-| 14 | `install-gh-files` | sempre (D14) | `install-gh-files.ts` | — |
-| 15 | `delivery-loop` | opcional opt-in (Step 6) | `inject-optional-section.ts` + `assets/snippets/delivery-loop.md` | resposta `y`/`N` |
-| 16 | `capabilities-discovery` | soft-fail se profile ausente | `capabilities-writer.ts`, `read-architecture-profile.ts`, `audit-log.ts` | — |
-| 17 | `final-validation` | sempre, ultimo | `scripts/harness-validate.ts` | — |
+| 1 | `reentry-gate` | sempre | inline (le `.claude/.anti-vibe-manifest.json`) | — |
+| 2 | `detect-legacy-and-stack` | sempre | `detect-v5-legacy.ts`, `detect-stack.ts` | — |
+| 3 | `03-secrets-scan` | sempre | `secrets-scanner.ts`, `discovery-store.ts`, `init-subagent-ids.ts`, `audit-log.ts` | — |
+| 4 | `migrate-planning-and-manifest` | sempre (no-op se nao ha legacy) | `migrate-planning.ts`, `detect-stack.ts`, `detect-v5-legacy.ts` | — |
+| 5 | `05-scaffold-and-link` | sempre | `detect-project-name.ts`, `scaffold-full-tree.ts`, `symlink-fallback.ts` | — |
+| 5b | `inject-harness-scripts` | se `package.json` existe | inline (merge de scripts) | — |
+| 6 | `06-install-gh-files` | sempre (D14) | `install-gh-files.ts` | — |
+| 7 | `generate-populate-plans` | sempre | `populate-plan-generator.ts`, `detect-stack.ts` | — |
+| 8 | `delivery-loop` | opcional, opt-in | `inject-optional-section.ts` + `assets/snippets/delivery-loop.md` | resposta `y`/`N` |
+| 9 | `copy-knowledge` | se stack detectada | `run-stack-knowledge-init.ts` | — |
+| 10 | `final-validation` | sempre | `validator-allowlist.ts`, `scripts/harness-validate.ts` | — |
+| 11 | `write-anti-vibe-manifest` | sempre, ultimo | `read-plugin-version.ts`, `manifest-writer.ts` | — |
+
+<!-- 2026-09-05 (Luiz/dev): tabela reescrita a partir de `lib/registry.ts`. A anterior descrevia o
+     pipeline v6 e sobreviveu ao refactor init-v7 sem ser atualizada: das 17 linhas, ~14 nomeavam
+     steps que o commit 6dd3b36 deletou ou fundiu, e CINCO steps reais (`03-secrets-scan`,
+     `generate-populate-plans`, `write-anti-vibe-manifest`, `inject-harness-scripts`,
+     `copy-knowledge`) nao apareciam uma unica vez.
+
+     Removidos com justificativa rastreavel (regra "nunca diminuir" — cada linha tem o porque):
+     - `capabilities-discovery`  -> D5 do init-refactor-v7: "Remover — nao queremos essa
+       complexidade" (CONTEXT.md linha 43, origem dev). `capabilities-writer.ts` segue no repo,
+       marcado como nao-ligado; nao ha step que o chame.
+     - `migrate-0-parse-dry-run`, `migrate-all-orchestrate` -> D4 (dry-run removido).
+     - `reuse-discovery` -> D3/D5; o helper `reuse-discovery.ts` tambem ficou fora do registry.
+     - `migrate-1-backup`, `migrate-3-lessons`, `migrate-4-decisions` -> deletados em 6dd3b36
+       (AUDIT.md: "Steps 100% obsoletos"); o que sobrou virou `migrate-planning-and-manifest`.
+     - `detect-legacy` + `detect-stack-and-register` -> fundidos em `detect-legacy-and-stack`.
+     - `scaffold-full-tree` + `link-claude-agents` -> fundidos em `05-scaffold-and-link`.
+     - `customize-architecture` -> deletado em 6dd3b36 (D11: ARCHITECTURE.md passa a ser
+       populate-plan individual, gerado pelo Step 7).
+     - `persist-stack-knowledge` -> renomeado `copy-knowledge`.
+
+     Os ids com prefixo numerico (`05-scaffold-and-link`, `06-install-gh-files`) estao assim no
+     codigo; a tabela copia o id real em vez de normalizar. -->
+
+> **Nota de manutencao.** Esta tabela ja carregava o aviso "se divergirem, o registry vence" e
+> mesmo assim ficou ~4 meses descrevendo um pipeline que nao existia. Aviso de divergencia nao
+> substitui conferir: ao mexer no registry, atualize esta tabela no mesmo commit.
 
 ## Referencias
 

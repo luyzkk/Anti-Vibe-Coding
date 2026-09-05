@@ -1,5 +1,6 @@
 {
   "mode": "regex",
+  "bash_path": "on",
   "suggest_ai_judge_threshold": 3,
   "max_tests_per_cycle": 1,
   "immutable_test_patterns": [
