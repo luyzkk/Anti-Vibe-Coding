@@ -1,3 +1,25 @@
+// 2026-09-05 (Luiz/dev): ESTE MODULO NAO ESTA LIGADO A NENHUM CAMINHO DE PRODUCAO.
+//
+// O step que o chamava (`15-capabilities-discovery`) foi deletado no commit 6dd3b36 por decisao
+// D5 do init-refactor-v7 — "Remover — nao queremos essa complexidade", origem dev. O AUDIT.md
+// daquele plano classifica os tres behaviors do step como obsoletos e o lista entre os
+// "Steps 100% obsoletos". Nao foi perda acidental no corte de 18 steps: foi remocao deliberada.
+//
+// Estado hoje:
+//   - nenhum step do `skills/init/lib/registry.ts` importa este arquivo;
+//   - os unicos importadores fora de teste sao `import type { Capability }` em
+//     `skills/parity-audit/lib/{gap-rules,parity-gaps-writer}.ts` — apagados na compilacao;
+//   - `discovery/capabilities.json` nao e escrito por nada no repo. Os blocos
+//     `stale-capabilities-check` em 7 SKILL.md leem esse arquivo e, por design (G6), ficam
+//     silenciosos quando ele falta — entao a ausencia nunca aparece.
+//
+// Mantido, e nao deletado, porque o unico consumidor potencial e o CA-08 do `parity-audit`
+// (`crossCapabilitiesWithUsage`): `writeParityGaps` aceita `capabilities?: Capability[]`, mas
+// `scripts/parity-audit.ts` nunca as passa. Deletar aqui obrigaria a decidir o destino daquele
+// CA-08 tambem, e D5 nunca tratou disso.
+//
+// Antes de reutilizar: ligue um chamador de verdade, ou o resultado continua nao chegando a lugar
+// nenhum. Antes de deletar: decida o CA-08 do parity-audit junto.
 import { readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 // 2026-05-16 (Luiz/dev): AST real via @typescript-eslint/parser substitui regex line-by-line.
