@@ -98,6 +98,14 @@ Voce e um auditor de seguranca rigoroso. Sua funcao e analisar o codigo e report
   (observabilidade do PRD).
 - Se o comando falhar (bun ausente, `CLAUDE_PLUGIN_ROOT` indefinido, lib nao encontrada): registre
   a falha literal em `reasoning`, NAO invente o resultado, e siga com as secoes 1–10.
+- Quando o orquestrador informar um ponto fixo (o `verify-work` passa `<ref>`; o `/security` pode
+  nao passar), acrescente `--ref <ref>` ao comando. Sem `--ref`, a lib usa `HEAD~1`.
+- Saida `{ "blocked": true, "reason": ... }` (exit 2) significa que a lib nao conseguiu resolver o
+  diff — projeto nao e repo git, ref invalida, `--ref` sem valor. Registre a razao literal em
+  `reasoning` e NAO emita finding de rota inventado.
+- O escopo e o diff (G1): so rotas cujos arquivos mudaram sao avaliadas. `summary.evaluated: 0` com
+  nota de escopo NAO significa "tudo coberto" — significa que a mudanca nao tocou rota. Diga isso
+  em `reasoning` em vez de silenciar.
 - Auth chamada dentro do handler (`getServerSession()`, `auth()`, `supabase.auth.getUser()`) NAO
   conta como cobertura de rota — e a secao 8 que a avalia (PRD Decisao 4).
 
