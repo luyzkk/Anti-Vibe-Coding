@@ -3,7 +3,7 @@
 **Plan:** ./PLAN.md
 **Phase:** in-progress
 **Current Plan:** 02/4
-**Last Updated:** 2026-09-04
+**Last Updated:** 2026-09-05
 
 ## Progress por Plano
 
@@ -29,3 +29,4 @@ Fases done: 5/16 (31%)
 - 2026-09-04: fase-03 (enumeracao App Router) concluida no commit 8ada239. Fixture ampliada de 1 para 6 rotas; adaptador movido para route-auth-nextjs.ts. Suite 1911 pass / 0 fail. Proxima: fase-04, que PARA no Passo 0 para decisao do dev sobre o parser (DI-0b).
 - 2026-09-04: fase-04 (match real do matcher) concluida no commit 15f7464. Gate do Passo 0 disparou: parser nao resolve do cache (GT-fase04-1); dev escolheu parser proprio (DI-fase04-parser). Zero dependencia nova. Suite 1933 pass / 0 fail. Falta so a fase-05 (regra de severidade + escopo G1 pelo diff).
 - 2026-09-04: fase-05 (motor de veredito + severidade por regra + escopo G1) concluida no commit f5af441. PLANO 01 COMPLETO (5/5). Suite 1947 pass / 0 fail; agents:contract 39 pass; os 4 CAs verdes. Contrato congelado e handoff escrito em plano01/MEMORY.md secao 'Notas para Planos Seguintes'. Proximo: Plano 02 (allowlist), que encaixa ANTES do evaluateRoute.
+- 2026-09-05: Plano 02 detalhado via /plan-feature (3 fases, ~4h; o PLAN.md dizia ~3h e foi corrigido). 14 decisoes de planejamento (DP-1..DP-14) fixadas em plano02/README.md. DP-11 e DP-12 refinadas com evidencia do codebase: needs_human faria o consolidador do verify-work descartar as issues, entao CA-07 usa complete + request_changes + bloco destacado. Gate do cache do plugin esta defasado (sem fixtures/ no SKIP_PATTERN): fixtures deste plano nao tem middleware.ts por desenho.
