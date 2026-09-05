@@ -1,6 +1,6 @@
 {
   "version": "7.7.0",
-  "generatedAt": "2026-09-05T00:07:42.998Z",
+  "generatedAt": "2026-09-05T21:35:54.309Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -373,8 +373,8 @@
     },
     "hooks/hooks.json": {
       "version": "7.7.0",
-      "checksum": "88287837bef9005bd917b9483822f92edf49dce07459b2521635c260ca9fae68",
-      "lastModified": "2026-09-01",
+      "checksum": "62e942de02fb4b57b166127d3b7018ce6da980ad6c286c7f1004ccd4f48b3641",
+      "lastModified": "2026-09-05",
       "updateStrategy": "replace"
     },
     "hooks/pre-mutation-gate.cjs": {
@@ -413,10 +413,16 @@
       "lastModified": "2026-05-20",
       "updateStrategy": "replace"
     },
+    "hooks/tdd-gate-bash.cjs": {
+      "version": "7.7.0",
+      "checksum": "dcb340f82bad9b7f07c9524dd6ab94acd10e66403b67606989102f7261c152f0",
+      "lastModified": "2026-09-05",
+      "updateStrategy": "replace"
+    },
     "hooks/tdd-gate.cjs": {
       "version": "7.7.0",
-      "checksum": "079f33ecc71d207d6ad880b90f7bb0a4af3a73de7ee753115a24def1a67a99cf",
-      "lastModified": "2026-05-05",
+      "checksum": "7370b413f2dc3f41ca76e9d2188ce280e2a825a3a825272ffd84413642777bb5",
+      "lastModified": "2026-09-05",
       "updateStrategy": "replace"
     },
     "hooks/user-prompt-gate.cjs": {
@@ -458,7 +464,7 @@
     "agents/dependency-auditor.md": {
       "version": "7.7.0",
       "checksum": "d3aa4c14705d0bf529fbd03207796f40da2c68025458649edb21dfc22e1bcc83",
-      "lastModified": "2026-09-04",
+      "lastModified": "2026-09-05",
       "updateStrategy": "replace"
     },
     "agents/design-explorer.md": {
@@ -553,8 +559,8 @@
     },
     "config/tdd-gate.json": {
       "version": "7.7.0",
-      "checksum": "6d70c87aee04b2a21b16768b6be2d578c90839139b5513939441b088c7928362",
-      "lastModified": "2026-04-08",
+      "checksum": "46a0e223c2ee6939f058bc16d19809552e6c6ddf6e467978b6262bd0cd79fa43",
+      "lastModified": "2026-09-05",
       "updateStrategy": "replace"
     },
     "config/verify-work.json": {
@@ -1195,8 +1201,8 @@
     },
     "skills/init/SKILL.md": {
       "version": "7.7.0",
-      "checksum": "dfa03eaa8825d014b9684984374eb5c86d06ad0faae91811001926d1a15945fd",
-      "lastModified": "2026-08-13",
+      "checksum": "fb1eec565f67b85eda79e8eb554eb83b2c29dfcd75afafeb1e4d2d0831f9ab88",
+      "lastModified": "2026-09-05",
       "updateStrategy": "replace"
     },
     "skills/init/lib/atoms-frontmatter-validator.ts": {
@@ -2191,8 +2197,8 @@
     },
     "skills/lib/capabilities-writer.ts": {
       "version": "7.7.0",
-      "checksum": "97cf7d00e59a9b1b4080a5a561ae0543732a1e6273105a1e3e7bc4a0b9589b11",
-      "lastModified": "2026-05-16",
+      "checksum": "7e10416ebee0d8f1a5e3efff72eb552b031b705feb2395997f91faadef483def",
+      "lastModified": "2026-09-05",
       "updateStrategy": "replace"
     },
     "skills/lib/completion-signal.ts": {
@@ -2630,7 +2636,7 @@
     "skills/security/lib/route-auth-matrix.types.ts": {
       "version": "7.7.0",
       "checksum": "31b385b7dd7321723daadc02d5e1f16de99f7913968355a1d0f09d4389ca0f53",
-      "lastModified": "2026-09-04",
+      "lastModified": "2026-09-05",
       "updateStrategy": "replace"
     },
     "skills/security/lib/route-auth-nextjs.ts": {
