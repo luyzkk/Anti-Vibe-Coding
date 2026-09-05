@@ -85,11 +85,36 @@ export interface RouteAdapter {
   readCoverage(targetDir: string): CoverageMap
 }
 
+// 2026-09-05 (Luiz/dev): Plano 02 — allowlist versionada (PRD RF-02, Decisoes 3 e 7). Tudo aditivo:
+// o contrato de Route/CoverageRule/RouteFinding esta congelado desde a fase-02 do Plano 01.
+
+/** Entrada ACEITA. `file`/`line` apontam para a declaracao — RF-05 vale para ela tambem. */
+export type AllowlistEntry = { path: string; reason: string; file: string; line: number }
+
+/** Entrada recusada pelo parser (DP-4). Sem finding proprio: a rota volta ao motor (CA-04b). */
+export type RejectedEntry = { path?: string; line: number; reason: string }
+
+/**
+ * Finding sobre a PROPRIA allowlist — nao ha `route`, por isso nao e RouteFinding (DP-9).
+ * Nesta fase o tipo existe e ninguem o produz: `AuditResult.allowlistFindings` e sempre `[]`.
+ * A fase-02 (DP-3) passa a produzi-lo para entrada ampla; declarar aqui faz o RED dela ser
+ * assertion (`Expected length: 1, Received length: 0`), nao erro de compilacao.
+ */
+export type AllowlistFinding = { path: string; file: string; line: number; severity: IssueSeverity; description: string }
+
+export type AllowlistParseResult = {
+  entries: AllowlistEntry[]
+  rejected: RejectedEntry[]
+  /** Fase-02 preenche. Aqui sempre `[]`. */
+  wide: AllowlistFinding[]
+  notes: string[]
+}
+
 // ---------------------------------------------------------------------------
 // Type guards — o repo proibe `as`; quem recebe `unknown` (JSON da CLI, fixture) estreita por aqui.
 // ---------------------------------------------------------------------------
 
-function isRecord(value: unknown): value is Record<string, unknown> {
+export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
 }
 

@@ -1,7 +1,8 @@
 // 2026-09-04 (Luiz/dev): motor de veredito, regra de severidade e escopo G1 — Plano 01 fase-05.
 // A enumeracao e a leitura de cobertura vivem no adaptador nativo da stack; aqui fica a decisao.
 import type { IssueSeverity } from '../../lib/subagent-contract'
-import type { CoverageMap, CoverageRule, Route, RouteFinding, RouteVerdict } from './route-auth-matrix.types'
+import { PUBLIC_ROUTES_FILE, matchAllowlist, readPublicRoutes } from './public-routes-allowlist'
+import type { AllowlistFinding, CoverageMap, CoverageRule, RejectedEntry, Route, RouteFinding, RouteVerdict } from './route-auth-matrix.types'
 import { matchRouteAgainstPattern, nextjsAdapter } from './route-auth-nextjs'
 
 /** Item exatamente no shape de `AuditContractV2['payload']['issues'][number]`. */
@@ -97,18 +98,35 @@ export type AuditOptions = {
   coverageOverride?: CoverageMap
 }
 
+export type AllowlistSummary = {
+  file: string
+  present: boolean
+  accepted: number
+  rejected: RejectedEntry[]
+  wide: number          // fase-02 preenche; aqui 0
+  notes: string[]
+}
+
 export type AuditSummary = {
   enumerated: number
   evaluated: number
   coberta: number
+  publicaDeclarada: number   // novo (DP-8)
   descoberta: number
   indeterminada: number
   scope: 'diff'
   sources: string[]
   notes: string[]
+  allowlist: AllowlistSummary // novo (DP-8)
 }
 
-export type AuditResult = { findings: RouteFinding[]; verdicts: RouteVerdict[]; summary: AuditSummary }
+export type AuditResult = {
+  findings: RouteFinding[]
+  /** DP-9. Sempre `[]` nesta fase — a fase-02 produz para entrada ampla. */
+  allowlistFindings: AllowlistFinding[]
+  verdicts: RouteVerdict[]
+  summary: AuditSummary
+}
 
 const SEVERITY_ORDER: Readonly<Record<string, number>> = { critical: 0, high: 1, medium: 2, low: 3 }
 
@@ -132,7 +150,17 @@ export function auditRouteCoverage(targetDir: string, opts: AuditOptions): Audit
     notes.push('escopo G1 sem rotas: o diff nao tocou arquivo de rota (cobertura perdida e o Plano 03)')
   }
 
-  const verdicts = evaluated.map((route) => evaluateRoute(route, coverage))
+  const allowlist = readPublicRoutes(targetDir)
+
+  // 2026-09-05 (Luiz/dev): DP-6 — allowlist ANTES do motor (PRD Decisao 3: coberta OU publica declarada).
+  // evaluateRoute nunca produz `publica-declarada`; quem casa a allowlist nem chega nele.
+  const verdicts = evaluated.map((route): RouteVerdict => {
+    const declared = matchAllowlist(route, allowlist.entries)
+    if (declared !== null) {
+      return { route, verdict: 'publica-declarada', evidence: `${declared.file}:${declared.line} declara publica — ${declared.reason}` }
+    }
+    return evaluateRoute(route, coverage)
+  })
 
   const findings: RouteFinding[] = verdicts
     .filter((v) => v.verdict === 'DESCOBERTA')
@@ -150,16 +178,26 @@ export function auditRouteCoverage(targetDir: string, opts: AuditOptions): Audit
 
   return {
     findings,
+    allowlistFindings: [],
     verdicts,
     summary: {
       enumerated: routes.length,
       evaluated: evaluated.length,
       coberta: verdicts.filter((v) => v.verdict === 'coberta').length,
+      publicaDeclarada: verdicts.filter((v) => v.verdict === 'publica-declarada').length,
       descoberta: verdicts.filter((v) => v.verdict === 'DESCOBERTA').length,
       indeterminada: verdicts.filter((v) => v.verdict === 'indeterminada').length,
       scope: 'diff',
       sources: coverage.sources,
       notes,
+      allowlist: {
+        file: PUBLIC_ROUTES_FILE,
+        present: allowlist.present,
+        accepted: allowlist.entries.length,
+        rejected: allowlist.rejected,
+        wide: allowlist.wide.length,
+        notes: allowlist.notes,
+      },
     },
   }
 }
@@ -172,7 +210,7 @@ export function toContractIssue(finding: RouteFinding, index: number): ContractI
     line: finding.route.line,
     description:
       `${finding.verdict}: ${finding.route.method} ${finding.route.path} ` +
-      `(${finding.route.file}:${finding.route.line}) sem cobertura de middleware — ${finding.missing}`,
+      `(${finding.route.file}:${finding.route.line}) sem cobertura de middleware e nao declarada publica em ${PUBLIC_ROUTES_FILE} — ${finding.missing}`,
   }
 }
 
