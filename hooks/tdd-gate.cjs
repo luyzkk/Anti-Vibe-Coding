@@ -13,22 +13,12 @@
 const fs = require('fs');
 const path = require('path');
 
-const PRODUCTION_EXTS  = /\.(ts|tsx|js|jsx)$/;
-const TEST_PATTERN     = /\.(test|spec|e2e)\.(ts|tsx|js|jsx)$|__tests__/;
-// 2026-09-05 (Luiz/dev): `__fixtures__|fixtures` entram no skip. Arquivo sob diretorio de fixture
-// e DADO DE TESTE, nao codigo de producao — exigir teste homonimo para ele e falso positivo, e a
-// unica saida que sobrava era criar o arquivo por outra ferramenta, o que esvazia o gate.
-// O falso positivo era assimetrico e acertava por acidente: numa fixture Next, `route.ts` passava
-// por casar NEXTJS_ROUTE_FILE, enquanto `middleware.ts` ao lado era bloqueado.
-// Isto ESTREITA o falso positivo; nao afrouxa o gate para codigo de producao.
-const SKIP_PATTERN     = /\.(config\.|json$|ya?ml$|toml$|env)|\.d\.ts$|\.(md|txt|mdx|css|scss|svg|png|jpg|ico|graphql|gql|prisma|sql|mjs|cjs)$|(node_modules|dist|build|\.git|\.claude|\.next|migrations|seeds|__fixtures__|fixtures)[/\\]/;
-// Next.js route files are structural/presentational — covered by E2E, not unit tests
-// 2026-09-05 (Luiz/dev): `middleware` foi AVALIADO e deliberadamente NAO entra aqui. E arquivo de
-// convencao do Next tanto quanto `route`, mas e onde a auth mora — e o alvo do RF-11
-// (matriz rota x middleware). Isenta-lo de teste afrouxaria o gate justamente no arquivo mais
-// sensivel de uma app Next, e a regra do repo e editar guard so para APERTAR. Fixture de
-// middleware ja e coberta pelo SKIP_PATTERN acima; producao continua exigindo teste.
-const NEXTJS_ROUTE_FILE = /(^|[/\\])(page|layout|loading|error|not-found|template|default|global-error|route)\.(ts|tsx|js|jsx)$/;
+// 2026-09-05 (Luiz/dev): os padroes e a busca por teste moram em `lib/tdd-decision.cjs`, para o
+// caminho Bash (`tdd-gate-bash.cjs`) decidir pela MESMA regra. Duas copias divergentes seriam
+// piores que o bypass que motivou a extracao: o dev aprenderia que a mesma escrita passa ou nao
+// dependendo da ferramenta. As justificativas de cada padrao (fixtures no skip, `middleware`
+// deliberadamente FORA do NEXTJS_ROUTE_FILE) estao la, junto do codigo que as aplica.
+const { needsTest, basenameFor } = require('./lib/tdd-decision.cjs');
 
 function allow()        { process.exit(0); }
 function block(reason)  {
@@ -89,25 +79,7 @@ function isImmutableTest(filePath, config, phaseData) {
   return false;
 }
 
-/** Busca recursiva por arquivo de teste que contenha `basename` no nome. */
-function findTestFile(dir, basename) {
-  if (!fs.existsSync(dir)) return false;
-  try {
-    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-      if (entry.name === 'node_modules' || entry.name === 'dist') continue;
-      const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) {
-        if (findTestFile(full, basename)) return true;
-      } else if (
-        TEST_PATTERN.test(entry.name) &&
-        entry.name.toLowerCase().includes(basename.toLowerCase())
-      ) {
-        return true;
-      }
-    }
-  } catch { /* ignore permission errors */ }
-  return false;
-}
+// `findTestFile` vive em `lib/tdd-decision.cjs`, junto de `needsTest`.
 
 // Safety timeout: exit allow after 5s if stdin never closes (Windows pipe issue)
 const safetyTimer = setTimeout(() => allow(), 5000);
@@ -154,44 +126,9 @@ function processInput() {
       return allow(); // Write to new test file: allowed in GREEN
     }
 
-    if (TEST_PATTERN.test(filePath))      return allow();
-    if (SKIP_PATTERN.test(filePath))      return allow();
-    if (!PRODUCTION_EXTS.test(filePath))  return allow();
-    if (NEXTJS_ROUTE_FILE.test(filePath)) return allow();
+    if (!needsTest(filePath, process.cwd())) return allow();
 
-    const basename = path.basename(filePath).replace(PRODUCTION_EXTS, '');
-    const cwd      = process.cwd();
-
-    // 1. Busca nos diretórios de teste padrão
-    const testDirs = ['src/test', 'src/__tests__', 'test', '__tests__', 'tests'];
-    for (const dir of testDirs) {
-      if (findTestFile(path.join(cwd, dir), basename)) return allow();
-    }
-
-    // 2. Busca co-localizada (mesmo diretório do arquivo)
-    // Use path.resolve (not path.join) — absolute filePath + cwd mismatch on Windows
-    // produces invalid hybrid path like `cwd\F:\...` that fs.existsSync rejects.
-    const sameDir   = path.resolve(cwd, path.dirname(filePath));
-    const colocated = [
-      path.join(sameDir, `${basename}.test.ts`),
-      path.join(sameDir, `${basename}.test.tsx`),
-      path.join(sameDir, `${basename}.test.js`),
-      path.join(sameDir, `${basename}.test.jsx`),
-      path.join(sameDir, `${basename}.spec.ts`),
-      path.join(sameDir, `${basename}.spec.tsx`),
-      path.join(sameDir, `${basename}.spec.js`),
-      path.join(sameDir, `${basename}.spec.jsx`),
-      path.join(sameDir, `${basename}.e2e.ts`),
-      path.join(sameDir, `${basename}.e2e.tsx`),
-      path.join(sameDir, `${basename}.e2e.js`),
-      path.join(sameDir, `${basename}.e2e.jsx`),
-      path.join(sameDir, '__tests__', `${basename}.test.ts`),
-      path.join(sameDir, '__tests__', `${basename}.test.tsx`),
-      path.join(sameDir, '__tests__', `${basename}.test.js`),
-    ];
-    if (colocated.some(p => { try { return fs.existsSync(p); } catch { return false; } })) {
-      return allow();
-    }
+    const basename = basenameFor(filePath);
 
     block(
       `TDD GATE: Nenhum teste encontrado para "${basename}". ` +
