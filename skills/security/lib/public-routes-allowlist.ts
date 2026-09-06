@@ -139,3 +139,11 @@ export function matchAllowlist(route: Route, entries: AllowlistEntry[]): Allowli
   const target = normalizePath(route.path)
   return entries.find((entry) => normalizePath(entry.path) === target) ?? null
 }
+
+/** Delta por path normalizado (DP-2). Edicao so de `reason` nao aparece aqui — `changed: true` ja a sinaliza. */
+export function diffAllowlist(before: AllowlistEntry[], after: AllowlistEntry[]): { added: AllowlistEntry[]; removed: AllowlistEntry[] } {
+  const key = (e: AllowlistEntry): string => normalizePath(e.path)
+  const beforeKeys = new Set(before.map(key))
+  const afterKeys = new Set(after.map(key))
+  return { added: after.filter((e) => !beforeKeys.has(key(e))), removed: before.filter((e) => !afterKeys.has(key(e))) }
+}

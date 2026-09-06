@@ -126,6 +126,23 @@ export function isVerdict(value: unknown): value is Verdict {
   return typeof value === 'string' && VERDICTS.some((verdict) => verdict === value)
 }
 
+// 2026-09-05 (Luiz/dev): DP-11 refinada (MEMORY DEV-plan-2). Tres estados porque a DP exige tres
+// consequencias: encontrado → diff real; ausente na base → tudo `added` com before 'resolved';
+// indisponivel → before 'unavailable' + reason. Um `string | null` nao distingue os dois ultimos, e
+// o Plano 03 reusa este seam para `middleware.ts` — nao pode devolver um literal de allowlist vazia.
+export type BaseRead =
+  | { status: 'found'; source: string }
+  | { status: 'absent' }
+  | { status: 'unavailable'; reason: string }
+
+export type AllowlistDelta = {
+  before: 'resolved' | 'unavailable'
+  added: AllowlistEntry[]
+  /** `file`/`line` apontam para a versao NA BASE — a entrada nao existe mais no HEAD. */
+  removed: AllowlistEntry[]
+  reason?: string
+}
+
 export function isRoute(value: unknown): value is Route {
   if (!isRecord(value)) return false
   const { method, path, file, line, stack, handler } = value
