@@ -1,0 +1,7 @@
+{
+  "routes": [
+    { "path": "/api/health", "reason": "probe do load balancer - sem sessao por definicao" },
+    { "path": "/api/webhooks/stripe", "reason": "webhook assinado pelo Stripe; assinatura verificada no handler" },
+    { "path": "/api/admin" }
+  ]
+}
