@@ -1,6 +1,6 @@
 {
   "version": "7.7.0",
-  "generatedAt": "2026-09-05T23:59:34.168Z",
+  "generatedAt": "2026-09-06T00:21:38.862Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -511,8 +511,8 @@
     },
     "agents/security-auditor.md": {
       "version": "7.7.0",
-      "checksum": "f736eda57fe319c3897418ca03a14ed034dc066dc69a59ca9445e6a7a44a6644",
-      "lastModified": "2026-09-05",
+      "checksum": "3d2e39838a21264ba9dc9346a982cd3cdbb468adba43c8528b1aff3c29b764f6",
+      "lastModified": "2026-09-06",
       "updateStrategy": "replace"
     },
     "agents/solid-auditor.md": {
@@ -2611,20 +2611,20 @@
     },
     "skills/security/lib/public-routes-allowlist.ts": {
       "version": "7.7.0",
-      "checksum": "d56d7ba91c0940aed45ac2ac2bcedfe98c210111125f01e3e9b00ba67e89688e",
-      "lastModified": "2026-09-05",
+      "checksum": "9fc9437a0c5947d8953b33bdaaa8c97f1cdb19ae793f01ab91d878817935bd4a",
+      "lastModified": "2026-09-06",
       "updateStrategy": "replace"
     },
     "skills/security/lib/route-auth-matrix.ts": {
       "version": "7.7.0",
-      "checksum": "e2985dd2d7d17ffe8d7983bc9125e5963bd213ffb21df6b91df54b9b3852ae53",
-      "lastModified": "2026-09-05",
+      "checksum": "67e96c65e3d8ec1db9bb306c35ca17308540b9111302d1984ef26e0b3fdda39e",
+      "lastModified": "2026-09-06",
       "updateStrategy": "replace"
     },
     "skills/security/lib/route-auth-matrix.types.ts": {
       "version": "7.7.0",
-      "checksum": "a2e7637cdba9866c00285bfcdb46ebf5fc3ea9b03848bed17610bebfd86ecbeb",
-      "lastModified": "2026-09-05",
+      "checksum": "810b078f201da403691ad340434eee3962e1d6debccb90e8fc8ba79276395ca4",
+      "lastModified": "2026-09-06",
       "updateStrategy": "replace"
     },
     "skills/security/lib/route-auth-nextjs.ts": {
@@ -2797,8 +2797,8 @@
     },
     "skills/verify-work/SKILL.md": {
       "version": "7.7.0",
-      "checksum": "6b53fca7247d4297df615fa8039e2bc53a65bd73bfa3f6a321877244eb7396e6",
-      "lastModified": "2026-09-01",
+      "checksum": "31f37f1152fac34cba3be86ddd0745bb8d75dcf2c62199c8b7b9880731803262",
+      "lastModified": "2026-09-06",
       "updateStrategy": "replace"
     },
     "skills/verify-work/lib/adherence-checks.ts": {

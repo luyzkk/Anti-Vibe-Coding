@@ -3,8 +3,8 @@
 // DI-fase04-fixtures-inline): teste de parser nao precisa de I/O; a fixture em disco cobre so readPublicRoutes.
 import { describe, it, expect } from 'bun:test'
 import { join } from 'node:path'
-import { PUBLIC_ROUTES_FILE, isWideEntry, matchAllowlist, normalizePath, parsePublicRoutes, readPublicRoutes } from './public-routes-allowlist'
-import type { Route } from './route-auth-matrix.types'
+import { PUBLIC_ROUTES_FILE, diffAllowlist, isWideEntry, matchAllowlist, normalizePath, parsePublicRoutes, readPublicRoutes } from './public-routes-allowlist'
+import type { AllowlistEntry, Route } from './route-auth-matrix.types'
 
 const FIXTURES = join(import.meta.dir, '../../../tests/fixtures/route-auth-matrix')
 const FILE = PUBLIC_ROUTES_FILE
@@ -145,5 +145,20 @@ describe('parsePublicRoutes — amplitude e duplicata', () => {
     const result = parsePublicRoutes(src([{ path: '/api/health', reason: 'a' }, { path: '/api/health/', reason: 'b' }]), FILE)
     expect(result.entries).toHaveLength(1)
     expect(result.rejected).toHaveLength(1)
+  })
+})
+
+describe('diffAllowlist (delta por path normalizado)', () => {
+  const entry = (path: string, line: number): AllowlistEntry => ({ path, reason: 'r', file: FILE, line })
+  it('returns added and removed entries keyed by path', () => {
+    const { added, removed } = diffAllowlist([entry('/a', 3), entry('/b', 4)], [entry('/b', 3), entry('/c', 4)])
+    expect(added.map((e) => e.path)).toEqual(['/c'])
+    expect(removed.map((e) => e.path)).toEqual(['/a'])
+    expect(removed[0]?.line).toBe(3) // linha da versao NA BASE
+  })
+  it('does not report a trailing-slash-only difference as a change', () => {
+    const { added, removed } = diffAllowlist([entry('/a/', 3)], [entry('/a', 3)])
+    expect(added).toEqual([])
+    expect(removed).toEqual([])
   })
 })
