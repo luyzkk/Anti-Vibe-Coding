@@ -3,12 +3,14 @@
 // fase-04 troca por AST). Regras oficiais: knowledge/nextjs/atoms/app-router-and-layouts.md.
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative, sep } from 'node:path'
-import type { CoverageMap, CoverageRule, HttpMethod, Route, RouteAdapter } from './route-auth-matrix.types'
+import type { BaseRead, CoverageAtBase, CoverageMap, CoverageRule, HttpMethod, Route, RouteAdapter } from './route-auth-matrix.types'
 import { isHttpMethod } from './route-auth-matrix.types'
 
 const ROUTE_FILES = new Set(['route.ts', 'route.tsx'])
 const PAGE_FILES = new Set(['page.ts', 'page.tsx'])
 const MIDDLEWARE_FILE = 'middleware.ts'
+// 2026-09-05 (Luiz/dev): Plano 03 G6 — o sufixo `@base` e o que distingue as duas pontas no texto do finding.
+const MIDDLEWARE_AT_BASE = `${MIDDLEWARE_FILE}@base`
 
 function toPosix(p: string): string {
   return p.split(sep).join('/')
@@ -362,6 +364,27 @@ export function readNextjsCoverage(targetDir: string): CoverageMap {
   return { stack: 'nextjs', rules, sources: [MIDDLEWARE_FILE], notes }
 }
 
+/** DP-1. Igualdade exata: `readNextjsCoverage` so le a raiz, entao `src/middleware.ts` NAO e cobertura (G17). */
+export function isNextjsCoverageFile(file: string): boolean {
+  return file === MIDDLEWARE_FILE
+}
+
+// 2026-09-05 (Luiz/dev): DP-2/DP-6 — puro sobre o seam. `absent` = nao havia middleware = zero cobertura
+// antes = nada a perder. `unavailable` passa adiante com a razao; a consequencia e do motor (DP-5, fase-03).
+export function readNextjsCoverageAtBase(read: (file: string) => BaseRead): CoverageAtBase {
+  const result = read(MIDDLEWARE_FILE)
+  if (result.status === 'unavailable') return { unavailable: result.reason }
+  if (result.status === 'absent') {
+    return { stack: 'nextjs', rules: [], sources: [], notes: [`${MIDDLEWARE_FILE} ausente na base — nenhuma cobertura a perder`] }
+  }
+  const notes: string[] = []
+  // G9: o proxy G13 (sem matcher = roda em tudo) vale na ponta antes tambem — e precisa ficar visivel.
+  if (!/matcher\s*:/.test(result.source)) {
+    notes.push(`${MIDDLEWARE_AT_BASE} sem config.matcher — o middleware rodava em toda rota; cobertura por proxy`)
+  }
+  return { stack: 'nextjs', rules: parseMatcherConfig(result.source, MIDDLEWARE_AT_BASE), sources: [MIDDLEWARE_AT_BASE], notes }
+}
+
 export const nextjsAdapter: RouteAdapter = {
   stack: 'nextjs',
   enumerate(targetDir: string): Route[] {
@@ -370,4 +393,6 @@ export const nextjsAdapter: RouteAdapter = {
   readCoverage(targetDir: string): CoverageMap {
     return readNextjsCoverage(targetDir)
   },
+  isCoverageFile: isNextjsCoverageFile,
+  readCoverageAtBase: readNextjsCoverageAtBase,
 }

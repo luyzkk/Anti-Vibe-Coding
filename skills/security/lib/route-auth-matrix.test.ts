@@ -4,8 +4,8 @@
 // disco: o TDD gate bloqueia criar `middleware.ts` (GT-fase01-1) e funcao pura dispensa I/O.
 import { describe, it, expect } from 'bun:test'
 import { join } from 'node:path'
-import { auditRouteCoverage, buildContractIssues, evaluateRoute, readAtBaseFromGit, severityFor, toContractIssue } from './route-auth-matrix'
-import type { CoverageMap, Route } from './route-auth-matrix.types'
+import { auditRouteCoverage, buildContractIssues, evaluateRoute, readAtBaseFromGit, severityFor, toContractIssue, verdictFor } from './route-auth-matrix'
+import type { BaseRead, CoverageMap, Route } from './route-auth-matrix.types'
 
 const FIXTURES = join(import.meta.dir, '../../../tests/fixtures/route-auth-matrix')
 const MINIMAL = join(FIXTURES, 'nextjs-minimal')
@@ -28,6 +28,68 @@ const coverage = (patterns: string[]): CoverageMap => ({
   rules: patterns.map((pattern) => ({ kind: 'path-pattern', pattern, file: 'middleware.ts', line: 9 })),
   sources: ['middleware.ts'],
   notes: [],
+})
+
+// 2026-09-05 (Luiz/dev): Plano 03 DP-9 — a ponta "antes" e TEXTO pelo seam readAtBase (G1 do plano: sem
+// fixture de middleware). O matcher fica na linha 2, entao a evidence "antes" e `middleware.ts@base:2 casa <path>`.
+const middlewareSource = (patterns: string[]): string =>
+  `export function middleware() {}\nexport const config = { matcher: ${JSON.stringify(patterns)} }\n`
+
+describe('auditRouteCoverage — gatilho G2 e duas pontas (Plano 03)', () => {
+  it('flags G2 as triggered with middleware.ts as source when the diff touches it', () => {
+    const { findings, summary } = auditRouteCoverage(MINIMAL, {
+      changedFiles: ['middleware.ts'],
+      readAtBase: () => ({ status: 'found', source: middlewareSource(['/api/:path*']) }),
+    })
+    expect(summary.g2.triggered).toBe(true)
+    expect(summary.g2.sources).toEqual(['middleware.ts'])
+    expect(summary.g2.before).toBe('resolved')
+    expect(summary.g2.lost).toBe(0)                              // emissao e a fase-02
+    expect(findings).toHaveLength(0)
+    expect(summary.notes.join(' ')).not.toContain('Plano 03')    // DP-7: nota G1 sem o ponteiro
+  })
+
+  it('lists the allowlist as a G2 source when it is in the diff', () => {
+    const { summary } = auditRouteCoverage(ALLOWLIST, {
+      changedFiles: ['anti-vibe.public-routes.json'],
+      readAtBase: () => ({ status: 'found', source: '{"routes":[]}' }),
+    })
+    expect(summary.g2.triggered).toBe(true)
+    expect(summary.g2.sources).toEqual(['anti-vibe.public-routes.json'])
+    expect(summary.g2.before).toBe('resolved')
+  })
+
+  it('leaves G2 untriggered with no sources when the diff touches neither coverage nor allowlist', () => {
+    const { summary } = auditRouteCoverage(MINIMAL, { changedFiles: ['app/api/admin/route.ts'] })
+    expect(summary.g2).toEqual({ triggered: false, sources: [], before: 'resolved', lost: 0, indeterminate: 0 })
+  })
+
+  // Base ilegivel NAO pode virar `resolved` em silencio — a consequencia por rota e a fase-03.
+  it('reflects an unavailable base in summary.g2.before with the reason', () => {
+    const { summary } = auditRouteCoverage(MINIMAL, {
+      changedFiles: ['middleware.ts'],
+      readAtBase: () => ({ status: 'unavailable', reason: 'shallow clone sem merge-base' }),
+    })
+    expect(summary.g2.before).toBe('unavailable')
+    expect(summary.g2.reason).toContain('shallow clone')
+  })
+
+  // 2026-09-05 (Luiz/dev): DP-3 — a base e lida UMA vez por arquivo. readAtBase com git real custa 3
+  // processos por chamada; duas leituras dobram o custo e abrem espaco para dois resultados da mesma base.
+  it('reads each base file once when both the allowlist and the coverage are in the diff', () => {
+    const calls = new Map<string, number>()
+    const readAtBase = (file: string): BaseRead => {
+      calls.set(file, (calls.get(file) ?? 0) + 1)
+      return file === 'middleware.ts'
+        ? { status: 'found', source: middlewareSource(['/api/:path*']) }
+        : { status: 'found', source: '{"routes":[]}' }
+    }
+    const { summary } = auditRouteCoverage(ALLOWLIST, { changedFiles: ['middleware.ts', 'anti-vibe.public-routes.json'], readAtBase })
+    expect(summary.g2.sources).toEqual(['middleware.ts', 'anti-vibe.public-routes.json'])   // cobertura primeiro
+    expect(calls.get('middleware.ts')).toBe(1)
+    expect(calls.get('anti-vibe.public-routes.json')).toBe(1)
+    expect(summary.allowlist.delta?.before).toBe('resolved')   // o delta do Plano 02 saiu da MESMA leitura
+  })
 })
 
 describe('severityFor (PRD D9 — regra fixa, nao julgamento)', () => {
@@ -100,6 +162,17 @@ describe('evaluateRoute (motor de veredito)', () => {
   it('yields DESCOBERTA when there is no rule at all', () => {
     const map: CoverageMap = { stack: 'nextjs', rules: [], sources: [], notes: [] }
     expect(evaluateRoute(route({ path: '/api/admin' }), map).verdict).toBe('DESCOBERTA')
+  })
+})
+
+describe('verdictFor (DP-3 — a unica funcao de veredito, usada nas duas pontas)', () => {
+  it('lets the allowlist win before the engine and falls through to evaluateRoute otherwise', () => {
+    const entry = { path: '/api/health', reason: 'lb', file: 'anti-vibe.public-routes.json@base', line: 3 }
+    const declared = verdictFor(route({ path: '/api/health' }), coverage([]), [entry])
+    expect(declared.verdict).toBe('publica-declarada')
+    expect(declared.evidence).toBe('anti-vibe.public-routes.json@base:3 declara publica — lb')
+    expect(verdictFor(route({ path: '/api/admin' }), coverage(['/api/:path*']), [entry]).verdict).toBe('coberta')
+    expect(verdictFor(route({ path: '/api/admin' }), coverage([]), []).verdict).toBe('DESCOBERTA')
   })
 })
 
