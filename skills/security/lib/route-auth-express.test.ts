@@ -130,3 +130,33 @@ describe('expressAdapter (fixture express-minimal)', () => {
     expect(hasExpress(NEXT)).toBe(false)
   })
 })
+
+describe('analyzeExpress — segundo Router() no mesmo modulo (defeito 1, Plano 04 fase-02 fix)', () => {
+  // 2026-09-06 (Luiz/dev): reproduzido pelo orquestrador — rota de um SEGUNDO Router() do mesmo
+  // arquivo desaparecia da saida inteira (nem Route, nem unresolved, nem nota). DP-2/RF-09: nao
+  // resolvida vira indeterminada visivel, nunca some em silencio.
+  it('marks routes of a second Router() in the same module as unresolved instead of dropping them', () => {
+    const multi = "const a = Router()\nconst b = Router()\na.get('/alpha', h)\nb.get('/beta', h)\nexport default a"
+    const app = "import multi from './multi.mjs'\nconst app = express()\napp.use('/m', multi)"
+    const { routes, notes } = analyzeExpress(files({ 'src/app.mjs': app, 'src/multi.mjs': multi }))
+    expect(routes.map(key).sort()).toEqual(['GET /beta src/multi.mjs:4 [unresolved]', 'GET /m/alpha src/multi.mjs:3'])
+    expect(routes.find((r) => r.path === '/beta')?.unresolved).toContain('segundo Router()')
+    expect(notes.some((n) => n.includes('segundo Router()') && n.includes('src/multi.mjs'))).toBe(true)
+  })
+})
+
+describe('analyzeExpress — middleware nao-auth misturado a auth (defeito 2, Plano 04 fase-02 fix)', () => {
+  // 2026-09-06 (Luiz/dev): mutar isAuthName para true sempre nao quebrava nenhum dos 14 testes
+  // originais — nenhum misturava nome auth e nao-auth no mesmo handler/use. Rede propria aqui.
+  it('does not count a non-auth route middleware as coverage even next to an auth middleware', () => {
+    const src = "const app = express()\napp.get('/x', requestLogger, requireAuth, h)"
+    const { routes, coverage } = analyzeExpress(files({ 'src/app.ts': src }))
+    const route = routes[0]
+    if (route === undefined) throw new Error('expected exactly one route')
+    expect(evaluateRoute(route, coverage).verdict).toBe('coberta')
+    const rule = coverage.rules.find((r) => r.kind === 'handler-chain' && r.handler === route.handler)
+    expect(rule?.kind === 'handler-chain' ? rule.via : '').toContain('requireAuth')
+    expect(rule?.kind === 'handler-chain' ? rule.via : '').not.toContain('requestLogger')
+    expect(coverage.notes).toContain('middlewares ignorados por nome: requestLogger')
+  })
+})

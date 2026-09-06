@@ -335,11 +335,30 @@ export function analyzeExpress(sources: ReadonlyMap<string, string>): ExpressAna
     }
   }
 
+  const secondaryRouterNoted = new Set<string>()
+
   for (const [file, pf] of parsed) {
     const primary = primaryRouterVar(file)
     if (primary === undefined) continue
+    const secondaryRouters = new Set(pf.routers.slice(1))
     const mount = mounts.find((m) => m.targetFile === file)
     for (const call of pf.routes) {
+      // DP-2/RF-09: um segundo (ou terceiro...) Router() no mesmo arquivo nao tem como saber onde
+      // foi montado — vira unresolved visivel em vez de sumir em silencio (defeito 1, fase-02 fix).
+      if (secondaryRouters.has(call.owner)) {
+        resolved.push({
+          call,
+          file,
+          path: call.path,
+          unresolved: `segundo Router() no mesmo modulo — nao da para saber onde \`${call.owner}\` foi montado`,
+        })
+        const noteKey = `${file}:${call.owner}`
+        if (!secondaryRouterNoted.has(noteKey)) {
+          secondaryRouterNoted.add(noteKey)
+          notes.push(`${file}: router \`${call.owner}\` e o segundo Router() (ou posterior) do modulo — rotas dele ficam indeterminadas, ponto de montagem desconhecido`)
+        }
+        continue
+      }
       if (call.owner !== primary) continue
       if (call.unresolved !== undefined) {
         resolved.push({ call, file, path: call.path, unresolved: call.unresolved })

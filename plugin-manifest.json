@@ -1,6 +1,6 @@
 {
   "version": "7.7.0",
-  "generatedAt": "2026-09-06T22:06:16.267Z",
+  "generatedAt": "2026-09-06T22:23:03.873Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -2617,7 +2617,7 @@
     },
     "skills/security/lib/route-auth-express.ts": {
       "version": "7.7.0",
-      "checksum": "fe49f272a6957a130be9580e4b2a9e076db29c2baf4c41ea89dd341f7efbbac9",
+      "checksum": "2c7f1b6ed85162b4b19422ba0d76700e6a79bdd83e727ea41f328921ed673654",
       "lastModified": "2026-09-06",
       "updateStrategy": "replace"
     },
