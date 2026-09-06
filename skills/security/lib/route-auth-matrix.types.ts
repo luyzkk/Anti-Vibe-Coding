@@ -28,6 +28,13 @@ export type Route = {
    * `'UsersController#show'` no Rails, `'app.views.detail'` no Django.
    */
   handler?: string
+  /**
+   * 2026-09-06 (Luiz/dev): Plano 04 DP-2 — PRD RF-09/CA-05. Declaracao que o adaptador ENXERGA mas
+   * nao consegue resolver estaticamente (path nao literal, `match` sem `via:`, `mount`, `re_path`...).
+   * `path` e o texto-fonte da expressao (prefixado com `/`); o motor curto-circuita para
+   * `indeterminada` antes de allowlist e matcher. Nunca inventar path, nunca `coberta`.
+   */
+  unresolved?: string
 }
 
 /**
@@ -49,6 +56,20 @@ export type CoverageRule =
       reason: string
       file: string
       line: number
+      // 2026-09-06 (Luiz/dev): DP-1a — escopo do opaco. Sem isto, um `before_action ... if:` num
+      // controller tornaria TODAS as rotas do projeto indeterminada. Next omite (opaco global, como hoje).
+      handler?: string
+    }
+  | {
+      // 2026-09-06 (Luiz/dev): DP-1 — a UNICA variante nova. "O adaptador demonstrou que auth esta
+      // presa a ESTE handler" — before_action efetivo, Depends resolvido, middleware anterior na cadeia.
+      // O motor casa por `handler` OU por `file:line`; nao sabe o que e Rails, Express ou FastAPI.
+      kind: 'handler-chain'
+      handler: string
+      file: string
+      line: number
+      /** Prosa curta do que cobriu: `before_action :authenticate_user! (herdado de ApplicationController)`. */
+      via: string
     }
 
 export type CoverageMap = {
@@ -135,7 +156,15 @@ export type RejectedEntry = { path?: string; line: number; reason: string }
  * A fase-02 (DP-3) passa a produzi-lo para entrada ampla; declarar aqui faz o RED dela ser
  * assertion (`Expected length: 1, Received length: 0`), nao erro de compilacao.
  */
-export type AllowlistFinding = { path: string; file: string; line: number; severity: IssueSeverity; description: string }
+export type AllowlistFinding = {
+  path: string
+  file: string
+  line: number
+  severity: IssueSeverity
+  description: string
+  /** 2026-09-06 (Luiz/dev): DP-7 — candidata ampla guarda a `reason` para poder ser promovida a entrada literal. */
+  reason?: string
+}
 
 export type AllowlistParseResult = {
   entries: AllowlistEntry[]
@@ -180,9 +209,11 @@ export type AllowlistDelta = {
 
 export function isRoute(value: unknown): value is Route {
   if (!isRecord(value)) return false
-  const { method, path, file, line, stack, handler } = value
+  const { method, path, file, line, stack, handler, unresolved } = value
   // `handler` e opcional; presente, tem de ser string nao-vazia. Ausente e valido (Next omite).
   if (handler !== undefined && (typeof handler !== 'string' || handler.length === 0)) return false
+  // `unresolved` e opcional; presente, tem de ser string nao-vazia (DP-2).
+  if (unresolved !== undefined && (typeof unresolved !== 'string' || unresolved.length === 0)) return false
   return (
     isHttpMethod(method) &&
     typeof path === 'string' &&

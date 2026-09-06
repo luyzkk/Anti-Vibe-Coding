@@ -3,7 +3,7 @@
 // DI-fase04-fixtures-inline): teste de parser nao precisa de I/O; a fixture em disco cobre so readPublicRoutes.
 import { describe, it, expect } from 'bun:test'
 import { join } from 'node:path'
-import { PUBLIC_ROUTES_FILE, diffAllowlist, isWideEntry, matchAllowlist, normalizePath, parsePublicRoutes, readPublicRoutes } from './public-routes-allowlist'
+import { PUBLIC_ROUTES_FILE, diffAllowlist, isWideEntry, matchAllowlist, normalizePath, parsePublicRoutes, promoteWideCandidates, readPublicRoutes } from './public-routes-allowlist'
 import type { AllowlistEntry, Route } from './route-auth-matrix.types'
 
 const FIXTURES = join(import.meta.dir, '../../../tests/fixtures/route-auth-matrix')
@@ -114,6 +114,14 @@ describe('isWideEntry (DP-3 — AB-1)', () => {
 })
 
 describe('parsePublicRoutes — amplitude e duplicata', () => {
+  // 2026-09-06 (Luiz/dev): Plano 04 DP-7 — a candidata ampla guarda a `reason` para o motor poder
+  // promove-la a entrada literal contra a enumeracao (G13 resolvido). O parser continua so marcando.
+  it('keeps the reason on a wide candidate so the engine can promote it', () => {
+    const r = parsePublicRoutes(src([{ path: '/posts/:id', reason: 'post publico' }]), FILE)
+    expect(r.wide[0]?.reason).toBe('post publico')
+    expect(r.wide[0]?.severity).toBe('high') // parser continua marcando; a decisao e do motor
+  })
+
   it('CA-04: refuses a wide entry and emits a high finding pointing at its line', () => {
     const result = parsePublicRoutes(src([{ path: '/api/*', reason: 'toda a API e publica' }]), FILE)
     expect(result.entries).toEqual([])
@@ -145,6 +153,36 @@ describe('parsePublicRoutes — amplitude e duplicata', () => {
     const result = parsePublicRoutes(src([{ path: '/api/health', reason: 'a' }, { path: '/api/health/', reason: 'b' }]), FILE)
     expect(result.entries).toHaveLength(1)
     expect(result.rejected).toHaveLength(1)
+  })
+})
+
+// 2026-09-06 (Luiz/dev): Plano 04 DP-7 / G13 do Plano 01 — a amplitude e decidida CONTRA a
+// enumeracao, nao pela sintaxe: `/posts/:id` que casa uma rota real vira declaracao literal dela.
+describe('promoteWideCandidates (DP-7 — amplitude decidida contra a enumeracao)', () => {
+  const routes = [
+    route({ stack: 'rails', path: '/posts/:id', handler: 'PostsController#show' }),
+    route({ stack: 'rails', path: '/posts' }),
+  ]
+
+  it('promotes a wide candidate that equals an enumerated route path to a literal entry', () => {
+    const parsed = parsePublicRoutes(src([{ path: '/posts/:id', reason: 'post publico' }]), FILE)
+    const out = promoteWideCandidates(parsed, routes)
+    expect(out.entries.map((e) => e.path)).toEqual(['/posts/:id'])
+    expect(out.wide).toEqual([])
+    expect(out.notes.some((n) => n.includes('promovida'))).toBe(true)
+  })
+
+  it('rejects a promoted candidate without reason instead of accepting it (CA-04b still applies)', () => {
+    const out = promoteWideCandidates(parsePublicRoutes(src([{ path: '/posts/:id' }]), FILE), routes)
+    expect(out.entries).toEqual([])
+    expect(out.rejected.map((r) => r.path)).toEqual(['/posts/:id'])
+    expect(out.wide).toEqual([])
+  })
+
+  it('CA-04: keeps a candidate that matches no enumerated route as a high finding', () => {
+    const out = promoteWideCandidates(parsePublicRoutes(src([{ path: '/api/*', reason: 'tudo' }]), FILE), routes)
+    expect(out.wide.map((w) => w.severity)).toEqual(['high'])
+    expect(out.wide[0]?.description).toContain('nao corresponde a nenhuma rota enumerada')
   })
 })
 

@@ -165,6 +165,69 @@ describe('evaluateRoute (motor de veredito)', () => {
   })
 })
 
+describe('evaluateRoute — handler-chain (Plano 04 DP-1)', () => {
+  const chain = (handler: string): CoverageMap => ({
+    stack: 'rails',
+    rules: [{ kind: 'handler-chain', handler, file: 'app/controllers/application_controller.rb', line: 2, via: 'before_action :authenticate_user! (herdado de ApplicationController)' }],
+    sources: ['config/routes.rb', 'app/controllers/application_controller.rb'],
+    notes: [],
+  })
+  const rails = (over: Partial<Route>): Route => route({ stack: 'rails', file: 'config/routes.rb', ...over })
+
+  it('yields coberta when the rule names the same handler as the route', () => {
+    const v = evaluateRoute(rails({ path: '/admin/users', handler: 'Admin::UsersController#index' }), chain('Admin::UsersController#index'))
+    expect(v.verdict).toBe('coberta')
+    expect(v.evidence).toContain('application_controller.rb:2')
+    expect(v.evidence).toContain('herdado de ApplicationController')
+  })
+
+  // 2026-09-06 (Luiz/dev): G18 — handler diferente NUNCA cobre; e `no`, nao `unsure`.
+  it('never covers a route served by another handler, and yields DESCOBERTA not indeterminada', () => {
+    const v = evaluateRoute(rails({ path: '/health', handler: 'HealthController#show' }), chain('Admin::UsersController#index'))
+    expect(v.verdict).toBe('DESCOBERTA')
+  })
+
+  it('covers by file and line when the route has no handler (Express-style anonymous handler)', () => {
+    const cov: CoverageMap = { stack: 'node-ts', rules: [{ kind: 'handler-chain', handler: 'src/app.mjs:11', file: 'src/app.mjs', line: 11, via: 'app.use(requireAuth) em src/app.mjs:9' }], sources: ['src/app.mjs'], notes: [] }
+    expect(evaluateRoute(route({ stack: 'node-ts', file: 'src/app.mjs', line: 11, path: '/api/preferences' }), cov).verdict).toBe('coberta')
+    expect(evaluateRoute(route({ stack: 'node-ts', file: 'src/app.mjs', line: 7, path: '/health' }), cov).verdict).toBe('DESCOBERTA')
+  })
+})
+
+describe('evaluateRoute — unresolved (Plano 04 DP-2 / CA-05)', () => {
+  it('CA-05: yields indeterminada with the reason for an unresolved route, even when a rule would cover it', () => {
+    const r = route({ stack: 'node-ts', path: '/${base}/reports', file: 'src/app.mjs', line: 15, unresolved: 'path nao literal: template literal com ${}' })
+    const v = evaluateRoute(r, coverage(['/:path*']))
+    expect(v.verdict).toBe('indeterminada')
+    expect(v.verdict).not.toBe('coberta')
+    expect(v.evidence).toContain('path nao literal')
+  })
+  it('emits a medium finding for an unresolved route through auditRouteCoverage', () => {
+    // via coverageOverride + fixture nextjs-minimal nao da (Next nao produz unresolved): usar evaluateRoute
+    // + SEVERITY_BY_VERDICT indireto — o teste de ponta a ponta fica na fase-05 (express-minimal).
+    const v = evaluateRoute(route({ path: '/x', unresolved: 'mount dinamico' }), coverage([]))
+    expect(v.verdict).toBe('indeterminada')
+  })
+})
+
+describe('evaluateRoute — opaque escopado (DP-1a)', () => {
+  const scoped: CoverageMap = { stack: 'rails', rules: [{ kind: 'opaque', handler: 'HomeController#index', reason: 'controller HomeController nao encontrado em app/controllers/', file: 'config/routes.rb', line: 3 }], sources: ['config/routes.rb'], notes: [] }
+  it('makes only the scoped handler indeterminada', () => {
+    expect(evaluateRoute(route({ stack: 'rails', path: '/', handler: 'HomeController#index' }), scoped).verdict).toBe('indeterminada')
+  })
+  it('does not leak the opaque onto routes of other handlers — they stay DESCOBERTA', () => {
+    expect(evaluateRoute(route({ stack: 'rails', path: '/posts', handler: 'PostsController#index' }), scoped).verdict).toBe('DESCOBERTA')
+  })
+})
+
+it('describes what is missing in the dialect of the stack (RF-05), keeping the Next wording intact', () => {
+  const v = evaluateRoute(route({ stack: 'rails', path: '/posts', handler: 'PostsController#index', file: 'config/routes.rb' }), { stack: 'rails', rules: [], sources: ['config/routes.rb'], notes: [] })
+  expect(v.evidence).not.toContain('config.matcher')
+  const issue = toContractIssue({ route: v.route, verdict: 'DESCOBERTA', severity: 'high', missing: v.evidence }, 0)
+  expect(issue.description).toContain('before_action')
+  expect(issue.description).not.toContain('middleware')
+})
+
 describe('verdictFor (DP-3 — a unica funcao de veredito, usada nas duas pontas)', () => {
   it('lets the allowlist win before the engine and falls through to evaluateRoute otherwise', () => {
     const entry = { path: '/api/health', reason: 'lb', file: 'anti-vibe.public-routes.json@base', line: 3 }

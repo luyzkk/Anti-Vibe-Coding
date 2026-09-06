@@ -50,6 +50,19 @@ describe('route-auth-matrix contract guards', () => {
     expect(isRoute({ ...base, handler: 42 })).toBe(false)
   })
 
+  // 2026-09-06 (Luiz/dev): Plano 04 DP-2 — PRD RF-09/CA-05. `unresolved` declara que o adaptador
+  // ENXERGOU a rota mas nao conseguiu resolve-la estaticamente; o motor curto-circuita para indeterminada.
+  it('accepts a route flagged as unresolved with a non-empty reason', () => {
+    expect(
+      isRoute({ method: 'GET', path: '/${base}/x', file: 'src/app.mjs', line: 15, stack: 'node-ts', unresolved: 'path nao literal' }),
+    ).toBe(true)
+  })
+
+  it('rejects an unresolved flag that is empty or not a string', () => {
+    expect(isRoute({ method: 'GET', path: '/x', file: 'f', line: 1, stack: 'rails', unresolved: '' })).toBe(false)
+    expect(isRoute({ method: 'GET', path: '/x', file: 'f', line: 1, stack: 'rails', unresolved: 42 })).toBe(false)
+  })
+
   it('rejects unknown verdicts', () => {
     expect(isVerdict('covered')).toBe(false)
     expect(isVerdict('DESCOBERTA')).toBe(true)
