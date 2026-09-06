@@ -41,6 +41,23 @@ Formato: o que foi decidido + por que + impacto.
   - Impacto: simplifica error handling no service
 -->
 
+- **DI-fase01-1: `parseRailsRoutes` NAO ordena por path — ordem de declaracao e o contrato.** O doc da
+  fase sugeria ordenar como o adaptador Next faz. Nao se sustenta: o teste de `unresolved` afirma a
+  posicao das rotas na ordem em que aparecem no `routes.rb`, e `resources`/`namespace` produzem blocos
+  cuja ordem carrega significado (o `match` sem `via:` da fixture vem por ultimo). O executor removeu o
+  sort ao ver o teste falhar.
+  - Por que foi aceito: o teste e a ancora imutavel; o doc era sugestao de simetria com o Next, nao
+    requisito. Ordem de declaracao tambem e o que `bin/rails routes` imprime.
+  - Impacto: `Route[]` do Rails sai em ordem de arquivo. Os adaptadores Express (ordem de `use` por
+    linha, G13) e Python dependem da mesma propriedade — **nao reintroduzir sort por path** nas
+    fases 02/03.
+
+- **DI-fase01-2: `readRailsCoverage` processa handlers em ordem alfabetica.** Necessario para
+  `chains[0]` ser deterministico no teste (o `Map` de controllers nao garante ordem estavel entre
+  execucoes).
+  - Impacto: so a ordem das regras em `CoverageMap.rules`; o matcher casa por `handler`/`file:line`
+    (G18), nunca por posicao. Nao confundir com a ordem das ROTAS (DI-fase01-1), que e de declaracao.
+
 ---
 
 ## Bugs Descobertos
@@ -54,6 +71,15 @@ Formato: sintoma + causa raiz + fix aplicado.
   - Fix: adicionado IF NOT EXISTS na migration 009
   - Fase afetada: fase-01
 -->
+
+- **BUG-fase01-1: `skip_before_action ... only:` estava invertido.** O `only:` do `skip` restringe
+  QUAIS acoes deixam de ter o filtro; a implementacao inicial removia o filtro das acoes FORA do
+  `only:`.
+  - Sintoma: `health#show` continuava `coberta` (deveria perder a cobertura) e as demais acoes do
+    controller perdiam.
+  - Fix: aplicado pelo proprio ciclo GREEN dos testes do Passo 2, ANTES do commit — o teste
+    `Premissa 2: ... skip uncovers health ...` foi escrito primeiro e pegou a inversao.
+  - Fase afetada: fase-01
 
 ---
 
@@ -121,7 +147,7 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 5 |
-| Fases concluidas | 0 |
+| Fases concluidas | 1 |
 | Fases com desvio | 0 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
@@ -146,6 +172,12 @@ suite ~2058.
 | 04 | `route-auth-matrix.test.ts` | +5 | 65 | `auditProject`: CA-11, prefixo, `ALLOW` dedupe, `skipped` nunca aprova, Next ignora `.rb` |
 | 05 | `tests/e2e/route-auth-four-stacks.test.ts` (novo) | +6 | 6 | 4 fixtures + monorepo + taxa/segredos |
 | — | **Total estimado** | **+82** | | suite ~2140 |
+
+**fase-01 medida (2026-09-06, commits 0daf049 + 78d158f):**
+`skills/security/lib/` **168** (era 133: +21 do Passo 0, +14 do Rails), `route-auth-rails.test.ts` **14**
+(bateu com a estimativa), `route-auth-nextjs.test.ts` **40** (inalterado apos os utilitarios sairem para
+`route-auth-heuristics.ts` — DP-3a), suite completa **2093 pass / 0 fail** (baseline do plano: 2058).
+`typecheck` exit 0, `agents:contract` 39 pass, manifest idempotente.
 
 ### Taxa de `indeterminada` por stack (Premissa 3 — preencher na fase-05)
 
