@@ -4,13 +4,15 @@
 // disco: o TDD gate bloqueia criar `middleware.ts` (GT-fase01-1) e funcao pura dispensa I/O.
 import { describe, it, expect } from 'bun:test'
 import { join } from 'node:path'
-import { auditRouteCoverage, evaluateRoute, severityFor, toContractIssue } from './route-auth-matrix'
+import { auditRouteCoverage, buildContractIssues, evaluateRoute, severityFor, toContractIssue } from './route-auth-matrix'
 import type { CoverageMap, Route } from './route-auth-matrix.types'
 
 const FIXTURES = join(import.meta.dir, '../../../tests/fixtures/route-auth-matrix')
 const MINIMAL = join(FIXTURES, 'nextjs-minimal')
 // 2026-09-05 (Luiz/dev): Plano 02 fase-01 — fixture da allowlist (DP-13), sem middleware.ts (G1).
 const ALLOWLIST = join(FIXTURES, 'nextjs-allowlist')
+// 2026-09-05 (Luiz/dev): Plano 02 fase-02 — fixture da entrada ampla (DP-3/AB-1), sem middleware.ts (G1).
+const WIDE = join(FIXTURES, 'nextjs-allowlist-wide')
 
 const route = (over: Partial<Route>): Route => ({
   method: 'GET',
@@ -188,5 +190,31 @@ describe('auditRouteCoverage — allowlist (Plano 02)', () => {
     expect(summary.publicaDeclarada).toBe(0)
     expect(summary.allowlist.notes.join(' ')).toContain('nenhuma rota declarada publica')
     expect(allowlistFindings).toEqual([])
+  })
+})
+
+describe('auditRouteCoverage — entrada ampla (AB-1 / CA-04)', () => {
+  it('CA-04: emits its own high finding for a wide allowlist entry, independent of the routes', () => {
+    const result = auditRouteCoverage(WIDE, { changedFiles: ['app/api/admin/route.ts'] })
+    expect(result.allowlistFindings).toHaveLength(1)
+    expect(result.allowlistFindings[0]?.severity).toBe('high')
+    expect(result.allowlistFindings[0]?.file).toBe('anti-vibe.public-routes.json')
+    expect(result.allowlistFindings[0]?.line).toBe(3)
+    expect(result.summary.allowlist.wide).toBe(1)
+    expect(result.summary.allowlist.accepted).toBe(0)
+  })
+
+  it('CA-04: a wide entry silences nothing — the route under it is still DESCOBERTA critical', () => {
+    const { findings, summary } = auditRouteCoverage(WIDE, { changedFiles: ['app/api/admin/route.ts'] })
+    expect(findings.map((f) => f.severity)).toEqual(['critical'])
+    expect(summary.publicaDeclarada).toBe(0)
+  })
+
+  it('emits ALLOW-* issues before ROUTE-* issues in the contract output', () => {
+    const result = auditRouteCoverage(WIDE, { changedFiles: ['app/api/admin/route.ts'] })
+    const issues = buildContractIssues(result)
+    expect(issues.map((i) => i.id)).toEqual(['ALLOW-001', 'ROUTE-001'])
+    expect(issues[0]?.severity).toBe('high')
+    expect(issues[0]?.line).toBe(3)
   })
 })

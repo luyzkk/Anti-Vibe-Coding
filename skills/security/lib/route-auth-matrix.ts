@@ -103,7 +103,7 @@ export type AllowlistSummary = {
   present: boolean
   accepted: number
   rejected: RejectedEntry[]
-  wide: number          // fase-02 preenche; aqui 0
+  wide: number
   notes: string[]
 }
 
@@ -122,7 +122,7 @@ export type AuditSummary = {
 
 export type AuditResult = {
   findings: RouteFinding[]
-  /** DP-9. Sempre `[]` nesta fase — a fase-02 produz para entrada ampla. */
+  /** DP-9. Um item por entrada ampla da allowlist (fase-02); ordenado por severidade e depois linha. */
   allowlistFindings: AllowlistFinding[]
   verdicts: RouteVerdict[]
   summary: AuditSummary
@@ -176,9 +176,15 @@ export function auditRouteCoverage(targetDir: string, opts: AuditOptions): Audit
     return bySeverity !== 0 ? bySeverity : a.route.path.localeCompare(b.route.path)
   })
 
+  // Todos `wide` sao `high` hoje (DP-3); a linha e o desempate natural para o relatorio ler de cima a baixo.
+  const allowlistFindings = [...allowlist.wide].sort((a, b) => {
+    const bySeverity = (SEVERITY_ORDER[a.severity] ?? 9) - (SEVERITY_ORDER[b.severity] ?? 9)
+    return bySeverity !== 0 ? bySeverity : a.line - b.line
+  })
+
   return {
     findings,
-    allowlistFindings: [],
+    allowlistFindings,
     verdicts,
     summary: {
       enumerated: routes.length,
@@ -212,6 +218,21 @@ export function toContractIssue(finding: RouteFinding, index: number): ContractI
       `${finding.verdict}: ${finding.route.method} ${finding.route.path} ` +
       `(${finding.route.file}:${finding.route.line}) sem cobertura de middleware e nao declarada publica em ${PUBLIC_ROUTES_FILE} — ${finding.missing}`,
   }
+}
+
+export function allowlistToContractIssue(finding: AllowlistFinding, index: number): ContractIssue {
+  return {
+    id: `ALLOW-${String(index + 1).padStart(3, '0')}`,
+    severity: finding.severity,
+    file: finding.file,
+    line: finding.line,
+    description: finding.description,
+  }
+}
+
+/** DP-9: allowlist PRIMEIRO (e sobre a configuracao do check), depois rota. Cada lista ja vem por severidade. */
+export function buildContractIssues(result: AuditResult): ContractIssue[] {
+  return [...result.allowlistFindings.map(allowlistToContractIssue), ...result.findings.map(toContractIssue)]
 }
 
 // ---------------------------------------------------------------------------
@@ -256,6 +277,6 @@ if (import.meta.main) {
     process.exit(2)
   }
 
-  const { findings, summary } = auditRouteCoverage(target, { changedFiles: diff.files })
-  console.log(JSON.stringify({ issues: findings.map(toContractIssue), summary }, null, 2))
+  const result = auditRouteCoverage(target, { changedFiles: diff.files })
+  console.log(JSON.stringify({ issues: buildContractIssues(result), summary: result.summary }, null, 2))
 }
