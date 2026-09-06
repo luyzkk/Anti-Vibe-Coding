@@ -3,7 +3,7 @@
 // Parser PURO sobre texto (como parseMatcherConfig): sem I/O, sem parser JSON proprio (DP-5), fail-closed.
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import type { AllowlistEntry, AllowlistParseResult, RejectedEntry, Route } from './route-auth-matrix.types'
+import type { AllowlistEntry, AllowlistFinding, AllowlistParseResult, RejectedEntry, Route } from './route-auth-matrix.types'
 import { isRecord } from './route-auth-matrix.types'
 
 // Raiz do projeto auditado, nao `.anti-vibe/` — que e gitignored (.gitignore:62) e tornaria a
@@ -33,6 +33,25 @@ function locateEntryLine(source: string, path: string, occurrence: number): numb
     seen += 1
   }
   return null
+}
+
+// 2026-09-05 (Luiz/dev): DP-3 / PRD AB-1. `*` (curinga), `:nome` (parametro path-to-regexp/Express) e
+// `(` (grupo regex) cobrem mais de uma rota. `[id]` NAO e amplo: no Next a rota E `/api/users/[id]`
+// (DP-2) — a entrada casa UMA rota do contrato. Ver G13 do README sobre `:nome` no Express (Plano 04).
+const WIDE_PATTERNS: readonly RegExp[] = [/\*/, /(^|\/):[A-Za-z_]/, /\(/]
+
+export function isWideEntry(path: string): boolean {
+  return WIDE_PATTERNS.some((re) => re.test(path))
+}
+
+// `high`, nao `critical`: nenhuma rota foi comprovadamente exposta (as rotas sob a entrada continuam
+// no motor). Nao `medium`: amplitude e tentativa de desligar o check, pior que limite do adaptador.
+function wideFinding(path: string, file: string, line: number): AllowlistFinding {
+  return {
+    path, file, line,
+    severity: 'high',
+    description: `entrada ampla \`${path}\` cobriria mais de uma rota — declare cada rota publica individualmente`,
+  }
 }
 
 type EntryCheck = { rejects: (entry: Record<string, unknown>) => boolean; reason: string }
@@ -65,8 +84,10 @@ export function parsePublicRoutes(source: string, file: string): AllowlistParseR
 
   const entries: AllowlistEntry[] = []
   const rejected: RejectedEntry[] = []
+  const wide: AllowlistFinding[] = []
   const notes: string[] = []
   const occurrences = new Map<string, number>()
+  const accepted = new Set<string>() // paths normalizados ja aceitos — so ACEITOS entram (duplicata)
 
   for (const raw of parsed.routes) {
     const record: Record<string, unknown> = isRecord(raw) ? raw : {}
@@ -84,17 +105,22 @@ export function parsePublicRoutes(source: string, file: string): AllowlistParseR
 
     const badPath = PATH_CHECKS.find((c) => c.rejects(record))
     if (badPath !== undefined) { reject(badPath.reason); continue }
-    // fase-02 insere aqui: if (isWideEntry(path)) { wide.push(wideFinding(...)); continue }
+    // amplitude ANTES de reason: `/api/*` sem reason e finding, nao recusa muda (AB-1 e o sinal mais forte)
+    if (path !== undefined && isWideEntry(path)) { wide.push(wideFinding(path, file, line)); continue }
     const badReason = REASON_CHECKS.find((c) => c.rejects(record))
     if (badReason !== undefined) { reject(badReason.reason); continue }
-    // fase-02 insere aqui: duplicata por normalizePath(path) → reject('path duplicado ...')
+    if (path !== undefined && accepted.has(normalizePath(path))) {
+      reject('path duplicado — a primeira ocorrencia vale; esta e ignorada')
+      continue
+    }
 
     const { reason } = record
     if (path === undefined || typeof reason !== 'string') continue // type guard — os checks ja garantem
     entries.push({ path, reason: reason.trim(), file, line })
+    accepted.add(normalizePath(path))
   }
 
-  return { entries, rejected, wide: [], notes }
+  return { entries, rejected, wide, notes }
 }
 
 export function readPublicRoutes(targetDir: string): AllowlistParseResult & { present: boolean } {

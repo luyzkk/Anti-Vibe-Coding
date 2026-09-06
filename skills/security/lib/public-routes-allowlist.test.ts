@@ -3,7 +3,7 @@
 // DI-fase04-fixtures-inline): teste de parser nao precisa de I/O; a fixture em disco cobre so readPublicRoutes.
 import { describe, it, expect } from 'bun:test'
 import { join } from 'node:path'
-import { PUBLIC_ROUTES_FILE, matchAllowlist, normalizePath, parsePublicRoutes, readPublicRoutes } from './public-routes-allowlist'
+import { PUBLIC_ROUTES_FILE, isWideEntry, matchAllowlist, normalizePath, parsePublicRoutes, readPublicRoutes } from './public-routes-allowlist'
 import type { Route } from './route-auth-matrix.types'
 
 const FIXTURES = join(import.meta.dir, '../../../tests/fixtures/route-auth-matrix')
@@ -95,5 +95,55 @@ describe('matchAllowlist (DP-2 — igualdade exata, so barra final normalizada)'
     expect(normalizePath('/api/health/')).toBe('/api/health')
     expect(normalizePath('/')).toBe('/')
     expect(normalizePath('/API/Health')).toBe('/API/Health')
+  })
+})
+
+describe('isWideEntry (DP-3 — AB-1)', () => {
+  it('flags wildcard, named parameter and regex group as wide', () => {
+    for (const wide of ['/api/*', '/api/:id', '/api/(v1|v2)/users', '/:path*', '/admin/:path+']) {
+      expect(isWideEntry(wide)).toBe(true)
+    }
+  })
+
+  // 2026-09-05 (Luiz/dev): `[id]` e literal no Next (Route.path no dialeto da stack) — casa UMA rota.
+  it('does not flag a literal path or a Next dynamic segment', () => {
+    for (const literal of ['/api/health', '/api/users/[id]', '/docs/[...slug]', '/']) {
+      expect(isWideEntry(literal)).toBe(false)
+    }
+  })
+})
+
+describe('parsePublicRoutes — amplitude e duplicata', () => {
+  it('CA-04: refuses a wide entry and emits a high finding pointing at its line', () => {
+    const result = parsePublicRoutes(src([{ path: '/api/*', reason: 'toda a API e publica' }]), FILE)
+    expect(result.entries).toEqual([])
+    expect(result.rejected).toEqual([])
+    expect(result.wide).toHaveLength(1)
+    expect(result.wide[0]?.severity).toBe('high')
+    expect(result.wide[0]?.file).toBe(FILE)
+    expect(result.wide[0]?.line).toBe(4)
+    expect(result.wide[0]?.description).toContain('/api/*')
+    expect(result.wide[0]?.description).toContain('individualmente')
+  })
+
+  // Amplitude e o sinal mais forte: `/api/*` sem reason e finding, nao uma recusa muda por falta de reason.
+  it('flags a wide entry even when it has no reason', () => {
+    const result = parsePublicRoutes(src([{ path: '/api/*' }]), FILE)
+    expect(result.wide).toHaveLength(1)
+    expect(result.rejected).toEqual([])
+  })
+
+  it('rejects the second occurrence of a duplicated path and points at its own line', () => {
+    const result = parsePublicRoutes(src([{ path: '/api/health', reason: 'a' }, { path: '/api/health', reason: 'b' }]), FILE)
+    expect(result.entries.map((e) => e.line)).toEqual([4])
+    expect(result.rejected).toHaveLength(1)
+    expect(result.rejected[0]?.line).toBe(8)
+    expect(result.rejected[0]?.reason).toContain('duplicad')
+  })
+
+  it('treats trailing-slash variants as the same path for duplicate detection', () => {
+    const result = parsePublicRoutes(src([{ path: '/api/health', reason: 'a' }, { path: '/api/health/', reason: 'b' }]), FILE)
+    expect(result.entries).toHaveLength(1)
+    expect(result.rejected).toHaveLength(1)
   })
 })
