@@ -3,7 +3,7 @@
 **Plan:** ./PLAN.md
 **Phase:** in-progress
 **Current Plan:** 03/4
-**Last Updated:** 2026-09-05
+**Last Updated:** 2026-09-06
 
 ## Progress por Plano
 
@@ -11,12 +11,12 @@
 |-------|------|-------|------|--------|
 | 01 | Fundacao + Tracer Bullet (Next.js) | 5 | 5/5 | completed |
 | 02 | Allowlist e veredictos completos | 3 | 3/3 | completed |
-| 03 | G2: cobertura perdida | 3 | 0/3 | pending |
+| 03 | G2: cobertura perdida | 3 | 1/3 | in-progress |
 | 04 | Os outros tres adaptadores + multi-stack | 5 | 0/5 | pending |
 
 ## Progress Global
 
-Fases done: 8/16 (50%)
+Fases done: 9/16 (56%)
 
 ## Log
 
@@ -34,3 +34,4 @@ Fases done: 8/16 (50%)
 - 2026-09-05: fase-02 (entrada ampla → ALLOW-* high; duplicata recusada; buildContractIssues com ALLOW-* antes de ROUTE-*) concluida no commit 7fcc8e9. Suite 2021 pass / 0 fail (+9: 6 do parser, 3 do motor); typecheck limpo; agents:contract 39 pass; CA-04 verde (2 testes) e CA-04b consolidado. RED-check do orquestrador: isWideEntry → false derruba CA-04 no motor ('Received length: 0') e no parser; restaurado identico. DI-fase02-1 registrada na MEMORY (RED do motor foi de compilacao por import novo, nao por assertion).
 - 2026-09-05: fase-03 (indeterminada → finding medium; allowlist no diff → changed + delta via seam readAtBase de 3 estados; bloco destacado na secao 11 do agente e no Step 3 do verify-work) concluida no commit 61387f9. PLANO 02 COMPLETO (3/3). Suite 2033 pass / 0 fail (+12 sobre a fase-02); typecheck limpo; agents:contract 39 pass; CA-07 (6 testes) e CA-10 verdes; edicoes em agente e SKILL 100% aditivas. BUG-fase03-1: git cat-file -e rev:path sai 128 para path ausente — executor trocou por leitura do stderr do git show; orquestrador (DI-fase03-2) trocou por git ls-tree, sem parse de texto. RED-check do orquestrador: indeterminada→low derruba CA-10; changed forcado false derruba CA-07; absent nunca disparando derruba 'returns absent'. Handoff em plano02/MEMORY.md 'Notas para Planos Seguintes'. Proximo: Plano 03 (G2), que reusa readAtBase e consome delta.removed.
 - 2026-09-05: Plano 03 detalhado via /plan-feature na branch feat/route-auth-matrix-plano03 (a partir da branch do Plano 02; PR #75 ainda aberto). 3 fases, ~4.5h (igual ao PLAN.md). 10 decisoes de planejamento em plano03/README.md; G2 reusa o seam readAtBase e o pipeline verdictFor nas duas pontas; RouteAdapter ganha metodos OPCIONAIS isCoverageFile/readCoverageAtBase (adaptador sem eles sai not-applicable, nunca silencio). DP-4 emendada na revisao do orquestrador: rota indeterminada na base que ficou DESCOBERTA entra como indeterminada G2 (DEV-plan-3). Geracao interrompida por limite de uso apos README/MEMORY/fase-01; fase-02 e fase-03 concluidas por segundo subagente. Execucao aguarda merge do #75.
+- 2026-09-06: Execucao do Plano 03 iniciada via /execute-plan na branch feat/route-auth-matrix-plano03 (empilhada sobre a do Plano 02; PR #75 ainda ABERTO, sem rebase). Baseline medida antes de tocar codigo: 2033 pass / 0 fail. fase-01 (gatilho G2 + cobertura nas duas pontas + summary.g2) concluida no commit 2b743e6. Suite 2044 pass / 0 fail (+11, exatamente a estimativa); typecheck limpo; agents:contract 39 pass; manifest idempotente (so generatedAt muda, checksums estaveis); CLI `bun skills/security/lib/route-auth-matrix.ts . --ref main` devolve g2 { triggered: false, sources: [], before: "resolved", lost: 0, indeterminate: 0 } sem reason e a nota G1 ja sem o ponteiro do Plano 03 (DP-7). RED-check do orquestrador: as 5 mutacoes do checklist quebraram os testes previstos (isCoverageFile→false derruba `flags G2 as triggered` + `reads each base file once`; ramo unavailable→resolved da Expected "unavailable"/Received "resolved"; segunda leitura da base da Expected 1/Received 2; sources sem @base derruba o teste do sufixo; absent→unavailable derruba `treats middleware.ts absent`), mais uma 6a mutacao propria porque o teste de verdictFor nasceu verde (DEV-fase01-1): `declared !== null && false` da Expected "publica-declarada"/Received "DESCOBERTA". Restauracao identica provada (git diff vazio, zero residuo MUTATION). DI-fase01-1/2, GT-fase01-1 e DEV-fase01-1 registrados na MEMORY.
