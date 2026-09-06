@@ -39,6 +39,18 @@ Formato: o que foi decidido + por que + impacto.
   - Impacto: simplifica error handling no service
 -->
 
+- **DI-fase02-1: RED do motor foi de compilacao, nao de assertion.** A fase previa que
+  `route-auth-matrix.test.ts -t 'CA-04: emits its own'` falharia com `Expected length: 1, Received
+  length: 0` (porque `allowlistFindings` ja existia como `[]`). Na pratica o executor acrescentou os 3
+  testes novos de uma vez, e o import de `buildContractIssues` (ainda inexistente) fez o Bun recusar o
+  modulo de teste inteiro (`SyntaxError: Export named 'buildContractIssues' not found`).
+  - Por que foi aceito: o executor reportou a divergencia em vez de fabricar a mensagem de assertion; o
+    RED do parser (`isWideEntry` inexistente) e o mesmo padrao previsto em G16; e a defesa foi provada
+    pelo RED-check pos-GREEN nos dois arquivos.
+  - Impacto: nenhum no resultado. O orquestrador reproduziu o RED-check: `isWideEntry` → `false`
+    derruba CA-04 no motor (`Received length: 0`, 2 fail) e no parser (`entries` com 8 itens em vez
+    de `[]`). Ver GT-fase02-1 para nao repetir.
+
 ---
 
 ## Bugs Descobertos
@@ -65,6 +77,15 @@ Apenas gotchas que NAO eram obvios antes de implementar.
   - Descoberto em: fase-02
   - Impacto: queries de service precisam usar service_role, nao anon
 -->
+
+- **GT-fase02-1: import novo num arquivo de teste existente = RED de compilacao TOTAL.** O Bun (ESM
+  estrito) recusa carregar o modulo de teste inteiro quando um export importado nao existe — os testes
+  preexistentes tambem aparecem como falha, e o RED por assertion que a fase descrevia nunca acontece.
+  - Descoberto em: fase-02
+  - Impacto: para ter RED por assertion isolado, acrescentar o import SO junto com o teste que o usa,
+    em passo separado do teste cujo RED se quer observar; ou aceitar o RED de compilacao e provar a
+    defesa no RED-check pos-GREEN (que e o que salvou aqui). Vale para a fase-03 (`readAtBaseFromGit`,
+    `diffAllowlist` sao imports novos) e para o `fase-template.md` do plugin.
 
 ---
 
@@ -112,7 +133,7 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 3 |
-| Fases concluidas | 1 |
+| Fases concluidas | 2 |
 | Fases com desvio | 0 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
