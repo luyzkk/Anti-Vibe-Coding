@@ -70,7 +70,22 @@ Formato: sintoma + causa raiz + fix aplicado.
   - Causa: migration anterior criava tabela sem IF NOT EXISTS
   - Fix: adicionado IF NOT EXISTS na migration 009
   - Fase afetada: fase-01
--->
+
+- **BUG-fase02-1: rota de um SEGUNDO `Router()` no mesmo arquivo sumia em silencio.**
+  - Sintoma: `analyzeExpress` com `const a = Router(); const b = Router(); a.get('/alpha'); b.get('/beta')`
+    devolvia SO `GET /alpha`. `/beta` nao aparecia como `Route`, nem como `unresolved`, nem em `notes`.
+  - Causa raiz: `primaryRouterVar` usava `parsed.routers[0]`; qualquer router seguinte do mesmo modulo
+    era ignorado no loop de rotas.
+  - Por que e defeito e nao escopo novo: a **DP-2** manda que toda declaracao que o adaptador ENXERGA e
+    nao resolve vire `Route.unresolved`. O parser enxerga o segundo router (esta em `parsed.routers`) e
+    o descartava. Rota que o relatorio nunca menciona e o modo de falha que o PRD inteiro existe para
+    impedir (RF-04/RF-09) — pior que `indeterminada`, porque nem ruido deixa.
+  - Fix: `secondaryRouters = new Set(pf.routers.slice(1))`; rota de router secundario vira `unresolved`
+    (`segundo Router() no mesmo modulo — nao da para saber onde \`b\` foi montado`) + nota dedup por
+    `file:owner`. Commit `4dc7ae2`, com teste antes.
+  - Descoberto por: o proprio executor da fase-02, que reportou o gap em vez de omitir; reproduzido e
+    confirmado pelo orquestrador antes de mandar corrigir.
+  - Fase afetada: fase-02
 
 - **BUG-fase01-1: `skip_before_action ... only:` estava invertido.** O `only:` do `skip` restringe
   QUAIS acoes deixam de ter o filtro; a implementacao inicial removia o filtro das acoes FORA do
@@ -94,6 +109,17 @@ Apenas gotchas que NAO eram obvios antes de implementar.
   - Impacto: queries de service precisam usar service_role, nao anon
 -->
 
+- **GT-fase02-1: a mutacao `isAuthName -> true` do RED-check NAO quebrava nada na fase-02.**
+  Das 5 mutacoes do checklist da fase-02, 4 derrubaram o teste previsto e essa passou com `14 pass,
+  0 fail`. Causa: a fixture `express-minimal` so tem `requireAuth`/`requireAdmin` (ambos ja auth) e
+  nenhum teste misturava nome auth com nao-auth no mesmo handler — a heuristica so tinha rede em
+  `route-auth-heuristics.test.ts` (fase-01), nao no adaptador.
+  - Descoberto em: fase-02 (executor reportou como gap, nao marcou a linha do checklist como confirmada)
+  - Impacto: teste novo com `requestLogger` (nao-auth) ao lado de `requireAuth`; a mutacao **agora**
+    derruba (`Expected to contain: "requireAuth", Received: "middleware de rota requestLogger"`).
+    **Licao para as fases 03/04:** fixture cujos middlewares sao TODOS auth nao exercita a heuristica —
+    toda fixture de adaptador precisa de pelo menos um nome nao-auth junto de um auth.
+
 ---
 
 ## Desvios do Plano
@@ -106,6 +132,7 @@ Se nada mudou, manter vazio (bom sinal).
   - Motivo: endpoint de bulk delete necessario para UX de selecao multipla
   - Aprovado pelo dev em sessao
 -->
+
 
 - **DEV-plan-1 (nota de planejamento, 2026-09-06): sizing ~8.5h, nao ~7.5h.** O PLAN.md registra ~7.5h
   para o Plano 04; a soma real das fases e 2h + 2h + 2h + 1.5h + 1h = 8.5h. A fase-01 carrega o Passo
@@ -147,7 +174,7 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 5 |
-| Fases concluidas | 1 |
+| Fases concluidas | 2 |
 | Fases com desvio | 0 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
@@ -178,6 +205,12 @@ suite ~2058.
 (bateu com a estimativa), `route-auth-nextjs.test.ts` **40** (inalterado apos os utilitarios sairem para
 `route-auth-heuristics.ts` — DP-3a), suite completa **2093 pass / 0 fail** (baseline do plano: 2058).
 `typecheck` exit 0, `agents:contract` 39 pass, manifest idempotente.
+
+**fase-02 medida (2026-09-06, commits 98b6a05 + 4dc7ae2):**
+`route-auth-express.test.ts` **16** (14 do doc + 2 do fix), `skills/security/lib/` **184**, suite completa
+**2109 pass / 0 fail** (lotes 1436 + 673). Taxa de `indeterminada` da fixture Express: **1/6 = 0.167**,
+abaixo do corte 0.25 (DP-11) — o adaptador fica. `typecheck` exit 0, `agents:contract` 39 pass,
+manifest idempotente, fixture so `.mjs` (G2).
 
 ### Taxa de `indeterminada` por stack (Premissa 3 — preencher na fase-05)
 
