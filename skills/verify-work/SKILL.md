@@ -378,6 +378,13 @@ Esta secao decide apenas **se** ele roda e **onde** o resultado aparece.
     O pior achado de **conformidade com spec** e o pior de **qualidade** aparecem lado
     a lado no topo, sem escolher vencedor entre eles.
 
+2c. Se o reasoning do security-auditor COMECA com `### ALLOWLIST DE ROTAS PUBLICAS ALTERADA NESTE DIFF`,
+    o relatorio ganha a secao `### Allowlist de rotas publicas — ALTERADA` ANTES de `### Issues Found`,
+    reproduzindo o bloco sem resumir, e a linha `Public routes allowlist` do Summary vira
+    `⚠️ ALTERADA — requer aprovacao humana`. As issues `ALLOW-*` ficam na tabela de Issues Found como
+    qualquer finding (nao re-ranquear — 2b). A mudanca fica SEPARADA dos demais findings de proposito
+    (PRD route-auth-matrix-audit, AB-4/CA-07).
+
 3. Limitar a config.max_report_lines (default: 50):
    - Se exceder: agrupar findings similares (ex: "3 funcoes longas em parser.ts")
    - Nota ao final: "{N} findings adicionais. Quer ver lista completa?"
@@ -402,6 +409,12 @@ Esta secao decide apenas **se** ele roda e **onde** o resultado aparece.
 - SOLID: {se "solid-auditor" rodou} ✅ clean | ⚠️ issues found | ⏸ incomplete
 - Test Quality: ✅ solid | ⚠️ {N} weak | ❌ {N} hallucinated
 - Dynamic (dev server): {se rodou sem findings} ✅ clean | {se findings} ⚠️ {N} findings | {se defesa nao segurou} ❌ critical | {se host recusado pelo guardrail} ⛔ target nao autorizado | {se sem alvo ou sem resposta} — no dev server | {se dynamic=false e dev recusou/nao havia o que confirmar} — not run (opt-in)
+- Public routes allowlist: {se security-auditor reportou allowlist.changed} ⚠️ ALTERADA ({N} added / {M} removed) — requer aprovacao humana | {se present} ✅ {accepted} declaradas ({rejected} recusadas, {wide} amplas) | {se ausente} — ausente (fail-closed) | {se security-auditor nao rodou} ⏸ n/a
+
+### Allowlist de rotas publicas — ALTERADA
+{Secao existe SO quando o bloco existe no reasoning do security-auditor. Reproduzir o bloco
+`### ALLOWLIST DE ROTAS PUBLICAS ALTERADA NESTE DIFF` inteiro — added/removed com path, linha e reason,
+e a linha `base:`. Nunca fundir com Issues Found.}
 
 ### Issues Found
 | # | Severity | Description | File:Line | Agent |
