@@ -2,7 +2,7 @@
 
 **Feature:** Matriz Rota x Middleware de Auth no Auditor
 **Iniciado:** 2026-09-05
-**Status:** em andamento
+**Status:** concluido (2026-09-05)
 
 ---
 
@@ -51,6 +51,22 @@ Formato: o que foi decidido + por que + impacto.
     derruba CA-04 no motor (`Received length: 0`, 2 fail) e no parser (`entries` com 8 itens em vez
     de `[]`). Ver GT-fase02-1 para nao repetir.
 
+- **DI-fase03-1 (executor): `absent` passou a vir do `git show`, nao do `cat-file -e`.** O Passo 4 da
+  fase previa `git cat-file -e <sha>:<file>` com exit 1 = ausente. Nao se sustenta (BUG-fase03-1). O
+  executor removeu o comando e classificou "ausente" pela mensagem de erro do `git show`
+  (`does not exist in` / `but not in`), coberto pelos 3 testes de integracao com o repo real.
+  - Impacto: superado no mesmo dia por DI-fase03-2; fica registrado porque explica o commit intermediario.
+- **DI-fase03-2 (orquestrador, revisao da fase-03): `git ls-tree <sha> -- <file>` decide "ausente", sem
+  parse de texto.** Ler a mensagem do `git show` depende do idioma: o git traduz `fatal:` quando ha
+  catalogo i18n e `LANG` definido (nao neste Git for Windows 2.53.0, medido com `LC_ALL=pt_BR.UTF-8`,
+  mas sim em Linux com i18n). Numa maquina traduzida, todo arquivo ausente na base viraria
+  `unavailable` — nao e silencio (DP-11 preservada), mas e ruido sistematico. `ls-tree` responde a
+  mesma pergunta por contrato: exit 0 + stdout vazio = ausente; blob listado = existe; exit 128 = arvore
+  invalida. Medido no repo antes de trocar.
+  - Impacto: 3 comandos git de novo (merge-base → ls-tree → show), como a fase desenhava, so que o do
+    meio e `ls-tree` em vez de `cat-file -e`. Testes inalterados (comportamento); RED-check:
+    quebrar a deteccao de ausente faz `returns absent` falhar com `Received: "unavailable"`.
+
 ---
 
 ## Bugs Descobertos
@@ -64,6 +80,16 @@ Formato: sintoma + causa raiz + fix aplicado.
   - Fix: adicionado IF NOT EXISTS na migration 009
   - Fase afetada: fase-01
 -->
+
+- **BUG-fase03-1: `git cat-file -e <sha>:<file>` nunca devolve exit 1 para path ausente.**
+  - Sintoma: o teste de integracao `returns absent for a file that does not exist at the base` recebia
+    `unavailable` em vez de `absent`.
+  - Causa raiz: com a forma composta `rev:path`, o parser de revisao do git morre com `die()` (exit
+    128, "fatal: path 'x' does not exist in 'sha'") ANTES de chegar na logica que devolveria 1. O exit 1
+    documentado vale para um SHA bem formado que nao existe, nao para `rev:path`. Medido em git 2.53.0.
+  - Fix: DI-fase03-1 (executor, leitura do stderr do `show`) e depois DI-fase03-2 (orquestrador,
+    `git ls-tree <sha> -- <file>` com stdout vazio = ausente). O Plano 03 herda a versao final.
+  - Fase afetada: fase-03
 
 ---
 
@@ -126,6 +152,17 @@ Se nada mudou, manter vazio (bom sinal).
   antes do Plano 04 fase-02 (opcoes: amplitude por stack via `Route.stack`, ou aceitar `:nome` quando casa
   exatamente UMA rota enumerada).
 
+- **DEV-fase03-1 (executor): item de checklist da CLI com `anti-vibe.public-routes.json` NAO commitado
+  e invalido.** Arquivo untracked nao entra em `git diff --name-only <ref>...HEAD`, entao o comando
+  sempre devolveria `changed: false`. Substituido por: CLI contra o repo com `--ref main` devolve
+  `changed: false`, sem `delta`, sem `blocked`; o caminho `changed: true` fica coberto pelos 6 testes de
+  CA-07 (seam injetado) + 3 de `readAtBaseFromGit` (git real). Sinalizado pelo orquestrador no prompt.
+- **DEV-fase03-2 (executor): o RED de `never stays silent` falhou por assertion com mensagem diferente
+  da prevista no doc.** RED honesto confirmado; so o texto divergiu do chute do doc. Sem impacto.
+- **DEV-fase03-3 (executor): `grep -n "Public routes allowlist" skills/verify-work/SKILL.md` devolve 2,
+  nao 1** — o proprio item `2c.` (texto do Passo 6, copiado verbatim) cita a frase. Contagem do doc
+  estava errada; conteudo correto.
+
 ---
 
 ## Metricas
@@ -133,9 +170,9 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 3 |
-| Fases concluidas | 2 |
-| Fases com desvio | 0 |
-| Bugs encontrados | 0 |
+| Fases concluidas | 3 |
+| Fases com desvio | 1 |
+| Bugs encontrados | 1 |
 | Retries necessarios | 0 |
 
 ---
@@ -145,17 +182,75 @@ Se nada mudou, manter vazio (bom sinal).
 Informacoes que o proximo plano PRECISA saber antes de comecar.
 O subagente do proximo plano le este campo.
 
-<!-- A execucao preenche ao fechar a fase-03. Minimo esperado:
-- Assinatura final de `AuditOptions.readAtBase` e de `readAtBaseFromGit(targetDir, ref)` — o Plano 03
-  fase-01 le `middleware.ts` na base com o MESMO seam; nao criar um segundo.
-- Shape final de `summary.allowlist` (`changed`, `delta.added/removed/before/reason`) e o fato de que
-  `delta.removed` e input do G2 (Plano 03): rota que perdeu a declaracao e nao esta no diff NAO foi
-  reavaliada nesta versao.
-- `matchAllowlist(route, entries)` e stack-agnostico sobre `Route.path`; o Plano 04 nao escreve nada
-  de allowlist por stack — mas ler G13 (`:nome` amplo vs. Express) antes da fase-02 dele.
-- Ids `ALLOW-*` vem antes de `ROUTE-*` em `issues`; `buildContractIssues(result)` e a funcao que a CLI usa.
-- Dividas herdadas: gate do cache (G1), cache sem a lib/secao 11 (G12 — criterios por humano pendentes).
--->
+**Estado final (2026-09-05, commits 10f7e89 / 7fcc8e9 / 61387f9):** `route-auth-matrix.test.ts` 33
+testes, `public-routes-allowlist.test.ts` 20, `skills/security/lib/` 108; suite completa 2033 pass / 0 fail.
+
+**Assinaturas publicas (copiadas do codigo — nao redescobrir):**
+
+```ts
+// skills/security/lib/route-auth-matrix.types.ts (ADITIVO ao contrato congelado do Plano 01)
+type AllowlistEntry = { path: string; reason: string; file: string; line: number }
+type RejectedEntry  = { path?: string; line: number; reason: string }
+type AllowlistFinding = { path: string; file: string; line: number; severity: IssueSeverity; description: string }
+type BaseRead = { status: 'found'; source: string } | { status: 'absent' } | { status: 'unavailable'; reason: string }
+type AllowlistDelta = { before: 'resolved' | 'unavailable'; added: AllowlistEntry[]; removed: AllowlistEntry[]; reason?: string }
+
+// skills/security/lib/route-auth-matrix.ts
+type AuditOptions = { changedFiles?: string[]; coverageOverride?: CoverageMap; readAtBase?: (file: string) => BaseRead }
+type AllowlistSummary = { file; present; accepted; rejected: RejectedEntry[]; wide: number; notes; changed: boolean; delta?: AllowlistDelta }
+type AuditResult = { findings: RouteFinding[]; allowlistFindings: AllowlistFinding[]; verdicts: RouteVerdict[]; summary: AuditSummary }
+readAtBaseFromGit(targetDir: string, ref: string): (file: string) => BaseRead   // merge-base -> ls-tree -> show
+buildContractIssues(result: AuditResult): ContractIssue[]                        // ALLOW-* primeiro, depois ROUTE-*
+// CLI: auditRouteCoverage(target, { changedFiles: diff.files, readAtBase: readAtBaseFromGit(target, ref ?? 'HEAD~1') })
+
+// skills/security/lib/public-routes-allowlist.ts (stack-agnostica; nao importa do adaptador Next)
+PUBLIC_ROUTES_FILE = 'anti-vibe.public-routes.json'
+parsePublicRoutes(source, file): AllowlistParseResult   // { entries, rejected, wide, notes } — pura
+readPublicRoutes(targetDir): AllowlistParseResult & { present: boolean }
+matchAllowlist(route, entries): AllowlistEntry | null   // igualdade exata de path, so barra final normalizada
+isWideEntry(path): boolean                              // *, :nome, ( — recusada + finding high
+diffAllowlist(before, after): { added; removed }        // chave = normalizePath(path)
+```
+
+**Onde o Plano 03 (G2) encaixa:**
+
+- **Reusar `opts.readAtBase` para ler `middleware.ts` na base** — `readAtBase(MIDDLEWARE_FILE)` →
+  `parseMatcherConfig(source, file)` da a `CoverageMap` "antes". NAO criar um segundo seam nem um
+  segundo leitor git. `status: 'absent'` = nao havia middleware na base (cobertura antes = nenhuma);
+  `'unavailable'` = veredito `indeterminada` para o delta (fase-03 do Plano 03), nunca silencio.
+- **`summary.allowlist.delta.removed` e input do G2:** rota que perdeu a declaracao de publica e cujo
+  arquivo NAO esta no diff nao foi reavaliada nesta versao (G18 do README). O conjunto avaliado do
+  Plano 03 deve incluir rotas que casam `delta.removed` por `normalizePath(path)`.
+- A nota `'escopo G1 sem rotas: o diff nao tocou arquivo de rota (cobertura perdida e o Plano 03)'`
+  continua em `summary.notes` — o Plano 03 a substitui/complementa quando G2 existir.
+- `indeterminada` agora EMITE finding `medium` (D8). Qualquer regra `opaque` na cobertura "antes" ou
+  "depois" vai gerar issues — planejar as fixtures do G2 com isso em mente.
+
+**Onde o Plano 04 (adaptadores) encaixa:**
+
+- Allowlist e stack-agnostica: `matchAllowlist` compara `Route.path` no dialeto da stack. Nenhum
+  codigo de allowlist por stack. MAS ler **G13 / DEV-plan-4** antes da fase-02 (Express): `:nome` e
+  amplo por DP-3, e `Route.path` do Express e `/users/:id` literal — um dev Express nao consegue
+  declarar essa rota publica sem finding `high`. Decidir (amplitude por `Route.stack`, ou aceitar
+  `:nome` quando casa exatamente UMA rota enumerada) ANTES de escrever o adaptador.
+- Regra nova de `CoverageRule` continua caindo em `indeterminada` por hash map — e agora isso vira
+  finding `medium` visivel, nao so contagem.
+
+**Dividas herdadas (nenhuma bloqueia o Plano 03):**
+
+- **Cache do plugin defasado** (`~/.claude/plugins/cache/local-plugins/anti-vibe-coding/7.7.0/`): nao
+  tem a lib `route-auth-matrix`, a secao 11 do agente, `hooks/lib/tdd-decision.cjs` nem o gate Bash.
+  Consequencias: (a) o TDD gate em execucao bloqueia `middleware.ts` em fixtures — por isso as fixtures
+  `nextjs-allowlist` e `nextjs-allowlist-wide` NAO tem middleware; (b) todo criterio "por humano" que
+  exige `/anti-vibe-coding:security` num projeto real esta pendente. Rodar
+  `scripts/sync-to-global.sh` (Git Bash) antes de validar por humano.
+- **GT-fase02-1:** import novo num arquivo de teste existente = RED de compilacao total no Bun. Para RED
+  por assertion, acrescentar o import so junto com o teste que o usa, em passo separado (a fase-03 fez
+  assim e funcionou).
+- Pendencia do Plano 01 continua: validar que `CLAUDE_PLUGIN_ROOT` chega ao Bash do subagente.
+- **Compound candidates** (para `/lessons-learned`): BUG-fase03-1 (`cat-file -e rev:path`),
+  DI-fase03-2 (nao classificar por mensagem do git), G19 (`needs_human` descarta issues no
+  consolidador), GT-fase02-1.
 
 ---
 
