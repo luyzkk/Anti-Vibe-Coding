@@ -13,7 +13,7 @@
 | 01 | Fundacao + Tracer Bullet (Next.js) | 5 | ~8h | — |
 | 02 | Allowlist e veredictos completos | 3 | ~4h | Plano 01 |
 | 03 | G2: cobertura perdida | 3 | ~4.5h | Plano 02 |
-| 04 | Os outros tres adaptadores + multi-stack | 5 | ~7.5h | Plano 01 |
+| 04 | Os outros tres adaptadores + multi-stack | 5 | ~8.5h | Plano 01 (fases 01-03); Plano 03 (fases 04-05) |
 
 ---
 
