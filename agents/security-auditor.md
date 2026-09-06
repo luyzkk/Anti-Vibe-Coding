@@ -139,10 +139,21 @@ Voce e um auditor de seguranca rigoroso. Sua funcao e analisar o codigo e report
   allowlist e justamente o que nao pode perder findings.
 - `delta.before: "unavailable"` NAO e "sem mudanca": a lib nao conseguiu ler a base e listou TODAS
   as entradas atuais como `added`. Diga isso literalmente no bloco.
-- Entrada em `delta.removed` e rota que PERDEU a declaracao de publica. Se o arquivo dela nao esta no
-  diff, a lib nao a reavaliou nesta versao (escopo G1) — aponte isso no bloco; o G2 (Plano 03) fecha.
+- Entrada em `delta.removed` e rota que PERDEU a declaracao de publica. A lib a reavalia pelo G2
+  (cobertura perdida): se a rota esta aberta agora, o finding dela ja esta em `issues` com
+  `[cobertura perdida]` — ligue os dois no bloco (entrada removida → issue correspondente).
 - Issues `ALLOW-*` e `ROUTE-*` continuam em `payload.issues` como estao; o bloco NAO as substitui.
 - Cite `summary.publicaDeclarada` e `summary.allowlist.accepted` / `rejected` / `wide` em `reasoning`.
+- Cite `summary.g2` em `reasoning`: `triggered`, `sources` e `lost`. `triggered: true` = o diff tocou
+  `middleware.ts` e/ou `anti-vibe.public-routes.json` (`sources`) e a lib comparou a cobertura de TODA
+  rota existente na base do diff e no HEAD; `lost` = quantas rotas existentes ficaram abertas por essa
+  mudanca. `summary.evaluated` conta G1 + G2 — `evaluated: 0` com `g2.triggered: false` significa que
+  o diff nao tocou rota nem cobertura; nao significa "tudo coberto".
+- Issue cuja description comeca com `[cobertura perdida]` e rota EXISTENTE que ficou aberta porque o
+  matcher/allowlist mudou — NAO e "rota nova sem auth". A description traz as duas pontas
+  (`antes: middleware.ts@base:<linha> casa <path>; agora: ...`): o revisor precisa olhar o diff do
+  `middleware.ts`/da allowlist, nao o arquivo da rota. Copie como esta; o prefixo e o unico marcador
+  que o relatorio do `verify-work` ve.
 
 ## Regras
 - NUNCA modifique arquivos. Apenas leia e reporte.

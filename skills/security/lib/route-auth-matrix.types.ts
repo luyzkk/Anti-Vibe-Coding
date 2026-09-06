@@ -63,11 +63,17 @@ export type CoverageMap = {
 export const VERDICTS = ['coberta', 'publica-declarada', 'DESCOBERTA', 'indeterminada'] as const
 export type Verdict = (typeof VERDICTS)[number]
 
+// 2026-09-05 (Luiz/dev): Plano 03 DP-4 — qual entrada do CONJUNTO-GATILHO (PRD Decisao 6) trouxe a rota:
+// G1 = o arquivo dela esta no diff; G2 = cobertura perdida por mudanca no matcher/allowlist. Opcional porque
+// `evaluateRoute`/`verdictFor` sao puras e nao sabem o gatilho; o MOTOR sempre preenche.
+export type AuditTrigger = 'G1' | 'G2'
+
 export type RouteVerdict = {
   route: Route
   verdict: Verdict
   /** O que demonstrou o veredito (a regra que casou) ou o que faltou (RF-05). */
   evidence: string
+  trigger?: AuditTrigger
 }
 
 /** So os veredictos que emitem finding viram RouteFinding — ver tabela de severidade do PRD. */
@@ -77,6 +83,7 @@ export type RouteFinding = {
   severity: IssueSeverity
   /** O que faltou, em prosa curta: "nenhuma entrada de config.matcher casa /api/admin". */
   missing: string
+  trigger?: AuditTrigger
 }
 
 export interface RouteAdapter {

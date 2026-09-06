@@ -3,7 +3,7 @@
 import type { IssueSeverity } from '../../lib/subagent-contract'
 import { PUBLIC_ROUTES_FILE, diffAllowlist, matchAllowlist, parsePublicRoutes, readPublicRoutes } from './public-routes-allowlist'
 import type { AllowlistFinding, CoverageMap, CoverageRule, RejectedEntry, Route, RouteFinding, RouteVerdict } from './route-auth-matrix.types'
-import type { AllowlistDelta, AllowlistEntry, BaseRead, G2Summary, RouteAdapter } from './route-auth-matrix.types'
+import type { AllowlistDelta, AllowlistEntry, AuditTrigger, BaseRead, G2Summary, RouteAdapter, Verdict } from './route-auth-matrix.types'
 import { isCoverageUnavailable } from './route-auth-matrix.types'
 import { matchRouteAgainstPattern, nextjsAdapter } from './route-auth-nextjs'
 
@@ -202,13 +202,44 @@ function reconstructBefore(
   return { kind: 'resolved', coverage, allowlist: allowlistBase === null ? after.allowlist : allowlistBase.entries }
 }
 
-function toG2Summary(sources: string[], before: BeforeState): G2Summary {
+// 2026-09-05 (Luiz/dev): DP-4 (emendada) — o conjunto G2. So rota FORA do G1 (G8: quem esta no G1 conta uma vez, la);
+// so quem ERA coberta/publica-declarada/indeterminada e AGORA esta aberta. `indeterminada` antes entra porque exclui-la
+// seria aprovacao tacita por incapacidade (RF-04/D8) — mas o veredito G2 fica `indeterminada`: nao da para provar que
+// era coberta. O par indeterminada → indeterminada nao e mudanca. `coberta` nunca nasce aqui: OPEN_NOW filtra.
+const LOST_FROM: ReadonlySet<Verdict> = new Set(['coberta', 'publica-declarada', 'indeterminada'])
+const OPEN_NOW: ReadonlySet<Verdict> = new Set(['DESCOBERTA', 'indeterminada'])
+
+type Ends = { coverage: CoverageMap; allowlist: AllowlistEntry[] }
+
+function lostCoverage(routes: Route[], changed: Set<string>, before: Ends, after: Ends): RouteVerdict[] {
+  const lost: RouteVerdict[] = []
+  for (const route of routes) {
+    if (changed.has(route.file)) continue                              // G8
+    const was = verdictFor(route, before.coverage, before.allowlist)
+    if (!LOST_FROM.has(was.verdict)) continue
+    const now = verdictFor(route, after.coverage, after.allowlist)
+    if (!OPEN_NOW.has(now.verdict)) continue
+    if (was.verdict === 'indeterminada' && now.verdict === 'indeterminada') continue   // nao mudou: nao e perda
+    const verdict: Verdict = was.verdict === 'indeterminada' ? 'indeterminada' : now.verdict   // DP-4 emendada
+    lost.push({ route, verdict, evidence: `cobertura perdida — antes: ${was.evidence}; agora: ${now.evidence}`, trigger: 'G2' })
+  }
+  return lost
+}
+
+// Sem gatilho, sem G2. Ponta antes irreconstruivel: a consequencia por rota e a fase-03 (DP-5) — aqui ainda `[]`,
+// mas `summary.g2.before` e a nota `G2: <reason>` (fase-01) ja deixam visivel que a base nao foi lida.
+function g2Verdicts(routes: Route[], changed: Set<string>, sources: string[], before: BeforeState, after: Ends): RouteVerdict[] {
+  if (sources.length === 0 || before.kind !== 'resolved') return []
+  return lostCoverage(routes, changed, before, after)
+}
+
+function toG2Summary(sources: string[], before: BeforeState, g2: RouteVerdict[]): G2Summary {
   return {
     triggered: sources.length > 0,
     sources,
     before: before.kind,
-    lost: 0,            // fase-02
-    indeterminate: 0,   // fases 02/03
+    lost: g2.filter((v) => v.verdict === 'DESCOBERTA').length,
+    indeterminate: g2.filter((v) => v.verdict === 'indeterminada').length,
     ...(before.kind === 'resolved' ? {} : { reason: before.reason }),   // G3
   }
 }
@@ -238,9 +269,8 @@ export type AuditResult = {
 const SEVERITY_ORDER: Readonly<Record<string, number>> = { critical: 0, high: 1, medium: 2, low: 3 }
 
 /**
- * G1 (PRD Decisoes 2 e 6): avalia SO as rotas cujos arquivos estao no diff; o mapa de cobertura e
- * lido inteiro, porque o middleware que protege a rota nova quase nunca esta no mesmo commit.
- * G2 (cobertura perdida por estreitamento do matcher) e o Plano 03 — nao antecipar aqui.
+ * CONJUNTO-GATILHO (PRD Decisoes 2 e 6): G1 = rotas cujos arquivos estao no diff; G2 = rotas existentes que
+ * perderam cobertura porque o matcher/allowlist mudou (DP-4). O mapa de cobertura e lido inteiro nas duas pontas.
  */
 export function auditRouteCoverage(targetDir: string, opts: AuditOptions): AuditResult {
   const adapter: RouteAdapter = nextjsAdapter   // fase-03: `opts.adapter ?? nextjsAdapter` (G14)
@@ -268,18 +298,25 @@ export function auditRouteCoverage(targetDir: string, opts: AuditOptions): Audit
   // DP-1/DP-2: gatilho G2 e ponta antes. O loop rota a rota e a fase-02.
   const g2Sources = resolveG2Sources(adapter, changed)
   const coverageTouched = g2Sources.some((file) => file !== PUBLIC_ROUTES_FILE)
-  const before = reconstructBefore(adapter, read, coverageTouched, { coverage, allowlist: allowlist.entries }, allowlistBase)
+  const after: Ends = { coverage, allowlist: allowlist.entries }
+  const before = reconstructBefore(adapter, read, coverageTouched, after, allowlistBase)
   if (before.kind === 'resolved' && coverageTouched) notes.push(...before.coverage.notes)   // DP-6/G9: notas da base
   if (before.kind !== 'resolved') notes.push(`G2: ${before.reason}`)
 
   // 2026-09-05 (Luiz/dev): DP-6 — allowlist ANTES do motor (PRD Decisao 3: coberta OU publica declarada).
   // verdictFor e a UNICA forma de produzir veredito (DP-3); evaluateRoute nunca produz `publica-declarada`.
-  const verdicts = g1.map((route) => verdictFor(route, coverage, allowlist.entries))
+  // DP-4: o motor SEMPRE sabe o gatilho; `verdictFor` nao. A anotacao `: RouteVerdict` mantem o literal 'G1'.
+  const g1Verdicts = g1.map((route): RouteVerdict => ({ ...verdictFor(route, coverage, allowlist.entries), trigger: 'G1' }))
+  const g2 = g2Verdicts(routes, changed, g2Sources, before, after)
+  const verdicts = [...g1Verdicts, ...g2]
 
   const findings: RouteFinding[] = []
   for (const v of verdicts) {
     if (v.verdict !== 'DESCOBERTA' && v.verdict !== 'indeterminada') continue
-    findings.push({ route: v.route, verdict: v.verdict, severity: SEVERITY_BY_VERDICT[v.verdict](v.route), missing: v.evidence })
+    findings.push({
+      route: v.route, verdict: v.verdict, severity: SEVERITY_BY_VERDICT[v.verdict](v.route), missing: v.evidence,
+      ...(v.trigger !== undefined ? { trigger: v.trigger } : {}),   // G3: nunca `trigger: undefined`
+    })
   }
 
   findings.sort((a, b) => {
@@ -299,7 +336,7 @@ export function auditRouteCoverage(targetDir: string, opts: AuditOptions): Audit
     verdicts,
     summary: {
       enumerated: routes.length,
-      evaluated: g1.length,
+      evaluated: verdicts.length,   // G1 + G2 (DP-7)
       coberta: verdicts.filter((v) => v.verdict === 'coberta').length,
       publicaDeclarada: verdicts.filter((v) => v.verdict === 'publica-declarada').length,
       descoberta: verdicts.filter((v) => v.verdict === 'DESCOBERTA').length,
@@ -317,10 +354,13 @@ export function auditRouteCoverage(targetDir: string, opts: AuditOptions): Audit
         changed: allowlistChanged,
         ...(delta !== undefined ? { delta } : {}),
       },
-      g2: toG2Summary(g2Sources, before),
+      g2: toG2Summary(g2Sources, before, g2),
     },
   }
 }
+
+// DP-4: o prefixo e o UNICO marcador de G2 que o relatorio ve (DP-8/G11: verify-work nao muda). Hash map, nao ternario.
+const TRIGGER_PREFIX: Readonly<Record<AuditTrigger, string>> = { G1: '', G2: '[cobertura perdida] ' }
 
 export function toContractIssue(finding: RouteFinding, index: number): ContractIssue {
   return {
@@ -329,7 +369,7 @@ export function toContractIssue(finding: RouteFinding, index: number): ContractI
     file: finding.route.file,
     line: finding.route.line,
     description:
-      `${finding.verdict}: ${finding.route.method} ${finding.route.path} ` +
+      `${TRIGGER_PREFIX[finding.trigger ?? 'G1']}${finding.verdict}: ${finding.route.method} ${finding.route.path} ` +
       `(${finding.route.file}:${finding.route.line}) ${DESCRIPTION_BY_VERDICT[finding.verdict](finding)}`,
   }
 }

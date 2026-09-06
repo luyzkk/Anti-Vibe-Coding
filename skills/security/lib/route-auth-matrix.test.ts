@@ -44,8 +44,8 @@ describe('auditRouteCoverage — gatilho G2 e duas pontas (Plano 03)', () => {
     expect(summary.g2.triggered).toBe(true)
     expect(summary.g2.sources).toEqual(['middleware.ts'])
     expect(summary.g2.before).toBe('resolved')
-    expect(summary.g2.lost).toBe(0)                              // emissao e a fase-02
-    expect(findings).toHaveLength(0)
+    expect(summary.g2.lost).toBe(4)                                   // admin, preferences, users GET, users DELETE
+    expect(findings.every((f) => f.trigger === 'G2')).toBe(true)      // a ponta depois e o middleware.ts REAL da fixture
     expect(summary.notes.join(' ')).not.toContain('Plano 03')    // DP-7: nota G1 sem o ponteiro
   })
 
@@ -362,6 +362,138 @@ describe('auditRouteCoverage — mudanca na allowlist (AB-4 / CA-07)', () => {
     const { summary } = auditRouteCoverage(ALLOWLIST, { changedFiles: ['app/api/health/route.ts'] })
     expect(summary.allowlist.changed).toBe(false)
     expect(summary.allowlist.delta).toBeUndefined()
+  })
+})
+
+describe('auditRouteCoverage — G2 cobertura perdida (Plano 03 fase-02)', () => {
+  // A ponta ANTES cobre toda a API; a ponta DEPOIS so /api/preferences. Nenhum arquivo de rota no diff.
+  // `(): BaseRead` e obrigatorio: sem a anotacao, `status` alarga para string e o spread nao tipa (gotcha local).
+  const NARROWED = {
+    changedFiles: ['middleware.ts'],
+    readAtBase: (): BaseRead => ({ status: 'found', source: middlewareSource(['/api/:path*']) }),
+    coverageOverride: coverage(['/api/preferences']),
+  }
+
+  // 2026-09-05 (Luiz/dev): PRD CA-09 — teste de abuso escrito ANTES do loop existir. O RED e exatamente o
+  // silencio que o G2 quebra: diff que so estreita o matcher, zero findings (PRD "G2 e o que quase ficou de fora").
+  it('CA-09: emits a finding for every route that left coberta when only middleware.ts narrowed the matcher', () => {
+    const { findings, summary } = auditRouteCoverage(MINIMAL, NARROWED)
+    expect(findings).toHaveLength(3)
+    expect(findings.map((f) => [f.severity, f.route.method, f.route.path])).toEqual([
+      ['critical', 'GET', '/api/admin'],           // marcador de privilegio (D9)
+      ['critical', 'DELETE', '/api/users/[id]'],   // metodo mutante (D9)
+      ['high', 'GET', '/api/users/[id]'],
+    ])
+    expect(findings.every((f) => f.verdict === 'DESCOBERTA' && f.trigger === 'G2')).toBe(true)
+    expect(findings.some((f) => f.route.path === '/api/preferences')).toBe(false)                    // continua coberta
+    expect(findings.some((f) => f.route.path === '/docs/[...slug]' || f.route.path === '/pricing')).toBe(false)   // abertas nas duas pontas: nada perdido
+    expect(summary.g2).toEqual({ triggered: true, sources: ['middleware.ts'], before: 'resolved', lost: 3, indeterminate: 0 })
+    expect(summary.evaluated).toBe(3)      // G1 = 0 (middleware.ts nao e arquivo de rota) + G2 = 3
+    expect(summary.descoberta).toBe(3)
+  })
+
+  // DP-4: as DUAS pontas na evidence (G6: o sufixo @base e o que distingue a linha antiga), prefixo na description.
+  it('carries both ends in the evidence and prefixes [cobertura perdida] on the contract description', () => {
+    const { findings } = auditRouteCoverage(MINIMAL, NARROWED)
+    expect(findings[0]?.missing).toBe(
+      'cobertura perdida — antes: middleware.ts@base:2 casa /api/admin; agora: nenhuma entrada de config.matcher (middleware.ts) casa /api/admin',
+    )
+    const description = findings.map(toContractIssue)[0]?.description ?? ''
+    expect(description.startsWith('[cobertura perdida] DESCOBERTA: GET /api/admin (app/api/admin/route.ts:2)')).toBe(true)
+    expect(description).toContain('antes: middleware.ts@base:2')
+  })
+
+  // Entrada REMOVIDA da allowlist (G18 do Plano 02). A fixture nextjs-allowlist declara health e stripe e tem
+  // /api/admin SEM reason (recusada, CA-04b). A base declarava /api/admin COM reason: a rota era publica-declarada,
+  // agora esta DESCOBERTA — e o arquivo dela nao esta no diff. So o G2 enxerga. Admin fica na linha 5 do texto.
+  const BASE_WITH_ADMIN = [
+    '{',
+    '  "routes": [',
+    '    { "path": "/api/health", "reason": "lb" },',
+    '    { "path": "/api/webhooks/stripe", "reason": "assinado" },',
+    '    { "path": "/api/admin", "reason": "painel legado — publico ate este diff" }',
+    '  ]',
+    '}',
+  ].join('\n')
+
+  it('flags a route that lost its public declaration when its allowlist entry was removed', () => {
+    const { findings, summary } = auditRouteCoverage(ALLOWLIST, {
+      changedFiles: ['anti-vibe.public-routes.json'],
+      readAtBase: () => ({ status: 'found', source: BASE_WITH_ADMIN }),
+    })
+    expect(summary.allowlist.delta?.removed.map((e) => e.path)).toEqual(['/api/admin'])   // delta (Plano 02) e G2 saem da MESMA leitura (G16)
+    expect(findings).toHaveLength(1)
+    expect(findings[0]?.route.path).toBe('/api/admin')
+    expect(findings[0]?.severity).toBe('critical')
+    expect(findings[0]?.trigger).toBe('G2')
+    expect(findings[0]?.missing).toContain('antes: anti-vibe.public-routes.json@base:5 declara publica — painel legado')
+    expect(findings[0]?.missing).toContain('agora: nenhuma entrada de config.matcher (middleware.ts ausente) casa /api/admin')
+    expect(summary.g2).toEqual({ triggered: true, sources: ['anti-vibe.public-routes.json'], before: 'resolved', lost: 1, indeterminate: 0 })
+  })
+
+  // 2026-09-05 (Luiz/dev): G7 do plano (DP-6, caso inverso do `absent`) — base COM matcher, HEAD SEM middleware.ts.
+  // `readCoverage` atual devolve rules: [] e tudo que era coberta vira DESCOBERTA G2. Nenhum codigo especial; o
+  // teste existe para ninguem "otimizar" o caso depois.
+  it('treats a deleted middleware.ts as losing every route it covered', () => {
+    const { findings, summary } = auditRouteCoverage(MINIMAL, {
+      changedFiles: ['middleware.ts'],
+      readAtBase: () => ({ status: 'found', source: middlewareSource(['/api/:path*']) }),
+      coverageOverride: { stack: 'nextjs', rules: [], sources: [], notes: ['middleware.ts nao encontrado na raiz do projeto'] },
+    })
+    expect(findings.map((f) => `${f.route.method} ${f.route.path}`)).toEqual([
+      'GET /api/admin', 'DELETE /api/users/[id]', 'GET /api/preferences', 'GET /api/users/[id]',
+    ])
+    expect(findings.map((f) => f.severity)).toEqual(['critical', 'critical', 'high', 'high'])
+    expect(findings.every((f) => f.trigger === 'G2' && f.missing.includes('agora: nenhuma entrada de config.matcher (middleware.ts ausente)'))).toBe(true)
+    expect(summary.g2.lost).toBe(4)
+    expect(summary.sources).toEqual([])   // a ponta depois nao tem fonte; a ponta antes esta na evidence
+  })
+
+  // G8 + DP-10: rota do G1 que TAMBEM perdeu cobertura conta UMA vez, como G1 (sem prefixo). Ordenacao
+  // (severidade, path) e ids ROUTE-* nao mudam com o trigger.
+  it('counts a route that is in G1 and also lost coverage once, as G1, keeping order and ids', () => {
+    const result = auditRouteCoverage(MINIMAL, { ...NARROWED, changedFiles: ['middleware.ts', 'app/api/admin/route.ts'] })
+    const admin = result.findings.filter((f) => f.route.path === '/api/admin')
+    expect(admin).toHaveLength(1)
+    expect(admin[0]?.trigger).toBe('G1')
+    expect(result.summary.evaluated).toBe(3)      // 1 G1 + 2 G2
+    expect(result.summary.g2.lost).toBe(2)
+    const issues = buildContractIssues(result)
+    expect(issues.map((i) => i.id)).toEqual(['ROUTE-001', 'ROUTE-002', 'ROUTE-003'])
+    expect(issues[0]?.description.startsWith('DESCOBERTA: GET /api/admin')).toBe(true)                             // G1: sem prefixo
+    expect(issues[1]?.description.startsWith('[cobertura perdida] DESCOBERTA: DELETE /api/users/[id]')).toBe(true)
+    expect(issues[2]?.severity).toBe('high')
+  })
+
+  // O gatilho e o ARQUIVO no diff; o finding e a PERDA. Diff que alarga (ou so reescreve) o matcher dispara o
+  // G2 e nao emite nada — sem isso, todo commit em middleware.ts viraria ruido. Este teste NASCE VERDE (antes do
+  // loop existir tambem nao ha finding) — e a trava contra falso positivo; a defesa e provada no RED-check (4).
+  it('emits nothing when the middleware change widens or keeps the coverage', () => {
+    const { findings, summary } = auditRouteCoverage(MINIMAL, { ...NARROWED, coverageOverride: coverage(['/api/:path*', '/dashboard/:path*']) })
+    expect(findings).toHaveLength(0)
+    expect(summary.g2).toEqual({ triggered: true, sources: ['middleware.ts'], before: 'resolved', lost: 0, indeterminate: 0 })
+    expect(summary.evaluated).toBe(0)
+  })
+
+  // 2026-09-05 (Luiz/dev): DP-4 emendada — base com matcher COMPUTADO (opaque): toda rota era `indeterminada` antes.
+  // As que estao DESCOBERTA agora nao podem sair em silencio (RF-04/D8), mas tambem nao da para provar que eram
+  // cobertas: entram como `indeterminada` G2 (medium). O par indeterminada → indeterminada (matcher continua
+  // computado) NAO e mudanca e nao entra. /api/preferences esta coberta hoje: fora (OPEN_NOW).
+  it('treats a route that was indeterminada at the base and is DESCOBERTA now as indeterminada G2, never silent', () => {
+    const OPAQUE_BASE = (): BaseRead => ({ status: 'found', source: 'export function middleware() {}\nexport const config = { matcher: PROTECTED }\n' })
+    const { findings, summary } = auditRouteCoverage(MINIMAL, { changedFiles: ['middleware.ts'], readAtBase: OPAQUE_BASE, coverageOverride: coverage(['/api/preferences']) })
+    expect(findings).toHaveLength(5)
+    expect(findings.every((f) => f.verdict === 'indeterminada' && f.severity === 'medium' && f.trigger === 'G2')).toBe(true)
+    expect(findings[0]?.missing).toContain('antes: matcher computado')
+    expect(summary.g2).toEqual({ triggered: true, sources: ['middleware.ts'], before: 'resolved', lost: 0, indeterminate: 5 })
+
+    const stillOpaque = auditRouteCoverage(MINIMAL, {
+      changedFiles: ['middleware.ts'],
+      readAtBase: OPAQUE_BASE,
+      coverageOverride: { stack: 'nextjs', rules: [{ kind: 'opaque', reason: 'matcher computado', file: 'middleware.ts', line: 2 }], sources: ['middleware.ts'], notes: [] },
+    })
+    expect(stillOpaque.findings).toHaveLength(0)
+    expect(stillOpaque.summary.g2.indeterminate).toBe(0)
   })
 })
 
