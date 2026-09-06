@@ -4,11 +4,15 @@
 // disco: o TDD gate bloqueia criar `middleware.ts` (GT-fase01-1) e funcao pura dispensa I/O.
 import { describe, it, expect } from 'bun:test'
 import { join } from 'node:path'
-import { auditRouteCoverage, evaluateRoute, severityFor } from './route-auth-matrix'
+import { auditRouteCoverage, buildContractIssues, evaluateRoute, readAtBaseFromGit, severityFor, toContractIssue } from './route-auth-matrix'
 import type { CoverageMap, Route } from './route-auth-matrix.types'
 
 const FIXTURES = join(import.meta.dir, '../../../tests/fixtures/route-auth-matrix')
 const MINIMAL = join(FIXTURES, 'nextjs-minimal')
+// 2026-09-05 (Luiz/dev): Plano 02 fase-01 — fixture da allowlist (DP-13), sem middleware.ts (G1).
+const ALLOWLIST = join(FIXTURES, 'nextjs-allowlist')
+// 2026-09-05 (Luiz/dev): Plano 02 fase-02 — fixture da entrada ampla (DP-3/AB-1), sem middleware.ts (G1).
+const WIDE = join(FIXTURES, 'nextjs-allowlist-wide')
 
 const route = (over: Partial<Route>): Route => ({
   method: 'GET',
@@ -107,6 +111,8 @@ describe('auditRouteCoverage — escopo G1', () => {
     expect(findings[0]?.route.file).toBe('app/api/admin/route.ts')
     expect(findings[0]?.route.line).toBeGreaterThanOrEqual(1)
     expect(findings[0]?.missing).toContain('config.matcher')
+    // DP-14: a description tambem diz que a rota nao esta declarada publica (RF-05).
+    expect(findings.map(toContractIssue)[0]?.description).toContain('anti-vibe.public-routes.json')
   })
 
   it('CA-01b: emits high, not critical, for an uncovered GET without a marker', () => {
@@ -129,7 +135,9 @@ describe('auditRouteCoverage — escopo G1', () => {
     expect(summary.notes.join(' ')).toContain('G1')
   })
 
-  it('counts indeterminada in the summary without emitting a finding (emission is Plano 02)', () => {
+  // 2026-09-05 (Luiz/dev): Plano 02 fase-03 — CA-10/D8. Substitui o teste "sem emitir" (que
+  // afirmava findings.length === 0): manter os dois lado a lado seria uma contradicao permanente.
+  it('CA-10: emits a medium finding for each indeterminada route instead of hiding it', () => {
     const { findings, summary } = auditRouteCoverage(MINIMAL, {
       changedFiles: ['app/api/users/[id]/route.ts'],
       coverageOverride: {
@@ -139,8 +147,14 @@ describe('auditRouteCoverage — escopo G1', () => {
         notes: [],
       },
     })
+    expect(findings).toHaveLength(2) // GET e DELETE de /api/users/[id]
+    expect(findings.map((f) => f.severity)).toEqual(['medium', 'medium'])
+    expect(findings.map((f) => f.verdict)).toEqual(['indeterminada', 'indeterminada'])
+    expect(findings[0]?.missing).toContain('computado')
     expect(summary.indeterminada).toBe(2)
-    expect(findings).toHaveLength(0)
+    const issue = findings.map(toContractIssue)[0]
+    expect(issue?.description).toContain('indeterminada: ')
+    expect(issue?.description).toContain('cobertura nao demonstravel')
   })
 
   it('orders findings by severity so the worst one comes first', () => {
@@ -148,5 +162,150 @@ describe('auditRouteCoverage — escopo G1', () => {
       changedFiles: ['app/api/preferences/route.ts', 'app/api/admin/route.ts'],
     })
     expect(findings.map((f) => f.severity)).toEqual(['critical', 'high'])
+  })
+
+  // coverage(['/docs/:one']) → /api/admin nao casa (DESCOBERTA critical); /docs/[...slug] casa so uma
+  // sonda (partial → indeterminada medium). Prova que medium vem DEPOIS de critical na lista.
+  it('orders medium indeterminada after critical and high findings', () => {
+    const { findings } = auditRouteCoverage(MINIMAL, {
+      changedFiles: ['app/docs/[...slug]/page.tsx', 'app/api/admin/route.ts'],
+      coverageOverride: coverage(['/docs/:one']),
+    })
+    expect(findings.map((f) => f.severity)).toEqual(['critical', 'medium'])
+  })
+})
+
+// 2026-09-05 (Luiz/dev): Plano 02 fase-01 — allowlist consultada ANTES do motor (DP-6). evaluateRoute
+// nao muda; quem casa a allowlist nem chega nele.
+describe('auditRouteCoverage — allowlist (Plano 02)', () => {
+  it('CA-03: emits nothing and counts publica-declarada for a route declared in the allowlist', () => {
+    const { findings, summary } = auditRouteCoverage(ALLOWLIST, { changedFiles: ['app/api/health/route.ts'] })
+    expect(findings).toHaveLength(0)
+    expect(summary.publicaDeclarada).toBe(1)
+    expect(summary.allowlist.present).toBe(true)
+    expect(summary.allowlist.accepted).toBe(2)
+  })
+
+  // Sem a allowlist este POST seria critical (metodo mutante). A declaracao escrita e o que muda isso.
+  it('CA-03: a declared POST is publica-declarada, not a critical finding', () => {
+    const { findings, verdicts } = auditRouteCoverage(ALLOWLIST, { changedFiles: ['app/api/webhooks/stripe/route.ts'] })
+    expect(findings).toHaveLength(0)
+    expect(verdicts.map((v) => v.verdict)).toEqual(['publica-declarada'])
+    expect(verdicts[0]?.evidence).toContain('anti-vibe.public-routes.json:4')
+  })
+
+  it('CA-04b: a rejected entry sends the route back to the engine and lists the rejection', () => {
+    const { findings, summary } = auditRouteCoverage(ALLOWLIST, { changedFiles: ['app/api/admin/route.ts'] })
+    expect(findings.map((f) => f.severity)).toEqual(['critical'])
+    expect(summary.publicaDeclarada).toBe(0)
+    expect(summary.allowlist.rejected.map((r) => r.path)).toEqual(['/api/admin'])
+    expect(summary.allowlist.rejected[0]?.line).toBe(5)
+  })
+
+  it('reports the allowlist as absent with zero declared when the project has none', () => {
+    const { summary, allowlistFindings } = auditRouteCoverage(MINIMAL, { changedFiles: ['app/api/admin/route.ts'] })
+    expect(summary.allowlist.present).toBe(false)
+    expect(summary.publicaDeclarada).toBe(0)
+    expect(summary.allowlist.notes.join(' ')).toContain('nenhuma rota declarada publica')
+    expect(allowlistFindings).toEqual([])
+  })
+})
+
+describe('auditRouteCoverage — entrada ampla (AB-1 / CA-04)', () => {
+  it('CA-04: emits its own high finding for a wide allowlist entry, independent of the routes', () => {
+    const result = auditRouteCoverage(WIDE, { changedFiles: ['app/api/admin/route.ts'] })
+    expect(result.allowlistFindings).toHaveLength(1)
+    expect(result.allowlistFindings[0]?.severity).toBe('high')
+    expect(result.allowlistFindings[0]?.file).toBe('anti-vibe.public-routes.json')
+    expect(result.allowlistFindings[0]?.line).toBe(3)
+    expect(result.summary.allowlist.wide).toBe(1)
+    expect(result.summary.allowlist.accepted).toBe(0)
+  })
+
+  it('CA-04: a wide entry silences nothing — the route under it is still DESCOBERTA critical', () => {
+    const { findings, summary } = auditRouteCoverage(WIDE, { changedFiles: ['app/api/admin/route.ts'] })
+    expect(findings.map((f) => f.severity)).toEqual(['critical'])
+    expect(summary.publicaDeclarada).toBe(0)
+  })
+
+  it('emits ALLOW-* issues before ROUTE-* issues in the contract output', () => {
+    const result = auditRouteCoverage(WIDE, { changedFiles: ['app/api/admin/route.ts'] })
+    const issues = buildContractIssues(result)
+    expect(issues.map((i) => i.id)).toEqual(['ALLOW-001', 'ROUTE-001'])
+    expect(issues[0]?.severity).toBe('high')
+    expect(issues[0]?.line).toBe(3)
+  })
+})
+
+describe('auditRouteCoverage — mudanca na allowlist (AB-4 / CA-07)', () => {
+  const ALLOWLIST_IN_DIFF = ['anti-vibe.public-routes.json', 'app/api/health/route.ts']
+
+  it('CA-07: flags the allowlist as changed and lists the delta when the file is in the diff', () => {
+    const { summary } = auditRouteCoverage(ALLOWLIST, {
+      changedFiles: ALLOWLIST_IN_DIFF,
+      readAtBase: () => ({ status: 'found', source: '{"routes":[]}' }),
+    })
+    expect(summary.allowlist.changed).toBe(true)
+    expect(summary.allowlist.delta?.before).toBe('resolved')
+    expect(summary.allowlist.delta?.added.map((e) => e.path)).toEqual(['/api/health', '/api/webhooks/stripe'])
+    expect(summary.allowlist.delta?.removed).toEqual([])
+  })
+
+  it('lists removed entries when the base declared a route that the head no longer does', () => {
+    const base = JSON.stringify({ routes: [{ path: '/api/health', reason: 'lb' }, { path: '/api/legacy', reason: 'antiga' }] })
+    const { summary } = auditRouteCoverage(ALLOWLIST, {
+      changedFiles: ALLOWLIST_IN_DIFF,
+      readAtBase: () => ({ status: 'found', source: base }),
+    })
+    expect(summary.allowlist.delta?.added.map((e) => e.path)).toEqual(['/api/webhooks/stripe'])
+    expect(summary.allowlist.delta?.removed.map((e) => e.path)).toEqual(['/api/legacy'])
+  })
+
+  it('treats a file absent at the base as resolved with everything added', () => {
+    const { summary } = auditRouteCoverage(ALLOWLIST, { changedFiles: ALLOWLIST_IN_DIFF, readAtBase: () => ({ status: 'absent' }) })
+    expect(summary.allowlist.delta?.before).toBe('resolved')
+    expect(summary.allowlist.delta?.added).toHaveLength(2)
+  })
+
+  // 2026-09-05 (Luiz/dev): DP-11 — NUNCA silencio. Base ilegivel nao e "sem mudanca".
+  it('never stays silent when the base is unavailable', () => {
+    const { summary } = auditRouteCoverage(ALLOWLIST, {
+      changedFiles: ['anti-vibe.public-routes.json'],
+      readAtBase: () => ({ status: 'unavailable', reason: 'ref nao resolvivel' }),
+    })
+    expect(summary.allowlist.changed).toBe(true)
+    expect(summary.allowlist.delta?.before).toBe('unavailable')
+    expect(summary.allowlist.delta?.added).toHaveLength(2)
+    expect(summary.allowlist.delta?.reason).toContain('ref nao resolvivel')
+  })
+
+  it('reports unavailable when no base reader was given', () => {
+    const { summary } = auditRouteCoverage(ALLOWLIST, { changedFiles: ['anti-vibe.public-routes.json'] })
+    expect(summary.allowlist.delta?.before).toBe('unavailable')
+    expect(summary.allowlist.delta?.reason).toContain('readAtBase')
+  })
+
+  it('leaves changed=false and no delta when the allowlist is not in the diff', () => {
+    const { summary } = auditRouteCoverage(ALLOWLIST, { changedFiles: ['app/api/health/route.ts'] })
+    expect(summary.allowlist.changed).toBe(false)
+    expect(summary.allowlist.delta).toBeUndefined()
+  })
+})
+
+// Integracao real com git: o repo do plugin E um repositorio; `import.meta.dir` ancora a raiz.
+describe('readAtBaseFromGit (leitura no merge-base)', () => {
+  const REPO = join(import.meta.dir, '../../..')
+  it('returns found with the file content for a tracked file at HEAD', () => {
+    const read = readAtBaseFromGit(REPO, 'HEAD')('package.json')
+    expect(read.status).toBe('found')
+    if (read.status === 'found') expect(read.source).toContain('"name"')
+  })
+  it('returns absent for a file that does not exist at the base', () => {
+    expect(readAtBaseFromGit(REPO, 'HEAD')('nao-existe-nesta-base.json').status).toBe('absent')
+  })
+  it('returns unavailable with a reason when the ref cannot be resolved', () => {
+    const read = readAtBaseFromGit(REPO, 'ref-que-nao-existe-xyz')('package.json')
+    expect(read.status).toBe('unavailable')
+    if (read.status === 'unavailable') expect(read.reason.length).toBeGreaterThan(0)
   })
 })

@@ -1,7 +1,9 @@
 // 2026-09-04 (Luiz/dev): motor de veredito, regra de severidade e escopo G1 — Plano 01 fase-05.
 // A enumeracao e a leitura de cobertura vivem no adaptador nativo da stack; aqui fica a decisao.
 import type { IssueSeverity } from '../../lib/subagent-contract'
-import type { CoverageMap, CoverageRule, Route, RouteFinding, RouteVerdict } from './route-auth-matrix.types'
+import { PUBLIC_ROUTES_FILE, diffAllowlist, matchAllowlist, parsePublicRoutes, readPublicRoutes } from './public-routes-allowlist'
+import type { AllowlistFinding, CoverageMap, CoverageRule, RejectedEntry, Route, RouteFinding, RouteVerdict } from './route-auth-matrix.types'
+import type { AllowlistDelta, AllowlistEntry, BaseRead } from './route-auth-matrix.types'
 import { matchRouteAgainstPattern, nextjsAdapter } from './route-auth-nextjs'
 
 /** Item exatamente no shape de `AuditContractV2['payload']['issues'][number]`. */
@@ -33,6 +35,19 @@ const RULE_MATCHERS: Readonly<Record<string, RuleMatcher>> = {
 }
 
 const UNKNOWN_KIND: RuleMatcher = () => 'unsure'
+
+// 2026-09-05 (Luiz/dev): PRD D8 / CA-10 — nao emitir transformaria todo limite do adaptador em
+// aprovacao tacita (RF-04). Ruido visivel ganha de silencio que parece aprovacao.
+const SEVERITY_BY_VERDICT: Readonly<Record<RouteFinding['verdict'], (route: Route) => IssueSeverity>> = {
+  DESCOBERTA: severityFor,
+  indeterminada: () => 'medium',
+}
+
+// DP-14 para DESCOBERTA, DP-10 para indeterminada — a cauda da description muda por veredito.
+const DESCRIPTION_BY_VERDICT: Readonly<Record<RouteFinding['verdict'], (f: RouteFinding) => string>> = {
+  DESCOBERTA: (f) => `sem cobertura de middleware e nao declarada publica em ${PUBLIC_ROUTES_FILE} — ${f.missing}`,
+  indeterminada: (f) => `— cobertura nao demonstravel: ${f.missing}`,
+}
 
 /**
  * Um veredito por rota. `coberta` exige ao menos uma regra que DEMONSTRA o match; qualquer regra
@@ -95,20 +110,63 @@ export type AuditOptions = {
   changedFiles?: string[]
   /** Seam de injecao para teste — evita depender de fixture em disco para casos de cobertura. */
   coverageOverride?: CoverageMap
+  /**
+   * Le `file` na ponta ANTES do diff (merge-base). A CLI injeta `readAtBaseFromGit`; testes injetam
+   * lambda. 2026-09-05 (Luiz/dev): mesmo seam que o Plano 03 usa para `middleware.ts` — nao criar outro.
+   */
+  readAtBase?: (file: string) => BaseRead
+}
+
+export type AllowlistSummary = {
+  file: string
+  present: boolean
+  accepted: number
+  rejected: RejectedEntry[]
+  wide: number
+  notes: string[]
+  changed: boolean
+  delta?: AllowlistDelta // presente SO quando changed — G3: spread condicional
+}
+
+// DP-11: NUNCA silencio. Cada ramo escreve o que aconteceu.
+function computeAllowlistDelta(current: AllowlistEntry[], readAtBase: AuditOptions['readAtBase']): AllowlistDelta {
+  if (readAtBase === undefined) {
+    return { before: 'unavailable', added: current, removed: [], reason: 'sem leitor da base (readAtBase ausente) — delta assume tudo como novo' }
+  }
+  let read: BaseRead
+  try {
+    read = readAtBase(PUBLIC_ROUTES_FILE)
+  } catch (error) {
+    read = { status: 'unavailable', reason: error instanceof Error ? error.message : String(error) }
+  }
+  if (read.status === 'unavailable') {
+    return { before: 'unavailable', added: current, removed: [], reason: `base do diff indisponivel: ${read.reason} — delta assume tudo como novo` }
+  }
+  if (read.status === 'absent') return { before: 'resolved', added: current, removed: [] }
+  const base = parsePublicRoutes(read.source, `${PUBLIC_ROUTES_FILE}@base`)
+  return { before: 'resolved', ...diffAllowlist(base.entries, current) }
 }
 
 export type AuditSummary = {
   enumerated: number
   evaluated: number
   coberta: number
+  publicaDeclarada: number   // novo (DP-8)
   descoberta: number
   indeterminada: number
   scope: 'diff'
   sources: string[]
   notes: string[]
+  allowlist: AllowlistSummary // novo (DP-8)
 }
 
-export type AuditResult = { findings: RouteFinding[]; verdicts: RouteVerdict[]; summary: AuditSummary }
+export type AuditResult = {
+  findings: RouteFinding[]
+  /** DP-9. Um item por entrada ampla da allowlist (fase-02); ordenado por severidade e depois linha. */
+  allowlistFindings: AllowlistFinding[]
+  verdicts: RouteVerdict[]
+  summary: AuditSummary
+}
 
 const SEVERITY_ORDER: Readonly<Record<string, number>> = { critical: 0, high: 1, medium: 2, low: 3 }
 
@@ -132,34 +190,63 @@ export function auditRouteCoverage(targetDir: string, opts: AuditOptions): Audit
     notes.push('escopo G1 sem rotas: o diff nao tocou arquivo de rota (cobertura perdida e o Plano 03)')
   }
 
-  const verdicts = evaluated.map((route) => evaluateRoute(route, coverage))
+  const allowlist = readPublicRoutes(targetDir)
 
-  const findings: RouteFinding[] = verdicts
-    .filter((v) => v.verdict === 'DESCOBERTA')
-    .map((v) => ({
-      route: v.route,
-      verdict: 'DESCOBERTA',
-      severity: severityFor(v.route),
-      missing: v.evidence,
-    }))
+  // 2026-09-05 (Luiz/dev): DP-6 — allowlist ANTES do motor (PRD Decisao 3: coberta OU publica declarada).
+  // evaluateRoute nunca produz `publica-declarada`; quem casa a allowlist nem chega nele.
+  const verdicts = evaluated.map((route): RouteVerdict => {
+    const declared = matchAllowlist(route, allowlist.entries)
+    if (declared !== null) {
+      return { route, verdict: 'publica-declarada', evidence: `${declared.file}:${declared.line} declara publica — ${declared.reason}` }
+    }
+    return evaluateRoute(route, coverage)
+  })
+
+  const findings: RouteFinding[] = []
+  for (const v of verdicts) {
+    if (v.verdict !== 'DESCOBERTA' && v.verdict !== 'indeterminada') continue
+    findings.push({ route: v.route, verdict: v.verdict, severity: SEVERITY_BY_VERDICT[v.verdict](v.route), missing: v.evidence })
+  }
 
   findings.sort((a, b) => {
     const bySeverity = (SEVERITY_ORDER[a.severity] ?? 9) - (SEVERITY_ORDER[b.severity] ?? 9)
     return bySeverity !== 0 ? bySeverity : a.route.path.localeCompare(b.route.path)
   })
 
+  // Todos `wide` sao `high` hoje (DP-3); a linha e o desempate natural para o relatorio ler de cima a baixo.
+  const allowlistFindings = [...allowlist.wide].sort((a, b) => {
+    const bySeverity = (SEVERITY_ORDER[a.severity] ?? 9) - (SEVERITY_ORDER[b.severity] ?? 9)
+    return bySeverity !== 0 ? bySeverity : a.line - b.line
+  })
+
+  // G15: igualdade exata, POSIX vindo do git — a CLI e a unica fonte real de changedFiles.
+  const allowlistChanged = changed.has(PUBLIC_ROUTES_FILE)
+  const delta = allowlistChanged ? computeAllowlistDelta(allowlist.entries, opts.readAtBase) : undefined
+
   return {
     findings,
+    allowlistFindings,
     verdicts,
     summary: {
       enumerated: routes.length,
       evaluated: evaluated.length,
       coberta: verdicts.filter((v) => v.verdict === 'coberta').length,
+      publicaDeclarada: verdicts.filter((v) => v.verdict === 'publica-declarada').length,
       descoberta: verdicts.filter((v) => v.verdict === 'DESCOBERTA').length,
       indeterminada: verdicts.filter((v) => v.verdict === 'indeterminada').length,
       scope: 'diff',
       sources: coverage.sources,
       notes,
+      allowlist: {
+        file: PUBLIC_ROUTES_FILE,
+        present: allowlist.present,
+        accepted: allowlist.entries.length,
+        rejected: allowlist.rejected,
+        wide: allowlist.wide.length,
+        notes: allowlist.notes,
+        changed: allowlistChanged,
+        ...(delta !== undefined ? { delta } : {}),
+      },
     },
   }
 }
@@ -172,8 +259,23 @@ export function toContractIssue(finding: RouteFinding, index: number): ContractI
     line: finding.route.line,
     description:
       `${finding.verdict}: ${finding.route.method} ${finding.route.path} ` +
-      `(${finding.route.file}:${finding.route.line}) sem cobertura de middleware — ${finding.missing}`,
+      `(${finding.route.file}:${finding.route.line}) ${DESCRIPTION_BY_VERDICT[finding.verdict](finding)}`,
   }
+}
+
+export function allowlistToContractIssue(finding: AllowlistFinding, index: number): ContractIssue {
+  return {
+    id: `ALLOW-${String(index + 1).padStart(3, '0')}`,
+    severity: finding.severity,
+    file: finding.file,
+    line: finding.line,
+    description: finding.description,
+  }
+}
+
+/** DP-9: allowlist PRIMEIRO (e sobre a configuracao do check), depois rota. Cada lista ja vem por severidade. */
+export function buildContractIssues(result: AuditResult): ContractIssue[] {
+  return [...result.allowlistFindings.map(allowlistToContractIssue), ...result.findings.map(toContractIssue)]
 }
 
 // ---------------------------------------------------------------------------
@@ -200,6 +302,36 @@ export function changedFilesFromGit(targetDir: string, ref: string): DiffResult 
   }
 }
 
+const decode = (buf: Uint8Array): string => new TextDecoder().decode(buf).trim()
+
+// 2026-09-05 (Luiz/dev): BUG-fase03-1 (descoberto rodando o teste de integracao real). `git cat-file -e
+// <sha>:<file>` NUNCA sai com 1 para path ausente na arvore — a forma composta `rev:path` faz o parser
+// de revisao morrer com `die()` (exit 128) antes de chegar na logica que devolveria 1 (git 2.53.0).
+// DI-fase03-2: a primeira correcao lia a MENSAGEM do `git show` ("does not exist in"), mas o git traduz
+// `fatal:` quando ha catalogo i18n e LANG definido — em maquina pt-BR o marcador nao casaria e todo
+// arquivo ausente viraria `unavailable`. `git ls-tree <sha> -- <file>` responde a mesma pergunta sem
+// texto: exit 0 com stdout vazio = ausente; stdout com o blob = existe; exit != 0 = arvore invalida.
+
+/** `git merge-base <ref> HEAD` → `git ls-tree <sha> -- <file>` (ausente?) → `git show <sha>:<file>`.
+ * Qualquer falha de comando vira `unavailable` com o stderr como razao — nunca silencio (DP-11). */
+export function readAtBaseFromGit(targetDir: string, ref: string): (file: string) => BaseRead {
+  return (file) => {
+    try {
+      const base = Bun.spawnSync(['git', 'merge-base', ref, 'HEAD'], { cwd: targetDir })
+      if (base.exitCode !== 0) return { status: 'unavailable', reason: decode(base.stderr) || `merge-base saiu com codigo ${base.exitCode}` }
+      const sha = decode(base.stdout)
+      const tree = Bun.spawnSync(['git', 'ls-tree', sha, '--', file], { cwd: targetDir })
+      if (tree.exitCode !== 0) return { status: 'unavailable', reason: decode(tree.stderr) || `ls-tree saiu com codigo ${tree.exitCode}` }
+      if (decode(tree.stdout).length === 0) return { status: 'absent' }
+      const show = Bun.spawnSync(['git', 'show', `${sha}:${file}`], { cwd: targetDir })
+      if (show.exitCode !== 0) return { status: 'unavailable', reason: decode(show.stderr) || `show saiu com codigo ${show.exitCode}` }
+      return { status: 'found', source: new TextDecoder().decode(show.stdout) }
+    } catch (error) {
+      return { status: 'unavailable', reason: error instanceof Error ? error.message : String(error) }
+    }
+  }
+}
+
 if (import.meta.main) {
   const args = process.argv.slice(2)
   const target = args.find((a) => !a.startsWith('--')) ?? process.cwd()
@@ -211,13 +343,14 @@ if (import.meta.main) {
     process.exit(2)
   }
 
-  const diff = changedFilesFromGit(target, refValue ?? 'HEAD~1')
+  const ref = refValue ?? 'HEAD~1'
+  const diff = changedFilesFromGit(target, ref)
   if (!diff.ok) {
     // Nunca inventar finding sem diff resolvido — a secao 11 do agente instrui a registrar a razao.
     console.log(JSON.stringify({ blocked: true, reason: `nao consegui resolver o diff: ${diff.error}` }, null, 2))
     process.exit(2)
   }
 
-  const { findings, summary } = auditRouteCoverage(target, { changedFiles: diff.files })
-  console.log(JSON.stringify({ issues: findings.map(toContractIssue), summary }, null, 2))
+  const result = auditRouteCoverage(target, { changedFiles: diff.files, readAtBase: readAtBaseFromGit(target, ref) })
+  console.log(JSON.stringify({ issues: buildContractIssues(result), summary: result.summary }, null, 2))
 }
