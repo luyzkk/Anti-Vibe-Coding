@@ -3,7 +3,8 @@
 import type { IssueSeverity } from '../../lib/subagent-contract'
 import { PUBLIC_ROUTES_FILE, diffAllowlist, matchAllowlist, parsePublicRoutes, readPublicRoutes } from './public-routes-allowlist'
 import type { AllowlistFinding, CoverageMap, CoverageRule, RejectedEntry, Route, RouteFinding, RouteVerdict } from './route-auth-matrix.types'
-import type { AllowlistDelta, AllowlistEntry, BaseRead } from './route-auth-matrix.types'
+import type { AllowlistDelta, AllowlistEntry, BaseRead, G2Summary, RouteAdapter } from './route-auth-matrix.types'
+import { isCoverageUnavailable } from './route-auth-matrix.types'
 import { matchRouteAgainstPattern, nextjsAdapter } from './route-auth-nextjs'
 
 /** Item exatamente no shape de `AuditContractV2['payload']['issues'][number]`. */
@@ -79,6 +80,16 @@ export function evaluateRoute(route: Route, coverage: CoverageMap): RouteVerdict
   }
 }
 
+// 2026-09-05 (Luiz/dev): Plano 03 DP-3 — a UNICA forma de produzir veredito de rota. Allowlist ANTES
+// do motor (DP-6 do Plano 02); as duas pontas do diff passam por aqui, entao nao ha como divergir.
+export function verdictFor(route: Route, coverage: CoverageMap, allowlist: AllowlistEntry[]): RouteVerdict {
+  const declared = matchAllowlist(route, allowlist)
+  if (declared !== null) {
+    return { route, verdict: 'publica-declarada', evidence: `${declared.file}:${declared.line} declara publica — ${declared.reason}` }
+  }
+  return evaluateRoute(route, coverage)
+}
+
 // ---------------------------------------------------------------------------
 // Severidade — regra fixa, nao julgamento caso a caso (PRD, Decisao 9)
 // ---------------------------------------------------------------------------
@@ -128,23 +139,78 @@ export type AllowlistSummary = {
   delta?: AllowlistDelta // presente SO quando changed — G3: spread condicional
 }
 
-// DP-11: NUNCA silencio. Cada ramo escreve o que aconteceu.
-function computeAllowlistDelta(current: AllowlistEntry[], readAtBase: AuditOptions['readAtBase']): AllowlistDelta {
-  if (readAtBase === undefined) {
-    return { before: 'unavailable', added: current, removed: [], reason: 'sem leitor da base (readAtBase ausente) — delta assume tudo como novo' }
+type BaseReader = (file: string) => BaseRead
+
+// 2026-09-05 (Luiz/dev): Plano 03 DP-3/DP-5/DP-11 — um leitor seguro para allowlist E cobertura.
+// Ausente ou lancando vira `unavailable` com razao; a consequencia (delta "tudo added", G2
+// indeterminada) e decidida por quem consome, nunca aqui.
+function safeBaseReader(readAtBase: AuditOptions['readAtBase']): BaseReader {
+  return (file) => {
+    if (readAtBase === undefined) return { status: 'unavailable', reason: 'sem leitor da base (readAtBase ausente)' }
+    try {
+      return readAtBase(file)
+    } catch (error) {
+      return { status: 'unavailable', reason: error instanceof Error ? error.message : String(error) }
+    }
   }
-  let read: BaseRead
-  try {
-    read = readAtBase(PUBLIC_ROUTES_FILE)
-  } catch (error) {
-    read = { status: 'unavailable', reason: error instanceof Error ? error.message : String(error) }
+}
+
+type AllowlistAtBase = { status: 'resolved'; entries: AllowlistEntry[] } | { status: 'unavailable'; reason: string }
+
+/** Le a allowlist na base UMA vez; `delta` (Plano 02) e `allowlistBefore` (G2) derivam daqui. */
+function readAllowlistAtBase(read: BaseReader): AllowlistAtBase {
+  const result = read(PUBLIC_ROUTES_FILE)
+  if (result.status === 'unavailable') return { status: 'unavailable', reason: result.reason }
+  if (result.status === 'absent') return { status: 'resolved', entries: [] }
+  return { status: 'resolved', entries: parsePublicRoutes(result.source, `${PUBLIC_ROUTES_FILE}@base`).entries }
+}
+
+// A funcao que calculava o delta da allowlist foi dividida em leitura (readAllowlistAtBase) + calculo
+// (aqui), para o G2 reusar a mesma leitura. Mesma saida dos 6 testes de CA-07 — so a leitura saiu para fora.
+function toAllowlistDelta(current: AllowlistEntry[], base: AllowlistAtBase): AllowlistDelta {
+  if (base.status === 'unavailable') {
+    return { before: 'unavailable', added: current, removed: [], reason: `base do diff indisponivel: ${base.reason} — delta assume tudo como novo` }
   }
-  if (read.status === 'unavailable') {
-    return { before: 'unavailable', added: current, removed: [], reason: `base do diff indisponivel: ${read.reason} — delta assume tudo como novo` }
-  }
-  if (read.status === 'absent') return { before: 'resolved', added: current, removed: [] }
-  const base = parsePublicRoutes(read.source, `${PUBLIC_ROUTES_FILE}@base`)
   return { before: 'resolved', ...diffAllowlist(base.entries, current) }
+}
+
+/** DP-1: arquivos de cobertura (o adaptador decide) e depois a allowlist. Vazio = G2 nao disparou. */
+function resolveG2Sources(adapter: RouteAdapter, changed: Set<string>): string[] {
+  const coverageFiles = [...changed].filter((file) => adapter.isCoverageFile?.(file) ?? false).sort()
+  return changed.has(PUBLIC_ROUTES_FILE) ? [...coverageFiles, PUBLIC_ROUTES_FILE] : coverageFiles
+}
+
+type BeforeState =
+  | { kind: 'resolved'; coverage: CoverageMap; allowlist: AllowlistEntry[] }
+  | { kind: 'unavailable'; reason: string }
+  | { kind: 'not-applicable'; reason: string }
+
+// DP-2/DP-3. O que NAO esta no diff e igual nas duas pontas — nao se le a base a toa.
+function reconstructBefore(
+  adapter: RouteAdapter,
+  read: BaseReader,
+  coverageTouched: boolean,
+  after: { coverage: CoverageMap; allowlist: AllowlistEntry[] },
+  allowlistBase: AllowlistAtBase | null,
+): BeforeState {
+  if (adapter.isCoverageFile === undefined || adapter.readCoverageAtBase === undefined) {
+    return { kind: 'not-applicable', reason: `adaptador ${adapter.stack} sem suporte a G2 (isCoverageFile/readCoverageAtBase ausentes)` }
+  }
+  const coverage = coverageTouched ? adapter.readCoverageAtBase(read) : after.coverage
+  if (isCoverageUnavailable(coverage)) return { kind: 'unavailable', reason: coverage.unavailable }
+  if (allowlistBase !== null && allowlistBase.status === 'unavailable') return { kind: 'unavailable', reason: allowlistBase.reason }
+  return { kind: 'resolved', coverage, allowlist: allowlistBase === null ? after.allowlist : allowlistBase.entries }
+}
+
+function toG2Summary(sources: string[], before: BeforeState): G2Summary {
+  return {
+    triggered: sources.length > 0,
+    sources,
+    before: before.kind,
+    lost: 0,            // fase-02
+    indeterminate: 0,   // fases 02/03
+    ...(before.kind === 'resolved' ? {} : { reason: before.reason }),   // G3
+  }
 }
 
 export type AuditSummary = {
@@ -158,6 +224,7 @@ export type AuditSummary = {
   sources: string[]
   notes: string[]
   allowlist: AllowlistSummary // novo (DP-8)
+  g2: G2Summary // novo (Plano 03 DP-7) — obrigatorio: sempre computado
 }
 
 export type AuditResult = {
@@ -176,31 +243,38 @@ const SEVERITY_ORDER: Readonly<Record<string, number>> = { critical: 0, high: 1,
  * G2 (cobertura perdida por estreitamento do matcher) e o Plano 03 — nao antecipar aqui.
  */
 export function auditRouteCoverage(targetDir: string, opts: AuditOptions): AuditResult {
-  const routes = nextjsAdapter.enumerate(targetDir)
-  const coverage = opts.coverageOverride ?? nextjsAdapter.readCoverage(targetDir)
+  const adapter: RouteAdapter = nextjsAdapter   // fase-03: `opts.adapter ?? nextjsAdapter` (G14)
+  const routes = adapter.enumerate(targetDir)
+  const coverage = opts.coverageOverride ?? adapter.readCoverage(targetDir)
   const notes = [...coverage.notes]
 
   const changed = new Set(opts.changedFiles ?? [])
-  const evaluated = routes.filter((route) => changed.has(route.file))
+  const g1 = routes.filter((route) => changed.has(route.file))
 
   if (changed.size === 0) {
     notes.push('escopo G1 vazio: nenhum arquivo de rota no diff')
-  } else if (evaluated.length === 0) {
-    // Diff que so toca middleware.ts cai aqui. E o buraco que o Plano 03 (G2) fecha; deixar visivel.
-    notes.push('escopo G1 sem rotas: o diff nao tocou arquivo de rota (cobertura perdida e o Plano 03)')
+  } else if (g1.length === 0) {
+    notes.push('escopo G1 sem rotas: o diff nao tocou arquivo de rota')   // DP-7: g2 fala por si
   }
 
   const allowlist = readPublicRoutes(targetDir)
+  const read = safeBaseReader(opts.readAtBase)
+
+  // DP-3: base da allowlist lida UMA vez — delta (Plano 02) e allowlistBefore (G2) saem dela.
+  const allowlistChanged = changed.has(PUBLIC_ROUTES_FILE)
+  const allowlistBase = allowlistChanged ? readAllowlistAtBase(read) : null
+  const delta = allowlistBase === null ? undefined : toAllowlistDelta(allowlist.entries, allowlistBase)
+
+  // DP-1/DP-2: gatilho G2 e ponta antes. O loop rota a rota e a fase-02.
+  const g2Sources = resolveG2Sources(adapter, changed)
+  const coverageTouched = g2Sources.some((file) => file !== PUBLIC_ROUTES_FILE)
+  const before = reconstructBefore(adapter, read, coverageTouched, { coverage, allowlist: allowlist.entries }, allowlistBase)
+  if (before.kind === 'resolved' && coverageTouched) notes.push(...before.coverage.notes)   // DP-6/G9: notas da base
+  if (before.kind !== 'resolved') notes.push(`G2: ${before.reason}`)
 
   // 2026-09-05 (Luiz/dev): DP-6 — allowlist ANTES do motor (PRD Decisao 3: coberta OU publica declarada).
-  // evaluateRoute nunca produz `publica-declarada`; quem casa a allowlist nem chega nele.
-  const verdicts = evaluated.map((route): RouteVerdict => {
-    const declared = matchAllowlist(route, allowlist.entries)
-    if (declared !== null) {
-      return { route, verdict: 'publica-declarada', evidence: `${declared.file}:${declared.line} declara publica — ${declared.reason}` }
-    }
-    return evaluateRoute(route, coverage)
-  })
+  // verdictFor e a UNICA forma de produzir veredito (DP-3); evaluateRoute nunca produz `publica-declarada`.
+  const verdicts = g1.map((route) => verdictFor(route, coverage, allowlist.entries))
 
   const findings: RouteFinding[] = []
   for (const v of verdicts) {
@@ -219,17 +293,13 @@ export function auditRouteCoverage(targetDir: string, opts: AuditOptions): Audit
     return bySeverity !== 0 ? bySeverity : a.line - b.line
   })
 
-  // G15: igualdade exata, POSIX vindo do git — a CLI e a unica fonte real de changedFiles.
-  const allowlistChanged = changed.has(PUBLIC_ROUTES_FILE)
-  const delta = allowlistChanged ? computeAllowlistDelta(allowlist.entries, opts.readAtBase) : undefined
-
   return {
     findings,
     allowlistFindings,
     verdicts,
     summary: {
       enumerated: routes.length,
-      evaluated: evaluated.length,
+      evaluated: g1.length,
       coberta: verdicts.filter((v) => v.verdict === 'coberta').length,
       publicaDeclarada: verdicts.filter((v) => v.verdict === 'publica-declarada').length,
       descoberta: verdicts.filter((v) => v.verdict === 'DESCOBERTA').length,
@@ -247,6 +317,7 @@ export function auditRouteCoverage(targetDir: string, opts: AuditOptions): Audit
         changed: allowlistChanged,
         ...(delta !== undefined ? { delta } : {}),
       },
+      g2: toG2Summary(g2Sources, before),
     },
   }
 }

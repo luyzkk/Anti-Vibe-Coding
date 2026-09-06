@@ -83,6 +83,34 @@ export interface RouteAdapter {
   readonly stack: StackId
   enumerate(targetDir: string): Route[]
   readCoverage(targetDir: string): CoverageMap
+  // 2026-09-05 (Luiz/dev): Plano 03 DP-1/DP-2 — G2 (PRD Decisao 6). OPCIONAIS de proposito: o Plano 04
+  // registra adaptadores sem eles e o motor responde `not-applicable` com nota — nunca `coberta`.
+  /** O arquivo do diff define cobertura desta stack? (Next: `middleware.ts` na raiz.) */
+  isCoverageFile?(file: string): boolean
+  /** Reconstroi a cobertura na ponta ANTES a partir do seam `read` — puro, sem I/O proprio. */
+  readCoverageAtBase?(read: (file: string) => BaseRead): CoverageAtBase
+}
+
+export type CoverageAtBase = CoverageMap | { unavailable: string }
+
+/** G15 do plano: `in` narrowing — `CoverageMap` nao tem a chave `unavailable`. Sem `as`. */
+export function isCoverageUnavailable(value: CoverageAtBase): value is { unavailable: string } {
+  return 'unavailable' in value
+}
+
+// 2026-09-05 (Luiz/dev): Plano 03 DP-7 — summary aditivo do G2. `reason` so quando `before !==
+// 'resolved'` (G3: nunca `reason: undefined`).
+export type G2Summary = {
+  triggered: boolean
+  /** Arquivos de cobertura e/ou allowlist que estavam no diff (cobertura primeiro). */
+  sources: string[]
+  /** `resolved` tambem quando nao disparou: a ponta antes E a ponta depois. */
+  before: 'resolved' | 'unavailable' | 'not-applicable'
+  /** G2 com veredito DESCOBERTA (a fase-02 preenche; aqui sempre 0). */
+  lost: number
+  /** G2 com veredito indeterminada (fases 02/03 preenchem; aqui sempre 0). */
+  indeterminate: number
+  reason?: string
 }
 
 // 2026-09-05 (Luiz/dev): Plano 02 — allowlist versionada (PRD RF-02, Decisoes 3 e 7). Tudo aditivo:
