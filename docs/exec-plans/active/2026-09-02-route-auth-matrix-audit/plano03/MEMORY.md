@@ -51,6 +51,15 @@ Formato: o que foi decidido + por que + impacto.
     (`flags G2 as triggered` + `reads each base file once`). Registrado para que o proximo RED-check nao
     leia isso como "falhou no lugar errado".
 
+- **DI-fase02-1: a mutacao 6 do RED-check derruba `stillOpaque` com `Received length: 6`, nao `5`.**
+  O checklist previa `Expected length: 0, Received length: 5` ao remover o `continue` do par
+  `indeterminada → indeterminada`. O valor real e `6`.
+  - Por que: aritmetica do doc, nao do codigo — a defesa dispara certo e a assertion e a prevista
+    (`stillOpaque` esperando `0`).
+  - Impacto: nenhum. Registrado junto com DI-fase01-2 pelo mesmo motivo: **os numeros previstos no
+    checklist sao chute do planejador; o que vale e a assertion que quebra**. Nao ajustar codigo para
+    fazer o numero do doc bater.
+
 ---
 
 ## Bugs Descobertos
@@ -87,6 +96,18 @@ Apenas gotchas que NAO eram obvios antes de implementar.
     `grep -nE "\b[A-Za-z_$][A-Za-z0-9_$.)\]]* as [A-Z]"` nos 3 arquivos (deu vazio) e nas linhas `+` do
     commit (tambem vazio). NAO apagar o comentario nem reescrever a prosa para "limpar" o grep: o
     checklist e que e literal demais, o codigo esta certo.
+
+- **GT-fase02-diff-bullet: `git diff | grep -c '^-[^-]'` NAO conta linha removida que e bullet markdown.**
+  O checklist da fase-02 mandava conferir `git diff agents/security-auditor.md | grep -c '^-[^-]'` → `2`.
+  O real e `1`. A primeira linha do bullet removido comeca com `- ` no arquivo; sob o marcador `-` do
+  diff ela vira `-- Entrada em ...`, que o padrao `^-[^-]` exclui de proposito (o padrao existe para
+  descartar o header `--- a/arquivo`).
+  - Descoberto em: fase-02 (pelo executor, confirmado pelo orquestrador)
+  - **Nao confundir com o `GT-fase02-1` do Plano 02** (import de valor novo = RED de compilacao no Bun).
+  - Impacto: a verificacao correta do G13 e `git diff --stat <arquivo>` (mostrou `13 insertions(+), 2
+    deletions(-)`) somada a leitura das linhas `^-` sem o header. Usar `grep -c '^-[^-]'` em arquivo
+    markdown subconta remocoes e pode aprovar uma remocao indevida em silencio — o oposto do que o G13
+    quer. Corrigir o padrao nas fases futuras que herdarem este checklist.
 
 ---
 
@@ -138,7 +159,7 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 3 |
-| Fases concluidas | 1 |
+| Fases concluidas | 2 |
 | Fases com desvio | 1 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
@@ -154,6 +175,11 @@ Se nada mudou, manter vazio (bom sinal).
 **fase-01 medida (2026-09-06, commit 2b743e6) — bateu com a estimativa, sem drift:**
 `route-auth-matrix.test.ts` **39**, `route-auth-nextjs.test.ts` **39**, `skills/security/lib/` **119**,
 suite completa **2044 pass / 0 fail** (lotes 1397 + 647; baseline medida antes da fase era 2033 = 1386 + 647).
+
+**fase-02 medida (2026-09-06, commit 303769c) — tambem sem drift:**
+`route-auth-matrix.test.ts` **46**, `route-auth-nextjs.test.ts` **39** (inalterado), `skills/security/lib/` **126**,
+suite completa **2051 pass / 0 fail** (lotes 1404 + 647). `agents/security-auditor.md`: 13 insertions(+),
+2 deletions(-) — as duas linhas do bullet stale e nada mais (G13 satisfeito).
 
 ---
 
