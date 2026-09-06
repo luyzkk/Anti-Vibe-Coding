@@ -2,7 +2,7 @@
 
 **Feature:** Matriz Rota x Middleware de Auth no Auditor
 **Iniciado:** 2026-09-05
-**Status:** em andamento
+**Status:** concluido (2026-09-06)
 
 ---
 
@@ -60,6 +60,16 @@ Formato: o que foi decidido + por que + impacto.
     checklist sao chute do planejador; o que vale e a assertion que quebra**. Nao ajustar codigo para
     fazer o numero do doc bater.
 
+- **DI-fase03-1: a mutacao 4 do RED-check quebra em `findings`, nao em `summary.g2.before`.**
+  O checklist previa `Expected: "resolved", Received: "unavailable"`. O real, medido pelo executor e
+  reproduzido pelo orquestrador: `Expected length: 0, Received length: 6` — o teste
+  `treats middleware.ts absent at the base as nothing to lose` afirma `findings` ANTES de `summary.g2`.
+  O teste da fase-01 (`treats middleware.ts absent at the base as no coverage at all`) cai junto com
+  `esperava CoverageMap`, como previsto.
+  - Impacto: nenhum na defesa — e justamente a prova de DP-6 (base `absent` NAO pode virar 6 `medium` de
+    ruido). Terceira ocorrencia do mesmo padrao (DI-fase01-2, DI-fase02-1): **numero/mensagem previstos no
+    checklist sao chute do planejador; o que vale e qual assertion quebra.**
+
 ---
 
 ## Bugs Descobertos
@@ -108,6 +118,17 @@ Apenas gotchas que NAO eram obvios antes de implementar.
     deletions(-)`) somada a leitura das linhas `^-` sem o header. Usar `grep -c '^-[^-]'` em arquivo
     markdown subconta remocoes e pode aprovar uma remocao indevida em silencio — o oposto do que o G13
     quer. Corrigir o padrao nas fases futuras que herdarem este checklist.
+
+- **GT-fase03-1: greps literais de SIMBOLO tambem subcontam, nao so `switch`/` as ` (estende GT-fase01-1).**
+  O checklist da fase-03 previa `nextjsAdapter` → 2 e `irreconstruivel` → 1. O real e 3 e 2: os comentarios
+  do proprio Passo 3 do doc, copiados verbatim para o codigo, contem as palavras
+  (`route-auth-matrix.ts:131` e `:235`). `switch` ganhou uma segunda ocorrencia de comentario (`:255`).
+  - Descoberto em: fase-03 (pelo executor, reproduzido pelo orquestrador)
+  - Impacto: a substancia dos checks foi confirmada LENDO o resultado, nao pelo count bruto — ha exatamente
+    UM `opts.adapter ?? nextjsAdapter`, nenhum outro uso direto do adaptador Next no motor, nenhum `switch`
+    real, e a palavra `irreconstruivel` nao vaza para `summary`/nota (as notas usam `G2: <reason>`).
+    Checklist de fase futura deve contar por simbolo/cast real ou pedir a leitura do diff — count de palavra
+    em arquivo com JSDoc denso e falso negativo por construcao.
 
 ---
 
@@ -159,7 +180,7 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 3 |
-| Fases concluidas | 2 |
+| Fases concluidas | 3 |
 | Fases com desvio | 1 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
@@ -181,6 +202,12 @@ suite completa **2044 pass / 0 fail** (lotes 1397 + 647; baseline medida antes d
 suite completa **2051 pass / 0 fail** (lotes 1404 + 647). `agents/security-auditor.md`: 13 insertions(+),
 2 deletions(-) — as duas linhas do bullet stale e nada mais (G13 satisfeito).
 
+**fase-03 medida (2026-09-06, commit cfe9fd0) — fecha o plano, tambem sem drift:**
+`route-auth-matrix.test.ts` **52**, `route-auth-nextjs.test.ts` **40**, `skills/security/lib/` **133**,
+suite completa **2058 pass / 0 fail** (lotes 1411 + 647). `agents/security-auditor.md`: 12 insertions(+),
+**0 deletions** (G13 — fase aditiva). CLI com ref invalida: `blocked: true`, exit 2 (o `git diff` bloqueia
+antes do G2 — esperado, ver ponto 4 das Notas).
+
 ---
 
 ## Notas para Planos Seguintes
@@ -188,52 +215,129 @@ suite completa **2051 pass / 0 fail** (lotes 1404 + 647). `agents/security-audit
 Informacoes que o proximo plano PRECISA saber antes de comecar.
 O subagente do proximo plano le este campo.
 
-<!-- Preencher ao fechar a fase-03. Minimo esperado (o Plano 04 precisa disto): -->
+**Estado final (2026-09-06, commits `2b743e6` / `303769c` / `cfe9fd0`):**
 
-<!--
-**Estado final (data, commits):** contagens reais de `route-auth-matrix.test.ts`, `route-auth-nextjs.test.ts`,
-`skills/security/lib/`, suite completa.
+| Alvo | Antes do plano | Depois |
+|---|---|---|
+| `route-auth-matrix.test.ts` | 33 | **52** |
+| `route-auth-nextjs.test.ts` | 34 | **40** |
+| `skills/security/lib/` | 108 | **133** |
+| suite completa (`bun run test`) | 2033 | **2058 pass / 0 fail** (lotes 1411 + 647) |
 
-**Assinaturas publicas (copiadas do codigo — nao redescobrir):**
+Sem drift: as tres fases bateram exatamente com a estimativa do planejamento. `typecheck`,
+`agents:contract` (39 pass), `harness:validate` e manifest idempotente verdes no fecho.
+
+**Assinaturas publicas (COPIADAS do codigo — nao redescobrir):**
 
 ```ts
-// route-auth-matrix.types.ts
-interface RouteAdapter { stack; enumerate(targetDir); readCoverage(targetDir); isCoverageFile?(file): boolean; readCoverageAtBase?(read: (file) => BaseRead): CoverageMap | { unavailable: string } }
-type RouteVerdict = { route; verdict; evidence; trigger?: 'G1' | 'G2' }
-type RouteFinding = { route; verdict; severity; missing; trigger?: 'G1' | 'G2' }
-type G2Summary = { triggered; sources; before: 'resolved' | 'unavailable' | 'not-applicable'; lost; indeterminate; reason? }
-isCoverageUnavailable(value): value is { unavailable: string }
+// skills/security/lib/route-auth-matrix.types.ts
+export interface RouteAdapter {
+  readonly stack: StackId
+  enumerate(targetDir: string): Route[]
+  readCoverage(targetDir: string): CoverageMap
+  isCoverageFile?(file: string): boolean                                   // OPCIONAL (DP-2)
+  readCoverageAtBase?(read: (file: string) => BaseRead): CoverageAtBase    // OPCIONAL (DP-2)
+}
+export type CoverageAtBase = CoverageMap | { unavailable: string }
+export function isCoverageUnavailable(value: CoverageAtBase): value is { unavailable: string }
+export type AuditTrigger = 'G1' | 'G2'
+export type RouteVerdict = { route; verdict: Verdict; evidence: string; trigger?: AuditTrigger }
+export type RouteFinding = { route; verdict: Exclude<Verdict,'coberta'|'publica-declarada'>; severity; missing; trigger?: AuditTrigger }
+export type G2Summary = {
+  triggered: boolean
+  sources: string[]                                   // cobertura primeiro, depois allowlist
+  before: 'resolved' | 'unavailable' | 'not-applicable'
+  lost: number                                        // G2 com DESCOBERTA
+  indeterminate: number                               // G2 com indeterminada
+  reason?: string                                     // so quando before !== 'resolved'
+}
 
-// route-auth-matrix.ts
-type AuditOptions = { changedFiles?; coverageOverride?; readAtBase?; adapter?: RouteAdapter }
-verdictFor(route, coverage, allowlist): RouteVerdict      // allowlist ANTES do motor; as duas pontas passam aqui
-// AuditSummary.g2: G2Summary; evaluated = G1 + G2
+// skills/security/lib/route-auth-matrix.ts
+export type AuditOptions = {
+  changedFiles?: string[]
+  coverageOverride?: CoverageMap
+  readAtBase?: (file: string) => BaseRead
+  adapter?: RouteAdapter                              // seam de teste, default nextjsAdapter (G14 / DEV-plan-1)
+}
+export function verdictFor(route: Route, coverage: CoverageMap, allowlist: AllowlistEntry[]): RouteVerdict
+// allowlist ANTES do motor; as DUAS pontas passam por aqui — nao duplicar o pipeline
+// AuditSummary.g2: G2Summary; summary.evaluated = G1 + G2
+// internas (nao exportadas): safeBaseReader, readAllowlistAtBase, reconstructBefore,
+//   lostCoverage, unreconstructableBefore, g2Verdicts
+// TRIGGER_PREFIX: Readonly<Record<AuditTrigger, string>> = { G1: '', G2: '[cobertura perdida] ' }
 
-// route-auth-nextjs.ts
-isNextjsCoverageFile(file): boolean                        // file === 'middleware.ts'
-readNextjsCoverageAtBase(read): CoverageMap | { unavailable: string }   // puro sobre BaseRead; sources ['middleware.ts@base']
+// skills/security/lib/route-auth-nextjs.ts
+export function isNextjsCoverageFile(file: string): boolean              // file === 'middleware.ts' (exata, G17)
+export function readNextjsCoverageAtBase(read: (file: string) => BaseRead): CoverageAtBase
+//   found       -> parseMatcherConfig(source, 'middleware.ts@base'), sources ['middleware.ts@base']
+//   absent      -> { rules: [], sources: [], notes: ['middleware.ts ausente na base — nenhuma cobertura a perder'] }
+//   unavailable -> { unavailable: reason }
 ```
 
+Evidence literais (o relatorio depende delas):
+- perdida: `cobertura perdida — antes: <evidenceBefore>; agora: <evidenceAfter>`
+- irreconstruivel: `ponta 'antes' irreconstruivel (<reason>) — nao da para saber se <path> perdeu cobertura neste diff`
+
 **Onde o Plano 04 encaixa (G2):**
-- Cada adaptador DECIDE se implementa `isCoverageFile`/`readCoverageAtBase`. Sem os dois, o G2 sai
-  `before: 'not-applicable'` com nota `adaptador <stack> sem suporte a G2` — nunca silencio, nunca coberta.
-  Com allowlist no diff, `not-applicable` + `triggered: true` emite `indeterminada` medium por rota aberta (DP-5).
+
+- Cada adaptador **DECIDE** se implementa `isCoverageFile`/`readCoverageAtBase`. Sem os DOIS, o G2 sai
+  `before: 'not-applicable'` com nota visivel `adaptador <stack> sem suporte a G2` — nunca silencio, nunca
+  `coberta`. Com a allowlist no diff, `not-applicable` + `triggered` emite `indeterminada` medium por rota
+  aberta (DP-5): adaptador que "nao sabe" nao vira aprovacao.
 - Se implementar: `read(<arquivo de cobertura>)`; `found` → parser puro da stack com `file` sufixado `@base`;
-  `absent` → `rules: []` + nota "ausente na base — nenhuma cobertura a perder"; `unavailable` → `{ unavailable: reason }`.
-  Rails: `before_action` vive no controller, nao em um arquivo so — `isCoverageFile` precisa reconhecer
-  `app/controllers/**` e `readCoverageAtBase` precisa ler VARIOS arquivos pelo mesmo `read`.
-- `trigger` e preenchido pelo motor, nunca pelo adaptador. `verdictFor` e a unica funcao de veredito —
-  o loop multi-stack da fase-04 chama ela, nao duplica allowlist + evaluateRoute.
-- `AuditOptions.adapter?` e seam de teste (DEV-plan-1): a fase-04 decide se vira selecao por detectStack().
+  `absent` → `rules: []` + nota "ausente na base — nenhuma cobertura a perder"; `unavailable` →
+  `{ unavailable: reason }`. **Rails:** `before_action` vive no controller, nao num arquivo so —
+  `isCoverageFile` precisa reconhecer `app/controllers/**` e `readCoverageAtBase` precisa ler VARIOS
+  arquivos pelo MESMO `read` (o seam e por arquivo; a base e lida uma vez por arquivo, G16).
+- `trigger` e preenchido pelo MOTOR, nunca pelo adaptador. `verdictFor` e a unica funcao de veredito — o loop
+  multi-stack da fase-04 chama ela, nao duplica allowlist + `evaluateRoute`.
+- `indeterminada` AGORA E FINDING `medium` (D8). Fixture do Plano 04 com regra `opaque` gera issues —
+  planejar as contagens esperadas com isso em mente.
+- `AuditOptions.adapter?` e seam de TESTE (DEV-plan-1). A fase-04 decide se vira selecao por `detectStack()`
+  ou continua opcional. Hoje ha exatamente UM `opts.adapter ?? nextjsAdapter` no motor.
 
-**Dividas herdadas / abertas:** cache do plugin defasado (G1); `CLAUDE_PLUGIN_ROOT` no Bash do subagente
-(Plano 01); sugestao de linha `Cobertura perdida (G2)` no Summary do verify-work (DP-8); G13/DEV-plan-4 do
-Plano 02 (`:nome` amplo vs Express) continua pendente para o Plano 04 fase-02.
+**Pontos para o dev decidir no PR (registrados, nao decididos aqui):**
 
-**Compound candidates** (para `/lessons-learned`): duas pontas pelo mesmo seam (nao criar segundo leitor);
-`absent` ≠ `unavailable` como decisao de produto (nada a perder vs irreconstruivel); metodo opcional em
-interface + `not-applicable` visivel como padrao de extensao para adaptadores que chegam depois.
--->
+1. **DP-4 foi EMENDADA** na revisao do plano (DEV-plan-3): rota que estava `indeterminada` na base (matcher
+   computado) e esta `DESCOBERTA` hoje entra no G2 como `indeterminada` medium. Se vetar: tirar
+   `'indeterminada'` de `LOST_FROM` e remover o teste `treats a route that was indeterminada at the base...`.
+2. **A description do caso irreconstruivel le `[cobertura perdida] indeterminada: ...`** (DP-4 literal: o
+   prefixo vale para todo `trigger: 'G2'`). Aceitar, ou trocar o prefixo so para esse caso.
+3. **Comentario stale no contrato — achado do orquestrador no fecho, NAO corrigido (fora do escopo da fase).**
+   `route-auth-matrix.types.ts:116,118` documenta `G2Summary.lost` e `.indeterminate` como
+   `"(a fase-02 preenche; aqui sempre 0)"`. Era verdade na fase-01; hoje `route-auth-matrix.ts:267-268`
+   calcula os dois de verdade, entao **o comentario e falso**. Pelo mesmo criterio que o plano aplicou ao
+   bullet stale do agente (G13: "afirmacao falsa e pior que uma linha removida") merece correcao — mas e
+   arquivo rastreado fora do escopo da fase-03, entao fica para o dev aprovar. **O Plano 04 le este tipo como
+   contrato dos 3 adaptadores novos — nao acreditar no comentario.**
+4. **O ramo `unavailable` NAO e reproduzivel pela CLI contra repo saudavel:** com ref invalida o `git diff`
+   bloqueia ANTES do G2 (`blocked: true`, exit 2 — medido). O ramo e alcancado por falha de `ls-tree`/`show`
+   ou por chamador programatico sem `readAtBase`; a prova sao os testes de seam. G10 do README descreve o
+   cenario mais amplo (shallow clone em CI). **Nao "consertar" o que nao esta quebrado.**
+
+**Dividas herdadas / abertas (nenhuma bloqueia o Plano 04):**
+
+- **Cache do plugin defasado** (`~/.claude/plugins/cache/local-plugins/anti-vibe-coding/7.7.0/`): nao tem a
+  lib `route-auth-matrix`, a secao 11 do agente nem o gate Bash. Consequencias: (a) o TDD gate em execucao
+  bloqueia `middleware.ts` em `tests/fixtures/` — por isso o Plano 03 nao criou fixture nenhuma (DP-9) e as
+  duas pontas vem por seam; (b) TODO criterio "por humano" das 3 fases esta pendente. Rodar
+  `scripts/sync-to-global.sh` (Git Bash) antes de validar por humano. **Divida, nao falha.**
+- Pendencia do Plano 01: validar que `CLAUDE_PLUGIN_ROOT` chega ao Bash do subagente.
+- **G13/DEV-plan-4 do Plano 02** (`:nome` amplo vs. rota Express literal) — **ja resolvido no planejamento do
+  Plano 04** (DP-7 de la: amplitude decidida contra a enumeracao). Ler antes da fase-02 do Plano 04.
+- Sugestao registrada (DP-8), nao implementada: linha `Cobertura perdida (G2): ...` no Summary do
+  `verify-work`. `skills/verify-work/SKILL.md` NAO mudou neste plano, por desenho.
+- **Greps literais de palavra nesta lib dao falso positivo** (GT-fase01-1 + GT-fase03-1): `switch`, ` as `,
+  `nextjsAdapter`, `irreconstruivel` aparecem em comentario/JSDoc. Checklist futuro que reusar esse padrao
+  deve contar por cast/simbolo real, nao por palavra. E `grep -c '^-[^-]'` NAO conta remocao de bullet
+  markdown (GT-fase02-diff-bullet) — usar `git diff --stat`.
+
+**Compound candidates** (para `/anti-vibe-coding:lessons-learned` — SUGERIR ao dev, nao invocar):
+duas pontas do diff pelo MESMO seam (nao criar segundo leitor git); `absent` != `unavailable` como decisao de
+produto ("nada a perder" vs "irreconstruivel"); metodo OPCIONAL em interface + `not-applicable` visivel como
+padrao de extensao para adaptadores que chegam depois; teste que nasce verde so vale com mutacao no mesmo
+passo (DEV-fase01-1); numeros previstos em checklist sao chute do planejador — o que vale e qual assertion
+quebra (DI-fase01-2 / DI-fase02-1 / DI-fase03-1).
 
 ---
 
