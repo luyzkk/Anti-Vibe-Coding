@@ -36,6 +36,21 @@ Formato: o que foi decidido + por que + impacto.
   - Impacto: simplifica error handling no service
 -->
 
+- **DI-fase01-1: a mensagem literal do RED2 citou `readNextjsCoverageAtBase`, nao `isNextjsCoverageFile`.**
+  O doc previa `SyntaxError: Export named 'isNextjsCoverageFile' not found`. O Bun reporta o primeiro
+  export ausente que encontra, e a ordem do `import { ... }` no teste poe `readNextjsCoverageAtBase` antes.
+  - Por que foi aceito: e o mesmo fenomeno (G5 / GT-fase02-1 — RED de compilacao total); so o nome no
+    texto diverge. O executor reportou a divergencia em vez de fabricar a mensagem prevista.
+  - Impacto: nenhum. Nao chutar o nome do export ao escrever o RED esperado de fases futuras — quem
+    decide e a ordem do import, nao o doc.
+
+- **DI-fase01-2: na mutacao 1 do RED-check, quem falha primeiro e `summary.g2.sources`, nao `calls.get('middleware.ts')`.**
+  O checklist da fase previa a falha em `calls.get`. Com `isNextjsCoverageFile` sempre `false`, a assertion
+  anterior (`sources` sem `middleware.ts`) ja derruba o teste.
+  - Impacto: nenhum na defesa — o RED-check do orquestrador confirmou `2 fail` com a causa raiz certa
+    (`flags G2 as triggered` + `reads each base file once`). Registrado para que o proximo RED-check nao
+    leia isso como "falhou no lugar errado".
+
 ---
 
 ## Bugs Descobertos
@@ -62,6 +77,16 @@ Apenas gotchas que NAO eram obvios antes de implementar.
   - Descoberto em: fase-02
   - Impacto: queries de service precisam usar service_role, nao anon
 -->
+
+- **GT-fase01-1: os greps literais `switch` e ` as ` do checklist dao falso positivo.**
+  `grep -n "switch"` casa o comentario-guarda `// Hash map em vez de switch (CLAUDE.md)` — pre-existente
+  do Plano 01 fase-05, confirmado com `git show 01a069f:skills/security/lib/route-auth-matrix.ts`.
+  `grep -n " as "` casa prosa em portugues em comentario ("as duas pontas", "as rotas").
+  - Descoberto em: fase-01
+  - Impacto: a verificacao util e por cast REAL —
+    `grep -nE "\b[A-Za-z_$][A-Za-z0-9_$.)\]]* as [A-Z]"` nos 3 arquivos (deu vazio) e nas linhas `+` do
+    commit (tambem vazio). NAO apagar o comentario nem reescrever a prosa para "limpar" o grep: o
+    checklist e que e literal demais, o codigo esta certo.
 
 ---
 
@@ -96,6 +121,16 @@ Se nada mudou, manter vazio (bom sinal).
   Custo: uma linha em `lostCoverage` + um teste na fase-02. **Aceito pelo orquestrador em 2026-09-05** (sessao
   autonoma; o dev pode vetar na revisao do PR).
 
+- **DEV-fase01-1 (executor): o teste de `verdictFor` (Passo 6) nasceu VERDE, sem RED.** O doc desenhava o
+  Passo 6 como passo separado com RED de compilacao (import de valor novo, G5). O executor o acrescentou
+  depois do Passo 5 ja compilar — `verdictFor` ja existia, e o teste passou de primeira.
+  - Motivo/impacto: o teste nunca foi visto falhando, que e exatamente o modo de falha que o RED-check
+    existe para pegar. O orquestrador cobriu com uma **6a mutacao, nao prevista no checklist**:
+    `if (declared !== null && false)` em `verdictFor` → o teste FALHA com
+    `Expected: "publica-declarada", Received: "DESCOBERTA"`; restaurado identico. A defesa e real.
+  - Para as fases 02/03: manter o import de valor novo em passo separado ANTES de a producao existir —
+    ou, se nascer verde, provar por mutacao no mesmo passo em vez de deixar para o orquestrador.
+
 ---
 
 ## Metricas
@@ -103,8 +138,8 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 3 |
-| Fases concluidas | 0 |
-| Fases com desvio | 0 |
+| Fases concluidas | 1 |
+| Fases com desvio | 1 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
 
@@ -115,6 +150,10 @@ Se nada mudou, manter vazio (bom sinal).
 | `route-auth-matrix.test.ts` | 33 | 39 (+6) | 46 (+7) | 52 (+6) |
 | `route-auth-nextjs.test.ts` | 34 | 39 (+5) | 39 | 40 (+1) |
 | suite completa (`bun run test`) | 2033 | 2044 | 2051 | 2058 |
+
+**fase-01 medida (2026-09-06, commit 2b743e6) — bateu com a estimativa, sem drift:**
+`route-auth-matrix.test.ts` **39**, `route-auth-nextjs.test.ts` **39**, `skills/security/lib/` **119**,
+suite completa **2044 pass / 0 fail** (lotes 1397 + 647; baseline medida antes da fase era 2033 = 1386 + 647).
 
 ---
 
