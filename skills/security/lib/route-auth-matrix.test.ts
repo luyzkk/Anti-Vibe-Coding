@@ -4,8 +4,8 @@
 // disco: o TDD gate bloqueia criar `middleware.ts` (GT-fase01-1) e funcao pura dispensa I/O.
 import { describe, it, expect } from 'bun:test'
 import { join } from 'node:path'
-import { auditRouteCoverage, buildContractIssues, evaluateRoute, readAtBaseFromGit, severityFor, toContractIssue } from './route-auth-matrix'
-import type { CoverageMap, Route } from './route-auth-matrix.types'
+import { auditRouteCoverage, buildContractIssues, evaluateRoute, readAtBaseFromGit, severityFor, toContractIssue, verdictFor } from './route-auth-matrix'
+import type { BaseRead, CoverageMap, Route, RouteAdapter } from './route-auth-matrix.types'
 
 const FIXTURES = join(import.meta.dir, '../../../tests/fixtures/route-auth-matrix')
 const MINIMAL = join(FIXTURES, 'nextjs-minimal')
@@ -28,6 +28,68 @@ const coverage = (patterns: string[]): CoverageMap => ({
   rules: patterns.map((pattern) => ({ kind: 'path-pattern', pattern, file: 'middleware.ts', line: 9 })),
   sources: ['middleware.ts'],
   notes: [],
+})
+
+// 2026-09-05 (Luiz/dev): Plano 03 DP-9 — a ponta "antes" e TEXTO pelo seam readAtBase (G1 do plano: sem
+// fixture de middleware). O matcher fica na linha 2, entao a evidence "antes" e `middleware.ts@base:2 casa <path>`.
+const middlewareSource = (patterns: string[]): string =>
+  `export function middleware() {}\nexport const config = { matcher: ${JSON.stringify(patterns)} }\n`
+
+describe('auditRouteCoverage — gatilho G2 e duas pontas (Plano 03)', () => {
+  it('flags G2 as triggered with middleware.ts as source when the diff touches it', () => {
+    const { findings, summary } = auditRouteCoverage(MINIMAL, {
+      changedFiles: ['middleware.ts'],
+      readAtBase: () => ({ status: 'found', source: middlewareSource(['/api/:path*']) }),
+    })
+    expect(summary.g2.triggered).toBe(true)
+    expect(summary.g2.sources).toEqual(['middleware.ts'])
+    expect(summary.g2.before).toBe('resolved')
+    expect(summary.g2.lost).toBe(4)                                   // admin, preferences, users GET, users DELETE
+    expect(findings.every((f) => f.trigger === 'G2')).toBe(true)      // a ponta depois e o middleware.ts REAL da fixture
+    expect(summary.notes.join(' ')).not.toContain('Plano 03')    // DP-7: nota G1 sem o ponteiro
+  })
+
+  it('lists the allowlist as a G2 source when it is in the diff', () => {
+    const { summary } = auditRouteCoverage(ALLOWLIST, {
+      changedFiles: ['anti-vibe.public-routes.json'],
+      readAtBase: () => ({ status: 'found', source: '{"routes":[]}' }),
+    })
+    expect(summary.g2.triggered).toBe(true)
+    expect(summary.g2.sources).toEqual(['anti-vibe.public-routes.json'])
+    expect(summary.g2.before).toBe('resolved')
+  })
+
+  it('leaves G2 untriggered with no sources when the diff touches neither coverage nor allowlist', () => {
+    const { summary } = auditRouteCoverage(MINIMAL, { changedFiles: ['app/api/admin/route.ts'] })
+    expect(summary.g2).toEqual({ triggered: false, sources: [], before: 'resolved', lost: 0, indeterminate: 0 })
+  })
+
+  // Base ilegivel NAO pode virar `resolved` em silencio — a consequencia por rota e a fase-03.
+  it('reflects an unavailable base in summary.g2.before with the reason', () => {
+    const { summary } = auditRouteCoverage(MINIMAL, {
+      changedFiles: ['middleware.ts'],
+      readAtBase: () => ({ status: 'unavailable', reason: 'shallow clone sem merge-base' }),
+    })
+    expect(summary.g2.before).toBe('unavailable')
+    expect(summary.g2.reason).toContain('shallow clone')
+  })
+
+  // 2026-09-05 (Luiz/dev): DP-3 — a base e lida UMA vez por arquivo. readAtBase com git real custa 3
+  // processos por chamada; duas leituras dobram o custo e abrem espaco para dois resultados da mesma base.
+  it('reads each base file once when both the allowlist and the coverage are in the diff', () => {
+    const calls = new Map<string, number>()
+    const readAtBase = (file: string): BaseRead => {
+      calls.set(file, (calls.get(file) ?? 0) + 1)
+      return file === 'middleware.ts'
+        ? { status: 'found', source: middlewareSource(['/api/:path*']) }
+        : { status: 'found', source: '{"routes":[]}' }
+    }
+    const { summary } = auditRouteCoverage(ALLOWLIST, { changedFiles: ['middleware.ts', 'anti-vibe.public-routes.json'], readAtBase })
+    expect(summary.g2.sources).toEqual(['middleware.ts', 'anti-vibe.public-routes.json'])   // cobertura primeiro
+    expect(calls.get('middleware.ts')).toBe(1)
+    expect(calls.get('anti-vibe.public-routes.json')).toBe(1)
+    expect(summary.allowlist.delta?.before).toBe('resolved')   // o delta do Plano 02 saiu da MESMA leitura
+  })
 })
 
 describe('severityFor (PRD D9 — regra fixa, nao julgamento)', () => {
@@ -100,6 +162,17 @@ describe('evaluateRoute (motor de veredito)', () => {
   it('yields DESCOBERTA when there is no rule at all', () => {
     const map: CoverageMap = { stack: 'nextjs', rules: [], sources: [], notes: [] }
     expect(evaluateRoute(route({ path: '/api/admin' }), map).verdict).toBe('DESCOBERTA')
+  })
+})
+
+describe('verdictFor (DP-3 — a unica funcao de veredito, usada nas duas pontas)', () => {
+  it('lets the allowlist win before the engine and falls through to evaluateRoute otherwise', () => {
+    const entry = { path: '/api/health', reason: 'lb', file: 'anti-vibe.public-routes.json@base', line: 3 }
+    const declared = verdictFor(route({ path: '/api/health' }), coverage([]), [entry])
+    expect(declared.verdict).toBe('publica-declarada')
+    expect(declared.evidence).toBe('anti-vibe.public-routes.json@base:3 declara publica — lb')
+    expect(verdictFor(route({ path: '/api/admin' }), coverage(['/api/:path*']), [entry]).verdict).toBe('coberta')
+    expect(verdictFor(route({ path: '/api/admin' }), coverage([]), []).verdict).toBe('DESCOBERTA')
   })
 })
 
@@ -289,6 +362,248 @@ describe('auditRouteCoverage — mudanca na allowlist (AB-4 / CA-07)', () => {
     const { summary } = auditRouteCoverage(ALLOWLIST, { changedFiles: ['app/api/health/route.ts'] })
     expect(summary.allowlist.changed).toBe(false)
     expect(summary.allowlist.delta).toBeUndefined()
+  })
+})
+
+describe('auditRouteCoverage — G2 cobertura perdida (Plano 03 fase-02)', () => {
+  // A ponta ANTES cobre toda a API; a ponta DEPOIS so /api/preferences. Nenhum arquivo de rota no diff.
+  // `(): BaseRead` e obrigatorio: sem a anotacao, `status` alarga para string e o spread nao tipa (gotcha local).
+  const NARROWED = {
+    changedFiles: ['middleware.ts'],
+    readAtBase: (): BaseRead => ({ status: 'found', source: middlewareSource(['/api/:path*']) }),
+    coverageOverride: coverage(['/api/preferences']),
+  }
+
+  // 2026-09-05 (Luiz/dev): PRD CA-09 — teste de abuso escrito ANTES do loop existir. O RED e exatamente o
+  // silencio que o G2 quebra: diff que so estreita o matcher, zero findings (PRD "G2 e o que quase ficou de fora").
+  it('CA-09: emits a finding for every route that left coberta when only middleware.ts narrowed the matcher', () => {
+    const { findings, summary } = auditRouteCoverage(MINIMAL, NARROWED)
+    expect(findings).toHaveLength(3)
+    expect(findings.map((f) => [f.severity, f.route.method, f.route.path])).toEqual([
+      ['critical', 'GET', '/api/admin'],           // marcador de privilegio (D9)
+      ['critical', 'DELETE', '/api/users/[id]'],   // metodo mutante (D9)
+      ['high', 'GET', '/api/users/[id]'],
+    ])
+    expect(findings.every((f) => f.verdict === 'DESCOBERTA' && f.trigger === 'G2')).toBe(true)
+    expect(findings.some((f) => f.route.path === '/api/preferences')).toBe(false)                    // continua coberta
+    expect(findings.some((f) => f.route.path === '/docs/[...slug]' || f.route.path === '/pricing')).toBe(false)   // abertas nas duas pontas: nada perdido
+    expect(summary.g2).toEqual({ triggered: true, sources: ['middleware.ts'], before: 'resolved', lost: 3, indeterminate: 0 })
+    expect(summary.evaluated).toBe(3)      // G1 = 0 (middleware.ts nao e arquivo de rota) + G2 = 3
+    expect(summary.descoberta).toBe(3)
+  })
+
+  // DP-4: as DUAS pontas na evidence (G6: o sufixo @base e o que distingue a linha antiga), prefixo na description.
+  it('carries both ends in the evidence and prefixes [cobertura perdida] on the contract description', () => {
+    const { findings } = auditRouteCoverage(MINIMAL, NARROWED)
+    expect(findings[0]?.missing).toBe(
+      'cobertura perdida — antes: middleware.ts@base:2 casa /api/admin; agora: nenhuma entrada de config.matcher (middleware.ts) casa /api/admin',
+    )
+    const description = findings.map(toContractIssue)[0]?.description ?? ''
+    expect(description.startsWith('[cobertura perdida] DESCOBERTA: GET /api/admin (app/api/admin/route.ts:2)')).toBe(true)
+    expect(description).toContain('antes: middleware.ts@base:2')
+  })
+
+  // Entrada REMOVIDA da allowlist (G18 do Plano 02). A fixture nextjs-allowlist declara health e stripe e tem
+  // /api/admin SEM reason (recusada, CA-04b). A base declarava /api/admin COM reason: a rota era publica-declarada,
+  // agora esta DESCOBERTA — e o arquivo dela nao esta no diff. So o G2 enxerga. Admin fica na linha 5 do texto.
+  const BASE_WITH_ADMIN = [
+    '{',
+    '  "routes": [',
+    '    { "path": "/api/health", "reason": "lb" },',
+    '    { "path": "/api/webhooks/stripe", "reason": "assinado" },',
+    '    { "path": "/api/admin", "reason": "painel legado — publico ate este diff" }',
+    '  ]',
+    '}',
+  ].join('\n')
+
+  it('flags a route that lost its public declaration when its allowlist entry was removed', () => {
+    const { findings, summary } = auditRouteCoverage(ALLOWLIST, {
+      changedFiles: ['anti-vibe.public-routes.json'],
+      readAtBase: () => ({ status: 'found', source: BASE_WITH_ADMIN }),
+    })
+    expect(summary.allowlist.delta?.removed.map((e) => e.path)).toEqual(['/api/admin'])   // delta (Plano 02) e G2 saem da MESMA leitura (G16)
+    expect(findings).toHaveLength(1)
+    expect(findings[0]?.route.path).toBe('/api/admin')
+    expect(findings[0]?.severity).toBe('critical')
+    expect(findings[0]?.trigger).toBe('G2')
+    expect(findings[0]?.missing).toContain('antes: anti-vibe.public-routes.json@base:5 declara publica — painel legado')
+    expect(findings[0]?.missing).toContain('agora: nenhuma entrada de config.matcher (middleware.ts ausente) casa /api/admin')
+    expect(summary.g2).toEqual({ triggered: true, sources: ['anti-vibe.public-routes.json'], before: 'resolved', lost: 1, indeterminate: 0 })
+  })
+
+  // 2026-09-05 (Luiz/dev): G7 do plano (DP-6, caso inverso do `absent`) — base COM matcher, HEAD SEM middleware.ts.
+  // `readCoverage` atual devolve rules: [] e tudo que era coberta vira DESCOBERTA G2. Nenhum codigo especial; o
+  // teste existe para ninguem "otimizar" o caso depois.
+  it('treats a deleted middleware.ts as losing every route it covered', () => {
+    const { findings, summary } = auditRouteCoverage(MINIMAL, {
+      changedFiles: ['middleware.ts'],
+      readAtBase: () => ({ status: 'found', source: middlewareSource(['/api/:path*']) }),
+      coverageOverride: { stack: 'nextjs', rules: [], sources: [], notes: ['middleware.ts nao encontrado na raiz do projeto'] },
+    })
+    expect(findings.map((f) => `${f.route.method} ${f.route.path}`)).toEqual([
+      'GET /api/admin', 'DELETE /api/users/[id]', 'GET /api/preferences', 'GET /api/users/[id]',
+    ])
+    expect(findings.map((f) => f.severity)).toEqual(['critical', 'critical', 'high', 'high'])
+    expect(findings.every((f) => f.trigger === 'G2' && f.missing.includes('agora: nenhuma entrada de config.matcher (middleware.ts ausente)'))).toBe(true)
+    expect(summary.g2.lost).toBe(4)
+    expect(summary.sources).toEqual([])   // a ponta depois nao tem fonte; a ponta antes esta na evidence
+  })
+
+  // G8 + DP-10: rota do G1 que TAMBEM perdeu cobertura conta UMA vez, como G1 (sem prefixo). Ordenacao
+  // (severidade, path) e ids ROUTE-* nao mudam com o trigger.
+  it('counts a route that is in G1 and also lost coverage once, as G1, keeping order and ids', () => {
+    const result = auditRouteCoverage(MINIMAL, { ...NARROWED, changedFiles: ['middleware.ts', 'app/api/admin/route.ts'] })
+    const admin = result.findings.filter((f) => f.route.path === '/api/admin')
+    expect(admin).toHaveLength(1)
+    expect(admin[0]?.trigger).toBe('G1')
+    expect(result.summary.evaluated).toBe(3)      // 1 G1 + 2 G2
+    expect(result.summary.g2.lost).toBe(2)
+    const issues = buildContractIssues(result)
+    expect(issues.map((i) => i.id)).toEqual(['ROUTE-001', 'ROUTE-002', 'ROUTE-003'])
+    expect(issues[0]?.description.startsWith('DESCOBERTA: GET /api/admin')).toBe(true)                             // G1: sem prefixo
+    expect(issues[1]?.description.startsWith('[cobertura perdida] DESCOBERTA: DELETE /api/users/[id]')).toBe(true)
+    expect(issues[2]?.severity).toBe('high')
+  })
+
+  // O gatilho e o ARQUIVO no diff; o finding e a PERDA. Diff que alarga (ou so reescreve) o matcher dispara o
+  // G2 e nao emite nada — sem isso, todo commit em middleware.ts viraria ruido. Este teste NASCE VERDE (antes do
+  // loop existir tambem nao ha finding) — e a trava contra falso positivo; a defesa e provada no RED-check (4).
+  it('emits nothing when the middleware change widens or keeps the coverage', () => {
+    const { findings, summary } = auditRouteCoverage(MINIMAL, { ...NARROWED, coverageOverride: coverage(['/api/:path*', '/dashboard/:path*']) })
+    expect(findings).toHaveLength(0)
+    expect(summary.g2).toEqual({ triggered: true, sources: ['middleware.ts'], before: 'resolved', lost: 0, indeterminate: 0 })
+    expect(summary.evaluated).toBe(0)
+  })
+
+  // 2026-09-05 (Luiz/dev): DP-4 emendada — base com matcher COMPUTADO (opaque): toda rota era `indeterminada` antes.
+  // As que estao DESCOBERTA agora nao podem sair em silencio (RF-04/D8), mas tambem nao da para provar que eram
+  // cobertas: entram como `indeterminada` G2 (medium). O par indeterminada → indeterminada (matcher continua
+  // computado) NAO e mudanca e nao entra. /api/preferences esta coberta hoje: fora (OPEN_NOW).
+  it('treats a route that was indeterminada at the base and is DESCOBERTA now as indeterminada G2, never silent', () => {
+    const OPAQUE_BASE = (): BaseRead => ({ status: 'found', source: 'export function middleware() {}\nexport const config = { matcher: PROTECTED }\n' })
+    const { findings, summary } = auditRouteCoverage(MINIMAL, { changedFiles: ['middleware.ts'], readAtBase: OPAQUE_BASE, coverageOverride: coverage(['/api/preferences']) })
+    expect(findings).toHaveLength(5)
+    expect(findings.every((f) => f.verdict === 'indeterminada' && f.severity === 'medium' && f.trigger === 'G2')).toBe(true)
+    expect(findings[0]?.missing).toContain('antes: matcher computado')
+    expect(summary.g2).toEqual({ triggered: true, sources: ['middleware.ts'], before: 'resolved', lost: 0, indeterminate: 5 })
+
+    const stillOpaque = auditRouteCoverage(MINIMAL, {
+      changedFiles: ['middleware.ts'],
+      readAtBase: OPAQUE_BASE,
+      coverageOverride: { stack: 'nextjs', rules: [{ kind: 'opaque', reason: 'matcher computado', file: 'middleware.ts', line: 2 }], sources: ['middleware.ts'], notes: [] },
+    })
+    expect(stillOpaque.findings).toHaveLength(0)
+    expect(stillOpaque.summary.g2.indeterminate).toBe(0)
+  })
+})
+
+// 2026-09-05 (Luiz/dev): G14 / MEMORY DEV-plan-1 — adaptador SEM isCoverageFile/readCoverageAtBase, como o Plano 04
+// pode registrar de cara. Rotas e cobertura inline (nao dependem de fixture); o que falta e SO o suporte a G2.
+// `stack: 'rails'` e um StackId valido e deixa a nota `adaptador rails sem suporte a G2` legivel.
+const NO_G2_ADAPTER: RouteAdapter = {
+  stack: 'rails',
+  enumerate: () => [
+    route({ path: '/api/admin', file: 'app/api/admin/route.ts', line: 2 }),
+    route({ path: '/api/health', file: 'app/api/health/route.ts', line: 2 }),
+  ],
+  readCoverage: () => coverage([]),
+}
+
+describe('auditRouteCoverage — G2 com ponta antes irreconstruivel (Plano 03 fase-03, DP-5)', () => {
+  // A ponta DEPOIS cobre so /api/preferences: 5 rotas abertas hoje, 1 coberta. Nao ha como saber se as 5 perderam
+  // algo — entao nenhuma pode sair em silencio; a que esta coberta HOJE nao precisa da base.
+  const UNREADABLE = {
+    changedFiles: ['middleware.ts'],
+    readAtBase: (): BaseRead => ({ status: 'unavailable', reason: 'shallow clone sem merge-base' }),
+    coverageOverride: coverage(['/api/preferences']),
+  }
+
+  // 2026-09-05 (Luiz/dev): PRD "onde a ponta antes nao for reconstruivel, o veredito e indeterminada — nunca
+  // silencio" (RF-04/CA-10 estendidos ao G2). Escrito ANTES do ramo existir: o RED e o silencio. Ruidoso por
+  // desenho (G18): 5 issues medium de 6 rotas; nao filtrar, nao agrupar, nao rebaixar.
+  it('never stays silent when the base coverage cannot be reconstructed', () => {
+    const { findings, summary } = auditRouteCoverage(MINIMAL, UNREADABLE)
+    expect(findings).toHaveLength(5)
+    expect(findings.every((f) => f.verdict === 'indeterminada' && f.severity === 'medium' && f.trigger === 'G2')).toBe(true)
+    expect(findings.map((f) => f.route.path)).toEqual(['/api/admin', '/api/users/[id]', '/api/users/[id]', '/docs/[...slug]', '/pricing'])
+    expect(findings.some((f) => f.route.path === '/api/preferences')).toBe(false)   // coberta HOJE: nao e tocada
+    expect(findings[0]?.missing).toBe(
+      "ponta 'antes' irreconstruivel (shallow clone sem merge-base) — nao da para saber se /api/admin perdeu cobertura neste diff",
+    )
+    const description = findings.map(toContractIssue)[0]?.description ?? ''
+    expect(description.startsWith('[cobertura perdida] indeterminada: GET /api/admin (app/api/admin/route.ts:2)')).toBe(true)
+    expect(description).toContain('cobertura nao demonstravel')
+    expect(summary.g2).toEqual({ triggered: true, sources: ['middleware.ts'], before: 'unavailable', lost: 0, indeterminate: 5, reason: 'shallow clone sem merge-base' })
+    expect(summary.evaluated).toBe(5)
+    expect(summary.indeterminada).toBe(5)
+  })
+
+  // `safeBaseReader` (fase-01) ja converte lancamento e ausencia em `unavailable`; aqui se prova que a razao chega
+  // ate a evidence de CADA rota — o revisor nao precisa abrir o summary para saber por que.
+  it('treats a missing or throwing readAtBase as unreconstructable, carrying the reason into every finding', () => {
+    const thrown = auditRouteCoverage(MINIMAL, { ...UNREADABLE, readAtBase: () => { throw new Error('git explodiu') } })
+    expect(thrown.findings).toHaveLength(5)
+    expect(thrown.findings.every((f) => f.missing.includes('git explodiu'))).toBe(true)
+    expect(thrown.summary.g2.before).toBe('unavailable')
+
+    const { changedFiles, coverageOverride } = UNREADABLE
+    const noReader = auditRouteCoverage(MINIMAL, { changedFiles, coverageOverride })
+    expect(noReader.findings).toHaveLength(5)
+    expect(noReader.summary.g2.reason).toContain('readAtBase ausente')
+    expect(noReader.findings[0]?.missing).toContain('readAtBase ausente')
+  })
+
+  // So a allowlist disparou o G2 e a base DELA e ilegivel: mesma regra, com o reason que o delta ja carrega (G16:
+  // uma leitura serve os dois). health/stripe estao publica-declarada HOJE e nao sao tocadas; admin (recusada) esta aberta.
+  it('applies the same rule when only the allowlist triggered G2 and its base is unavailable', () => {
+    const { findings, summary } = auditRouteCoverage(ALLOWLIST, {
+      changedFiles: ['anti-vibe.public-routes.json'],
+      readAtBase: () => ({ status: 'unavailable', reason: 'ref nao resolvivel' }),
+    })
+    expect(findings.map((f) => [f.route.path, f.verdict, f.severity, f.trigger])).toEqual([['/api/admin', 'indeterminada', 'medium', 'G2']])
+    expect(findings[0]?.missing).toContain("ponta 'antes' irreconstruivel (ref nao resolvivel)")
+    expect(summary.g2.before).toBe('unavailable')
+    expect(summary.g2.indeterminate).toBe(1)
+    expect(summary.allowlist.delta?.before).toBe('unavailable')   // delta (Plano 02) e G2 viram a MESMA leitura
+  })
+})
+
+describe('auditRouteCoverage — G2 com base ausente e adaptador sem suporte (Plano 03 fase-03, DP-6/DP-2)', () => {
+  // 2026-09-05 (Luiz/dev): DP-6 / G7 — `absent` NAO e irreconstruivel: nao havia middleware, logo zero cobertura
+  // antes, logo nada a perder. Este teste NASCE VERDE (fase-01 no adaptador + fase-02 no loop ja produzem isso) —
+  // e trava contra a "otimizacao" que trataria ausente como unavailable; a defesa e provada no RED-check (4).
+  it('treats middleware.ts absent at the base as nothing to lose, not as unreconstructable', () => {
+    const { findings, summary } = auditRouteCoverage(MINIMAL, { changedFiles: ['middleware.ts'], readAtBase: () => ({ status: 'absent' }) })
+    expect(findings).toHaveLength(0)
+    expect(summary.g2).toEqual({ triggered: true, sources: ['middleware.ts'], before: 'resolved', lost: 0, indeterminate: 0 })
+    expect(summary.notes.join(' ')).toContain('middleware.ts ausente na base — nenhuma cobertura a perder')
+  })
+
+  // DP-2: sem os dois metodos, `middleware.ts` no diff NAO e reconhecido como cobertura — G2 nao dispara, `before` e
+  // `not-applicable` e a nota fica em summary.notes. Nao ha rota a reportar; o sinal e a nota (nunca silencio total).
+  it('reports not-applicable with a visible note when the adapter has no G2 support and nothing triggered', () => {
+    const { findings, summary } = auditRouteCoverage(MINIMAL, { changedFiles: ['middleware.ts'], adapter: NO_G2_ADAPTER })
+    expect(summary.g2.triggered).toBe(false)
+    expect(summary.g2.before).toBe('not-applicable')
+    expect(summary.g2.reason).toContain('adaptador rails sem suporte a G2')
+    expect(summary.notes.join(' ')).toContain('adaptador rails sem suporte a G2')
+    expect(findings).toHaveLength(0)
+  })
+
+  // DP-5 (aplicacao de planejamento): not-applicable + triggered (allowlist no diff) = ponta antes irreconstruivel
+  // por definicao. A base da ALLOWLIST ate resolveu — o que falta e o adaptador saber comparar COBERTURA.
+  it('turns every open route into indeterminada G2 when the allowlist triggered G2 on an adapter without support', () => {
+    const { findings, summary } = auditRouteCoverage(ALLOWLIST, {
+      changedFiles: ['anti-vibe.public-routes.json'],
+      readAtBase: () => ({ status: 'found', source: '{"routes":[]}' }),
+      adapter: NO_G2_ADAPTER,
+    })
+    expect(findings.map((f) => [f.route.path, f.verdict, f.severity, f.trigger])).toEqual([['/api/admin', 'indeterminada', 'medium', 'G2']])
+    expect(findings[0]?.missing).toContain('adaptador rails sem suporte a G2')
+    expect(summary.g2.before).toBe('not-applicable')
+    expect(summary.g2.triggered).toBe(true)
+    expect(summary.g2.indeterminate).toBe(1)
+    expect(summary.allowlist.delta?.before).toBe('resolved')   // a allowlist resolveu; o que e not-applicable e a COBERTURA
   })
 })
 

@@ -5,12 +5,16 @@ import {
   enumerateNextjsRoutes,
   toPublicPath,
   extractExportedMethods,
+  isNextjsCoverageFile,
   matcherToRegExp,
   matchRouteAgainstPattern,
   parseMatcherConfig,
   probesFor,
   readNextjsCoverage,
+  readNextjsCoverageAtBase,
 } from './route-auth-nextjs'
+import { isCoverageUnavailable } from './route-auth-matrix.types'
+import type { BaseRead } from './route-auth-matrix.types'
 
 const FIXTURE = join(import.meta.dir, '../../../tests/fixtures/route-auth-matrix/nextjs-minimal')
 const SRC_APP_FIXTURE = join(import.meta.dir, '../../../tests/fixtures/nextjs-app-router-fixture')
@@ -209,6 +213,57 @@ describe('readNextjsCoverage', () => {
     expect(rule?.kind).toBe('path-pattern')
     expect(rule?.kind === 'path-pattern' ? rule.pattern : null).toBe('/dashboard/:path*')
     expect(rule?.line).toBeGreaterThan(1)
+  })
+})
+
+describe('G2 — cobertura na ponta antes (Plano 03 DP-2)', () => {
+  // G17 do plano: readNextjsCoverage so le a raiz; reconhecer src/middleware.ts aqui daria G2 com base vazia.
+  it('recognizes only the root middleware.ts as a coverage file', () => {
+    expect(isNextjsCoverageFile('middleware.ts')).toBe(true)
+    expect(isNextjsCoverageFile('src/middleware.ts')).toBe(false)
+    expect(isNextjsCoverageFile('app/api/admin/route.ts')).toBe(false)
+  })
+
+  it('rebuilds the base coverage from the middleware text with @base-suffixed sources', () => {
+    const read = (): BaseRead => ({ status: 'found', source: `export const config = {\n  matcher: ['/api/:path*', '/admin/:path*'],\n}\n` })
+    const result = readNextjsCoverageAtBase(read)
+    if (isCoverageUnavailable(result)) throw new Error('esperava CoverageMap')
+    expect(result.sources).toEqual(['middleware.ts@base'])
+    expect(result.rules.map((r) => (r.kind === 'path-pattern' ? r.pattern : r.kind))).toEqual(['/api/:path*', '/admin/:path*'])
+    expect(result.rules[0]?.file).toBe('middleware.ts@base')
+    expect(result.rules[0]?.line).toBe(2)
+  })
+
+  // DP-6: sem middleware antes = zero cobertura antes = nada a perder. NAO e `unavailable`.
+  it('treats middleware.ts absent at the base as no coverage at all, with a note', () => {
+    const result = readNextjsCoverageAtBase(() => ({ status: 'absent' }))
+    if (isCoverageUnavailable(result)) throw new Error('esperava CoverageMap')
+    expect(result.rules).toEqual([])
+    expect(result.sources).toEqual([])
+    expect(result.notes.join(' ')).toContain('nenhuma cobertura a perder')
+  })
+
+  it('passes an unavailable base through with its reason instead of inventing rules', () => {
+    const result = readNextjsCoverageAtBase(() => ({ status: 'unavailable', reason: 'ref nao resolvivel' }))
+    expect(result).toEqual({ unavailable: 'ref nao resolvivel' })
+  })
+
+  // G9 do plano: o proxy G13 (sem matcher = roda em tudo) vale na ponta antes — e precisa ficar visivel.
+  it('keeps the G13 proxy on the base end: middleware without matcher covers everything, with a note', () => {
+    const result = readNextjsCoverageAtBase(() => ({ status: 'found', source: 'export function middleware() {}\n' }))
+    if (isCoverageUnavailable(result)) throw new Error('esperava CoverageMap')
+    expect(result.rules).toEqual([{ kind: 'path-pattern', pattern: '/:path*', file: 'middleware.ts@base', line: 1 }])
+    expect(result.notes.join(' ')).toContain('cobertura por proxy')
+  })
+
+  // RF-04 na ponta antes: matcher COMPUTADO na base nao vira cobertura inventada — vira `opaque` com `@base`. No motor,
+  // verdictBefore = indeterminada ENTRA no G2 como `indeterminada` quando a rota esta DESCOBERTA agora (DP-4 emendada;
+  // teste `indeterminada at the base` na fase-02). Nasce verde (parseMatcherConfig ja faz isso); defesa no RED-check (6).
+  it('keeps a computed base matcher opaque instead of guessing what it covered', () => {
+    const result = readNextjsCoverageAtBase(() => ({ status: 'found', source: 'export function middleware() {}\nexport const config = { matcher: PROTECTED }\n' }))
+    if (isCoverageUnavailable(result)) throw new Error('esperava CoverageMap')
+    expect(result.rules).toEqual([{ kind: 'opaque', reason: 'matcher computado — nao e literal', file: 'middleware.ts@base', line: 2 }])
+    expect(result.notes).toEqual([])   // ha `matcher:` no texto — a nota de proxy (G9) nao se aplica
   })
 })
 
