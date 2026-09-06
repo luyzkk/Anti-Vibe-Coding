@@ -113,9 +113,9 @@ export type G2Summary = {
   sources: string[]
   /** `resolved` tambem quando nao disparou: a ponta antes E a ponta depois. */
   before: 'resolved' | 'unavailable' | 'not-applicable'
-  /** G2 com veredito DESCOBERTA (a fase-02 preenche; aqui sempre 0). */
+  /** Quantas rotas do conjunto G2 sairam com veredito DESCOBERTA. */
   lost: number
-  /** G2 com veredito indeterminada (fases 02/03 preenchem; aqui sempre 0). */
+  /** Quantas rotas do conjunto G2 sairam com veredito indeterminada. */
   indeterminate: number
   reason?: string
 }
