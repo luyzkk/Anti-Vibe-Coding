@@ -5,7 +5,7 @@
 import { describe, it, expect } from 'bun:test'
 import { join } from 'node:path'
 import { auditRouteCoverage, buildContractIssues, evaluateRoute, readAtBaseFromGit, severityFor, toContractIssue, verdictFor } from './route-auth-matrix'
-import type { BaseRead, CoverageMap, Route } from './route-auth-matrix.types'
+import type { BaseRead, CoverageMap, Route, RouteAdapter } from './route-auth-matrix.types'
 
 const FIXTURES = join(import.meta.dir, '../../../tests/fixtures/route-auth-matrix')
 const MINIMAL = join(FIXTURES, 'nextjs-minimal')
@@ -494,6 +494,116 @@ describe('auditRouteCoverage — G2 cobertura perdida (Plano 03 fase-02)', () =>
     })
     expect(stillOpaque.findings).toHaveLength(0)
     expect(stillOpaque.summary.g2.indeterminate).toBe(0)
+  })
+})
+
+// 2026-09-05 (Luiz/dev): G14 / MEMORY DEV-plan-1 — adaptador SEM isCoverageFile/readCoverageAtBase, como o Plano 04
+// pode registrar de cara. Rotas e cobertura inline (nao dependem de fixture); o que falta e SO o suporte a G2.
+// `stack: 'rails'` e um StackId valido e deixa a nota `adaptador rails sem suporte a G2` legivel.
+const NO_G2_ADAPTER: RouteAdapter = {
+  stack: 'rails',
+  enumerate: () => [
+    route({ path: '/api/admin', file: 'app/api/admin/route.ts', line: 2 }),
+    route({ path: '/api/health', file: 'app/api/health/route.ts', line: 2 }),
+  ],
+  readCoverage: () => coverage([]),
+}
+
+describe('auditRouteCoverage — G2 com ponta antes irreconstruivel (Plano 03 fase-03, DP-5)', () => {
+  // A ponta DEPOIS cobre so /api/preferences: 5 rotas abertas hoje, 1 coberta. Nao ha como saber se as 5 perderam
+  // algo — entao nenhuma pode sair em silencio; a que esta coberta HOJE nao precisa da base.
+  const UNREADABLE = {
+    changedFiles: ['middleware.ts'],
+    readAtBase: (): BaseRead => ({ status: 'unavailable', reason: 'shallow clone sem merge-base' }),
+    coverageOverride: coverage(['/api/preferences']),
+  }
+
+  // 2026-09-05 (Luiz/dev): PRD "onde a ponta antes nao for reconstruivel, o veredito e indeterminada — nunca
+  // silencio" (RF-04/CA-10 estendidos ao G2). Escrito ANTES do ramo existir: o RED e o silencio. Ruidoso por
+  // desenho (G18): 5 issues medium de 6 rotas; nao filtrar, nao agrupar, nao rebaixar.
+  it('never stays silent when the base coverage cannot be reconstructed', () => {
+    const { findings, summary } = auditRouteCoverage(MINIMAL, UNREADABLE)
+    expect(findings).toHaveLength(5)
+    expect(findings.every((f) => f.verdict === 'indeterminada' && f.severity === 'medium' && f.trigger === 'G2')).toBe(true)
+    expect(findings.map((f) => f.route.path)).toEqual(['/api/admin', '/api/users/[id]', '/api/users/[id]', '/docs/[...slug]', '/pricing'])
+    expect(findings.some((f) => f.route.path === '/api/preferences')).toBe(false)   // coberta HOJE: nao e tocada
+    expect(findings[0]?.missing).toBe(
+      "ponta 'antes' irreconstruivel (shallow clone sem merge-base) — nao da para saber se /api/admin perdeu cobertura neste diff",
+    )
+    const description = findings.map(toContractIssue)[0]?.description ?? ''
+    expect(description.startsWith('[cobertura perdida] indeterminada: GET /api/admin (app/api/admin/route.ts:2)')).toBe(true)
+    expect(description).toContain('cobertura nao demonstravel')
+    expect(summary.g2).toEqual({ triggered: true, sources: ['middleware.ts'], before: 'unavailable', lost: 0, indeterminate: 5, reason: 'shallow clone sem merge-base' })
+    expect(summary.evaluated).toBe(5)
+    expect(summary.indeterminada).toBe(5)
+  })
+
+  // `safeBaseReader` (fase-01) ja converte lancamento e ausencia em `unavailable`; aqui se prova que a razao chega
+  // ate a evidence de CADA rota — o revisor nao precisa abrir o summary para saber por que.
+  it('treats a missing or throwing readAtBase as unreconstructable, carrying the reason into every finding', () => {
+    const thrown = auditRouteCoverage(MINIMAL, { ...UNREADABLE, readAtBase: () => { throw new Error('git explodiu') } })
+    expect(thrown.findings).toHaveLength(5)
+    expect(thrown.findings.every((f) => f.missing.includes('git explodiu'))).toBe(true)
+    expect(thrown.summary.g2.before).toBe('unavailable')
+
+    const { changedFiles, coverageOverride } = UNREADABLE
+    const noReader = auditRouteCoverage(MINIMAL, { changedFiles, coverageOverride })
+    expect(noReader.findings).toHaveLength(5)
+    expect(noReader.summary.g2.reason).toContain('readAtBase ausente')
+    expect(noReader.findings[0]?.missing).toContain('readAtBase ausente')
+  })
+
+  // So a allowlist disparou o G2 e a base DELA e ilegivel: mesma regra, com o reason que o delta ja carrega (G16:
+  // uma leitura serve os dois). health/stripe estao publica-declarada HOJE e nao sao tocadas; admin (recusada) esta aberta.
+  it('applies the same rule when only the allowlist triggered G2 and its base is unavailable', () => {
+    const { findings, summary } = auditRouteCoverage(ALLOWLIST, {
+      changedFiles: ['anti-vibe.public-routes.json'],
+      readAtBase: () => ({ status: 'unavailable', reason: 'ref nao resolvivel' }),
+    })
+    expect(findings.map((f) => [f.route.path, f.verdict, f.severity, f.trigger])).toEqual([['/api/admin', 'indeterminada', 'medium', 'G2']])
+    expect(findings[0]?.missing).toContain("ponta 'antes' irreconstruivel (ref nao resolvivel)")
+    expect(summary.g2.before).toBe('unavailable')
+    expect(summary.g2.indeterminate).toBe(1)
+    expect(summary.allowlist.delta?.before).toBe('unavailable')   // delta (Plano 02) e G2 viram a MESMA leitura
+  })
+})
+
+describe('auditRouteCoverage — G2 com base ausente e adaptador sem suporte (Plano 03 fase-03, DP-6/DP-2)', () => {
+  // 2026-09-05 (Luiz/dev): DP-6 / G7 — `absent` NAO e irreconstruivel: nao havia middleware, logo zero cobertura
+  // antes, logo nada a perder. Este teste NASCE VERDE (fase-01 no adaptador + fase-02 no loop ja produzem isso) —
+  // e trava contra a "otimizacao" que trataria ausente como unavailable; a defesa e provada no RED-check (4).
+  it('treats middleware.ts absent at the base as nothing to lose, not as unreconstructable', () => {
+    const { findings, summary } = auditRouteCoverage(MINIMAL, { changedFiles: ['middleware.ts'], readAtBase: () => ({ status: 'absent' }) })
+    expect(findings).toHaveLength(0)
+    expect(summary.g2).toEqual({ triggered: true, sources: ['middleware.ts'], before: 'resolved', lost: 0, indeterminate: 0 })
+    expect(summary.notes.join(' ')).toContain('middleware.ts ausente na base — nenhuma cobertura a perder')
+  })
+
+  // DP-2: sem os dois metodos, `middleware.ts` no diff NAO e reconhecido como cobertura — G2 nao dispara, `before` e
+  // `not-applicable` e a nota fica em summary.notes. Nao ha rota a reportar; o sinal e a nota (nunca silencio total).
+  it('reports not-applicable with a visible note when the adapter has no G2 support and nothing triggered', () => {
+    const { findings, summary } = auditRouteCoverage(MINIMAL, { changedFiles: ['middleware.ts'], adapter: NO_G2_ADAPTER })
+    expect(summary.g2.triggered).toBe(false)
+    expect(summary.g2.before).toBe('not-applicable')
+    expect(summary.g2.reason).toContain('adaptador rails sem suporte a G2')
+    expect(summary.notes.join(' ')).toContain('adaptador rails sem suporte a G2')
+    expect(findings).toHaveLength(0)
+  })
+
+  // DP-5 (aplicacao de planejamento): not-applicable + triggered (allowlist no diff) = ponta antes irreconstruivel
+  // por definicao. A base da ALLOWLIST ate resolveu — o que falta e o adaptador saber comparar COBERTURA.
+  it('turns every open route into indeterminada G2 when the allowlist triggered G2 on an adapter without support', () => {
+    const { findings, summary } = auditRouteCoverage(ALLOWLIST, {
+      changedFiles: ['anti-vibe.public-routes.json'],
+      readAtBase: () => ({ status: 'found', source: '{"routes":[]}' }),
+      adapter: NO_G2_ADAPTER,
+    })
+    expect(findings.map((f) => [f.route.path, f.verdict, f.severity, f.trigger])).toEqual([['/api/admin', 'indeterminada', 'medium', 'G2']])
+    expect(findings[0]?.missing).toContain('adaptador rails sem suporte a G2')
+    expect(summary.g2.before).toBe('not-applicable')
+    expect(summary.g2.triggered).toBe(true)
+    expect(summary.g2.indeterminate).toBe(1)
+    expect(summary.allowlist.delta?.before).toBe('resolved')   // a allowlist resolveu; o que e not-applicable e a COBERTURA
   })
 })
 

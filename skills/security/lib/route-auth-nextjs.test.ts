@@ -255,6 +255,16 @@ describe('G2 — cobertura na ponta antes (Plano 03 DP-2)', () => {
     expect(result.rules).toEqual([{ kind: 'path-pattern', pattern: '/:path*', file: 'middleware.ts@base', line: 1 }])
     expect(result.notes.join(' ')).toContain('cobertura por proxy')
   })
+
+  // RF-04 na ponta antes: matcher COMPUTADO na base nao vira cobertura inventada — vira `opaque` com `@base`. No motor,
+  // verdictBefore = indeterminada ENTRA no G2 como `indeterminada` quando a rota esta DESCOBERTA agora (DP-4 emendada;
+  // teste `indeterminada at the base` na fase-02). Nasce verde (parseMatcherConfig ja faz isso); defesa no RED-check (6).
+  it('keeps a computed base matcher opaque instead of guessing what it covered', () => {
+    const result = readNextjsCoverageAtBase(() => ({ status: 'found', source: 'export function middleware() {}\nexport const config = { matcher: PROTECTED }\n' }))
+    if (isCoverageUnavailable(result)) throw new Error('esperava CoverageMap')
+    expect(result.rules).toEqual([{ kind: 'opaque', reason: 'matcher computado — nao e literal', file: 'middleware.ts@base', line: 2 }])
+    expect(result.notes).toEqual([])   // ha `matcher:` no texto — a nota de proxy (G9) nao se aplica
+  })
 })
 
 // 2026-09-04 (Luiz/dev): teste de abuso do PRD (AB-3 / CA-06). O texto do matcher CONTEM "/admin",

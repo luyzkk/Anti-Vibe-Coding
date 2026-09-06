@@ -126,6 +126,12 @@ export type AuditOptions = {
    * lambda. 2026-09-05 (Luiz/dev): mesmo seam que o Plano 03 usa para `middleware.ts` — nao criar outro.
    */
   readAtBase?: (file: string) => BaseRead
+  /**
+   * 2026-09-05 (Luiz/dev): G14 / MEMORY DEV-plan-1 — seam de teste para exercitar `not-applicable` (adaptador sem
+   * suporte a G2) antes do Plano 04. Default `nextjsAdapter`; a CLI nao o passa. NAO e a selecao multi-stack (RF-06):
+   * a fase-04 do Plano 04 decide se isto vira `detectStack()` ou continua opcional.
+   */
+  adapter?: RouteAdapter
 }
 
 export type AllowlistSummary = {
@@ -226,11 +232,31 @@ function lostCoverage(routes: Route[], changed: Set<string>, before: Ends, after
   return lost
 }
 
-// Sem gatilho, sem G2. Ponta antes irreconstruivel: a consequencia por rota e a fase-03 (DP-5) — aqui ainda `[]`,
-// mas `summary.g2.before` e a nota `G2: <reason>` (fase-01) ja deixam visivel que a base nao foi lida.
+// 2026-09-05 (Luiz/dev): DP-5 — ponta antes irreconstruivel. Nao da para dizer "perdeu" nem "nao perdeu", entao e
+// `indeterminada` e e emitida (D8). So rota ABERTA hoje (OPEN_NOW): o que esta coberto/declarado agora nao precisa
+// da base. G8 vale igual: rota do G1 conta la. Ruidoso por desenho (G18) — a defesa e o `reason` visivel.
+function unreconstructableBefore(routes: Route[], changed: Set<string>, reason: string, after: Ends): RouteVerdict[] {
+  const open: RouteVerdict[] = []
+  for (const route of routes) {
+    if (changed.has(route.file)) continue
+    const now = verdictFor(route, after.coverage, after.allowlist)
+    if (!OPEN_NOW.has(now.verdict)) continue
+    open.push({
+      route,
+      verdict: 'indeterminada',
+      evidence: `ponta 'antes' irreconstruivel (${reason}) — nao da para saber se ${route.path} perdeu cobertura neste diff`,
+      trigger: 'G2',
+    })
+  }
+  return open
+}
+
+// Tres estados da base, tres saidas. `unavailable` e `not-applicable` (com gatilho) tem a MESMA consequencia (DP-5):
+// nos dois a lib nao consegue comparar. Dois `if`, nao switch.
 function g2Verdicts(routes: Route[], changed: Set<string>, sources: string[], before: BeforeState, after: Ends): RouteVerdict[] {
-  if (sources.length === 0 || before.kind !== 'resolved') return []
-  return lostCoverage(routes, changed, before, after)
+  if (sources.length === 0) return []
+  if (before.kind === 'resolved') return lostCoverage(routes, changed, before, after)
+  return unreconstructableBefore(routes, changed, before.reason, after)
 }
 
 function toG2Summary(sources: string[], before: BeforeState, g2: RouteVerdict[]): G2Summary {
@@ -273,7 +299,7 @@ const SEVERITY_ORDER: Readonly<Record<string, number>> = { critical: 0, high: 1,
  * perderam cobertura porque o matcher/allowlist mudou (DP-4). O mapa de cobertura e lido inteiro nas duas pontas.
  */
 export function auditRouteCoverage(targetDir: string, opts: AuditOptions): AuditResult {
-  const adapter: RouteAdapter = nextjsAdapter   // fase-03: `opts.adapter ?? nextjsAdapter` (G14)
+  const adapter = opts.adapter ?? nextjsAdapter   // G14 — substitui o `const adapter: RouteAdapter = nextjsAdapter` da fase-01
   const routes = adapter.enumerate(targetDir)
   const coverage = opts.coverageOverride ?? adapter.readCoverage(targetDir)
   const notes = [...coverage.notes]

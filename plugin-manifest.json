@@ -1,6 +1,6 @@
 {
   "version": "7.7.0",
-  "generatedAt": "2026-09-06T14:16:11.772Z",
+  "generatedAt": "2026-09-06T14:40:38.192Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -511,7 +511,7 @@
     },
     "agents/security-auditor.md": {
       "version": "7.7.0",
-      "checksum": "636891b908165bbeac4ceb438f1cc81ccef75686bc3d170848eea09e3db3a4ed",
+      "checksum": "f4d9b64191d83414160da1727b47f9848e6d1516bd511ab362d094b27805d79d",
       "lastModified": "2026-09-06",
       "updateStrategy": "replace"
     },
@@ -2617,7 +2617,7 @@
     },
     "skills/security/lib/route-auth-matrix.ts": {
       "version": "7.7.0",
-      "checksum": "da136a6871d49ad85365e58639ef8d4d7cc1a60e4c82a58210cdd832929c5b3a",
+      "checksum": "c93457d0bb3de066d90e9229917b8144db4a8311a97890ffe5e3ac3a490a5f58",
       "lastModified": "2026-09-06",
       "updateStrategy": "replace"
     },
