@@ -125,7 +125,7 @@ describe('expressAdapter (fixture express-minimal)', () => {
     expect(verdicts.find((v) => v.path === '/${base}/reports')?.verdict).toBe('indeterminada')
     expect(verdicts.filter((v) => v.path.startsWith('/api') || v.path.startsWith('/admin')).every((v) => v.verdict === 'coberta')).toBe(true)
     expect(verdicts.filter((v) => v.verdict === 'indeterminada').length / verdicts.length).toBeLessThanOrEqual(0.25)
-    expect(cov.notes).toContain('middlewares contados como auth: requireAuth, requireAdmin')
+    expect(cov.notes).toContain('middlewares contados como auth: requireAdmin, requireAuth')
     expect(hasExpress(FIXTURE)).toBe(true)
     expect(hasExpress(NEXT)).toBe(false)
   })

@@ -9,8 +9,11 @@ export function isAuthName(name: string): boolean {
   return AUTH_NAME_RE.test(name.replace(/[!?]$/, ''))
 }
 
+// A ordem de `names` vem da varredura de arquivos do adaptador, que difere entre Windows e Linux
+// (readdirSync nao garante ordem). `.sort()` torna `auth`/`other` deterministicos entre plataformas
+// antes de virar nota de texto (authNameNotes) — a ordem nao carrega significado, e so lista legivel.
 export function splitByAuthName(names: string[]): { auth: string[]; other: string[] } {
-  const unique = [...new Set(names)]
+  const unique = [...new Set(names)].sort()
   return { auth: unique.filter(isAuthName), other: unique.filter((n) => !isAuthName(n)) }
 }
 

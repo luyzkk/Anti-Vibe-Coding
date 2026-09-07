@@ -42,6 +42,15 @@ it('splitByAuthName partitions names and authNameNotes lists both sides', () => 
   ])
 })
 
+// 2026-09-07 (Luiz/dev): defeito achado pelo CI (Linux) — `names` chega na ordem de varredura de
+// arquivos, que difere de Windows para Linux. A nota (authNameNotes) nao pode depender do SO.
+it('splitByAuthName returns the same auth/other order regardless of input order', () => {
+  const forward = splitByAuthName(['requireAuth', 'requireAdmin', 'logger'])
+  const reversed = splitByAuthName(['logger', 'requireAdmin', 'requireAuth'])
+  expect(forward).toEqual(reversed)
+  expect(forward).toEqual({ auth: ['requireAdmin', 'requireAuth'], other: ['logger'] })
+})
+
 describe('utilitarios de texto (movidos do adaptador Next — DP-3a)', () => {
   it('lineOf counts newlines before the index', () => expect(lineOf('a\nb\nc', 4)).toBe(3))
 
