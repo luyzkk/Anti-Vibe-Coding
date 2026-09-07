@@ -5,11 +5,11 @@
 // Fontes: knowledge/python/atoms/architecture-and-di-fastapi.md, security-fastapi-owasp.md;
 // FastAPI docs "Bigger Applications"; Flask docs Quickstart/Blueprints; Flask-Login; Django "URL dispatcher".
 //
-// PARTE A (Plano 04 fase-03, dividida por orcamento de saida): dialeto FastAPI completo. Flask e
-// Django ficam DECLARADOS (tipo PyDialect, parametro de parsePythonFile) mas MINIMOS — DIALECTS so
-// tem entrada 'fastapi' (Partial, nao Record total: ver DI abaixo); parseDjangoUrls e Flask ganham
-// TDD proprio na Parte B. Nenhum ramo some em silencio: dialeto sem DialectSpec devolve PyFile vazio
-// com nota; 'django' detectado soma uma nota de projeto.
+// PARTE B (Plano 04 fase-03, dividida por orcamento de saida): completa Flask (DIALECTS.flask —
+// @app.route/shortcuts, Blueprint + register_blueprint, @login_required/@jwt_required entre o
+// decorator e o def, @app.before_request) e Django (parseDjangoUrls real — path/re_path/url/
+// include(literal) um nivel; cobertura e sempre um `opaque` por handler, nunca coberta — DP-6/RF-04).
+// Nada some em silencio: toda declaracao vista e nao resolvida vira Route.unresolved com motivo.
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative, sep } from 'node:path'
 import type { CoverageMap, CoverageRule, HttpMethod, Route, RouteAdapter } from './route-auth-matrix.types'
@@ -82,13 +82,16 @@ type DialectSpec = {
   includePrefixKw: string
   authDecorators: boolean
   globalMiddleware: RegExp[]
+  // 2026-09-06 (Luiz/dev): DI-fase03B-include-prefix-semantics — FastAPI CONCATENA include_router
+  // prefix + APIRouter prefix (G14 do plano); Flask deixa register_blueprint(url_prefix=), quando
+  // presente, SUBSTITUIR o url_prefix do proprio Blueprint (Flask docs Blueprints). Um flag por
+  // dialeto em vez de switch — a resolucao de path em analyzePython le este campo, nao o nome do dialeto.
+  overridePrefixOnInclude: boolean
 }
 
-// 2026-09-06 (Luiz/dev): DI-fase03A-partial-dialects — Parte A so popula 'fastapi'. `Partial`, nao
-// `Record<Exclude<PyDialect,'django'>, DialectSpec>` como o doc de planejamento sugeria: 'flask' fica
-// DECLARADO no tipo PyDialect e no parametro de parsePythonFile, mas sem DialectSpec — e o sinal que
-// parsePythonFile honra (nota, nunca crash, nunca comportamento Flask inventado sem teste). Parte B
-// adiciona DIALECTS.flask com TDD proprio (Passo 2 Flask do doc da fase).
+// 2026-09-06 (Luiz/dev): DI-fase03B-flask-dialect — Parte B soma 'flask' (Parte A so tinha 'fastapi',
+// Partial por isso). Django continua fora deste Record: nao usa a maquina de decorator+def (parser
+// proprio, parseDjangoUrls).
 const DIALECTS: Readonly<Partial<Record<Exclude<PyDialect, 'django'>, DialectSpec>>> = {
   fastapi: {
     appCtor: /([A-Za-z_]\w*)\s*(?::\s*[\w.]+)?\s*=\s*FastAPI\(/g,
@@ -99,6 +102,20 @@ const DIALECTS: Readonly<Partial<Record<Exclude<PyDialect, 'django'>, DialectSpe
     includePrefixKw: 'prefix',
     authDecorators: false,
     globalMiddleware: [/\.add_middleware\(\s*([A-Za-z_]\w*)/g, /^\s*@([A-Za-z_]\w*)\.middleware\(/gm],
+    overridePrefixOnInclude: false,
+  },
+  flask: {
+    appCtor: /([A-Za-z_]\w*)\s*(?::\s*[\w.]+)?\s*=\s*Flask\(/g,
+    groupCtor: /([A-Za-z_]\w*)\s*(?::\s*[\w.]+)?\s*=\s*Blueprint\(/g,
+    groupPrefixKw: 'url_prefix',
+    verbs: new Set(['route', 'get', 'post', 'put', 'patch', 'delete']),
+    includeCall: /\.register_blueprint\(/g,
+    includePrefixKw: 'url_prefix',
+    authDecorators: true,
+    // `@app.before_request` nao chama nada — o nome relevante e o da FUNCAO decorada, na linha
+    // seguinte (diferente de add_middleware(Nome), que tem o nome na mesma chamada).
+    globalMiddleware: [/^[ \t]*@[A-Za-z_]\w*\.before_request[ \t]*\r?\n[ \t]*(?:async\s+)?def\s+([A-Za-z_]\w*)/gm],
+    overridePrefixOnInclude: true,
   },
 }
 
@@ -195,8 +212,12 @@ function skipToDef(source: string, fromIndex: number): { func: string; defLine: 
       if (plain !== null) {
         const name = plain[1]
         if (name !== undefined) {
-          if (isAuthName(name)) authDecorators.push(name)
-          else ignoredDecorators.push(name)
+          // 2026-09-06 (Luiz/dev): DI-fase03B-decorator-last-segment — `@cache.cached(60)` (Flask
+          // Passo 2) precisa aparecer na nota como `cached`, nao `cache.cached`; mesmo tratamento que
+          // DEP_RE ja da a `Depends(auth.f)` (ultimo segmento). isAuthName roda sobre a forma curta.
+          const short = lastSegment(name)
+          if (isAuthName(short)) authDecorators.push(short)
+          else ignoredDecorators.push(short)
         }
       }
     }
@@ -211,7 +232,10 @@ function skipToDef(source: string, fromIndex: number): { func: string; defLine: 
 // ---------------------------------------------------------------------------
 
 export type PyGroup = { prefix: string; dependencies: string[]; opaqueDeps?: string; line: number }
-export type PyInclude = { target: string; prefix: string; dependencies: string[]; opaqueDeps?: string; line: number; owner: string }
+// 2026-09-06 (Luiz/dev): DI-fase03B-prefix-given — `prefixGiven` distingue "kwarg de prefixo ausente"
+// de "kwarg presente com valor literal vazio"; so importa quando `overridePrefixOnInclude` e true
+// (Flask): register_blueprint(bp) SEM url_prefix mantem o url_prefix do proprio Blueprint.
+export type PyInclude = { target: string; prefix: string; prefixGiven: boolean; dependencies: string[]; opaqueDeps?: string; line: number; owner: string }
 // 2026-09-06 (Luiz/dev): DI-fase03A-pyroutedecl-shape — `PyRouteDecl` e `Route &` os campos de decl,
 // nao so os campos de decl como o doc de planejamento listava. O Passo 2 do doc chama o MESMO `key()`
 // tipado para `Route` diretamente sobre `PyFile.routes` (teste "api_route(methods=...)"); sem
@@ -396,6 +420,26 @@ export function parsePythonFile(source: string, file: string, dialect: Exclude<P
       continue
     }
 
+    // 2026-09-06 (Luiz/dev): DI-fase03B-flask-route-verb — Flask docs Quickstart: `@app.route(path)`
+    // sem `methods=` e GET (default), diferente do `api_route` do FastAPI (que exige methods= literal
+    // ou fica fora do subset). `methods=[...]` presente lista os verbos explicitamente.
+    if (verb === 'route') {
+      const first = args[0]
+      if (first === undefined) continue
+      const methodsMatch = METHODS_KW_RE.exec(balanced.body)
+      const methodNames =
+        methodsMatch?.[1] === undefined
+          ? ['GET']
+          : methodsMatch[1]
+              .split(',')
+              .map((m2) => m2.trim().replace(/^['"]|['"]$/g, '').toUpperCase())
+              .filter((m2) => m2.length > 0)
+      for (const methodName of methodNames) {
+        if (isHttpMethodLike(methodName)) emit(methodName, first)
+      }
+      continue
+    }
+
     const first = args[0]
     if (first === undefined) continue
     const method = verb.toUpperCase()
@@ -419,7 +463,7 @@ export function parsePythonFile(source: string, file: string, dialect: Exclude<P
     const prefixLiteral = prefixRaw === undefined ? null : PATH_LITERAL_RE.exec(prefixRaw)
     const prefix = prefixLiteral?.[2] ?? ''
     const { deps, opaqueDeps } = extractDeps(extractKwarg(rest, 'dependencies'))
-    includes.push({ target, prefix, dependencies: deps, ...(opaqueDeps !== undefined ? { opaqueDeps } : {}), line: lineOf(source, m.index), owner })
+    includes.push({ target, prefix, prefixGiven: prefixLiteral !== null, dependencies: deps, ...(opaqueDeps !== undefined ? { opaqueDeps } : {}), line: lineOf(source, m.index), owner })
   }
 
   // ---- middleware global ----
@@ -442,15 +486,214 @@ function isHttpMethodLike(value: string): value is HttpMethod {
 const HTTP_METHODS: readonly HttpMethod[] = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS']
 
 // ---------------------------------------------------------------------------
-// parseDjangoUrls — Parte B (declarado, minimo)
+// parseDjangoUrls — enumeracao sem cobertura (Django docs "URL dispatcher"; DP-6)
 // ---------------------------------------------------------------------------
 
-// 2026-09-06 (Luiz/dev): DI-fase03A-django-stub — Django fica fora do escopo testado da Parte A (sem
-// TDD que exija o parser real ainda nao existe risco de logica nao verificada). `analyzePython` so
-// deixa uma nota de projeto quando 'django' e detectado; ninguem chama `parseDjangoUrls` nesta parte.
-// Parte B substitui por implementacao real com o Passo 2 (Django) do doc da fase.
-export function parseDjangoUrls(_source: string, _file: string, _module: string): { routes: Route[]; includes: Array<{ prefix: string; module: string; line: number }>; notes: string[] } {
-  return { routes: [], includes: [], notes: ['Django: enumeracao ainda nao implementada nesta fase (Plano 04 fase-03 Parte B)'] }
+const URLPATTERNS_DECL_RE = /\burlpatterns\s*=\s*\[/
+const URLPATTERNS_MARKER_RE = /\burlpatterns\s*=/
+const ROOT_URLCONF_RE = /\bROOT_URLCONF\s*=\s*(['"])([\w.]+)\1/
+const DJANGO_CALL_RE = /^(path|re_path|url)\s*\(/
+const INCLUDE_LITERAL_RE = /^include\s*\(\s*(['"])([^'"]*)\1\s*\)$/
+const INCLUDE_ANY_RE = /^include\s*\(/
+
+/** Puro. `urlpatterns = [ ... ]` via readBalanced; cada elemento via splitTopLevel (Passo 3 do doc).
+ *  `path(prefixo, view)` -> GET com handler `${module}.${view}`; `path(prefixo, include("m"))`
+ *  literal vira `includes` (o chamador segue 1 nivel); `re_path`/`url`/`include(nao-literal)` viram
+ *  `unresolved` na hora — nunca path ou handler inventado (DP-2). Sempre GET: Django nao distingue
+ *  verbo na declaracao da rota. */
+export function parseDjangoUrls(source: string, file: string, module: string): { routes: Route[]; includes: Array<{ prefix: string; module: string; line: number }>; notes: string[] } {
+  const routes: Route[] = []
+  const includes: Array<{ prefix: string; module: string; line: number }> = []
+  const notes: string[] = []
+
+  const declMatch = URLPATTERNS_DECL_RE.exec(source)
+  if (declMatch === null || declMatch.index === undefined) return { routes, includes, notes }
+  const openIndex = declMatch.index + declMatch[0].length - 1
+  const balanced = readBalanced(source, openIndex, '[', ']')
+  if (balanced === null) return { routes, includes, notes }
+  const bodyStart = openIndex + 1
+
+  notes.push('Django: todos os verbos chegam na view; enumerado como GET')
+
+  const pieces = splitTopLevel(balanced.body)
+  let cursor = 0
+  for (const piece of pieces) {
+    const foundAt = balanced.body.indexOf(piece, cursor)
+    if (foundAt === -1) continue
+    cursor = foundAt + piece.length
+    const localOffset = piece.search(/\S/)
+    if (localOffset === -1) continue
+    const line = lineOf(source, bodyStart + foundAt + localOffset)
+    const trimmed = piece.trim()
+
+    const callMatch = DJANGO_CALL_RE.exec(trimmed)
+    if (callMatch === null) {
+      notes.push(`${file}:${line}: entrada de urlpatterns nao reconhecida — ignorada`)
+      continue
+    }
+    const callName = callMatch[1]
+    const openRel = piece.indexOf('(', localOffset)
+    if (openRel === -1) continue
+    const callBalanced = readBalanced(source, bodyStart + foundAt + openRel, '(', ')')
+    if (callBalanced === null) continue
+    const callArgs = splitTopLevel(callBalanced.body)
+    const firstRaw = callArgs[0]
+    if (firstRaw === undefined) {
+      notes.push(`${file}:${line}: ${callName ?? 'entrada'}() sem argumentos — fora do subset, ignorado`)
+      continue
+    }
+
+    if (callName === 're_path' || callName === 'url') {
+      routes.push({
+        method: 'GET',
+        path: unresolvedPath(firstRaw.trim()),
+        file,
+        line,
+        stack: 'python',
+        unresolved: `${callName}(...) usa padrao nao literal (regex) em ${file}:${line} — nao seguido`,
+      })
+      continue
+    }
+
+    const secondRaw = callArgs[1]
+    if (secondRaw === undefined) {
+      notes.push(`${file}:${line}: path() sem view/include — fora do subset, ignorado`)
+      continue
+    }
+    const secondTrimmed = secondRaw.trim()
+
+    if (INCLUDE_ANY_RE.test(secondTrimmed)) {
+      const literal = INCLUDE_LITERAL_RE.exec(secondTrimmed)
+      if (literal !== null) {
+        const targetModule = literal[2] ?? ''
+        includes.push({ prefix: resolvePathArg(firstRaw).path, module: targetModule, line })
+        continue
+      }
+      routes.push({
+        method: 'GET',
+        path: unresolvedPath(firstRaw.trim()),
+        file,
+        line,
+        stack: 'python',
+        unresolved: `include(...) com alvo nao literal em ${file}:${line} — prefixo/alvo desconhecido, nao seguido`,
+      })
+      continue
+    }
+
+    const resolved = resolvePathArg(firstRaw)
+    routes.push({
+      method: 'GET',
+      path: resolved.path,
+      file,
+      line,
+      stack: 'python',
+      handler: `${module}.${secondTrimmed}`,
+      ...(resolved.unresolved !== undefined ? { unresolved: resolved.unresolved } : {}),
+    })
+  }
+
+  return { routes, includes, notes }
+}
+
+/** Django mantem a barra final do include (`/blog/` = prefixo + path vazio); junta descartando a
+ *  barra inicial do filho (ja normalizada por resolvePathArg) para nao dobrar `//`. */
+function djangoJoin(prefix: string, childPath: string): string {
+  const strippedChild = childPath.startsWith('/') ? childPath.slice(1) : childPath
+  const combined = `${prefix}${strippedChild}`
+  return combined.startsWith('/') ? combined : `/${combined}`
+}
+
+function findRootUrlconf(sources: ReadonlyMap<string, string>): string | null {
+  for (const src of sources.values()) {
+    const m = ROOT_URLCONF_RE.exec(src)
+    if (m?.[2] !== undefined) return m[2]
+  }
+  return null
+}
+
+/** DP-6/RF-04: Django so enumera, nunca cobre. roots = arquivo do ROOT_URLCONF (settings.py) ou, sem
+ *  settings, todo arquivo com `urlpatterns` que nao e alvo do include() literal de outro. include("m")
+ *  literal e seguido 1 nivel (doc, Passo 4); alem disso vira unresolved (nao some — BUG-fase02-1).
+ *  Cobertura e sempre um `opaque` por handler (G16 — indeterminada visivel, nunca coberta por acidente). */
+function analyzeDjango(sources: ReadonlyMap<string, string>): { routes: Route[]; rules: CoverageRule[]; notes: string[]; sourceFiles: string[] } {
+  const notes: string[] = ['Django: cobertura nao verificada nesta versao — toda rota Django sai indeterminada (RF-04)']
+  const candidateFiles = [...sources.entries()].filter(([, src]) => URLPATTERNS_MARKER_RE.test(src)).map(([file]) => file)
+  const moduleIndex = new Map<string, string>()
+  for (const file of candidateFiles) moduleIndex.set(moduleOf(file), file)
+
+  const parsedByFile = new Map<string, ReturnType<typeof parseDjangoUrls>>()
+  for (const file of candidateFiles) {
+    const src = sources.get(file)
+    if (src !== undefined) parsedByFile.set(file, parseDjangoUrls(src, file, moduleOf(file)))
+  }
+
+  let rootFiles: string[]
+  const rootConfModule = findRootUrlconf(sources)
+  if (rootConfModule !== null) {
+    const rootFile = moduleIndex.get(rootConfModule)
+    if (rootFile === undefined) {
+      notes.push(`ROOT_URLCONF aponta para ${rootConfModule} — modulo nao encontrado entre os arquivos escaneados`)
+      rootFiles = []
+    } else {
+      rootFiles = [rootFile]
+    }
+  } else {
+    const includedTargets = new Set<string>()
+    for (const parsed of parsedByFile.values()) {
+      for (const inc of parsed.includes) {
+        const targetFile = moduleIndex.get(inc.module)
+        if (targetFile !== undefined) includedTargets.add(targetFile)
+      }
+    }
+    rootFiles = candidateFiles.filter((f) => !includedTargets.has(f))
+  }
+
+  const routes: Route[] = []
+  for (const rootFile of rootFiles) {
+    const rootParsed = parsedByFile.get(rootFile)
+    if (rootParsed === undefined) continue
+    routes.push(...rootParsed.routes)
+    notes.push(...rootParsed.notes)
+
+    for (const inc of rootParsed.includes) {
+      const targetFile = moduleIndex.get(inc.module)
+      if (targetFile === undefined) {
+        notes.push(`${rootFile}: include('${inc.module}') — modulo nao encontrado entre os arquivos escaneados`)
+        continue
+      }
+      const childParsed = parsedByFile.get(targetFile)
+      if (childParsed === undefined) continue
+      notes.push(...childParsed.notes)
+
+      for (const childRoute of childParsed.routes) {
+        const path = childRoute.unresolved === undefined ? djangoJoin(inc.prefix, childRoute.path) : childRoute.path
+        routes.push({ ...childRoute, path })
+      }
+      // 2026-09-06 (Luiz/dev): DI-fase03B-django-second-level — include() do FILHO (2o nivel) nao e
+      // seguido (doc: "um nivel"), mas tambem nao pode sumir (BUG-fase02-1): vira unresolved visivel.
+      for (const nested of childParsed.includes) {
+        routes.push({
+          method: 'GET',
+          path: djangoJoin(inc.prefix, nested.prefix),
+          file: targetFile,
+          line: nested.line,
+          stack: 'python',
+          unresolved: `include('${nested.module}') aninhado alem de 1 nivel em ${targetFile}:${nested.line} — fora do subset`,
+        })
+      }
+    }
+  }
+
+  const rules: CoverageRule[] = []
+  const seenHandlers = new Set<string>()
+  for (const route of routes) {
+    const handler = route.handler
+    if (route.unresolved !== undefined || handler === undefined || seenHandlers.has(handler)) continue
+    seenHandlers.add(handler)
+    rules.push({ kind: 'opaque', handler, reason: 'Django: cobertura (login_required/LoginRequiredMixin/MIDDLEWARE) nao verificada nesta versao', file: route.file, line: route.line })
+  }
+
+  return { routes, rules, notes, sourceFiles: [...new Set(routes.map((r) => r.file))] }
 }
 
 // ---------------------------------------------------------------------------
@@ -549,10 +792,6 @@ export function analyzePython(sources: ReadonlyMap<string, string>): PythonAnaly
       notes.push(...pf.notes)
     }
   }
-  if (dialects.has('django')) {
-    notes.push('django: enumeracao ainda nao implementada nesta fase (Plano 04 fase-03 Parte B)')
-  }
-
   const moduleIndex = new Map<string, string>()
   for (const [file, pf] of parsed) moduleIndex.set(pf.module, file)
 
@@ -592,6 +831,7 @@ export function analyzePython(sources: ReadonlyMap<string, string>): PythonAnaly
   const middlewareNames: string[] = []
 
   for (const [file, pf] of parsed) {
+    const spec = DIALECTS[pf.dialect]
     for (const decl of pf.routes) {
       decoratorNames.push(...decl.authDecorators, ...decl.ignoredDecorators)
 
@@ -619,7 +859,16 @@ export function analyzePython(sources: ReadonlyMap<string, string>): PythonAnaly
         continue
       }
 
-      const finalPath = isAppRoute || group === undefined ? decl.path : joinPaths(inclusion?.kind === 'app' ? inclusion.include.prefix : '', group.prefix, decl.path)
+      // 2026-09-06 (Luiz/dev): DI-fase03B-include-prefix-semantics — FastAPI concatena (G14); Flask
+      // deixa o url_prefix do register_blueprint SUBSTITUIR o do Blueprint quando o kwarg foi dado.
+      const includePrefix = inclusion?.kind === 'app' ? inclusion.include.prefix : ''
+      const includePrefixGiven = inclusion?.kind === 'app' ? inclusion.include.prefixGiven : false
+      const finalPath =
+        isAppRoute || group === undefined
+          ? decl.path
+          : spec?.overridePrefixOnInclude === true && includePrefixGiven
+            ? joinPaths(includePrefix, decl.path)
+            : joinPaths(includePrefix, group.prefix, decl.path)
       const route = { ...cleanRoute(decl), path: finalPath }
       routes.push(route)
 
@@ -654,8 +903,7 @@ export function analyzePython(sources: ReadonlyMap<string, string>): PythonAnaly
         rules.push({ kind: 'handler-chain', handler, file: decl.file, line: decl.line, via: `Depends(${declAuth}) no decorator (${decl.file}:${decl.line})` })
         continue
       }
-      const specForDialect = DIALECTS[pf.dialect]
-      if (specForDialect?.authDecorators === true) {
+      if (spec?.authDecorators === true) {
         const decoratorAuth = decl.authDecorators.find(isAuthName)
         if (decoratorAuth !== undefined) {
           rules.push({ kind: 'handler-chain', handler, file: decl.file, line: decl.line, via: `@${decoratorAuth} entre a rota e a funcao (${decl.file}:${decl.line})` })
@@ -692,10 +940,19 @@ export function analyzePython(sources: ReadonlyMap<string, string>): PythonAnaly
   notes.push(...authNameNotes('decorators', splitByAuthName(decoratorNames)))
   notes.push(...authNameNotes('middlewares', splitByAuthName(middlewareNames)))
 
-  const coverageSources = [...parsed.entries()]
-    .filter(([, pf]) => pf.apps.length > 0 || pf.groups.size > 0)
-    .map(([f]) => f)
-    .sort()
+  const django = dialects.has('django') ? analyzeDjango(sources) : null
+  if (django !== null) {
+    routes.push(...django.routes)
+    rules.push(...django.rules)
+    notes.push(...django.notes)
+  }
+
+  const coverageSources = [
+    ...new Set([
+      ...[...parsed.entries()].filter(([, pf]) => pf.apps.length > 0 || pf.groups.size > 0).map(([f]) => f),
+      ...(django?.sourceFiles ?? []),
+    ]),
+  ].sort()
 
   const coverage: CoverageMap = { stack: 'python', rules, sources: coverageSources, notes }
   return { routes, coverage, notes }

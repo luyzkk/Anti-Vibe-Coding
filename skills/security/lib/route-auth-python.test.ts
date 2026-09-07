@@ -8,7 +8,7 @@ import { join } from 'node:path'
 import { evaluateRoute } from './route-auth-matrix'
 import { isRoute } from './route-auth-matrix.types'
 import type { CoverageMap, Route, Verdict } from './route-auth-matrix.types'
-import { analyzePython, detectPythonDialects, parsePythonFile, pythonAdapter } from './route-auth-python'
+import { analyzePython, detectPythonDialects, parseDjangoUrls, parsePythonFile, pythonAdapter } from './route-auth-python'
 
 const FIXTURE = join(import.meta.dir, '../../../tests/fixtures/route-auth-matrix/python-fastapi-minimal')
 const files = (entries: Record<string, string>): ReadonlyMap<string, string> => new Map(Object.entries(entries))
@@ -125,6 +125,69 @@ describe('analyzePython — include_router, cadeia de Depends e middleware (Fast
     expect(routes.find((r) => r.handler === 'app.sub.leaf')?.unresolved).toContain('aninhad')
     expect(analyzePython(files({ 'app/lib.py': 'x = 1' })).routes).toEqual([])
     expect(notes.length).toBeGreaterThan(0)
+  })
+})
+
+describe('parsePythonFile — Flask (Flask docs Quickstart §Routing, Blueprints; Flask-Login)', () => {
+  it('reads @app.route with methods (default GET), the verb shortcuts and converter segments as literal', () => {
+    const src =
+      'from flask import Flask\napp = Flask(__name__)\n@app.route("/a", methods=["GET", "POST"])\ndef a(): ...\n@app.route("/b")\ndef b(): ...\n@app.get("/u/<int:id>")\ndef u(id): ...'
+    expect(parsePythonFile(src, 'app.py', 'flask').routes.map(key)).toEqual(['GET /a app.a', 'POST /a app.a', 'GET /b app.b', 'GET /u/<int:id> app.u'])
+  })
+
+  it('prefixes blueprint routes with url_prefix, letting register_blueprint(url_prefix=) win', () => {
+    const bp = 'from flask import Blueprint\nbp = Blueprint("admin", __name__, url_prefix="/admin")\n@bp.route("/users")\ndef users(): ...'
+    const main = 'from flask import Flask\nfrom app.admin import bp\napp = Flask(__name__)\napp.register_blueprint(bp, url_prefix="/staff")'
+    const { routes } = analyzePython(files({ 'app/__init__.py': '', 'app/main.py': main, 'app/admin.py': bp }))
+    expect(routes.map(key)).toEqual(['GET /staff/users app.admin.users'])
+  })
+
+  // 2026-09-06 (Luiz/dev): DI-fase03B-flask-import-needed — o rascunho do doc de planejamento (Passo
+  // 2) nao tem `from flask import Flask` nestes dois testes; sem ela detectPythonDialects nao acha o
+  // dialeto (arquivo unico, sem irmao para "herdar" de — mesmo problema que o teste FastAPI do
+  // add_middleware ja tinha, corrigido na Parte A). Adicionada aqui pelo mesmo motivo.
+  it('counts @login_required and @jwt_required() between the route decorator and def as handler-chain, ignores non-auth decorators', () => {
+    const src =
+      'from flask import Flask\napp = Flask(__name__)\n@app.route("/a")\n@login_required\ndef a(): ...\n@app.route("/b")\n@cache.cached(60)\ndef b(): ...\n@app.route("/c")\n@jwt_required()\ndef c(): ...'
+    const { routes, coverage } = analyzePython(files({ 'app.py': src }))
+    expect(verdictOf(routes, coverage, '/a')).toBe('coberta')
+    expect(verdictOf(routes, coverage, '/b')).toBe('DESCOBERTA')
+    expect(verdictOf(routes, coverage, '/c')).toBe('coberta')
+    expect(coverage.notes).toContain('decorators ignorados por nome: cached')
+  })
+
+  it('turns @app.before_request with an auth-named function into a /:path* proxy, and ignores others', () => {
+    const src = 'from flask import Flask\napp = Flask(__name__)\n@app.before_request\ndef require_login(): ...\n@app.before_request\ndef start_timer(): ...\n@app.route("/x")\ndef x(): ...'
+    const { coverage } = analyzePython(files({ 'app.py': src }))
+    expect(coverage.rules.filter((c) => c.kind === 'path-pattern')).toHaveLength(1)
+    expect(coverage.rules[0]).toMatchObject({ pattern: '/:path*', line: 3 })
+  })
+})
+
+describe('parseDjangoUrls — enumeracao sem cobertura (Django docs "URL dispatcher"; DP-6)', () => {
+  it('reads path() entries as GET with the view expression as handler and a note that every verb reaches the view', () => {
+    const src = 'from django.urls import path\nfrom . import views\nurlpatterns = [\n    path("", views.index, name="index"),\n    path("posts/<int:pk>/", views.detail),\n]'
+    const { routes, notes } = parseDjangoUrls(src, 'blog/urls.py', 'blog.urls')
+    expect(routes.map(key)).toEqual(['GET / blog.urls.views.index', 'GET /posts/<int:pk>/ blog.urls.views.detail'])
+    expect(routes[1]?.line).toBe(5)
+    expect(notes.some((n) => n.includes('todos os verbos'))).toBe(true)
+  })
+
+  it('follows include("app.urls") one level with its prefix, and marks re_path, url() and include(router.urls) as unresolved', () => {
+    const root =
+      'from django.urls import include, path, re_path\nurlpatterns = [\n    path("blog/", include("blog.urls")),\n    re_path(r"^legacy/$", views.legacy),\n    path("api/", include(router.urls)),\n]'
+    const blog = 'from django.urls import path\nurlpatterns = [path("", views.index)]'
+    const { routes } = analyzePython(files({ 'mysite/settings.py': 'ROOT_URLCONF = "mysite.urls"\nimport django', 'mysite/urls.py': root, 'blog/urls.py': blog }))
+    expect(routes.filter((r) => r.unresolved === undefined).map(key)).toEqual(['GET /blog/ blog.urls.views.index'])
+    expect(routes.filter((r) => r.unresolved !== undefined).map((r) => r.unresolved)).toEqual([expect.stringContaining('re_path'), expect.stringContaining('include(')])
+  })
+
+  // 2026-09-06 (Luiz/dev): RF-04 — Django sem cobertura nesta versao: TUDO indeterminada, nunca coberta.
+  it('emits one scoped opaque per Django handler so every Django route is indeterminada, never coberta', () => {
+    const { routes, coverage } = analyzePython(files({ 'mysite/urls.py': 'from django.urls import path\nurlpatterns = [path("a/", views.a), path("b/", views.b)]' }))
+    expect(routes.map((r) => evaluateRoute(r, coverage).verdict)).toEqual(['indeterminada', 'indeterminada'])
+    expect(coverage.rules.every((c) => c.kind === 'opaque' && c.handler !== undefined)).toBe(true)
+    expect(coverage.notes.some((n) => n.includes('Django') && n.includes('nao verificada'))).toBe(true)
   })
 })
 
