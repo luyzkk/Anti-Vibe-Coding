@@ -1,6 +1,6 @@
 {
   "version": "7.7.0",
-  "generatedAt": "2026-09-07T00:30:31.177Z",
+  "generatedAt": "2026-09-07T11:30:48.464Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -511,8 +511,8 @@
     },
     "agents/security-auditor.md": {
       "version": "7.7.0",
-      "checksum": "f4d9b64191d83414160da1727b47f9848e6d1516bd511ab362d094b27805d79d",
-      "lastModified": "2026-09-06",
+      "checksum": "2f9e9098ed6c33731aae148b491a372ab0afbcf72193276ef705a7c4724736a4",
+      "lastModified": "2026-09-07",
       "updateStrategy": "replace"
     },
     "agents/solid-auditor.md": {
@@ -2615,6 +2615,12 @@
       "lastModified": "2026-09-06",
       "updateStrategy": "replace"
     },
+    "skills/security/lib/route-auth-adapters.ts": {
+      "version": "7.7.0",
+      "checksum": "6b4b76ee182c3b689f52de1e6afea897dd0ccb9a5495b4b606affe0142660529",
+      "lastModified": "2026-09-07",
+      "updateStrategy": "replace"
+    },
     "skills/security/lib/route-auth-express.ts": {
       "version": "7.7.0",
       "checksum": "2c7f1b6ed85162b4b19422ba0d76700e6a79bdd83e727ea41f328921ed673654",
@@ -2629,8 +2635,8 @@
     },
     "skills/security/lib/route-auth-matrix.ts": {
       "version": "7.7.0",
-      "checksum": "b7cc5718c209b178cfa3de44d35133aad9637ab61fb1b6c6fd545a68c2df9455",
-      "lastModified": "2026-09-06",
+      "checksum": "52b56d7dff95228d1fac4112588cc652d593e5ca8cf70ff939b2a7defe727c96",
+      "lastModified": "2026-09-07",
       "updateStrategy": "replace"
     },
     "skills/security/lib/route-auth-matrix.types.ts": {

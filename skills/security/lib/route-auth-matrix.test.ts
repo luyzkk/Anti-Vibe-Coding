@@ -4,8 +4,11 @@
 // disco: o TDD gate bloqueia criar `middleware.ts` (GT-fase01-1) e funcao pura dispensa I/O.
 import { describe, it, expect } from 'bun:test'
 import { join } from 'node:path'
-import { auditRouteCoverage, buildContractIssues, evaluateRoute, readAtBaseFromGit, severityFor, toContractIssue, verdictFor } from './route-auth-matrix'
-import type { BaseRead, CoverageMap, Route, RouteAdapter } from './route-auth-matrix.types'
+import { auditProject, auditRouteCoverage, buildContractIssues, buildProjectIssues, evaluateRoute, readAtBaseFromGit, severityFor, summarizeProject, toContractIssue, verdictFor } from './route-auth-matrix'
+import type { AuditResult, AuditSummary } from './route-auth-matrix'
+import type { AllowlistFinding, BaseRead, CoverageMap, Route, RouteAdapter } from './route-auth-matrix.types'
+import { PUBLIC_ROUTES_FILE } from './public-routes-allowlist'
+import type { StackId } from '../../init/lib/detect-stack'
 
 const FIXTURES = join(import.meta.dir, '../../../tests/fixtures/route-auth-matrix')
 const MINIMAL = join(FIXTURES, 'nextjs-minimal')
@@ -685,5 +688,71 @@ describe('readAtBaseFromGit (leitura no merge-base)', () => {
     const read = readAtBaseFromGit(REPO, 'ref-que-nao-existe-xyz')('package.json')
     expect(read.status).toBe('unavailable')
     if (read.status === 'unavailable') expect(read.reason.length).toBeGreaterThan(0)
+  })
+})
+
+// `stack` nao entra no shape (AuditSummary nao tem campo `stack`) — mantido na assinatura so para
+// casar com `audit(stack, ...)` do teste de ALLOW dedupe.
+const emptySummary = (_stack: StackId): AuditSummary => ({
+  enumerated: 0,
+  evaluated: 0,
+  coberta: 0,
+  publicaDeclarada: 0,
+  descoberta: 0,
+  indeterminada: 0,
+  scope: 'diff',
+  sources: [],
+  notes: [],
+  allowlist: { file: PUBLIC_ROUTES_FILE, present: false, accepted: 0, rejected: [], wide: 0, notes: [], changed: false },
+  g2: { triggered: false, sources: [], before: 'not-applicable', lost: 0, indeterminate: 0 },
+})
+
+describe('auditProject — multi-stack via detectStack (RF-06 / CA-11)', () => {
+  const MONOREPO = join(FIXTURES, 'monorepo-next-rails')
+  const CHANGED = ['app/api/admin/route.ts', 'config/routes.rb']
+
+  it('CA-11: runs the Next and Rails adapters on the monorepo and prefixes every finding with its stack', async () => {
+    const result = await auditProject(MONOREPO, { changedFiles: CHANGED })
+    expect(result.stacks.map((s) => s.stack)).toEqual(['nextjs', 'rails'])
+    expect(result.skipped).toEqual([{ stack: 'node-ts', reason: expect.stringContaining('sem express') }])
+    expect(result.issues.map((i) => `${i.id} ${i.severity} ${i.description.slice(0, 30)}`)).toEqual([
+      'ROUTE-001 critical [nextjs] DESCOBERTA: GET /api/', 'ROUTE-002 medium [rails] indeterminada: GET /st',
+    ])
+    expect(result.issues[1]?.description).toContain('StatusController nao encontrado')
+  })
+  // G9: app/ e compartilhado — o Next NAO pode ver controllers Rails como rota.
+  it('lets the Next enumerator walk app/ without counting Rails controllers, and the Rails adapter without seeing app/api', async () => {
+    const result = await auditProject(MONOREPO, { changedFiles: CHANGED })
+    expect(result.stacks.find((s) => s.stack === 'nextjs')?.result.summary.enumerated).toBe(1)
+    expect(result.stacks.find((s) => s.stack === 'rails')?.result.summary.enumerated).toBe(2)
+    const summary = summarizeProject(result)
+    expect(summary.totals).toEqual({ enumerated: 3, evaluated: 3, coberta: 1, publicaDeclarada: 0, descoberta: 1, indeterminada: 1 })
+    expect(summary.detected).toEqual({ primary: 'nextjs', secondary: ['node-ts', 'rails'] })
+  })
+  // 2026-09-06 (Luiz/dev): teste de abuso — `skipped` NUNCA vira aprovacao: razao visivel, nada descartado.
+  it('never turns a skipped stack into approval: the reason is in the summary and no issue of the other stacks is dropped', async () => {
+    const result = await auditProject(MINIMAL, { changedFiles: ['app/api/admin/route.ts'] })
+    const summary = summarizeProject(result)
+    expect(summary.skipped.map((s) => s.stack)).toEqual(['node-ts'])
+    expect(summary.skipped[0]?.reason).toContain('fora do escopo')
+    expect(summary.stacks['node-ts']).toBeUndefined()
+    expect(result.issues.map((i) => i.id)).toEqual(['ROUTE-001'])                       // CA-01 continua
+    expect(result.issues[0]?.description.startsWith('[nextjs] ')).toBe(true)
+  })
+  it('DP-9: flags adapters without G2 support per stack with a visible note', async () => {
+    const result = await auditProject(MONOREPO, { changedFiles: CHANGED })
+    const rails = result.stacks.find((s) => s.stack === 'rails')
+    expect(rails?.g2Support).toBe(false)
+    expect(rails?.result.summary.notes.some((n) => n.includes('sem suporte a G2'))).toBe(true)
+    expect(summarizeProject(result).stacks.rails?.g2Support).toBe(false)
+  })
+  // DP-7 multi-stack: ALLOW-* so quando NENHUMA stack promoveu a candidata. Funcao pura, sem fixture.
+  it('emits an ALLOW issue once, and only when the wide entry stayed wide in every stack', () => {
+    const wide = (path: string): AllowlistFinding => ({ path, file: PUBLIC_ROUTES_FILE, line: 3, severity: 'high', description: `entrada ampla \`${path}\`` })
+    const audit = (stack: StackId, allowlistFindings: AllowlistFinding[]): AuditResult => ({ findings: [], allowlistFindings, verdicts: [], summary: emptySummary(stack) })
+    const both = buildProjectIssues([{ stack: 'nextjs', result: audit('nextjs', [wide('/api/*')]), g2Support: true }, { stack: 'rails', result: audit('rails', [wide('/api/*')]), g2Support: false }])
+    expect(both.map((i) => i.id)).toEqual(['ALLOW-001'])
+    const promotedInRails = buildProjectIssues([{ stack: 'nextjs', result: audit('nextjs', [wide('/posts/:id')]), g2Support: true }, { stack: 'rails', result: audit('rails', []), g2Support: false }])
+    expect(promotedInRails).toEqual([])
   })
 })

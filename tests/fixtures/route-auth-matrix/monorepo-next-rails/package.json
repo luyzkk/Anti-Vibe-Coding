@@ -1,0 +1,1 @@
+{ "name": "monorepo-next-rails", "private": true, "dependencies": { "next": "^15" }, "devDependencies": { "typescript": "^5" } }

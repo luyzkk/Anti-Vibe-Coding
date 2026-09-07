@@ -1,11 +1,15 @@
 // 2026-09-04 (Luiz/dev): motor de veredito, regra de severidade e escopo G1 — Plano 01 fase-05.
 // A enumeracao e a leitura de cobertura vivem no adaptador nativo da stack; aqui fica a decisao.
 import type { IssueSeverity } from '../../lib/subagent-contract'
-import { PUBLIC_ROUTES_FILE, diffAllowlist, matchAllowlist, parsePublicRoutes, promoteWideCandidates, readPublicRoutes } from './public-routes-allowlist'
+import { PUBLIC_ROUTES_FILE, diffAllowlist, matchAllowlist, normalizePath, parsePublicRoutes, promoteWideCandidates, readPublicRoutes } from './public-routes-allowlist'
 import type { AllowlistFinding, CoverageMap, CoverageRule, RejectedEntry, Route, RouteFinding, RouteVerdict } from './route-auth-matrix.types'
 import type { AllowlistDelta, AllowlistEntry, AuditTrigger, BaseRead, G2Summary, RouteAdapter, Verdict } from './route-auth-matrix.types'
 import { isCoverageUnavailable } from './route-auth-matrix.types'
 import { matchRouteAgainstPattern, nextjsAdapter } from './route-auth-nextjs'
+import { detectStack } from '../../init/lib/detect-stack'
+import type { DetectedStack } from '../../init/lib/detect-stack'
+import { selectAdapters } from './route-auth-adapters'
+import type { KnownStack, SkippedStack } from './route-auth-adapters'
 
 /** Item exatamente no shape de `AuditContractV2['payload']['issues'][number]`. */
 export type ContractIssue = {
@@ -468,6 +472,66 @@ export function buildContractIssues(result: AuditResult): ContractIssue[] {
 }
 
 // ---------------------------------------------------------------------------
+// Multi-stack (Plano 04 DP-8) — auditProject roda um RouteAdapter por stack detectada
+// ---------------------------------------------------------------------------
+
+export type ProjectAuditOptions = Omit<AuditOptions, 'adapter' | 'coverageOverride'>
+export type StackAudit = { stack: KnownStack; result: AuditResult; g2Support: boolean }
+export type ProjectAuditResult = { detected: DetectedStack; stacks: StackAudit[]; skipped: SkippedStack[]; issues: ContractIssue[] }
+export type ProjectSummary = {
+  detected: { primary: DetectedStack['primary']; secondary: DetectedStack['secondary'] }
+  stacks: Record<string, AuditSummary & { g2Support: boolean }>
+  skipped: SkippedStack[]
+  totals: Pick<AuditSummary, 'enumerated' | 'evaluated' | 'coberta' | 'publicaDeclarada' | 'descoberta' | 'indeterminada'>
+}
+
+// DP-9: a nota aparece por stack COM ou SEM o Plano 03 (que tambem a emite via reconstructBefore) — dedupe por substring.
+function withG2Note(result: AuditResult, adapter: RouteAdapter): AuditResult {
+  const supported = adapter.readCoverageAtBase !== undefined && adapter.isCoverageFile !== undefined
+  if (supported || result.summary.notes.some((n) => n.includes('sem suporte a G2'))) return result
+  const note = `adaptador ${adapter.stack} sem suporte a G2: alteracao em cobertura (controller/deps/middleware) que REMOVE auth nao e detectada nesta versao`
+  return { ...result, summary: { ...result.summary, notes: [...result.summary.notes, note] } }
+}
+
+const PREFIX = (stack: string, issue: ContractIssue): ContractIssue => ({ ...issue, description: `[${stack}] ${issue.description}` })
+
+// "sem `as`": tupla literal via `as const`, nao assercao de tipo — permitido (o repo ja usa em HTTP_METHODS).
+const TOTAL_KEYS = ['enumerated', 'evaluated', 'coberta', 'publicaDeclarada', 'descoberta', 'indeterminada'] as const
+
+/** DP-8 + DP-7: ALLOW-* uma vez (candidatas amplas em TODAS as stacks), depois ROUTE-* por stack na ordem detectada. */
+export function buildProjectIssues(stacks: ReadonlyArray<StackAudit>): ContractIssue[] {
+  const first = stacks[0]
+  if (first === undefined) return []
+  const keyOf = (f: AllowlistFinding): string => normalizePath(f.path)
+  const stillWide = first.result.allowlistFindings.filter((f) => stacks.every((s) => s.result.allowlistFindings.some((g) => keyOf(g) === keyOf(f))))
+  const allow = stillWide.map(allowlistToContractIssue)
+  const routes = stacks.flatMap((s) => s.result.findings.map((f) => PREFIX(s.stack, toContractIssue(f, 0))))
+  // ids sequenciais na lista COMBINADA (DP-8): renumerar apos concatenar
+  return [...allow, ...routes.map((issue, i) => ({ ...issue, id: `ROUTE-${String(i + 1).padStart(3, '0')}` }))]
+}
+
+export async function auditProject(targetDir: string, opts: ProjectAuditOptions = {}): Promise<ProjectAuditResult> {
+  const detected = await detectStack(targetDir)   // G7: a UNICA chamada assincrona
+  const { selected, skipped } = selectAdapters(detected, targetDir)
+  const stacks: StackAudit[] = selected.map(({ stack, adapter }) => ({
+    stack,
+    result: withG2Note(auditRouteCoverage(targetDir, { ...opts, adapter }), adapter),   // sincrona, por stack; allowlist lida por stack (aceito, DP-8)
+    g2Support: adapter.readCoverageAtBase !== undefined && adapter.isCoverageFile !== undefined,
+  }))
+  return { detected, stacks, skipped, issues: buildProjectIssues(stacks) }
+}
+
+export function summarizeProject(result: ProjectAuditResult): ProjectSummary {
+  const totals = { enumerated: 0, evaluated: 0, coberta: 0, publicaDeclarada: 0, descoberta: 0, indeterminada: 0 }
+  const stacks: ProjectSummary['stacks'] = {}
+  for (const s of result.stacks) {
+    stacks[s.stack] = { ...s.result.summary, g2Support: s.g2Support }
+    for (const k of TOTAL_KEYS) totals[k] += s.result.summary[k]
+  }
+  return { detected: { primary: result.detected.primary, secondary: result.detected.secondary }, stacks, skipped: result.skipped, totals }
+}
+
+// ---------------------------------------------------------------------------
 // CLI
 // ---------------------------------------------------------------------------
 
@@ -540,6 +604,6 @@ if (import.meta.main) {
     process.exit(2)
   }
 
-  const result = auditRouteCoverage(target, { changedFiles: diff.files, readAtBase: readAtBaseFromGit(target, ref) })
-  console.log(JSON.stringify({ issues: buildContractIssues(result), summary: result.summary }, null, 2))
+  const result = await auditProject(target, { changedFiles: diff.files, readAtBase: readAtBaseFromGit(target, ref) })
+  console.log(JSON.stringify({ issues: result.issues, summary: summarizeProject(result) }, null, 2))
 }
