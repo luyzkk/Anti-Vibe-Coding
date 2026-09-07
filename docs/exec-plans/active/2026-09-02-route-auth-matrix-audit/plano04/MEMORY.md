@@ -2,7 +2,7 @@
 
 **Feature:** Matriz Rota x Middleware de Auth no Auditor
 **Iniciado:** 2026-09-06
-**Status:** em andamento
+**Status:** concluido (2026-09-07)
 
 ---
 
@@ -83,6 +83,14 @@ Formato: o que foi decidido + por que + impacto.
   foi **estendida**: a nova comeca com o texto identico e continua (`— salvo quando a entrada e a declaracao
   ...`), porque a DP-7 tornou a afirmacao absoluta anterior incompleta. Nada foi diminuido; G13/DP-14
   satisfeitos em substancia. Conferido lendo as linhas, nao contando-as (ver GT-fase02-diff-bullet do Plano 03).
+
+
+- **DI-fase05-1: golden do Rails no doc citava handler que o adaptador nunca produz.** O Passo 2 da fase-05
+  escrevia `LegacyController#handle` para a rota `/legacy`, mas `route-auth-rails.ts:322` nao seta `handler`
+  em `match` sem `via:` (a rota sai `unresolved`, DP-2). O executor corrigiu **o teste**, nao o adaptador —
+  a ancora e o comportamento ja provado na fase-01, nao o rascunho do doc.
+- **DI-fase05-2: o snippet do doc nao compilava.** `Golden.stack` tipado como `string` nao passa em
+  `toEqual(KnownStack[])`. Corrigido importando o tipo, sem `as` (o repo proibe cast).
 
 ---
 
@@ -181,6 +189,14 @@ Apenas gotchas que NAO eram obvios antes de implementar.
   - Impacto: **falso negativo de typecheck**. Rodado de novo, sozinho, deu exit 0. Verificacao concorrente
     neste repo mente; rodar sequencial. Vale para qualquer sessao futura que queira "ganhar tempo".
 
+
+- **GT-fase05-1: o Criterio de Aceite do doc diz "6 pass" e o proprio codigo do doc gera 7 `it()`** — o
+  `describe` da Premissa 3 tem 2 testes, nao 1. O executor reportou a divergencia em vez de fabricar o 6.
+  - Descoberto em: fase-05
+  - Impacto: nenhum no comportamento. E a **setima vez** nesta feature que um numero previsto no doc nao
+    bate com o real (DI-fase01-2, DI-fase02-1, DI-fase03-1, mutacao 5 da fase-04, e agora esta). O padrao
+    esta consolidado: **numero em checklist e chute do planejador; o que vale e qual assertion quebra.**
+
 ---
 
 ## Desvios do Plano
@@ -235,7 +251,7 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 5 |
-| Fases concluidas | 4 |
+| Fases concluidas | 5 |
 | Fases com desvio | 0 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
@@ -290,58 +306,138 @@ rodar o adaptador Express); com `changedFiles`, os findings saem prefixados:
 `[nextjs] DESCOBERTA: GET /api/admin` (critical) e `[rails] indeterminada: GET /status` (medium).
 Sem `changedFiles` o conjunto G1 e vazio e `evaluated: 0` — escopo hibrido (Decisao 2 do PRD), nao defeito.
 
-### Taxa de `indeterminada` por stack (Premissa 3 — preencher na fase-05)
+**fase-05 medida (2026-09-07, commit 7f0723b):**
+`tests/e2e/route-auth-four-stacks.test.ts` **7** (o doc dizia 6 — ver GT-fase05-1), suite completa
+**2143 pass / 0 fail** (lotes 1449 + 694). Gate CA-08 verde nas quatro stacks + CA-11 no monorepo.
+
+**Premissa 3 — taxa de `indeterminada` por stack, medida pelo orquestrador (corte 0.25, DP-11):**
+
+| Stack | Fixture | indeterminada / enumerated | Taxa | Veredito |
+|---|---|---|---|---|
+| nextjs | `nextjs-minimal` | 0/6 | 0.000 | entra |
+| rails | `rails-minimal` | 2/13 | 0.154 | entra |
+| node-ts | `express-minimal` | 1/6 | 0.167 | entra |
+| python | `python-fastapi-minimal` | 0/5 | 0.000 | entra |
+
+**Nenhum adaptador cortado** — os quatro numeros batem exatamente com o previsto no planejamento, e a
+Premissa 3 do PRD ("enumeracao estatica de Express cobre o suficiente para valer a pena") esta validada
+com dado, nao com opiniao. **Django fica FORA deste gate por desenho**: nao tem fixture (so testes
+inline) e toda rota dele e `indeterminada` (DP-6/G16) — taxa seria 1.000 e o corte o expulsaria por uma
+regra que nao foi pensada para ele. Se um plano futuro criar fixture Django, o corte precisa ser lido
+por stack com excecao declarada, nunca no agregado.
+
+### Taxa de `indeterminada` por stack (Premissa 3 — MEDIDA na fase-05 pelo orquestrador)
 
 | Stack | Fixture | enumerated | indeterminada | taxa | corte 0.25 | decisao |
 |-------|---------|-----------:|--------------:|-----:|:----------:|---------|
-| nextjs | `nextjs-minimal` | 6 (esperado) | 0 | 0.00 | ok | mantido |
-| rails | `rails-minimal` | 13 (esperado) | 2 | 0.15 | ok | (preencher) |
-| node-ts/express | `express-minimal` | 6 (esperado) | 1 | 0.17 | ok | (preencher) |
-| python/fastapi | `python-fastapi-minimal` | 5 (esperado) | 0 | 0.00 | ok | (preencher) |
+| nextjs | `nextjs-minimal` | 6 | 0 | 0.000 | ok | **entra no registro** |
+| rails | `rails-minimal` | 13 | 2 | 0.154 | ok | **entra no registro** |
+| node-ts/express | `express-minimal` | 6 | 1 | 0.167 | ok | **entra no registro** |
+| python/fastapi | `python-fastapi-minimal` | 5 | 0 | 0.000 | ok | **entra no registro** |
+
+Os quatro numeros bateram exatamente com o previsto no planejamento. **Nenhum adaptador cortado** — a
+Premissa 3 do PRD esta validada com medida, nao com opiniao. **Django fica FORA deste gate por desenho**
+(sem fixture; toda rota e `indeterminada` por DP-6/G16 — taxa seria 1.000).
 
 ---
 
 ## Notas para Planos Seguintes
 
 Informacoes que o proximo plano PRECISA saber antes de comecar.
-O subagente do proximo plano le este campo.
 
-**A feature fecha neste plano.** Preencher na fase-05 com, no minimo:
+**A FEATURE FECHA AQUI.** 4 planos, 16 fases, 16/16. Nao ha proximo plano nesta feature — o que segue
+sao follow-ups declarados, cada um com o ponto exato de encaixe.
 
-- **Estado final:** commits por fase; contagem real de testes por arquivo; suite total; `typecheck`,
-  `agents:contract`, `harness:validate` verdes; taxa de `indeterminada` por stack (tabela acima) e
-  quais adaptadores entraram no registro.
-- **Assinaturas publicas (copiadas do codigo, nao redescobrir):** `CoverageRule` com `handler-chain` e
-  `opaque.handler?`; `Route.unresolved?`; `isAuthName`/`splitByAuthName`/`lineOf`/`readBalanced`/
-  `splitTopLevel` em `route-auth-heuristics.ts`; `railsAdapter`/`expressAdapter`/`pythonAdapter` e suas
-  funcoes puras `parse*`; `hasExpress`; `ADAPTERS`/`SKIP_REASONS`/`selectAdapters`; `auditProject`,
-  `ProjectAuditResult`, `ProjectSummary`, `buildProjectIssues`; `promoteWideCandidates`.
-- **O que o RF-07 (full-surface, plano futuro) precisa:** `auditProject` ja itera todas as rotas
-  enumeradas por stack — full-surface e trocar o filtro `changed.has(route.file)` por "todas" atras de
-  uma opcao (`scope: 'diff' | 'full'`) e propagar `summary.scope`; nenhuma mudanca de adaptador.
-- **G2 por stack (follow-up):** cada adaptador novo precisa de `isCoverageFile` + `readCoverageAtBase`
-  (DP-2 do Plano 03). Rails: `app/controllers/**` sao arquivos de cobertura; `readCoverageAtBase`
-  precisa ler N controllers na base (o seam `readAtBase` e por arquivo — cabe, mas custa 3 processos
-  git por controller). Express: o arquivo de rota E o de cobertura (G1 ja reavalia). FastAPI:
-  `deps.py`/routers com `dependencies=`. Ate la, `g2Support: false` e a nota por stack.
-- **Django coverage (follow-up):** `@login_required`, `LoginRequiredMixin`, `MIDDLEWARE` com
-  `AuthenticationMiddleware` + `LoginRequiredMiddleware` (Django 5.1). Hoje: `opaque` escopado por
-  handler → tudo `indeterminada`.
-- **Monorepo por subdiretorio (follow-up):** `detectStack` le so a raiz (DP-13). Precisaria de
-  `detectStack` por subpasta ou de `anchorFiles` recursivo — fora deste plano.
-- **DP-7 substitui a DP-3 do Plano 02 no "recusada":** se a secao 11 do agente ou o
-  `verify-work/SKILL.md` disserem que entrada ampla e "recusada", corrigir para "candidata: promovida
-  se for declaracao literal de rota enumerada; senao finding high" (a fase-04 emenda o agente; o
-  `verify-work` nao cita "recusada" hoje — conferir com `grep -n recusad skills/verify-work/SKILL.md`).
-- **G24:** se o Plano 03 for executado DEPOIS deste, `readAllowlistAtBase` precisa aplicar
-  `promoteWideCandidates` na ponta antes (uma linha) e `verdictFor` precisa do curto-circuito de
-  `unresolved` na primeira linha.
-- **`CLAUDE_PLUGIN_ROOT` no Bash do subagente** continua pendente desde o Plano 01 — validar num
-  projeto real de cada stack antes de dar a feature por fechada de ponta a ponta; o cache do plugin
-  precisa de `scripts/sync-to-global.sh` antes.
-- **Compound candidates** (para `/lessons-learned`): `opaque` global infecta o projeto inteiro (DEV-plan-2);
-  `path-pattern` nao conhece ordem — Express exige `handler-chain` por linha (DEV-plan-3); redeclarar
-  `before_action` no filho substitui a herdada (G22); Express 4 vs 5 `*` (G12).
+### Estado final (2026-09-07)
+
+| Fase | Commits | Entrega |
+|---|---|---|
+| 01 | `0daf049` + `78d158f` | Passo 0 (contrato aditivo + heuristica + G13) e adaptador Rails |
+| 02 | `98b6a05` + `4dc7ae2` | Adaptador Express + fix do descarte silencioso de router secundario |
+| 03 | `1c5d244` + `28b16a8` | Adaptador Python: FastAPI (A), Flask e Django (B) |
+| 04 | `781220e` | Registro por `StackId`, `auditProject` multi-stack, prefixo `[<stack>]`, CA-11 |
+| 05 | `7f0723b` | Gate e2e das 4 stacks (CA-08) e corte da Premissa 3 |
+
+`skills/security/lib/` **211 pass**; e2e do gate **7**; suite completa **2143 pass / 0 fail**
+(lotes 1449 + 694; baseline no inicio do plano: 2058). `typecheck` exit 0, `agents:contract` 39 pass,
+`harness:validate` 0 warnings, manifest idempotente (so datas mudam ao regenerar).
+
+**Adaptadores no registro (todos passaram no corte da Premissa 3):** `nextjs`, `rails`, `node-ts`
+(Express), `python`. Tabela de taxas na secao Metricas.
+
+### Assinaturas publicas (copiadas do codigo)
+
+```ts
+// route-auth-matrix.types.ts
+type CoverageRule = { kind: 'path-pattern'; ... } | { kind: 'opaque'; reason; file; line; handler? } |
+                    { kind: 'handler-chain'; handler: string; file: string; line: number; via: string }
+type Route = { method; path; file; line; stack; handler?; unresolved?: string }
+interface RouteAdapter { stack; enumerate; readCoverage; isCoverageFile?; readCoverageAtBase? }
+
+// route-auth-heuristics.ts (compartilhada pelos 4 adaptadores)
+AUTH_NAME_RE; isAuthName(name): boolean; splitByAuthName(names); authNameNotes(label, split)
+lineOf(source, index); readBalanced(source, start, open, close); splitTopLevel(body); QUOTES
+
+// route-auth-adapters.ts
+type KnownStack = Exclude<StackId, 'unknown'>
+type AdapterEntry = { adapter: RouteAdapter; applies: (targetDir: string) => boolean }
+ADAPTERS: Readonly<Partial<Record<KnownStack, AdapterEntry>>>   // nextjs, rails, node-ts, python
+SKIP_REASONS: Readonly<Record<string, string>>
+selectAdapters(detected, targetDir): { selected: SelectedAdapter[]; skipped: SkippedStack[] }
+
+// route-auth-matrix.ts (camada multi-stack; auditRouteCoverage segue SINCRONA)
+type StackAudit = { stack: KnownStack; result: AuditResult; g2Support: boolean }
+type ProjectAuditResult = { detected; stacks: StackAudit[]; skipped: SkippedStack[]; issues: ContractIssue[] }
+type ProjectSummary = { detected; stacks: Record<string, AuditSummary & { g2Support }>; skipped; totals }
+async auditProject(targetDir, opts): Promise<ProjectAuditResult>
+summarizeProject(result): ProjectSummary
+buildProjectIssues(stacks): ContractIssue[]      // dedupe de ALLOW-* entre stacks (DP-7)
+
+// public-routes-allowlist.ts
+promoteWideCandidates(parsed, routes): AllowlistParseResult   // amplitude decidida contra a ENUMERACAO
+
+// adaptadores: railsAdapter, expressAdapter, pythonAdapter, nextjsAdapter (+ hasExpress)
+```
+
+### Follow-ups declarados
+
+- **RF-07 (full-surface):** `auditProject` ja itera todas as rotas enumeradas por stack. Full-surface e
+  trocar o filtro `changed.has(route.file)` por "todas" atras de uma opcao (`scope: 'diff' | 'full'`) e
+  propagar `summary.scope`. **Nenhuma mudanca de adaptador.**
+- **G2 por stack:** os 3 adaptadores novos NAO implementam `isCoverageFile`/`readCoverageAtBase` (DP-9) —
+  hoje sai `g2Support: false` + nota por stack. Rails: `app/controllers/**` sao os arquivos de cobertura,
+  e `readCoverageAtBase` precisa ler N controllers na base (o seam `readAtBase` e por arquivo — cabe, mas
+  custa 3 processos git por controller). Express: o arquivo de rota E o de cobertura. FastAPI:
+  `deps.py` e routers com `dependencies=`.
+- **Django coverage:** hoje `opaque` escopado por handler → tudo `indeterminada`, por desenho. Faltaria
+  `@login_required`, `LoginRequiredMixin`, `MIDDLEWARE` com `AuthenticationMiddleware` +
+  `LoginRequiredMiddleware` (Django 5.1).
+- **Monorepo por subdiretorio:** `detectStack` le so a raiz (DP-13). Precisaria de `detectStack` por
+  subpasta ou `anchorFiles` recursivo.
+- **DP-7 substitui a DP-3 do Plano 02 no "recusada":** entrada ampla agora e *candidata* — promovida se
+  casar rota enumerada, `AllowlistFinding high` so se nao casar nenhuma, em NENHUMA stack.
+
+### Pendencias para o dev decidir no PR
+
+1. **`withG2Note` esta inalcancavel** (DI-fase04-2): o `reconstructBefore` do Plano 03 ja emite a mesma
+   nota, entao o corpo nunca roda com os 4 adaptadores registrados. Foi a mutacao do RED-check que **nao
+   derrubou teste nenhum**. Ou ganha teste que o alcance, ou sai — pelo criterio "sem codigo fantasma".
+2. **Django fora do gate da Premissa 3** (fase-05): sem fixture, por desenho. Se um plano futuro criar
+   uma, a taxa sera 1.000 e o corte precisa de excecao declarada por stack — nunca media agregada.
+3. **Criterio "por humano" pendente em TODAS as fases:** o cache do plugin esta defasado; rodar
+   `scripts/sync-to-global.sh` (Git Bash) antes de validar num projeto real. Inclui comparar
+   `railsAdapter.enumerate` contra `bin/rails routes` (fase-01), que nao foi feito por falta de projeto Rails.
+
+### Compound candidates (para `/anti-vibe-coding:lessons-learned`)
+
+- Rota que some em silencio e pior que rota `indeterminada` — BUG-fase02-1 (segundo `Router()` descartado).
+- Fixture cujos middlewares sao TODOS de auth nao exercita a heuristica — GT-fase02-1.
+- Fase grande demais estoura `max_output_tokens`; dividir na costura do doc e mandar evidencia para
+  arquivo — GT-fase03-1. Estimar fase por **linhas de codigo a escrever**, nao so por horas.
+- Ramo nao implementado emite NOTA, nunca vazio calado — GT-fase03-2.
+- Nao rodar `typecheck` em paralelo com a suite (a suite mexe em `tests/__fixtures__/`) — GT-fase04-1.
+- **Numero previsto em checklist e chute do planejador; o que vale e qual assertion quebra** — DI-fase01-2,
+  DI-fase02-1, DI-fase03-1, mutacao 5 da fase-04, GT-fase05-1. Sete ocorrencias em uma feature.
 
 ---
 
