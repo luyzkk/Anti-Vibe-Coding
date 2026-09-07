@@ -58,6 +58,32 @@ Formato: o que foi decidido + por que + impacto.
   - Impacto: so a ordem das regras em `CoverageMap.rules`; o matcher casa por `handler`/`file:line`
     (G18), nunca por posicao. Nao confundir com a ordem das ROTAS (DI-fase01-1), que e de declaracao.
 
+
+- **DI-fase04-1: `tests/fixtures/route-auth-matrix/nextjs-minimal/package.json` criado — arquivo FORA da lista
+  de "Arquivos Afetados" da fase.** Sem ele, `detectStack` nao reconhecia a fixture como `nextjs` e o teste
+  `never turns a skipped stack into approval` nao tinha o que exercitar (a fixture nasceu no Plano 01, quando
+  a deteccao de stack ainda nao entrava no caminho).
+  - Impacto: fixture existente ganhou 1 arquivo de 1 linha; nenhum teste anterior mudou de resultado.
+    Desvio de escopo real, pequeno e declarado — registrado aqui em vez de passar despercebido.
+
+- **DI-fase04-2: `withG2Note` esta INALCANCAVEL hoje — codigo fantasma (para o dev decidir no PR).**
+  A funcao so acrescenta a nota `sem suporte a G2` quando o adaptador nao tem os metodos **e** a nota ainda
+  nao esta em `summary.notes`. Mas o `reconstructBefore` do Plano 03 ja emite
+  `adaptador <stack> sem suporte a G2 (isCoverageFile/readCoverageAtBase ausentes)` incondicionalmente para
+  esses adaptadores — o guard curto-circuita sempre, e o corpo nunca roda com os 4 adaptadores registrados.
+  - Como apareceu: a **mutacao 5 do RED-check do checklist da fase nao derrubou teste nenhum**. O executor
+    investigou e reportou em vez de marcar a linha como confirmada.
+  - Por que o doc errou: a fase-04 foi escrita quando o Plano 03 ainda nao estava mergeado; a nota do
+    `reconstructBefore` chegou depois e tornou a defesa redundante.
+  - **Nao removi** (codigo especificado pelo doc; remover e decisao de escopo do dev). Mas pelo criterio do
+    proprio CLAUDE.md ("sem codigo fantasma", "nao super-engenheirar") isso ou vira teste que o alcance, ou sai.
+
+- **DI-fase04-3: o agente tem 1 delecao fisica, e ela e legitima.** `git diff --stat agents/security-auditor.md`
+  = 28 insercoes, 1 delecao. A linha removida (`finding so. Cite \`summary.allowlist.wide\` em \`reasoning\`.`)
+  foi **estendida**: a nova comeca com o texto identico e continua (`— salvo quando a entrada e a declaracao
+  ...`), porque a DP-7 tornou a afirmacao absoluta anterior incompleta. Nada foi diminuido; G13/DP-14
+  satisfeitos em substancia. Conferido lendo as linhas, nao contando-as (ver GT-fase02-diff-bullet do Plano 03).
+
 ---
 
 ## Bugs Descobertos
@@ -145,6 +171,16 @@ Apenas gotchas que NAO eram obvios antes de implementar.
   - Impacto: e o padrao a repetir sempre que um plano deixar um ramo para depois. Vazio sem nota seria
     o BUG-fase02-1 de novo, com outra roupa.
 
+
+- **GT-fase04-1: nao rodar `bun run typecheck` em paralelo com `bun run test` neste repo.**
+  O orquestrador rodou os dois ao mesmo tempo e o `tsc` falhou com
+  `error TS6053: File 'tests/__fixtures__/harness-advanced/scripts/harness-validate.ts' not found ...
+  Matched by include pattern '**/*.ts'`. A suite CRIA e REMOVE arquivos em `tests/__fixtures__/` durante a
+  execucao, e o `tsconfig` inclui `**/*.ts` — o `tsc` pegou a janela em que o arquivo nao existia.
+  - Descoberto em: fase-04 (falha auto-infligida do orquestrador, nao do executor)
+  - Impacto: **falso negativo de typecheck**. Rodado de novo, sozinho, deu exit 0. Verificacao concorrente
+    neste repo mente; rodar sequencial. Vale para qualquer sessao futura que queira "ganhar tempo".
+
 ---
 
 ## Desvios do Plano
@@ -199,7 +235,7 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 5 |
-| Fases concluidas | 3 |
+| Fases concluidas | 4 |
 | Fases com desvio | 0 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
@@ -244,6 +280,15 @@ manifest idempotente, fixture so `.mjs` (G2).
 **Django nao entra nesse denominador** — nao tem fixture nesta fase (so testes inline) e, por desenho
 (DP-6/G16), toda rota dele e `indeterminada`. Se a fase-05 criar fixture Django, a taxa dela sera 1.000
 e o corte precisa ser lido por stack, nao no agregado.
+
+**fase-04 medida (2026-09-07, commit 781220e):**
+`route-auth-adapters.test.ts` **6**, `route-auth-matrix.test.ts` **65**, `skills/security/lib/` **211**,
+suite completa **2136 pass / 0 fail** (lotes 1448 + 688). CA-11 verificado pelo orquestrador na fixture
+`monorepo-next-rails`: `detected.primary=nextjs`, `secondary=[node-ts, rails]`; rodaram `nextjs` e `rails`;
+`node-ts` foi para `skipped` com razao (`sem express` — DP-12/G8, a defesa que impede todo projeto Next de
+rodar o adaptador Express); com `changedFiles`, os findings saem prefixados:
+`[nextjs] DESCOBERTA: GET /api/admin` (critical) e `[rails] indeterminada: GET /status` (medium).
+Sem `changedFiles` o conjunto G1 e vazio e `evaluated: 0` — escopo hibrido (Decisao 2 do PRD), nao defeito.
 
 ### Taxa de `indeterminada` por stack (Premissa 3 — preencher na fase-05)
 
