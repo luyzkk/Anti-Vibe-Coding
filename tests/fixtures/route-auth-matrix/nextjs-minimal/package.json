@@ -1,0 +1,1 @@
+{ "name": "nextjs-minimal", "private": true, "dependencies": { "next": "^15" }, "devDependencies": { "typescript": "^5" } }

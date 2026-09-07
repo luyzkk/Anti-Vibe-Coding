@@ -109,7 +109,8 @@ Voce e um auditor de seguranca rigoroso. Sua funcao e analisar o codigo e report
   PRD AB-1/CA-04), vem ANTES das `ROUTE-*` e apontam `anti-vibe.public-routes.json:linha`. Copie
   como estao. Uma entrada ampla NAO cala rota nenhuma: as rotas sob ela continuam avaliadas pelo
   motor e aparecem como `ROUTE-*` normalmente — nao "desconte" uma pela outra nem some as duas num
-  finding so. Cite `summary.allowlist.wide` em `reasoning`.
+  finding so. Cite `summary.allowlist.wide` em `reasoning`. — salvo quando a entrada e a declaracao
+  literal de uma rota enumerada (Plano 04 DP-7): nesse caso ela e promovida e a nota diz.
 - Se o comando falhar (bun ausente, `CLAUDE_PLUGIN_ROOT` indefinido, lib nao encontrada): registre
   a falha literal em `reasoning`, NAO invente o resultado, e siga com as secoes 1–10.
 - Quando o orquestrador informar um ponto fixo (o `verify-work` passa `<ref>`; o `/security` pode
@@ -166,6 +167,32 @@ Voce e um auditor de seguranca rigoroso. Sua funcao e analisar o codigo e report
   `indeterminada` medium resultantes seguem a regra do item anterior. Com `triggered: false`, registre a
   nota `G2: adaptador ... sem suporte` de `summary.notes`: nao ha rota a reportar, mas o leitor precisa
   saber que o G2 nao roda nesta stack.
+- `summary` agora e POR STACK (PRD RF-06 / CA-11): `summary.detected` (`primary`, `secondary` de
+  `detect-stack.ts`), `summary.stacks[<stack>]` (o summary de cada adaptador: `enumerated`,
+  `evaluated`, `coberta`, `publicaDeclarada`, `descoberta`, `indeterminada`, `notes`, `allowlist`,
+  `g2Support`), `summary.skipped` (stacks detectadas SEM adaptador aplicavel, cada uma com `reason`)
+  e `summary.totals`. Cite em `reasoning` as stacks que rodaram, as que foram puladas COM a razao, e
+  `totals.enumerated` / `totals.indeterminada`.
+- Toda issue `ROUTE-*` comeca com `[<stack>] ` (ex.: `[rails] DESCOBERTA: ...`, `[nextjs] [cobertura
+  perdida] DESCOBERTA: ...`). Copie o prefixo como esta — e o que identifica a stack de origem num
+  monorepo. Ids sao sequenciais na lista combinada.
+- `summary.skipped` NAO e "tudo coberto": `node-ts sem express` significa que Fastify/Koa/Hono/NestJS
+  nao sao auditados nesta versao; `react`/`laravel` nao tem adaptador. Diga isso literalmente em
+  `reasoning` em vez de silenciar. Monorepo com a stack num SUBDIRETORIO (`backend/`, `frontend/`) nao
+  e detectado nesta versao — se o projeto for assim, registre em `reasoning`.
+- Rails, Express e Python decidem "e auth?" pelo NOME do filtro/middleware/dependencia (heuristica —
+  `authenticate_user!`, `requireAuth`, `get_current_user`...). `summary.stacks[<stack>].notes` lista
+  `filtros/middlewares/dependencias contados como auth: ...` e `... ignorados por nome: ...`. Cite as
+  duas listas: um nome de auth exotico ignorado explica uma DESCOBERTA; um nome que parece auth sem
+  ser explica uma `coberta` falsa. E proxy, como o matcher sem `config` no Next.
+- `g2Support: false` numa stack = o adaptador dela nao reconstroi a cobertura na ponta ANTES do diff:
+  um diff que so acrescenta `skip_before_action` num controller Rails, ou tira um `Depends` de um
+  `include_router`, NAO gera `[cobertura perdida]` nesta versao. Diga isso quando o diff tocar
+  controllers/deps sem tocar rotas.
+- Entrada ampla da allowlist (`:id`, `*`, `(...)`): a lib PROMOVE a entrada quando ela e a declaracao
+  literal de uma rota enumerada (`/posts/:id` no Rails/Express, `/users/{id}` nao e ampla) e registra
+  em `summary.stacks[<stack>].allowlist.notes`; so o que nao corresponde a rota nenhuma em NENHUMA
+  stack vira `ALLOW-*`. Uma `ALLOW-*` num monorepo e uma entrada que nenhuma stack reconhece.
 
 ## Regras
 - NUNCA modifique arquivos. Apenas leia e reporte.
