@@ -120,6 +120,31 @@ Apenas gotchas que NAO eram obvios antes de implementar.
     **Licao para as fases 03/04:** fixture cujos middlewares sao TODOS auth nao exercita a heuristica —
     toda fixture de adaptador precisa de pelo menos um nome nao-auth junto de um auth.
 
+
+- **GT-fase03-1: fase grande demais para um executor so — `max_output_tokens` (64000) mata a tentativa.**
+  A primeira tentativa da fase-03 (3 dialetos + fixture + 16 testes + relatorio com saidas literais
+  completas) morreu com `API Error: max_output_tokens`. Nada foi escrito no disco — working tree limpa,
+  retry sem estado parcial para reconciliar.
+  - Descoberto em: fase-03
+  - Causa: o codigo escrito conta no orcamento de SAIDA junto com o relatorio. Rails deu 655 linhas,
+    Express 523; Python com 3 dialetos passou de 740 — mais fixture, mais 16 testes, mais dumps.
+  - Mitigacao aplicada, nesta ordem: (1) **dividir na costura que o proprio doc ja usava** (FastAPI e
+    primeira classe; "Flask/Django por testes inline") em Parte A e Parte B, cada uma com commit
+    proprio — a FASE continua uma so, o que foi dividido e a execucao; (2) **evidencia longa vai para
+    arquivo** no scratchpad e o relatorio cita o caminho (principio "sistema de arquivos como estado"
+    do CLAUDE.md); (3) relatorio final com teto de linhas.
+  - Impacto para as fases 04/05 e para planos futuros: fase que cria lib nova grande + fixture + suite
+    de teste deve nascer dividida, ou pedir evidencia em arquivo desde o comeco. Estimar por
+    **linhas de codigo a escrever**, nao so por horas.
+
+- **GT-fase03-2: ramo nao implementado tem que emitir NOTA, nao array vazio.** Entre a Parte A e a
+  Parte B, Flask e Django ficaram declarados-mas-minimos. Verificado pelo orquestrador antes de seguir:
+  os dois devolviam `routes: []` **com nota** (`dialeto flask ainda nao implementado nesta fase...`),
+  nunca vazio calado — um projeto Flask auditado naquele estado enumerava zero rotas mas dizia por que.
+  - Descoberto em: fase-03 (estado intermediario)
+  - Impacto: e o padrao a repetir sempre que um plano deixar um ramo para depois. Vazio sem nota seria
+    o BUG-fase02-1 de novo, com outra roupa.
+
 ---
 
 ## Desvios do Plano
@@ -174,7 +199,7 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 5 |
-| Fases concluidas | 2 |
+| Fases concluidas | 3 |
 | Fases com desvio | 0 |
 | Bugs encontrados | 0 |
 | Retries necessarios | 0 |
@@ -211,6 +236,14 @@ suite ~2058.
 **2109 pass / 0 fail** (lotes 1436 + 673). Taxa de `indeterminada` da fixture Express: **1/6 = 0.167**,
 abaixo do corte 0.25 (DP-11) — o adaptador fica. `typecheck` exit 0, `agents:contract` 39 pass,
 manifest idempotente, fixture so `.mjs` (G2).
+
+**fase-03 medida (2026-09-07, commits 1c5d244 Parte A + 28b16a8 Parte B):**
+`route-auth-python.test.ts` **16** (9 FastAPI + 7 Flask/Django; o doc estimava 16), `skills/security/lib/`
+**200**, suite completa **2125 pass / 0 fail** (lotes 1444 + 681). Taxa de `indeterminada` da fixture
+`python-fastapi-minimal`, medida pelo orquestrador: **0/5 = 0.000**, muito abaixo do corte 0.25 (DP-11).
+**Django nao entra nesse denominador** — nao tem fixture nesta fase (so testes inline) e, por desenho
+(DP-6/G16), toda rota dele e `indeterminada`. Se a fase-05 criar fixture Django, a taxa dela sera 1.000
+e o corte precisa ser lido por stack, nao no agregado.
 
 ### Taxa de `indeterminada` por stack (Premissa 3 — preencher na fase-05)
 
