@@ -197,6 +197,27 @@ Apenas gotchas que NAO eram obvios antes de implementar.
     bate com o real (DI-fase01-2, DI-fase02-1, DI-fase03-1, mutacao 5 da fase-04, e agora esta). O padrao
     esta consolidado: **numero em checklist e chute do planejador; o que vale e qual assertion quebra.**
 
+
+- **GT-fase05-2: a suite inteira rodou SO no Windows; o CI (Linux) achou um defeito de determinismo que
+  2143 testes locais nao acharam.**
+  `splitByAuthName` preservava a ordem de insercao dos nomes, e essa ordem vem da VARREDURA DE ARQUIVOS —
+  que difere entre Windows e Linux. A nota do relatorio saia
+  `middlewares contados como auth: requireAuth, requireAdmin` local e
+  `... requireAdmin, requireAuth` no CI. Uma assercao fixava a ordem do Windows.
+  - Descoberto em: primeira execucao do CI no PR #77 (nao pela sessao)
+  - Por que e defeito de PRODUCAO, nao de teste: nota de relatorio de seguranca que muda de conteudo
+    conforme o SO e instavel para diff, para golden e para revisao humana.
+  - **O mais incomodo:** o adaptador Rails JA tinha aprendido isso na fase-01 (DI-fase01-2 —
+    `readRailsCoverage` ordena handlers alfabeticamente por determinismo). A licao ficou **presa no
+    adaptador** e nao subiu para o helper compartilhado, entao Express, Python e Next herdaram o problema.
+  - Fix: `.sort()` em `splitByAuthName` (`route-auth-heuristics.ts`) — helper compartilhado pelos quatro,
+    conserta todos de uma vez. Commit `42d16c8`, com teste de determinismo (mesmas entradas em ordens
+    diferentes → mesma saida) e prova por mutacao.
+  - **Licao para planos futuros:** verificacao local numa plataforma so nao substitui o CI. Qualquer lista
+    derivada de leitura de diretorio precisa de ordem estavel ANTES de virar texto de relatorio ou golden.
+    E quando um adaptador resolve um problema de determinismo, perguntar se o helper compartilhado tambem
+    precisa — senao o proximo adaptador repete.
+
 ---
 
 ## Desvios do Plano
