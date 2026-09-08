@@ -61,6 +61,15 @@ function section(doc: string, startsWith: string): string {
 // 2026-09-08 (Luiz/dev): assercao de contrato roda sobre prosa, nunca sobre exemplo — PRD tdd-cycle-contract §RF-04 (DP-2)
 const prose = (body: string) => body.replace(/```[\s\S]*?```/g, '').replace(/<!--[\s\S]*?-->/g, '')
 
+/**
+ * Atalho para `prose(section(doc, heading))` — a composicao que tres describes repetiam (RF-02, RF-06).
+ * NAO serve para conteudo dentro de fence (as regras do Step 9 em plan-feature/SKILL.md vivem num bloco
+ * cercado — prose() as apagaria, G12) nem para o ponteiro em comentario HTML do bloco "### TDD" (a
+ * assercao roda sobre o corpo cru de proposito). Esses dois continuam com section() puro.
+ */
+// 2026-09-08 (Luiz/dev): refactor puro — comportamento das 21 assercoes nao muda (PRD tdd-cycle-contract, fase-03)
+const body = (doc: string, heading: string) => prose(section(doc, heading))
+
 const readme = read('skills/plan-feature/templates/plan-readme-template.md')
 const executor = read('agents/plan-executor.md')
 const planFeature = read('skills/plan-feature/SKILL.md')
@@ -81,7 +90,7 @@ describe('tdd-workflow — a fonte unica do ciclo (RF-01)', () => {
 })
 
 describe('fase-template — bloco "### TDD" (RF-02)', () => {
-  const tdd = () => prose(section(template, '### TDD'))
+  const tdd = () => body(template, '### TDD')
 
   test('o bloco declara o tipo da fase com as tres opcoes (D5)', () => {
     const body = tdd()
@@ -131,7 +140,7 @@ describe('fase-template — bloco "### TDD" (RF-02)', () => {
   test('o planejador e proibido de prever a mensagem de erro (D6)', () => {
     expect(
       /N[AÃ]O escrever a mensagem/i.test(tdd()),
-      `[parity gate — RF-02 / D6] Sumiu do bloco "### TDD" a instrucao de NAO escrever a mensagem de erro ` +
+      `[parity gate "nunca diminuir" — RF-02 / D6] Sumiu do bloco "### TDD" a instrucao de NAO escrever a mensagem de erro ` +
         `esperada. Numero e mensagem previstos sao chute do planejador; em tres ocasioes o real divergiu ` +
         `e o incentivo era reportar o previsto (compound 2026-09-06). O que vale e qual assertion quebra.`,
     ).toBe(true)
@@ -140,7 +149,7 @@ describe('fase-template — bloco "### TDD" (RF-02)', () => {
   test('fase de risco comeca pelo teste de abuso (Abuse-It)', () => {
     expect(
       /Abuse-It/.test(tdd()),
-      `[parity gate — RF-02] O bloco "### TDD" deixou de dizer que, em fase de risco, o PRIMEIRO teste e o ` +
+      `[parity gate "nunca diminuir" — RF-02] O bloco "### TDD" deixou de dizer que, em fase de risco, o PRIMEIRO teste e o ` +
         `de abuso (Abuse-It, tdd-workflow). Sem isso o RED escreve so o happy path e a defesa nunca chega ao GREEN.`,
     ).toBe(true)
   })
@@ -148,7 +157,7 @@ describe('fase-template — bloco "### TDD" (RF-02)', () => {
   test('fase sem comportamento tem variante com gate textual (D5)', () => {
     expect(
       /gate textual/i.test(tdd()),
-      `[parity gate — RF-02 / D5] A variante "sem-comportamento" (gate textual visto falhando; RED-check = ` +
+      `[parity gate "nunca diminuir" — RF-02 / D5] A variante "sem-comportamento" (gate textual visto falhando; RED-check = ` +
         `remover o alvo, gate cai, restaurar) sumiu do bloco "### TDD". Isentar fases de doc/config do ciclo ` +
         `deixa 40% das fases sem verificacao falsificavel — foi a alternativa rejeitada em D5.`,
     ).toBe(true)
@@ -159,7 +168,7 @@ describe('fase-template — bloco "### TDD" (RF-02)', () => {
     const raw = section(template, '### TDD')
     expect(
       /<!--[\s\S]*?skills\/tdd-workflow\/SKILL\.md[\s\S]*?Contrato do Ciclo por Fase[\s\S]*?-->/.test(raw),
-      `[parity gate — RF-02 / CA-03 / D1] O comentario HTML que aponta de fase-template.md para ` +
+      `[parity gate "nunca diminuir" — RF-02 / CA-03 / D1] O comentario HTML que aponta de fase-template.md para ` +
         `skills/tdd-workflow/SKILL.md "Contrato do Ciclo por Fase" sumiu. O template e consumidor, nao ` +
         `definicao; sem o ponteiro ele volta a ser a segunda copia do ciclo.`,
     ).toBe(true)
@@ -171,7 +180,7 @@ describe('plan-readme-template — §TDD Strategy aponta para a fonte (D1)', () 
     const body = section(readme, '## TDD Strategy')
     expect(
       body.includes('skills/tdd-workflow/SKILL.md') && body.includes('Contrato do Ciclo por Fase'),
-      `[parity gate — D1] "## TDD Strategy" de plan-readme-template.md nao aponta para ` +
+      `[parity gate "nunca diminuir" — D1] "## TDD Strategy" de plan-readme-template.md nao aponta para ` +
         `skills/tdd-workflow/SKILL.md "Contrato do Ciclo por Fase" (ou o bloco sumiu — section() devolve ''). ` +
         `Era a terceira copia do ciclo (PLAN.md §Risks); copia que fica e a divergencia que este PRD existe para acabar.`,
     ).toBe(true)
@@ -179,23 +188,25 @@ describe('plan-readme-template — §TDD Strategy aponta para a fonte (D1)', () 
 })
 
 describe('plan-executor — §TDD aponta para a fonte e incorpora os compounds (RF-06)', () => {
-  const tdd = () => prose(section(executor, '## TDD no Ciclo Red-Green-Refactor'))
+  const tdd = () => body(executor, '## TDD no Ciclo Red-Green-Refactor')
 
   test('a secao cita a secao-fonte pelo caminho (CA-03, D1)', () => {
     const body = tdd()
     expect(
       body.includes('skills/tdd-workflow/SKILL.md') && body.includes('Contrato do Ciclo por Fase'),
-      `[parity gate — RF-06 / CA-03] "## TDD no Ciclo Red-Green-Refactor" de agents/plan-executor.md nao ` +
+      `[parity gate "nunca diminuir" — RF-06 / CA-03] "## TDD no Ciclo Red-Green-Refactor" de agents/plan-executor.md nao ` +
         `aponta para skills/tdd-workflow/SKILL.md "Contrato do Ciclo por Fase" (ou a secao sumiu — ` +
         `section() devolve ''). O executor e consumidor do ciclo, nao a segunda definicao dele.`,
     ).toBe(true)
   })
 
+  // 2026-09-08 (Luiz/dev): rotulo string na 1a posicao — %s nao interpola RegExp, os 3 titulos saiam
+  // identicos ("a secao mantem a regra %s") e o RED-check nao conseguia nomear qual teste deve cair
   test.each([
-    [/stub/i, 'stub-first: o RED falha por assertion, nunca por Cannot find module (compound 2026-05-19)'],
-    [/nasce verde/i, 'teste que nasce verde exige mutacao no mesmo passo (compound 2026-09-06)'],
-    [/defesa-implementada/, 'o executor nomeia em payload.checks[] a defesa que o orquestrador vai mutar (D3)'],
-  ])('a secao mantem a regra %s', (re, why) => {
+    ['stub-first', /stub/i, 'stub-first: o RED falha por assertion, nunca por Cannot find module (compound 2026-05-19)'],
+    ['nasce-verde', /nasce verde/i, 'teste que nasce verde exige mutacao no mesmo passo (compound 2026-09-06)'],
+    ['defesa-implementada', /defesa-implementada/, 'o executor nomeia em payload.checks[] a defesa que o orquestrador vai mutar (D3)'],
+  ])('a secao mantem a regra %s', (label, re, why) => {
     expect(
       re.test(tdd()),
       `[parity gate "nunca diminuir" — RF-06] Sumiu da secao TDD do plan-executor: ${why}. ` +
@@ -204,10 +215,10 @@ describe('plan-executor — §TDD aponta para a fonte e incorpora os compounds (
   })
 
   test('o REFACTOR e commit proprio, separado do feat (D4, CA-08)', () => {
-    const refactor = prose(section(executor, '### REFACTOR'))
+    const refactor = body(executor, '### REFACTOR')
     expect(
       refactor.length > 0 && /commit/i.test(refactor) && /refactor\(/.test(refactor),
-      `[parity gate — RF-06 / D4 / CA-08] A subsecao "### REFACTOR" do plan-executor nao exige commit ` +
+      `[parity gate "nunca diminuir" — RF-06 / D4 / CA-08] A subsecao "### REFACTOR" do plan-executor nao exige commit ` +
         `refactor(...) proprio (ou sumiu). D4: o mesmo subagente GREEN refatora como segundo passo, em ` +
         `commit separado — refactor escondido no feat(...) e o que "Refactor Fica no Ciclo" chama de ` +
         `problema de granularidade de commit.`,
@@ -227,7 +238,7 @@ describe('plan-feature — Step 9 obriga a nomear a defesa e proibe prever a men
   ])('as regras exigem preencher "%s" em fase de comportamento ou risco', (campo, why) => {
     expect(
       regras().includes(campo),
-      `[parity gate — RF-07 / D6] "${campo}" ausente das regras do subagente de planejamento (Step 9 do ` +
+      `[parity gate "nunca diminuir" — RF-07 / D6] "${campo}" ausente das regras do subagente de planejamento (Step 9 do ` +
         `plan-feature) — ${why}. O template pede o campo (fase-02), mas quem o preenche e o planejador: ` +
         `sem a regra ele volta a escrever RED/GREEN e parar.`,
     ).toBe(true)
@@ -236,7 +247,7 @@ describe('plan-feature — Step 9 obriga a nomear a defesa e proibe prever a men
   test('as regras proibem prever a mensagem de erro (D6)', () => {
     expect(
       /prever a mensagem/i.test(regras()),
-      `[parity gate — RF-07 / D6] Sumiu do Step 9 a proibicao de prever a mensagem de erro do RED. ` +
+      `[parity gate "nunca diminuir" — RF-07 / D6] Sumiu do Step 9 a proibicao de prever a mensagem de erro do RED. ` +
         `Numero e mensagem previstos sao chute; em tres ocasioes o real divergiu e o incentivo era ` +
         `reportar o previsto (compound 2026-09-06). O planejador nomeia a assertion que quebra.`,
     ).toBe(true)
