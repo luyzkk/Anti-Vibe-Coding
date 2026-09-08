@@ -2,7 +2,7 @@
 
 **Feature:** Contrato Unico do Ciclo TDD por Fase
 **Iniciado:** 2026-09-08
-**Status:** em andamento (fases 01 e 02 concluidas, 2/3)
+**Status:** CONCLUIDO (3/3 fases) — 2026-09-08
 
 ---
 
@@ -47,6 +47,19 @@ Formato: o que foi decidido + por que + impacto.
     normalizei porque o texto veio literal do doc da fase e a fidelidade ao spec acabou de ser
     verificada por `diff`. A fase-03 acrescenta mensagens novas: **decidir la** qual das duas formas e a
     canonica e uniformizar de uma vez, num commit `refactor(tests)` proprio.
+
+- **DI-5 (fase-03): o REFACTOR aconteceu — e teve de ser re-provado por mutacao.** Ao contrario das
+  fases 01 e 02, aqui havia trabalho real e ele foi feito em dois commits proprios:
+  - `ea6b12f` — extrai `body(doc, heading) = prose(section(doc, heading))`; rotula os casos do
+    `test.each` de regex; uniformiza as 10 mensagens para `[parity gate "nunca diminuir" — TAG]`
+    (fecha a pendencia que a DI-4 deixou aberta).
+  - `0fa6daa` — renomeia as tres variaveis locais `const body` que passaram a sombrear o helper novo.
+    O wart foi **criado pelo refactor anterior**; deixa-lo seria repetir o adiamento que a DI-4 ja tinha
+    feito uma vez.
+  - **A parte que importa:** refactor de arquivo de TESTE pode deixar o gate vacuo sem que nada fique
+    vermelho. `21 pass` depois do refactor nao prova nada sozinho. Foram re-rodadas **3 mutacoes** —
+    uma por mudanca do refactor — e as tres continuaram derrubando o teste certo. Depois do rename,
+    mais uma. **Regra para o Plano 02: todo `refactor(tests)` fecha com uma mutacao re-rodada.**
 
 ---
 
@@ -127,6 +140,26 @@ Apenas gotchas que NAO eram obvios antes de implementar.
   - Vale para a fase-03 e para o Plano 02: antes de mandar um subagente "copiar o bloco da fase",
     rodar `grep -n '^```' <doc>` e conferir se ha aninhamento.
 
+- **GT-6: `test.each` com RegExp no tuple gera testes com o MESMO nome — e isso quebra o RED-check.**
+  O `test.each` do `plan-executor` recebia `[/stub/i, 'why']` e o titulo era `'a secao mantem a regra %s'`.
+  `%s` nao interpola um RegExp: os tres casos apareciam identicos no output. O checklist da fase manda
+  nomear "QUAL teste deve cair" — com tres testes homonimos, isso e impossivel de escrever e de conferir.
+  - Descoberto **rodando o RED-check**, nao lendo o codigo: o output do mutante mostrou tres linhas
+    iguais. Corrigido no refactor (rotulo string na 1a posicao do tuple → `a secao mantem a regra
+    stub-first` / `nasce-verde` / `defesa-implementada`).
+  - Regra para o Plano 02: em `test.each`, o primeiro elemento do tuple e uma **string** que vira o
+    nome. Regex e funcao nunca interpolam.
+
+- **GT-7: os numeros de linha escritos nos docs de fase estao errados — confira antes de usar.** Na
+  fase-03 os tres estavam furados: o fence do bloco `ts` do Passo 1 e 51/120 (o doc dizia 47/121); a
+  regra 8 do Step 9 esta na 759 e o fence fecha na 760 (o doc dizia 756/757); a secao TDD do executor
+  termina na 81, nao na 82 (a 82 e linha em branco e deve ficar). Nenhum desses arquivos tinha sido
+  tocado pelas fases 01-02 — os numeros ja nasceram errados no planejamento.
+  - O primeiro subagente da fase-03 pegou um erro que **o proprio orquestrador** repassou (47/121),
+    porque foi instruido a conferir com `grep -n '^```'` em vez de confiar. Manter essa instrucao.
+  - Rotina antes de qualquer extracao: `grep -n '^```' <doc da fase>` e `grep -n '<ancora>' <alvo>`.
+    Citar por heading; numero de linha so como atalho, sempre reconferido.
+
 ---
 
 ## Desvios do Plano
@@ -160,11 +193,14 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 3 |
-| Fases concluidas | 2 |
+| Fases concluidas | 3 |
 | Fases com desvio | 1 (DEV-1 cosmetico; DEV-2 corrigido em 9b718e6) |
 | Bugs encontrados | 1 (BUG-1 — flake pre-existente, nao desta feature) |
 | Retries necessarios | 0 |
-| RED-checks executados | 8 (3 na fase-01, 5 na fase-02) — todos passaram |
+| RED-checks executados | 13 (3 na fase-01, 5 na fase-02, 5 na fase-03) — todos passaram |
+| Mutacoes re-rodadas pos-refactor | 4 (fase-03, DI-5) |
+| Assercoes no gate de paridade | 2 → 13 → 21 |
+| Suite | 2144 (baseline) → 2165 pass, 0 fail |
 
 ### Evidencia do ciclo — fase-01
 
@@ -198,6 +234,25 @@ Se nada mudou, manter vazio (bom sinal).
 | Manifest | 2 checksums alterados (`fase-template.md`, `plan-readme-template.md`), **zero** `lastModified` de arquivo nao tocado — o drift do GT-1 ja tinha assentado na fase-01. |
 | Outras verificacoes | `typecheck` exit 0; `harness:validate` ok; `universal-principles.test.ts` `15 pass` (G11); `grep -c '^\*\*Tipo de fase:\*\*'` → `1`; `grep -c 'Defesa a mutar:'` → `2` (checkbox + exemplo); `### Seguranca`/`OPCIONAL`/`### Checklist` presentes; `bun run lint` sumiu do README-template; a linha `**Tracer Bullet deste plano:**` sobreviveu (75 → 72). |
 
+### Evidencia do ciclo — fase-03
+
+| Etapa | Evidencia literal |
+|---|---|
+| RED | `13 pass / 8 fail`, as 8 por assertion; as 13 das fases 01/02 sem regressao. Commit `0c89e7b`. |
+| Gate humano | `skipped` — gate por nivel so a partir do Plano 02 fase-01. |
+| GREEN | `21 pass / 0 fail`; `bun run agents:contract` `39 pass / 0 fail` (G7). Commit `154f9f9`. Fidelidade por `diff` contra as linhas 135-172 e 186-192 do doc da fase → **IDENTICO** nos dois. |
+| RED-check (1) | Defesa: apagada a palavra `stub` de toda a secao TDD do executor. Caiu so `a secao mantem a regra stub-first`. `20 pass, 1 fail`. |
+| RED-check (2) | Defesa: apagado o bullet "Teste que nasce verde exige mutacao no mesmo passo". Caiu so `a secao mantem a regra nasce-verde`. `20 pass, 1 fail`. |
+| RED-check (3) | Defesa: o bullet `Commit \`refactor(...)\` SEPARADO ...` trocado pelo texto antigo ("Limpe o codigo mantendo os testes verdes"). Caiu so `o REFACTOR e commit proprio, separado do feat (D4, CA-08)`. `20 pass, 1 fail`. |
+| RED-check (4) | Defesa: apagada a regra 10 inteira do fence do Step 9. Caiu so `as regras proibem prever a mensagem de erro (D6)`. `20 pass, 1 fail`. |
+| RED-check (5) | Defesa: `"Defesa a mutar"` tirado da regra 9, mantido `"Teste que deve cair"`. Caiu so `as regras exigem preencher "Defesa a mutar" ...`. `20 pass, 1 fail`. |
+| REFACTOR | **Feito**, em dois commits proprios: `ea6b12f` (helper `body()`, rotulos do `test.each`, preambulo uniformizado) e `0fa6daa` (renomeia locais que sombreavam `body()`). Ver **DI-5**. |
+| Re-check pos-refactor | 3 mutacoes re-rodadas — uma por mudanca do refactor: (a) `Defesa a mutar:` do template caiu, provando que `prose()` via `body()` continua ativo; (b) `stub` caiu com o nome NOVO e distinguivel; (c) a regra 10 caiu, provando que o Step 9 seguiu com `section()` cru (G12). Mais uma apos o rename. Todas `20 pass, 1 fail`. |
+| Suite | `bun run test` → lote 1 `1459 pass / 0 fail`, lote 2 `706 pass / 0 fail` = **2165 pass, 0 fail**, 282 arquivos, exit 0. Delta desde a fase-02 (2157) = **+8**, exatamente as 8 assercoes novas. |
+| Escopo | Diff do `plan-executor.md` so nos hunks `@@ -68` e `@@ -78` — frontmatter, `## Output Contract`, `## Anti-Degeneration Rules` e `## Formato de Saida` sem uma linha de diff. `plan-feature/SKILL.md`: 7 insercoes, 0 delecoes (aditivo puro). `defesa-implementada`: 1 ocorrencia, na prosa (nao no JSON). |
+| Manifest | 2 checksums (`agents/plan-executor.md`, `skills/plan-feature/SKILL.md`), zero `lastModified` de arquivo nao tocado. |
+| Outras verificacoes | `stack-aware-preface-all-skills.test.ts` `14 pass` (G6); `harness:validate` ok; `typecheck` exit 0. |
+
 ---
 
 ## Notas para Planos Seguintes
@@ -228,8 +283,30 @@ O subagente do proximo plano le este campo.
     assercao continuar verde com o checkbox apagado, ela esta lendo o exemplo — nao alargue a regex,
     aplique `prose()`.
   - Ver **GT-5** antes de mandar um subagente copiar bloco de doc de fase: o fence pode ser aninhado.
-  - Ver **DI-4**: ha uma inconsistencia de preambulo nas mensagens (`[parity gate "nunca diminuir" — ]`
-    vs `[parity gate — ]`, 5 e 5) deixada de proposito para a fase-03 uniformizar.
+  - Helper `body(doc, heading) = prose(section(doc, heading))` na linha 71. **Ele nao serve** para
+    conteudo dentro de fence (Step 9 do `plan-feature`) nem para ponteiro em comentario HTML — esses
+    tres pontos usam `section()` cru de proposito, e ha comentario no helper dizendo isso. "Padronizar"
+    para `body()` quebra o gate sem deixar nada vermelho.
+  - Preambulo das mensagens ja esta uniforme: `[parity gate "nunca diminuir" — TAG]` nas 21 (pendencia
+    da DI-4 fechada na fase-03).
+  - Em `test.each`, o primeiro elemento do tuple e **string** e vira o nome do teste (GT-6). Regex nao
+    interpola em `%s` e gera testes homonimos — o que inviabiliza nomear "qual teste deve cair".
+
+### O que o `plan-executor.md` agora promete (e o Plano 02 tem de honrar)
+
+- A secao `## TDD no Ciclo Red-Green-Refactor` aponta para a fonte e diz explicitamente que o
+  **RED-check final NAO e do executor**: "quem verifica nao e quem implementou". Quem muta e restaura e
+  o orquestrador do execute-plan (D3).
+- O executor deve emitir em `payload.checks[]` o item de nome
+  **`fase-{NN}-defesa-implementada`**, com `detail` no formato
+  `"defesa: {arquivo:linha ou condicao}; teste que deve cair: {nome do teste}"`.
+  **O Plano 02 fase-02 le esse nome no Step 4c** para saber o que mutar. `checks[].name` e `string`
+  livre no contrato (`subagent-contract.ts`), entao nada no parser muda — mas o nome tem de bater.
+- O item foi documentado **so na prosa** da secao: o bloco JSON de `## Formato de Saida` e o fixture
+  `agents/__fixtures__/plan-executor/expected-output.json` **nao** foram tocados (DP-3/G7). Se o Plano 02
+  precisar do item no fixture, e mudanca nova e exige `bun run agents:contract` verde de novo.
+- Step 9 do `plan-feature` ganhou as regras **9** (preencher `Defesa a mutar` e `Teste que deve cair`;
+  fase sem-comportamento nomeia o alvo textual) e **10** (nunca prever a mensagem de erro).
 - Ver **GT-1** antes de conferir o manifest (o `git diff --stat` mente; compare checksums) e **GT-2**
   antes de limpar residuo de teste (`rm -rf` e bloqueado; mova).
 - Se a suite vier vermelha em `harness-validate advanced` / E2E `legacy-v5` / `grep-deleted-steps`, leia
