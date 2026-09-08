@@ -557,7 +557,7 @@ O **tipo da fase** decide a variante. O planejador escreve o tipo no bloco `### 
 |---|---|---|---|---|---|
 | comportamento | stub-first, falha por assertion | isolado, sem PRD | muta a defesa nomeada, teste cai, restaura | commit proprio ou "sem mudanca: motivo" | conforme nivel |
 | risco `[RISCO]` | Abuse-It primeiro, depois o resto | idem | idem, obrigatoriamente sobre a defesa do abuso | idem | sempre em Assistido e Guiado |
-| sem comportamento | gate textual (grep/estrutura) visto falhando | aplicar | remover o alvo, gate cai, restaura | n/a | conforme nivel |
+| sem comportamento | gate textual (grep/estrutura) visto falhando | aplicar | remover o alvo, gate cai, restaurar | n/a | conforme nivel |
 
 Regras que valem para os tres tipos:
 
