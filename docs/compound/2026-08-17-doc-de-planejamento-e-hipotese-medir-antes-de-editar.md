@@ -3,6 +3,7 @@ title: "Numero em doc de planejamento e hipotese datada — o plano nomeia N sit
 category: processo
 tags: [exec-plans, plan-feature, execute-plan, drift, verificacao, numero-de-linha, grep]
 created: 2026-08-17
+updated: 2026-09-08
 ---
 
 ## Problem
@@ -62,6 +63,33 @@ o oposto do que o plano sugeria — nao renomear, e escrever a continuidade.
 - **Termo que o plano diz estar livre merece re-medicao dupla:** contagem **e** leitura de um dos
   hits. Contagem responde "existe"; so a leitura responde "no mesmo sentido".
 
+
+## Recorrencia confirmada em outra feature (2026-09-08)
+
+O padrao **nao e especifico daquele import**. Na feature `route-auth-matrix` (4 planos, 16 fases,
+PR #75/#76/#77) ele apareceu **mais sete vezes**, sempre com o mesmo formato — o doc afirma um numero
+ou uma mensagem, a medicao devolve outra:
+
+| Onde | Previsto no doc | Real |
+|---|---|---|
+| Plano 03 fase-01 | falha em `calls.get(...)` | falha antes, em `summary.g2.sources` |
+| Plano 03 fase-02 | `Received length: 5` | `6` |
+| Plano 03 fase-03 | `Received: "unavailable"` | outra assertion (`Received length: 6`) |
+| Plano 04 fase-04 | mutacao derruba um teste | **nao derrubou nenhum** (codigo inalcancavel) |
+| Plano 04 fase-05 | `6 pass` no criterio de aceite | `7 pass` |
+| Plano 02 fase-02 | RED por assertion | RED de compilacao (import novo no Bun) |
+| Plano 04 fase-01 | golden com `LegacyController#handle` | adaptador nunca produz esse handler |
+
+Em **todos** os casos a defesa era genuina — so o numero ou o texto divergiam. Duas consequencias que
+valem mais que a estatistica:
+
+1. **O incentivo perverso e real.** Quem espera uma mensagem e recebe outra tende a reportar a
+   esperada. Em cada uma dessas sete o executor reportou a divergencia; foi isso que manteve o RED
+   honesto — e num dos casos (fase-04) foi exatamente o que revelou **codigo morto**, porque a mutacao
+   prevista nao derrubava nada.
+2. **A regra operacional que sobrou:** o que vale e **qual assertion quebra**, nunca o numero previsto.
+   Ajustar codigo para fazer o numero do doc fechar e a falha que essa nota existe para impedir.
+
 ## Affected files
 
 - `docs/exec-plans/completed/2026-08-10-mattpocock-skills-import/plano10/MEMORY.md` — DIs
@@ -70,3 +98,5 @@ o oposto do que o plano sugeria — nao renomear, e escrever a continuidade.
   `linhas-caducas`, `filtro-2-nao-3`, `notices-4o-arquivo`
 - `docs/compound/2026-05-14-skill-paths-tech-debt-after-v6.md` — o mecanismo do path que envelhece calado
 - `docs/compound/2026-08-12-grep-negativo-exige-controle-positivo.md` — o controle positivo
+- `docs/exec-plans/active/2026-09-02-route-auth-matrix-audit/plano03/MEMORY.md` e `plano04/MEMORY.md` — as sete
+  recorrencias de 2026-09-08 (DI-fase01-2, DI-fase02-1, DI-fase03-1, GT-fase05-1, DI-fase05-1)
