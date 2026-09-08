@@ -109,6 +109,17 @@ Se nada mudou, manter vazio (bom sinal).
   - Licao operacional para as proximas fases: mensagem com travessao vai por `git commit -F`, nunca
     por `-m` inline no PowerShell.
 
+- **DEV-2 (fase-01): "copiar fielmente" nao se verifica a olho — uma celula da tabela tinha driftado.**
+  O bloco entregue na secao-fonte trazia `remover o alvo, gate cai, restaura` na linha
+  `sem comportamento`, onde o PRD §Mecanismo item 1 e o Passo 2 da fase dizem `restaurar`. Nenhum teste
+  cobre celula de tabela; a leitura de conferencia passou por cima. So apareceu ao extrair o bloco
+  ```markdown do doc da fase e rodar `diff` contra a secao entregue: **1 linha divergente em 42**.
+  - Fix: `9b718e6` (`fix(tdd-workflow): celula da tabela volta a bater com o PRD`) + manifest — 1 checksum
+    alterado, nenhum `lastModified` de arquivo nao tocado desta vez.
+  - **Vale para as fases 02 e 03 e para o Plano 02**, que tambem copiam blocos prescritos: depois do
+    GREEN, extrair o bloco do doc da fase e `diff` contra o entregue. Conferencia por leitura nao pega
+    troca de uma palavra; `diff` pega.
+
 ---
 
 ## Metricas
@@ -117,7 +128,7 @@ Se nada mudou, manter vazio (bom sinal).
 |---------|-------|
 | Fases planejadas | 3 |
 | Fases concluidas | 1 |
-| Fases com desvio | 1 (DEV-1, cosmetico) |
+| Fases com desvio | 1 (DEV-1 cosmetico; DEV-2 corrigido em 9b718e6) |
 | Bugs encontrados | 1 (BUG-1 — flake pre-existente, nao desta feature) |
 | Retries necessarios | 0 |
 
