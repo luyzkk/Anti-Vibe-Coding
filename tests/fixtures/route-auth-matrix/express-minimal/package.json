@@ -1,0 +1,7 @@
+{
+  "name": "express-minimal",
+  "private": true,
+  "type": "module",
+  "dependencies": { "express": "^5.1.0" },
+  "devDependencies": { "typescript": "^5" }
+}

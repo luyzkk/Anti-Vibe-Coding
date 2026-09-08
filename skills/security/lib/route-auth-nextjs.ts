@@ -5,6 +5,9 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative, sep } from 'node:path'
 import type { BaseRead, CoverageAtBase, CoverageMap, CoverageRule, HttpMethod, Route, RouteAdapter } from './route-auth-matrix.types'
 import { isHttpMethod } from './route-auth-matrix.types'
+// 2026-09-06 (Luiz/dev): Plano 04 DP-3a — utilitarios de texto MOVIDOS para route-auth-heuristics.ts
+// (os tres adaptadores novos precisam deles). Comportamento identico; os 40 testes deste arquivo sao a rede.
+import { QUOTES, lineOf, readBalanced, splitTopLevel } from './route-auth-heuristics'
 
 const ROUTE_FILES = new Set(['route.ts', 'route.tsx'])
 const PAGE_FILES = new Set(['page.ts', 'page.tsx'])
@@ -37,12 +40,6 @@ export function toPublicPath(relDirPosix: string): string {
 // `export default` — silencio vira nota, nunca rota fantasma. A fase-04 avalia se o AST alcanca.
 const EXPORT_VERB_RE =
   /^export\s+(?:async\s+)?(?:function|const|let)\s+(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\b/gm
-
-function lineOf(source: string, index: number): number {
-  let line = 1
-  for (let i = 0; i < index; i += 1) if (source[i] === '\n') line += 1
-  return line
-}
 
 export function extractExportedMethods(source: string): Array<{ method: HttpMethod; line: number }> {
   const found: Array<{ method: HttpMethod; line: number }> = []
@@ -120,31 +117,6 @@ export function enumerateNextjsRoutes(targetDir: string): { routes: Route[]; not
 // Parser proprio de proposito: @typescript-eslint/parser nao resolve do cache do plugin
 // (GT-fase04-1) e arrastar o TypeScript inteiro para runtime seria desproporcional.
 // ---------------------------------------------------------------------------
-
-const QUOTES = new Set(["'", '"', '`'])
-
-/** Le do indice de um delimitador ate o par correspondente, pulando strings. `null` se desbalanceado. */
-function readBalanced(source: string, start: number, open: string, close: string): { body: string; end: number } | null {
-  let depth = 0
-  let quote: string | null = null
-  for (let i = start; i < source.length; i += 1) {
-    const ch = source[i]
-    if (ch === undefined) break
-    if (quote !== null) {
-      if (ch === '\\') i += 1
-      else if (ch === quote) quote = null
-      continue
-    }
-    if (QUOTES.has(ch)) { quote = ch; continue }
-    if (ch === '\\') { i += 1; continue }
-    if (ch === open) depth += 1
-    else if (ch === close) {
-      depth -= 1
-      if (depth === 0) return { body: source.slice(start + 1, i), end: i + 1 }
-    }
-  }
-  return null
-}
 
 /**
  * Converte uma entrada de `config.matcher` em RegExp ancorada, no subset path-to-regexp v6 que o
@@ -318,30 +290,6 @@ export function parseMatcherConfig(source: string, file: string): CoverageRule[]
   }
 
   return rules
-}
-
-/** Separa elementos de array/objeto por virgula de topo, ignorando aninhamento e strings. */
-function splitTopLevel(body: string): string[] {
-  const parts: string[] = []
-  let depth = 0
-  let quote: string | null = null
-  let start = 0
-  for (let i = 0; i < body.length; i += 1) {
-    const ch = body[i]
-    if (ch === undefined) break
-    if (quote !== null) {
-      if (ch === '\\') i += 1
-      else if (ch === quote) quote = null
-      continue
-    }
-    if (QUOTES.has(ch)) { quote = ch; continue }
-    if (ch === '[' || ch === '{' || ch === '(') depth += 1
-    else if (ch === ']' || ch === '}' || ch === ')') depth -= 1
-    else if (ch === ',' && depth === 0) { parts.push(body.slice(start, i)); start = i + 1 }
-  }
-  const tail = body.slice(start)
-  if (tail.trim().length > 0) parts.push(tail)
-  return parts
 }
 
 /** Leitura do matcher — ainda o regex da fase-02, sem mudanca de comportamento. */

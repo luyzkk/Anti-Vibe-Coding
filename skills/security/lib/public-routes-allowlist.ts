@@ -6,6 +6,8 @@ import { join } from 'node:path'
 import type { AllowlistEntry, AllowlistFinding, AllowlistParseResult, RejectedEntry, Route } from './route-auth-matrix.types'
 import { isRecord } from './route-auth-matrix.types'
 
+const REASON_REQUIRED = 'reason ausente ou vazio — toda rota publica precisa de justificativa (PRD RF-02)'
+
 // Raiz do projeto auditado, nao `.anti-vibe/` — que e gitignored (.gitignore:62) e tornaria a
 // declaracao invisivel ao review (PRD Decisao 7).
 export const PUBLIC_ROUTES_FILE = 'anti-vibe.public-routes.json'
@@ -46,11 +48,14 @@ export function isWideEntry(path: string): boolean {
 
 // `high`, nao `critical`: nenhuma rota foi comprovadamente exposta (as rotas sob a entrada continuam
 // no motor). Nao `medium`: amplitude e tentativa de desligar o check, pior que limite do adaptador.
-function wideFinding(path: string, file: string, line: number): AllowlistFinding {
+// 2026-09-06 (Luiz/dev): Plano 04 DP-7 — guarda a `reason` da candidata (se houver) para o motor poder
+// promove-la a entrada literal contra a enumeracao (G13 resolvido em promoteWideCandidates).
+function wideFinding(path: string, file: string, line: number, reason: string | undefined): AllowlistFinding {
   return {
     path, file, line,
     severity: 'high',
     description: `entrada ampla \`${path}\` cobriria mais de uma rota — declare cada rota publica individualmente`,
+    ...(reason !== undefined && reason.trim().length > 0 ? { reason: reason.trim() } : {}), // G4: nunca reason: undefined
   }
 }
 
@@ -63,10 +68,7 @@ const PATH_CHECKS: readonly EntryCheck[] = [
   { rejects: (e) => typeof e.path === 'string' && !e.path.startsWith('/'), reason: 'path precisa comecar com /' },
 ]
 const REASON_CHECKS: readonly EntryCheck[] = [
-  {
-    rejects: (e) => typeof e.reason !== 'string' || e.reason.trim().length === 0,
-    reason: 'reason ausente ou vazio — toda rota publica precisa de justificativa (PRD RF-02)',
-  },
+  { rejects: (e) => typeof e.reason !== 'string' || e.reason.trim().length === 0, reason: REASON_REQUIRED },
 ]
 
 const empty = (note: string): AllowlistParseResult => ({ entries: [], rejected: [], wide: [], notes: [note] })
@@ -106,7 +108,10 @@ export function parsePublicRoutes(source: string, file: string): AllowlistParseR
     const badPath = PATH_CHECKS.find((c) => c.rejects(record))
     if (badPath !== undefined) { reject(badPath.reason); continue }
     // amplitude ANTES de reason: `/api/*` sem reason e finding, nao recusa muda (AB-1 e o sinal mais forte)
-    if (path !== undefined && isWideEntry(path)) { wide.push(wideFinding(path, file, line)); continue }
+    if (path !== undefined && isWideEntry(path)) {
+      wide.push(wideFinding(path, file, line, typeof record.reason === 'string' ? record.reason : undefined))
+      continue
+    }
     const badReason = REASON_CHECKS.find((c) => c.rejects(record))
     if (badReason !== undefined) { reject(badReason.reason); continue }
     if (path !== undefined && accepted.has(normalizePath(path))) {
@@ -146,4 +151,33 @@ export function diffAllowlist(before: AllowlistEntry[], after: AllowlistEntry[])
   const beforeKeys = new Set(before.map(key))
   const afterKeys = new Set(after.map(key))
   return { added: after.filter((e) => !beforeKeys.has(key(e))), removed: before.filter((e) => !afterKeys.has(key(e))) }
+}
+
+/**
+ * 2026-09-06 (Luiz/dev): DP-7 / G13 do Plano 01 (Rails resolve). `:id` e literal no Rails e no
+ * Express: `/posts/:id` na allowlist e a declaracao de UMA rota enumerada, nao um curinga. A
+ * amplitude e decidida contra a enumeracao — o parser (acima) so marca candidatas; esta funcao
+ * decide. Rotas `unresolved` nao contam (path e texto-fonte, nao uma rota resolvida).
+ */
+export function promoteWideCandidates<T extends AllowlistParseResult>(parsed: T, routes: Route[]): T {
+  const enumerated = new Set(routes.filter((r) => r.unresolved === undefined).map((r) => normalizePath(r.path)))
+  const entries = [...parsed.entries]
+  const rejected = [...parsed.rejected]
+  const wide: AllowlistFinding[] = []
+  const notes = [...parsed.notes]
+
+  for (const candidate of parsed.wide) {
+    if (!enumerated.has(normalizePath(candidate.path))) {
+      wide.push({ ...candidate, description: `entrada ampla \`${candidate.path}\` nao corresponde a nenhuma rota enumerada — declare cada rota publica individualmente` })
+      continue
+    }
+    if (candidate.reason === undefined) {
+      rejected.push({ path: candidate.path, line: candidate.line, reason: REASON_REQUIRED })
+      continue
+    }
+    entries.push({ path: candidate.path, reason: candidate.reason, file: candidate.file, line: candidate.line })
+    notes.push(`${candidate.file}:${candidate.line}: entrada ampla ${candidate.path} promovida — declaracao literal de rota enumerada`)
+  }
+
+  return { ...parsed, entries, rejected, wide, notes }
 }
