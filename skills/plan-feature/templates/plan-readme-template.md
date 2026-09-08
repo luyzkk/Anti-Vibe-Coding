@@ -64,13 +64,10 @@ fase-02 ({nome})     fase-03 ({nome})
 
 ## TDD Strategy
 
-```
-Ciclo por fase:
-1. RED: escrever teste que falha (assertion failure, nao compilation error)
-2. GREEN: codigo minimo que faz o teste passar
-3. REFACTOR: otimizar mantendo testes verdes
-4. VERIFY: bun run test && bun run lint
-```
+Ciclo por fase: `skills/tdd-workflow/SKILL.md`, secao **Contrato do Ciclo por Fase** (tipo da fase ×
+RED / GREEN / RED-check / REFACTOR / gate humano). Este README nao redefine o ciclo; o bloco `### TDD`
+de cada fase e o consumidor. Registrar aqui so o que e ESPECIFICO deste plano (comandos de teste do
+repo, gate de hook, fixtures) — nunca uma copia da tabela.
 
 **Tracer Bullet deste plano:** {fase-01 se for Plano 01, ou "N/A" se nao for o primeiro}
 
