@@ -2,7 +2,7 @@
 
 **Feature:** Contrato Unico do Ciclo TDD por Fase
 **Iniciado:** 2026-09-08
-**Status:** em andamento (fase-01 concluida, 1/3)
+**Status:** em andamento (fases 01 e 02 concluidas, 2/3)
 
 ---
 
@@ -32,6 +32,21 @@ Formato: o que foi decidido + por que + impacto.
     ele copiou texto ja aprovado no planejamento em vez de reinterpretar requisito.
   - Impacto: vale para toda fase cujo alvo e markdown de skill/template. Fase de codigo mantem o
     isolamento estrito do 4c.
+
+- **DI-4 (fase-02): REFACTOR = `sem refactor`, e o motivo nao e "nao achei nada".** O doc da fase
+  nomeava dois candidatos concretos. Foram os dois olhados:
+  - `prose()` e `section()` com responsabilidades misturadas? **Nao.** `section()` extrai (rastreando
+    fences), `prose()` filtra (tira fence e comentario HTML). A composicao ja esta extraida em
+    `const tdd = () => prose(section(template, '### TDD'))`, usada por todas as assercoes do describe.
+  - Mensagens repetem o mesmo preambulo? **Repetem** — `[parity gate ... — RF-xx]` em 10 mensagens.
+    Decidido **nao** extrair um helper: essas mensagens existem para serem lidas na integra quando o
+    teste cai, e indirecao ali troca legibilidade no momento da falha por DRY no momento da leitura do
+    codigo. Duplicar prefixo de mensagem de erro em teste e o caso em que duplicacao ganha.
+  - **Observacao aberta para a fase-03:** o preambulo esta inconsistente — 5 mensagens dizem
+    `[parity gate "nunca diminuir" — ...]` e 5 dizem `[parity gate — ...]`, sem criterio evidente. Nao
+    normalizei porque o texto veio literal do doc da fase e a fidelidade ao spec acabou de ser
+    verificada por `diff`. A fase-03 acrescenta mensagens novas: **decidir la** qual das duas formas e a
+    canonica e uniformizar de uma vez, num commit `refactor(tests)` proprio.
 
 ---
 
@@ -94,6 +109,24 @@ Apenas gotchas que NAO eram obvios antes de implementar.
   - Descoberto em: fase-01. Vale para as assercoes das fases 02 e 03: preferir regex ancorada a `includes`
     sempre que o alvo for um heading.
 
+- **GT-4: a previsao de pass/fail escrita no doc da fase errou — e esse e o ponto do G9.** O Passo 1 da
+  fase-02 dizia que no RED "o teste da fase-01 sobre a skill continua pass; o `**REFACTOR:**` do
+  `test.each` continua pass; todo o resto fail". O real foi **4 pass / 9 fail**: passaram tambem
+  `**RED:**` e `**GREEN:**`, porque o template ja os tinha antes desta feature. O planejador contou os
+  checkboxes que a fase-01 acrescentou e esqueceu os que ja existiam.
+  - Consequencia pratica: numero previsto em doc de fase e chute, inclusive quando parece aritmetica
+    simples. O que vale e a contagem literal do comando e **quais** testes caem.
+  - Descoberto em: fase-02. O subagente reportou a divergencia em vez de mexer no teste para "bater com
+    o previsto" — que era exatamente a tentacao.
+
+- **GT-5: o fence do doc da fase-02 e aninhado, e extracao ingenua trunca o bloco.** O Passo 2 esta
+  dentro de um fence ```` ```markdown ```` (linha 180) que contem OUTRO fence — o "Exemplo preenchido"
+  (linhas 219-227). Um `awk`/`sed` de "do ```markdown ate o proximo ```" para na linha 219 e entrega
+  meio bloco. Os intervalos corretos sao **181-227** (Passo 2) e **239-244** (Passo 3), passados ao
+  subagente como numeros de linha.
+  - Vale para a fase-03 e para o Plano 02: antes de mandar um subagente "copiar o bloco da fase",
+    rodar `grep -n '^```' <doc>` e conferir se ha aninhamento.
+
 ---
 
 ## Desvios do Plano
@@ -127,10 +160,11 @@ Se nada mudou, manter vazio (bom sinal).
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 3 |
-| Fases concluidas | 1 |
+| Fases concluidas | 2 |
 | Fases com desvio | 1 (DEV-1 cosmetico; DEV-2 corrigido em 9b718e6) |
 | Bugs encontrados | 1 (BUG-1 — flake pre-existente, nao desta feature) |
 | Retries necessarios | 0 |
+| RED-checks executados | 8 (3 na fase-01, 5 na fase-02) — todos passaram |
 
 ### Evidencia do ciclo — fase-01
 
@@ -146,6 +180,24 @@ Se nada mudou, manter vazio (bom sinal).
 | Suite | `bun run test` → lote 1 `1440 pass / 0 fail` (175 arquivos), lote 2 `706 pass / 0 fail` (107), exit 0. Baseline da branch antes da fase: `1450 + 694 = 2144` em 281 arquivos; agora `2146` em 282 — delta = o arquivo novo e suas 2 assercoes (a fronteira dos lotes moveu 10 testes do lote 1 para o 2). |
 | Outras verificacoes | `bun run typecheck` exit 0. `bun run harness:validate` → `28 required files, 397 markdown files checked`. `universal-principles.test.ts` `15 pass` (G11). `stack-aware-preface-wire.test.ts` `3 pass` (G6). `grep -c "^## Contrato do Ciclo por Fase"` → `1`. |
 
+### Evidencia do ciclo — fase-02
+
+| Etapa | Evidencia literal |
+|---|---|
+| RED | `4 pass / 9 fail`, todas as 9 por assertion. Passaram: o teste da RF-01 e os checkboxes `**RED:**`, `**GREEN:**`, `**REFACTOR:**` (o template ja os tinha). Divergiu da previsao do doc da fase — ver **GT-4**. Commit `971e462`. |
+| Gate humano | `skipped` — gate por nivel so a partir do Plano 02 fase-01. |
+| GREEN | `13 pass / 0 fail`. Commit `0f83336` (2 templates + manifest). Fidelidade conferida pelo orquestrador: `diff` do bloco entregue contra as linhas 181-227 e 239-244 do doc da fase → **IDENTICO** nos dois (licao DEV-2 aplicada). |
+| RED-check (1) — **o que prova o `prose()`** | Defesa: apagada a linha `  - Defesa a mutar: {...}` do checkbox. **A string `Defesa a mutar:` continuou no arquivo**, na linha 134, dentro do fence do exemplo — e o teste caiu assim mesmo. Caiu so `o RED-check carrega o campo "Defesa a mutar:" (D6)` (`12 pass, 1 fail`). E a prova por mutacao de que a assercao le a prosa e nao o exemplo (G5/DP-2); sem ela, "13 pass" nao distinguiria as duas coisas. |
+| RED-check (2) | Defesa: apagada a linha `- [ ] **RED-check:** ...` (subitens mantidos). Caiu so `o bloco mantem o checkbox **RED-check:**`. `12 pass, 1 fail`. |
+| RED-check (3) | Defesa: apagada a linha `**Tipo de fase:** {...}`. Caiu so `o bloco declara o tipo da fase com as tres opcoes (D5)`. `12 pass, 1 fail`. |
+| RED-check (4) | Defesa: apagado o comentario HTML do topo do bloco (4 linhas). Caiu so `o bloco aponta para a secao-fonte na skill tdd-workflow (CA-03)`. `12 pass, 1 fail`. |
+| RED-check (5) | Defesa: trocado `` `skills/tdd-workflow/SKILL.md` `` por "a skill de TDD" no paragrafo de `## TDD Strategy` do README-template. Caiu so `plan-readme-template — §TDD Strategy aponta para a fonte (D1)`. `12 pass, 1 fail`. |
+| Restauracao | `git restore <arquivo>` apos cada uma; `git diff --stat` e `git status --short` vazios entre as cinco; teste de volta a `13 pass / 0 fail` ao final. |
+| REFACTOR | `sem refactor` — motivo real em **DI-4**, com uma observacao deixada aberta para a fase-03. |
+| Suite | `bun run test` → lote 1 `1451 pass / 0 fail`, lote 2 `706 pass / 0 fail` = **2157 pass, 0 fail**, 282 arquivos, exit 0. Delta desde a fase-01 (2146) = **+11**, exatamente as 11 assercoes novas. |
+| Manifest | 2 checksums alterados (`fase-template.md`, `plan-readme-template.md`), **zero** `lastModified` de arquivo nao tocado — o drift do GT-1 ja tinha assentado na fase-01. |
+| Outras verificacoes | `typecheck` exit 0; `harness:validate` ok; `universal-principles.test.ts` `15 pass` (G11); `grep -c '^\*\*Tipo de fase:\*\*'` → `1`; `grep -c 'Defesa a mutar:'` → `2` (checkbox + exemplo); `### Seguranca`/`OPCIONAL`/`### Checklist` presentes; `bun run lint` sumiu do README-template; a linha `**Tracer Bullet deste plano:**` sobreviveu (75 → 72). |
+
 ---
 
 ## Notas para Planos Seguintes
@@ -158,12 +210,26 @@ O subagente do proximo plano le este campo.
   heading, nunca por numero de linha — as fases 02 e 03 ainda mexem no arquivo.
 - Ela **ja declara** `--tdd-level` e o Step 4c do `execute-plan` como consumidores (DI-1/DP-4). O Plano 02
   implementa os dois; nao precisa reescrever a secao, so cumprir o que ela promete.
-- O bloco `### TDD` do `fase-template.md` tem hoje **RED, GREEN e REFACTOR**. `Tipo de fase`,
-  `Defesa a mutar` e `Teste que deve cair` chegam na fase-02 — o Plano 02 fase-02 depende desses nomes
-  de campo.
-- `tests/fase-template-tdd-contract.test.ts` existe com 2 assercoes e os helpers `read` (strip de CRLF)
-  e `section()` generalizado por nivel de heading (DP-1). As fases 02 e 03 e o Plano 02 **acrescentam**
-  assercoes neste mesmo arquivo — nunca criam outro.
+- O bloco `### TDD` do `fase-template.md` esta **completo** desde a fase-02: `**Tipo de fase:**
+  {comportamento | risco | sem-comportamento}` (linha de campo, nao checkbox — o Plano 02 fase-01 le
+  esse valor para decidir o gate humano; manter o formato literal), os quatro checkboxes `**RED:**`,
+  `**GREEN:**`, `**RED-check:**`, `**REFACTOR:**`, os subitens `- Defesa a mutar:` e
+  `- Teste que deve cair:` (os dois campos que o Step 4c le para mutar), a variante
+  `sem-comportamento` com gate textual, um exemplo preenchido em fence e o comentario HTML apontando
+  para a fonte.
+- `plan-readme-template.md` §TDD Strategy virou ponteiro de um paragrafo — a terceira copia do ciclo
+  morreu. Restam as copias que o **Plano 02** ataca: `execute-plan/references/wave-execution.md`
+  §Ciclo Completo e o Step 4c.
+- `tests/fase-template-tdd-contract.test.ts` tem **13 assercoes** e os helpers `read` (strip de CRLF),
+  `section()` generalizado por nivel (DP-1) e `prose()` (tira fence e comentario HTML, DP-2). As fases
+  seguintes e o Plano 02 **acrescentam** assercoes neste mesmo arquivo — nunca criam outro.
+  - **Regra que o RED-check (1) da fase-02 provou na pratica:** assercao de contrato roda sobre
+    `prose(section(...))`; assercao sobre ponteiro em comentario HTML roda sobre o corpo cru. Se uma
+    assercao continuar verde com o checkbox apagado, ela esta lendo o exemplo — nao alargue a regex,
+    aplique `prose()`.
+  - Ver **GT-5** antes de mandar um subagente copiar bloco de doc de fase: o fence pode ser aninhado.
+  - Ver **DI-4**: ha uma inconsistencia de preambulo nas mensagens (`[parity gate "nunca diminuir" — ]`
+    vs `[parity gate — ]`, 5 e 5) deixada de proposito para a fase-03 uniformizar.
 - Ver **GT-1** antes de conferir o manifest (o `git diff --stat` mente; compare checksums) e **GT-2**
   antes de limpar residuo de teste (`rm -rf` e bloqueado; mova).
 - Se a suite vier vermelha em `harness-validate advanced` / E2E `legacy-v5` / `grep-deleted-steps`, leia
