@@ -62,6 +62,8 @@ function section(doc: string, startsWith: string): string {
 const prose = (body: string) => body.replace(/```[\s\S]*?```/g, '').replace(/<!--[\s\S]*?-->/g, '')
 
 const readme = read('skills/plan-feature/templates/plan-readme-template.md')
+const executor = read('agents/plan-executor.md')
+const planFeature = read('skills/plan-feature/SKILL.md')
 
 describe('tdd-workflow — a fonte unica do ciclo (RF-01)', () => {
   // Ancorado em inicio de linha: `includes('## Contrato do Ciclo por Fase')` casaria com uma mencao em
@@ -172,6 +174,71 @@ describe('plan-readme-template — §TDD Strategy aponta para a fonte (D1)', () 
       `[parity gate — D1] "## TDD Strategy" de plan-readme-template.md nao aponta para ` +
         `skills/tdd-workflow/SKILL.md "Contrato do Ciclo por Fase" (ou o bloco sumiu — section() devolve ''). ` +
         `Era a terceira copia do ciclo (PLAN.md §Risks); copia que fica e a divergencia que este PRD existe para acabar.`,
+    ).toBe(true)
+  })
+})
+
+describe('plan-executor — §TDD aponta para a fonte e incorpora os compounds (RF-06)', () => {
+  const tdd = () => prose(section(executor, '## TDD no Ciclo Red-Green-Refactor'))
+
+  test('a secao cita a secao-fonte pelo caminho (CA-03, D1)', () => {
+    const body = tdd()
+    expect(
+      body.includes('skills/tdd-workflow/SKILL.md') && body.includes('Contrato do Ciclo por Fase'),
+      `[parity gate — RF-06 / CA-03] "## TDD no Ciclo Red-Green-Refactor" de agents/plan-executor.md nao ` +
+        `aponta para skills/tdd-workflow/SKILL.md "Contrato do Ciclo por Fase" (ou a secao sumiu — ` +
+        `section() devolve ''). O executor e consumidor do ciclo, nao a segunda definicao dele.`,
+    ).toBe(true)
+  })
+
+  test.each([
+    [/stub/i, 'stub-first: o RED falha por assertion, nunca por Cannot find module (compound 2026-05-19)'],
+    [/nasce verde/i, 'teste que nasce verde exige mutacao no mesmo passo (compound 2026-09-06)'],
+    [/defesa-implementada/, 'o executor nomeia em payload.checks[] a defesa que o orquestrador vai mutar (D3)'],
+  ])('a secao mantem a regra %s', (re, why) => {
+    expect(
+      re.test(tdd()),
+      `[parity gate "nunca diminuir" — RF-06] Sumiu da secao TDD do plan-executor: ${why}. ` +
+        `Ate esta feature isso vivia so em docs/compound/ — e compound nao e prompt. Restaure o texto.`,
+    ).toBe(true)
+  })
+
+  test('o REFACTOR e commit proprio, separado do feat (D4, CA-08)', () => {
+    const refactor = prose(section(executor, '### REFACTOR'))
+    expect(
+      refactor.length > 0 && /commit/i.test(refactor) && /refactor\(/.test(refactor),
+      `[parity gate — RF-06 / D4 / CA-08] A subsecao "### REFACTOR" do plan-executor nao exige commit ` +
+        `refactor(...) proprio (ou sumiu). D4: o mesmo subagente GREEN refatora como segundo passo, em ` +
+        `commit separado — refactor escondido no feat(...) e o que "Refactor Fica no Ciclo" chama de ` +
+        `problema de granularidade de commit.`,
+    ).toBe(true)
+  })
+})
+
+describe('plan-feature — Step 9 obriga a nomear a defesa e proibe prever a mensagem (RF-07)', () => {
+  // 2026-09-08 (Luiz/dev): corpo CRU, sem prose() — as regras do Step 9 vivem DENTRO de um fence
+  // (skills/plan-feature/SKILL.md:747-757). prose() as apagaria e o teste passaria/reprovaria pelo
+  // motivo errado — inverso do G5 (DP-2 / G12 do Plano 01). PRD tdd-cycle-contract §RF-07
+  const regras = () => section(planFeature, '### Regras do subagente de planejamento')
+
+  test.each([
+    ['Defesa a mutar', 'qual linha/condicao o orquestrador remove ou inverte'],
+    ['Teste que deve cair', 'qual teste tem de falhar com a defesa removida'],
+  ])('as regras exigem preencher "%s" em fase de comportamento ou risco', (campo, why) => {
+    expect(
+      regras().includes(campo),
+      `[parity gate — RF-07 / D6] "${campo}" ausente das regras do subagente de planejamento (Step 9 do ` +
+        `plan-feature) — ${why}. O template pede o campo (fase-02), mas quem o preenche e o planejador: ` +
+        `sem a regra ele volta a escrever RED/GREEN e parar.`,
+    ).toBe(true)
+  })
+
+  test('as regras proibem prever a mensagem de erro (D6)', () => {
+    expect(
+      /prever a mensagem/i.test(regras()),
+      `[parity gate — RF-07 / D6] Sumiu do Step 9 a proibicao de prever a mensagem de erro do RED. ` +
+        `Numero e mensagem previstos sao chute; em tres ocasioes o real divergiu e o incentivo era ` +
+        `reportar o previsto (compound 2026-09-06). O planejador nomeia a assertion que quebra.`,
     ).toBe(true)
   })
 })
