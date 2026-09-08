@@ -1,0 +1,6 @@
+# 2026-09-06 (Luiz/dev): fixture CA-08 Python/FastAPI — pyproject faz detectStack devolver 'python'.
+[project]
+name = "python-fastapi-minimal"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = ["fastapi>=0.110"]
