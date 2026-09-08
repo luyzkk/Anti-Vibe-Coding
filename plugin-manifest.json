@@ -1,6 +1,6 @@
 {
   "version": "7.7.0",
-  "generatedAt": "2026-09-07T12:19:40.174Z",
+  "generatedAt": "2026-09-08T19:48:22.579Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -512,7 +512,7 @@
     "agents/security-auditor.md": {
       "version": "7.7.0",
       "checksum": "2f9e9098ed6c33731aae148b491a372ab0afbcf72193276ef705a7c4724736a4",
-      "lastModified": "2026-09-07",
+      "lastModified": "2026-09-08",
       "updateStrategy": "replace"
     },
     "agents/solid-auditor.md": {
@@ -2431,8 +2431,8 @@
     },
     "skills/plan-feature/templates/fase-template.md": {
       "version": "7.7.0",
-      "checksum": "9dfa88763f3a25fb60865f1ada6e03d94415495494aa88fcc30506dafc5a5052",
-      "lastModified": "2026-09-01",
+      "checksum": "77a3fa6eac4ee5c8743c4243acbbf1a1d66f9df0235e6cb484a61289833a6b02",
+      "lastModified": "2026-09-08",
       "updateStrategy": "replace"
     },
     "skills/plan-feature/templates/memory-prd-template.md": {
@@ -2612,55 +2612,55 @@
     "skills/security/lib/public-routes-allowlist.ts": {
       "version": "7.7.0",
       "checksum": "9fe91913d7587c430c6b1d22d9f56896e5603f2a0edd275166fc06d53cc6f665",
-      "lastModified": "2026-09-06",
+      "lastModified": "2026-09-08",
       "updateStrategy": "replace"
     },
     "skills/security/lib/route-auth-adapters.ts": {
       "version": "7.7.0",
       "checksum": "6b4b76ee182c3b689f52de1e6afea897dd0ccb9a5495b4b606affe0142660529",
-      "lastModified": "2026-09-07",
+      "lastModified": "2026-09-08",
       "updateStrategy": "replace"
     },
     "skills/security/lib/route-auth-express.ts": {
       "version": "7.7.0",
       "checksum": "2c7f1b6ed85162b4b19422ba0d76700e6a79bdd83e727ea41f328921ed673654",
-      "lastModified": "2026-09-06",
+      "lastModified": "2026-09-08",
       "updateStrategy": "replace"
     },
     "skills/security/lib/route-auth-heuristics.ts": {
       "version": "7.7.0",
       "checksum": "f31bf0b3c5c9b3422f9c6ea66857e2a5cc56cfe4c84d1f02bea3c6b6e1a240d9",
-      "lastModified": "2026-09-07",
+      "lastModified": "2026-09-08",
       "updateStrategy": "replace"
     },
     "skills/security/lib/route-auth-matrix.ts": {
       "version": "7.7.0",
       "checksum": "52b56d7dff95228d1fac4112588cc652d593e5ca8cf70ff939b2a7defe727c96",
-      "lastModified": "2026-09-07",
+      "lastModified": "2026-09-08",
       "updateStrategy": "replace"
     },
     "skills/security/lib/route-auth-matrix.types.ts": {
       "version": "7.7.0",
       "checksum": "353e359603e8447f3d8c7c2712ec7dd88ac6b8c3e5256684215926ff1886952c",
-      "lastModified": "2026-09-06",
+      "lastModified": "2026-09-08",
       "updateStrategy": "replace"
     },
     "skills/security/lib/route-auth-nextjs.ts": {
       "version": "7.7.0",
       "checksum": "53f6708501c3a7e20fe209ecbc723283e41fc0a5fa8994c4d6fcf0d1089deef5",
-      "lastModified": "2026-09-06",
+      "lastModified": "2026-09-08",
       "updateStrategy": "replace"
     },
     "skills/security/lib/route-auth-python.ts": {
       "version": "7.7.0",
       "checksum": "9dbf5969001132fe64589141cb262e3652163f19ad920c15b74a16ebc9049a3a",
-      "lastModified": "2026-09-07",
+      "lastModified": "2026-09-08",
       "updateStrategy": "replace"
     },
     "skills/security/lib/route-auth-rails.ts": {
       "version": "7.7.0",
       "checksum": "9bc2b318f20867fd5ea0c69be49423d2a7c48b381b9c2f24cfafe57c837b3d6f",
-      "lastModified": "2026-09-07",
+      "lastModified": "2026-09-08",
       "updateStrategy": "replace"
     },
     "skills/security/lib/security-prefaces.ts": {
@@ -2785,8 +2785,8 @@
     },
     "skills/tdd-workflow/SKILL.md": {
       "version": "7.7.0",
-      "checksum": "fd2a573e3e27834e2454ec0295e64937d07a6c9d88022511eba186637302786f",
-      "lastModified": "2026-09-01",
+      "checksum": "393ba9521b71a8bc4c18b56c40ae8cc2190369331ecd49aff1b70209da0a1f54",
+      "lastModified": "2026-09-08",
       "updateStrategy": "replace"
     },
     "skills/tdd-workflow/references/deep-modules.md": {

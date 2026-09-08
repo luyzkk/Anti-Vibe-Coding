@@ -99,6 +99,11 @@ CREATE POLICY "users_own_notifications"
   - Comando: `bun run test -- --grep '{nome do teste}'`
   - Resultado esperado: `{N} passed, 0 failed`
 
+- [ ] **REFACTOR:** com os testes verdes, commit `refactor({escopo}): ...` proprio — ou registrar
+      `sem refactor: {motivo}` no MEMORY
+  - Comando: `bun run test`
+  - Resultado esperado: continua verde; `git log --oneline -3` mostra `refactor(...)` separado do `feat(...)`
+
 ### Seguranca (apenas fase de slice [RISCO])
 
 <!-- 2026-09-01 (Luiz/dev): criterio de seguranca first-class na fase — PRD §RF-06 -->
