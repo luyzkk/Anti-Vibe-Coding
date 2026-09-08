@@ -93,16 +93,16 @@ describe('fase-template — bloco "### TDD" (RF-02)', () => {
   const tdd = () => body(template, '### TDD')
 
   test('o bloco declara o tipo da fase com as tres opcoes (D5)', () => {
-    const body = tdd()
+    const texto = tdd()
     expect(
-      /^\*\*Tipo de fase:\*\*/m.test(body),
+      /^\*\*Tipo de fase:\*\*/m.test(texto),
       `[parity gate "nunca diminuir" — RF-02] Campo "**Tipo de fase:**" ausente do bloco "### TDD" de ` +
         `fase-template.md. E o tipo que decide a variante do ciclo (Contrato do Ciclo por Fase): sem ele ` +
         `o orquestrador nao sabe onde parar para o humano nem que forma o RED-check toma.`,
     ).toBe(true)
     for (const tipo of ['comportamento', 'risco', 'sem-comportamento']) {
       expect(
-        body.includes(tipo),
+        texto.includes(tipo),
         `[parity gate "nunca diminuir" — RF-02 / D5] Tipo de fase "${tipo}" sumiu do bloco "### TDD". ` +
           `Os tres tipos sao o contrato: 189 de 443 fases nao tinham RED porque "doc/config" ficava fora ` +
           `do ciclo — "sem-comportamento" existe para que essas fases tenham gate textual falsificavel.`,
@@ -177,9 +177,9 @@ describe('fase-template — bloco "### TDD" (RF-02)', () => {
 
 describe('plan-readme-template — §TDD Strategy aponta para a fonte (D1)', () => {
   test('o bloco existe e cita a secao-fonte pelo caminho', () => {
-    const body = section(readme, '## TDD Strategy')
+    const secao = section(readme, '## TDD Strategy')
     expect(
-      body.includes('skills/tdd-workflow/SKILL.md') && body.includes('Contrato do Ciclo por Fase'),
+      secao.includes('skills/tdd-workflow/SKILL.md') && secao.includes('Contrato do Ciclo por Fase'),
       `[parity gate "nunca diminuir" — D1] "## TDD Strategy" de plan-readme-template.md nao aponta para ` +
         `skills/tdd-workflow/SKILL.md "Contrato do Ciclo por Fase" (ou o bloco sumiu — section() devolve ''). ` +
         `Era a terceira copia do ciclo (PLAN.md §Risks); copia que fica e a divergencia que este PRD existe para acabar.`,
@@ -191,9 +191,9 @@ describe('plan-executor — §TDD aponta para a fonte e incorpora os compounds (
   const tdd = () => body(executor, '## TDD no Ciclo Red-Green-Refactor')
 
   test('a secao cita a secao-fonte pelo caminho (CA-03, D1)', () => {
-    const body = tdd()
+    const texto = tdd()
     expect(
-      body.includes('skills/tdd-workflow/SKILL.md') && body.includes('Contrato do Ciclo por Fase'),
+      texto.includes('skills/tdd-workflow/SKILL.md') && texto.includes('Contrato do Ciclo por Fase'),
       `[parity gate "nunca diminuir" — RF-06 / CA-03] "## TDD no Ciclo Red-Green-Refactor" de agents/plan-executor.md nao ` +
         `aponta para skills/tdd-workflow/SKILL.md "Contrato do Ciclo por Fase" (ou a secao sumiu — ` +
         `section() devolve ''). O executor e consumidor do ciclo, nao a segunda definicao dele.`,
