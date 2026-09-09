@@ -1,6 +1,6 @@
 {
   "version": "7.7.0",
-  "generatedAt": "2026-09-09T14:06:28.691Z",
+  "generatedAt": "2026-09-09T14:09:30.899Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -415,7 +415,7 @@
     },
     "hooks/tdd-gate-bash.cjs": {
       "version": "7.7.0",
-      "checksum": "9869b8f105463e99d0732e78e67c6a6cd3f121e1c5e1892d443fc4e9d8e7cfc7",
+      "checksum": "8457a9f9b969f0203692e30ce0f20e16ea6cf69fb5601fd5be615c3de5e620ab",
       "lastModified": "2026-09-09",
       "updateStrategy": "replace"
     },
