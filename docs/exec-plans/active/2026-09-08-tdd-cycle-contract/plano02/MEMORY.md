@@ -2,7 +2,7 @@
 
 **Feature:** Contrato Unico do Ciclo TDD por Fase
 **Iniciado:** 2026-09-08
-**Status:** em andamento (fases 01-03 concluidas; fase-04 com o Passo 1 feito e o RF-05 decidido (DI-8) — faltam as rodadas r2 e r3, que exigem sessao limpa no fixture)
+**Status:** em andamento (fases 01-03 concluidas; fase-04 com o Passo 1, o RF-05 (DI-8) e as rodadas r2/r3 (DI-9) feitos — falta a Premissa 1, que exige sessao limpa, e o SUMMARY)
 **Branch:** `feat/tdd-cycle-contract-plano02` (empilhada sobre `feat/tdd-cycle-contract`, que esta na PR #79)
 
 ---
@@ -148,14 +148,77 @@
   sobre a precisao dela. Se r2 e r3 mostrarem o verifier acima de 30% numa fase **maior** que o tracer
   bullet, o argumento cai e o RF-05 volta a mesa.
 
-- **Custo por fase no dogfood** — quadro exigido pelo Passo 5 do doc da fase-04:
+- **DI-9 (fase-04): r2 e r3 executadas — o mecanismo funciona, e o dogfood achou um TERCEIRO defeito no 4c.**
+  Rodadas feitas pelo orquestrador **desta** sessao, que antes de rodar leu o HANDOFF, este MEMORY e o
+  roteiro. **Contaminadas para a Premissa 1**, e pior que a r1 nisso: o roteiro lista o desfecho esperado de
+  cada rodada. Valem para o mecanico — a fase bloqueia? o `direto` pula o gate? o verifier roda? — e nao
+  valem como resposta a "o 4c como prompt muda o comportamento real". Isto esta dito aqui porque um log
+  sem a ressalva seria enganoso.
 
-  | Rodada / fase | tdd_level | Rodadas de teste | Spawns | Fatia do verifier |
-  |---|---|---|---|---|
-  | r1 / plano01-fase-01 | assistido | 8 (piso real 7) | 3 (RED, GREEN, verifier) | 25-33% |
-  | r2 / plano01-fase-01 | assistido | pendente | pendente | pendente |
-  | r3 / plano01-fase-01 | direto | pendente | pendente | pendente |
-  | r3 / plano01-fase-02 | direto | pendente | pendente | pendente |
+  **r2 — caso negativo. Fechou exatamente no esperado, CA-07 confirmado em runtime.**
+  A defesa nomeada pela fase e inserir `// mutacao-inofensiva` no topo de `src/sum.ts` — no-op semantico.
+  Aplicada, o teste `sums two numbers` **passou** (exit 0, `1 pass / 0 fail`). O orquestrador registrou
+  `red_check: fail`, restaurou o arquivo, deixou `git diff --stat -- src/sum.ts` vazio, marcou a fase
+  `blocked`, escreveu a DI "teste nao prova a defesa" no MEMORY do fixture e **nao iniciou a fase-02**
+  (`src/` ficou so com `sum.ts` e `sum.test.ts`). O `plan-verifier` devolveu `red-check-evidence: fail`
+  com verdict `block`. Premissa 2 revalidada: a linha com `red_confirmed: assertion` estava commitada
+  (`7870e70`) antes de o gate perguntar.
+
+  **r3 — `--tdd-level direto`. Fechou exatamente no esperado.**
+  O passo 0 resolveu `direto` do argumento; o passo 3 **nao parou em nenhuma das duas fases** — nem no
+  tracer bullet, nem na de risco `[RISCO: auth/authz]` com bloco `### Seguranca`. RED-check e verifier
+  rodaram nas duas, `red_check: pass` em ambas: `a + b` -> `a - b` derrubou `sums two numbers`
+  (`Expected: 5 / Received: -1`); remover `user.id === doc.ownerId` derrubou
+  `denies read when user is not the owner` (`Expected: false / Received: true`), o que confirma o CA-SEC-1
+  por mutacao. Suite final `3 pass / 0 fail`, `git diff --stat` vazio, sem residuo de mutacao.
+
+  **O defeito novo, reproduzido 3 vezes em 3 verificacoes: o passo 6 spawna o verifier ANTES de commitar
+  a linha do STATE.** O passo 6 manda o verifier RECEBER "a linha do STATE log desta fase" — que so fica
+  completa no passo 5 — mas a instrucao de commit e o **ultimo** bullet do passo 6, depois do spawn. Logo
+  o verifier le sempre uma linha que existe so na working tree. Nas tres verificacoes ele apontou isso
+  sozinho; nas duas da r3 com `verdict: request_changes` e severidade **high**, e na segunda delas ele
+  mesmo classificou como "recorrencia, nao incidente isolado".
+  - E a **mesma classe** do Defeito 2 do DI-7: evidencia que nao esta no historico quando alguem a le. O
+    DI-7 fez a evidencia chegar ao historico; nao fez chegar **antes do leitor**.
+  - Fix: mover o commit da linha do STATE para **antes** do spawn no passo 6, ou commitar no fim do passo 5.
+    **Volta para a fase-03 com RED proprio no teste de paridade** — nao se remenda o 4c dentro do dogfood
+    (foi assim que o DI-7 foi corrigido).
+
+  **Quatro lacunas menores do 4c, todas observadas rodando:**
+  | # | Lacuna | Evidencia |
+  |---|---|---|
+  | 1 | O 4c nao diz se o passo 6 roda quando `red_check: fail`. O passo 5 encerra com "fase blocked ... dev avisado no Step 5"; so a existencia do ramo `fail` do `red-check-evidence` no passo 6 permite inferir que sim | segui o ramo `fail`; um orquestrador que parasse no passo 5 tambem estaria seguindo o texto |
+  | 2 | O passo 6 so da mensagem de commit para o caminho feliz (`docs(state): fase-{NN} concluida`). Na r2 a fase estava **blocked**, nao concluida | usei `docs(state): fase-01 blocked — red_check fail` |
+  | 3 | `blocked` nao existe no vocabulario do STATE: o Step 2 define `Phase` como planned/in-progress/paused/completed e `Status` do plano como pending/in-progress/completed/paused | escrevi `blocked` na coluna Status assim mesmo, porque o 4c manda |
+  | 4 | Os checkboxes do bloco `### TDD` da fase nunca sao marcados — nem o 4c nem o `plan-executor.md` mandam | o verifier da r3 apontou como `medium`: "todas as 6 caixas desmarcadas apesar do trabalho verificavelmente completo" |
+
+  **Duas observacoes de vocabulario e de contagem:**
+  - `human_gate: stopped` e **ambiguo para o verifier**, que nao recebe o 4c. Na r2 ele leu `stopped` como
+    "fase parada aguardando decisao humana" e emitiu `task_complete: fail`. Nao mudou o desfecho ali
+    (o verdict ja era `block` pelo `red_check`), mas numa fase saudavel produziria um bloqueio falso.
+  - O `custo: testes={rodadas}` e escrito no passo 6, e o **Step 5 roda a suite depois** — a contagem
+    registrada sub-conta por pelo menos uma rodada, sempre.
+
+  **Uma confirmacao de que o passo 2 se paga:** o subagente RED da fase-02 da r3 devolveu so os caminhos
+  dos arquivos e o hash, sem as saidas literais que a instrucao pedia. O passo 2 (orquestrador roda o teste
+  ele mesmo) pegou o buraco sem depender do relato.
+
+- **Quadro "Custo por fase no dogfood" — atualizado com as tres fases das rodadas r2 e r3:**
+
+  | Rodada / fase | tdd_level | Rodadas de teste | Spawns | Verifier em rodadas | Verifier em spawns |
+  |---|---|---|---|---|---|
+  | r1 / fase-01 | assistido | 8 (piso real 7) | 3 | 2 de 8 = 25% | 1 de 3 = 33% |
+  | r2 / fase-01 | assistido | 6 | 3 | 1 de 6 = 17% | 1 de 3 = 33% |
+  | r3 / fase-01 | direto | 6 | 3 | 1 de 6 = 17% | 1 de 3 = 33% |
+  | r3 / fase-02 | direto | 9 | 3 | 2 de 9 = 22% | 1 de 3 = 33% |
+
+  **O que o quadro diz sobre o RF-05 (DI-8):** em rodadas de teste a fatia do verifier **caiu** de 25% para
+  17-22% conforme a fase cresceu — exatamente a forma que a DI-8 previu, custo fixo sobre denominador maior.
+  Em spawns ela fica presa em 33% porque toda fase aqui tem exatamente 3 spawns (RED, GREEN, verifier);
+  numa fase com retry ou com RED re-spawnado pelo gate, o denominador cresce e a fatia cai tambem.
+  **A ressalva da DI-8 continua de pe:** nenhuma das quatro fases medidas e maior que o tracer bullet de
+  forma significativa — a maior tem dois testes. O teste que a Premissa 4 realmente pede, uma fase de
+  tamanho real, ainda nao foi feito.
 
 ---
 
@@ -217,6 +280,19 @@ Nenhum bug de codigo nesta fase. O achado da DI-1 e um defeito de **teste**, nao
   (`[\s\S]{0,N}`) e **calcule** N — a distancia real entre as ancoras e a distancia ate o texto que pode
   resgatar a regex. Contar caractere a mao em texto com travessao e acento e chute.
 
+- **GT-7: num prompt que manda escrever e depois manda ler, a ORDEM dos bullets e o contrato.** O passo 6
+  do 4c manda o `plan-verifier` receber "a linha do STATE log desta fase" e, varios bullets depois, manda
+  commitar essa linha. Lendo de cima para baixo, o spawn acontece antes do commit — entao o verifier le
+  sempre uma linha que so existe na working tree. Reproduziu-se **3 vezes em 3 verificacoes** nas rodadas
+  r2 e r3, e o proprio verifier classificou como recorrencia na terceira.
+  - E a mesma classe do Defeito 2 do DI-7, um nivel acima: o DI-7 garantiu que a evidencia **chega** ao
+    historico; nao garantiu que chega **antes de quem a le**.
+  - A licao generaliza: sempre que um passo de prompt produz um artefato e um passo seguinte o consome,
+    conferir se a instrucao de **persistir** vem antes da instrucao de **consumir**. Nenhuma das 40
+    assercoes do gate de paridade pega isso — todas provam que o texto existe, nenhuma prova em que ordem.
+  - Como pegar sem rodar: listar os bullets do passo na ordem de execucao e perguntar, para cada artefato
+    citado no RECEBE, qual bullet anterior o deixou duravel.
+
 ---
 
 ## Desvios do Plano
@@ -247,7 +323,9 @@ Nenhum bug de codigo nesta fase. O achado da DI-1 e um defeito de **teste**, nao
 | Assercoes no gate de paridade | 21 → 27 → 32 → 36 → **40** |
 | Suite | 2165 → 2171 → 2176 → 2180 → **2184 pass, 0 fail** |
 | Defesas no RED-check (regressao completa) | **19**, todas caindo pelo teste nomeado |
-| Defeitos achados so pelo dogfood | **2** (DI-7) — invisiveis a 36 assertions e a 3 RED-checks por fase |
+| Defeitos achados so pelo dogfood | **3** — 2 na r1 (DI-7) e 1 nas r2/r3 (DI-9, ordem do passo 6). Nenhum visivel as 40 assercoes nem aos RED-checks por fase |
+| Rodadas de dogfood executadas | **3** (r1 fase-01; r2 fase-01; r3 fase-01 e fase-02) — todas contaminadas para a Premissa 1 |
+| Lacunas menores do 4c registradas | **4** (DI-9): passo 6 apos `red_check: fail`; mensagem de commit so do caminho feliz; `blocked` fora do vocabulario do STATE; checkboxes da fase nunca marcados |
 
 ### Evidencia do ciclo — fase-01
 
