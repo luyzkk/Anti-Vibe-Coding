@@ -258,10 +258,9 @@ describe('plan-feature — Step 9 obriga a nomear a defesa e proibe prever a men
 // O 4c e um bloco cercado de pseudo-codigo: prose() o apagaria. section() cru, de proposito.
 const executePlan = read('skills/execute-plan/SKILL.md')
 const waveExecution = read('skills/execute-plan/references/wave-execution.md')
+const step4c = section(executePlan, '### 4c.')
 
 describe('execute-plan — Step 4c resolve o nivel, confirma o RED e para no gate (RF-03 parte 1, RF-08)', () => {
-  const step4c = section(executePlan, '### 4c.')
-
   test('4c aponta para a secao-fonte do ciclo', () => {
     expect(
       step4c,
@@ -345,8 +344,6 @@ describe('execute-plan — Step 4c resolve o nivel, confirma o RED e para no gat
 
 // 2026-09-08 (Luiz/dev): RED-check por mutacao e REFACTOR no 4c — PRD tdd-cycle-contract §RF-03, D3, D4.
 describe('execute-plan — Step 4c prova a defesa por mutacao e exige REFACTOR (RF-03 parte 2)', () => {
-  const step4c = section(executePlan, '### 4c.')
-
   test('4c le Defesa a mutar e Teste que deve cair da fase (D6)', () => {
     expect(step4c, '[parity gate "nunca diminuir" — CA-06] 4c nao le "Defesa a mutar"').toContain('Defesa a mutar')
     expect(step4c, '[parity gate "nunca diminuir" — CA-06] 4c nao le "Teste que deve cair"').toContain('Teste que deve cair')
@@ -405,8 +402,6 @@ describe('execute-plan — Step 4c prova a defesa por mutacao e exige REFACTOR (
 const planVerifier = read('agents/plan-verifier.md')
 
 describe('execute-plan — VERIFY por fase e STATE log (RF-05, observabilidade)', () => {
-  const step4c = section(executePlan, '### 4c.')
-
   test('plan-verifier confere red-check-evidence no checklist e no exemplo de output (CA-10)', () => {
     const checklist = section(planVerifier, '## Checklist de Verificacao')
     expect(
