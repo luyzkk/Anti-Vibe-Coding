@@ -61,7 +61,7 @@ palavra. Ou o planejador acertou tudo, ou alguem copiou. Pedir a saida literal d
 
 ## Affected files
 
-- `docs/exec-plans/active/2026-09-02-route-auth-matrix-audit/plano03/MEMORY.md`
+- `docs/exec-plans/completed/2026-09-02-route-auth-matrix-audit/plano03/MEMORY.md`
   (DEV-fase01-1; DI-fase01-2, DI-fase02-1, DI-fase03-1) — PR #76
 - Padrao aplicavel a toda fase gerada por `/anti-vibe-coding:plan-feature` com secao "RED-check do orquestrador"
 - Nota irma: [2026-09-06-import-novo-em-teste-existente-derruba-o-modulo.md](./2026-09-06-import-novo-em-teste-existente-derruba-o-modulo.md)

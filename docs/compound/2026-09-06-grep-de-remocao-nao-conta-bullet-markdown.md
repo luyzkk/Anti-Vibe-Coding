@@ -68,8 +68,8 @@ zero matches). Mesma familia: `grep` em pipeline de verificacao tem mais arestas
 
 ## Affected files
 
-- Checklist de `docs/exec-plans/active/2026-09-02-route-auth-matrix-audit/plano03/fase-02-delta-e-veredito-cobertura-perdida.md`
+- Checklist de `docs/exec-plans/completed/2026-09-02-route-auth-matrix-audit/plano03/fase-02-delta-e-veredito-cobertura-perdida.md`
   (item G13) — o padrao defeituoso
-- Descoberto em: `docs/exec-plans/active/2026-09-02-route-auth-matrix-audit/plano03/MEMORY.md`
+- Descoberto em: `docs/exec-plans/completed/2026-09-02-route-auth-matrix-audit/plano03/MEMORY.md`
   (GT-fase02-diff-bullet) — PR #76
 - Nota irma: [2026-09-06-a-defesa-so-esta-provada-pela-mutacao.md](./2026-09-06-a-defesa-so-esta-provada-pela-mutacao.md)

@@ -62,6 +62,6 @@ se nao quebra, os dois estados sao decorativos.
 
 - `skills/security/lib/route-auth-matrix.types.ts` (`BaseRead`, `CoverageAtBase`, `isCoverageUnavailable`)
 - `skills/security/lib/route-auth-nextjs.ts` (`readNextjsCoverageAtBase`: os tres ramos)
-- Decidido em: `docs/exec-plans/active/2026-09-02-route-auth-matrix-audit/plano02/MEMORY.md` (DEV-plan-2,
+- Decidido em: `docs/exec-plans/completed/2026-09-02-route-auth-matrix-audit/plano02/MEMORY.md` (DEV-plan-2,
   refinamento da DP-11) — PR #75; consumido pelo Plano 03 (DP-6) — PR #76
 - Nota irma: [2026-09-06-git-cat-file-rev-path-e-mensagem-de-erro.md](./2026-09-06-git-cat-file-rev-path-e-mensagem-de-erro.md)

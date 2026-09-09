@@ -73,6 +73,6 @@ o unico jeito de descobrir que a defesa nunca foi testada. Ver
 
 - `skills/security/lib/route-auth-express.ts` (`secondaryRouters`; fix no commit `4dc7ae2`)
 - `skills/security/lib/route-auth-python.ts` (nota por dialeto nao implementado, estado intermediario)
-- Descoberto em: `docs/exec-plans/active/2026-09-02-route-auth-matrix-audit/plano04/MEMORY.md`
+- Descoberto em: `docs/exec-plans/completed/2026-09-02-route-auth-matrix-audit/plano04/MEMORY.md`
   (BUG-fase02-1 e GT-fase03-2) — PR #77
-- Fecha o RF-04/RF-09 do PRD: `docs/exec-plans/active/2026-09-02-route-auth-matrix-audit/SUMMARY.md`
+- Fecha o RF-04/RF-09 do PRD: `docs/exec-plans/completed/2026-09-02-route-auth-matrix-audit/SUMMARY.md`
