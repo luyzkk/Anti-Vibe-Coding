@@ -107,7 +107,7 @@ de testes por ciclo (rejeitado: o hook vê arquivos, não testes), e o bug do
 | 4 | 2026-09-09 | GREEN + mutação | 11/11 no arquivo; 6 mutações derrubaram exatamente o teste nomeado (mensagem, palavra `orquestrador`, catch do Write\|Edit, catch do Bash, raiz no gate, walk-up da lib), restauração provada por `diff` em cada uma. Suíte 2215 pass / 0 fail na re-rodada; typecheck zero |
 | 5 | 2026-09-09 | passou, com achado | Gate de paridade de 43 para 51 assertions. RED com as 8 novas falhando. A varredura linha a linha do 4c (GT-5) pegou uma assertion **vacua minha**: `/ARMAR ANCORA/` casa dentro de `DESARMAR ANCORA`, então apagar a linha do armar deixava o gate verde. Corrigida para `/- ARMAR ANCORA/` e provada por mutação: apagar a linha derruba o teste, restauração conferida |
 | 6 | 2026-09-09 | passou, com achado | Pre-commit reescrito em `hooks/pre-commit-suite.cjs` com a decisão em `lib/precommit-decision.cjs` (4 testes RED → 6 verdes). Provado nas duas direções por payload real: fase RED libera em 0,13s sem rodar a suíte; sem âncora roda a suíte e sai 0 em 31s; com a suíte quebrada sai 2 nomeando o teste que caiu. **Achado:** o hook chamava `bun run lint`, script inexistente — se ele tivesse voltado a funcionar como estava, todo commit do repo passaria a ser bloqueado. Chave `code_review` somada ao verify-work |
-| 7 | | | |
+| 7 | 2026-09-09 | passou | Suíte 2231 pass / 0 fail, typecheck zero, harness (28 obrigatórios, 398 markdowns) e compound (72 notas) passando. Sync feito; 13 arquivos idênticos entre cache e checkout. Provado por payload real contra o hook **do cache**: mensagem da âncora sem instrução de bypass e citando o orquestrador, falha aberta emitindo o motivo, pre-commit liberando a fase RED em 106ms. Toda chave do config tem leitor fora do objeto de defaults |
 
 ## Compound Opportunity
 
@@ -122,16 +122,31 @@ mensagem de erro de um mecanismo de disciplina não pode conter a instrução qu
 
 ## Lessons Captured
 
-_A preencher ao fechar o plano._
+Tres, e as tres vieram da execucao, nao da revisao:
+
+1. **A varredura linha a linha achou uma assertion vacua minha.** `/ARMAR ANCORA/` casa dentro de
+   `DESARMAR ANCORA`, entao apagar a instrucao de armar deixava o gate verde. Eu tinha acabado de
+   escrever a assertion e de reler o texto; so a mutacao pegou. Confirma o GT-1 num caso novo:
+   contar ocorrencias do token antes de confiar num matcher, inclusive quando um token e
+   **prefixo** de outro.
+2. **O conserto obvio do pre-commit teria bloqueado todo commit do repo**, porque ele chamava um
+   script de lint inexistente e o erro de script ausente cairia no mesmo ramo de "a suite
+   reprovou". Regra que fica: num gate, "reprovou" e "nao pode rodar" nunca compartilham ramo.
+3. **Config morta e mentira que falha abrindo**, e por isso nunca e descoberta pelo uso. O sinal
+   detectavel e barato: chave que aparece uma unica vez no codigo, dentro do objeto de defaults,
+   nao tem leitor.
+
+Captura duravel em `docs/compound/` **pendente**: o gate de compound engineering pede que o humano
+rode `/anti-vibe-coding:lessons-learned` — a skill nao e auto-invocavel.
 
 ## Exit Criteria
 
-- [ ] Nenhuma chave de `config/tdd-gate.json` aparece uma única vez no código (teste de fumaça:
+- [x] Nenhuma chave de `config/tdd-gate.json` aparece uma única vez no código (teste de fumaça:
       toda chave tem leitor real).
-- [ ] `grep -rin "ai judge"` retorna zero em `skills/`, `config/`, `hooks/` e `docs/PIPELINE.md`.
-- [ ] A âncora é armada e desarmada pelo Step 4c, e o gate de paridade falha se a instrução sair.
-- [ ] A mensagem de bloqueio não contém instrução de editar o arquivo da âncora.
-- [ ] Erro inesperado no hook emite diagnóstico antes de permitir.
-- [ ] O pre-commit foi provado nas duas direções: bloqueia fora do RED, libera dentro.
-- [ ] Suíte verde, typecheck zero, harness válido, cache sincronizado e provado por mutação.
-- [ ] Documentação descreve a âncora como algo que torna o desvio visível, nunca como enforcement.
+- [x] `grep -rin "ai judge"` retorna zero em `skills/`, `config/`, `hooks/` e `docs/PIPELINE.md`.
+- [x] A âncora é armada e desarmada pelo Step 4c, e o gate de paridade falha se a instrução sair.
+- [x] A mensagem de bloqueio não contém instrução de editar o arquivo da âncora.
+- [x] Erro inesperado no hook emite diagnóstico antes de permitir.
+- [x] O pre-commit foi provado nas duas direções: bloqueia fora do RED, libera dentro.
+- [x] Suíte verde, typecheck zero, harness válido, cache sincronizado e provado por mutação.
+- [x] Documentação descreve a âncora como algo que torna o desvio visível, nunca como enforcement.
