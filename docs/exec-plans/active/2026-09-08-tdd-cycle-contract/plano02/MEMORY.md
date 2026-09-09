@@ -2,7 +2,7 @@
 
 **Feature:** Contrato Unico do Ciclo TDD por Fase
 **Iniciado:** 2026-09-08
-**Status:** em andamento (fases 01 e 02 concluidas, 2/4)
+**Status:** em andamento (fases 01, 02 e 03 concluidas, 3/4 — falta so o dogfood da fase-04)
 **Branch:** `feat/tdd-cycle-contract-plano02` (empilhada sobre `feat/tdd-cycle-contract`, que esta na PR #79)
 
 ---
@@ -73,6 +73,23 @@
   - Re-provado por mutacao apos o refactor (DI-5 do Plano 01): tres mutacoes re-rodadas, incluindo a mais
     sutil (so `fase blocked;`), todas derrubando o teste certo.
 
+- **DI-6 (fase-03): o GREEN de uma fase deixou DUAS assercoes de uma fase ANTERIOR vacuas, em silencio.**
+  O maior achado desta feature depois do da fase-01, e de uma classe diferente.
+  - As tres fases do Plano 02 asserem sobre o **mesmo** bloco `### 4c.`. O GREEN da fase-03 acrescentou o
+    passo 6 e o formato da linha do STATE log — e com eles duas novas ocorrencias de tokens que assercoes
+    da **fase-02** ja usavam:
+    | assercao (fase-02) | regex | o que a resgatou | onde |
+    |---|---|---|---|
+    | CA-06 | `/git restore[\s\S]*?git diff --stat/` | `- Lista de arquivos tocados: saida de \`git diff --stat {HEAD-antes}..HEAD\`` | passo 6, RECEBE |
+    | CA-07 | `/red_check: fail[\s\S]*?blocked/` | `red_confirmed: {assertion\|blocked\|gate-textual}` | formato da linha do STATE log |
+  - As duas regexes estavam **corretas quando escritas** e passaram no RED-check da fase-02. O defeito e o
+    `[\s\S]*?` **sem limite**: ele atravessa o bloco inteiro, entao qualquer texto acrescentado depois pode
+    satisfazer o par. Fix (`8462fab`): `[\s\S]{0,120}`. A faixa valida foi **calculada**, nao chutada —
+    CA-06 aceita `18 <= N < 845`, CA-07 aceita `40 <= N < 426`; 120 esta na intersecao com folga dos dois lados.
+  - **Falha de processo minha, nao do plano:** no RED-check da fase-03 rodei so as 4 defesas que a fase-03
+    nomeia, e auditei so os tokens que a fase-03 assere. As duas quebras estavam em defesas da fase-02.
+    Ver **GT-5**.
+
 ---
 
 ## Bugs Descobertos
@@ -119,6 +136,20 @@ Nenhum bug de codigo nesta fase. O achado da DI-1 e um defeito de **teste**, nao
   conclusao (as duas ocorrencias estao na mesma linha, entao apagar a linha derruba as duas), mas a leitura
   ingenua do numero poderia ter escondido um vacuo.
 
+- **GT-5: quando varias fases asserem sobre o MESMO bloco, o RED-check de cada fase tem de re-rodar
+  TODAS as defesas do bloco — nao so as da fase corrente.** Foi assim que as duas quebras da DI-6
+  apareceram: rodei a regressao das 15 defesas das tres fases e duas nao caiam mais. Rodar so as 4 da
+  fase-03 teria fechado a fase com o gate mudo em dois pontos.
+  - O mesmo vale para a auditoria de multiplicidade (GT-1): auditar os tokens que **todas** as fases
+    asserem sobre o bloco, nao so os que a fase corrente introduz.
+  - Custo real: ~15 mutacoes, alguns minutos. Um loop de shell resolve
+    (`mutar → bun test | grep -c '^(fail)' → git restore <arquivo>`).
+
+- **GT-6: `[\s\S]*?` sem limite envelhece mal em bloco que cresce.** Nao-guloso nao significa "proximo":
+  ele vai ate onde precisar para casar. Em documento que fases posteriores ampliam, use limite explicito
+  (`[\s\S]{0,N}`) e **calcule** N — a distancia real entre as ancoras e a distancia ate o texto que pode
+  resgatar a regex. Contar caractere a mao em texto com travessao e acento e chute.
+
 ---
 
 ## Desvios do Plano
@@ -140,14 +171,14 @@ Nenhum bug de codigo nesta fase. O achado da DI-1 e um defeito de **teste**, nao
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 4 |
-| Fases concluidas | 2 |
+| Fases concluidas | 3 |
 | Fases com desvio | 1 (DEV-1, DEV-2) |
-| Bugs encontrados | 0 de codigo; 3 assercoes vacuas na fase-01 (DI-1/DI-2) + 2 evitadas na fase-02 (DI-4) |
+| Bugs encontrados | 0 de codigo; 3 assercoes vacuas na fase-01 (DI-1/DI-2), 2 evitadas na fase-02 (DI-4), 2 regredidas e consertadas na fase-03 (DI-6) |
 | Retries necessarios | 0 |
-| RED-checks executados | fase-01: 6 nomeados + 2 extras; fase-02: 4 nomeados + 1 extra + 3 re-provas pos-refactor |
-| RED-checks que FALHARAM na primeira passada | **3** (todos na fase-01; corrigidos e re-provados) |
-| Assercoes no gate de paridade | 21 → 27 → 32 |
-| Suite | 2165 → 2171 → **2176 pass, 0 fail** |
+| RED-checks executados | fase-01: 6+2; fase-02: 4+1+3 re-provas; fase-03: 4 nomeados + 3 re-provas + **regressao completa das 15 defesas, 2x** |
+| RED-checks que FALHARAM | **5** — 3 na fase-01 (assercoes nascidas vacuas), 2 na fase-03 (assercoes da fase-02 regredidas pelo GREEN da fase-03). Todos corrigidos e re-provados. |
+| Assercoes no gate de paridade | 21 → 27 → 32 → 36 |
+| Suite | 2165 → 2171 → 2176 → **2180 pass, 0 fail** |
 
 ### Evidencia do ciclo — fase-01
 
@@ -187,23 +218,48 @@ Nenhum bug de codigo nesta fase. O achado da DI-1 e um defeito de **teste**, nao
 | Manifest | 1 checksum (`skills/execute-plan/SKILL.md`), zero `lastModified` de arquivo nao tocado. |
 | Outras verificacoes | `stack-aware-preface-all-skills.test.ts` `14 pass` (G17); `harness:validate` ok; `typecheck` exit 0; `fase-{NN}-defesa-implementada` do passo 5 confere com `agents/plan-executor.md:99`. |
 
+### Evidencia do ciclo — fase-03
+
+| Etapa | Evidencia literal |
+|---|---|
+| Auditoria PRE-RED | Todos os tokens que a fase-03 assere estavam em **0** nas secoes-alvo. Ressalva: auditei so os tokens DESTA fase — insuficiente, ver **GT-5**. |
+| RED | `33 pass / 3 fail` — tres, nao quatro: `plan-verifier continua read-only (D3)` **nasceu verde** (a Regra 4 ja existia). Commit `b74dfbf`. |
+| Teste nascido verde | Mutado no mesmo passo, como `agents/plan-executor.md` §RED manda: apagada a Regra 4 do verifier → o teste caiu → restaurado → diff vazio. Re-provado tambem pelo orquestrador. |
+| GREEN | `36 pass / 0 fail`; `agents:contract` `39 pass` (G7). Commit `11a65cf`: passo 6 VERIFY no 4c (RECEBE / NAO RECEBE / DEVOLVE) + formato da linha do STATE log; Step 5 com lint condicional, os 4 campos do ciclo, o custo e o item de bloqueio; verifier ganha o item 8, as duas linhas de exemplo JSON e o §Composition corrigido. |
+| §Composition | A linha dizia "etapa Step 5 pos-fase — verificacao automatica apos cada fase" e **ninguem spawnava o verifier** (PRD §Problema). Agora diz "Step 4c passo VERIFY — spawn por fase, apos o RED-check do orquestrador". A mentira acabou junto com a causa. |
+| RED-check (4 nomeados) | Todos `pass`, `35 pass / 1 fail`, so o teste nomeado: item 8 do checklist; `unable_to_verify` no item 8; `red-check-evidence` no 4c; `Custo da fase` no Step 5. |
+| **Regressao completa** | Rodadas as **15** defesas das tres fases. **Duas nao caiam mais** (DI-6). Apos o fix `8462fab`, segunda rodada completa: **15/15 caem**. |
+| REFACTOR | Commit `4d41fc0` — `step4c` icado para o modulo (era recalculado 3x, uma por describe). Re-provado por 3 mutacoes, e foi essa re-prova que expos a DI-6. |
+| Criterio humano | Lido o 4c inteiro: cada campo do STATE log tem um passo que o escreve — `tdd_level` no 0, `red_confirmed` no 2, `human_gate` no 3, `refactor` no 4, `red_check` no 5, `custo` no 6. |
+| Suite | `2180 pass, 0 fail`, 282 arquivos, exit 0. Delta desde a fase-02 (2176) = **+4**. Houve **um falso vermelho** antes: `compound-check (skeleton)` com `EPERM` no fixture, 5750ms — mesma familia do BUG-1 do Plano 01; passa isolado em 956ms e a suite ficou verde na re-rodada. |
+| Escopo | `plan-verifier.md`: 4 hunks, frontmatter (1-7) e a Regra 4 Read-only fora do diff; `red-check-evidence` 3x (item 8 + dois exemplos). `SKILL.md`: **zero linha removida dos passos 0-5 do 4c** (DP-1). |
+| Manifest | 2 checksums (`agents/plan-verifier.md`, `skills/execute-plan/SKILL.md`), zero drift. |
+
 ---
 
 ## Notas para Planos Seguintes
 
-Ultimo plano — estas notas sao para as fases 02, 03 e 04 deste mesmo plano.
+Ultimo plano — estas notas sao para a **fase-04** (dogfood) e para quem retomar a feature.
 
-- **O bloco `### 4c.` tem hoje os passos 0 a 5** (`### 4c.` na 419; `Se a fase NAO tem bloco ### TDD` na
-  500). A fase-03 escreve o **6 (VERIFY)**, logo apos o passo 5 e antes dessa linha. Cada fase so
-  ACRESCENTA (DP-1) — nao reescrever o que ja esta la, senao o diff do commit deixa de ser o da fase.
-  Citar por passo, nao por numero de linha (GT-3).
-- **Antes de acrescentar assercao sobre o 4c, rode a auditoria do GT-1.** As fases 02 e 03 vao introduzir
-  tokens novos (`red_check`, `Defesa a mutar`, `git restore`, `plan-verifier`, `red-check-evidence`) num
-  bloco que ja e grande — a chance de um token repetir e alta, e o vacuo e silencioso.
-- **Escreva a assercao ancorada no par condicao → desfecho desde o inicio**, nao no token solto. E mais
-  barato que descobrir no RED-check.
-- **Aplique "teste que nasce verde exige mutacao no mesmo passo" na escrita do RED**, nao so no RED-check
-  do orquestrador. Nesta fase os tres vacuos existiam desde o commit do RED e sobreviveram ao GREEN.
+- **O ciclo esta escrito e guardado; falta prova de runtime.** O bloco `### 4c.` tem os passos **0 a 6**
+  completos, e cada campo do STATE log tem um passo que o escreve. Mas tudo isso e **prompt**: 36
+  assercoes provam o TEXTO, nenhuma prova que um orquestrador real executa o ciclo. E exatamente o que a
+  fase-04 existe para descobrir, e por isso o criterio dela e humano.
+- **A fase-04 comeca por `scripts/sync-to-global.sh`.** Ate o sync, o cache do plugin serve a versao
+  velha e nada disto vale em sessao (G1 do Plano 01, PRD Premissa 5). O fixture roda em `F:\tmp\` com git
+  proprio (G23) e nada dele entra neste repo.
+- **Se a fase-04 acrescentar assercao ao gate, rode a regressao completa das 15 defesas** (GT-5), nao so
+  as novas. Duas ja regrediram em silencio nesta feature.
+- Citar por passo, nao por numero de linha (GT-3 — sete previsoes de numero erradas ate agora).
+
+### Se alguem for editar o bloco `### 4c.` de novo
+
+1. Auditar a multiplicidade de **todos** os tokens que **qualquer** assercao le desse bloco (GT-1), nao so
+   os que voce vai introduzir.
+2. Escrever assercao nova ja ancorada no par condicao → desfecho, com `[\s\S]` **limitado** e N calculado
+   (GT-6).
+3. Depois do GREEN, re-rodar as **15** defesas (GT-5). Um loop de shell resolve.
+4. Teste que nasce verde: mutar no mesmo passo, nao esperar o RED-check.
 - `section(executePlan, '### 4c.')` **cru**, nunca `body()`/`prose()` — o 4c e um bloco cercado (G16).
   `argument-hint` vive no frontmatter: assercao no arquivo cru (G21).
 - Fidelidade de conteudo se confere com `git diff`, nao com `diff`/`cmp` (GT-2, CRLF).
