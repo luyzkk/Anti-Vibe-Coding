@@ -4,7 +4,7 @@ Plugin Claude Code para desenvolvimento disciplinado. Substitui "vibe coding" po
 
 Baseado na metodologia Anti-Vibe Coding (Fabio Akita / XP) e em 60+ princípios técnicos extraídos de referências sêniores.
 
-**Versão atual:** 7.7.0
+**Versão atual:** 7.8.0
 
 ---
 
@@ -53,7 +53,7 @@ A partir daí, todas as skills `/anti-vibe-coding:*` ficam disponíveis em qualq
 /anti-vibe-coding:sync
 ```
 
-Mostra a versão do plugin global e força invalidação de cache. Deve reportar `v7.7.0`.
+Mostra a versão do plugin global e força invalidação de cache. Deve reportar `v7.8.0`.
 
 ---
 
