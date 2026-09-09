@@ -1,7 +1,7 @@
 # State: Contrato Único do Ciclo TDD por Fase
 
 **Plan:** ./PLAN.md
-**Phase:** in-progress
+**Phase:** in-progress (codigo entregue e mergeado; fase-04 parcial — Premissa 1 em aberto)
 **Current Plan:** 02/2
 **Last Updated:** 2026-09-08
 
@@ -10,11 +10,11 @@
 | Plano | Nome | Fases | Done | Status |
 |-------|------|-------|------|--------|
 | 01 | Fonte e contrato | 3 | 3/3 | completed |
-| 02 | O ciclo roda no execute-plan | 4 | 3/4 | in-progress |
+| 02 | O ciclo roda no execute-plan | 4 | 3/4 | in-progress (fase-04 parcial) |
 
 ## Progress Global
 
-Fases done: 6/7 (86%)
+Fases done: 6/7 (86%) — a fase-04 esta parcial, nao bloqueada
 
 ## Log do Ciclo TDD por Fase
 
@@ -67,3 +67,4 @@ aqui já é preenchido à mão para não perder a evidência da fase.
 - 2026-09-09: **Achado do DI-9 CORRIGIDO, com RED próprio na fase-03 — não remendado dentro do dogfood.** RED `6739798` (`40 pass / 3 fail`, as três por assertion, zero regressão nas 40): o passo 5 commita a linha do STATE antes de spawnar o passo 6; o passo 6 declara que a linha já chega commitada; o commit do passo 5 nomeia o caminho `pass` e o caminho `blocked`. GREEN `aece622` (`43 pass / 0 fail`): duas mudanças aditivas, zero linha removida dos passos 0–4 (DP-1). Auditoria GT-1 rodada **antes** do RED — `docs(state)` já aparecia 2x no bloco e `blocked` 4x, então um `toContain` de qualquer um dos dois nasceria vácuo; duas assertions ancoram por linha e a terceira é acoplada com limite `{0,60}` calculado (distância real entre âncoras: 20 caracteres). Os 3 RED-checks nomeados passaram, `42 pass / 1 fail` cada, diff vazio após cada restauração. REFACTOR `none` com motivo. Suite `2187 pass, 0 fail` (delta +3), typecheck exit 0, harness ok, manifest com 1 checksum e zero drift.
 - 2026-09-09: **A regressão do GT-5 virou varredura, e o resultado é mais forte que a lista.** Em vez de re-rodar as 19 defesas nomeadas, apaguei uma linha por vez das 118 do bloco `### 4c.`, rodando o teste de paridade a cada deleção com `git restore` entre elas. Das **16** assertions cujo corpo lê `step4c`, **as 16 caem por pelo menos uma deleção** — nenhuma vácua. A lista prova que as defesas que você lembrou de mutar estão guardadas; a varredura prova que nenhuma assertion do bloco sobrevive a toda deleção. Custo: um script de ~15 linhas e ~4 minutos. Registrado como parte do DI-10, com a ressalva de que a primeira leitura do resultado acusou 7 falsos positivos por erro do meu próprio enumerador — GT-3 vale também para número que a minha ferramenta produz.
 - 2026-09-09: **Cache do plugin re-sincronizado após o fix do DI-10**, com ciclo de gate textual. RED: antes do sync o cache tinha `ANTES de spawnar o passo 6` **0** e `ja commitada no passo 5` **0**, e `git diff --no-index` contra o checkout acusava 7 deleções — exatamente o GREEN do `aece622` faltando. GREEN: `scripts/sync-to-global.sh` exit 0, os dois marcadores foram a **1** e o `git diff --no-index` ficou vazio nos cinco arquivos-chave. Re-auditoria de multiplicidade no bloco 4c depois do GREEN, registrada na DI-10 para quem editar o bloco a seguir: `docs(state)` passou de 2 para **4**, `blocked` de 4 para **5**, `red_check` **10**. A contagem de ontem não vale amanhã (GT-1).
+- 2026-09-09: **SUMMARY escrito** em `SUMMARY.md`, com o status honesto: código entregue e mergeado nas PRs #79 e #80, seis das sete fases done, e a **Premissa 1 do PRD em aberto**. O plano NÃO foi movido para `docs/exec-plans/completed/` — a fase-04 está parcial, e mover agora diria que a feature está provada quando ela está apenas entregue. Números do SUMMARY conferidos contra as fontes antes de escrever (PRD, MEMORY dos dois planos): 189 de 443 fases sem RED, gate de 2 para 43 assertions, suite 2144 → 2187, 13 RED-checks no Plano 01, 5 RED-checks falhos, 3 defeitos achados só pelo dogfood.
