@@ -73,6 +73,33 @@
   - Re-provado por mutacao apos o refactor (DI-5 do Plano 01): tres mutacoes re-rodadas, incluindo a mais
     sutil (so `fase blocked;`), todas derrubando o teste certo.
 
+- **DI-7: o dogfood achou dois defeitos no 4c, e os dois eram invisiveis por leitura.** Achados rodando a
+  fase-01 num fixture real; corrigidos com RED proprio (`be474af`) e GREEN (`8c6cf6e`).
+
+  **Defeito 1 — a pre-condicao do passo 5 era inatingivel.** O passo 2 manda gravar a linha do STATE log
+  ANTES do gate (DP-5/G22, para nao perder o RED). O STATE log vive **dentro do repo do projeto**. Entao,
+  quando o passo 5 exigia `git diff --stat` vazio antes de mutar, a arvore sempre tinha o STATE modificado.
+  Observado literalmente no fixture: `docs/exec-plans/.../STATE.md | 1 +` no momento exato da pre-condicao.
+  Um orquestrador que seguisse o texto ao pe da letra travaria — ou ignoraria a pre-condicao, que e pior,
+  porque ela existe para detectar residuo de mutacao.
+  - Fix: escopar ao arquivo da defesa — `git diff --stat -- {arquivo}`, na pre-condicao e na prova
+    pos-restauracao. E o que de fato importa: que a mutacao e a unica mudanca naquele arquivo e que o
+    restore devolveu exatamente o GREEN. A verificacao de arvore inteira era larga demais.
+
+  **Defeito 2 — a evidencia do `red_check` nunca entrava no historico.** Quem apontou foi o **proprio
+  `plan-verifier`** da rodada: a atualizacao do STATE estava uncommitted, entao a unica prova do RED-check
+  morava na working tree. O 4c escrevia no STATE e nunca mandava commitar.
+  - Fix: passos 2 e 6 passam a mandar commitar, com prefixo `docs(state)`. O commit do passo 2 tambem
+    **limpa a arvore para a pre-condicao do passo 5** — os dois defeitos tinham a mesma raiz.
+
+  **Por que isto e o argumento da feature inteira:** os dois passaram por escrita, revisao, 36 assertions de
+  paridade e tres RED-checks por fase. Nenhum apareceu. So apareceram quando o ciclo **rodou**. Gate de
+  paridade prova texto; dogfood prova execucao — e o PRD estava certo em exigir os dois.
+
+  **Regressao apos o fix:** as **19** defesas (15 antigas + 4 novas) foram re-rodadas e todas derrubam o
+  teste nomeado (GT-5). A `F2-d1` agora derruba 2 testes: a assertion antiga e a nova guardam a mesma linha
+  por angulos diferentes.
+
 - **DI-6 (fase-03): o GREEN de uma fase deixou DUAS assercoes de uma fase ANTERIOR vacuas, em silencio.**
   O maior achado desta feature depois do da fase-01, e de uma classe diferente.
   - As tres fases do Plano 02 asserem sobre o **mesmo** bloco `### 4c.`. O GREEN da fase-03 acrescentou o
@@ -177,8 +204,10 @@ Nenhum bug de codigo nesta fase. O achado da DI-1 e um defeito de **teste**, nao
 | Retries necessarios | 0 |
 | RED-checks executados | fase-01: 6+2; fase-02: 4+1+3 re-provas; fase-03: 4 nomeados + 3 re-provas + **regressao completa das 15 defesas, 2x** |
 | RED-checks que FALHARAM | **5** — 3 na fase-01 (assercoes nascidas vacuas), 2 na fase-03 (assercoes da fase-02 regredidas pelo GREEN da fase-03). Todos corrigidos e re-provados. |
-| Assercoes no gate de paridade | 21 → 27 → 32 → 36 |
-| Suite | 2165 → 2171 → 2176 → **2180 pass, 0 fail** |
+| Assercoes no gate de paridade | 21 → 27 → 32 → 36 → **40** |
+| Suite | 2165 → 2171 → 2176 → 2180 → **2184 pass, 0 fail** |
+| Defesas no RED-check (regressao completa) | **19**, todas caindo pelo teste nomeado |
+| Defeitos achados so pelo dogfood | **2** (DI-7) — invisiveis a 36 assertions e a 3 RED-checks por fase |
 
 ### Evidencia do ciclo — fase-01
 
@@ -250,6 +279,31 @@ Tipo de fase: **sem-comportamento** — gate textual, e o RED-check e "remover o
 
 **O que isto NAO prova:** que o orquestrador executa o ciclo. Prova apenas que o texto novo chegou onde o
 runtime le. As tres rodadas (r1/r2/r3) e que respondem as Premissas 1, 2 e 4.
+
+### Rodada r1, fase-01 — executada, e achou dois defeitos no 4c
+
+Rodada feita pelo orquestrador desta sessao (nao por sessao limpa). **Contaminada para a Premissa 1** — quem
+rodou escreveu o 4c e sabia as respostas. Vale para o que e mecanico: Premissa 2, Premissa 4, e se o texto e
+executavel. Isso esta dito aqui porque um log sem essa ressalva seria enganoso.
+
+Linha produzida no STATE do fixture:
+`- 2026-09-09: plano01/fase-01 — tdd_level: assistido | red_confirmed: assertion | human_gate: stopped | red_check: pass (defesa: src/sum.ts a + b -> a - b, teste: sums two numbers) | refactor: none (funcao de 1 linha, nada a extrair) | custo: testes=8 spawns=3`
+
+**O que funcionou:** nivel resolveu para Assistido (sem `--tdd-level`, sem `user_profile` no fixture); o passo 2
+classificou `error: not implemented` como `assertion` (zero marcadores de modulo, exit 1); o gate **parou** no
+tracer bullet; o RED-check mutou `a + b` → `a - b`, o teste nomeado caiu, `git restore src/sum.ts` devolveu o
+GREEN e o diff ficou vazio; o `plan-verifier` devolveu **`red-check-evidence: pass`** e o envelope parseou sem
+tocar no 4d (**CA-10 confirmado em runtime**).
+
+**Premissa 2 — VALIDADA.** A linha com `red_confirmed: assertion` ja estava no STATE quando o gate perguntou;
+conferido abrindo o arquivo antes de responder. Um abort ali nao perderia o RED.
+
+**Premissa 4 — MEDIDA.** 8 rodadas de teste, 3 spawns (RED, GREEN, verifier). Duas das 8 foram ineficiencia do
+proprio orquestrador (rodou o teste duas vezes no passo 2), entao o piso real e ~7. O `plan-verifier` sozinho:
+1 spawn + 2 rodadas — **~25-30% do custo da fase**, em cima do limiar que o PRD usa para reconsiderar se o RF-05
+fica sempre ligado ou so por nivel. Decisao do dev; nao desta fase.
+
+**Premissa 1 — NAO respondida** por esta rodada (contaminacao). Precisa de sessao limpa.
 
 **Sessao ja aberta continua com o texto velho.** O sync termina com "Reinicie o Claude Code para carregar as
 mudancas": a skill entra no contexto no inicio da sessao. Cada rodada do dogfood precisa de sessao NOVA, com
