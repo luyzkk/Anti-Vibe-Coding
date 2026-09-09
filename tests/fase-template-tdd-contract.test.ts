@@ -441,3 +441,55 @@ describe('execute-plan — VERIFY por fase e STATE log (RF-05, observabilidade)'
     expect(step5, '[parity gate "nunca diminuir" — Performance] Step 5 nao mostra o custo da fase (rodadas de teste, spawns)').toMatch(/[Cc]usto/)
   })
 })
+
+// 2026-09-09 (Luiz/dev): achado do dogfood da fase-04 — PRD tdd-cycle-contract §RF-03, Observabilidade
+describe('execute-plan — Step 4c: evidencia no historico e diff escopado (achado do dogfood)', () => {
+  test('a pre-condicao do passo 5 escopa o diff ao arquivo da defesa (CA-06)', () => {
+    expect(
+      step4c,
+      `[parity gate "nunca diminuir" — CA-06] A pre-condicao do passo 5 ("Pre-condicao: ... \`git diff ` +
+        `--stat\` vazio ANTES de mutar") nao esta escopada ao arquivo da defesa com \`--\`. Sem o escopo a ` +
+        `pre-condicao e inatingivel: o passo 2 grava a linha do STATE log ANTES do gate, entao a arvore do ` +
+        `repo do projeto sempre tem o STATE modificado quando o passo 5 chega. O dogfood da fase-04 ` +
+        `(2026-09-09) travou nisso rodando num fixture real, com "docs/exec-plans/active/.../STATE.md | 1 ` +
+        `+" aparecendo no \`git diff --stat\` no momento exato da pre-condicao. Restaure o escopo ao ` +
+        `arquivo da defesa (\`git diff --stat -- {arquivo}\`), nao remova esta assercao.`,
+    ).toMatch(/Pre-condicao[^\n]*git diff --stat --/)
+  })
+
+  test('a exigencia pos-restauracao do passo 5 escopa o diff ao arquivo da defesa (CA-06)', () => {
+    expect(
+      step4c,
+      `[parity gate "nunca diminuir" — CA-06] A exigencia pos-restauracao do passo 5 ("Exigir \`git diff ` +
+        `--stat\` vazio") nao esta escopada ao arquivo da defesa com \`--\`. Mesmo defeito da pre-condicao, ` +
+        `pelo lado da prova: sem o escopo, qualquer mudanca alheia na arvore — o STATE log gravado no ` +
+        `passo 2, por exemplo — reprova a exigencia mesmo com a mutacao corretamente restaurada. Achado ` +
+        `do mesmo dogfood da fase-04 (2026-09-09), rodando num fixture real. Restaure o escopo ao arquivo ` +
+        `da defesa (\`git diff --stat -- {arquivo}\`), nao remova esta assercao.`,
+    ).toMatch(/Exigir[^\n]*git diff --stat --/)
+  })
+
+  test('o passo 2 manda commitar a linha parcial do STATE log (Observabilidade)', () => {
+    expect(
+      step4c,
+      `[parity gate "nunca diminuir" — Observabilidade] O passo 2 grava a linha da fase no STATE log com ` +
+        `\`red_confirmed\` ANTES do gate mas nunca manda commitar (\`docs(state)\`). O plan-verifier do ` +
+        `dogfood da fase-04 (2026-09-09) apontou o defeito: a atualizacao do STATE ficava uncommitted, ` +
+        `entao a unica prova do RED-check morava na working tree — se a fase parasse no gate humano ou ` +
+        `fosse interrompida, a evidencia do red_confirmed nunca entrava no historico. Restaure o commit ` +
+        `\`docs(state)\` logo apos gravar a linha, nao remova esta assercao.`,
+    ).toMatch(/Gravar a linha da fase no STATE log[\s\S]{0,200}docs\(state\)/)
+  })
+
+  test('o passo 6 manda commitar a linha completa do STATE log (Observabilidade)', () => {
+    expect(
+      step4c,
+      `[parity gate "nunca diminuir" — Observabilidade] O passo 6 completa a linha do STATE log (custo: ` +
+        `testes/spawns) mas tambem nunca manda commitar (\`docs(state)\`). Mesmo defeito do passo 2, agora ` +
+        `no fechamento da fase — achado do dogfood da fase-04 (2026-09-09): a evidencia completa do ciclo ` +
+        `(red_confirmed, human_gate, red_check, refactor, custo) fica so na working tree, fora do ` +
+        `historico que o plan-verifier e um humano revisando depois inspecionam. Restaure o commit ` +
+        `\`docs(state)\` logo apos completar a linha, nao remova esta assercao.`,
+    ).toMatch(/Completar a linha do STATE log[\s\S]{0,200}docs\(state\)/)
+  })
+})
