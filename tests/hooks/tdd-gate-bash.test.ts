@@ -5,8 +5,10 @@
 //
 // O grupo que NAO pode falhar e o de comandos legitimos. Falso positivo aqui bloqueia trabalho
 // normal, e gate que atrapalha e desligado — o que devolveria o bypass de bandeja.
-import { describe, it, expect } from 'bun:test'
+import { describe, it, expect, beforeAll, afterAll } from 'bun:test'
 import { spawn } from 'node:child_process'
+import fs from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 
 const HOOK_PATH = path.join(import.meta.dir, '..', '..', 'hooks', 'tdd-gate-bash.cjs')
@@ -94,5 +96,43 @@ describe('custo: o hook roda em TODO comando Bash', () => {
   it('never exceeds the 5s safety timeout even when it has work to do', async () => {
     const r = await runGate('echo x > skills/security/lib/sem-teste-nenhum.ts')
     expect(r.ms).toBeLessThan(5000)
+  })
+})
+
+// 2026-09-09 (Luiz/dev): issue #82 — o gate resolvia o alvo contra o cwd da SESSAO.
+//
+// Estes dois testes sao um par: o primeiro prova que o falso positivo acabou, o segundo prova que
+// o conserto nao virou falso negativo. Sem o segundo, "deixar passar sempre" faria o primeiro
+// verde — e o gate existe justamente para nao ser mais barato contornar do que cumprir.
+//
+// O diretorio vai para os.tmpdir(), FORA do repo: fixture dentro de tests/ cai no SKIP_PATTERN
+// (`__fixtures__|fixtures`) e o gate nem olharia, entao o cenario nao seria exercitado.
+describe('caminho Bash: o cwd do COMANDO, nao o da sessao (issue #82)', () => {
+  let dir = ''
+
+  beforeAll(() => {
+    dir = fs.mkdtempSync(path.join(os.tmpdir(), 'avc-gate-cwd-'))
+    fs.mkdirSync(path.join(dir, 'src'), { recursive: true })
+    // com teste-irmao
+    fs.writeFileSync(path.join(dir, 'src', 'coberto.ts'), 'export const x = 1\n')
+    fs.writeFileSync(path.join(dir, 'src', 'coberto.test.ts'), 'test("x", () => {})\n')
+    // sem teste-irmao
+    fs.writeFileSync(path.join(dir, 'src', 'orfao.ts'), 'export const y = 1\n')
+  })
+
+  afterAll(() => {
+    try { fs.rmSync(dir, { recursive: true, force: true }) } catch { /* best effort */ }
+  })
+
+  it('allows a relative write after cd when the sibling test exists in THAT directory', async () => {
+    const r = await runGate(`cd ${dir} && echo x >> src/coberto.ts`)
+    expect(r.code).toBe(0)
+    expect(r.stderr).not.toContain('TDD GATE (bash)')
+  })
+
+  it('still blocks a relative write after cd when there is no sibling test there', async () => {
+    const r = await runGate(`cd ${dir} && echo x >> src/orfao.ts`)
+    expect(r.code).toBe(2)
+    expect(r.stderr).toContain('TDD GATE (bash)')
   })
 })
