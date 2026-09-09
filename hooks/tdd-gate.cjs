@@ -27,15 +27,14 @@ function block(reason)  {
 }
 
 function readConfig() {
+  // 2026-09-09 (Luiz/dev): ADR-0023 — toda chave aqui precisa ter leitor real neste arquivo.
+  // Chave que aparece so nos defaults e config morta: documenta comportamento que nao existe e
+  // falha ABRINDO, entao ninguem descobre pelo uso. Cinco sairam por isso; a lista nominal mora no
+  // ADR, e nao aqui, para nao envenenar busca por token neste arquivo.
   const defaults = {
     mode: 'regex',
-    suggest_ai_judge_threshold: 3,
-    max_tests_per_cycle: 1,
     immutable_test_patterns: ['*.test.*', '*.spec.*', '*.e2e.*'],
-    approach: 'outside-in',
-    block_test_modification_in_green: true,
-    require_assertion_failure: true,
-    judge_model: 'haiku'
+    block_test_modification_in_green: true
   };
   try {
     const configPath = path.join(__dirname, '..', 'config', 'tdd-gate.json');
@@ -94,9 +93,6 @@ function processInput() {
   try {
     const config = readConfig();
     if (config.mode === 'off') return allow();
-    if (config.mode === 'ai-judge') {
-      // TODO: task-05 implements real AI Judge — fall through to regex for now
-    }
 
     const input     = JSON.parse(rawInput || '{}');
     // PreToolUse sends { tool_input: { file_path: "..." } }
