@@ -52,7 +52,7 @@ Sao estados com consequencias opostas — em auditor de seguranca, "nao existe n
 ## Affected files
 
 - `skills/security/lib/route-auth-matrix.ts` (`readAtBaseFromGit`: merge-base → ls-tree → show)
-- Descoberta em: `docs/exec-plans/active/2026-09-02-route-auth-matrix-audit/plano02/MEMORY.md`
+- Descoberta em: `docs/exec-plans/completed/2026-09-02-route-auth-matrix-audit/plano02/MEMORY.md`
   (BUG-fase03-1, DI-fase03-1, DI-fase03-2) — Plano 02 fase-03, PR #75
 - Consumido pelo Plano 03 (G2) sem alteracao: PR #76
 - Nota irma: [2026-09-06-absent-nao-e-unavailable-leitura-de-tres-estados.md](./2026-09-06-absent-nao-e-unavailable-leitura-de-tres-estados.md)

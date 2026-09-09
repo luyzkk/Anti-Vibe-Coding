@@ -53,7 +53,7 @@ modo ESM) recusa o modulo inteiro por export ausente. O padrao de dois passos e 
 ## Affected files
 
 - `skills/security/lib/route-auth-matrix.test.ts`, `route-auth-nextjs.test.ts` (ordem dos passos nas 3 fases)
-- Descoberto em: `docs/exec-plans/active/2026-09-02-route-auth-matrix-audit/plano02/MEMORY.md`
+- Descoberto em: `docs/exec-plans/completed/2026-09-02-route-auth-matrix-audit/plano02/MEMORY.md`
   (GT-fase02-1, DI-fase02-1) — PR #75
 - Aplicado por desenho no Plano 03 (G5 do README): PR #76 — os 3 REDs saíram como previstos
 - Nota irma: [2026-09-06-a-defesa-so-esta-provada-pela-mutacao.md](./2026-09-06-a-defesa-so-esta-provada-pela-mutacao.md)

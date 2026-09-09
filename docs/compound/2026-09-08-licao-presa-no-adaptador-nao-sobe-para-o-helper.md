@@ -67,5 +67,5 @@ quer dizer verde onde roda de verdade.**
 - `skills/security/lib/route-auth-heuristics.ts` (`.sort()` em `splitByAuthName`; commit `42d16c8`)
 - `skills/security/lib/route-auth-rails.ts` — onde a licao tinha sido aprendida e ficado presa
 - Descoberto por: primeira execucao do CI no PR #77 (nao pela sessao de desenvolvimento)
-- Registrado em: `docs/exec-plans/active/2026-09-02-route-auth-matrix-audit/plano04/MEMORY.md`
+- Registrado em: `docs/exec-plans/completed/2026-09-02-route-auth-matrix-audit/plano04/MEMORY.md`
   (GT-fase05-2; a origem esta em DI-fase01-2)

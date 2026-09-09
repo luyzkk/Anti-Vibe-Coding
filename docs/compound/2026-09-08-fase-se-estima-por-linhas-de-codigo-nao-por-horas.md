@@ -58,9 +58,9 @@ estado que alguem precisa reconciliar.
 
 ## Affected files
 
-- `docs/exec-plans/active/2026-09-02-route-auth-matrix-audit/plano04/fase-03-adaptador-python.md`
+- `docs/exec-plans/completed/2026-09-02-route-auth-matrix-audit/plano04/fase-03-adaptador-python.md`
   (a fase que estourou; executada em duas partes: commits `1c5d244` e `28b16a8`)
-- Registrado em: `docs/exec-plans/active/2026-09-02-route-auth-matrix-audit/plano04/MEMORY.md`
+- Registrado em: `docs/exec-plans/completed/2026-09-02-route-auth-matrix-audit/plano04/MEMORY.md`
   (GT-fase03-1) — PR #77
 - Aplicavel a toda fase gerada por `/anti-vibe-coding:plan-feature` e executada por
   `/anti-vibe-coding:execute-plan`
