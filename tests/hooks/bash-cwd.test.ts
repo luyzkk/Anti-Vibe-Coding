@@ -40,43 +40,48 @@ describe('toNativePath — caminho de estilo Git Bash no Windows', () => {
 })
 
 describe('commandCwd — o cd que abre o comando', () => {
-  const SESSION = path.resolve('/sessao/projeto')
+  // Expectativas LITERAIS, nunca path.resolve do host: a plataforma e parametro da funcao, entao
+  // o resultado nao pode depender de onde o teste roda. Foi exatamente assim que o CI (Linux) achou
+  // que commandCwd usava path.resolve do host e nao a plataforma que recebia.
+  const SESSION_POSIX = '/sessao/projeto'
+  const SESSION_WIN = 'F:\\sessao'
 
   it('devolve null quando o comando nao abre com cd — o chamador fica com o cwd da sessao', () => {
-    expect(commandCwd('echo x > src/a.ts', SESSION, 'linux')).toBeNull()
+    expect(commandCwd('echo x > src/a.ts', SESSION_POSIX, 'linux')).toBeNull()
   })
 
   it('le o cd de abertura', () => {
-    expect(commandCwd('cd /tmp/outro && echo x > src/a.ts', SESSION, 'linux'))
-      .toBe(path.resolve('/tmp/outro'))
+    expect(commandCwd('cd /tmp/outro && echo x > src/a.ts', SESSION_POSIX, 'linux')).toBe('/tmp/outro')
   })
 
   it('resolve cd relativo contra o cwd da sessao', () => {
-    expect(commandCwd('cd pacotes/api && echo x > src/a.ts', SESSION, 'linux'))
-      .toBe(path.resolve(SESSION, 'pacotes/api'))
+    expect(commandCwd('cd pacotes/api && echo x > src/a.ts', SESSION_POSIX, 'linux'))
+      .toBe('/sessao/projeto/pacotes/api')
   })
 
   it('segue uma cadeia de cd, cada um relativo ao anterior', () => {
-    expect(commandCwd('cd /tmp/a && cd b && echo x > src/c.ts', SESSION, 'linux'))
-      .toBe(path.resolve('/tmp/a/b'))
+    expect(commandCwd('cd /tmp/a && cd b && echo x > src/c.ts', SESSION_POSIX, 'linux')).toBe('/tmp/a/b')
   })
 
   it('aceita o caminho entre aspas', () => {
-    expect(commandCwd('cd "/tmp/com espaco" && echo x > a.ts', SESSION, 'linux'))
-      .toBe(path.resolve('/tmp/com espaco'))
+    expect(commandCwd('cd "/tmp/com espaco" && echo x > a.ts', SESSION_POSIX, 'linux'))
+      .toBe('/tmp/com espaco')
   })
 
   it('aceita ; como separador, nao so &&', () => {
-    expect(commandCwd('cd /tmp/outro ; echo x > a.ts', SESSION, 'linux'))
-      .toBe(path.resolve('/tmp/outro'))
+    expect(commandCwd('cd /tmp/outro ; echo x > a.ts', SESSION_POSIX, 'linux')).toBe('/tmp/outro')
   })
 
   it('IGNORA cd no meio do comando — adivinhar qual etapa escreve seria chute (limite honesto)', () => {
-    expect(commandCwd('echo x > a.ts && cd /tmp/outro && echo y > b.ts', SESSION, 'linux')).toBeNull()
+    expect(commandCwd('echo x > a.ts && cd /tmp/outro && echo y > b.ts', SESSION_POSIX, 'linux')).toBeNull()
   })
 
   it('traduz o caminho do cd no win32, senao o fix nao serve ao caso da issue', () => {
-    expect(commandCwd('cd /f/tmp/projeto && echo x > src/a.ts', 'F:\\sessao', 'win32'))
+    expect(commandCwd('cd /f/tmp/projeto && echo x > src/a.ts', SESSION_WIN, 'win32'))
       .toBe('F:\\tmp\\projeto')
+  })
+
+  it('resolve cd relativo com separador do Windows quando a plataforma e win32', () => {
+    expect(commandCwd('cd pacotes && echo x > a.ts', SESSION_WIN, 'win32')).toBe('F:\\sessao\\pacotes')
   })
 })
