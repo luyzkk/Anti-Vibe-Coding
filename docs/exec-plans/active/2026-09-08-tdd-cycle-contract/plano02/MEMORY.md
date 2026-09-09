@@ -2,7 +2,7 @@
 
 **Feature:** Contrato Unico do Ciclo TDD por Fase
 **Iniciado:** 2026-09-08
-**Status:** em andamento (fase-01 concluida, 1/4)
+**Status:** em andamento (fases 01 e 02 concluidas, 2/4)
 **Branch:** `feat/tdd-cycle-contract-plano02` (empilhada sobre `feat/tdd-cycle-contract`, que esta na PR #79)
 
 ---
@@ -46,6 +46,33 @@
     assercoes seguintes. Num gate "nunca diminuir", apagar assercao redundante custa mais do que mante-la —
     se alguem reescrever as regex acopladas, a crua ainda pega a remocao total do conceito.
 
+- **DI-4 (fase-02): a auditoria do GT-1 rodou ANTES do RED e evitou repetir a fase-01.** Antes de mandar
+  escrever as assercoes, contei a multiplicidade dos tokens que a fase ia asserir — inclusive prevendo o
+  que o GREEN ainda ia introduzir. Duas nasceriam vacuas:
+  | assercao do doc da fase | contagem | por que quebraria |
+  |---|---|---|
+  | `toContain('blocked')` (CA-07) | `blocked` ja aparecia **2x** via `red_confirmed: blocked` (passo 2, escrito na fase-01) | nasce satisfeita; apagar `fase blocked` do passo 5 nunca a derrubaria |
+  | `toContain('git diff --stat')` (CA-06) | **2x** apos o GREEN: a pre-condicao "antes de mutar" e a exigencia "apos restaurar" | a defesa nomeada no RED-check apaga so a segunda |
+  - As duas foram escritas ja acopladas: `toMatch(/red_check: fail[\s\S]*?blocked/)` e
+    `toMatch(/git restore[\s\S]*?git diff --stat/)`.
+  - **Provado, nao suposto:** no RED-check, com a defesa do CA-06 apagada, `git diff --stat` continuava no
+    bloco (linha da pre-condicao) — um `toContain` teria ficado verde. O mesmo para o CA-07: mutei **so**
+    `fase blocked;`, mantendo a DI, e `blocked` seguia aparecendo 2x; a regex acoplada pegou.
+  - Custo da auditoria: um `grep -c` por token. Custo de nao ter feito na fase-01: um RED-check falho,
+    uma auditoria depois, e um commit de conserto.
+
+- **DI-5 (fase-02): REFACTOR feito — a convencao do preambulo tinha regredido.** O Plano 01 fase-03
+  normalizou as mensagens deste arquivo para `[parity gate "nunca diminuir" — TAG]`. Os dois `describe` do
+  Plano 02 vieram dos docs de fase, escritos **antes** dessa normalizacao, e reintroduziram a forma curta:
+  22 mensagens na convencao contra **17** fora, todas nos describes novos. Commit `3094e23` uniformiza as 17
+  (39 na convencao, 0 fora).
+  - O candidato que o Passo 6 nomeava — extrair `mustContain` — foi **recusado com motivo**: cobriria 8 das
+    24 assercoes dos dois describes (as outras sao `toMatch` ou tem outro sujeito: `executePlan` cru,
+    `section(waveExecution, ...)`, `section(executePlan, '## Regras Criticas')`) e esconderia justamente as
+    mensagens longas, que existem para ser lidas na falha.
+  - Re-provado por mutacao apos o refactor (DI-5 do Plano 01): tres mutacoes re-rodadas, incluindo a mais
+    sutil (so `fase blocked;`), todas derrubando o teste certo.
+
 ---
 
 ## Bugs Descobertos
@@ -81,6 +108,16 @@ Nenhum bug de codigo nesta fase. O achado da DI-1 e um defeito de **teste**, nao
   `grep -c "AskUserQuestion" skills/execute-plan/SKILL.md` → `3`. O valor real **antes** desta fase ja era
   **7** (`allowed-tools` + Steps 0, 0, 2, 2.5, 3c, 6a); depois do GREEN, **8**. Terceira vez na feature
   (ver GT-4 e GT-7 do Plano 01). Tratar todo numero escrito em doc de fase como estimativa a conferir.
+  - **Quarta e quinta vez, na fase-02:** o doc diz que `## Regras Criticas` esta na linha 806 — esta na
+    **842**. E preve "5 falhas por expect" no RED; foram **4**, porque `Defesa a mutar` e `Teste que deve
+    cair` ja existiam no 4c desde a fase-01, entao o teste `4c le Defesa a mutar e Teste que deve cair (D6)`
+    nasceu verde. Reportado como veio, sem forcar nada a ficar vermelho.
+
+- **GT-4: `grep -c` conta LINHAS, nao ocorrencias.** Na auditoria do 4c, `git restore` deu `1` — mas a
+  linha 490 tem `git restore {arquivo}` **e** `git restore .` (dentro da frase "nunca ..."). Para
+  multiplicidade de token dentro de uma mesma linha, usar `grep -o ... | wc -l`. No caso nao mudou a
+  conclusao (as duas ocorrencias estao na mesma linha, entao apagar a linha derruba as duas), mas a leitura
+  ingenua do numero poderia ter escondido um vacuo.
 
 ---
 
@@ -103,14 +140,14 @@ Nenhum bug de codigo nesta fase. O achado da DI-1 e um defeito de **teste**, nao
 | Metrica | Valor |
 |---------|-------|
 | Fases planejadas | 4 |
-| Fases concluidas | 1 |
+| Fases concluidas | 2 |
 | Fases com desvio | 1 (DEV-1, DEV-2) |
-| Bugs encontrados | 0 de codigo; 3 assercoes vacuas (DI-1/DI-2) |
+| Bugs encontrados | 0 de codigo; 3 assercoes vacuas na fase-01 (DI-1/DI-2) + 2 evitadas na fase-02 (DI-4) |
 | Retries necessarios | 0 |
-| RED-checks executados | 6 nomeados + 2 extras da auditoria |
-| RED-checks que FALHARAM na primeira passada | **3** (corrigidos e re-provados) |
-| Assercoes no gate de paridade | 21 → 27 |
-| Suite | 2165 → **2171 pass, 0 fail** |
+| RED-checks executados | fase-01: 6 nomeados + 2 extras; fase-02: 4 nomeados + 1 extra + 3 re-provas pos-refactor |
+| RED-checks que FALHARAM na primeira passada | **3** (todos na fase-01; corrigidos e re-provados) |
+| Assercoes no gate de paridade | 21 → 27 → 32 |
+| Suite | 2165 → 2171 → **2176 pass, 0 fail** |
 
 ### Evidencia do ciclo — fase-01
 
@@ -130,15 +167,36 @@ Nenhum bug de codigo nesta fase. O achado da DI-1 e um defeito de **teste**, nao
 | Manifest | 2 checksums (`skills/execute-plan/SKILL.md`, `skills/execute-plan/references/wave-execution.md`), zero `lastModified` de arquivo nao tocado. |
 | Outras verificacoes | `stack-aware-preface-all-skills.test.ts` `14 pass` (G17); `harness:validate` ok; `typecheck` exit 0; `AskUserQuestion` 8 (ver GT-3). |
 
+### Evidencia do ciclo — fase-02
+
+| Etapa | Evidencia literal |
+|---|---|
+| Auditoria PRE-RED | Multiplicidade dos tokens que a fase ia asserir, contada antes de escrever (GT-1): `blocked` 2, `git diff --stat` 2 (previsto pos-GREEN) → duas assercoes escritas ja acopladas. Ver **DI-4**. |
+| RED | `28 pass / 4 fail`, as 4 por assertion. **Nao foram 5**: `4c le Defesa a mutar e Teste que deve cair (D6)` nasceu verde porque os dois campos ja estavam no 4c desde a fase-01. Commit `025f40a`. |
+| Gate humano | `skipped` — o gate so existe em runtime apos o sync (fase-04). |
+| GREEN | `32 pass / 0 fail`. Commit `915b3ff`: passo 4 do 4c vira GREEN + REFACTOR (commit `refactor(...)` proprio ou `refactor: none`), passo 5 RED-CHECK novo (pre-condicao, ler os dois campos, mutar, exigir queda, `git restore {arquivo}`, exigir diff vazio, ramos pass/fail/sem-comportamento); item 1 de `## Regras Criticas` passa a dizer que mutar e restaurar e VERIFICACAO; +1 linha em Common Rationalizations; +1 em Red Flags. |
+| RED-check (1) | Defesa: linha `- Exigir \`git diff --stat\` vazio` (491). Caiu so `4c restaura com git restore e prova diff vazio (CA-06)`. `31 pass, 1 fail`. **Com a defesa apagada, `git diff --stat` continuava no bloco** (linha da pre-condicao) — um `toContain` teria ficado verde; a regex acoplada e o que pegou. |
+| RED-check (2) | Defesa: `refactor(...)` → `refactor` nas duas ocorrencias do passo 4. Caiu so `4c exige REFACTOR em commit proprio ou motivo (CA-08, D4)`. `31 pass, 1 fail`. |
+| RED-check (3) | Defesa: linha 495 (`fase blocked;` + a DI). Caiu so `4c trata teste que nao cai como blocker com DI (CA-07)`. `31 pass, 1 fail`. |
+| RED-check (4) | Defesa: a frase de VERIFICACAO acrescentada ao item 1 de `## Regras Criticas`. Caiu so `Regras Criticas: ... (D3)`. `31 pass, 1 fail`. |
+| RED-check (5, extra) | Defesa: apagado **so** `fase blocked;`, mantendo a DI. `blocked` seguia 2x no bloco — `toContain('blocked')` ficaria verde. Caiu so o CA-07. `31 pass, 1 fail`. E a prova isolada da coupling. |
+| Restauracao | `git restore <arquivo>` apos cada uma; `git diff --stat` e `git status --short` vazios entre as cinco. |
+| REFACTOR | Commit `3094e23` — 17 mensagens de volta a convencao `[parity gate "nunca diminuir" — TAG]` (39/0). Helper `mustContain` recusado com motivo. Ver **DI-5**. Re-provado por 3 mutacoes pos-refactor, incluindo a (5). |
+| Suite | lote 1 `1470 pass / 0 fail`, lote 2 `706 pass / 0 fail` = **2176 pass, 0 fail**, 282 arquivos, exit 0. Delta desde a fase-01 (2171) = **+5**. |
+| Escopo | `SKILL.md`: 6 hunks — passo 4/5 do 4c, item 1 de Regras Criticas, +1 em Common Rationalizations, +1 em Red Flags. **Zero linha removida dos passos 0-3 do 4c** (DP-1: cada fase so acrescenta). Nada acima da linha 344. |
+| Manifest | 1 checksum (`skills/execute-plan/SKILL.md`), zero `lastModified` de arquivo nao tocado. |
+| Outras verificacoes | `stack-aware-preface-all-skills.test.ts` `14 pass` (G17); `harness:validate` ok; `typecheck` exit 0; `fase-{NN}-defesa-implementada` do passo 5 confere com `agents/plan-executor.md:99`. |
+
 ---
 
 ## Notas para Planos Seguintes
 
 Ultimo plano — estas notas sao para as fases 02, 03 e 04 deste mesmo plano.
 
-- **O bloco `### 4c.` agora vai da linha 419 a 481** e tem os passos **0 a 4**. A fase-02 completa o passo 4
-  (REFACTOR) e escreve o **5 (RED-CHECK)**; a fase-03 escreve o **6 (VERIFY)**. Cada uma so ACRESCENTA
-  (DP-1) — nao reescrever o que ja esta la, senao o diff do commit deixa de ser o da fase.
+- **O bloco `### 4c.` tem hoje os passos 0 a 5** (`### 4c.` na 419; `Se a fase NAO tem bloco ### TDD` na
+  500). A fase-03 escreve o **6 (VERIFY)**, logo apos o passo 5 e antes dessa linha. Cada fase so
+  ACRESCENTA (DP-1) — nao reescrever o que ja esta la, senao o diff do commit deixa de ser o da fase.
+  Citar por passo, nao por numero de linha (GT-3).
 - **Antes de acrescentar assercao sobre o 4c, rode a auditoria do GT-1.** As fases 02 e 03 vao introduzir
   tokens novos (`red_check`, `Defesa a mutar`, `git restore`, `plan-verifier`, `red-check-evidence`) num
   bloco que ja e grande — a chance de um token repetir e alta, e o vacuo e silencioso.
