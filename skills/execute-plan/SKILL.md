@@ -4,7 +4,7 @@ description: "Executa planos hierarquicos fase por fase usando subagentes com is
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Agent, AskUserQuestion
-argument-hint: "[caminho do PLAN.md ou nome da feature] [--plano N] [--fase N]"
+argument-hint: "[caminho do PLAN.md ou nome da feature] [--plano N] [--fase N] [--tdd-level guiado|assistido|direto]"
 ---
 
 ```typescript
@@ -418,28 +418,120 @@ Aguardar conclusao antes de atualizar estado.
 
 ### 4c. Ciclo TDD por Fase
 
+Fonte do ciclo: `skills/tdd-workflow/SKILL.md` §`## Contrato do Ciclo por Fase` — tipo de fase ×
+RED/GREEN/RED-check/REFACTOR/gate e o mapa nivel → parada. Este step EXECUTA o contrato; nao o redefine.
+
 ```
-Cada fase segue o ciclo TDD definido no seu checklist:
+Ler do bloco ### TDD da fase: Tipo de fase, comando do RED, `Defesa a mutar`, `Teste que deve cair`.
 
-Se a fase tem secao TDD com RED/GREEN:
+0. RESOLVER NIVEL (uma vez por execucao, antes da primeira fase):
+   - `--tdd-level guiado|assistido|direto` no argumento                   → usa
+   - senao: linha `tdd_level: guiado|assistido|direto` no user_profile da memoria do projeto → usa
+   - senao: Assistido (default — PRD tdd-cycle-contract D2)
+   - Registrar no STATE log: `tdd_level: {nivel}`
 
-  Subagente RED (contexto isolado):
-  - Recebe: especificacao da fase (arquivos, descricao, verificacao)
-  - Recebe, se a fase e de risco: a secao "Ameacas & Dados" do PRD + os CA-SEC-* da fase
-    — sem isso o RED escreve so o happy path e a defesa nunca chega ao GREEN
-  - NAO recebe: implementacao existente
-  - Produz: teste que FALHA por assertion failure
-  - Registra: .tdd-phase.json
+1. RED (subagente, contexto isolado):
+   - Recebe: especificacao da fase (arquivos, descricao, verificacao)
+   - Recebe, se a fase e de risco: a secao "Ameacas & Dados" do PRD + os CA-SEC-* da fase
+     — sem isso o RED escreve so o happy path e a defesa nunca chega ao GREEN
+   - NAO recebe: implementacao existente
+   - Produz: teste que FALHA por assertion failure (stub-first — docs/references/tdd-cycle-checklist.md)
+   - Registra: .tdd-phase.json
 
-  Subagente GREEN (contexto isolado):
-  - Recebe: APENAS os arquivos de teste do RED
-  - NAO recebe: PRD, descricao da feature
-  - Produz: codigo minimo que faz o teste passar
-  - Anchor imutavel: NUNCA modifica testes
+2. RED CONFIRMADO PELO ORQUESTRADOR (verificacao, nao implementacao):
+   - Rodar o comando de teste da fase via Bash; ler a saida ate o fim
+   - Classificar a saida:
+       contem `Cannot find module` | `Cannot resolve` | `error TS` | `SyntaxError`
+         → red_confirmed: blocked — "RED invalido: falta stub-first — ver
+           docs/references/tdd-cycle-checklist.md §Sinal Cannot find module"
+         → devolver ao subagente RED com a saida literal; NAO spawnar GREEN
+       exit 0 (o teste nasceu verde)
+         → red_confirmed: blocked (nasceu verde) — devolver ao RED; RED que passa nao e RED
+       exit != 0 sem marcador (falha por assertion / `Error: not implemented`)
+         → red_confirmed: assertion
+       fase sem-comportamento: gate textual rodado e visto FALHANDO
+         → red_confirmed: gate-textual
+   - Gravar a linha da fase no STATE log com `red_confirmed` ANTES do gate (uma parada nao pode
+     perder o RED — PRD Premissa 2); commit `docs(state): red_confirmed fase-{NN}` logo em
+     seguida — sem esse commit a arvore do repo do projeto fica suja e a pre-condicao do passo 5
+     nunca e satisfeita (o STATE log vive no mesmo repo do projeto)
 
-Se a fase NAO tem TDD explicito (ex: migration pura, config):
-  - Executar diretamente com subagente unico
-  - Validar via checklist da fase
+3. GATE HUMANO (mapa nivel → parada, da fonte):
+   para se: nivel == guiado
+         ou (nivel == assistido e (Tipo de fase: risco
+                                   ou a fase tem o bloco "### Seguranca (apenas fase de slice [RISCO])"
+                                   ou a fase e plano01/fase-01-* — tracer bullet))
+   nunca se: nivel == direto
+   Se para:
+     AskUserQuestion mostrando caminho + conteudo do(s) arquivo(s) de teste e a saida literal do RED:
+       "Este e o contrato desta fase; confirma?"
+       - "Confirmar"        → segue ao GREEN
+       - "Ajustar o teste"  → coleta a observacao do dev; re-spawn do RED com ela; volta ao passo 2
+       - "Abortar a fase"   → fase paused, STATE atualizado, sair do ciclo
+     Registrar: human_gate: stopped
+   Senao: human_gate: skipped({nivel})
+
+4. GREEN + REFACTOR (um subagente, contexto isolado — PRD D4):
+   - Recebe: APENAS os arquivos de teste do RED
+   - NAO recebe: PRD, descricao da feature
+   - Passo 1 — GREEN: codigo minimo que faz o teste passar; commit feat(...)
+   - Anchor imutavel: NUNCA modifica testes
+   - Passo 2 — REFACTOR: com os testes verdes, refatorar em commit `refactor(...)` SEPARADO do feat;
+     se nao ha o que refatorar, reportar `refactor: none ({motivo})` no human_readable
+   - Orquestrador registra no STATE log: `refactor: commit {hash}` se
+     `git log --oneline {HEAD-antes}..HEAD` tem commit com prefixo `refactor(`;
+     senao `refactor: none ({motivo do human_readable})`
+
+5. RED-CHECK (orquestrador — verificacao, nao implementacao; PRD D3):
+   Pre-condicao: GREEN, REFACTOR e a linha do STATE (passo 2) commitados; `git diff --stat -- {arquivo}` vazio ANTES de mutar
+     (escopado ao arquivo da defesa: o STATE log do passo 2 vive no mesmo repo do projeto e
+     apareceria num diff sem escopo)
+   - Ler `Defesa a mutar` e `Teste que deve cair` do bloco ### TDD da fase
+     (se a fase nao nomeia, usar `fase-{NN}-defesa-implementada` do envelope do executor)
+   - Aplicar a mutacao com Edit no arquivo de producao nomeado
+   - Rodar SO o teste nomeado (ex.: `bun test {arquivo} -t '{Teste que deve cair}'`)
+   - Exigir falha: exit != 0 E o teste nomeado aparece como fail
+   - Restaurar: `git restore {arquivo}` (caminho explicito — nunca `git restore .`)
+   - Exigir `git diff --stat -- {arquivo}` vazio
+       vazio     → red_check: pass (defesa: {X}, teste: {Y})
+       nao vazio → needs_human: residuo de mutacao — NUNCA commitar entre mutar e restaurar
+   - Teste NAO caiu → restaurar mesmo assim; red_check: fail (defesa: {X}, teste: {Y});
+       fase blocked; MEMORY do plano recebe DI "teste nao prova a defesa: {X} / {Y}";
+       fases dependentes NAO iniciam; dev avisado no Step 5
+   - Fase sem-comportamento: `Defesa a mutar` e o alvo textual, `Teste que deve cair` e o comando
+       do gate — remover o alvo → gate cai → restaurar → mesmos campos no STATE log
+   - Commitar a linha do STATE log ja com `red_check` e `refactor` ANTES de spawnar o passo 6:
+       `docs(state): red_check fase-{NN}` no caminho pass, `docs(state): fase-{NN} blocked — red_check fail`
+       no caminho fail. O passo 6 manda o verifier LER essa linha — se o commit vier so depois do spawn,
+       ele le uma linha que existe so na working tree e reprova a evidencia (dogfood r2/r3 2026-09-09:
+       3x em 3 verificacoes, com verdict request_changes)
+
+6. VERIFY (spawn plan-verifier — read-only; PRD D3):
+   RECEBE:
+   - O arquivo da fase (`{PASTA_ATIVA}/plano{NN}/fase-MM-nome.md`)
+   - A linha do STATE log desta fase, ja commitada no passo 5 (tdd_level, red_confirmed, human_gate,
+     red_check, refactor)
+   - Lista de arquivos tocados: saida de `git diff --stat {HEAD-antes}..HEAD`
+   - Comando de teste da fase
+   NAO RECEBE:
+   - PRD, outras fases, MEMORY completa
+   DEVOLVE (kind: verification): checks[] com acceptance_met, tests_pass, tdd-red-commit-found e
+     red-check-evidence (pass: a linha do STATE tem `red_check: pass` com defesa e teste nomeados;
+     fail: `red_check: fail` — verdict block; unable_to_verify: campo ausente na linha)
+   - O 4d ja consome kind === "verification" — sem mudanca no parser
+   - Completar a linha do STATE log: `custo: testes={rodadas} spawns={RED+GREEN+verifier}`;
+     commit `docs(state): fase-{NN} concluida` logo em seguida — a evidencia do red_check so
+     vale se estiver no historico, nao so na working tree
+
+Linha do STATE log (uma por fase, no ## Log do STATE.md; nasce parcial no passo 2 e e completada
+nos passos 4, 5 e 6):
+- {YYYY-MM-DD}: plano{NN}/fase-{MM} — tdd_level: {nivel} | red_confirmed: {assertion|blocked|gate-textual}
+  | human_gate: {stopped|skipped(nivel)} | red_check: {pass|fail} (defesa: {X}, teste: {Y})
+  | refactor: {commit <hash>|none (motivo)} | custo: testes={n} spawns={n}
+
+Se a fase NAO tem bloco ### TDD (fases geradas antes do contrato):
+  - Executar diretamente com subagente unico; validar via checklist da fase
+  - STATE log: `red_confirmed: n/a (fase sem bloco TDD)`
 ```
 
 ### 4d. Coletar Resultados e Atualizar Memoria
@@ -554,15 +646,20 @@ Apos cada fase concluir:
    - Se testes passam: registrar no Log do STATE
    - Se testes falham: diagnosticar e registrar na MEMORY
 
-2. Executar: bun run lint
-   - Registrar resultado
+2. Executar o lint do projeto, se configurado em package.json §scripts (ex.: `bun run lint`);
+   se nao existe, registrar `Lint: n/a (projeto sem lint configurado)` — nunca inventar o comando
 
 3. Mostrar diagnostico ao dev:
    "Fase {NN} concluida:
    - Testes: {pass|fail}
-   - Lint: {pass|warn}
+   - Lint: {pass|warn|n/a}
+   - Ciclo TDD: tdd_level={..} red_confirmed={..} human_gate={..} red_check={..} refactor={..}
+   - Custo da fase: {n} rodadas de teste, {n} spawns (RED, GREEN, plan-verifier)
    - Decisoes tomadas: {N}
    - Bugs encontrados: {N}"
+
+4. Se red_check: fail → destacar: "FASE BLOQUEADA — teste nao prova a defesa ({X} / {Y}).
+   Fases dependentes nao iniciam ate um novo RED." (PRD CA-07)
 ```
 
 ---
@@ -803,7 +900,7 @@ Step 6-FLAT: SUMMARY ao completar
 
 ## Regras Criticas
 
-1. **O orchestrador nao implementa** — escrever codigo e trabalho de subagente. O orchestrador faz spawn, atualiza estado e roda a validacao pos-fase (Step 5)
+1. **O orchestrador nao implementa** — escrever codigo e trabalho de subagente. O orchestrador faz spawn, atualiza estado e roda a validacao pos-fase (Step 5). Rodar o teste do RED, aplicar a mutacao do RED-check e restaurar o arquivo (Step 4c, passos 2 e 5) e VERIFICACAO do orquestrador, nao implementacao — quem verifica nao e quem implementou (PRD tdd-cycle-contract D3)
 2. **STATE.md e a fonte de verdade** — ler antes de escrever, sempre
 3. **MEMORY.md e preenchida durante execucao** — nao apos
 4. **Transicao entre planos e interativa** — dev decide se avanca ou troca contexto
@@ -867,6 +964,8 @@ console.log('\n\n' + renderCompletionSignal({
 | "Esse arquivo extra nao conta como desvio de escopo" | Todo arquivo fora do escopo declarado e uma decisao nao registrada. Se vale tocar, vale registrar no plano. |
 | "Vou passar pela fase sem validar — sei que funcionou" | Verificacao sem evidencia nao e verificacao. Checklist nao executado e teatro de qualidade. |
 | "Posso pular a fase de testes — os tipos ja garantem" | Types nao testam comportamento em runtime. Fases de teste existem precisamente porque o compilador nao consegue garantir tudo. |
+| "O RED ja falhou no subagente, nao preciso rodar de novo" | O orquestrador confirma POR QUE falhou. `Cannot find module` nao e RED — e ausencia de stub. So a saida do comando, lida ate o fim, distingue assertion de erro de import. |
+| "O teste ficou verde, a defesa existe" | So a mutacao prova. Teste que nasce verde pode estar afirmando true===true; remover a defesa nomeada e ver o teste cair e a unica evidencia de que ele testa o que diz testar (compound 2026-09-06). |
 
 ## Red Flags
 
@@ -876,3 +975,4 @@ console.log('\n\n' + renderCompletionSignal({
 - Decisao tomada durante execucao que nao foi registrada no MEMORY.md do plano
 - Step executado sem ter lido o arquivo antes de editar (violacao de integridade de edicao)
 - Fase marcada como concluida antes de `bun run harness:validate` verde
+- Fase avancou (ou fase dependente iniciou) com `red_check: fail` ou sem `red_check` no STATE log
