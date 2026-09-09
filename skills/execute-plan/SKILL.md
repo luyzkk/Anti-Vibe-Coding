@@ -4,7 +4,7 @@ description: "Executa planos hierarquicos fase por fase usando subagentes com is
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Agent, AskUserQuestion
-argument-hint: "[caminho do PLAN.md ou nome da feature] [--plano N] [--fase N]"
+argument-hint: "[caminho do PLAN.md ou nome da feature] [--plano N] [--fase N] [--tdd-level guiado|assistido|direto]"
 ---
 
 ```typescript
@@ -418,28 +418,66 @@ Aguardar conclusao antes de atualizar estado.
 
 ### 4c. Ciclo TDD por Fase
 
+Fonte do ciclo: `skills/tdd-workflow/SKILL.md` §`## Contrato do Ciclo por Fase` — tipo de fase ×
+RED/GREEN/RED-check/REFACTOR/gate e o mapa nivel → parada. Este step EXECUTA o contrato; nao o redefine.
+
 ```
-Cada fase segue o ciclo TDD definido no seu checklist:
+Ler do bloco ### TDD da fase: Tipo de fase, comando do RED, `Defesa a mutar`, `Teste que deve cair`.
 
-Se a fase tem secao TDD com RED/GREEN:
+0. RESOLVER NIVEL (uma vez por execucao, antes da primeira fase):
+   - `--tdd-level guiado|assistido|direto` no argumento                   → usa
+   - senao: linha `tdd_level: guiado|assistido|direto` no user_profile da memoria do projeto → usa
+   - senao: Assistido (default — PRD tdd-cycle-contract D2)
+   - Registrar no STATE log: `tdd_level: {nivel}`
 
-  Subagente RED (contexto isolado):
-  - Recebe: especificacao da fase (arquivos, descricao, verificacao)
-  - Recebe, se a fase e de risco: a secao "Ameacas & Dados" do PRD + os CA-SEC-* da fase
-    — sem isso o RED escreve so o happy path e a defesa nunca chega ao GREEN
-  - NAO recebe: implementacao existente
-  - Produz: teste que FALHA por assertion failure
-  - Registra: .tdd-phase.json
+1. RED (subagente, contexto isolado):
+   - Recebe: especificacao da fase (arquivos, descricao, verificacao)
+   - Recebe, se a fase e de risco: a secao "Ameacas & Dados" do PRD + os CA-SEC-* da fase
+     — sem isso o RED escreve so o happy path e a defesa nunca chega ao GREEN
+   - NAO recebe: implementacao existente
+   - Produz: teste que FALHA por assertion failure (stub-first — docs/references/tdd-cycle-checklist.md)
+   - Registra: .tdd-phase.json
 
-  Subagente GREEN (contexto isolado):
-  - Recebe: APENAS os arquivos de teste do RED
-  - NAO recebe: PRD, descricao da feature
-  - Produz: codigo minimo que faz o teste passar
-  - Anchor imutavel: NUNCA modifica testes
+2. RED CONFIRMADO PELO ORQUESTRADOR (verificacao, nao implementacao):
+   - Rodar o comando de teste da fase via Bash; ler a saida ate o fim
+   - Classificar a saida:
+       contem `Cannot find module` | `Cannot resolve` | `error TS` | `SyntaxError`
+         → red_confirmed: blocked — "RED invalido: falta stub-first — ver
+           docs/references/tdd-cycle-checklist.md §Sinal Cannot find module"
+         → devolver ao subagente RED com a saida literal; NAO spawnar GREEN
+       exit 0 (o teste nasceu verde)
+         → red_confirmed: blocked (nasceu verde) — devolver ao RED; RED que passa nao e RED
+       exit != 0 sem marcador (falha por assertion / `Error: not implemented`)
+         → red_confirmed: assertion
+       fase sem-comportamento: gate textual rodado e visto FALHANDO
+         → red_confirmed: gate-textual
+   - Gravar a linha da fase no STATE log com `red_confirmed` ANTES do gate (uma parada nao pode
+     perder o RED — PRD Premissa 2)
 
-Se a fase NAO tem TDD explicito (ex: migration pura, config):
-  - Executar diretamente com subagente unico
-  - Validar via checklist da fase
+3. GATE HUMANO (mapa nivel → parada, da fonte):
+   para se: nivel == guiado
+         ou (nivel == assistido e (Tipo de fase: risco
+                                   ou a fase tem o bloco "### Seguranca (apenas fase de slice [RISCO])"
+                                   ou a fase e plano01/fase-01-* — tracer bullet))
+   nunca se: nivel == direto
+   Se para:
+     AskUserQuestion mostrando caminho + conteudo do(s) arquivo(s) de teste e a saida literal do RED:
+       "Este e o contrato desta fase; confirma?"
+       - "Confirmar"        → segue ao GREEN
+       - "Ajustar o teste"  → coleta a observacao do dev; re-spawn do RED com ela; volta ao passo 2
+       - "Abortar a fase"   → fase paused, STATE atualizado, sair do ciclo
+     Registrar: human_gate: stopped
+   Senao: human_gate: skipped({nivel})
+
+4. GREEN (subagente, contexto isolado):
+   - Recebe: APENAS os arquivos de teste do RED
+   - NAO recebe: PRD, descricao da feature
+   - Produz: codigo minimo que faz o teste passar
+   - Anchor imutavel: NUNCA modifica testes
+
+Se a fase NAO tem bloco ### TDD (fases geradas antes do contrato):
+  - Executar diretamente com subagente unico; validar via checklist da fase
+  - STATE log: `red_confirmed: n/a (fase sem bloco TDD)`
 ```
 
 ### 4d. Coletar Resultados e Atualizar Memoria
@@ -867,6 +905,7 @@ console.log('\n\n' + renderCompletionSignal({
 | "Esse arquivo extra nao conta como desvio de escopo" | Todo arquivo fora do escopo declarado e uma decisao nao registrada. Se vale tocar, vale registrar no plano. |
 | "Vou passar pela fase sem validar — sei que funcionou" | Verificacao sem evidencia nao e verificacao. Checklist nao executado e teatro de qualidade. |
 | "Posso pular a fase de testes — os tipos ja garantem" | Types nao testam comportamento em runtime. Fases de teste existem precisamente porque o compilador nao consegue garantir tudo. |
+| "O RED ja falhou no subagente, nao preciso rodar de novo" | O orquestrador confirma POR QUE falhou. `Cannot find module` nao e RED — e ausencia de stub. So a saida do comando, lida ate o fim, distingue assertion de erro de import. |
 
 ## Red Flags
 
