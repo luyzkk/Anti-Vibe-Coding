@@ -14,7 +14,8 @@
     "dependencies": true,
     "domain_specific": true,
     "test_quality": true,
-    "dynamic": false
+    "dynamic": false,
+    "code_review": true
   },
   "model_profiles": {
     "debug_agent": "default",

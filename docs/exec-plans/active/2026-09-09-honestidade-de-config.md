@@ -105,8 +105,8 @@ de testes por ciclo (rejeitado: o hook vê arquivos, não testes), e o bug do
 | 2 | 2026-09-09 | passou | `grep -rin "ai judge\|ai-judge"` retorna 0 em `skills/`, `config/`, `hooks/` e `docs/PIPELINE.md`; gate de paridade 43/43; harness 28 obrigatórios e 398 markdowns |
 | 3 | 2026-09-09 | RED genuíno | `tests/hooks/tdd-gate-anchor-and-root.test.ts`: 4 pass, 7 fail, todas por assertion e com a mensagem real registrada, não a prevista. Stub em `project-root.cjs` garantiu falha por assertion e não por import |
 | 4 | 2026-09-09 | GREEN + mutação | 11/11 no arquivo; 6 mutações derrubaram exatamente o teste nomeado (mensagem, palavra `orquestrador`, catch do Write\|Edit, catch do Bash, raiz no gate, walk-up da lib), restauração provada por `diff` em cada uma. Suíte 2215 pass / 0 fail na re-rodada; typecheck zero |
-| 5 | | | |
-| 6 | | | |
+| 5 | 2026-09-09 | passou, com achado | Gate de paridade de 43 para 51 assertions. RED com as 8 novas falhando. A varredura linha a linha do 4c (GT-5) pegou uma assertion **vacua minha**: `/ARMAR ANCORA/` casa dentro de `DESARMAR ANCORA`, então apagar a linha do armar deixava o gate verde. Corrigida para `/- ARMAR ANCORA/` e provada por mutação: apagar a linha derruba o teste, restauração conferida |
+| 6 | 2026-09-09 | passou, com achado | Pre-commit reescrito em `hooks/pre-commit-suite.cjs` com a decisão em `lib/precommit-decision.cjs` (4 testes RED → 6 verdes). Provado nas duas direções por payload real: fase RED libera em 0,13s sem rodar a suíte; sem âncora roda a suíte e sai 0 em 31s; com a suíte quebrada sai 2 nomeando o teste que caiu. **Achado:** o hook chamava `bun run lint`, script inexistente — se ele tivesse voltado a funcionar como estava, todo commit do repo passaria a ser bloqueado. Chave `code_review` somada ao verify-work |
 | 7 | | | |
 
 ## Compound Opportunity
