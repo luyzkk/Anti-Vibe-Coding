@@ -23,6 +23,9 @@ const { needsTest, basenameFor } = require('./lib/tdd-decision.cjs');
 // sessao. Compartilhado com o caminho Bash pelo mesmo motivo que `tdd-decision.cjs`.
 const { projectRootFor } = require('./lib/project-root.cjs');
 const { reportAndAllow } = require('./lib/fail-open.cjs');
+// A leitura da ancora e compartilhada com o pre-commit: formato lido em dois lugares com regras
+// proprias e como nasce uma terceira definicao do mesmo ciclo.
+const { readTddPhase } = require('./lib/tdd-phase.cjs');
 
 function allow()        { process.exit(0); }
 function block(reason)  {
@@ -47,16 +50,6 @@ function readConfig() {
     return { ...defaults, ...JSON.parse(raw) };
   } catch {
     return defaults;
-  }
-}
-
-function readTddPhase() {
-  try {
-    const phasePath = path.join(process.cwd(), '.claude', '.tdd-phase.json');
-    if (!fs.existsSync(phasePath)) return null;
-    return JSON.parse(fs.readFileSync(phasePath, 'utf8'));
-  } catch {
-    return null;
   }
 }
 
@@ -109,7 +102,7 @@ function processInput() {
     if (!filePath) return allow();
 
     // Anchor check: block test modification in GREEN phase
-    const phaseData = readTddPhase();
+    const phaseData = readTddPhase(process.cwd());
     if (isImmutableTest(filePath, config, phaseData)) {
       const isEdit = toolName === 'Edit';
       const absPath = path.resolve(process.cwd(), filePath);
