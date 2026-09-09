@@ -1,7 +1,7 @@
 # State: Contrato Único do Ciclo TDD por Fase
 
 **Plan:** ./PLAN.md
-**Phase:** in-progress (codigo entregue e mergeado; fase-04 parcial — Premissa 1 em aberto)
+**Phase:** in-progress (codigo entregue e mergeado; fase-04 CONCLUIDA — Premissa 1 respondida)
 **Current Plan:** 02/2
 **Last Updated:** 2026-09-08
 
@@ -10,11 +10,11 @@
 | Plano | Nome | Fases | Done | Status |
 |-------|------|-------|------|--------|
 | 01 | Fonte e contrato | 3 | 3/3 | completed |
-| 02 | O ciclo roda no execute-plan | 4 | 3/4 | in-progress (fase-04 parcial) |
+| 02 | O ciclo roda no execute-plan | 4 | 4/4 | completed |
 
 ## Progress Global
 
-Fases done: 6/7 (86%) — a fase-04 esta parcial, nao bloqueada
+Fases done: 7/7 (100%)
 
 ## Log do Ciclo TDD por Fase
 
@@ -68,3 +68,7 @@ aqui já é preenchido à mão para não perder a evidência da fase.
 - 2026-09-09: **A regressão do GT-5 virou varredura, e o resultado é mais forte que a lista.** Em vez de re-rodar as 19 defesas nomeadas, apaguei uma linha por vez das 118 do bloco `### 4c.`, rodando o teste de paridade a cada deleção com `git restore` entre elas. Das **16** assertions cujo corpo lê `step4c`, **as 16 caem por pelo menos uma deleção** — nenhuma vácua. A lista prova que as defesas que você lembrou de mutar estão guardadas; a varredura prova que nenhuma assertion do bloco sobrevive a toda deleção. Custo: um script de ~15 linhas e ~4 minutos. Registrado como parte do DI-10, com a ressalva de que a primeira leitura do resultado acusou 7 falsos positivos por erro do meu próprio enumerador — GT-3 vale também para número que a minha ferramenta produz.
 - 2026-09-09: **Cache do plugin re-sincronizado após o fix do DI-10**, com ciclo de gate textual. RED: antes do sync o cache tinha `ANTES de spawnar o passo 6` **0** e `ja commitada no passo 5` **0**, e `git diff --no-index` contra o checkout acusava 7 deleções — exatamente o GREEN do `aece622` faltando. GREEN: `scripts/sync-to-global.sh` exit 0, os dois marcadores foram a **1** e o `git diff --no-index` ficou vazio nos cinco arquivos-chave. Re-auditoria de multiplicidade no bloco 4c depois do GREEN, registrada na DI-10 para quem editar o bloco a seguir: `docs(state)` passou de 2 para **4**, `blocked` de 4 para **5**, `red_check` **10**. A contagem de ontem não vale amanhã (GT-1).
 - 2026-09-09: **SUMMARY escrito** em `SUMMARY.md`, com o status honesto: código entregue e mergeado nas PRs #79 e #80, seis das sete fases done, e a **Premissa 1 do PRD em aberto**. O plano NÃO foi movido para `docs/exec-plans/completed/` — a fase-04 está parcial, e mover agora diria que a feature está provada quando ela está apenas entregue. Números do SUMMARY conferidos contra as fontes antes de escrever (PRD, MEMORY dos dois planos): 189 de 443 fases sem RED, gate de 2 para 43 assertions, suite 2144 → 2187, 13 RED-checks no Plano 01, 5 RED-checks falhos, 3 defeitos achados só pelo dogfood.
+- 2026-09-09: **A RODADA LIMPA RODOU. A Premissa 1 do PRD está RESPONDIDA, afirmativamente.** Fixture `r4` criado do template (baseline `d380df1`), executado por **subagentes de contexto novo** que nunca leram o roteiro, o MEMORY nem o HANDOFF. O gate humano foi mediado: a pergunta chegou ao dev como o subagente a formulou, e a resposta voltou sem acréscimo. Resultado no fixture: `Phase: completed`, 2/2 fases, árvore limpa, suíte `3 pass / 0 fail`, `test(` antes de `feat(` nas duas fases, zero resíduo de mutação. Agentes que nunca viram o 4c resolveram o nível procurando o `user_profile` antes do default, rodaram o teste eles mesmos em vez de confiar no subagente, commitaram a linha do STATE antes do gate, pararam nas duas fases (tracer bullet e `[RISCO]`), spawnaram o GREEN só com o arquivo de teste, mutaram e restauraram a defesa nomeada, e spawnaram o verifier. **O 4c como prompt muda o comportamento real — não é mais inferência.**
+- 2026-09-09: **A correção do DI-10 foi confirmada por quem não sabia que ela existia.** `red-check-evidence` voltou `pass` nas duas fases, e o subagente registrou o porquê sem ser perguntado: commitou a linha do STATE antes de spawnar o verifier. O que a r2/r3 quebrava três vezes em três agora passa.
+- 2026-09-09: **A rodada limpa achou cinco coisas novas** (DI-11), nenhuma visível às 43 assertions. Quatro no 4c: a âncora imutável **nunca é armada** (o passo 4 fala dela como se estivesse ligada, mas nenhum passo manda ligá-la — duas fases em duas rodaram o GREEN desprotegidas); a âncora **nunca é desarmada**; o veredicto do `plan-verifier` é **instável entre rodadas** porque o contrato não diz se o motivo do `refactor: none` mora no STATE ou no MEMORY, e o MEMORY só é escrito no Step 4d, depois do passo 6 — mesma classe do GT-7, instância diferente; e o `custo: testes` é fechado no passo 6 enquanto o Step 5 roda mais uma vez depois. A quinta é fora do 4c: `hooks/tdd-gate.cjs` tem o **mesmo bug de cwd da issue #82** no caminho `Write|Edit`, achado espontaneamente por um subagente que não sabia da issue.
+- 2026-09-09: **Ressalva metodológica.** Foram três instâncias de subagente, não uma sessão top-level única — `SendMessage` não estava disponível para continuar a mesma instância após o gate, então cada retomada foi um agente novo lendo o estado commitado. Isso **reforça** o resultado: três agentes independentes convergiram para o mesmo comportamento a partir do mesmo texto. O que não foi exercitado é uma sessão humana top-level de ponta a ponta.

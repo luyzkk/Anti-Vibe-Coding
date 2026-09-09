@@ -140,22 +140,22 @@ próprio no executor. Remover qualquer um deles derruba o teste.
 ## Requisitos Funcionais
 
 ### Must Have (maximo 40% do total)
-- [ ] RF-01: `skills/tdd-workflow/SKILL.md` tem a seção `## Contrato do Ciclo por Fase` com os três
+- [x] RF-01: `skills/tdd-workflow/SKILL.md` tem a seção `## Contrato do Ciclo por Fase` com os três
       tipos de fase e o mapa nível → gate, e é a única definição do ciclo no plugin.
-- [ ] RF-02: `fase-template.md` bloco `### TDD` tem `Tipo de fase` e os checkboxes RED, GREEN,
+- [x] RF-02: `fase-template.md` bloco `### TDD` tem `Tipo de fase` e os checkboxes RED, GREEN,
       RED-check (com `Defesa a mutar` e `Teste que deve cair`) e REFACTOR, apontando para RF-01.
-- [ ] RF-03: `execute-plan` Step 4c: orquestrador confirma a falha do RED por assertion, para para o
+- [x] RF-03: `execute-plan` Step 4c: orquestrador confirma a falha do RED por assertion, para para o
       humano conforme o nível (default Assistido), executa o RED-check por mutação com restauração
       provada, e trata "teste não caiu" como blocker.
-- [ ] RF-04: teste de paridade que falha se qualquer item de RF-01, RF-02 ou RF-03 for removido.
+- [x] RF-04: teste de paridade que falha se qualquer item de RF-01, RF-02 ou RF-03 for removido.
 
 ### Should Have
-- [ ] RF-05: `plan-verifier` spawnado por fase no 4c, read-only, com o check `red-check-evidence`.
-- [ ] RF-06: `plan-executor.md` referencia o contrato e incorpora stub-first, "nasce verde → muta no
+- [x] RF-05: `plan-verifier` spawnado por fase no 4c, read-only, com o check `red-check-evidence`.
+- [x] RF-06: `plan-executor.md` referencia o contrato e incorpora stub-first, "nasce verde → muta no
       mesmo passo" e REFACTOR em commit próprio; reporta a defesa implementada no envelope.
-- [ ] RF-07: `plan-feature` Step 9 (regras do subagente de planejamento) exige preencher `Defesa a
+- [x] RF-07: `plan-feature` Step 9 (regras do subagente de planejamento) exige preencher `Defesa a
       mutar` e `Teste que deve cair` em toda fase de comportamento ou risco, e proíbe prever a mensagem.
-- [ ] RF-08: argumento `--tdd-level guiado|assistido|direto` no `/execute-plan`.
+- [x] RF-08: argumento `--tdd-level guiado|assistido|direto` no `/execute-plan`.
 
 ### Could Have
 - [ ] RF-09: nível persistido em `user_profile` na memória do projeto (a skill já prevê esse sinal).
@@ -213,28 +213,44 @@ próprio no executor. Remover qualquer um deles derruba o teste.
 
 ## Criterios de Aceite
 
-- [ ] CA-01: Dado `fase-template.md`, quando lido, então o bloco `### TDD` contém `Tipo de fase` e
+- [x] CA-01: Dado `fase-template.md`, quando lido, então o bloco `### TDD` contém `Tipo de fase` e
       os checkboxes RED, GREEN, RED-check (com `Defesa a mutar` e `Teste que deve cair`) e REFACTOR.
-- [ ] CA-02 (edge, RED-check do próprio gate): Dado o teste de paridade verde, quando um dos quatro
+- [x] CA-02 (edge, RED-check do próprio gate): Dado o teste de paridade verde, quando um dos quatro
       checkboxes é removido do template, então o teste falha; restaurado, volta a passar.
-- [ ] CA-03: Dado `skills/tdd-workflow/SKILL.md`, quando lido, então existe `## Contrato do Ciclo
+- [x] CA-03: Dado `skills/tdd-workflow/SKILL.md`, quando lido, então existe `## Contrato do Ciclo
       por Fase` com os três tipos e o mapa nível → gate, e `fase-template.md` e `plan-executor.md`
       apontam para ela pelo caminho.
-- [ ] CA-04: Dado uma fase de comportamento, quando o subagente RED termina, então o orquestrador
+- [x] CA-04: Dado uma fase de comportamento, quando o subagente RED termina, então o orquestrador
       roda o teste e só spawna o GREEN se a falha é por assertion; `Cannot find module` bloqueia com
       mensagem apontando stub-first.
-- [ ] CA-05: Dado nível Assistido e uma fase `[RISCO]`, quando o RED é confirmado, então o
+- [x] CA-05: Dado nível Assistido e uma fase `[RISCO]`, quando o RED é confirmado, então o
       orquestrador apresenta o teste ao dev antes do GREEN; dado uma fase sem marca, então não para.
-- [ ] CA-06: Dado o GREEN verde, quando o orquestrador aplica `Defesa a mutar`, então `Teste que
+- [x] CA-06: Dado o GREEN verde, quando o orquestrador aplica `Defesa a mutar`, então `Teste que
       deve cair` falha; restaurado, `git diff --stat` é vazio; o STATE log tem `red_check: pass`.
-- [ ] CA-07 (edge): Dado o RED-check em que o teste **não** cai, então a fase fica `blocked`, o
+- [x] CA-07 (edge): Dado o RED-check em que o teste **não** cai, então a fase fica `blocked`, o
       MEMORY recebe DI "teste não prova a defesa" e o plano não avança para a fase dependente.
-- [ ] CA-08: Dado o GREEN verde, quando o REFACTOR roda, então existe commit `refactor(...)` separado
+- [x] CA-08: Dado o GREEN verde, quando o REFACTOR roda, então existe commit `refactor(...)` separado
       do `feat(...)`, ou o envelope registra `refactor: none` com motivo.
-- [ ] CA-09: Dado uma fase sem comportamento, quando executada, então o checklist tem gate textual
+- [x] CA-09: Dado uma fase sem comportamento, quando executada, então o checklist tem gate textual
       com "remover alvo → gate cai → restaurar" e o STATE log recebe o mesmo `red_check`.
-- [ ] CA-10 (Should): Dado uma fase concluída, quando o `plan-verifier` retorna, então o envelope
+- [x] CA-10 (Should): Dado uma fase concluída, quando o `plan-verifier` retorna, então o envelope
       tem o check `red-check-evidence` e o 4d o consolida sem mudança no parser.
+
+**Evidência dos marcados (2026-09-09).** Cada item acima está guardado por assertion no gate de paridade
+e cai quando a regra é removida — provado por mutação, não por leitura. Em runtime, o dogfood confirmou
+CA-04 (o ramo assertion), CA-05 (o ramo `[RISCO]`), CA-06, CA-07, CA-08, CA-09 e CA-10.
+
+Dois ramos foram provados **só em texto**, e é honesto dizer: o bloqueio por `Cannot find module` do
+CA-04 nunca disparou, porque nenhuma rodada produziu module-not-found; e o "fase sem marca não para" do
+CA-05 nunca foi exercitado, porque no nível Assistido as duas fases da rodada limpa tinham motivo para
+parar. As duas assertions que os guardam são bilaterais e foram provadas por mutação — a DI-1 do Plano 02
+tornou a de `human_gate` bilateral exatamente por esse risco.
+
+**RF-09 e RF-10 não foram marcados.** RF-09 está meio feito: o passo 0 do 4c LÊ `tdd_level` do
+`user_profile` (e a rodada limpa mostrou o orquestrador procurando lá antes de cair no default), mas nada
+escreve esse valor. RF-10 não foi feito: o learn point do execute-plan fala de context isolation, execução
+hierárquica e memória por plano — não de por que mutação, e não teste verde, prova a defesa. Os dois são
+Could Have pelo próprio PRD.
 
 ---
 
