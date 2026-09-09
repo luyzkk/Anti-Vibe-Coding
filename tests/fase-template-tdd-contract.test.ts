@@ -400,3 +400,39 @@ describe('execute-plan — Step 4c prova a defesa por mutacao e exige REFACTOR (
     ).toContain('RED-check')
   })
 })
+
+// 2026-09-08 (Luiz/dev): plan-verifier por fase + STATE log — PRD tdd-cycle-contract §RF-05, Observabilidade, CA-10.
+const planVerifier = read('agents/plan-verifier.md')
+
+describe('execute-plan — VERIFY por fase e STATE log (RF-05, observabilidade)', () => {
+  const step4c = section(executePlan, '### 4c.')
+
+  test('plan-verifier confere red-check-evidence no checklist e no exemplo de output (CA-10)', () => {
+    const checklist = section(planVerifier, '## Checklist de Verificacao')
+    expect(
+      checklist,
+      `[parity gate "nunca diminuir" — RF-05] plan-verifier nao tem o check red-check-evidence. Sem ele o verifier ` +
+        `confere tudo menos a unica prova de que o teste testa a defesa.`,
+    ).toContain('red-check-evidence')
+    expect(checklist, '[parity gate "nunca diminuir" — RF-05] red-check-evidence sem o estado unable_to_verify — campo ausente viraria pass ou fail por chute').toContain('unable_to_verify')
+    expect(section(planVerifier, '## Formato de Saida'), '[parity gate "nunca diminuir" — CA-10] exemplo de envelope sem red-check-evidence').toContain('red-check-evidence')
+  })
+
+  test('plan-verifier continua read-only (D3)', () => {
+    expect(section(planVerifier, '## Regras'), '[parity gate "nunca diminuir" — D3] Regra Read-only sumiu do plan-verifier').toMatch(/Read-only/)
+  })
+
+  test('4c spawna o plan-verifier por fase dizendo o que recebe e nao recebe (RF-05)', () => {
+    expect(step4c, '[parity gate "nunca diminuir" — RF-05] 4c nao spawna plan-verifier').toContain('plan-verifier')
+    expect(step4c, '[parity gate "nunca diminuir" — RF-05] 4c nao pede red-check-evidence ao verifier').toContain('red-check-evidence')
+    expect(step4c, '[parity gate "nunca diminuir" — RF-05] VERIFY sem lista "NAO RECEBE" — o verifier veria o PRD').toMatch(/NAO RECEBE/)
+  })
+
+  test('Step 5 mostra os quatro campos do ciclo e o custo da fase (Observabilidade)', () => {
+    const step5 = section(executePlan, '## Step 5')
+    for (const field of ['red_confirmed', 'human_gate', 'red_check', 'refactor']) {
+      expect(step5, `[parity gate "nunca diminuir" — Observabilidade] Step 5 nao mostra ${field} ao dev`).toContain(field)
+    }
+    expect(step5, '[parity gate "nunca diminuir" — Performance] Step 5 nao mostra o custo da fase (rodadas de teste, spawns)').toMatch(/[Cc]usto/)
+  })
+})
