@@ -272,18 +272,18 @@ describe('execute-plan — Step 4c resolve o nivel, confirma o RED e para no gat
   })
 
   test('4c resolve o nivel por --tdd-level, user_profile e default Assistido (D2)', () => {
-    expect(step4c, '[parity gate — RF-08] 4c nao le --tdd-level').toContain('--tdd-level')
-    expect(step4c, '[parity gate — RF-03] 4c nao le user_profile (sinal que tdd-workflow ja usa)').toContain('user_profile')
+    expect(step4c, '[parity gate "nunca diminuir" — RF-08] 4c nao le --tdd-level').toContain('--tdd-level')
+    expect(step4c, '[parity gate "nunca diminuir" — RF-03] 4c nao le user_profile (sinal que tdd-workflow ja usa)').toContain('user_profile')
     expect(
       step4c,
-      `[parity gate — D2] 4c perdeu o default Assistido. Assistido para em [RISCO] e no tracer ` +
+      `[parity gate "nunca diminuir" — D2] 4c perdeu o default Assistido. Assistido para em [RISCO] e no tracer ` +
         `bullet — e onde a spec errada morre barato. Restaure a linha do default, nao esta assercao.`,
     ).toMatch(/Assistido[^\n]*default|default[^\n]*Assistido/)
   })
 
   test('4c exige que o orquestrador confirme a falha do RED por assertion e bloqueie module-not-found (CA-04)', () => {
-    expect(step4c, '[parity gate — CA-04] 4c nao registra red_confirmed').toContain('red_confirmed')
-    expect(step4c, '[parity gate — CA-04] 4c nao classifica a falha por assertion').toMatch(/red_confirmed: assertion/)
+    expect(step4c, '[parity gate "nunca diminuir" — CA-04] 4c nao registra red_confirmed').toContain('red_confirmed')
+    expect(step4c, '[parity gate "nunca diminuir" — CA-04] 4c nao classifica a falha por assertion').toMatch(/red_confirmed: assertion/)
     expect(
       step4c,
       `[parity gate "nunca diminuir" — CA-04] 4c perdeu a regra que classifica saida com marcador ` +
@@ -309,7 +309,7 @@ describe('execute-plan — Step 4c resolve o nivel, confirma o RED e para no gat
   })
 
   test('4c para no gate humano com AskUserQuestion e registra human_gate (CA-05)', () => {
-    expect(step4c, '[parity gate — CA-05] 4c nao para para o humano').toContain('AskUserQuestion')
+    expect(step4c, '[parity gate "nunca diminuir" — CA-05] 4c nao para para o humano').toContain('AskUserQuestion')
     expect(
       step4c,
       `[parity gate "nunca diminuir" — CA-05] 4c perdeu o ramo "human_gate: stopped". CA-05 e ` +
@@ -330,14 +330,14 @@ describe('execute-plan — Step 4c resolve o nivel, confirma o RED e para no gat
     // G21: frontmatter nao tem heading — section() nao chega la.
     expect(
       executePlan,
-      '[parity gate — RF-08] argument-hint do execute-plan nao anuncia --tdd-level',
+      '[parity gate "nunca diminuir" — RF-08] argument-hint do execute-plan nao anuncia --tdd-level',
     ).toMatch(/^argument-hint:.*--tdd-level/m)
   })
 
   test('wave-execution §Ciclo Completo aponta para a fonte', () => {
     expect(
       section(waveExecution, '### Ciclo Completo'),
-      `[parity gate — RF-01] wave-execution.md §Ciclo Completo virou copia solta do ciclo. ` +
+      `[parity gate "nunca diminuir" — RF-01] wave-execution.md §Ciclo Completo virou copia solta do ciclo. ` +
         `E resumo; a definicao e a secao-fonte da skill tdd-workflow.`,
     ).toContain('Contrato do Ciclo por Fase')
   })
@@ -348,12 +348,12 @@ describe('execute-plan — Step 4c prova a defesa por mutacao e exige REFACTOR (
   const step4c = section(executePlan, '### 4c.')
 
   test('4c le Defesa a mutar e Teste que deve cair da fase (D6)', () => {
-    expect(step4c, '[parity gate — CA-06] 4c nao le "Defesa a mutar"').toContain('Defesa a mutar')
-    expect(step4c, '[parity gate — CA-06] 4c nao le "Teste que deve cair"').toContain('Teste que deve cair')
+    expect(step4c, '[parity gate "nunca diminuir" — CA-06] 4c nao le "Defesa a mutar"').toContain('Defesa a mutar')
+    expect(step4c, '[parity gate "nunca diminuir" — CA-06] 4c nao le "Teste que deve cair"').toContain('Teste que deve cair')
   })
 
   test('4c restaura com git restore e prova diff vazio (CA-06)', () => {
-    expect(step4c, '[parity gate — CA-06] 4c nao restaura pelo git').toContain('git restore')
+    expect(step4c, '[parity gate "nunca diminuir" — CA-06] 4c nao restaura pelo git').toContain('git restore')
     expect(
       step4c,
       `[parity gate "nunca diminuir" — CA-06] 4c nao exige "git diff --stat" vazio apos restaurar. Sem isso ` +
@@ -365,11 +365,11 @@ describe('execute-plan — Step 4c prova a defesa por mutacao e exige REFACTOR (
         `confirmada por mutacao em 2026-09-08 (fase-01, DI-1/DI-2). Restaure a linha "Exigir \`git diff ` +
         `--stat\` vazio", nao afrouxe esta assercao de volta a um toContain solto.`,
     ).toMatch(/git restore[\s\S]*?git diff --stat/)
-    expect(step4c, '[parity gate — CA-06] 4c nao registra red_check no STATE').toMatch(/red_check: pass/)
+    expect(step4c, '[parity gate "nunca diminuir" — CA-06] 4c nao registra red_check no STATE').toMatch(/red_check: pass/)
   })
 
   test('4c trata teste que nao cai como blocker com DI (CA-07)', () => {
-    expect(step4c, '[parity gate — CA-07] 4c nao bloqueia a fase').toMatch(/red_check: fail/)
+    expect(step4c, '[parity gate "nunca diminuir" — CA-07] 4c nao bloqueia a fase').toMatch(/red_check: fail/)
     expect(
       step4c,
       `[parity gate "nunca diminuir" — CA-07] 4c nao marca a fase como blocked. Assercao ancorada no par ` +
@@ -382,20 +382,20 @@ describe('execute-plan — Step 4c prova a defesa por mutacao e exige REFACTOR (
     ).toMatch(/red_check: fail[\s\S]*?blocked/)
     expect(
       step4c,
-      `[parity gate — CA-07] 4c nao registra a DI "teste nao prova a defesa". Um teste que continua ` +
+      `[parity gate "nunca diminuir" — CA-07] 4c nao registra a DI "teste nao prova a defesa". Um teste que continua ` +
         `verde com a defesa removida nao testa a defesa — e o plano nao pode avancar em cima dele.`,
     ).toContain('teste nao prova a defesa')
   })
 
   test('4c exige REFACTOR em commit proprio ou motivo (CA-08, D4)', () => {
-    expect(step4c, '[parity gate — CA-08] 4c nao pede commit refactor(...) separado').toContain('refactor(')
-    expect(step4c, '[parity gate — CA-08] 4c nao aceita "refactor: none (motivo)"').toMatch(/refactor: none/)
+    expect(step4c, '[parity gate "nunca diminuir" — CA-08] 4c nao pede commit refactor(...) separado').toContain('refactor(')
+    expect(step4c, '[parity gate "nunca diminuir" — CA-08] 4c nao aceita "refactor: none (motivo)"').toMatch(/refactor: none/)
   })
 
   test('Regras Criticas: rodar teste, mutar e restaurar e verificacao do orquestrador, nao implementacao (D3)', () => {
     expect(
       section(executePlan, '## Regras Criticas'),
-      `[parity gate — D3] "O orchestrador nao implementa" precisa dizer que o RED-check e verificacao. ` +
+      `[parity gate "nunca diminuir" — D3] "O orchestrador nao implementa" precisa dizer que o RED-check e verificacao. ` +
         `Sem a frase, a regra 1 e o passo 5 do 4c se contradizem e o orquestrador pula a mutacao.`,
     ).toContain('RED-check')
   })
