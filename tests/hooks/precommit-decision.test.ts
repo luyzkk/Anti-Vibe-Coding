@@ -74,6 +74,28 @@ describe('pre-commit: fora do RED, a suite decide', () => {
   })
 })
 
+describe('pre-commit: chave de desligar, como todo gate do plugin', () => {
+  // DEFESA A MUTAR: o ramo que devolve allow quando `enabled` e false.
+  // O TDD Gate tem `mode: off` e o caminho Bash tem `bash_path: off`. Um gate que roda a suite
+  // inteira em TODO commit e nao pode ser desligado seria o unico obrigatorio do plugin — e gate
+  // que atrapalha e desligado na marra, o que devolve o bypass de bandeja.
+  it('permite sem rodar a suite quando o pre-commit esta desligado', () => {
+    const suite = suiteThat({ ok: false, error: 'quebrada' })
+    const r = decide({ command: 'git commit -m "feat: x"', phase: 'green', runSuite: suite.run, enabled: false })
+    expect(r.action).toBe('allow')
+    expect(suite.state.ran).toBe(false)
+    expect(r.reason).toMatch(/desligad/i)
+  })
+
+  // O outro lado do criterio bilateral: chave ausente NAO pode virar "desligado" por acidente.
+  it('roda a suite quando a chave esta ausente — o default e ligado', () => {
+    const suite = suiteThat({ ok: true })
+    const r = decide({ command: 'git commit -m "feat: x"', phase: 'green', runSuite: suite.run })
+    expect(suite.state.ran).toBe(true)
+    expect(r.action).toBe('allow')
+  })
+})
+
 describe('pre-commit: falha aberta quando a suite nao pode rodar', () => {
   // DEFESA A MUTAR: distinguir "a suite reprovou" de "a suite nao rodou".
   // Se as duas caem no mesmo ramo, um script ausente ou um timeout sob carga bloqueia todo commit
