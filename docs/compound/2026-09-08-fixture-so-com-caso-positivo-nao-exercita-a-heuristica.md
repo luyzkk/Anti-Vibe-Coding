@@ -61,5 +61,5 @@ e [2026-08-12-grep-negativo-exige-controle-positivo.md](./2026-08-12-grep-negati
 
 - `tests/fixtures/route-auth-matrix/express-minimal/` e `python-fastapi-minimal/app/deps.py`
 - `skills/security/lib/route-auth-express.test.ts` (teste do caso misto; commit `4dc7ae2`)
-- Descoberto em: `docs/exec-plans/active/2026-09-02-route-auth-matrix-audit/plano04/MEMORY.md`
+- Descoberto em: `docs/exec-plans/completed/2026-09-02-route-auth-matrix-audit/plano04/MEMORY.md`
   (GT-fase02-1) — PR #77

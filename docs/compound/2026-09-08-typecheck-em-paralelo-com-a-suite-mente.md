@@ -60,5 +60,5 @@ o escopo do typecheck.
 ## Affected files
 
 - `tsconfig.json` (o `include: **/*.ts` que torna o `tsc` sensivel a arvore) — **nao alterado**
-- Descoberto em: `docs/exec-plans/active/2026-09-02-route-auth-matrix-audit/plano04/MEMORY.md`
+- Descoberto em: `docs/exec-plans/completed/2026-09-02-route-auth-matrix-audit/plano04/MEMORY.md`
   (GT-fase04-1) — falha auto-infligida do orquestrador durante a verificacao da fase-04, PR #77

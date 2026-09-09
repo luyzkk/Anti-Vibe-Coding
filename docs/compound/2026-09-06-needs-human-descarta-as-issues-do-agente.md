@@ -57,6 +57,6 @@ segundos e evita reprojetar depois.
 
 - `skills/verify-work/lib/audit-consolidator.ts:91-95` (o ramo que descarta — nao alterado, apenas evitado)
 - `agents/security-auditor.md` (secao 11: bloco destacado em `reasoning` + `request_changes`)
-- Decidido em: `docs/exec-plans/active/2026-09-02-route-auth-matrix-audit/plano02/MEMORY.md`
+- Decidido em: `docs/exec-plans/completed/2026-09-02-route-auth-matrix-audit/plano02/MEMORY.md`
   (DEV-plan-3, refinamento da DP-12; G19 do README) — PR #75
 - Contexto do contrato: [2026-05-14-subagent-contract-v1-migration.md](./2026-05-14-subagent-contract-v1-migration.md)
