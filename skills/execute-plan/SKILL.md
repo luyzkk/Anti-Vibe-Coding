@@ -500,11 +500,17 @@ Ler do bloco ### TDD da fase: Tipo de fase, comando do RED, `Defesa a mutar`, `T
        fases dependentes NAO iniciam; dev avisado no Step 5
    - Fase sem-comportamento: `Defesa a mutar` e o alvo textual, `Teste que deve cair` e o comando
        do gate — remover o alvo → gate cai → restaurar → mesmos campos no STATE log
+   - Commitar a linha do STATE log ja com `red_check` e `refactor` ANTES de spawnar o passo 6:
+       `docs(state): red_check fase-{NN}` no caminho pass, `docs(state): fase-{NN} blocked — red_check fail`
+       no caminho fail. O passo 6 manda o verifier LER essa linha — se o commit vier so depois do spawn,
+       ele le uma linha que existe so na working tree e reprova a evidencia (dogfood r2/r3 2026-09-09:
+       3x em 3 verificacoes, com verdict request_changes)
 
 6. VERIFY (spawn plan-verifier — read-only; PRD D3):
    RECEBE:
    - O arquivo da fase (`{PASTA_ATIVA}/plano{NN}/fase-MM-nome.md`)
-   - A linha do STATE log desta fase (tdd_level, red_confirmed, human_gate, red_check, refactor)
+   - A linha do STATE log desta fase, ja commitada no passo 5 (tdd_level, red_confirmed, human_gate,
+     red_check, refactor)
    - Lista de arquivos tocados: saida de `git diff --stat {HEAD-antes}..HEAD`
    - Comando de teste da fase
    NAO RECEBE:
