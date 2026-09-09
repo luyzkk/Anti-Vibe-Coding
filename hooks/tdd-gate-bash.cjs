@@ -24,6 +24,8 @@ const path = require('path');
 const { needsTest, basenameFor } = require('./lib/tdd-decision.cjs');
 const { extractWriteTargets } = require('./lib/bash-write-targets.cjs');
 const { commandCwd, toNativePath } = require('./lib/bash-cwd.cjs');
+const { projectRootFor } = require('./lib/project-root.cjs');
+const { reportAndAllow } = require('./lib/fail-open.cjs');
 
 function allow() { process.exit(0); }
 function block(reason) {
@@ -71,8 +73,13 @@ function processInput() {
     const platform = process.platform;
     const sessionCwd = process.cwd();
     const cwd = commandCwd(command, sessionCwd, platform) || sessionCwd;
+    // ADR-0023: o `cd` resolve alvo RELATIVO; alvo ABSOLUTO em outro projeto precisa da raiz dele.
+    // `projectRootFor` devolve o proprio `cwd` para caminho relativo, entao compoe sem regressao.
     const blocked = extractWriteTargets(command)
-      .filter(target => needsTest(toNativePath(target, platform), cwd));
+      .filter(target => {
+        const native = toNativePath(target, platform);
+        return needsTest(native, projectRootFor(native, cwd));
+      });
     if (blocked.length === 0) return allow();
 
     const names = blocked.map(t => `"${basenameFor(t)}"`).join(', ');
@@ -83,8 +90,9 @@ function processInput() {
       `a resposta e escrever o teste ou reportar, nao trocar de ferramenta. ` +
       `Anti-Vibe Coding: Red -> Green -> Refactor.`
     );
-  } catch {
-    allow(); // fail-open: hook quebrado nunca pode travar o terminal
+  } catch (err) {
+    // fail-open: hook quebrado nunca pode travar o terminal. Mas nao calado (ADR-0023).
+    reportAndAllow('tdd-gate-bash', err);
   }
 }
 
