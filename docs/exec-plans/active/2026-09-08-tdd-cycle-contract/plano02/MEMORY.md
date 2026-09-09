@@ -2,7 +2,7 @@
 
 **Feature:** Contrato Unico do Ciclo TDD por Fase
 **Iniciado:** 2026-09-08
-**Status:** em andamento (fases 01-03 concluidas; fase-04 com o Passo 1, o RF-05 (DI-8), as rodadas r2/r3 (DI-9) e a correcao do achado delas (DI-10) feitos — falta a Premissa 1, que exige sessao limpa, e o SUMMARY)
+**Status:** fase-04 CONCLUIDA. A rodada limpa rodou (DI-11) e a **Premissa 1 esta respondida**. Restam 4 achados novos do 4c e 1 fora dele, todos registrados no DI-11 e nenhum bloqueante.
 **Branch:** `feat/tdd-cycle-contract-plano02` (empilhada sobre `feat/tdd-cycle-contract`, que esta na PR #79)
 
 ---
@@ -277,6 +277,62 @@
   deu `2 fail` e a re-rodada deu 0 — flakiness conhecida do Windows, e a rodada suja levou 153s contra 27s
   na limpa.
 
+- **DI-11 (fase-04): a rodada limpa rodou, e a Premissa 1 esta RESPONDIDA — afirmativamente.**
+  Fixture `r4` (`F:\tmp\avc-tdd-dogfood-r4`), baseline `d380df1`, executada por **subagentes de
+  contexto novo** que nunca leram o roteiro, este MEMORY nem o HANDOFF. O gate humano foi mediado:
+  a pergunta chegou ao dev como o subagente a formulou, e a resposta voltou sem acrescimo. Resultado
+  final no fixture: `Phase: completed`, 2/2 fases, arvore limpa, suite `3 pass / 0 fail`,
+  `test(` antes de `feat(` nas duas fases, e **zero residuo de mutacao** nos dois arquivos.
+
+  **O que agentes que nunca viram o 4c fizeram, so porque estava escrito:**
+  | Passo do 4c | O que fizeram, sem ninguem mandar |
+  |---|---|
+  | 0 | resolveram `assistido` e **procuraram** `tdd_level` no user_profile do projeto antes de cair no default |
+  | 2 | rodaram o teste **eles mesmos** e classificaram a saida, sem confiar no relato do subagente RED |
+  | 2 | gravaram a linha do STATE **e commitaram** antes do gate |
+  | 3 | pararam nas **duas** fases — tracer bullet e `[RISCO]` — e nao auto-responderam |
+  | 4 | spawnaram o GREEN com **apenas** o arquivo de teste, sem PRD nem descricao |
+  | 5 | mutaram a defesa nomeada, rodaram **so** o teste nomeado, restauraram e exigiram diff vazio |
+  | 6 | spawnaram o verifier e completaram a linha com `custo` |
+
+  Isto e a Premissa 1: **o 4c como prompt muda o comportamento real.** Nao e mais inferencia.
+
+  **Ressalva metodologica, dita porque o log sem ela enganaria:** foram tres instancias de subagente,
+  nao uma sessao top-level unica — `SendMessage` nao estava disponivel para continuar a mesma
+  instancia apos o gate, entao cada retomada foi um agente novo lendo o estado commitado. Isso
+  **reforca** o resultado em vez de enfraquece-lo: tres agentes independentes convergiram para o
+  mesmo comportamento a partir do mesmo texto. O que nao foi exercitado e uma sessao humana top-level
+  de ponta a ponta.
+
+  **A correcao do DI-10 foi confirmada por quem nao sabia que ela existia.** `red-check-evidence`
+  voltou `pass` nas duas fases, e o subagente registrou o porque sem ser perguntado: commitou a linha
+  do STATE antes de spawnar o verifier. O que a r2/r3 quebrava tres vezes em tres agora passa.
+
+  **Quatro achados NOVOS, todos do 4c, nenhum visivel as 43 assercoes:**
+  1. **A ancora imutavel nunca e armada.** O passo 4 diz "Anchor imutavel: NUNCA modifica testes"
+     como se ela ja estivesse ligada, mas **nenhum passo manda arma-la**. Apos o RED o
+     `.claude/.tdd-phase.json` fica em `phase: "red"`, e `isImmutableTest()` (`hooks/tdd-gate.cjs:62`)
+     retorna `false` fora de `"green"`. Duas fases em duas: quem seguir o contrato ao pe da letra roda
+     **todo** GREEN com a protecao desligada e nunca descobre, porque o gate so falharia se o GREEN de
+     fato tentasse editar o teste. Confirma o item "ancora nunca armada" do
+     `project_tdd-pipeline-gaps_2026-09-08` — segue aberto na 7.7.0.
+  2. **O ciclo de vida da ancora nao tem fim.** Nenhum passo manda desarmar. O fixture terminou com
+     `phase: "green"` stale.
+  3. **O veredicto do verifier e instavel entre rodadas.** Mesma situacao estrutural deu
+     `request_changes` na fase-01 e `approve` na fase-02, no mesmo check `task_complete`. Causa de
+     fundo: **o contrato nao diz onde o motivo do `refactor: none` mora** — o bloco `### TDD` da fase
+     manda registrar no MEMORY, o passo 4 do 4c manda registrar no STATE log. E a MEMORY so e escrita
+     no Step 4d, **depois** do passo 6 — entao o verifier le template vazio. Mesma **classe** do
+     GT-7 (ordem entre quem escreve e quem le), instancia diferente: o DI-10 consertou o STATE, o
+     MEMORY continua depois do leitor.
+  4. **`custo: testes` e pedido fora de ordem.** Fechado no passo 6, mas o Step 5 roda mais uma
+     rodada depois. Fechar antes subestima; fechar depois inverte a ordem dos passos.
+
+  **E um quinto, fora do 4c:** `hooks/tdd-gate.cjs` tem o **mesmo bug de cwd da issue #82**, no
+  caminho `Write|Edit`. Ele le a ancora em `path.join(process.cwd(), '.claude', '.tdd-phase.json')`,
+  e `process.cwd()` do hook e o cwd da SESSAO. O fix de hoje cobriu so o caminho Bash. Achado
+  espontaneamente pelo primeiro subagente, que nao sabia da issue.
+
 ---
 
 ## Bugs Descobertos
@@ -396,8 +452,9 @@ Nenhum bug de codigo nesta fase. O achado da DI-1 e um defeito de **teste**, nao
 | Assercoes no gate de paridade | 21 → 27 → 32 → 36 → 40 → **43** |
 | Suite | 2165 → 2171 → 2176 → 2180 → 2184 → **2187 pass, 0 fail** |
 | Defesas no RED-check (regressao completa) | **19** nomeadas, todas caindo pelo teste nomeado. Na correcao pos-dogfood a regressao virou **varredura**: 118 delecoes de linha do bloco 4c, **16/16** assercoes que leem `step4c` derrubadas, nenhuma vacua (DI-10) |
-| Defeitos achados so pelo dogfood | **3** — 2 na r1 (DI-7) e 1 nas r2/r3 (DI-9, ordem do passo 6). Nenhum visivel as 40 assercoes nem aos RED-checks por fase |
-| Rodadas de dogfood executadas | **3** (r1 fase-01; r2 fase-01; r3 fase-01 e fase-02) — todas contaminadas para a Premissa 1 |
+| Defeitos achados so pelo dogfood | **8** — 2 na r1 (DI-7), 1 nas r2/r3 (DI-9), **4 do 4c + 1 fora dele na r4** (DI-11). Nenhum visivel as 43 assercoes nem aos RED-checks por fase |
+| Rodadas de dogfood executadas | **4** — r1, r2 e r3 contaminadas; **r4 limpa**, por subagentes de contexto novo, 2/2 fases, `Phase: completed` (DI-11) |
+| Premissa 1 | **RESPONDIDA, afirmativamente** (DI-11) |
 | Lacunas menores do 4c registradas | **4** (DI-9): passo 6 apos `red_check: fail`; mensagem de commit so do caminho feliz; `blocked` fora do vocabulario do STATE; checkboxes da fase nunca marcados |
 
 ### Evidencia do ciclo — fase-01
