@@ -26,6 +26,7 @@ const { extractWriteTargets } = require('./lib/bash-write-targets.cjs');
 const { commandCwd, toNativePath } = require('./lib/bash-cwd.cjs');
 const { projectRootFor } = require('./lib/project-root.cjs');
 const { reportAndAllow } = require('./lib/fail-open.cjs');
+const { readGateConfig } = require('./lib/gate-config.cjs');
 
 function allow() { process.exit(0); }
 function block(reason) {
@@ -33,15 +34,6 @@ function block(reason) {
   process.exit(2);
 }
 
-function readConfig() {
-  try {
-    const configPath = path.join(__dirname, '..', 'config', 'tdd-gate.json');
-    if (!fs.existsSync(configPath)) return {};
-    return JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  } catch {
-    return {};
-  }
-}
 
 // Mesmo safety timeout do tdd-gate.cjs: stdin que nao fecha no Windows nao pode travar o terminal.
 const safetyTimer = setTimeout(() => allow(), 5000);
@@ -54,7 +46,7 @@ function processInput() {
   handled = true;
   clearTimeout(safetyTimer);
   try {
-    const config = readConfig();
+    const config = readGateConfig();
     if (config.mode === 'off') return allow();
     if (config.bash_path === 'off') return allow();
 

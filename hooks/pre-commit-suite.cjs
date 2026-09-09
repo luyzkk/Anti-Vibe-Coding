@@ -10,11 +10,11 @@
  * A decisao mora em `lib/precommit-decision.cjs`; aqui fica so o I/O.
  */
 
-const path = require('path');
 const { execFileSync } = require('child_process');
 const { decide } = require('./lib/precommit-decision.cjs');
 const { readTddPhase } = require('./lib/tdd-phase.cjs');
 const { reportAndAllow } = require('./lib/fail-open.cjs');
+const { readGateConfig } = require('./lib/gate-config.cjs');
 
 function allow() { process.exit(0); }
 function block(reason) {
@@ -65,6 +65,9 @@ function processInput() {
       command,
       phase: anchor && anchor.phase ? anchor.phase : null,
       runSuite: () => runSuite(cwd),
+      // `precommit: "off"` desliga, igual a `mode: off` e `bash_path: off`. Qualquer outro valor,
+      // inclusive chave ausente, mantem ligado.
+      enabled: readGateConfig().precommit !== 'off',
     });
 
     if (decision.action === 'block') {

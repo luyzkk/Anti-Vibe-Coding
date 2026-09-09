@@ -1,6 +1,7 @@
 {
   "mode": "regex",
   "bash_path": "on",
+  "precommit": "on",
   "immutable_test_patterns": [
     "*.test.*",
     "*.spec.*",

@@ -26,6 +26,8 @@ const { reportAndAllow } = require('./lib/fail-open.cjs');
 // A leitura da ancora e compartilhada com o pre-commit: formato lido em dois lugares com regras
 // proprias e como nasce uma terceira definicao do mesmo ciclo.
 const { readTddPhase } = require('./lib/tdd-phase.cjs');
+// Config num leitor so: tres hooks leem este arquivo, e defaults divergentes viravam bug silencioso.
+const { readGateConfig } = require('./lib/gate-config.cjs');
 
 function allow()        { process.exit(0); }
 function block(reason)  {
@@ -33,25 +35,6 @@ function block(reason)  {
   process.exit(2);
 }
 
-function readConfig() {
-  // 2026-09-09 (Luiz/dev): ADR-0023 — toda chave aqui precisa ter leitor real neste arquivo.
-  // Chave que aparece so nos defaults e config morta: documenta comportamento que nao existe e
-  // falha ABRINDO, entao ninguem descobre pelo uso. Cinco sairam por isso; a lista nominal mora no
-  // ADR, e nao aqui, para nao envenenar busca por token neste arquivo.
-  const defaults = {
-    mode: 'regex',
-    immutable_test_patterns: ['*.test.*', '*.spec.*', '*.e2e.*'],
-    block_test_modification_in_green: true
-  };
-  try {
-    const configPath = path.join(__dirname, '..', 'config', 'tdd-gate.json');
-    if (!fs.existsSync(configPath)) return defaults;
-    const raw = fs.readFileSync(configPath, 'utf8');
-    return { ...defaults, ...JSON.parse(raw) };
-  } catch {
-    return defaults;
-  }
-}
 
 function isImmutableTest(filePath, config, phaseData) {
   if (!phaseData) return false;
@@ -88,7 +71,7 @@ function processInput() {
   handled = true;
   clearTimeout(safetyTimer);
   try {
-    const config = readConfig();
+    const config = readGateConfig();
     if (config.mode === 'off') return allow();
 
     const input     = JSON.parse(rawInput || '{}');

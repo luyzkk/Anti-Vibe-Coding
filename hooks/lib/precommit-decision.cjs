@@ -27,7 +27,13 @@
  * @returns {{action: 'allow'|'block', reason: string}}
  */
 function decide(input) {
-  const { command, phase, runSuite } = input || {};
+  const { command, phase, runSuite, enabled } = input || {};
+
+  // Desligar e explicito: so `enabled === false` desliga. Chave ausente segue LIGADA, senao um
+  // config truncado viraria gate desligado em silencio — que e a familia de defeito deste ADR.
+  if (enabled === false) {
+    return { action: 'allow', reason: 'pre-commit desligado em config/tdd-gate.json (precommit: off)' };
+  }
 
   if (!command || !String(command).includes('git commit')) {
     return { action: 'allow', reason: 'nao e um commit' };
