@@ -98,5 +98,5 @@ valem mais que a estatistica:
   `linhas-caducas`, `filtro-2-nao-3`, `notices-4o-arquivo`
 - `docs/compound/2026-05-14-skill-paths-tech-debt-after-v6.md` — o mecanismo do path que envelhece calado
 - `docs/compound/2026-08-12-grep-negativo-exige-controle-positivo.md` — o controle positivo
-- `docs/exec-plans/active/2026-09-02-route-auth-matrix-audit/plano03/MEMORY.md` e `plano04/MEMORY.md` — as sete
+- `docs/exec-plans/completed/2026-09-02-route-auth-matrix-audit/plano03/MEMORY.md` e `plano04/MEMORY.md` — as sete
   recorrencias de 2026-09-08 (DI-fase01-2, DI-fase02-1, DI-fase03-1, GT-fase05-1, DI-fase05-1)

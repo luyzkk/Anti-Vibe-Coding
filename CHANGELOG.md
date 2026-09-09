@@ -3,6 +3,82 @@
 Todas as mudanças notáveis do plugin Anti-Vibe Coding serão documentadas aqui.
 
 
+## [7.8.0] - 2026-09-09
+
+> **Minor release — Contrato do Ciclo TDD**
+
+Três features fecharam desde a 7.7.0. Duas de segurança, uma de disciplina de execução.
+
+### Added
+
+- **Contrato Único do Ciclo TDD por Fase.** O ciclo tinha **três definições** no plugin, na skill
+  `tdd-workflow`, no `fase-template.md` e no `plan-executor.md`, e elas já divergiam entre si. Agora
+  tem uma só, em `skills/tdd-workflow/SKILL.md` §`Contrato do Ciclo por Fase`, e os consumidores
+  apontam para ela em vez de parafrasear. A terceira cópia morreu.
+- **O Step 4c do `execute-plan` virou a sequência 0–6 que executa esse contrato:** resolve o nível →
+  RED → RED confirmado pelo orquestrador → gate humano → GREEN + REFACTOR → RED-check por mutação →
+  VERIFY. Cada campo da linha do STATE log tem um passo que o escreve.
+- **`--tdd-level guiado|assistido|direto`** no `/execute-plan`. O default é Assistido, que para em
+  fase `[RISCO]` e no tracer bullet, não em toda fase.
+- **`plan-verifier` spawnado por fase**, read-only, com o check `red-check-evidence`. O §Composition
+  dele dizia que o `execute-plan` o invocava no Step 5, e **ninguém o spawnava**. A mentira acabou
+  junto com a causa.
+- **Gate de paridade de 2 para 43 assertions** em `tests/fase-template-tdd-contract.test.ts`. É um
+  gate "nunca diminuir": cada assertion falha se a regra que ela guarda for removida, e a mensagem
+  explica por que a regra existe.
+- **Shift-left security pipeline** (13 fases): secrets-scanner com as famílias gitleaks, agente
+  `dependency-auditor` com triagem SCA via EPSS e CISA KEV, seção Ameaças & Dados condicional no PRD,
+  Abuse-It (teste de abuso no RED para slice de risco), CA-SEC por slice, contexto de ameaça chegando
+  ao `plan-executor`, e passe dinâmico opt-in no `verify-work`.
+- **Route-auth matrix audit** (16 fases): matriz rota × cobertura de auth com adaptadores para
+  Next.js, Rails, Express e Python (FastAPI, Flask, Django), allowlist de rotas públicas fail-closed,
+  cobertura reconstruída nas duas pontas do diff, e motor de veredito com severidade por regra.
+
+### Fixed
+
+- **TDD Gate do caminho Bash bloqueava escrita legítima** (issue #82). Ele resolvia o alvo contra o
+  cwd da **sessão**, não contra o diretório de onde o comando escreve, então `cd outro/projeto &&
+  echo x > src/a.ts` procurava o teste-irmão no projeto errado. Duas metades no conserto, porque no
+  Windows uma não serve sem a outra: ler o `cd` que abre o comando, e traduzir caminho de estilo Git
+  Bash, já que o Node enraíza a barra inicial no drive corrente e `/f/tmp/x` virava `F:\f\tmp\x`.
+- **A evidência do ciclo não chegava ao histórico.** O 4c escrevia a linha do STATE e nunca mandava
+  commitar, então a única prova do RED-check morava na working tree. Quem apontou foi o próprio
+  `plan-verifier`.
+- **O passo 6 lia a evidência antes de commitá-la.** Ele manda o verifier receber a linha do STATE,
+  mas a instrução de commit era o último bullet, depois do spawn. O verifier lia sempre uma linha que
+  só existia na working tree. Reproduziu 3 vezes em 3 verificações.
+- **A pré-condição do RED-check era inatingível:** o passo 2 grava o STATE antes do gate, o STATE vive
+  no repo do projeto, então `git diff --stat` nunca ficava vazio. Escopado ao arquivo da defesa.
+- Guard destrutivo passa a cobrir `update-ref`, formas longas de `-D` e a poda do reflog.
+
+### O que o dogfood provou, e por que ele estava no PRD
+
+Esta release carrega um resultado que vale mais que a lista acima. **Três defeitos do Step 4c
+passaram por escrita, revisão, dezenas de assertions de paridade e três RED-checks por fase sem
+aparecer.** Os três só apareceram quando o ciclo **rodou** num projeto real, e o segundo foi apontado
+pelo próprio `plan-verifier` que a feature mandou spawnar.
+
+Depois de corrigidos, o ciclo foi executado num fixture limpo por **agentes de contexto novo**, que
+nunca tinham visto o texto. Eles resolveram o nível procurando o `user_profile` antes de cair no
+default, rodaram o teste eles mesmos em vez de confiar no subagente, commitaram a linha do STATE
+antes do gate, pararam nas duas fases, mutaram e restauraram a defesa nomeada, e spawnaram o
+verifier. **O contrato como prompt muda o comportamento real.**
+
+Gate de paridade prova texto. Dogfood prova execução. As duas coisas são necessárias, e esta release
+é a evidência disso.
+
+### Sabidos, não corrigidos
+
+- A **âncora imutável de teste nunca é armada** pelo contrato. O passo 4 fala dela como se estivesse
+  ligada, mas nenhum passo manda ligá-la, então o GREEN roda desprotegido e ninguém descobre, porque
+  o gate só falharia se o GREEN de fato tentasse editar o teste.
+- `hooks/tdd-gate.cjs` tem o **mesmo bug de cwd da issue #82** no caminho `Write|Edit`. O fix desta
+  release cobriu só o caminho Bash.
+- O veredicto do `plan-verifier` é **instável entre rodadas**, porque o contrato não diz se o motivo
+  do `refactor: none` mora no STATE ou no MEMORY, e o MEMORY só é escrito depois do passo que o lê.
+- RF-09 (nível persistido em `user_profile`) está meio feito: o 4c lê, nada escreve. RF-10 (learn
+  point sobre por que mutação prova a defesa) não entrou. Os dois eram Could Have.
+
 ## [7.7.0] - 2026-08-31
 
 > **Minor release — 4ª stack: Python**
