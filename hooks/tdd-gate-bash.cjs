@@ -23,6 +23,7 @@ const fs = require('fs');
 const path = require('path');
 const { needsTest, basenameFor } = require('./lib/tdd-decision.cjs');
 const { extractWriteTargets } = require('./lib/bash-write-targets.cjs');
+const { commandCwd, toNativePath } = require('./lib/bash-cwd.cjs');
 
 function allow() { process.exit(0); }
 function block(reason) {
@@ -64,8 +65,13 @@ function processInput() {
     // nao ha o que decidir — sai antes de qualquer I/O.
     if (!/\.(ts|tsx|js|jsx)\b/.test(command)) return allow();
 
-    const cwd = process.cwd();
-    const blocked = extractWriteTargets(command).filter(target => needsTest(target, cwd));
+    // issue #82: o alvo se resolve contra o diretorio de onde o COMANDO escreve, nao o da
+    // sessao. Sem isto, `cd outro/projeto && echo x > src/a.ts` procurava o teste-irmao no
+    // projeto errado, nao achava, e bloqueava escrita legitima.
+    const sessionCwd = process.cwd();
+    const cwd = commandCwd(command, sessionCwd, process.platform) || sessionCwd;
+    const blocked = extractWriteTargets(command)
+      .filter(target => needsTest(toNativePath(target, process.platform), cwd));
     if (blocked.length === 0) return allow();
 
     const names = blocked.map(t => `"${basenameFor(t)}"`).join(', ');

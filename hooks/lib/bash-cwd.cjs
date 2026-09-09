@@ -27,7 +27,12 @@ const LEADING_CD = /^\s*cd\s+(?:"([^"]+)"|'([^']+)'|(\S+))\s*(?:&&|;)\s*/;
  * So o primeiro segmento de UMA letra e tratado como drive; `/foo/bar` passa intacto.
  */
 function toNativePath(p, platform) {
-  throw new Error('not implemented');
+  if (typeof p !== 'string' || p.length === 0) return p;
+  if (platform !== 'win32') return p;
+  const m = /^\/([A-Za-z])(\/.*)?$/.exec(p);
+  if (!m) return p;
+  const rest = (m[2] || '\\').replace(/\//g, '\\');
+  return `${m[1].toUpperCase()}:${rest}`;
 }
 
 /**
@@ -35,7 +40,18 @@ function toNativePath(p, platform) {
  * Caminho relativo no `cd` e resolvido contra `sessionCwd`.
  */
 function commandCwd(command, sessionCwd, platform) {
-  throw new Error('not implemented');
+  if (typeof command !== 'string' || command.length === 0) return null;
+  let rest = command;
+  let cwd = null;
+  for (;;) {
+    const m = LEADING_CD.exec(rest);
+    if (!m) break;
+    const raw = m[1] || m[2] || m[3];
+    const dir = toNativePath(raw, platform);
+    cwd = path.resolve(cwd || sessionCwd, dir);
+    rest = rest.slice(m[0].length);
+  }
+  return cwd;
 }
 
 module.exports = { commandCwd, toNativePath };
