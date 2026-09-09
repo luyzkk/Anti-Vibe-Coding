@@ -253,3 +253,63 @@ describe('plan-feature — Step 9 obriga a nomear a defesa e proibe prever a men
     ).toBe(true)
   })
 })
+
+// 2026-09-08 (Luiz/dev): Step 4c executa o contrato — PRD tdd-cycle-contract §RF-03, §RF-08, D2.
+// O 4c e um bloco cercado de pseudo-codigo: prose() o apagaria. section() cru, de proposito.
+const executePlan = read('skills/execute-plan/SKILL.md')
+const waveExecution = read('skills/execute-plan/references/wave-execution.md')
+
+describe('execute-plan — Step 4c resolve o nivel, confirma o RED e para no gate (RF-03 parte 1, RF-08)', () => {
+  const step4c = section(executePlan, '### 4c.')
+
+  test('4c aponta para a secao-fonte do ciclo', () => {
+    expect(
+      step4c,
+      `[parity gate "nunca diminuir" — RF-03] O Step 4c nao cita "Contrato do Ciclo por Fase". ` +
+        `O 4c EXECUTA o ciclo; a definicao mora em skills/tdd-workflow/SKILL.md. Sem o ponteiro, ` +
+        `o executor volta a ter a segunda definicao que este PRD existe para apagar.`,
+    ).toContain('Contrato do Ciclo por Fase')
+  })
+
+  test('4c resolve o nivel por --tdd-level, user_profile e default Assistido (D2)', () => {
+    expect(step4c, '[parity gate — RF-08] 4c nao le --tdd-level').toContain('--tdd-level')
+    expect(step4c, '[parity gate — RF-03] 4c nao le user_profile (sinal que tdd-workflow ja usa)').toContain('user_profile')
+    expect(
+      step4c,
+      `[parity gate — D2] 4c perdeu o default Assistido. Assistido para em [RISCO] e no tracer ` +
+        `bullet — e onde a spec errada morre barato. Restaure a linha do default, nao esta assercao.`,
+    ).toMatch(/Assistido[^\n]*default|default[^\n]*Assistido/)
+  })
+
+  test('4c exige que o orquestrador confirme a falha do RED por assertion e bloqueie module-not-found (CA-04)', () => {
+    expect(step4c, '[parity gate — CA-04] 4c nao registra red_confirmed').toContain('red_confirmed')
+    expect(step4c, '[parity gate — CA-04] 4c nao classifica a falha por assertion').toMatch(/red_confirmed: assertion/)
+    expect(
+      step4c,
+      `[parity gate — CA-04] 4c nao bloqueia "Cannot find module". Falha por import nao e RED — e ` +
+        `ausencia de stub (compound 2026-05-19-tdd-gate-needs-stub-first).`,
+    ).toContain('Cannot find module')
+    expect(step4c, '[parity gate — CA-04] bloqueio nao aponta para o checklist stub-first').toContain('tdd-cycle-checklist')
+  })
+
+  test('4c para no gate humano com AskUserQuestion e registra human_gate (CA-05)', () => {
+    expect(step4c, '[parity gate — CA-05] 4c nao para para o humano').toContain('AskUserQuestion')
+    expect(step4c, '[parity gate — CA-05] 4c nao registra human_gate no STATE').toContain('human_gate')
+  })
+
+  test('argument-hint do execute-plan aceita --tdd-level (RF-08)', () => {
+    // G21: frontmatter nao tem heading — section() nao chega la.
+    expect(
+      executePlan,
+      '[parity gate — RF-08] argument-hint do execute-plan nao anuncia --tdd-level',
+    ).toMatch(/^argument-hint:.*--tdd-level/m)
+  })
+
+  test('wave-execution §Ciclo Completo aponta para a fonte', () => {
+    expect(
+      section(waveExecution, '### Ciclo Completo'),
+      `[parity gate — RF-01] wave-execution.md §Ciclo Completo virou copia solta do ciclo. ` +
+        `E resumo; a definicao e a secao-fonte da skill tdd-workflow.`,
+    ).toContain('Contrato do Ciclo por Fase')
+  })
+})
