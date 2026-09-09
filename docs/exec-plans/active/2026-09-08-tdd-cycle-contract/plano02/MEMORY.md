@@ -2,7 +2,7 @@
 
 **Feature:** Contrato Unico do Ciclo TDD por Fase
 **Iniciado:** 2026-09-08
-**Status:** em andamento (fases 01, 02 e 03 concluidas, 3/4 — falta so o dogfood da fase-04)
+**Status:** em andamento (fases 01-03 concluidas; fase-04 com o Passo 1 feito — faltam as tres rodadas)
 **Branch:** `feat/tdd-cycle-contract-plano02` (empilhada sobre `feat/tdd-cycle-contract`, que esta na PR #79)
 
 ---
@@ -234,6 +234,39 @@ Nenhum bug de codigo nesta fase. O achado da DI-1 e um defeito de **teste**, nao
 | Suite | `2180 pass, 0 fail`, 282 arquivos, exit 0. Delta desde a fase-02 (2176) = **+4**. Houve **um falso vermelho** antes: `compound-check (skeleton)` com `EPERM` no fixture, 5750ms — mesma familia do BUG-1 do Plano 01; passa isolado em 956ms e a suite ficou verde na re-rodada. |
 | Escopo | `plan-verifier.md`: 4 hunks, frontmatter (1-7) e a Regra 4 Read-only fora do diff; `red-check-evidence` 3x (item 8 + dois exemplos). `SKILL.md`: **zero linha removida dos passos 0-5 do 4c** (DP-1). |
 | Manifest | 2 checksums (`agents/plan-verifier.md`, `skills/execute-plan/SKILL.md`), zero drift. |
+
+### Evidencia do ciclo — fase-04, Passo 1 (sync do cache)
+
+Tipo de fase: **sem-comportamento** — gate textual, e o RED-check e "remover o alvo → gate cai → restaurar".
+
+| Etapa | Evidencia literal |
+|---|---|
+| RED (gate visto falhando) | Antes do sync, no cache (`C:\Users\luizf\.claude\plugins\cache\local-plugins\anti-vibe-coding\7.7.0`): `red_check` **0**, `Contrato do Ciclo por Fase` **0**, `--tdd-level` **0**, `red-check-evidence` **0** no `execute-plan/SKILL.md` e **0** no `plan-verifier.md`; `AskUserQuestion` **7**. No checkout, `red_check` era **9**. O cache estava mesmo servindo o 4c velho — Premissa 5 confirmada na pratica, nao por leitura. |
+| GREEN | `bash scripts/sync-to-global.sh` → exit 0; banner `Global: /c/Users/luizf/.claude/plugins/cache/local-plugins/anti-vibe-coding/7.7.0`; `installed_plugins.json ja pinado em 7.7.0 (skip)`. Depois: `red_check` **9**, `Contrato do Ciclo por Fase` **1**, `--tdd-level` **2**, `red-check-evidence` **1** (SKILL) e **3** (verifier), `AskUserQuestion` **8**. |
+| Cache == checkout | `git diff --no-index` vazio em cinco arquivos-chave: `skills/execute-plan/SKILL.md`, `agents/plan-verifier.md`, `skills/tdd-workflow/SKILL.md`, `skills/plan-feature/templates/fase-template.md`, `agents/plan-executor.md`. |
+| RED-check | Defesa mutada: `sed -i '/red_check/d'` no `SKILL.md` **do cache** (backup em scratchpad antes). Gate caiu de 9 para **0**; `git diff --no-index` passou a acusar `9 deletions`. |
+| Restauracao | `bash scripts/sync-to-global.sh` de novo → gate volta a **9**, `git diff --no-index` vazio, e `diff` contra o backup pre-mutacao **identico**. Restaurar pelo proprio script **prova a idempotencia** que o cabecalho dele promete ("rodar 2x produz mesmo resultado"). |
+| REFACTOR | n/a (sem-comportamento). |
+
+**O que isto NAO prova:** que o orquestrador executa o ciclo. Prova apenas que o texto novo chegou onde o
+runtime le. As tres rodadas (r1/r2/r3) e que respondem as Premissas 1, 2 e 4.
+
+**Sessao ja aberta continua com o texto velho.** O sync termina com "Reinicie o Claude Code para carregar as
+mudancas": a skill entra no contexto no inicio da sessao. Cada rodada do dogfood precisa de sessao NOVA, com
+cwd no fixture — nao adianta rodar na sessao que fez o sync.
+
+### Fixture do dogfood — pronto, fora deste repo
+
+`F:\tmp\avc-tdd-dogfood-{template,r1,r2,r3}` + `F:\tmp\avc-tdd-dogfood-ROTEIRO.md`. Cada rodada com `git init`
+e baseline commitado (r1 `114a422`, r2 `cdf37f4`, r3 `e45eda4`), arvore limpa. Duas fases por fixture:
+`fase-01-sum` (comportamento, tracer bullet) e `fase-02-can-read-risco` (risco, com bloco `### Seguranca`) —
+os dois sinais distintos que fazem o Assistido parar (DP-3).
+
+**Desvio deliberado do doc da fase (DEV-3):** o Passo 6 mandava editar o template entre a r1 e a r2 e
+restaurar depois. A **r2 ja foi criada com a mutacao inofensiva aplicada** (`inserir a linha
+// mutacao-inofensiva no topo` em vez de `trocar a + b por a - b`), e r1/r3 mantem a defesa real. Motivo: tira
+um passo manual do meio das rodadas e elimina o risco de esquecer de restaurar o template — o estado de cada
+rodada fica imutavel e auditavel pelo seu proprio baseline.
 
 ---
 
