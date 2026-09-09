@@ -19,6 +19,10 @@ const path = require('path');
 // dependendo da ferramenta. As justificativas de cada padrao (fixtures no skip, `middleware`
 // deliberadamente FORA do NEXTJS_ROUTE_FILE) estao la, junto do codigo que as aplica.
 const { needsTest, basenameFor } = require('./lib/tdd-decision.cjs');
+// 2026-09-09 (Luiz/dev): ADR-0023 — a raiz do projeto vem do caminho do arquivo, nao do cwd da
+// sessao. Compartilhado com o caminho Bash pelo mesmo motivo que `tdd-decision.cjs`.
+const { projectRootFor } = require('./lib/project-root.cjs');
+const { reportAndAllow } = require('./lib/fail-open.cjs');
 
 function allow()        { process.exit(0); }
 function block(reason)  {
@@ -115,14 +119,16 @@ function processInput() {
           `ANCHOR: Arquivo de teste "${path.basename(filePath)}" e read-only durante fase GREEN (ancora imutavel).\n` +
           `Fase atual: GREEN | Feature: ${phaseData.feature || 'desconhecida'}\n` +
           `Acao permitida: editar apenas codigo de producao para fazer os testes passarem.\n` +
-          `Se precisa modificar testes, volte para fase RED: atualize .claude/.tdd-phase.json\n` +
+          `Se o teste precisa mudar, o RED estava errado: pare e peca ao orquestrador para voltar a fase.\n` +
+          `Quem arma e desarma a ancora e o orquestrador, nunca quem esta sob ela.\n` +
           `Anti-Vibe Coding: Red -> Green -> Refactor.`
         );
       }
       return allow(); // Write to new test file: allowed in GREEN
     }
 
-    if (!needsTest(filePath, process.cwd())) return allow();
+    const projectRoot = projectRootFor(filePath, process.cwd());
+    if (!needsTest(filePath, projectRoot)) return allow();
 
     const basename = basenameFor(filePath);
 
@@ -132,8 +138,11 @@ function processInput() {
       `Sugestao: use /anti-vibe-coding:tdd-workflow para estruturar os testes antes de codar. ` +
       `Anti-Vibe Coding: Red -> Green -> Refactor.`
     );
-  } catch {
-    allow(); // fail-open em erros inesperados
+  } catch (err) {
+    // Fail-open e deliberado: hook quebrado nao pode travar o trabalho. MUDO, nao — o silencio era
+    // o que fazia a quebra ser invisivel, e gate que falha calado vira gate que ninguem sabe que
+    // parou de existir (ADR-0023).
+    reportAndAllow('tdd-gate', err);
   }
 }
 

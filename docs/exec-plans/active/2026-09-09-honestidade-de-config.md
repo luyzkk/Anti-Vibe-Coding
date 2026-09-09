@@ -103,8 +103,8 @@ de testes por ciclo (rejeitado: o hook vê arquivos, não testes), e o bug do
 |---|---|---|---|
 | 1 | 2026-09-09 | passou | 4 chaves com 0 ocorrências em `hooks/` e `config/`; `approach` com 0 em `tdd-gate.cjs` e no config; ramo `ai-judge` removido; 65 testes de hook + 30 do guard verdes |
 | 2 | 2026-09-09 | passou | `grep -rin "ai judge\|ai-judge"` retorna 0 em `skills/`, `config/`, `hooks/` e `docs/PIPELINE.md`; gate de paridade 43/43; harness 28 obrigatórios e 398 markdowns |
-| 3 | | | |
-| 4 | | | |
+| 3 | 2026-09-09 | RED genuíno | `tests/hooks/tdd-gate-anchor-and-root.test.ts`: 4 pass, 7 fail, todas por assertion e com a mensagem real registrada, não a prevista. Stub em `project-root.cjs` garantiu falha por assertion e não por import |
+| 4 | 2026-09-09 | GREEN + mutação | 11/11 no arquivo; 6 mutações derrubaram exatamente o teste nomeado (mensagem, palavra `orquestrador`, catch do Write\|Edit, catch do Bash, raiz no gate, walk-up da lib), restauração provada por `diff` em cada uma. Suíte 2215 pass / 0 fail na re-rodada; typecheck zero |
 | 5 | | | |
 | 6 | | | |
 | 7 | | | |
