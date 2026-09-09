@@ -236,6 +236,11 @@
   estavam em **0**. Por isso duas assercoes ancoram por linha (`[^\n]*`, GT-6) e a terceira e acoplada com
   limite `{0,60}` **calculado**: a distancia real entre as duas ancoras e de 20 caracteres.
 
+  **Multiplicidade DEPOIS do GREEN, para quem editar o bloco a seguir (GT-1):** `docs(state)` **4**,
+  `blocked` **5**, `red_check` **10**, `ANTES de spawnar o passo 6` **1**, `ja commitada no passo 5` **1**.
+  Os dois ultimos sao ancoras seguras hoje; os tres primeiros ja nao servem crus, e `docs(state)` dobrou
+  nesta propria correcao — a contagem de ontem nao vale amanha.
+
   **RED-check — os tres nomeados, isolados, `42 pass / 1 fail` cada, `git diff --stat` vazio apos cada
   restauracao:**
   | # | Defesa mutada | Teste que caiu |
