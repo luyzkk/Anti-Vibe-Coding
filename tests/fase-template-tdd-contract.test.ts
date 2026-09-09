@@ -360,8 +360,13 @@ describe('execute-plan — Step 4c prova a defesa por mutacao e exige REFACTOR (
         `restaurar — entao um toContain('git diff --stat') isolado ficaria verde mesmo com a exigencia ` +
         `pos-restore apagada, porque a pre-condicao sozinha ja satisfaz o toContain. Mesma classe de vacuo ` +
         `confirmada por mutacao em 2026-09-08 (fase-01, DI-1/DI-2). Restaure a linha "Exigir \`git diff ` +
-        `--stat\` vazio", nao afrouxe esta assercao de volta a um toContain solto.`,
-    ).toMatch(/git restore[\s\S]*?git diff --stat/)
+        `--stat\` vazio", nao afrouxe esta assercao de volta a um toContain solto. O alcance entre as duas ` +
+        `ancoras tambem tem limite de proposito (120 caracteres, nao ilimitado): em 2026-09-08 o GREEN da ` +
+        `fase-03 acrescentou mais abaixo no mesmo bloco, no passo 6, outra ocorrencia de "git diff --stat" ` +
+        `("Lista de arquivos tocados") que um alcance sem limite atravessava, casando a regex mesmo com ` +
+        `esta linha apagada — vacuo distinto do anterior, tambem confirmado por mutacao no mesmo dia. Nao ` +
+        `alargue o limite de volta a ilimitado.`,
+    ).toMatch(/git restore[\s\S]{0,120}git diff --stat/)
     expect(step4c, '[parity gate "nunca diminuir" — CA-06] 4c nao registra red_check no STATE').toMatch(/red_check: pass/)
   })
 
@@ -375,8 +380,13 @@ describe('execute-plan — Step 4c prova a defesa por mutacao e exige REFACTOR (
         `isolado ficaria verde mesmo com "fase blocked" do passo 5 apagada, porque as duas ocorrencias do ` +
         `passo 2 continuam la. Mesma classe de vacuo confirmada por mutacao em 2026-09-08 (fase-01, ` +
         `DI-1/DI-2). Restaure a frase "fase blocked" do passo 5, nao afrouxe esta assercao de volta a um ` +
-        `toContain solto.`,
-    ).toMatch(/red_check: fail[\s\S]*?blocked/)
+        `toContain solto. O alcance entre as duas ancoras tambem tem limite de proposito (120 caracteres, ` +
+        `nao ilimitado): em 2026-09-08 o GREEN da fase-03 acrescentou, no formato da linha do STATE log ` +
+        `logo apos o passo 6, outra ocorrencia de "blocked" dentro de "red_confirmed: ` +
+        `{assertion|blocked|gate-textual}" que um alcance sem limite atravessava, casando a regex mesmo ` +
+        `com "fase blocked" apagada — vacuo distinto do anterior, tambem confirmado por mutacao no mesmo ` +
+        `dia. Nao alargue o limite de volta a ilimitado.`,
+    ).toMatch(/red_check: fail[\s\S]{0,120}blocked/)
     expect(
       step4c,
       `[parity gate "nunca diminuir" — CA-07] 4c nao registra a DI "teste nao prova a defesa". Um teste que continua ` +
