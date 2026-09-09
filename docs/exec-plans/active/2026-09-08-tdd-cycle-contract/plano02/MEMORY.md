@@ -2,7 +2,7 @@
 
 **Feature:** Contrato Unico do Ciclo TDD por Fase
 **Iniciado:** 2026-09-08
-**Status:** em andamento (fases 01-03 concluidas; fase-04 com o Passo 1 feito — faltam as tres rodadas)
+**Status:** em andamento (fases 01-03 concluidas; fase-04 com o Passo 1 feito e o RF-05 decidido (DI-8) — faltam as rodadas r2 e r3, que exigem sessao limpa no fixture)
 **Branch:** `feat/tdd-cycle-contract-plano02` (empilhada sobre `feat/tdd-cycle-contract`, que esta na PR #79)
 
 ---
@@ -116,6 +116,46 @@
   - **Falha de processo minha, nao do plano:** no RED-check da fase-03 rodei so as 4 defesas que a fase-03
     nomeia, e auditei so os tokens que a fase-03 assere. As duas quebras estavam em defesas da fase-02.
     Ver **GT-5**.
+
+- **DI-8 (fase-04): RF-05 fica sempre ligado — o verifier nao passa a ser condicionado ao nivel.**
+  Decisao do dev em 2026-09-09, com o numero da r1 na mao. A linha do STATE da r1 diz literalmente
+  `custo: testes=8 spawns=3 (RED, GREEN, plan-verifier)`; o verifier sozinho foi 1 spawn + 2 rodadas.
+
+  | Unidade contada | Fatia do verifier | Limiar do PRD (30%) |
+  |---|---|---|
+  | Spawns | 1 de 3 = **33%** | acima |
+  | Rodadas de teste | 2 de 8 = **25%** | abaixo |
+  | Rodadas, descontando a dupla-execucao do passo 2 (piso real 7) | 2 de 7 = **29%** | abaixo |
+
+  O limiar e atravessado ou nao conforme a unidade contada — sozinho, o numero nao decide. O que decidiu:
+  - **A fase medida e o piso do denominador.** `fase-01-sum` e o tracer bullet: funcao de uma linha, um
+    teste, `refactor: none`. O custo do verifier por fase e quase fixo (le o arquivo da fase, a linha do
+    STATE, o `git diff --stat` e roda o teste nomeado); o denominador cresce com o tamanho da fase. Logo
+    25-33% e **teto**, nao valor tipico. Numa fase real desta propria feature a mesma despesa fixa seria
+    uma fatia bem menor.
+  - **O verifier pagou-se na unica rodada em que existiu.** Foi ele quem apontou o Defeito 2 do DI-7 (a
+    evidencia do `red_check` nunca entrava no historico). Retrabalho evitado e exatamente o que a
+    Premissa 4 compara contra o custo.
+  - **O nivel Direto ja e a valvula de escape.** Condicionar o verifier ao nivel faria o `direto` ser
+    silenciosamente mais fraco do que o nome promete, e contradiria o esperado da r3 no roteiro
+    ("RED-check e verifier continuam rodando").
+  - **Mudar custaria um RED proprio.** O passo 6 do 4c e incondicional hoje; condiciona-lo volta para a
+    fase-03 com assercao nova no gate de paridade. Preco alto contra um limiar que nao foi claramente
+    cruzado.
+
+  **Ressalva honesta:** a Premissa 4 pede medicao em **3 fases** e temos **1**. A decisao esta tomada com
+  n=1, e o argumento que a sustenta e sobre a *forma* da medida (denominador minimo, custo fixo), nao
+  sobre a precisao dela. Se r2 e r3 mostrarem o verifier acima de 30% numa fase **maior** que o tracer
+  bullet, o argumento cai e o RF-05 volta a mesa.
+
+- **Custo por fase no dogfood** — quadro exigido pelo Passo 5 do doc da fase-04:
+
+  | Rodada / fase | tdd_level | Rodadas de teste | Spawns | Fatia do verifier |
+  |---|---|---|---|---|
+  | r1 / plano01-fase-01 | assistido | 8 (piso real 7) | 3 (RED, GREEN, verifier) | 25-33% |
+  | r2 / plano01-fase-01 | assistido | pendente | pendente | pendente |
+  | r3 / plano01-fase-01 | direto | pendente | pendente | pendente |
+  | r3 / plano01-fase-02 | direto | pendente | pendente | pendente |
 
 ---
 
