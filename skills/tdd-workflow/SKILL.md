@@ -544,6 +544,49 @@ commit, nao de posicao no ciclo.**
 
 RED-GREEN-REFACTOR permanece.
 
+## Contrato do Ciclo por Fase
+
+Esta secao e a **unica definicao** do ciclo TDD por fase no plugin. Quem consome nao redefine, aponta:
+o bloco `### TDD` de `skills/plan-feature/templates/fase-template.md`, a secao "TDD no Ciclo
+Red-Green-Refactor" de `agents/plan-executor.md` e o Step 4c de `skills/execute-plan/SKILL.md`.
+O teste `tests/fase-template-tdd-contract.test.ts` derruba a suite se esta secao ou um ponteiro sumir.
+
+O **tipo da fase** decide a variante. O planejador escreve o tipo no bloco `### TDD` de cada fase:
+
+| Tipo | RED | GREEN | RED-check | REFACTOR | Gate humano |
+|---|---|---|---|---|---|
+| comportamento | stub-first, falha por assertion | isolado, sem PRD | muta a defesa nomeada, teste cai, restaura | commit proprio ou "sem mudanca: motivo" | conforme nivel |
+| risco `[RISCO]` | Abuse-It primeiro, depois o resto | idem | idem, obrigatoriamente sobre a defesa do abuso | idem | sempre em Assistido e Guiado |
+| sem comportamento | gate textual (grep/estrutura) visto falhando | aplicar | remover o alvo, gate cai, restaurar | n/a | conforme nivel |
+
+Regras que valem para os tres tipos:
+
+- **RED e por assertion.** `Cannot find module` nao e RED — falta o stub
+  (`docs/references/tdd-cycle-checklist.md`). A saida registrada e a LITERAL do comando, nunca a prevista.
+- **RED-check e de quem verifica, nao de quem implementa.** O orquestrador aplica `Defesa a mutar`, roda
+  `Teste que deve cair`, exige a falha, restaura com `git restore <arquivo>` e prova `git diff --stat`
+  vazio. Teste que nao cai bloqueia a fase: ele nao testa a defesa que diz testar.
+- **Teste que nasce verde exige mutacao no mesmo passo.** Se o codigo ja existia quando o teste foi
+  escrito, o autor prova ali mesmo: muta, captura a falha, restaura.
+- **O planejador nomeia a defesa, nunca a mensagem.** `Defesa a mutar` (linha ou condicao a remover ou
+  inverter) e `Teste que deve cair` (nome do teste). Numero e mensagem previstos sao chute
+  (`docs/compound/2026-09-06-a-defesa-so-esta-provada-pela-mutacao.md`).
+- **REFACTOR fica no ciclo** (secao anterior): e o segundo passo do mesmo GREEN, em commit
+  `refactor(...)` proprio — ou o relatorio diz "sem refactor: {motivo}".
+
+Onde o orquestrador **para para o humano aprovar o teste RED** antes do GREEN. O nivel vem de
+`## IA-TDD — Deteccao Automatica de Nivel` (ou do argumento `--tdd-level` do `/execute-plan`):
+
+| Nivel | Para antes do GREEN em |
+|---|---|
+| Guiado | toda fase |
+| Assistido (default) | fase `[RISCO]` e fase 01 do plano 01 (tracer bullet) |
+| Direto | nunca; so RED-check automatico |
+
+E o gate do passo 4 dos 7 Passos ("Somente apos aprovacao dos testes pelo desenvolvedor"), aplicado
+por fase. E onde a spec errada morre barato: o RED transcreve a spec, o GREEN a implementa, e so um
+humano lendo o teste percebe que ela pedia a coisa errada.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |

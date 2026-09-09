@@ -19,7 +19,9 @@ comeca no plano.
 - [ ] Passo 4: commit RED com mensagem `test(...): RED — <descricao>`
 - [ ] Passo 5: implementar GREEN (substituir stub por logica real)
 - [ ] Passo 6: commit GREEN com mensagem `feat(...): GREEN — <descricao>`
-- [ ] Passo 7 (opcional): REFACTOR com testes verdes; commit `refactor(...): ...`
+- [ ] Passo 7: REFACTOR com testes verdes; commit `refactor(...): ...` proprio — ou registrar
+      "sem refactor: {motivo}". Refactor fica no ciclo (`skills/tdd-workflow/SKILL.md`,
+      "Refactor Fica no Ciclo" e "Contrato do Ciclo por Fase"); nao e opcional
 
 ## Sinal `Cannot find module` no RED genuino — abortar
 

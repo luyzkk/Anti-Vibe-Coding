@@ -91,13 +91,51 @@ CREATE POLICY "users_own_notifications"
 
 ### TDD
 
-- [ ] **RED:** Teste escrito e FALHA por assertion (nao por compilation error)
-  - Comando: `bun run test -- --grep '{nome do teste}'`
-  - Resultado esperado: `Expected X, received Y` (assertion failure)
+<!-- Fonte unica do ciclo: skills/tdd-workflow/SKILL.md, secao "Contrato do Ciclo por Fase" (tipo da fase ×
+     RED / GREEN / RED-check / REFACTOR / gate humano; mapa nivel → onde o orquestrador para).
+     Este bloco e o CONSUMIDOR, nao a definicao. Se o ciclo mudar, muda la; o teste
+     tests/fase-template-tdd-contract.test.ts acusa aqui. PRD tdd-cycle-contract RF-02. -->
 
-- [ ] **GREEN:** Codigo minimo implementado, teste PASSA
-  - Comando: `bun run test -- --grep '{nome do teste}'`
-  - Resultado esperado: `{N} passed, 0 failed`
+**Tipo de fase:** {comportamento | risco | sem-comportamento}
+
+- [ ] **RED:** teste escrito e FALHA por assertion — stub-first: o modulo existe e cada export lanca
+      `throw new Error('not implemented')`; `Cannot find module` NAO e RED
+      (`docs/references/tdd-cycle-checklist.md`)
+  - Comando: `bun test {arquivo.test.ts} -t '{nome do teste}'`
+  - Fase `risco`: o PRIMEIRO teste e o de abuso (Abuse-It) — falhar significa "o ataque passou"
+  - Registrar a saida LITERAL do comando, nao a prevista
+
+- [ ] **GREEN:** codigo minimo, teste PASSA — subagente isolado recebe APENAS os testes, nunca o PRD
+  - Comando: `bun test {arquivo.test.ts} -t '{nome do teste}'`
+
+- [ ] **RED-check:** com o GREEN commitado, o orquestrador muta a defesa, ve o teste cair, restaura
+  - Defesa a mutar: {qual linha ou condicao remover ou inverter — arquivo e trecho}
+  - Teste que deve cair: {nome exato do teste}
+  - Restaurar com `git restore {arquivo}`; `git diff --stat` vazio antes de seguir
+  - NAO escrever a mensagem de erro esperada: numero e mensagem previstos sao chute; o que vale e qual
+    assertion quebra. Teste que nao cai = fase `blocked` + DI "teste nao prova a defesa"
+
+- [ ] **REFACTOR:** com os testes verdes, commit `refactor({escopo}): ...` proprio — ou registrar
+      `sem refactor: {motivo}` no MEMORY
+  - Comando: `bun run test`
+  - Resultado esperado: continua verde; `git log --oneline -3` mostra `refactor(...)` separado do `feat(...)`
+
+**Variante `sem-comportamento`** (doc, config, template, texto de skill): RED = gate textual visto
+falhando ANTES da mudanca (`grep -n '{alvo}' {arquivo}` ou checagem de estrutura); GREEN = aplicar;
+RED-check = remover o alvo → gate cai → `git restore`; REFACTOR = n/a. O planejador nomeia o alvo do
+grep em `Defesa a mutar`.
+
+Exemplo preenchido (assim, nao com placeholders):
+
+```
+Tipo de fase: risco
+RED:       bun test src/orders.test.ts -t 'rejects reading an order of another owner'
+           → falhou: o GET devolveu 200 (o ataque passou)
+GREEN:     1 pass
+RED-check: Defesa a mutar: inverter `if (order.ownerId !== user.id)` em src/orders.ts
+           Teste que deve cair: rejects reading an order of another owner
+REFACTOR:  refactor(orders): extrai assertOwner — ou "sem refactor: handler de 6 linhas"
+```
 
 ### Seguranca (apenas fase de slice [RISCO])
 

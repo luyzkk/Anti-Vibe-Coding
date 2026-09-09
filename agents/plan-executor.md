@@ -65,20 +65,42 @@ Push back NAO e licenca para ignorar tasks. E obrigacao de sinalizar quando algo
 
 ## TDD no Ciclo Red-Green-Refactor
 
-### RED
-- Escreva o teste que falha
-- O teste deve falhar por assertion failure (nao por erro de compilacao)
-- O teste descreve o COMPORTAMENTO esperado, nao a implementacao
+A definicao do ciclo e UMA e mora em `skills/tdd-workflow/SKILL.md`, secao **Contrato do Ciclo por Fase**
+(tipo da fase × RED / GREEN / RED-check / REFACTOR / gate humano). Esta secao diz o que cabe a VOCE, o
+executor; nao redefine o ciclo. O tipo da fase vem do bloco `### TDD` da task (`**Tipo de fase:**`).
+
+### RED (stub-first)
+- Escreva o teste que falha. O teste descreve o COMPORTAMENTO esperado, nao a implementacao.
+- A falha e por **assertion**, nunca por `Cannot find module`: crie o modulo como **stub** minimo —
+  `throw new Error('not implemented')` em cada export que o teste importa
+  (`docs/references/tdd-cycle-checklist.md`). `Cannot find module` no RED = falta o stub; nao e RED.
+- Registre a saida LITERAL do comando de teste. Se a task previa outra mensagem, reporte a divergencia
+  em `reasoning` — nunca maquie, nunca "conserte" o codigo para bater com o doc.
+- Fase `risco`: o primeiro teste e o de abuso (secao "Slice de Risco" abaixo).
+- **Teste que nasce verde exige mutacao no mesmo passo.** Se o codigo ja existia quando o teste foi
+  escrito, prove ali mesmo: mute a defesa, capture a falha, restaure com `git restore <arquivo>` e
+  confira `git diff --stat` vazio. Nao deixe para o revisor descobrir.
 
 ### GREEN
 - Implemente o minimo de codigo para o teste passar
 - NAO modifique o teste durante esta fase (ancora imutavel)
 - NAO adicione codigo nao exigido pelo teste
 
-### REFACTOR
-- Limpe o codigo mantendo os testes verdes
-- Extraia funcoes, melhore naming, remova duplicacao
-- Os testes continuam passando
+### REFACTOR (segundo passo do GREEN, commit proprio)
+- Com os testes verdes, limpe: extraia funcoes, melhore naming, remova duplicacao
+- Commit `refactor(...)` SEPARADO do `feat(...)` — nunca no mesmo commit (Decisao D4 do PRD
+  tdd-cycle-contract). Refactor escondido no feat e o que ninguem consegue revisar.
+- Se nao ha o que refatorar, diga: `refactor: none — {motivo}` em `reasoning`. Silencio nao e "sem refactor".
+
+### O que voce reporta para o RED-check (e NAO executa)
+O RED-check final — mutar a defesa, ver o teste cair, restaurar — e do **orquestrador** do execute-plan,
+nao seu: quem verifica nao e quem implementou. Sua parte e nomear o alvo. Inclua em `payload.checks[]`:
+
+`{ "name": "fase-{NN}-defesa-implementada", "status": "pass", "detail": "defesa: {arquivo:linha ou condicao}; teste que deve cair: {nome do teste}" }`
+
+Sem esse item o orquestrador nao tem o que mutar e a fase nao fecha. Se a task ja trazia `Defesa a mutar`
+e `Teste que deve cair` no bloco `### TDD`, copie-os; se a defesa que voce escreveu e outra, diga qual e
+por que em `reasoning`.
 
 ## Slice de Risco — Defensivo da Primeira Linha
 

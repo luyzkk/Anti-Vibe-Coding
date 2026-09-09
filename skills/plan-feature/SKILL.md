@@ -757,6 +757,13 @@ Fluxo:
 6. Nome da fase deve ser descritivo: fase-01-tipos-migration.md, fase-02-queries-filtros.md
 7. Cada fase indica dependencias: "Depende de: fase-01" ou "Independente"
 8. Marcar fases com "visual: true" se modificam UI (sinaliza /qa-visual)
+9. Toda fase de tipo comportamento ou risco preenche no RED-check "Defesa a mutar" (qual linha ou
+   condicao remover ou inverter) e "Teste que deve cair" (nome do teste). Fase sem-comportamento
+   nomeia o alvo textual do gate (o que remover para o grep cair). Fonte: skills/tdd-workflow/SKILL.md,
+   "Contrato do Ciclo por Fase"
+10. Nunca prever a mensagem de erro do RED nem do RED-check ("Expected 3, Received 0"): numero e
+    mensagem previstos sao chute do planejador. Nomear a assertion ou o teste que quebra
+    (docs/compound/2026-09-06-a-defesa-so-esta-provada-pela-mutacao.md)
 ```
 
 ---
