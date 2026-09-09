@@ -497,6 +497,26 @@ Ler do bloco ### TDD da fase: Tipo de fase, comando do RED, `Defesa a mutar`, `T
    - Fase sem-comportamento: `Defesa a mutar` e o alvo textual, `Teste que deve cair` e o comando
        do gate — remover o alvo → gate cai → restaurar → mesmos campos no STATE log
 
+6. VERIFY (spawn plan-verifier — read-only; PRD D3):
+   RECEBE:
+   - O arquivo da fase (`{PASTA_ATIVA}/plano{NN}/fase-MM-nome.md`)
+   - A linha do STATE log desta fase (tdd_level, red_confirmed, human_gate, red_check, refactor)
+   - Lista de arquivos tocados: saida de `git diff --stat {HEAD-antes}..HEAD`
+   - Comando de teste da fase
+   NAO RECEBE:
+   - PRD, outras fases, MEMORY completa
+   DEVOLVE (kind: verification): checks[] com acceptance_met, tests_pass, tdd-red-commit-found e
+     red-check-evidence (pass: a linha do STATE tem `red_check: pass` com defesa e teste nomeados;
+     fail: `red_check: fail` — verdict block; unable_to_verify: campo ausente na linha)
+   - O 4d ja consome kind === "verification" — sem mudanca no parser
+   - Completar a linha do STATE log: `custo: testes={rodadas} spawns={RED+GREEN+verifier}`
+
+Linha do STATE log (uma por fase, no ## Log do STATE.md; nasce parcial no passo 2 e e completada
+nos passos 4, 5 e 6):
+- {YYYY-MM-DD}: plano{NN}/fase-{MM} — tdd_level: {nivel} | red_confirmed: {assertion|blocked|gate-textual}
+  | human_gate: {stopped|skipped(nivel)} | red_check: {pass|fail} (defesa: {X}, teste: {Y})
+  | refactor: {commit <hash>|none (motivo)} | custo: testes={n} spawns={n}
+
 Se a fase NAO tem bloco ### TDD (fases geradas antes do contrato):
   - Executar diretamente com subagente unico; validar via checklist da fase
   - STATE log: `red_confirmed: n/a (fase sem bloco TDD)`
@@ -614,15 +634,20 @@ Apos cada fase concluir:
    - Se testes passam: registrar no Log do STATE
    - Se testes falham: diagnosticar e registrar na MEMORY
 
-2. Executar: bun run lint
-   - Registrar resultado
+2. Executar o lint do projeto, se configurado em package.json §scripts (ex.: `bun run lint`);
+   se nao existe, registrar `Lint: n/a (projeto sem lint configurado)` — nunca inventar o comando
 
 3. Mostrar diagnostico ao dev:
    "Fase {NN} concluida:
    - Testes: {pass|fail}
-   - Lint: {pass|warn}
+   - Lint: {pass|warn|n/a}
+   - Ciclo TDD: tdd_level={..} red_confirmed={..} human_gate={..} red_check={..} refactor={..}
+   - Custo da fase: {n} rodadas de teste, {n} spawns (RED, GREEN, plan-verifier)
    - Decisoes tomadas: {N}
    - Bugs encontrados: {N}"
+
+4. Se red_check: fail → destacar: "FASE BLOQUEADA — teste nao prova a defesa ({X} / {Y}).
+   Fases dependentes nao iniciam ate um novo RED." (PRD CA-07)
 ```
 
 ---
