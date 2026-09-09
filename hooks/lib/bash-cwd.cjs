@@ -8,6 +8,10 @@
  * `cd outro/projeto && echo x > src/a.ts` fazia o gate procurar o teste-irmao no projeto errado,
  * nao achar, e bloquear escrita legitima. Falso positivo, e falso positivo desliga gate.
  *
+ * A plataforma e PARAMETRO, e o modulo de path vem dela — nao do host. Sem isso a funcao mente
+ * fora do Windows: `path.resolve` do host nao reconhece `F:\\tmp` como absoluto e concatena.
+ * O CI (Linux) pegou exatamente isso; no Windows o teste passava por coincidencia.
+ *
  * LIMITE HONESTO: so o `cd` que ABRE o comando e lido, incluindo uma cadeia de `cd a && cd b`.
  * Um `cd` no meio (`echo x > a.ts && cd outro && echo y > b.ts`) muda o cwd das etapas seguintes,
  * e adivinhar qual etapa escreve o que seria chute — nesses casos devolvemos null e o chamador
@@ -41,6 +45,7 @@ function toNativePath(p, platform) {
  */
 function commandCwd(command, sessionCwd, platform) {
   if (typeof command !== 'string' || command.length === 0) return null;
+  const P = platform === 'win32' ? path.win32 : path.posix;
   let rest = command;
   let cwd = null;
   for (;;) {
@@ -48,7 +53,7 @@ function commandCwd(command, sessionCwd, platform) {
     if (!m) break;
     const raw = m[1] || m[2] || m[3];
     const dir = toNativePath(raw, platform);
-    cwd = path.resolve(cwd || sessionCwd, dir);
+    cwd = P.resolve(cwd || sessionCwd, dir);
     rest = rest.slice(m[0].length);
   }
   return cwd;
