@@ -2,7 +2,7 @@
 
 **Feature:** Contrato Unico do Ciclo TDD por Fase
 **Iniciado:** 2026-09-08
-**Status:** em andamento (fases 01-03 concluidas; fase-04 com o Passo 1, o RF-05 (DI-8) e as rodadas r2/r3 (DI-9) feitos — falta a Premissa 1, que exige sessao limpa, e o SUMMARY)
+**Status:** em andamento (fases 01-03 concluidas; fase-04 com o Passo 1, o RF-05 (DI-8), as rodadas r2/r3 (DI-9) e a correcao do achado delas (DI-10) feitos — falta a Premissa 1, que exige sessao limpa, e o SUMMARY)
 **Branch:** `feat/tdd-cycle-contract-plano02` (empilhada sobre `feat/tdd-cycle-contract`, que esta na PR #79)
 
 ---
@@ -220,6 +220,58 @@
   forma significativa — a maior tem dois testes. O teste que a Premissa 4 realmente pede, uma fase de
   tamanho real, ainda nao foi feito.
 
+- **DI-10 (correcao pos-dogfood): o achado do DI-9 corrigido com RED proprio, e a regressao do GT-5 feita
+  por varredura em vez de mutacoes escolhidas a dedo.** RED `6739798` (`40 pass / 3 fail`, as tres por
+  assertion, zero regressao nas 40), GREEN `aece622` (`43 pass / 0 fail`).
+
+  **O fix, em duas mudancas aditivas (DP-1 — zero linha removida dos passos 0-4):**
+  - fim do passo 5 ganha `Commitar a linha do STATE log ja com red_check e refactor ANTES de spawnar o
+    passo 6`, com mensagem propria para o caminho pass e para o caminho `blocked` — a r2 fechou blocked, e
+    fase blocked nao esta "concluida", entao a mensagem do caminho feliz mentiria sobre o desfecho
+  - o `RECEBE` do passo 6 passa a dizer que a linha **ja chega commitada do passo 5**
+  As duas assercoes sao um par deliberado: uma guarda o lado que escreve, a outra o lado que le.
+
+  **Auditoria GT-1 rodada ANTES do RED, como a fase-02 ensinou:** no bloco 4c, `docs(state)` ja aparecia
+  **2x** e `blocked` **4x** — um `toContain` de qualquer um dos dois nasceria vacuo. Os tres tokens novos
+  estavam em **0**. Por isso duas assercoes ancoram por linha (`[^\n]*`, GT-6) e a terceira e acoplada com
+  limite `{0,60}` **calculado**: a distancia real entre as duas ancoras e de 20 caracteres.
+
+  **RED-check — os tres nomeados, isolados, `42 pass / 1 fail` cada, `git diff --stat` vazio apos cada
+  restauracao:**
+  | # | Defesa mutada | Teste que caiu |
+  |---|---|---|
+  | d1 | apagado ` ANTES de spawnar o passo 6` do bullet do passo 5 | `o passo 5 commita a linha do STATE antes de spawnar o passo 6` |
+  | d2 | apagado `, ja commitada no passo 5` do RECEBE do passo 6 | `o passo 6 declara que a linha do STATE ja chega commitada` |
+  | d3 | apagada a mensagem de commit do caminho blocked | `o commit do passo 5 nomeia o caminho pass e o caminho blocked` |
+
+  **Regressao do GT-5 — feita como varredura de delecao de linha, nao como lista de mutacoes.** Em vez de
+  re-rodar as 19 defesas nomeadas, apaguei **uma linha por vez** das **118** do bloco `### 4c.` (118
+  rodadas do teste de paridade, com `git restore` entre cada uma) e registrei quais testes cada delecao
+  derruba. Resultado: das **16** assercoes cujo corpo le `step4c`, **todas as 16 caem por pelo menos uma
+  delecao** — nenhuma vacua. 91 das 118 linhas nao derrubam nada, o que e esperado: o gate guarda 16
+  preocupacoes distintas espalhadas por 27 linhas.
+  - **Por que a varredura e mais forte que a lista:** a lista prova que as defesas que voce **lembrou** de
+    mutar sao guardadas; a varredura prova que **nenhuma** assercao do bloco sobrevive a toda delecao de
+    linha. E o antidoto direto ao GT-1 ("mutacao sozinha so acha o que voce lembrou de mutar") e ao GT-5.
+  - Custo: um script de ~15 linhas e ~4 minutos de relogio. Barato o bastante para virar o padrao quando
+    uma fase edita um bloco que varias fases asserem.
+  - **Cuidado ao ler o resultado:** a primeira analise acusou 7 assercoes "sem cobertura". Eram falso
+    positivo do meu enumerador, que classificou describes inteiros em vez de corpos de teste — as 7
+    asserem sobre outros arquivos (`waveExecution`, `planVerifier`, `template`) ou outras secoes do mesmo
+    arquivo (`## Regras Criticas`, `## Step 5`, o `argument-hint` cru). Conferi uma a uma antes de
+    concluir. GT-3 vale tambem para numero que a **minha** ferramenta produz.
+
+  **REFACTOR: none, com motivo examinado.** O GREEN e prosa num `SKILL.md`, sem nada a extrair. As tres
+  assercoes novas nao usam `toContain` nenhuma vez e nao tem forma repetida: duas sao `toMatch` ancoradas
+  por linha com ancoras distintas, a terceira e acoplada. O helper `mustContain`, ja recusado com motivo
+  na DI-3 e na DI-5, cobriria **zero** delas.
+
+  **Verificacoes:** suite `2187 pass, 0 fail` (delta desde 2184 = **+3**, exatamente as assercoes novas);
+  `typecheck` exit 0; `harness:validate` ok; manifest com **1** checksum (`skills/execute-plan/SKILL.md`),
+  zero drift, conferido por comparacao de checksum e nao por `git diff --stat`. A primeira rodada da suite
+  deu `2 fail` e a re-rodada deu 0 — flakiness conhecida do Windows, e a rodada suja levou 153s contra 27s
+  na limpa.
+
 ---
 
 ## Bugs Descobertos
@@ -293,6 +345,22 @@ Nenhum bug de codigo nesta fase. O achado da DI-1 e um defeito de **teste**, nao
   - Como pegar sem rodar: listar os bullets do passo na ordem de execucao e perguntar, para cada artefato
     citado no RECEBE, qual bullet anterior o deixou duravel.
 
+- **GT-8: `\` dentro de heredoc entregue ao `python -` por stdin chega colapsado para `\`.** Custou tres
+  edicoes falhas nesta sessao. `"F:\tmp\avc"` no literal Python vira `F:\tmp\avc`, e o Python entao le
+  `\t` como TAB e `\a` como BEL — o padrao nunca casa, e se casar grava caractere de controle no arquivo.
+  Aconteceu em `HANDOFF.md` (gravou `F:<TAB>mp<BEL>vc-...`) e em dois `python - <<'PY'` de edicao.
+  - **Antidoto:** montar a barra com `chr(92)`, ou escrever o script num arquivo e rodar `python arquivo.py`
+    — o caminho arquivo preserva tanto a barra quanto acentuacao e travessao.
+  - Sintoma tambem em UTF-8: o mesmo heredoc-por-stdin mangla `—` (o assert falhou com
+    `'do gate \ufffd remover o alvo'` no repr). O caminho arquivo nao mangla.
+  - Depois de gravar, varrer o resultado por controle indevido:
+    `python -c "...if chr(9) in l or chr(7) in l..."` — foi assim que achei o estrago no HANDOFF.
+
+- **GT-9: o `SKILL.md` do checkout e CRLF, entao match multi-linha com `\n` puro nao casa.** Extensao
+  pratica do GT-2, que ja avisava sobre `diff`/`cmp`. Ao editar por script, ler com `newline=""` e montar
+  as ancoras multi-linha com `chr(13)+chr(10)`; ou ancorar so em trechos de uma linha. O teste de paridade
+  nao sofre disso porque o helper `read()` faz `.replace(/\r/g, '')` — quem edita, sofre.
+
 ---
 
 ## Desvios do Plano
@@ -320,9 +388,9 @@ Nenhum bug de codigo nesta fase. O achado da DI-1 e um defeito de **teste**, nao
 | Retries necessarios | 0 |
 | RED-checks executados | fase-01: 6+2; fase-02: 4+1+3 re-provas; fase-03: 4 nomeados + 3 re-provas + **regressao completa das 15 defesas, 2x** |
 | RED-checks que FALHARAM | **5** — 3 na fase-01 (assercoes nascidas vacuas), 2 na fase-03 (assercoes da fase-02 regredidas pelo GREEN da fase-03). Todos corrigidos e re-provados. |
-| Assercoes no gate de paridade | 21 → 27 → 32 → 36 → **40** |
-| Suite | 2165 → 2171 → 2176 → 2180 → **2184 pass, 0 fail** |
-| Defesas no RED-check (regressao completa) | **19**, todas caindo pelo teste nomeado |
+| Assercoes no gate de paridade | 21 → 27 → 32 → 36 → 40 → **43** |
+| Suite | 2165 → 2171 → 2176 → 2180 → 2184 → **2187 pass, 0 fail** |
+| Defesas no RED-check (regressao completa) | **19** nomeadas, todas caindo pelo teste nomeado. Na correcao pos-dogfood a regressao virou **varredura**: 118 delecoes de linha do bloco 4c, **16/16** assercoes que leem `step4c` derrubadas, nenhuma vacua (DI-10) |
 | Defeitos achados so pelo dogfood | **3** — 2 na r1 (DI-7) e 1 nas r2/r3 (DI-9, ordem do passo 6). Nenhum visivel as 40 assercoes nem aos RED-checks por fase |
 | Rodadas de dogfood executadas | **3** (r1 fase-01; r2 fase-01; r3 fase-01 e fase-02) — todas contaminadas para a Premissa 1 |
 | Lacunas menores do 4c registradas | **4** (DI-9): passo 6 apos `red_check: fail`; mensagem de commit so do caminho feliz; `blocked` fora do vocabulario do STATE; checkboxes da fase nunca marcados |
