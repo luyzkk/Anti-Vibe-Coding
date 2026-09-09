@@ -469,11 +469,33 @@ Ler do bloco ### TDD da fase: Tipo de fase, comando do RED, `Defesa a mutar`, `T
      Registrar: human_gate: stopped
    Senao: human_gate: skipped({nivel})
 
-4. GREEN (subagente, contexto isolado):
+4. GREEN + REFACTOR (um subagente, contexto isolado — PRD D4):
    - Recebe: APENAS os arquivos de teste do RED
    - NAO recebe: PRD, descricao da feature
-   - Produz: codigo minimo que faz o teste passar
+   - Passo 1 — GREEN: codigo minimo que faz o teste passar; commit feat(...)
    - Anchor imutavel: NUNCA modifica testes
+   - Passo 2 — REFACTOR: com os testes verdes, refatorar em commit `refactor(...)` SEPARADO do feat;
+     se nao ha o que refatorar, reportar `refactor: none ({motivo})` no human_readable
+   - Orquestrador registra no STATE log: `refactor: commit {hash}` se
+     `git log --oneline {HEAD-antes}..HEAD` tem commit com prefixo `refactor(`;
+     senao `refactor: none ({motivo do human_readable})`
+
+5. RED-CHECK (orquestrador — verificacao, nao implementacao; PRD D3):
+   Pre-condicao: GREEN e REFACTOR commitados; `git diff --stat` vazio ANTES de mutar
+   - Ler `Defesa a mutar` e `Teste que deve cair` do bloco ### TDD da fase
+     (se a fase nao nomeia, usar `fase-{NN}-defesa-implementada` do envelope do executor)
+   - Aplicar a mutacao com Edit no arquivo de producao nomeado
+   - Rodar SO o teste nomeado (ex.: `bun test {arquivo} -t '{Teste que deve cair}'`)
+   - Exigir falha: exit != 0 E o teste nomeado aparece como fail
+   - Restaurar: `git restore {arquivo}` (caminho explicito — nunca `git restore .`)
+   - Exigir `git diff --stat` vazio
+       vazio     → red_check: pass (defesa: {X}, teste: {Y})
+       nao vazio → needs_human: residuo de mutacao — NUNCA commitar entre mutar e restaurar
+   - Teste NAO caiu → restaurar mesmo assim; red_check: fail (defesa: {X}, teste: {Y});
+       fase blocked; MEMORY do plano recebe DI "teste nao prova a defesa: {X} / {Y}";
+       fases dependentes NAO iniciam; dev avisado no Step 5
+   - Fase sem-comportamento: `Defesa a mutar` e o alvo textual, `Teste que deve cair` e o comando
+       do gate — remover o alvo → gate cai → restaurar → mesmos campos no STATE log
 
 Se a fase NAO tem bloco ### TDD (fases geradas antes do contrato):
   - Executar diretamente com subagente unico; validar via checklist da fase
@@ -841,7 +863,7 @@ Step 6-FLAT: SUMMARY ao completar
 
 ## Regras Criticas
 
-1. **O orchestrador nao implementa** — escrever codigo e trabalho de subagente. O orchestrador faz spawn, atualiza estado e roda a validacao pos-fase (Step 5)
+1. **O orchestrador nao implementa** — escrever codigo e trabalho de subagente. O orchestrador faz spawn, atualiza estado e roda a validacao pos-fase (Step 5). Rodar o teste do RED, aplicar a mutacao do RED-check e restaurar o arquivo (Step 4c, passos 2 e 5) e VERIFICACAO do orquestrador, nao implementacao — quem verifica nao e quem implementou (PRD tdd-cycle-contract D3)
 2. **STATE.md e a fonte de verdade** — ler antes de escrever, sempre
 3. **MEMORY.md e preenchida durante execucao** — nao apos
 4. **Transicao entre planos e interativa** — dev decide se avanca ou troca contexto
@@ -906,6 +928,7 @@ console.log('\n\n' + renderCompletionSignal({
 | "Vou passar pela fase sem validar — sei que funcionou" | Verificacao sem evidencia nao e verificacao. Checklist nao executado e teatro de qualidade. |
 | "Posso pular a fase de testes — os tipos ja garantem" | Types nao testam comportamento em runtime. Fases de teste existem precisamente porque o compilador nao consegue garantir tudo. |
 | "O RED ja falhou no subagente, nao preciso rodar de novo" | O orquestrador confirma POR QUE falhou. `Cannot find module` nao e RED — e ausencia de stub. So a saida do comando, lida ate o fim, distingue assertion de erro de import. |
+| "O teste ficou verde, a defesa existe" | So a mutacao prova. Teste que nasce verde pode estar afirmando true===true; remover a defesa nomeada e ver o teste cair e a unica evidencia de que ele testa o que diz testar (compound 2026-09-06). |
 
 ## Red Flags
 
@@ -915,3 +938,4 @@ console.log('\n\n' + renderCompletionSignal({
 - Decisao tomada durante execucao que nao foi registrada no MEMORY.md do plano
 - Step executado sem ter lido o arquivo antes de editar (violacao de integridade de edicao)
 - Fase marcada como concluida antes de `bun run harness:validate` verde
+- Fase avancou (ou fase dependente iniciou) com `red_check: fail` ou sem `red_check` no STATE log
