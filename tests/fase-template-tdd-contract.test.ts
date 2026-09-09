@@ -342,3 +342,61 @@ describe('execute-plan — Step 4c resolve o nivel, confirma o RED e para no gat
     ).toContain('Contrato do Ciclo por Fase')
   })
 })
+
+// 2026-09-08 (Luiz/dev): RED-check por mutacao e REFACTOR no 4c — PRD tdd-cycle-contract §RF-03, D3, D4.
+describe('execute-plan — Step 4c prova a defesa por mutacao e exige REFACTOR (RF-03 parte 2)', () => {
+  const step4c = section(executePlan, '### 4c.')
+
+  test('4c le Defesa a mutar e Teste que deve cair da fase (D6)', () => {
+    expect(step4c, '[parity gate — CA-06] 4c nao le "Defesa a mutar"').toContain('Defesa a mutar')
+    expect(step4c, '[parity gate — CA-06] 4c nao le "Teste que deve cair"').toContain('Teste que deve cair')
+  })
+
+  test('4c restaura com git restore e prova diff vazio (CA-06)', () => {
+    expect(step4c, '[parity gate — CA-06] 4c nao restaura pelo git').toContain('git restore')
+    expect(
+      step4c,
+      `[parity gate "nunca diminuir" — CA-06] 4c nao exige "git diff --stat" vazio apos restaurar. Sem isso ` +
+        `a mutacao pode deixar residuo no arquivo de producao e ninguem ve (PRD §Riscos). Assercao ancorada ` +
+        `no par "git restore" seguido de "git diff --stat", nao no token solto: apos o GREEN a string ` +
+        `"git diff --stat" aparece 2x no bloco — a pre-condicao "vazio ANTES de mutar" e a exigencia apos ` +
+        `restaurar — entao um toContain('git diff --stat') isolado ficaria verde mesmo com a exigencia ` +
+        `pos-restore apagada, porque a pre-condicao sozinha ja satisfaz o toContain. Mesma classe de vacuo ` +
+        `confirmada por mutacao em 2026-09-08 (fase-01, DI-1/DI-2). Restaure a linha "Exigir \`git diff ` +
+        `--stat\` vazio", nao afrouxe esta assercao de volta a um toContain solto.`,
+    ).toMatch(/git restore[\s\S]*?git diff --stat/)
+    expect(step4c, '[parity gate — CA-06] 4c nao registra red_check no STATE').toMatch(/red_check: pass/)
+  })
+
+  test('4c trata teste que nao cai como blocker com DI (CA-07)', () => {
+    expect(step4c, '[parity gate — CA-07] 4c nao bloqueia a fase').toMatch(/red_check: fail/)
+    expect(
+      step4c,
+      `[parity gate "nunca diminuir" — CA-07] 4c nao marca a fase como blocked. Assercao ancorada no par ` +
+        `"red_check: fail" seguido de "blocked", nao no token solto: "blocked" ja aparece 2x hoje no bloco ` +
+        `4c via "red_confirmed: blocked" (passo 2 — module-not-found e nasce-verde) — um toContain('blocked') ` +
+        `isolado ficaria verde mesmo com "fase blocked" do passo 5 apagada, porque as duas ocorrencias do ` +
+        `passo 2 continuam la. Mesma classe de vacuo confirmada por mutacao em 2026-09-08 (fase-01, ` +
+        `DI-1/DI-2). Restaure a frase "fase blocked" do passo 5, nao afrouxe esta assercao de volta a um ` +
+        `toContain solto.`,
+    ).toMatch(/red_check: fail[\s\S]*?blocked/)
+    expect(
+      step4c,
+      `[parity gate — CA-07] 4c nao registra a DI "teste nao prova a defesa". Um teste que continua ` +
+        `verde com a defesa removida nao testa a defesa — e o plano nao pode avancar em cima dele.`,
+    ).toContain('teste nao prova a defesa')
+  })
+
+  test('4c exige REFACTOR em commit proprio ou motivo (CA-08, D4)', () => {
+    expect(step4c, '[parity gate — CA-08] 4c nao pede commit refactor(...) separado').toContain('refactor(')
+    expect(step4c, '[parity gate — CA-08] 4c nao aceita "refactor: none (motivo)"').toMatch(/refactor: none/)
+  })
+
+  test('Regras Criticas: rodar teste, mutar e restaurar e verificacao do orquestrador, nao implementacao (D3)', () => {
+    expect(
+      section(executePlan, '## Regras Criticas'),
+      `[parity gate — D3] "O orchestrador nao implementa" precisa dizer que o RED-check e verificacao. ` +
+        `Sem a frase, a regra 1 e o passo 5 do 4c se contradizem e o orquestrador pula a mutacao.`,
+    ).toContain('RED-check')
+  })
+})
