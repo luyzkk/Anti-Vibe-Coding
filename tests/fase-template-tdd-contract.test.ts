@@ -493,3 +493,44 @@ describe('execute-plan — Step 4c: evidencia no historico e diff escopado (acha
     ).toMatch(/Completar a linha do STATE log[\s\S]{0,200}docs\(state\)/)
   })
 })
+
+describe('execute-plan — Step 4c: a evidencia e commitada ANTES de quem a le (achado r2/r3)', () => {
+  test('o passo 5 commita a linha do STATE antes de spawnar o passo 6 (Observabilidade)', () => {
+    expect(
+      step4c,
+      `[parity gate "nunca diminuir" — Observabilidade] O passo 5 completa a linha do STATE log com ` +
+        `\`red_check\` e \`refactor\` mas nao manda commita-la antes do passo 6. O passo 6 manda o ` +
+        `plan-verifier RECEBER essa linha, e a instrucao de commit dele e o ULTIMO bullet, depois do ` +
+        `spawn — entao o verifier le sempre uma linha que existe so na working tree. Nas rodadas r2 e r3 ` +
+        `do dogfood (2026-09-09) isso reproduziu 3x em 3 verificacoes, com verdict request_changes e ` +
+        `severidade high nas duas da r3; na terceira o proprio verifier chamou de recorrencia. E a mesma ` +
+        `classe do Defeito 2 do DI-7 um nivel acima: o DI-7 fez a evidencia chegar ao historico, nao fez ` +
+        `chegar antes de quem a le. Restaure o commit no fim do passo 5, nao remova esta assercao.`,
+    ).toMatch(/Commitar a linha do STATE log[^\n]*ANTES de spawnar o passo 6/)
+  })
+
+  test('o passo 6 declara que a linha do STATE ja chega commitada (Observabilidade)', () => {
+    expect(
+      step4c,
+      `[parity gate "nunca diminuir" — Observabilidade] O item RECEBE do passo 6 nao diz que a linha do ` +
+        `STATE log ja chega commitada do passo 5. Sem isso o contrato do spawn fica ambiguo e um ` +
+        `orquestrador pode passar a versao da working tree, que e exatamente o que o plan-verifier ` +
+        `reprovou 3x nas rodadas r2/r3 do dogfood (2026-09-09). O par de assercoes e deliberado: uma ` +
+        `guarda o lado que escreve (passo 5), esta guarda o lado que le (passo 6). Restaure a mencao, ` +
+        `nao remova esta assercao.`,
+    ).toMatch(/A linha do STATE log desta fase[^\n]*ja commitada no passo 5/)
+  })
+
+  test('o commit do passo 5 nomeia o caminho pass e o caminho blocked (CA-07)', () => {
+    expect(
+      step4c,
+      `[parity gate "nunca diminuir" — CA-07] O commit do passo 5 so nomeia a mensagem do caminho ` +
+        `\`red_check: pass\`. O caminho \`fail\` deixa a fase blocked, e uma fase blocked nao esta ` +
+        `"concluida" — sem a mensagem propria o orquestrador cai na do caminho feliz e o historico mente ` +
+        `sobre o desfecho. Lacuna observada rodando a r2 do dogfood (2026-09-09), onde a fase-01 fechou ` +
+        `blocked. A regex e acoplada e limitada em {0,60} porque \`docs(state)\` ja aparece 2x no bloco ` +
+        `e \`blocked\` 4x — um toContain de qualquer um dos dois nasceria vacuo (GT-1/GT-6). Restaure a ` +
+        `mensagem do caminho fail, nao remova esta assercao.`,
+    ).toMatch(/docs\(state\): red_check fase-\{NN\}[\s\S]{0,60}docs\(state\): fase-\{NN\} blocked/)
+  })
+})
