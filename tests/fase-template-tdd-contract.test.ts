@@ -286,15 +286,44 @@ describe('execute-plan — Step 4c resolve o nivel, confirma o RED e para no gat
     expect(step4c, '[parity gate — CA-04] 4c nao classifica a falha por assertion').toMatch(/red_confirmed: assertion/)
     expect(
       step4c,
-      `[parity gate — CA-04] 4c nao bloqueia "Cannot find module". Falha por import nao e RED — e ` +
-        `ausencia de stub (compound 2026-05-19-tdd-gate-needs-stub-first).`,
-    ).toContain('Cannot find module')
-    expect(step4c, '[parity gate — CA-04] bloqueio nao aponta para o checklist stub-first').toContain('tdd-cycle-checklist')
+      `[parity gate "nunca diminuir" — CA-04] 4c perdeu a regra que classifica saida com marcador ` +
+        `de modulo/compilacao (Cannot find module, Cannot resolve, error TS, SyntaxError) como ` +
+        `red_confirmed: blocked. Falha por import nao e RED — e ausencia de stub (compound ` +
+        `2026-05-19-tdd-gate-needs-stub-first). Assercao ancorada no par condicao-desfecho, nao no ` +
+        `token solto: um toContain('Cannot find module') isolado fica verde mesmo com a regra ` +
+        `inteira apagada, porque a mesma frase reaparece dentro da propria mensagem de bloqueio ` +
+        `("Sinal Cannot find module") — vacuo confirmado por mutacao em 2026-09-08. Restaure a ` +
+        `linha da regra, nao afrouxe esta assercao de volta a um toContain solto.`,
+    ).toMatch(/`Cannot find module`[\s\S]*?red_confirmed: blocked/)
+    expect(
+      step4c,
+      `[parity gate "nunca diminuir" — CA-04] O bloqueio red_confirmed: blocked perdeu o ponteiro ` +
+        `para tdd-cycle-checklist. Sem ele o executor devolve ao RED sem dizer o que corrigir — ` +
+        `stub-first vira um segredo que so quem escreveu o contrato conhece. Assercao ancorada no ` +
+        `par red_confirmed: blocked seguido de tdd-cycle-checklist, nao no token solto: um ` +
+        `toContain('tdd-cycle-checklist') isolado fica verde mesmo com a mensagem de bloqueio ` +
+        `apagada, porque o mesmo token tambem aponta o passo 1 (RED) mais acima no bloco — vacuo ` +
+        `confirmado por mutacao em 2026-09-08. Restaure a mensagem do bloqueio, nao afrouxe esta ` +
+        `assercao de volta a um toContain solto.`,
+    ).toMatch(/red_confirmed: blocked[\s\S]*?tdd-cycle-checklist/)
   })
 
   test('4c para no gate humano com AskUserQuestion e registra human_gate (CA-05)', () => {
     expect(step4c, '[parity gate — CA-05] 4c nao para para o humano').toContain('AskUserQuestion')
-    expect(step4c, '[parity gate — CA-05] 4c nao registra human_gate no STATE').toContain('human_gate')
+    expect(
+      step4c,
+      `[parity gate "nunca diminuir" — CA-05] 4c perdeu o ramo "human_gate: stopped". CA-05 e ` +
+        `bilateral: dado [RISCO] (ou guiado), o orquestrador para; dado fase sem marca, nao para. ` +
+        `Uma assercao que aceita so um dos dois ramos nao guarda o criterio — restaure a linha ` +
+        `"Registrar: human_gate: stopped", nao remova esta assercao.`,
+    ).toContain('human_gate: stopped')
+    expect(
+      step4c,
+      `[parity gate "nunca diminuir" — CA-05] 4c perdeu o ramo "human_gate: skipped". Mesmo ` +
+        `criterio bilateral do CA-05 pelo lado oposto: sem este ramo o 4c pode parar de anunciar ` +
+        `quando NAO para, e a assercao do ramo "stopped" sozinha nao pegaria essa regressao. ` +
+        `Restaure a linha "Senao: human_gate: skipped({nivel})", nao remova esta assercao.`,
+    ).toContain('human_gate: skipped')
   })
 
   test('argument-hint do execute-plan aceita --tdd-level (RF-08)', () => {
