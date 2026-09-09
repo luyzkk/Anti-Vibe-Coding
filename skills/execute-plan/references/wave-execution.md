@@ -134,19 +134,30 @@ Com isolamento, o GREEN ve **apenas os testes** e implementa o codigo minimo par
 
 ### Ciclo Completo
 
+Fonte: `skills/tdd-workflow/SKILL.md` §`## Contrato do Ciclo por Fase`. O Step 4c do `execute-plan`
+executa este ciclo; o diagrama abaixo e resumo, nao definicao.
+
 ```
+Orchestrator: resolve o nivel (--tdd-level | user_profile | Assistido)
 Orchestrator: spawna RED com spec da task
     ↓
-RED: cria teste que FALHA
+RED: cria teste que FALHA (stub-first)
 RED: registra .tdd-phase.json (phase: red)
     ↓
-Orchestrator: confirma falha, spawna GREEN com APENAS os testes
+Orchestrator: RODA o teste e classifica a falha
+              assertion → segue | module-not-found / compila → bloqueia (stub-first) e devolve ao RED
+Orchestrator: gate humano conforme o nivel (AskUserQuestion: "este e o contrato; confirma?")
     ↓
-GREEN: implementa codigo minimo
-GREEN: confirma que teste PASSA
+Orchestrator: spawna GREEN com APENAS os testes
+GREEN: implementa codigo minimo; confirma que teste PASSA
+GREEN: REFACTOR com testes verdes, em commit refactor(...) proprio (ou "refactor: none (motivo)")
 GREEN: registra .tdd-phase.json (phase: green)
     ↓
+Orchestrator: RED-CHECK — aplica "Defesa a mutar", "Teste que deve cair" cai, git restore, diff vazio
+Orchestrator: VERIFY — spawna plan-verifier (read-only) com o STATE log da fase
+    ↓
 Orchestrator: coleta resultado, atualiza STATE.md
+              (tdd_level, red_confirmed, human_gate, red_check, refactor)
 ```
 
 ---

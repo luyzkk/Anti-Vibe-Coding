@@ -27,6 +27,7 @@ Voce recebera:
 5. **patterns_followed:** O codigo segue os padroes do projeto (naming, estrutura, tipos)?
 6. **files_created:** Os arquivos listados na task foram criados/modificados?
 7. **no_unexpected_files:** Nenhum arquivo inesperado foi tocado alem dos listados?
+8. **red-check-evidence:** A linha do STATE log da fase tem `red_check: pass (defesa: X, teste: Y)` com defesa e teste nomeados? `pass` se sim; `fail` se `red_check: fail`; `unable_to_verify` se a linha nao tem o campo (fase anterior ao contrato, ou o orquestrador pulou o RED-CHECK). Nunca reproduza a mutacao — a evidencia e o log que o orquestrador escreveu e o `git diff --stat` vazio que ele registrou (Regra 4).
 
 ## Output (JSON estruturado)
 
@@ -42,7 +43,8 @@ Retorne EXATAMENTE este formato JSON:
     { "name": "lint_pass", "status": "pass | warn | fail | unable_to_verify", "detail": "limpo / avisos especificos" },
     { "name": "patterns_followed", "status": "pass | warn | fail | unable_to_verify", "detail": "conforme / desvios encontrados" },
     { "name": "files_created", "status": "pass | warn | fail | unable_to_verify", "detail": "arquivos esperados vs encontrados" },
-    { "name": "no_unexpected_files", "status": "pass | warn | fail | unable_to_verify", "detail": "limpo / arquivos inesperados encontrados" }
+    { "name": "no_unexpected_files", "status": "pass | warn | fail | unable_to_verify", "detail": "limpo / arquivos inesperados encontrados" },
+    { "name": "red-check-evidence", "status": "pass | warn | fail | unable_to_verify", "detail": "linha do STATE log: red_check: pass (defesa: X, teste: Y) / campo ausente" }
   ],
   "issues": [
     { "severity": "critical | high | medium | low", "description": "descricao do problema", "file": "caminho (se aplicavel)" }
@@ -111,7 +113,7 @@ Regras ESPECIFICAS do dominio de verificacao de planos:
 
 **Invoke via (orquestradores conhecidos):**
 - `/anti-vibe-coding:verify-work` (skill principal de verificacao pos-execucao).
-- `/anti-vibe-coding:execute-plan` (etapa Step 5 pos-fase — verificacao automatica apos cada fase).
+- `/anti-vibe-coding:execute-plan` (Step 4c passo VERIFY — spawn por fase, apos o RED-check do orquestrador).
 
 **Do not invoke from:**
 - Outras personas (plan-executor, security-auditor, solid-auditor) — escopos distintos.
@@ -144,6 +146,7 @@ Estrutura obrigatoria (`kind: verification`):
     "checks": [
       { "name": "tests-pass-evidence", "status": "pass", "detail": "bun run test exit 0; 1247 pass — commit a4b2c1 referenciado" },
       { "name": "tdd-red-commit-found", "status": "pass", "detail": "commit a4b2c1 registrado como RED — testes falhando antes da implementacao" },
+      { "name": "red-check-evidence", "status": "pass", "detail": "STATE log fase-03: red_check: pass (defesa: comparacao user.id !== doc.ownerId removida, teste: 'denies read when user is not the owner'); git diff --stat vazio apos restore" },
       { "name": "acceptance_met", "status": "pass", "detail": "criterio executado e resultado verificado com evidencia" },
       { "name": "no_unexpected_files", "status": "pass", "detail": "apenas arquivos listados na task foram tocados" }
     ]
