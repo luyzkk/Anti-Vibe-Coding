@@ -452,7 +452,9 @@ Ler do bloco ### TDD da fase: Tipo de fase, comando do RED, `Defesa a mutar`, `T
        fase sem-comportamento: gate textual rodado e visto FALHANDO
          → red_confirmed: gate-textual
    - Gravar a linha da fase no STATE log com `red_confirmed` ANTES do gate (uma parada nao pode
-     perder o RED — PRD Premissa 2)
+     perder o RED — PRD Premissa 2); commit `docs(state): red_confirmed fase-{NN}` logo em
+     seguida — sem esse commit a arvore do repo do projeto fica suja e a pre-condicao do passo 5
+     nunca e satisfeita (o STATE log vive no mesmo repo do projeto)
 
 3. GATE HUMANO (mapa nivel → parada, da fonte):
    para se: nivel == guiado
@@ -481,14 +483,16 @@ Ler do bloco ### TDD da fase: Tipo de fase, comando do RED, `Defesa a mutar`, `T
      senao `refactor: none ({motivo do human_readable})`
 
 5. RED-CHECK (orquestrador — verificacao, nao implementacao; PRD D3):
-   Pre-condicao: GREEN e REFACTOR commitados; `git diff --stat` vazio ANTES de mutar
+   Pre-condicao: GREEN, REFACTOR e a linha do STATE (passo 2) commitados; `git diff --stat -- {arquivo}` vazio ANTES de mutar
+     (escopado ao arquivo da defesa: o STATE log do passo 2 vive no mesmo repo do projeto e
+     apareceria num diff sem escopo)
    - Ler `Defesa a mutar` e `Teste que deve cair` do bloco ### TDD da fase
      (se a fase nao nomeia, usar `fase-{NN}-defesa-implementada` do envelope do executor)
    - Aplicar a mutacao com Edit no arquivo de producao nomeado
    - Rodar SO o teste nomeado (ex.: `bun test {arquivo} -t '{Teste que deve cair}'`)
    - Exigir falha: exit != 0 E o teste nomeado aparece como fail
    - Restaurar: `git restore {arquivo}` (caminho explicito — nunca `git restore .`)
-   - Exigir `git diff --stat` vazio
+   - Exigir `git diff --stat -- {arquivo}` vazio
        vazio     → red_check: pass (defesa: {X}, teste: {Y})
        nao vazio → needs_human: residuo de mutacao — NUNCA commitar entre mutar e restaurar
    - Teste NAO caiu → restaurar mesmo assim; red_check: fail (defesa: {X}, teste: {Y});
@@ -509,7 +513,9 @@ Ler do bloco ### TDD da fase: Tipo de fase, comando do RED, `Defesa a mutar`, `T
      red-check-evidence (pass: a linha do STATE tem `red_check: pass` com defesa e teste nomeados;
      fail: `red_check: fail` — verdict block; unable_to_verify: campo ausente na linha)
    - O 4d ja consome kind === "verification" — sem mudanca no parser
-   - Completar a linha do STATE log: `custo: testes={rodadas} spawns={RED+GREEN+verifier}`
+   - Completar a linha do STATE log: `custo: testes={rodadas} spawns={RED+GREEN+verifier}`;
+     commit `docs(state): fase-{NN} concluida` logo em seguida — a evidencia do red_check so
+     vale se estiver no historico, nao so na working tree
 
 Linha do STATE log (uma por fase, no ## Log do STATE.md; nasce parcial no passo 2 e e completada
 nos passos 4, 5 e 6):
