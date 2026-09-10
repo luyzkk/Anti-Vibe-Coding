@@ -95,8 +95,6 @@ Re-runs are idempotent: human-edited files and active plans are preserved.
 - **Assisted** (dev with edge cases) — AI generates 1-3 tests, context isolation RED/GREEN
 - **Direct** (dev writes tests) — AI only implements
 
-AI Judge suggested for features with 3+ slices or critical areas (auth, financial).
-
 See `docs/PLANS.md` for plan template details. See `AGENTS.md` for workflow overview.
 
 ---

@@ -3,6 +3,131 @@
 Todas as mudanças notáveis do plugin Anti-Vibe Coding serão documentadas aqui.
 
 
+## [7.9.0] - 2026-09-09
+
+> **Minor release — Honestidade de Config**
+
+Seis lugares do plugin documentavam enforcement que **não roda**. Todos falhavam **abrindo**: nada
+quebrava, nenhum teste ficava vermelho, e por isso atravessaram um gate de paridade, uma rodada de
+dogfood e três releases sem aparecer. O PRD `tdd-cycle-contract` tinha adiado o conjunto
+explicitamente, como "outro problema (honestidade de config)".
+
+A decisão está em [`ADR-0023`](docs/design-docs/ADR-0023-honestidade-config-tdd-gate.md), item a item,
+com a alternativa rejeitada de cada um.
+
+### O que a medição decidiu
+
+As promessas quebradas tinham **sinais opostos**, e é por isso que uma decisão única para o pacote
+teria errado metade.
+
+O **AI Judge saiu por medição**: o subprocesso `claude -p` levou **27 segundos só para falhar
+autenticação**, contra 10s de orçamento do hook e 5s de safety timeout interno. A alternativa por API
+direta exigiria chave paga por usuário do plugin, uma chamada por `Write`/`Edit`, e abriria prompt
+injection pelo conteúdo do arquivo editado.
+
+A **âncora imutável ficou pelo motivo inverso**. Quatro sondas provaram que o hook `PreToolUse`
+dispara **dentro do subagente**, encontra a âncora pelo diretório do projeto e bloqueia a edição do
+teste durante o GREEN. O mecanismo estava inteiro; faltava alguém escrever o arquivo.
+
+### Added
+
+- **A âncora imutável passa a ser armada de verdade.** O Step 4c do `execute-plan` varre âncora órfã
+  ao iniciar a fase, arma antes de spawnar o GREEN com lista **explícita** em `immutable_tests`,
+  desarma depois do REFACTOR e registra `anchor: intact|removed` na linha do STATE log. A lista
+  explícita ganha do curinga porque o curinga congelaria todo arquivo de teste do repositório durante
+  a fase, e bloqueio falso é o que treina o dev a burlar o gate.
+- **O pre-commit voltou a existir**, em `hooks/pre-commit-suite.cjs`, com a decisão isolada em
+  `hooks/lib/precommit-decision.cjs`. Ele lê stdin, libera o commit do RED sem rodar a suíte (o
+  contrato do ciclo exige commitar com teste vermelho), e distingue **"a suíte reprovou"** de **"a
+  suíte não pôde rodar"** — o segundo permite, com diagnóstico.
+- **Chave `precommit: "on"|"off"`** em `config/tdd-gate.json`. Desligar é explícito: chave ausente
+  segue ligada. Nenhum outro gate do plugin é obrigatório, e este não podia ser o primeiro.
+- **`auditors.code_review: true`** em `config/verify-work.json`. O auditor existe na frota e a skill
+  já prometia esse default, mas a chave ausente era lida como não-configurada e ele não rodava.
+- **Gate de paridade de 43 para 51 assertions**, guardando cada instrução nova do Step 4c.
+- Três libs compartilhadas em `hooks/lib/`: `project-root.cjs`, `fail-open.cjs` e `tdd-phase.cjs`,
+  mais `gate-config.cjs`, que passa a ser o **único** leitor de `config/tdd-gate.json` — antes eram
+  duas cópias de `readConfig` com defaults diferentes.
+
+### Fixed
+
+- **A mensagem de bloqueio ensinava o próprio bypass.** Ela mandava o agente bloqueado editar o
+  arquivo da âncora que o restringia, e quem está sob a âncora tem Bash na mão. Agora manda parar e
+  pedir ao orquestrador. Vale a regra geral: mensagem de erro de mecanismo de disciplina não pode
+  conter a instrução que o desarma.
+- **A falha aberta era muda**, nos dois caminhos do gate. Permitir quando o próprio hook quebra
+  continua certo — gate quebrado não pode travar o trabalho — mas o silêncio era o que fazia a quebra
+  ser invisível.
+- **A busca do teste-irmão partia do cwd da sessão**, não da raiz do projeto dono do arquivo. Numa
+  sessão com diretórios adicionais de outro projeto, o gate olhava no lugar errado. Mesma classe da
+  issue #82, mecanismo diferente: aqui não há `cd` para ler, só o caminho.
+- **O pre-commit lia `process.env.CLAUDE_TOOL_INPUT`**, variável que o Claude Code nunca preenche.
+  Saía com 0 sempre. E chamava `bun run lint`, script que **não existe** neste repo: se ele tivesse
+  voltado a funcionar como estava, o erro de script ausente viraria "testes falharam" e **todo commit
+  do repositório passaria a ser bloqueado**.
+- A skill `tdd-workflow` afirmava, fora da seção do AI Judge, que `max_tests_per_cycle: 1` dava
+  "bloqueio real via hook". Era uma sétima promessa falsa, fora do levantamento original.
+- **Projeto sem script de teste teria todo commit bloqueado.** Achado por sonda contra o cache já
+  sincronizado: sem `package.json`, o `bun run test` cai no `test.exe` do Git Bash que está no PATH e
+  sai com 1. O hook lia isso como "a suíte reprovou". A classificação virou a função pura
+  `suiteUnavailable`, testada com a saída real. A primeira tentativa de conserto incluía os padrões
+  genéricos `no such file or directory` e `command not found`, e a sonda pegou de novo: numa suíte de
+  2200 testes essas frases aparecem por acaso, e uma suíte genuinamente vermelha passou a ser
+  classificada como ausente, **permitindo** o commit. Ficaram só os dois padrões específicos do
+  runner, com teste de regressão.
+- **`scripts/bump-version.js` parou de reescrever o histórico de releases** (PR #87). A entrada nova
+  passa a ser inserida antes da primeira existente, e sem `--codename` a description volta intacta.
+  O teste que existia não importava o script: ele reimplementava a função no próprio arquivo, e dois
+  dos casos **exigiam o defeito**. Agora ele importa o script real.
+- **`scripts/generate-manifest.js` parou de recarimbar `introduced`** (PR #88). O gerador passa a ler
+  o manifest anterior: skill que já existia mantém a versão em que nasceu, skill nova recebe a da
+  rodada. Era o único campo histórico do manifest, e estava morto desde a v6.3.2.
+
+Os dois vieram em PRs próprios, a partir da `main`, e por isso **esta entrada depende deles**. Se um
+dos dois não entrar nesta release, o item correspondente volta para "Sabidos, não corrigidos".
+
+### Removed
+
+- **AI Judge**: o modo `ai-judge` e seu ramo vazio com `TODO`, as chaves `judge_model` e
+  `suggest_ai_judge_threshold`, a seção `## AI Judge — Quando Sugerir` da skill e a linha
+  correspondente do `PIPELINE.md`.
+- **Três chaves sem mecanismo**: `max_tests_per_cycle` (o hook vê arquivos, não casos de teste — um
+  arquivo carrega N), `require_assertion_failure` (a regra já tem dono no passo do contrato onde o
+  orquestrador confirma a falha do RED por assertion) e `approach`.
+
+### O que a execução ensinou
+
+Três notas compound saíram desta rodada, e as três vieram de defeitos reais, não de teoria:
+
+- **Token que é prefixo de outro cria assertion vácua.** `/ARMAR ANCORA/` casa dentro de
+  `DESARMAR ANCORA`, então apagar a instrução de armar deixava o gate verde. Escrita e relida no mesmo
+  dia; quem pegou foi a varredura linha a linha do bloco.
+- **Num gate, "reprovou" e "não pôde rodar" nunca compartilham ramo.**
+- **Config morta é mentira que falha abrindo**, e o sinal detectável é barato: chave que aparece uma
+  única vez no código, dentro do objeto de defaults, não tem leitor.
+
+### Sabidos, não corrigidos
+
+- **O estrago que esses dois geradores já causaram continua no lugar.** Consertá-los impede novas
+  perdas; não repõe o que se perdeu. A `description` tem entradas com atribuição errada — em
+  `d06b684` ela dizia `v7.7.0 — Zeragem do TODO`, mas esse era o nome da **7.6.1** — e o
+  `introduced` das 46 skills está achatado numa versão só. Repor exige mapear cada commit para a
+  primeira release **depois** dele: a receita ingênua, ler o `package.json` do commit que adicionou
+  a skill, dá a resposta errada, porque esse commit vem antes do bump.
+- **`bun test tests/hooks/` executa apenas um arquivo do diretório e sai com 0.** Falsa confiança;
+  listar os arquivos explicitamente ou rodar a suíte inteira.
+- Este repo **não tem** script `lint`, embora o `CLAUDE.md` mande rodar `bun run test && bun run lint`.
+  Os scripts reais de verificação são `test`, `typecheck`, `harness:validate` e `compound:check`.
+
+### Verificação
+
+Suíte **2231 pass / 0 fail**. Typecheck com saída zero. `harness:validate` (28 obrigatórios, 398
+markdowns) e `compound:check` (75 notas) passando. RED-check por mutação: 6 mutações, 6 quedas, com
+restauração provada por `diff` em cada uma. Cache do plugin sincronizado e provado por sonda contra o
+hook do cache, não contra o do checkout.
+
+---
+
 ## [7.8.0] - 2026-09-09
 
 > **Minor release — Contrato do Ciclo TDD**

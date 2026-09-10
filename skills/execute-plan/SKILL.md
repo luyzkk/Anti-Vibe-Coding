@@ -431,12 +431,19 @@ Ler do bloco ### TDD da fase: Tipo de fase, comando do RED, `Defesa a mutar`, `T
    - Registrar no STATE log: `tdd_level: {nivel}`
 
 1. RED (subagente, contexto isolado):
+   - VARRE ANCORA ORFA (orquestrador, antes do spawn): se `.claude/.tdd-phase.json` ja existe ao
+     iniciar a fase, ele sobrou de execucao interrompida — apagar. A ancora e o unico mecanismo
+     do gate que falha FECHANDO: esquecida armada, impede a proxima fase RED de editar o proprio
+     teste. Dono unico varrendo no inicio substitui um TTL dentro do hook, que desprotegeria em
+     silencio quando o prazo vencesse
    - Recebe: especificacao da fase (arquivos, descricao, verificacao)
    - Recebe, se a fase e de risco: a secao "Ameacas & Dados" do PRD + os CA-SEC-* da fase
      — sem isso o RED escreve so o happy path e a defesa nunca chega ao GREEN
    - NAO recebe: implementacao existente
    - Produz: teste que FALHA por assertion failure (stub-first — docs/references/tdd-cycle-checklist.md)
-   - Registra: .tdd-phase.json
+   - Produz tambem a lista dos arquivos de teste criados — o orquestrador precisa dela para
+     armar a ancora no passo 4
+   - NAO arma nem desarma a ancora: quem esta sob ela nunca e quem a controla (ADR-0023)
 
 2. RED CONFIRMADO PELO ORQUESTRADOR (verificacao, nao implementacao):
    - Rodar o comando de teste da fase via Bash; ler a saida ate o fim
@@ -472,12 +479,27 @@ Ler do bloco ### TDD da fase: Tipo de fase, comando do RED, `Defesa a mutar`, `T
    Senao: human_gate: skipped({nivel})
 
 4. GREEN + REFACTOR (um subagente, contexto isolado — PRD D4):
+   - ARMAR ANCORA (orquestrador, ANTES do spawn): escrever `.claude/.tdd-phase.json` com
+     `{"phase":"green","feature":"fase-{NN}","immutable_tests":[<os testes criados no passo 1>]}`.
+     Lista EXPLICITA, nunca o curinga do config: o curinga congela TODO arquivo de teste do
+     repositorio durante a fase, e bloqueio falso e o que treina o dev a burlar o gate.
+     O que a ancora faz: torna o desvio VISIVEL, nao impossivel. Quem tem Bash pode apaga-la; o
+     valor esta em apagar virar ato deliberado, que o desarme registra (ADR-0023)
+     A ancora NUNCA entra em commit: ela e transitoria e vive no repo do projeto. O GREEN commita
+     por caminho explicito — um `git add -A` com a ancora armada leva o arquivo de fase junto e
+     ele passa a bloquear quem clonar o repo
    - Recebe: APENAS os arquivos de teste do RED
    - NAO recebe: PRD, descricao da feature
    - Passo 1 — GREEN: codigo minimo que faz o teste passar; commit feat(...)
    - Anchor imutavel: NUNCA modifica testes
    - Passo 2 — REFACTOR: com os testes verdes, refatorar em commit `refactor(...)` SEPARADO do feat;
      se nao ha o que refatorar, reportar `refactor: none ({motivo})` no human_readable
+   - DESARMAR ANCORA (orquestrador, depois do REFACTOR e ANTES do passo 5): conferir se
+     `.claude/.tdd-phase.json` ainda existe e so entao apaga-lo
+       existia → `anchor: intact`
+       sumiu   → `anchor: removed` — o GREEN contornou a ancora. Registrar DI no MEMORY do plano
+                 ("ancora removida na fase-{NN}") e avisar o dev no Step 5; a fase nao fecha como
+                 concluida sem esse registro
    - Orquestrador registra no STATE log: `refactor: commit {hash}` se
      `git log --oneline {HEAD-antes}..HEAD` tem commit com prefixo `refactor(`;
      senao `refactor: none ({motivo do human_readable})`
@@ -510,7 +532,7 @@ Ler do bloco ### TDD da fase: Tipo de fase, comando do RED, `Defesa a mutar`, `T
    RECEBE:
    - O arquivo da fase (`{PASTA_ATIVA}/plano{NN}/fase-MM-nome.md`)
    - A linha do STATE log desta fase, ja commitada no passo 5 (tdd_level, red_confirmed, human_gate,
-     red_check, refactor)
+     red_check, refactor, anchor)
    - Lista de arquivos tocados: saida de `git diff --stat {HEAD-antes}..HEAD`
    - Comando de teste da fase
    NAO RECEBE:
@@ -527,7 +549,8 @@ Linha do STATE log (uma por fase, no ## Log do STATE.md; nasce parcial no passo 
 nos passos 4, 5 e 6):
 - {YYYY-MM-DD}: plano{NN}/fase-{MM} — tdd_level: {nivel} | red_confirmed: {assertion|blocked|gate-textual}
   | human_gate: {stopped|skipped(nivel)} | red_check: {pass|fail} (defesa: {X}, teste: {Y})
-  | refactor: {commit <hash>|none (motivo)} | custo: testes={n} spawns={n}
+  | refactor: {commit <hash>|none (motivo)} | anchor: {intact|removed|n/a}
+  | custo: testes={n} spawns={n}
 
 Se a fase NAO tem bloco ### TDD (fases geradas antes do contrato):
   - Executar diretamente com subagente unico; validar via checklist da fase
