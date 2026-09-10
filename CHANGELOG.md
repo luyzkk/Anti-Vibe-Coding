@@ -67,6 +67,14 @@ teste durante o GREEN. O mecanismo estava inteiro; faltava alguém escrever o ar
   do repositório passaria a ser bloqueado**.
 - A skill `tdd-workflow` afirmava, fora da seção do AI Judge, que `max_tests_per_cycle: 1` dava
   "bloqueio real via hook". Era uma sétima promessa falsa, fora do levantamento original.
+- **Projeto sem script de teste teria todo commit bloqueado.** Achado por sonda contra o cache já
+  sincronizado: sem `package.json`, o `bun run test` cai no `test.exe` do Git Bash que está no PATH e
+  sai com 1. O hook lia isso como "a suíte reprovou". A classificação virou a função pura
+  `suiteUnavailable`, testada com a saída real. A primeira tentativa de conserto incluía os padrões
+  genéricos `no such file or directory` e `command not found`, e a sonda pegou de novo: numa suíte de
+  2200 testes essas frases aparecem por acaso, e uma suíte genuinamente vermelha passou a ser
+  classificada como ausente, **permitindo** o commit. Ficaram só os dois padrões específicos do
+  runner, com teste de regressão.
 
 ### Removed
 
