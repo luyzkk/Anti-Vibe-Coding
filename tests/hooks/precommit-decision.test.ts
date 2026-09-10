@@ -17,7 +17,7 @@
 import { describe, it, expect } from 'bun:test'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { decide } = require('../../hooks/lib/precommit-decision.cjs')
+const { decide, suiteUnavailable } = require('../../hooks/lib/precommit-decision.cjs')
 
 type Suite = { ok: boolean; ran: boolean; error?: string }
 
@@ -93,6 +93,58 @@ describe('pre-commit: chave de desligar, como todo gate do plugin', () => {
     const r = decide({ command: 'git commit -m "feat: x"', phase: 'green', runSuite: suite.run })
     expect(suite.state.ran).toBe(true)
     expect(r.action).toBe('allow')
+  })
+})
+
+describe('suiteUnavailable: distinguir "reprovou" de "nem existe suite"', () => {
+  // 2026-09-10 (Luiz/dev): capturado de uma sonda real contra o cache 7.9.0, num diretorio sem
+  // package.json. O `bun run test` nao acha o script, cai no `test.exe` do Git Bash que esta no
+  // PATH, e ele sai com 1. Sem esta deteccao, o hook le "saiu != 0" como "a suite reprovou" e
+  // BLOQUEIA TODO COMMIT de qualquer projeto que use o plugin e nao tenha script de teste.
+  //
+  // DEFESA A MUTAR: o reconhecimento da frase do bun para script ausente.
+  const SAIDA_REAL = [
+    'error: "C:\\Program Files\\Git\\usr\\bin\\test.exe" exited with code 1',
+    'note: a package.json script "test" was not found',
+  ].join('\n')
+
+  it('reconhece a mensagem do bun para script de teste ausente', () => {
+    expect(suiteUnavailable(SAIDA_REAL, {})).toBe(true)
+  })
+
+  it('reconhece o caso classico de script inexistente', () => {
+    expect(suiteUnavailable('error: Script not found "lint"', {})).toBe(true)
+  })
+
+  it('reconhece binario ausente e processo morto por timeout', () => {
+    expect(suiteUnavailable('', { code: 'ENOENT' })).toBe(true)
+    expect(suiteUnavailable('', { killed: true })).toBe(true)
+    expect(suiteUnavailable('', { signal: 'SIGTERM' })).toBe(true)
+  })
+
+  // O contrapeso: suite que REPROVOU de verdade nao pode virar "indisponivel", senao o gate para
+  // de bloquear o que existe para bloquear.
+  it('nao confunde suite vermelha com suite ausente', () => {
+    const vermelha = '(fail) alguma coisa > falha de proposito\n 1 fail\n error: script "test" exited with code 1'
+    expect(suiteUnavailable(vermelha, { status: 1 })).toBe(false)
+  })
+
+  // 2026-09-10 (Luiz/dev): REGRESSAO. A primeira versao desta funcao procurava tambem por
+  // "no such file or directory" e "command not found" na saida INTEIRA. Numa suite de 2200 testes
+  // essas frases aparecem por acaso — algum teste exercita caminho ausente e loga isso. Resultado
+  // medido por sonda: suite genuinamente vermelha classificada como "nao pode ser executada", e o
+  // gate PERMITIU o commit. Falso positivo aqui desliga o gate em silencio, que e pior que o bug
+  // que a deteccao veio consertar.
+  //
+  // DEFESA A MUTAR: a ausencia de padroes genericos na lista.
+  it('nao confunde suite vermelha que menciona arquivo ausente com suite ausente', () => {
+    const vermelha = [
+      '[run-tests] lote 1/2 — 176 arquivos',
+      "(fail) algum teste > erro: ENOENT: no such file or directory, open 'x'",
+      '(fail) outro teste > command not found: foo',
+      ' 1 fail',
+    ].join('\n')
+    expect(suiteUnavailable(vermelha, { status: 1 })).toBe(false)
   })
 })
 
