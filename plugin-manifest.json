@@ -1,6 +1,6 @@
 {
   "version": "7.8.0",
-  "generatedAt": "2026-09-09T18:45:25.105Z",
+  "generatedAt": "2026-09-10T13:03:21.865Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -283,8 +283,8 @@
   "files": {
     "CLAUDE.md": {
       "version": "7.8.0",
-      "checksum": "5e5aa1fd2178bd6bac8e9133d93c9d1ee18efca40e540392e97e9bcc5f3d6836",
-      "lastModified": "2026-08-17",
+      "checksum": "cbe64fdbf8a1f2ee78d226b9d7c8cfe9d56c699426910f15d203c86915959486",
+      "lastModified": "2026-09-10",
       "updateStrategy": "merge"
     },
     "rules/api-standards.md": {
@@ -374,7 +374,7 @@
     "hooks/hooks.json": {
       "version": "7.8.0",
       "checksum": "e9c95cdeb1b26aab098f39e6c1f82838432de11c7319ca223293716fd3e9c577",
-      "lastModified": "2026-09-09",
+      "lastModified": "2026-09-10",
       "updateStrategy": "replace"
     },
     "hooks/pre-mutation-gate.cjs": {
@@ -416,13 +416,13 @@
     "hooks/tdd-gate-bash.cjs": {
       "version": "7.8.0",
       "checksum": "8457a9f9b969f0203692e30ce0f20e16ea6cf69fb5601fd5be615c3de5e620ab",
-      "lastModified": "2026-09-09",
+      "lastModified": "2026-09-10",
       "updateStrategy": "replace"
     },
     "hooks/tdd-gate.cjs": {
       "version": "7.8.0",
       "checksum": "7370b413f2dc3f41ca76e9d2188ce280e2a825a3a825272ffd84413642777bb5",
-      "lastModified": "2026-09-05",
+      "lastModified": "2026-09-10",
       "updateStrategy": "replace"
     },
     "hooks/user-prompt-gate.cjs": {
@@ -560,13 +560,13 @@
     "config/tdd-gate.json": {
       "version": "7.8.0",
       "checksum": "46a0e223c2ee6939f058bc16d19809552e6c6ddf6e467978b6262bd0cd79fa43",
-      "lastModified": "2026-09-05",
+      "lastModified": "2026-09-10",
       "updateStrategy": "replace"
     },
     "config/verify-work.json": {
       "version": "7.8.0",
       "checksum": "f8b9913231443b63ddd80a1b1ca517a37975b8b8bf18fc535696f6b8e0879d4a",
-      "lastModified": "2026-09-01",
+      "lastModified": "2026-09-10",
       "updateStrategy": "replace"
     },
     "config/_schemas/adaptive-coaching-v1.schema.json": {
@@ -590,7 +590,7 @@
     "scripts/bump-version.js": {
       "version": "7.8.0",
       "checksum": "1860af61a9771712fea7aca6fb0abd2fe6908be09010cd669ccc921c2f1be3bf",
-      "lastModified": "2026-08-31",
+      "lastModified": "2026-09-10",
       "updateStrategy": "replace"
     },
     "scripts/compound-check.ts": {
@@ -602,7 +602,7 @@
     "scripts/generate-manifest.js": {
       "version": "7.8.0",
       "checksum": "6b450e7a157c80dda4172256212da733075de818cebb6dbdd29f1f004768837b",
-      "lastModified": "2026-08-14",
+      "lastModified": "2026-09-10",
       "updateStrategy": "replace"
     },
     "scripts/grep-deleted-steps.ts": {
@@ -643,8 +643,8 @@
     },
     "scripts/run-tests.ts": {
       "version": "7.8.0",
-      "checksum": "d918afb5003d33d8dd2b078ab4f71461cf0e4e32d0eca5e662d9a378e0c34d21",
-      "lastModified": "2026-08-12",
+      "checksum": "259ab96f6446817fd9668c2220b606381601c1e15dff505f09f2f05e4cb24306",
+      "lastModified": "2026-09-10",
       "updateStrategy": "replace"
     },
     "scripts/wayfinder-frontier.ts": {
@@ -1118,7 +1118,7 @@
     "skills/execute-plan/SKILL.md": {
       "version": "7.8.0",
       "checksum": "e6defb98f0447778eda3b1d7e9f3d9dc40bc9325f196b2a7d32c312950207b4f",
-      "lastModified": "2026-09-09",
+      "lastModified": "2026-09-10",
       "updateStrategy": "replace"
     },
     "skills/execute-plan/index.ts": {
@@ -1130,7 +1130,7 @@
     "skills/execute-plan/references/wave-execution.md": {
       "version": "7.8.0",
       "checksum": "41a1868b52c7c89f7c19483c37f03c6cbef9d785bdf6e8483a0441a121835233",
-      "lastModified": "2026-09-09",
+      "lastModified": "2026-09-10",
       "updateStrategy": "replace"
     },
     "skills/git-workflow-and-versioning/SKILL.md": {
@@ -2786,7 +2786,7 @@
     "skills/tdd-workflow/SKILL.md": {
       "version": "7.8.0",
       "checksum": "33acd8bcd6ef3c4595b1ef2f323280c0a2f59068bbaf9a1266e8ef729e457697",
-      "lastModified": "2026-09-09",
+      "lastModified": "2026-09-10",
       "updateStrategy": "replace"
     },
     "skills/tdd-workflow/references/deep-modules.md": {

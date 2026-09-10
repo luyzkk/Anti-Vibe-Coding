@@ -33,3 +33,4 @@ If no, log why no capture was needed in the plan's Lessons Captured section.
 
 Run `bun run harness:validate` before any commit that touches `docs/` structure.
 Run `bun run compound:check` after adding/editing compound notes.
+Rode a suíte com `bun run test`, nunca `bun test <diretório>` ([por quê](docs/compound/2026-09-10-bun-test-por-diretorio-trunca-em-silencio.md)). Não existe script `lint`.
