@@ -534,3 +534,104 @@ describe('execute-plan — Step 4c: a evidencia e commitada ANTES de quem a le (
     ).toMatch(/docs\(state\): red_check fase-\{NN\}[\s\S]{0,60}docs\(state\): fase-\{NN\} blocked/)
   })
 })
+
+// 2026-09-09 (Luiz/dev): ADR-0023 — a ancora imutavel passa a ser ARMADA de verdade.
+//
+// Ate aqui o 4c falava da ancora como se ela estivesse ligada (passo 4, "Anchor imutavel: NUNCA
+// modifica testes") mas nenhum passo mandava liga-la. O unico registro era uma linha pedindo ao
+// SUBAGENTE RED que a escrevesse — dono errado, e ninguem conferia. Como o arquivo nunca existia,
+// `isImmutableTest` saia na primeira linha e o GREEN rodava desprotegido.
+//
+// Quatro sondas de hook (2026-09-09) mediram o que faltava: o PreToolUse dispara DENTRO do
+// subagente, acha a ancora pelo diretorio do projeto e bloqueia a edicao do teste. O mecanismo
+// estava inteiro; faltava o gatilho. Estas assercoes guardam o gatilho.
+describe('execute-plan — Step 4c arma e desarma a ancora imutavel (ADR-0023)', () => {
+  test('o orquestrador arma a ancora antes de spawnar o GREEN', () => {
+    expect(
+      step4c,
+      `[parity gate "nunca diminuir" — ADR-0023] O passo 4 nao manda ARMAR a ancora antes do spawn ` +
+        `do GREEN. Sem isso o arquivo nunca existe, o hook sai na primeira linha e o GREEN pode ` +
+        `editar o teste que deveria estar congelado — que e exatamente o estado que a 7.8.0 ` +
+        `registrou como "sabido, nao corrigido". Restaure o passo, nao remova esta assercao.\n` +
+        `O prefixo "- " no padrao NAO e decorativo: sem ele, /ARMAR ANCORA/ casa dentro de ` +
+        `"DESARMAR ANCORA" e a assercao nasce vacua — apagar a linha do armar deixava o gate verde. ` +
+        `Achado pela varredura linha a linha do 4c (GT-5, 2026-09-09), nao por revisao.`,
+    ).toMatch(/- ARMAR ANCORA/)
+  })
+
+  test('o orquestrador desarma a ancora depois do REFACTOR', () => {
+    expect(
+      step4c,
+      `[parity gate "nunca diminuir" — ADR-0023] O passo 4 nao manda DESARMAR a ancora. Ela e o ` +
+        `UNICO mecanismo do gate que falha FECHANDO: esquecida armada, bloqueia edicao legitima de ` +
+        `teste na proxima fase RED. Armar sem desarmar troca um defeito invisivel por um visivel, ` +
+        `mas nao e o conserto. Restaure o desarme, nao remova esta assercao.`,
+    ).toMatch(/DESARMAR ANCORA/)
+  })
+
+  test('a ancora nomeia os testes da fase, nunca o curinga', () => {
+    expect(
+      step4c,
+      `[parity gate "nunca diminuir" — ADR-0023] O passo 4 nao manda escrever a lista explicita em ` +
+        `\`immutable_tests\`. Sem a lista o hook cai no curinga do config, que congela TODO arquivo ` +
+        `de teste do repositorio durante o GREEN de uma fase — e bloqueio falso e o que treina o dev ` +
+        `a burlar o gate. Restaure a lista, nao remova esta assercao.`,
+    ).toContain('immutable_tests')
+  })
+
+  test('a fase comeca varrendo ancora orfa de execucao interrompida', () => {
+    expect(
+      step4c,
+      `[parity gate "nunca diminuir" — ADR-0023] O passo 1 nao varre ancora orfa antes de comecar. ` +
+        `Crash ou interrupcao no meio de uma fase deixa o arquivo armado, e a proxima fase RED nasce ` +
+        `impedida de editar o proprio teste. A varredura por dono unico e o que substitui um TTL ` +
+        `dentro do hook, que foi rejeitado por desproteger em silencio. Restaure a varredura.`,
+    ).toMatch(/VARRE ANCORA ORFA/)
+  })
+
+  test('o STATE log registra se a ancora sobreviveu ao GREEN', () => {
+    expect(
+      step4c,
+      `[parity gate "nunca diminuir" — ADR-0023] O 4c nao registra o destino da ancora no STATE log. ` +
+        `A ancora torna o desvio VISIVEL, nao impossivel: quem tem Bash pode apaga-la. O valor esta ` +
+        `em o desvio virar ato registrado, e sem o campo no log nao ha registro. Cada campo do STATE ` +
+        `log tem um passo que o escreve; este nao pode ser a excecao.`,
+    ).toMatch(/anchor: intact/)
+
+    expect(
+      step4c,
+      `[parity gate "nunca diminuir" — ADR-0023] O 4c registra o caminho feliz da ancora mas nao o ` +
+        `caminho em que ela sumiu. Criterio bilateral, igual ao par human_gate stopped/skipped: sem ` +
+        `o ramo \`removed\` o log so sabe dizer que deu certo.`,
+    ).toMatch(/anchor: removed/)
+  })
+
+  test('a ancora nunca entra num commit da fase', () => {
+    expect(
+      step4c,
+      `[parity gate "nunca diminuir" — ADR-0023] O passo 4 arma a ancora dentro do repo do PROJETO e ` +
+        `o GREEN commita enquanto ela esta armada. Sem a regra de commitar por caminho explicito, um ` +
+        `\`git add -A\` leva o arquivo de fase junto no commit da feature — e ai a ancora deixa de ser ` +
+        `transitoria e passa a bloquear o repo de quem clonar. O risco nasceu com o armar; a regra ` +
+        `tem de nascer junto.`,
+    ).toMatch(/nunca entra em commit|git add -A/)
+  })
+
+  test('o subagente RED nao e mais o dono da ancora', () => {
+    expect(
+      step4c,
+      `[parity gate "nunca diminuir" — ADR-0023] O passo 1 ainda manda o SUBAGENTE RED registrar a ` +
+        `ancora. Quem esta sob a ancora nunca pode ser quem a controla — e a mesma razao pela qual a ` +
+        `mensagem de bloqueio do hook parou de ensinar o proprio bypass. O dono e o orquestrador.`,
+    ).not.toMatch(/Registra: \.tdd-phase\.json/)
+  })
+
+  test('wave-execution nao manda os subagentes registrarem a ancora', () => {
+    expect(
+      waveExecution,
+      `[parity gate "nunca diminuir" — ADR-0023] O diagrama de wave-execution ainda mostra RED e GREEN ` +
+        `registrando a ancora. Duas descricoes divergentes do mesmo ciclo e a terceira copia que o PRD ` +
+        `tdd-cycle-contract matou uma vez; nao ressuscitar por um diagrama.`,
+    ).not.toMatch(/registra `?\.tdd-phase\.json/)
+  })
+})

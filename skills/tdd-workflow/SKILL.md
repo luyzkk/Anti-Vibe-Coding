@@ -222,27 +222,9 @@ Se em um unico ciclo forem adicionados 2+ testes novos simultaneamente → alert
 
 > "Voce acabou de adicionar [N] testes de uma vez. TDD real recomenda 1 teste por ciclo para o design emergir incrementalmente. Quer que eu guie teste a teste?"
 
-Enforcement via config: `config/tdd-gate.json → max_tests_per_cycle: 1` para bloqueio real via hook.
+Nao ha bloqueio por hook para esta regra, e nunca houve: o gate ve arquivos, nao casos de teste — um arquivo carrega N casos, entao contar escritas e chamar de "testes por ciclo" seria enforcement de mentira. O alerta acima e a regra, e ela vive no prompt (ADR-0023).
 
 **Excecoes aceitas:** testes de regressao para bug conhecido (conjunto fixo ja mapeado), migracao de codigo legado (capturar comportamento existente).
-
----
-
-## AI Judge — Quando Sugerir
-
-O AI Judge e um segundo LLM que valida conformidade TDD em tempo real. Consome ~2.5x tokens — NAO e o padrao.
-
-**Quando sugerir:**
-- Feature com 3+ slices verticais
-- Feature critica: financeiro, autenticacao, permissoes, dados pessoais
-- Dev expressou incerteza sobre se o TDD esta sendo seguido
-
-**Como sugerir:**
-> "Esta feature tem [N] slices e envolve [area critica]. O AI Judge pode validar conformidade TDD em tempo real, mas consome ~2.5x mais tokens. Ativar?"
-
-Dev decide: sim → ativar `config/tdd-gate.json → mode: "ai-judge"` / nao → continuar com regex.
-
-Referencia: plano 05 documenta o mecanismo tecnico do AI Judge.
 
 ---
 
@@ -521,7 +503,6 @@ Sugerir ao desenvolvedor executar `/anti-vibe-coding:anti-vibe-review`.
 - Testar **comportamento**, nao implementacao
 - Usar verbos em terceira pessoa nos nomes de teste (nao usar "should")
 - NUNCA adicionar 2+ testes em um unico ciclo sem alertar sobre test-first vs test-driven
-- Sugerir AI Judge quando feature tiver 3+ slices ou for critica (financeiro, auth, permissoes)
 - Para features de regras de negocio: humano especifica via testes — IA nao propoe requisitos de negocio
 - Para features E2E: User Story → Example Mapping → Gherkin e o fluxo de maior ROI com IA
 - Slice de risco (auth/authz, PII/sensivel, input externo, upload, pagamento, integracao terceira) NAO entra em GREEN sem ao menos um teste de abuso vermelho antes (Abuse-It)
