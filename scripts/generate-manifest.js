@@ -254,7 +254,50 @@ function readSkillFrontmatter(absFile) {
  * Resolve a regressao do Plano 09 fase-03 (tests/todo-pick.test.ts:61-82):
  * regeneracoes anteriores apagavam o indice por nao haver gerador automatico.
  */
-function collectSkillsIndex() {
+/**
+ * `introduced` responde "desde quando esta skill existe" e e o UNICO campo historico do manifest.
+ *
+ * 2026-09-10 (Luiz/dev): ate aqui ele era reescrito com a versao corrente em toda regeneracao, entao
+ * a resposta era sempre "desde agora" — campo funcionalmente morto desde a v6.3.2, com nota compound
+ * propria. Medido no bump de 7.8.0 para 7.9.0: as 46 skills viraram `v7.9.0` de uma vez, incluindo
+ * `/init`, que existe desde a v6.0.0.
+ *
+ * A heuristica que a nota deixou: quando o output tem campo historico, o gerador PRECISA ler o
+ * estado anterior. Gerar tudo do zero apaga o historico embutido no proprio output.
+ */
+function introducedFor(skillName, previousSkills, version) {
+  const anterior = previousSkills && typeof previousSkills === 'object'
+    ? previousSkills[skillName]
+    : null;
+  const valor = anterior && typeof anterior === 'object' ? anterior.introduced : undefined;
+  if (typeof valor === 'string' && valor.trim() !== '') return valor;
+  // Skill nova, ou manifest anterior ausente/ilegivel: a versao corrente e a melhor resposta.
+  return `v${version}`;
+}
+
+/**
+ * Le o indice `skills` do manifest anterior. Devolve `{}` quando nao ha manifest — primeira geracao.
+ *
+ * Falha ABERTA de proposito (manifest corrompido nao pode travar a release), mas NUNCA calada: sem o
+ * aviso, um JSON quebrado achataria todo o historico em silencio, que e o defeito que esta funcao
+ * existe para consertar.
+ */
+function readPreviousSkills(manifestPath) {
+  if (!fs.existsSync(manifestPath)) return {};
+  try {
+    const anterior = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    if (anterior && typeof anterior.skills === 'object' && anterior.skills !== null) {
+      return anterior.skills;
+    }
+    console.warn('! plugin-manifest.json anterior nao tem indice `skills` — `introduced` sera recarimbado');
+    return {};
+  } catch (err) {
+    console.warn(`! plugin-manifest.json anterior ilegivel (${err.message.split('\n')[0]}) — \`introduced\` sera recarimbado`);
+    return {};
+  }
+}
+
+function collectSkillsIndex(previousSkills) {
   const skills = {};
   const skillsDir = path.join(PLUGIN_ROOT, 'skills');
   if (!fs.existsSync(skillsDir)) return skills;
@@ -274,7 +317,7 @@ function collectSkillsIndex() {
     skills[name] = {
       path: `skills/${entry.name}/`,
       version: VERSION,
-      introduced: `v${VERSION}`,
+      introduced: introducedFor(name, previousSkills, VERSION),
       description
     };
   }
@@ -285,8 +328,12 @@ function collectSkillsIndex() {
  * Gera o manifest
  */
 function generateManifest() {
+  const manifestPath = path.join(PLUGIN_ROOT, 'plugin-manifest.json');
+  // Lido ANTES de gerar: o `introduced` de cada skill vem daqui, e nao da versao da rodada.
+  const previousSkills = readPreviousSkills(manifestPath);
+
   const files = collectManagedFiles();
-  const skills = collectSkillsIndex();
+  const skills = collectSkillsIndex(previousSkills);
 
   const manifest = {
     version: VERSION,
@@ -296,7 +343,6 @@ function generateManifest() {
     files
   };
 
-  const manifestPath = path.join(PLUGIN_ROOT, 'plugin-manifest.json');
   fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
 
   console.log(`✓ plugin-manifest.json gerado com sucesso`);
@@ -321,5 +367,11 @@ function generateManifest() {
   console.log(`  - Never: ${stats.never} arquivos`);
 }
 
-// Executar
-generateManifest();
+// 2026-09-10 (Luiz/dev): so executa quando o arquivo E EXECUTADO. Antes `generateManifest()` rodava
+// no topo do modulo, entao importar o arquivo para testar qualquer coisa REESCREVIA o manifest do
+// repo. Era por isso que este script nao tinha teste nenhum.
+if (require.main === module) {
+  generateManifest();
+}
+
+module.exports = { introducedFor, readPreviousSkills, collectSkillsIndex };
