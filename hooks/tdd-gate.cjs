@@ -19,6 +19,15 @@ const path = require('path');
 // dependendo da ferramenta. As justificativas de cada padrao (fixtures no skip, `middleware`
 // deliberadamente FORA do NEXTJS_ROUTE_FILE) estao la, junto do codigo que as aplica.
 const { needsTest, basenameFor } = require('./lib/tdd-decision.cjs');
+// 2026-09-09 (Luiz/dev): ADR-0023 — a raiz do projeto vem do caminho do arquivo, nao do cwd da
+// sessao. Compartilhado com o caminho Bash pelo mesmo motivo que `tdd-decision.cjs`.
+const { projectRootFor } = require('./lib/project-root.cjs');
+const { reportAndAllow } = require('./lib/fail-open.cjs');
+// A leitura da ancora e compartilhada com o pre-commit: formato lido em dois lugares com regras
+// proprias e como nasce uma terceira definicao do mesmo ciclo.
+const { readTddPhase } = require('./lib/tdd-phase.cjs');
+// Config num leitor so: tres hooks leem este arquivo, e defaults divergentes viravam bug silencioso.
+const { readGateConfig } = require('./lib/gate-config.cjs');
 
 function allow()        { process.exit(0); }
 function block(reason)  {
@@ -26,36 +35,6 @@ function block(reason)  {
   process.exit(2);
 }
 
-function readConfig() {
-  const defaults = {
-    mode: 'regex',
-    suggest_ai_judge_threshold: 3,
-    max_tests_per_cycle: 1,
-    immutable_test_patterns: ['*.test.*', '*.spec.*', '*.e2e.*'],
-    approach: 'outside-in',
-    block_test_modification_in_green: true,
-    require_assertion_failure: true,
-    judge_model: 'haiku'
-  };
-  try {
-    const configPath = path.join(__dirname, '..', 'config', 'tdd-gate.json');
-    if (!fs.existsSync(configPath)) return defaults;
-    const raw = fs.readFileSync(configPath, 'utf8');
-    return { ...defaults, ...JSON.parse(raw) };
-  } catch {
-    return defaults;
-  }
-}
-
-function readTddPhase() {
-  try {
-    const phasePath = path.join(process.cwd(), '.claude', '.tdd-phase.json');
-    if (!fs.existsSync(phasePath)) return null;
-    return JSON.parse(fs.readFileSync(phasePath, 'utf8'));
-  } catch {
-    return null;
-  }
-}
 
 function isImmutableTest(filePath, config, phaseData) {
   if (!phaseData) return false;
@@ -92,11 +71,8 @@ function processInput() {
   handled = true;
   clearTimeout(safetyTimer);
   try {
-    const config = readConfig();
+    const config = readGateConfig();
     if (config.mode === 'off') return allow();
-    if (config.mode === 'ai-judge') {
-      // TODO: task-05 implements real AI Judge — fall through to regex for now
-    }
 
     const input     = JSON.parse(rawInput || '{}');
     // PreToolUse sends { tool_input: { file_path: "..." } }
@@ -109,7 +85,7 @@ function processInput() {
     if (!filePath) return allow();
 
     // Anchor check: block test modification in GREEN phase
-    const phaseData = readTddPhase();
+    const phaseData = readTddPhase(process.cwd());
     if (isImmutableTest(filePath, config, phaseData)) {
       const isEdit = toolName === 'Edit';
       const absPath = path.resolve(process.cwd(), filePath);
@@ -119,14 +95,16 @@ function processInput() {
           `ANCHOR: Arquivo de teste "${path.basename(filePath)}" e read-only durante fase GREEN (ancora imutavel).\n` +
           `Fase atual: GREEN | Feature: ${phaseData.feature || 'desconhecida'}\n` +
           `Acao permitida: editar apenas codigo de producao para fazer os testes passarem.\n` +
-          `Se precisa modificar testes, volte para fase RED: atualize .claude/.tdd-phase.json\n` +
+          `Se o teste precisa mudar, o RED estava errado: pare e peca ao orquestrador para voltar a fase.\n` +
+          `Quem arma e desarma a ancora e o orquestrador, nunca quem esta sob ela.\n` +
           `Anti-Vibe Coding: Red -> Green -> Refactor.`
         );
       }
       return allow(); // Write to new test file: allowed in GREEN
     }
 
-    if (!needsTest(filePath, process.cwd())) return allow();
+    const projectRoot = projectRootFor(filePath, process.cwd());
+    if (!needsTest(filePath, projectRoot)) return allow();
 
     const basename = basenameFor(filePath);
 
@@ -136,8 +114,11 @@ function processInput() {
       `Sugestao: use /anti-vibe-coding:tdd-workflow para estruturar os testes antes de codar. ` +
       `Anti-Vibe Coding: Red -> Green -> Refactor.`
     );
-  } catch {
-    allow(); // fail-open em erros inesperados
+  } catch (err) {
+    // Fail-open e deliberado: hook quebrado nao pode travar o trabalho. MUDO, nao — o silencio era
+    // o que fazia a quebra ser invisivel, e gate que falha calado vira gate que ninguem sabe que
+    // parou de existir (ADR-0023).
+    reportAndAllow('tdd-gate', err);
   }
 }
 
