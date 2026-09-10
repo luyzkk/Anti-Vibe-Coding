@@ -75,6 +75,16 @@ teste durante o GREEN. O mecanismo estava inteiro; faltava alguém escrever o ar
   2200 testes essas frases aparecem por acaso, e uma suíte genuinamente vermelha passou a ser
   classificada como ausente, **permitindo** o commit. Ficaram só os dois padrões específicos do
   runner, com teste de regressão.
+- **`scripts/bump-version.js` parou de reescrever o histórico de releases** (PR #87). A entrada nova
+  passa a ser inserida antes da primeira existente, e sem `--codename` a description volta intacta.
+  O teste que existia não importava o script: ele reimplementava a função no próprio arquivo, e dois
+  dos casos **exigiam o defeito**. Agora ele importa o script real.
+- **`scripts/generate-manifest.js` parou de recarimbar `introduced`** (PR #88). O gerador passa a ler
+  o manifest anterior: skill que já existia mantém a versão em que nasceu, skill nova recebe a da
+  rodada. Era o único campo histórico do manifest, e estava morto desde a v6.3.2.
+
+Os dois vieram em PRs próprios, a partir da `main`, e por isso **esta entrada depende deles**. Se um
+dos dois não entrar nesta release, o item correspondente volta para "Sabidos, não corrigidos".
 
 ### Removed
 
@@ -98,12 +108,12 @@ Três notas compound saíram desta rodada, e as três vieram de defeitos reais, 
 
 ### Sabidos, não corrigidos
 
-- **`scripts/bump-version.js` sobrescreve o headline da release anterior** na `description` do
-  `plugin.json` e do `marketplace.json`, em vez de prepender. O regex troca a primeira ocorrência de
-  `vX.Y.Z — Nome`, então "Contrato do Ciclo TDD" viraria "Honestidade de Config" e o corpo da 7.8.0
-  ficaria atribuído à 7.9.0. Nesta release a descrição foi montada à mão por causa disso. É a mesma
-  família do bug conhecido de `generate-manifest.js`, que sobrescreve `introduced` em toda
-  regeneração.
+- **O estrago que esses dois geradores já causaram continua no lugar.** Consertá-los impede novas
+  perdas; não repõe o que se perdeu. A `description` tem entradas com atribuição errada — em
+  `d06b684` ela dizia `v7.7.0 — Zeragem do TODO`, mas esse era o nome da **7.6.1** — e o
+  `introduced` das 46 skills está achatado numa versão só. Repor exige mapear cada commit para a
+  primeira release **depois** dele: a receita ingênua, ler o `package.json` do commit que adicionou
+  a skill, dá a resposta errada, porque esse commit vem antes do bump.
 - **`bun test tests/hooks/` executa apenas um arquivo do diretório e sai com 0.** Falsa confiança;
   listar os arquivos explicitamente ou rodar a suíte inteira.
 - Este repo **não tem** script `lint`, embora o `CLAUDE.md` mande rodar `bun run test && bun run lint`.
