@@ -56,4 +56,32 @@ function decide(input) {
   return { action: 'block', reason: `suite reprovou: ${(result && result.error) || 'sem detalhe na saida'}` };
 }
 
-module.exports = { decide };
+// 2026-09-10 (Luiz/dev): "a suite reprovou" e "nem existe suite" so ficam separados se alguem
+// souber reconhecer o segundo. Achado por sonda contra o cache 7.9.0, num diretorio sem
+// package.json: `bun run test` nao acha o script, cai no `test.exe` do Git Bash que esta no PATH,
+// e ele sai com 1. Lido como "reprovou", isso bloqueia TODO commit de qualquer projeto que use o
+// plugin e nao tenha script de teste.
+// So padroes ESPECIFICOS do runner. Frase generica aqui e falso positivo garantido: a saida de uma
+// suite grande menciona arquivo ausente e comando ausente por acaso, e um falso positivo DESLIGA o
+// gate em silencio — pior que o bug que a deteccao veio consertar. Medido por sonda em 2026-09-10:
+// com `no such file or directory` na lista, uma suite genuinamente vermelha passava por "ausente" e
+// o commit era permitido.
+const SEM_SUITE = [
+  /script not found/i,                          // bun: Script not found "lint"
+  /a package\.json script .* was not found/i,   // bun: a package.json script "test" was not found
+];
+
+/**
+ * `true` quando a suite NAO chegou a rodar (script ausente, binario ausente, processo morto).
+ * `false` quando ela rodou e reprovou — o unico caso que bloqueia commit.
+ */
+function suiteUnavailable(output, err) {
+  const e = err || {};
+  if (e.code === 'ENOENT') return true;
+  if (e.killed === true) return true;
+  if (e.signal) return true;
+  const out = String(output || '');
+  return SEM_SUITE.some((rx) => rx.test(out));
+}
+
+module.exports = { decide, suiteUnavailable };

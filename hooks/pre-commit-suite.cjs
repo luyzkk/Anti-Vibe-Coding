@@ -11,7 +11,7 @@
  */
 
 const { execFileSync } = require('child_process');
-const { decide } = require('./lib/precommit-decision.cjs');
+const { decide, suiteUnavailable } = require('./lib/precommit-decision.cjs');
 const { readTddPhase } = require('./lib/tdd-phase.cjs');
 const { reportAndAllow } = require('./lib/fail-open.cjs');
 const { readGateConfig } = require('./lib/gate-config.cjs');
@@ -32,8 +32,11 @@ function runSuite(cwd) {
     const out = (String(err.stdout || '') + String(err.stderr || '')).trim();
     // Nao conseguiu RODAR (script ausente, bun fora do PATH, timeout sob carga) e diferente de
     // "rodou e reprovou". Lancar leva ao ramo fail-open da decisao.
-    if (err.code === 'ENOENT' || err.killed || err.signal || /Script not found/i.test(out)) {
-      throw new Error(out.split('\n')[0] || String(err.message || err));
+    if (suiteUnavailable(out, err)) {
+      // A linha util e a que explica a ausencia, nao a primeira: o bun reporta antes o binario
+      // que ele acabou executando por engano, e so depois diz que o script nao existe.
+      const explica = out.split('\n').find((l) => /not found/i.test(l));
+      throw new Error((explica || out.split('\n')[0] || String(err.message || err)).trim());
     }
     // A cauda da saida costuma ser o resumo do ULTIMO lote, que pode estar verde enquanto o
     // primeiro reprovou — mensagem que nao diz o que quebrou nao serve para nada. As linhas
