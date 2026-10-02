@@ -635,3 +635,71 @@ describe('execute-plan — Step 4c arma e desarma a ancora imutavel (ADR-0023)',
     ).not.toMatch(/registra `?\.tdd-phase\.json/)
   })
 })
+
+// 2026-10-02 (Luiz/dev): quick plan gates-e-precommit-proporcionais, medido num projeto real.
+// No Plano 03 de la, 43 de 63 sub-fases sairam `risco` — inclusive telas de UI — porque "toca input
+// externo" casava com todo body de requisicao. No Assistido, risco para sempre no gate humano: 1,31
+// perguntas por ciclo contra 0,38 no Plano 02, e 98% das procedimentais respondidas com a opcao que o
+// proprio orquestrador recomendou. Os seis gatilhos continuam dizendo ONDE olhar (write-prd e grill-me
+// os usam no nivel da feature); o slice e de risco quando ESCREVE a defesa, nao quando passa por ela.
+const abuseIt = body(skill, '### Abuse-It')
+const classificacaoDeRisco = body(planFeature, '### Classificacao de Risco do Slice')
+const regrasCriticas = body(executePlan, '## Regras Criticas')
+
+describe('risco pelo slice que escreve a defesa, e procedimento sem pergunta (gates proporcionais)', () => {
+  test('tdd-workflow define risco pelo slice que escreve ou muda a defesa', () => {
+    expect(
+      abuseIt,
+      `[parity gate "nunca diminuir" — gates proporcionais] O §Abuse-It voltou a definir risco por ` +
+        `"tocar" um dos seis gatilhos. Tocar e quase tudo: todo endpoint tem body, toda tela de admin ` +
+        `mostra PII. Medido num projeto real: 43 de 63 sub-fases marcadas, e a marca virou carimbo. Risco e o ` +
+        `slice que escreve ou muda a defesa. Restaure o criterio, nao remova esta assercao.`,
+    ).toMatch(/escreve ou muda a defesa/)
+  })
+
+  test('tdd-workflow diz que consumir uma defesa existente e comportamento', () => {
+    expect(
+      abuseIt,
+      `[parity gate "nunca diminuir" — gates proporcionais] O §Abuse-It nao diz mais o que NAO e ` +
+        `risco. Sem o lado negativo, o planejador marca por precaucao a tela que so chama uma API ja ` +
+        `protegida, e o gate humano para nela. Restaure a frase, nao remova esta assercao.`,
+    ).toMatch(/defesa que ja existe[\s\S]{0,300}?`comportamento`/)
+  })
+
+  test('plan-feature aponta para a definicao de risco em vez de repeti-la', () => {
+    expect(
+      classificacaoDeRisco,
+      `[parity gate "nunca diminuir" — gates proporcionais] A §Classificacao de Risco do Slice nao ` +
+        `aponta para skills/tdd-workflow/SKILL.md. Quem consome nao redefine, aponta — a regra que o ` +
+        `PRD tdd-cycle-contract aplicou ao ciclo vale para o criterio de risco.`,
+    ).toContain('skills/tdd-workflow/SKILL.md')
+  })
+
+  test('plan-feature nao carrega uma copia da lista dos seis gatilhos', () => {
+    expect(
+      classificacaoDeRisco,
+      `[parity gate "nunca diminuir" — gates proporcionais] A lista dos seis gatilhos voltou para a ` +
+        `§Classificacao de Risco do Slice. Foi a copia daqui, lida como "toca um destes = risco", que ` +
+        `marcou telas de UI como risco. A lista mora no §Abuse-It do tdd-workflow.`,
+    ).not.toMatch(/`auth\/authz` · `PII\/sensivel` · `input externo`/)
+  })
+
+  test('execute-plan manda ao dev so o que e do dev, e procedimento vira DI', () => {
+    expect(
+      regrasCriticas,
+      `[parity gate "nunca diminuir" — gates proporcionais] As Regras Criticas perderam a separacao ` +
+        `entre o que vai ao dev e o que o orquestrador decide e registra como DI. Medido num projeto real: perguntas ` +
+        `procedimentais deixaram ~84 h de relogio parado esperando um "sim" que veio em 98% dos casos. ` +
+        `Restaure a regra, nao remova esta assercao.`,
+    ).toMatch(/Ao dev vai so o que e do dev[\s\S]{0,600}?como DI/)
+  })
+
+  test('a regra vale tambem para o needs_human de subagente', () => {
+    expect(
+      regrasCriticas,
+      `[parity gate "nunca diminuir" — gates proporcionais] A regra de procedimento nao cobre mais o ` +
+        `needs_human dos subagentes (Step 4d). Sem isso, a pergunta procedimental volta pela porta do ` +
+        `subagente, que a empilha para o dev.`,
+    ).toContain('needs_human')
+  })
+})

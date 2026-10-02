@@ -403,11 +403,21 @@ Antes (errado): escrever o `checkPermission` e depois conferir manualmente se "e
 Depois (certo): teste em que o usuario A le o recurso de B -> vermelho (o ataque passou) -> defesa
 minima -> verde -> suite verde.
 
-**O slice e de risco quando toca ao menos um destes seis:**
+<!-- 2026-10-02 (Luiz/dev): "toca" virou "escreve ou muda". Medido num projeto real: com "toca", 43 de
+     63 sub-fases sairam de risco, inclusive telas de UI — todo endpoint tem body, toda tela de admin
+     mostra PII. A marca virou carimbo, e o gate humano do Assistido parava em quase todo ciclo. -->
+
+**O slice e de risco quando escreve ou muda a defesa** de ao menos um destes seis gatilhos:
 `auth/authz` · `PII/sensivel` · `input externo` (body, query, webhook, arquivo importado) ·
 `upload` · `pagamento` · `integracao terceira`.
+Escrever a defesa e: a checagem de permissao (inclusive por recurso — o IDOR), a verificacao de
+assinatura de webhook, o parser ou validador de entrada nao confiavel, a decisao de quem ve PII, a
+cobranca. Consumir uma defesa que ja existe e `comportamento`: a tela que chama uma API ja protegida,
+a rota nova que reusa a auth montada no router do modulo e valida o corpo com o schema do framework.
 Sao os mesmos gatilhos da secao "Ameacas & Dados" do PRD
-(`skills/write-prd/templates/prd-template.md`). Se o PRD tem a secao, os casos de abuso `AB-*` ja
+(`skills/write-prd/templates/prd-template.md`), com outro papel: la, no nivel da feature, um SIM
+basta para pensar em ameaca; aqui, o slice so e de risco se for ele que escreve a defesa. Se o PRD
+tem a secao, os casos de abuso `AB-*` ja
 estao escritos — cada `AB-*` vira um teste aqui, e o trabalho e traduzir, nao inventar.
 Se o slice e de risco e o PRD nao tem a secao: o gatilho se perdeu na especificacao. Diga isso ao
 dev antes de escrever o teste; nao monte o modelo de ameaca sozinho no meio do RED.
@@ -505,7 +515,7 @@ Sugerir ao desenvolvedor executar `/anti-vibe-coding:anti-vibe-review`.
 - NUNCA adicionar 2+ testes em um unico ciclo sem alertar sobre test-first vs test-driven
 - Para features de regras de negocio: humano especifica via testes — IA nao propoe requisitos de negocio
 - Para features E2E: User Story → Example Mapping → Gherkin e o fluxo de maior ROI com IA
-- Slice de risco (auth/authz, PII/sensivel, input externo, upload, pagamento, integracao terceira) NAO entra em GREEN sem ao menos um teste de abuso vermelho antes (Abuse-It)
+- Slice de risco (escreve ou muda a defesa de um dos seis gatilhos — §Abuse-It) NAO entra em GREEN sem ao menos um teste de abuso vermelho antes (Abuse-It)
 </constraints>
 
 ## Refactor Fica no Ciclo — Divergencia Consciente
