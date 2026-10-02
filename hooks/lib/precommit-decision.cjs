@@ -19,6 +19,9 @@
  * suite — trade-off aceito e registrado no ADR.
  */
 
+const SUITE_TIMEOUT_MS = 60000;
+const PRECOMMIT_ENV = 'ANTI_VIBE_PRECOMMIT';
+
 /**
  * @param {object} input
  * @param {string} input.command comando Bash sendo executado
@@ -32,7 +35,10 @@ function decide(input) {
   // Desligar e explicito: so `enabled === false` desliga. Chave ausente segue LIGADA, senao um
   // config truncado viraria gate desligado em silencio — que e a familia de defeito deste ADR.
   if (enabled === false) {
-    return { action: 'allow', reason: 'pre-commit desligado em config/tdd-gate.json (precommit: off)' };
+    return {
+      action: 'allow',
+      reason: `pre-commit desligado (precommit: off em config/tdd-gate.json, ou ${PRECOMMIT_ENV}=off no env do projeto)`,
+    };
   }
 
   if (!command || !String(command).includes('git commit')) {
@@ -48,7 +54,16 @@ function decide(input) {
     result = runSuite();
   } catch (err) {
     const detail = err && err.message ? err.message : String(err);
-    return { action: 'allow', reason: `suite nao pode ser executada, permitindo o commit. Motivo: ${detail}` };
+    const allowed = { action: 'allow', reason: `suite nao pode ser executada, permitindo o commit. Motivo: ${detail}` };
+    // 2026-10-02 (Luiz/dev): timeout nao e "projeto sem suite". E uma suite que existe e nao cabe
+    // no hook — e o commit sai sem validacao nenhuma. O `notice` vai para o usuario (systemMessage);
+    // o `reason` so chega ao debug log.
+    if (err && err.timedOut) {
+      allowed.notice = `[PRE-COMMIT] a suite nao terminou em ${SUITE_TIMEOUT_MS / 1000}s e foi interrompida: `
+        + `este commit nao foi validado. Se a CI ja roda a suite, desligue o pre-commit neste projeto `
+        + `com ${PRECOMMIT_ENV}=off no "env" do .claude/settings.json.`;
+    }
+    return allowed;
   }
 
   if (result && result.ok) return { action: 'allow', reason: 'suite verde' };
@@ -78,10 +93,26 @@ const SEM_SUITE = [
 function suiteUnavailable(output, err) {
   const e = err || {};
   if (e.code === 'ENOENT') return true;
-  if (e.killed === true) return true;
-  if (e.signal) return true;
+  if (suiteTimedOut(e)) return true;
   const out = String(output || '');
   return SEM_SUITE.some((rx) => rx.test(out));
 }
 
-module.exports = { decide, suiteUnavailable };
+/** `true` quando o processo da suite foi morto pelo timeout do hook. */
+function suiteTimedOut(err) {
+  const e = err || {};
+  return e.killed === true || Boolean(e.signal) || e.code === 'ETIMEDOUT';
+}
+
+/**
+ * Desligar e explicito nos dois lugares: `precommit: "off"` no config do plugin (todos os
+ * projetos) ou `ANTI_VIBE_PRECOMMIT=off` no env (um projeto, pelo `env` do .claude/settings.json).
+ * So o literal `off` desliga — `0`, `false` ou vazio mantem ligado, senao um valor torto vira gate
+ * desligado em silencio.
+ */
+function precommitEnabled(config, env) {
+  if ((config || {}).precommit === 'off') return false;
+  return (env || {})[PRECOMMIT_ENV] !== 'off';
+}
+
+module.exports = { decide, suiteUnavailable, suiteTimedOut, precommitEnabled, SUITE_TIMEOUT_MS };
