@@ -141,8 +141,8 @@ REFACTOR:  refactor(orders): extrai assertOwner — ou "sem refactor: handler de
 
 <!-- 2026-09-01 (Luiz/dev): criterio de seguranca first-class na fase — PRD §RF-06 -->
 <!-- OPCIONAL — OMITIR este bloco inteiro quando a fase NAO vem de slice marcado [RISCO] no
-     Step 3 do /plan-feature (auth/authz, PII/sensivel, input externo, upload, pagamento,
-     integracao terceira). Fase trivial nao paga o atrito. -->
+     Step 3 do /plan-feature (criterio: o slice escreve ou muda a defesa — skills/tdd-workflow/SKILL.md
+     §Abuse-It). Fase trivial nao paga o atrito. -->
 
 - [ ] **Teste de abuso no RED:** o teste do abuso FALHOU antes de a defesa existir (Abuse-It)
   - Comando: `{comando que roda so o teste de abuso}`

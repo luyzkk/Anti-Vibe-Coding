@@ -440,10 +440,9 @@ Regras:
 
 <!-- 2026-09-01 (Luiz/dev): risco e propriedade do slice, nao impressao do executor — PRD §RF-06 -->
 
-Ao nomear cada slice, marcar se ele e **de risco**. E de risco quando toca ao menos um dos seis
-gatilhos — os mesmos da secao "Ameacas & Dados" do PRD e do Abuse-It do `/anti-vibe-coding:tdd-workflow`:
-
-`auth/authz` · `PII/sensivel` · `input externo` · `upload` · `pagamento` · `integracao terceira`
+Ao nomear cada slice, marcar se ele e **de risco**. O criterio mora em
+`skills/tdd-workflow/SKILL.md` §Abuse-It, e nao e repetido aqui: o slice e de risco quando
+**escreve ou muda a defesa** de um dos seis gatilhos, nao quando passa por uma defesa que ja existe.
 
 Notacao, direto no nome do slice:
 
@@ -451,10 +450,12 @@ Notacao, direto no nome do slice:
 Slice 3: usuario autenticado ve apenas os proprios pedidos  [RISCO: auth/authz]
 Slice 4: importar planilha de alunos                        [RISCO: input externo, PII/sensivel]
 Slice 5: trocar a cor do badge de status
+Slice 6: tela que lista os pedidos (consome a API do slice 3)
 ```
 
-Slice sem gatilho **nao recebe marca** — nao existe `[RISCO: nenhum]`. A ausencia e a marca, e e o
-que mantem o plano legivel: se tudo e marcado, nada e.
+Slice que nao escreve defesa **nao recebe marca** — nao existe `[RISCO: nenhum]`. A ausencia e a
+marca, e e o que mantem o plano legivel: se tudo e marcado, nada e. O slice 6 mostra pedidos de
+pessoas, mas quem decide quem ve o que e o slice 3; a tela so consome.
 
 A marca tem quatro consequencias (nao e etiqueta decorativa):
 
