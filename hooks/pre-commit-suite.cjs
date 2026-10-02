@@ -11,7 +11,7 @@
  */
 
 const { execFileSync } = require('child_process');
-const { decide, suiteUnavailable } = require('./lib/precommit-decision.cjs');
+const { decide, suiteUnavailable, suiteTimedOut, precommitEnabled, SUITE_TIMEOUT_MS } = require('./lib/precommit-decision.cjs');
 const { readTddPhase } = require('./lib/tdd-phase.cjs');
 const { reportAndAllow } = require('./lib/fail-open.cjs');
 const { readGateConfig } = require('./lib/gate-config.cjs');
@@ -26,7 +26,7 @@ function block(reason) {
 // ausente aqui bloquearia todo commit no dia em que o hook voltasse a funcionar.
 function runSuite(cwd) {
   try {
-    execFileSync('bun', ['run', 'test'], { cwd, timeout: 60000, stdio: 'pipe', encoding: 'utf8', shell: true });
+    execFileSync('bun', ['run', 'test'], { cwd, timeout: SUITE_TIMEOUT_MS, stdio: 'pipe', encoding: 'utf8', shell: true });
     return { ok: true };
   } catch (err) {
     const out = (String(err.stdout || '') + String(err.stderr || '')).trim();
@@ -36,7 +36,9 @@ function runSuite(cwd) {
       // A linha util e a que explica a ausencia, nao a primeira: o bun reporta antes o binario
       // que ele acabou executando por engano, e so depois diz que o script nao existe.
       const explica = out.split('\n').find((l) => /not found/i.test(l));
-      throw new Error((explica || out.split('\n')[0] || String(err.message || err)).trim());
+      const unavailable = new Error((explica || out.split('\n')[0] || String(err.message || err)).trim());
+      unavailable.timedOut = suiteTimedOut(err);
+      throw unavailable;
     }
     // A cauda da saida costuma ser o resumo do ULTIMO lote, que pode estar verde enquanto o
     // primeiro reprovou — mensagem que nao diz o que quebrou nao serve para nada. As linhas
@@ -68,9 +70,9 @@ function processInput() {
       command,
       phase: anchor && anchor.phase ? anchor.phase : null,
       runSuite: () => runSuite(cwd),
-      // `precommit: "off"` desliga, igual a `mode: off` e `bash_path: off`. Qualquer outro valor,
-      // inclusive chave ausente, mantem ligado.
-      enabled: readGateConfig().precommit !== 'off',
+      // `precommit: "off"` no config, ou ANTI_VIBE_PRECOMMIT=off no env do projeto. Qualquer outro
+      // valor, inclusive chave ausente, mantem ligado.
+      enabled: precommitEnabled(readGateConfig(), process.env),
     });
 
     if (decision.action === 'block') {
@@ -79,6 +81,11 @@ function processInput() {
     // Permitir sem rodar a suite e uma decisao, nao um acidente: anunciar qual foi.
     if (decision.reason && decision.reason !== 'nao e um commit' && decision.reason !== 'suite verde') {
       try { process.stderr.write(`[PRE-COMMIT] ${decision.reason}\n`); } catch { /* stderr fechado */ }
+    }
+    // O stderr acima so chega ao debug log. O que o usuario precisa ver vai como systemMessage, e o
+    // exit espera o flush: sair antes pode cortar o JSON no pipe.
+    if (decision.notice) {
+      return process.stdout.write(JSON.stringify({ systemMessage: decision.notice }), () => allow());
     }
     allow();
   } catch (err) {

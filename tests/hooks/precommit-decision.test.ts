@@ -17,7 +17,7 @@
 import { describe, it, expect } from 'bun:test'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { decide, suiteUnavailable } = require('../../hooks/lib/precommit-decision.cjs')
+const { decide, suiteUnavailable, suiteTimedOut, precommitEnabled } = require('../../hooks/lib/precommit-decision.cjs')
 
 type Suite = { ok: boolean; ran: boolean; error?: string }
 
@@ -85,6 +85,9 @@ describe('pre-commit: chave de desligar, como todo gate do plugin', () => {
     expect(r.action).toBe('allow')
     expect(suite.state.ran).toBe(false)
     expect(r.reason).toMatch(/desligad/i)
+    // 2026-10-02 (Luiz/dev): achado pela sonda — desligado pelo env, o motivo dizia "config". O
+    // motivo nomeia as duas chaves porque `decide` so recebe o booleano.
+    expect(r.reason).toContain('ANTI_VIBE_PRECOMMIT=off')
   })
 
   // O outro lado do criterio bilateral: chave ausente NAO pode virar "desligado" por acidente.
@@ -158,5 +161,57 @@ describe('pre-commit: falha aberta quando a suite nao pode rodar', () => {
     const r = decide({ command: 'git commit -m "feat: x"', phase: 'green', runSuite: suite.run })
     expect(r.action).toBe('allow')
     expect(r.reason).toContain('Script not found')
+  })
+})
+
+// 2026-10-02 (Luiz/dev): medido num projeto real. A suite de la leva ~155 s; o hook mata em 60 s,
+// cai na falha aberta e libera. Desde 2026-09-10 cada commit custou ~1 min sem validar nada — ~10 h
+// em tres semanas — e ninguem viu, porque o diagnostico ia para o stderr de um hook que sai com 0,
+// e esse stderr so chega ao debug log. A chave global desligaria o gate de todos os projetos para
+// resolver um.
+describe('pre-commit: chave por projeto, pelo env', () => {
+  // DEFESA A MUTAR: o ramo que le ANTI_VIBE_PRECOMMIT.
+  it('desliga com ANTI_VIBE_PRECOMMIT=off mesmo com o config global ligado', () => {
+    expect(precommitEnabled({ precommit: 'on' }, { ANTI_VIBE_PRECOMMIT: 'off' })).toBe(false)
+  })
+
+  it('continua desligando pelo config global, como antes', () => {
+    expect(precommitEnabled({ precommit: 'off' }, {})).toBe(false)
+  })
+
+  // O outro lado: valor estranho no env nao pode virar gate desligado em silencio.
+  it('so o literal off desliga — qualquer outro valor mantem ligado', () => {
+    for (const valor of ['0', 'false', '', 'no']) {
+      expect(precommitEnabled({ precommit: 'on' }, { ANTI_VIBE_PRECOMMIT: valor })).toBe(true)
+    }
+    expect(precommitEnabled({ precommit: 'on' }, {})).toBe(true)
+  })
+})
+
+describe('pre-commit: timeout avisa o usuario', () => {
+  it('suiteTimedOut reconhece processo morto, sinal e ETIMEDOUT — e so isso', () => {
+    expect(suiteTimedOut({ killed: true })).toBe(true)
+    expect(suiteTimedOut({ signal: 'SIGTERM' })).toBe(true)
+    expect(suiteTimedOut({ code: 'ETIMEDOUT' })).toBe(true)
+    expect(suiteTimedOut({ code: 'ENOENT' })).toBe(false)
+    expect(suiteTimedOut({})).toBe(false)
+  })
+
+  // DEFESA A MUTAR: o `notice` no ramo do timeout.
+  it('timeout permite com aviso de que o commit nao foi validado', () => {
+    const suite = { run: () => { throw Object.assign(new Error('spawnSync cmd.exe ETIMEDOUT'), { timedOut: true }) } }
+    const r = decide({ command: 'git commit -m "feat: x"', phase: 'green', runSuite: suite.run })
+    expect(r.action).toBe('allow')
+    expect(r.notice).toMatch(/nao foi validado/i)
+    expect(r.notice).toContain('60s')
+    expect(r.notice).toContain('ANTI_VIBE_PRECOMMIT=off')
+  })
+
+  // Script ausente e projeto sem suite, nao suite lenta: avisar em todo commit seria ruido.
+  it('suite ausente nao gera o aviso de timeout', () => {
+    const suite = { run: () => { throw new Error('Script not found "test"') } }
+    const r = decide({ command: 'git commit -m "feat: x"', phase: 'green', runSuite: suite.run })
+    expect(r.action).toBe('allow')
+    expect(r.notice).toBeUndefined()
   })
 })

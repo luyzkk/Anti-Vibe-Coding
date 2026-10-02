@@ -927,6 +927,7 @@ Step 6-FLAT: SUMMARY ao completar
 2. **STATE.md e a fonte de verdade** — ler antes de escrever, sempre
 3. **MEMORY.md e preenchida durante execucao** — nao apos
 4. **Transicao entre planos e interativa** — dev decide se avanca ou troca contexto
+5. **Ao dev vai so o que e do dev** — negocio e produto, decisao irreversivel (migration destrutiva, dado de producao) e os gates do contrato (Step 4c passo 3, transicao entre planos). Push e merge seguem a regra do projeto (ex: `docs/MERGE_GATES.md`). Procedimento o orquestrador decide sozinho e registra como DI no MEMORY.md, com a alternativa descartada: banco de teste, divisao de PR, ordem de sub-fases, mutacao sobrevivente sem efeito de negocio, qual licao promover. Vale tambem para o `needs_human` de subagente (Step 4d): antes de empilhar a pergunta, classificar. Medido num projeto real (2026-10-02): 98% das perguntas procedimentais foram respondidas com a opcao que o proprio orquestrador recomendou — a pergunta so parava o relogio
 
 ---
 
