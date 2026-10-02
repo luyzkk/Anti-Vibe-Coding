@@ -133,9 +133,24 @@ plugin).
    **exceto** quando o PR traz migration, mexe em env, compose ou infra, liga flag do motor
    (`AUTOMATIONS_ENABLED`, canais) ou toca auth — esses continuam perguntando.
    → **verify:** a regra antiga da linha 56 sai no mesmo diff (sem duas versões); PR do Comu aberto.
+   → **registrado durante a execução (2026-10-02):**
+   - **DI-1 — `.claude/settings.json` entrou com `git add -f`.** No Comu, `.claude/` inteiro é ignorado
+     (`.gitignore:71`), e os arquivos que valem para o time (`.claude/CLAUDE.md`, `rules/`,
+     `decisions.md`) já entram forçados. Descartado: trocar `.claude/` por `.claude/*` com negação,
+     que mexe na regra da pasta inteira por um arquivo. Versionado, o arquivo chega às frentes em
+     worktree quando a branch delas trouxer o `master`.
+   - **DI-2 — o PR do Comu nasceu numa worktree temporária fora do repositório.** A árvore principal
+     estava na branch da fase-07, possivelmente com uma sessão ativa; trocar de branch nela
+     atropelaria essa sessão.
+   - **GT-1 — o pre-commit roda a suíte no cwd da SESSÃO (`process.cwd()`), não no do comando.**
+     Commit feito em outro repositório ou worktree a partir de uma sessão roda a suíte errada. Mesma
+     família da issue #82, que `hooks/lib/bash-cwd.cjs` já resolve para o TDD Gate. Fora deste plano.
 
 7. **Validação final no uso real** (depois do merge do plugin). `scripts/sync-to-global.sh`, comparar
    cache × checkout nos oito arquivos, sessão nova no Comu.
+   → **método:** o tempo do commit se mede do `tool_use` ao `tool_result` no registro da sessão, como
+   na linha de base. Medido com `date` de dentro do comando, ele não inclui o hook: o PreToolUse roda
+   antes de o comando começar (tropeço de 2026-10-02 — um commit "de 4 s" com o hook ligado).
    → **verify:** diff cache × checkout vazio; o primeiro commit no Comu leva < 10 s, com o motivo no
    debug log (stderr de hook que sai com 0 não vai para o transcript — doc oficial dos hooks, conferida
    em 2026-10-02; só o `systemMessage` chega ao usuário); depois de 5 ciclos do Plano 03 com o critério novo, re-medir com o extrator e comparar
@@ -156,6 +171,8 @@ plugin).
 | 4 RED-check | 2026-10-02 | mutação a partir de backup | B1 volta o "toca" → 1 fail (define risco); B2 tira o lado negativo → 1 fail (consumir é comportamento); B3 tira o ponteiro → 1 fail (aponta); B4 devolve a cópia da lista → 1 fail (não carrega cópia); B5 tira só o `needs_human` → 1 fail (needs_human); B6 tira a regra 5 inteira → 2 fail (as duas da regra). Restaurado e conferido com `cmp`. |
 | 4 suíte | 2026-10-02 | `bun run test`; `bun run harness:validate`; `bun run compound:check` | `exit=0 39s` — lote 1: `1541 pass / 0 fail`; lote 2: `745 pass / 0 fail`. `Harness validation passed (28 required files, 398 markdown files checked)`. `Compound check passed (76 compound notes validated)`. As quatro de antes passaram juntas: a rodada levou 39 s contra 199 s da anterior, o que confirma a carga. |
 | 4 grep | 2026-10-02 | `input externo.{0,40}upload\|toca ao menos um\|seis gatilhos` em `skills/`, `agents/`, `docs/references`, `docs/design-docs` | lista de slice só em `tdd-workflow:410`; `plan-feature:445` aponta; `write-prd:198` e `grill-me:172,210` no nível da feature. |
+| 5 PR | 2026-10-02 | `gh pr create` | [luyzkk/Anti-Vibe-Coding#90](https://github.com/luyzkk/Anti-Vibe-Coding/pull/90) — três commits: `1105c92` (pre-commit), `055005b` (skills), `50cc7fd` (plano). O repo não tem checks de CI. |
+| 6 PR Comu | 2026-10-02 | `git grep` da regra antiga; `bun run harness:validate`; `gh pr create` | regra antiga: `nenhuma ocorrencia`. `Harness validation passed (25 required files, 428 markdown files checked)`. [comudaarte/plataforma-comu#302](https://github.com/comudaarte/plataforma-comu/pull/302), commit `fd2defff`. |
 
 ## Compound Opportunity
 
