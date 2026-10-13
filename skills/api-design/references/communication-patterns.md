@@ -12,37 +12,54 @@ O servidor externo chama VOCE quando um evento acontece.
 
 ### Seguranca — OBRIGATORIO
 
-Endpoint de webhook e PUBLICO — qualquer pessoa pode enviar POST para ele.
+Endpoint de webhook e PUBLICO — qualquer pessoa pode enviar POST para ele. Toda requisicao
+precisa provar que veio do emissor antes de causar qualquer efeito.
 
-**SEMPRE validar HMAC signature do header:**
+**Stripe: use a verificacao do proprio SDK, sobre o corpo cru.**
+
+O cabecalho `Stripe-Signature` tem o formato `t=<timestamp>,v1=<assinatura>`. A Stripe assina
+`"<timestamp>.<corpo cru>"`, nao o corpo sozinho, entao comparar um HMAC do corpo com o cabecalho
+inteiro nunca funciona. O SDK tambem recusa eventos com timestamp velho (tolerancia padrao de
+5 minutos), o que bloqueia replay.
 
 ```typescript
-import { createHmac, timingSafeEqual } from 'crypto'
+import Stripe from 'stripe'
+import express from 'express'
 
-function verifyWebhookSignature(
-  payload: string,
-  signature: string,
-  secret: string
-): boolean {
-  const expected = createHmac('sha256', secret)
-    .update(payload)
-    .digest('hex')
+const stripe = new Stripe(requireEnv('STRIPE_SECRET_KEY'))
+const endpointSecret = requireEnv('STRIPE_WEBHOOK_SECRET') // whsec_..., um por endpoint
 
-  // CRITICO: usar timingSafeEqual para evitar timing attacks
-  return timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(expected)
-  )
-}
-
-// No handler
-app.post('/webhooks/stripe', async (req, res) => {
+// O corpo precisa chegar CRU. Um express.json() antes desta rota altera os bytes e quebra a assinatura.
+app.post('/webhooks/stripe', express.raw({ type: 'application/json' }), async (req, res) => {
   const signature = req.headers['stripe-signature']
-  if (!verifyWebhookSignature(req.rawBody, signature, WEBHOOK_SECRET)) {
-    return res.status(401).send('Invalid signature')
+  if (typeof signature !== 'string') return res.status(400).send('Missing signature')
+
+  let event: Stripe.Event
+  try {
+    event = stripe.webhooks.constructEvent(req.body, signature, endpointSecret)
+  } catch {
+    return res.status(400).send('Invalid signature')
   }
-  // ... processar evento
+  // ... gravar e enfileirar ANTES de responder (ver o exemplo CORRETO abaixo)
 })
+```
+
+No Next.js (App Router), leia o corpo cru com `await request.text()` e passe essa string ao
+`constructEvent`. Nao use `request.json()` antes de verificar.
+
+**Outros emissores (HMAC generico):** siga a documentacao do emissor sobre O QUE e assinado (muitos
+incluem o timestamp, como a Stripe) e se o cabecalho traz prefixo, como `sha256=` no GitHub.
+Compare buffers do mesmo tamanho:
+
+```typescript
+import { createHmac, timingSafeEqual } from 'node:crypto'
+
+function verifyHmac(rawBody: Buffer, receivedHex: string, secret: string): boolean {
+  const expected = Buffer.from(createHmac('sha256', secret).update(rawBody).digest('hex'), 'hex')
+  const received = Buffer.from(receivedHex, 'hex')
+  // timingSafeEqual lanca erro quando os tamanhos diferem: compare o tamanho antes
+  return received.length === expected.length && timingSafeEqual(received, expected)
+}
 ```
 
 **Sem validacao de signature = vulnerabilidade critica.** Qualquer atacante pode simular eventos (pagamentos aprovados, permissoes concedidas, etc.).
@@ -51,29 +68,40 @@ app.post('/webhooks/stripe', async (req, res) => {
 
 | Pratica | Motivo |
 |---------|--------|
-| Responder 200 RAPIDO (< 5s) | Emissor faz timeout e reenvia |
+| Gravar o evento ANTES de responder 2xx | Se responder 200 e a gravacao falhar, o emissor nao reenvia e o evento se perde |
+| Responder 2xx rapido (< 5s) depois de gravar | Emissor faz timeout e reenvia |
 | Processar em background | Evitar timeout, melhorar resilience |
-| Handler idempotente | Mesmo evento PODE chegar mais de uma vez |
-| Logar payload completo + headers | Debug e auditoria |
-| Verificar timestamp do evento | Prevenir replay attacks |
+| Idempotencia pelo id do evento, com UNIQUE no banco | Mesmo evento PODE chegar mais de uma vez |
+| Logar payload e headers, nunca segredos | Debug e auditoria |
+| Recusar evento com timestamp velho | Prevenir replay (o SDK da Stripe ja faz) |
 | Fila de processamento | Garantir ordem e retry |
 
 ```typescript
-// CORRETO: Resposta rapida + processamento em background
-app.post('/webhooks/payment', async (req, res) => {
-  // 1. Validar signature
-  if (!verifySignature(req)) return res.status(401).end()
+// CORRETO: verificar, gravar, enfileirar e so entao responder
+app.post('/webhooks/payment', express.raw({ type: 'application/json' }), async (req, res) => {
+  // 1. Validar a assinatura (como acima)
+  const event = verifyOrNull(req)
+  if (!event) return res.status(400).end()
 
-  // 2. Responder imediatamente
+  // 2. Gravar com UNIQUE(event_id): uma duplicata nao cria segunda linha
+  const inserted = await db.query(
+    `INSERT INTO webhook_events (event_id, type, payload, status)
+     VALUES ($1, $2, $3, 'pending')
+     ON CONFLICT (event_id) DO NOTHING
+     RETURNING event_id`,
+    [event.id, event.type, event],
+  )
+
+  // 3. Enfileirar so na primeira chegada
+  if (inserted.rowCount === 1) await queue.add('process-webhook', { eventId: event.id })
+
+  // 4. Responder: o evento ja esta salvo, entao um 200 nao perde nada
   res.status(200).json({ received: true })
-
-  // 3. Processar em background
-  await queue.add('process-payment-webhook', {
-    payload: req.body,
-    headers: req.headers,
-    receivedAt: new Date().toISOString()
-  })
 })
+```
+
+Se gravar e enfileirar nao acontecem na mesma transacao, uma rotina periodica reenfileira os
+eventos que ficaram em `pending` (padrao outbox). Assim uma falha da fila nao perde pagamento.
 
 // ANTI-PATTERN: Processamento sincrono
 app.post('/webhooks/payment', async (req, res) => {
@@ -89,21 +117,24 @@ app.post('/webhooks/payment', async (req, res) => {
 Emissores reenviam webhooks quando nao recebem 2xx. Tratar duplicatas:
 
 ```typescript
-async function handleWebhookEvent(event: WebhookEvent) {
-  // Verificar se ja processou este evento
-  const existing = await db.webhookEvents.findUnique({
-    where: { eventId: event.id }
-  })
-  if (existing) return existing.result  // Ja processado
+async function handleWebhookEvent(eventId: string) {
+  // Reivindicar o evento ANTES de processar: o banco decide qual worker processa
+  const claimed = await db.query(
+    `UPDATE webhook_events SET status = 'processing', claimed_at = now()
+     WHERE event_id = $1 AND status = 'pending'
+     RETURNING payload`,
+    [eventId],
+  )
+  if (claimed.rowCount === 0) return  // ja processado ou em processamento por outro worker
 
-  // Processar e registrar
-  const result = await processEvent(event)
-  await db.webhookEvents.create({
-    data: { eventId: event.id, result, processedAt: new Date() }
-  })
-  return result
+  await processEvent(claimed.rows[0].payload)  // efeitos idempotentes por event_id
+  await db.query(`UPDATE webhook_events SET status = 'done' WHERE event_id = $1`, [eventId])
 }
 ```
+
+**Anti-pattern: consultar e depois gravar.** `findUnique` seguido de `create` deixa dois workers
+passarem pela consulta ao mesmo tempo, e os dois processam o mesmo pagamento. A decisao tem de
+ficar com o banco: UNIQUE na insercao ou UPDATE condicional na reivindicacao.
 
 ---
 
