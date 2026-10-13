@@ -21,6 +21,20 @@ describe('scanSecrets', () => {
     expect(matches[0]?.kind).toBe('stripe-live')
   })
 
+  // 2026-10-13 (Luiz/dev): 8.0 fatia 1 — duas credenciais reais da Stripe que o scanner deixava passar.
+  // Chaves falsas montadas em pedacos: o formato inteiro no fonte faz a protecao de push do GitHub barrar o commit.
+  test('detecta chave restrita live da Stripe', () => {
+    const matches = scanSecrets(`STRIPE_RESTRICTED=${['rk', 'live', '1234567890ABCDEFGHIJKLMN'].join('_')}`)
+    expect(matches).toHaveLength(1)
+    expect(matches[0]?.kind).toBe('stripe-restricted-live')
+  })
+
+  test('detecta segredo de assinatura de webhook da Stripe', () => {
+    const matches = scanSecrets(`STRIPE_WEBHOOK_SECRET=${['whsec', '1234567890ABCDEFGHIJKLMN'].join('_')}`)
+    expect(matches).toHaveLength(1)
+    expect(matches[0]?.kind).toBe('stripe-webhook-secret')
+  })
+
   test('detecta postgres URL com credenciais', () => {
     const matches = scanSecrets('DB=postgres://user:pass@db.example.com:5432/app')
     expect(matches).toHaveLength(1)
