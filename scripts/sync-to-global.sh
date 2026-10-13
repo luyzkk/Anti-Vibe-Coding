@@ -8,7 +8,11 @@
 
 set -u  # erro em var nao-definida; mas NAO -e (queremos tolerar falhas de cp em paths opcionais)
 
-PLUGIN_DEV="${PLUGIN_DEV:-<repo>}"
+# 2026-10-13 (Luiz/dev): 8.0 fatia 1 — o default era um caminho absoluto da maquina, trocado pelo
+# marcador <repo> na limpeza de dados pessoais do historico. Sem PLUGIN_DEV o script parava.
+# Agora o default e a raiz do repo, achada a partir do proprio script (mesmo padrao de
+# security-tooling-wizard.sh), e funciona de qualquer pasta e em qualquer maquina.
+PLUGIN_DEV="${PLUGIN_DEV:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 
 # 2026-08-18 (Luiz/dev): checagem do dev movida para ANTES da derivacao da versao. Antes ela vinha
 # depois do banner, entao um PLUGIN_DEV errado imprimia primeiro uma versao chutada e so depois o
@@ -18,7 +22,7 @@ if [ ! -d "$PLUGIN_DEV" ]; then
   echo "ERRO: Diretorio de desenvolvimento nao encontrado: $PLUGIN_DEV" >&2
   echo "      No PowerShell, 'bash' costuma resolver para o WSL, que nao enxerga /f/." >&2
   echo "      Use o Git Bash:  & \"C:\\Program Files\\Git\\bin\\bash.exe\" scripts/sync-to-global.sh" >&2
-  echo "      Ou aponte o caminho:  PLUGIN_DEV=/mnt<repo> bash scripts/sync-to-global.sh" >&2
+  echo "      Ou aponte o caminho:  PLUGIN_DEV=/mnt/<drive>/<pasta-do-repo> bash scripts/sync-to-global.sh" >&2
   exit 1
 fi
 
