@@ -57,7 +57,7 @@ describe('grill-me — cobertura: as 7 sementes (INV-02)', () => {
   test.each(SEEDS)('semente %s continua plantada', (seed) => {
     expect(
       skill.includes(`### ${seed}`),
-      `[parity gate "nunca diminuir" — INV-02] Semente ausente do grill-me: ${seed}. ` +
+      `[contrato — INV-02] Semente ausente do grill-me: ${seed}. ` +
         `As 7 categorias sao as raizes do design tree; sem a raiz o ramo nunca existe e a ` +
         `entrevista fecha sem tocar no assunto — que e exatamente o modo de falha que a ` +
         `varredura por checklist evitava. Restaure a semente, nao remova esta assercao.`,
@@ -170,7 +170,7 @@ describe('grill-me — gates que sao nossos (INV-03)', () => {
     const body = section(step)
     expect(
       body.length > 0 && marker.test(body),
-      `[parity gate "nunca diminuir" — INV-03] ${step} ausente ou esvaziado: ${why}. Nao existe no ` +
+      `[contrato — INV-03] ${step} ausente ou esvaziado: ${why}. Nao existe no ` +
         `repo-fonte, e nosso, e nenhum porte futuro deve remove-lo.`,
     ).toBe(true)
   })
@@ -192,7 +192,7 @@ describe('grill-me — contrato de saida (INV-01)', () => {
   test('grava no caminho datado que os consumidores esperam', () => {
     expect(
       skill.includes('docs/exec-plans/active/{date}-{slug}/CONTEXT.md'),
-      `[parity gate "nunca diminuir" — INV-01] O caminho de saida mudou. write-prd e design-twice ` +
+      `[contrato — INV-01] O caminho de saida mudou. write-prd e design-twice ` +
         `leem docs/exec-plans/active/{date}-{slug}/CONTEXT.md; mudar aqui quebra os dois em ` +
         `silencio, porque path-em-doc nao e executado por teste nenhum.`,
     ).toBe(true)
@@ -205,7 +205,7 @@ describe('grill-me — contrato de saida (INV-01)', () => {
   ])('template de saida mantem "%s"', (heading, why) => {
     expect(
       skill.includes(heading),
-      `[parity gate "nunca diminuir" — INV-01] Secao ausente do template do CONTEXT.md: ` +
+      `[contrato — INV-01] Secao ausente do template do CONTEXT.md: ` +
         `${heading} — ${why}. O contrato de saida e consumido por outras skills e nao pode ` +
         `encolher sem que elas sejam atualizadas na mesma mudanca.`,
     ).toBe(true)
@@ -259,7 +259,7 @@ describe('grill-me — contrato de saida (INV-01)', () => {
     const missing = fields.filter((f) => !step5.includes(f))
     expect(
       missing,
-      `[parity gate "nunca diminuir" — INV-01] Campos ausentes da decisao indexada: ` +
+      `[contrato — INV-01] Campos ausentes da decisao indexada: ` +
         `${missing.join(', ')}. Sao o que torna a decisao rastreavel depois — sem Razao e Origem, ` +
         `o CONTEXT.md vira lista de respostas sem procedencia.`,
     ).toEqual([])

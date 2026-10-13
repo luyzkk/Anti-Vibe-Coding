@@ -5,6 +5,7 @@
 - [ADR-0001: Sistema de Versionamento — Manifest com Checksums SHA-256](./ADR-0001-manifest-checksums.md) — 2026-03-23, active
 - [ADR-0002: Contrato de Subagentes v1](./ADR-0002-subagent-contract.md) — 2026-05-14, active
 - [ADR-0020: Adaptive Coaching Framework (v6.3.0)](./ADR-0020-adaptive-coaching.md) — 2026-05-15, active
+- [ADR-0024: Revoga a regra "copiar e nunca diminuir"](./ADR-0024-revoga-nunca-diminuir.md) — 2026-10-13, active
 
 ## Init Rationale
 

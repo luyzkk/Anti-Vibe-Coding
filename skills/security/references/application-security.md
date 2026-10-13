@@ -407,8 +407,12 @@ Secrets (API keys, DB passwords, tokens) DEVEM estar em `.env` e `.env` DEVE est
 # Verificar se .env ja vazou no historico
 git log --all -p -- .env
 
-# Buscar padroes de API keys no codigo
-grep -rE "sk-|pk_|AKIA|ghp_|glpat-" --include="*.ts" --include="*.js" --include="*.json"
+# Buscar padroes de chaves secretas no codigo (checagem rapida; o gate de verdade e o gitleaks abaixo)
+# Stripe usa SUBLINHADO: sk_live_/sk_test_ (secreta), rk_live_ (restrita), whsec_ (webhook).
+# pk_live_/pk_test_ e a chave PUBLICAVEL, feita para ir ao front-end: nao entra aqui.
+grep -rnE "sk_(live|test)_|rk_(live|test)_|whsec_|sk-[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}|ghp_|glpat-" \
+  --include="*.ts" --include="*.tsx" --include="*.js" --include="*.py" --include="*.json" \
+  --exclude-dir=node_modules .
 
 # Verificar .gitignore
 grep -E "\.env" .gitignore

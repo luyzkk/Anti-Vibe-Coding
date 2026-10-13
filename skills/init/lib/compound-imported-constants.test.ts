@@ -51,6 +51,23 @@ describe('compound-imported-constants', () => {
     )
   })
 
+  // 2026-10-13 (Luiz/dev): 8.0 fatia 1 — a Stripe usa sublinhado; o padrao sk- (hifen) nao pegava nenhuma.
+  // As chaves falsas sao montadas em pedacos: com o formato inteiro no fonte, a protecao de push do
+  // GitHub barra o commit como se fosse segredo real.
+  const fakeStripe = (kind: string, mode: string) => [kind, mode, 'FAKEFAKEFAKEFAKEFAKE1234'].join('_')
+
+  it('redactSecrets replaces Stripe secret, restricted and webhook keys', () => {
+    expect(redactSecrets(`STRIPE=${fakeStripe('sk', 'live')}`)).toBe('STRIPE=[REDACTED]')
+    expect(redactSecrets(`STRIPE=${fakeStripe('sk', 'test')}`)).toBe('STRIPE=[REDACTED]')
+    expect(redactSecrets(`RESTRICTED=${fakeStripe('rk', 'live')}`)).toBe('RESTRICTED=[REDACTED]')
+    expect(redactSecrets(`HOOK=${['whsec', 'FAKEFAKEFAKEFAKEFAKE1234'].join('_')}`)).toBe('HOOK=[REDACTED]')
+  })
+
+  it('redactSecrets keeps the Stripe publishable key, which is public by design', () => {
+    const input = `PUBLIC=${fakeStripe('pk', 'live')}`
+    expect(redactSecrets(input)).toBe(input)
+  })
+
   it('redactSecrets leaves plain text untouched', () => {
     const input = 'apenas texto normal sem segredos'
     expect(redactSecrets(input)).toBe(input)

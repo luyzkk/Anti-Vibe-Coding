@@ -7,6 +7,8 @@ export type SecretKind =
   | 'gcp-service-account'
   | 'azure-storage-key'
   | 'stripe-live'
+  | 'stripe-restricted-live'
+  | 'stripe-webhook-secret'
   | 'github-token'
   | 'slack-token'
   | 'slack-webhook'
@@ -123,6 +125,9 @@ const SECRET_PATTERNS: ReadonlyArray<SecretRule> = [
 
   // --- tokens de plataforma, prefixo distintivo ---
   { kind: 'stripe-live',        pattern: /sk_live_[A-Za-z0-9]{24,}/g },
+  // 2026-10-13 (Luiz/dev): 8.0 fatia 1 — as outras duas credenciais da Stripe que dao acesso real.
+  { kind: 'stripe-restricted-live', pattern: /rk_live_[A-Za-z0-9]{24,}/g },
+  { kind: 'stripe-webhook-secret',  pattern: /whsec_[A-Za-z0-9]{24,}/g },
   { kind: 'github-token',       pattern: /ghp_[0-9A-Za-z]{36}/g },
   // slack-webhook antes de slack-token: a URL contem segmentos que casam com o shape do
   // token, o webhook precisa reservar o range primeiro.

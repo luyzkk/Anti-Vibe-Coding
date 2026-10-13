@@ -24,6 +24,10 @@ const SECRET_PATTERNS: RegExp[] = [
   /ghs_[A-Za-z0-9]{20,}/g,
   /github_pat_[A-Za-z0-9_]{20,}/g,
   /sk-[A-Za-z0-9_-]{20,}/g,
+  // Stripe usa sublinhado: secreta (sk_), restrita (rk_) e segredo de webhook (whsec_).
+  // A publicavel (pk_) e publica por desenho e fica.
+  /\b(?:sk|rk)_(?:live|test)_[A-Za-z0-9]{16,}/g,
+  /\bwhsec_[A-Za-z0-9]{16,}/g,
   /AKIA[0-9A-Z]{16}/g,
   /xox[abprs]-[A-Za-z0-9-]{10,}/g,
   /\bBearer\s+[A-Za-z0-9._-]{20,}/g,

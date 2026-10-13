@@ -23,31 +23,45 @@ Uma operacao e idempotente quando executa-la multiplas vezes produz o mesmo resu
 Fluxo:
 1. Front-end gera UUID antes do request
 2. Envia no header: `Idempotency-Key: <uuid>`
-3. Back-end verifica se chave ja existe no banco
-4. Se existe: retorna resultado armazenado sem re-executar
-5. Se nao existe: executa, armazena resultado com a chave, retorna
+3. Back-end RESERVA a chave no banco, com UNIQUE, antes de executar
+4. Se a reserva falhou porque a chave existe: devolve o resultado guardado, ou 409 se ainda esta em processamento
+5. Se a reserva venceu: executa uma unica vez e grava o resultado na linha reservada
+
+Consultar se a chave existe e so depois gravar NAO funciona: dois requests simultaneos com a mesma
+chave passam juntos pela consulta e os dois executam. Quem decide e o UNIQUE do banco.
 
 ```
-// Middleware de idempotencia (conceitual)
-async function idempotencyMiddleware(req, res, next) {
-  const key = req.headers['idempotency-key']
-  if (!key) return next()  // Sem chave = execucao normal
+// Idempotencia por chave (conceitual): reservar ANTES de executar
+async function withIdempotency(key, execute) {
+  // 1. Reservar. So um request vence a corrida pelo UNIQUE(key)
+  const reserved = await db.query(
+    `INSERT INTO idempotency_keys (key, status, expires_at)
+     VALUES ($1, 'processing', now() + interval '24 hours')
+     ON CONFLICT (key) DO NOTHING
+     RETURNING key`,
+    [key],
+  )
 
-  const existing = await db.idempotencyKeys.findUnique({ where: { key } })
-  if (existing) {
-    // Retorna resultado armazenado
-    return res.status(existing.statusCode).json(existing.responseBody)
+  if (reserved.rowCount === 0) {
+    const row = await db.query(
+      `SELECT status, status_code, response_body FROM idempotency_keys WHERE key = $1`, [key])
+    if (row.status === 'done') return { statusCode: row.status_code, body: row.response_body }
+    return { statusCode: 409, body: { error: 'Request com esta chave ainda em processamento' } }
   }
 
-  // Executa e armazena resultado
-  const originalJson = res.json.bind(res)
-  res.json = async (body) => {
-    await db.idempotencyKeys.create({
-      data: { key, statusCode: res.statusCode, responseBody: body, expiresAt: addHours(24) }
-    })
-    return originalJson(body)
+  // 2. Executar uma unica vez e guardar o resultado na linha reservada
+  try {
+    const result = await execute()
+    await db.query(
+      `UPDATE idempotency_keys SET status = 'done', status_code = $2, response_body = $3 WHERE key = $1`,
+      [key, result.statusCode, result.body],
+    )
+    return result
+  } catch (error) {
+    // Falhou antes de produzir efeito: libera a chave para o cliente tentar de novo
+    await db.query(`DELETE FROM idempotency_keys WHERE key = $1 AND status = 'processing'`, [key])
+    throw error
   }
-  next()
 }
 ```
 
@@ -58,19 +72,28 @@ async function idempotencyMiddleware(req, res, next) {
 Combinar campos que tornam a operacao unica:
 - `valor + moeda + usuario + destino + tipo + janela_temporal`
 
-**Quando usar:** Webhooks, filas de mensagens, cenarios onde o front-end nao pode gerar UUID.
+**Quando usar:** filas e integracoes que nao trazem id proprio, e cenarios onde o front-end nao pode
+gerar UUID. Para webhook, use o id do evento do emissor (por exemplo `event.id` da Stripe) com UNIQUE:
+ele e estavel entre reenvios, e uma chave composta nao e.
 
 ```
-// Exemplo: prevenir pagamento duplicado via chave composta
-const compositeKey = `${userId}:${amount}:${currency}:${recipientId}:${type}`
-const windowStart = startOfMinute(new Date())
+// Exemplo: prevenir pagamento duplicado via chave composta, com a janela DENTRO da chave
+// e a restricao unica no banco (nunca consultar e depois gravar)
+const window = format(startOfMinute(new Date()), 'yyyyMMddHHmm')
+const compositeKey = `${userId}:${amount}:${currency}:${recipientId}:${type}:${window}`
 
-const existing = await db.transactions.findFirst({
-  where: { compositeKey, createdAt: { gte: windowStart } }
-})
-
-if (existing) return existing  // Ja processado nesta janela
+const inserted = await db.query(
+  `INSERT INTO transactions (composite_key, user_id, amount, currency)
+   VALUES ($1, $2, $3, $4)
+   ON CONFLICT (composite_key) DO NOTHING
+   RETURNING id`,
+  [compositeKey, userId, amount, currency],
+)
+if (inserted.rowCount === 0) return  // ja processado nesta janela
 ```
+
+Limite da janela: dois requests que caem um de cada lado da virada do minuto geram chaves
+diferentes. A janela reduz duplicatas, nao elimina. Quando o cliente puder mandar UUID, prefira.
 
 ### Estrategia 3 — Unique Constraint no Banco
 
@@ -101,8 +124,9 @@ try {
 Operacao envolve dinheiro?
   SIM →
     Front-end controla o request?
-      SIM → Chave UUID (header Idempotency-Key)
-      NAO (webhook/fila) → Chave Composta
+      SIM → Chave UUID (header Idempotency-Key), reservada com UNIQUE
+      NAO, e webhook → id do evento do emissor com UNIQUE
+      NAO, e fila sem id proprio → Chave Composta com UNIQUE
   NAO →
     Operacao tem side-effects irreversiveis?
       SIM → Chave UUID ou Composta
@@ -115,6 +139,7 @@ Operacao envolve dinheiro?
 ## Anti-Patterns
 
 - Confiar que "retry nao vai acontecer" (vai, especialmente com timeout de rede)
+- Consultar se a chave existe e so depois gravar: dois requests simultaneos passam juntos pela consulta
 - Usar auto-increment ID como chave de idempotencia (ID so existe DEPOIS da criacao)
 - Nao armazenar o resultado — apenas marcar como "ja processado" sem retornar a resposta original
 - Chave de idempotencia sem TTL (tabela cresce indefinidamente)

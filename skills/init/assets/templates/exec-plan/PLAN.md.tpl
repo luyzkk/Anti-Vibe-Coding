@@ -89,9 +89,9 @@ customizacao real do projeto (subagente do /execute-plan confirma ou edita).
 -->
 
 - **Anti-pattern detectado:** heuristica e LLM podem ambos errar pelo mesmo motivo se o input mecanico (lista de docs canonicos no TEMPLATE_MANIFEST ou EXCLUDED) estiver errado. Validar lista de docs primeiro, antes de qualquer melhoria de qualidade na geracao.
-- **Principio universal — copy-then-improve:** ao portar de ferramenta validada externa (Andre, libs maduras), copiar literalmente primeiro, melhorar em cima. Nunca "adaptar para baixo".
-- **Padrao compound:** gate "nunca diminuir" deve ser TESTE, nao doc — docs decaem, testes nao. Aplicar a qualquer ponto onde paridade com referencia importa.
-- **Trade-off:** instrucoes imperativas (Fontes + Secoes + Honestidade) custam mais tokens no /execute-plan, mas o principio "nunca diminuir" precede custo. Documentar qualquer recusa futura de imperatividade.
+- **Ao portar de ferramenta validada externa:** comece pela versao completa, meca e corte o que nao paga o proprio custo. A cada modelo novo, teste sem o que foi portado antes de manter.
+- **Padrao compound:** quando paridade com uma referencia importa, o gate deve ser TESTE, nao doc — docs decaem, testes nao. O teste guarda o contrato vigente; um corte decidido atualiza a assercao no mesmo commit.
+- **Trade-off:** instrucoes imperativas (Fontes + Secoes + Honestidade) custam mais tokens no /execute-plan. Mantenha as que mudam o resultado e registre o porque de cada corte.
 - **Honestidade > marketing:** cada afirmacao no doc canonico rastreia a um arquivo lido. Quando nao rastreia, marca `TODO(<contexto>):`. Doc com placeholder generico degrada todo o pipeline downstream.
 - **Audit antes de scaling cobertura:** Step 91 emite contagens (docsCobertos, docsSemEvidencia, fasesCriadas vs esperadas) antes de qualquer expansao — observabilidade primeiro, cobertura depois.
 

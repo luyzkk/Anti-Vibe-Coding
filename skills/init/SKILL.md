@@ -60,7 +60,7 @@ A tabela abaixo eh **documentacao gerada a mao**. A fonte de verdade do runtime 
      `generate-populate-plans`, `write-anti-vibe-manifest`, `inject-harness-scripts`,
      `copy-knowledge`) nao apareciam uma unica vez.
 
-     Removidos com justificativa rastreavel (regra "nunca diminuir" — cada linha tem o porque):
+     Removidos com justificativa rastreavel (cada linha tem o porque):
      - `capabilities-discovery`  -> D5 do init-refactor-v7: "Remover — nao queremos essa
        complexidade" (CONTEXT.md linha 43, origem dev). `capabilities-writer.ts` segue no repo,
        marcado como nao-ligado; nao ha step que o chame.

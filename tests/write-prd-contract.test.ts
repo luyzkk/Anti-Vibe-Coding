@@ -54,7 +54,7 @@ describe('write-prd — secao "Ameacas & Dados" no template (RF-04)', () => {
   test('a secao existe no template', () => {
     expect(
       HEADING.test(template),
-      `[parity gate "nunca diminuir" — RF-04] Secao "Ameacas & Dados" ausente do prd-template.md. ` +
+      `[contrato — RF-04] Secao "Ameacas & Dados" ausente do prd-template.md. ` +
         `E onde o modelo de ameaca entra ANTES do codigo: classificacao do dado, fronteiras de ` +
         `confianca, superficie nova e casos de abuso. Sem ela o PRD volta a delegar seguranca para ` +
         `a auditoria do fim do pipeline. Restaure a secao, nao remova esta assercao.`,
@@ -74,7 +74,7 @@ describe('write-prd — secao "Ameacas & Dados" no template (RF-04)', () => {
   ])('a secao mantem o bloco "%s"', (heading, why) => {
     expect(
       body().includes(heading),
-      `[parity gate "nunca diminuir" — RF-04] Bloco ausente de "Ameacas & Dados": ${heading} — ` +
+      `[contrato — RF-04] Bloco ausente de "Ameacas & Dados": ${heading} — ` +
         `${why}. Os cinco blocos sao o contrato consumido adiante: os casos de abuso viram CA-SEC-* ` +
         `no /plan-feature e teste de abuso no RED do /tdd-workflow.`,
     ).toBe(true)

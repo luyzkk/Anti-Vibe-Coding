@@ -191,7 +191,7 @@ describe('E2E cutover — greenfield (CA-01)', () => {
       }
       await fs.writeFile(settingsPath, JSON.stringify(settings, null, 2), 'utf8')
 
-      return { tier: 'copy-with-hook' as const, targetPath: claudePath, hookRegistered: true }
+      return { tier: 'copy-with-hook' as const, targetPath: claudePath, hookRegistered: true, mergedExisting: false }
     }
 
     const report = await runScaffoldAndLink(tmpDir, copyWithHookLinker)
