@@ -626,7 +626,7 @@ os capitulos numerados dao cobertura sistematica em vez de tematica (nota de esc
 
 O ASVS e um padrao de seguranca de **aplicacao** — por isso os tres itens acima (disco, backup, VPN)
 nao tem capitulo correspondente; sao higiene pessoal/operacional que este checklist sempre cobrou e que
-a regra "nunca diminuir" desta reorganizacao preserva. L1 e o piso obrigatorio para toda aplicacao em
+esta reorganizacao decidiu manter. L1 e o piso obrigatorio para toda aplicacao em
 producao, **nao o teto**: projetos com dados regulados ou financeiros devem subir a regua para L2/L3 —
 ver `https://owasp.org/www-project-application-security-verification-standard/` (licenca CC BY-SA 4.0;
 o conteudo abaixo e reescrita propria com atribuicao, nunca copia literal dos requisitos). A secao
