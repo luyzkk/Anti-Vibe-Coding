@@ -4,6 +4,7 @@
 // PRD RF-03 (scaffold 16+ placeholders), CA-02 (.claude/CLAUDE.md NUNCA sobrescrito — guard ja em
 // scaffold-full-tree.ts:80), CA-08 (idempotente), D4 (sem dry-run), D16 (CLAUDE.md preservado).
 
+import path from 'node:path'
 import { detectProjectName } from '../detect-project-name'
 import { scaffoldFullTree } from '../scaffold-full-tree'
 import { linkClaudeToAgents } from '../symlink-fallback'
@@ -64,11 +65,16 @@ async function scaffoldAndLinkBody(targetDir: string, linker: Linker): Promise<S
     `placeholdersSkipped: ${String(treeResult.filesSkipped.length)}`,
     `Linked via tier: ${linkResult.tier}`,
   ]
+  // 2026-10-13 (Luiz/dev): 8.0 fatia 1 — a juncao do CLAUDE.md proprio nao pode acontecer calada.
+  if (linkResult.mergedExisting && linkResult.backupPath) {
+    const rel = path.relative(targetDir, linkResult.backupPath).split(path.sep).join('/')
+    lines.push(`CLAUDE.md existente juntado ao AGENTS.md; copia em ${rel}`)
+  }
 
   return {
     // 2026-05-21 (Luiz/dev): mutated true porque scaffold escreve OU pula (mas link sempre
     // cria CLAUDE.md raiz se ainda nao existir). Em re-run com tudo presente, scaffold pula
-    // todos e link refaz o mirror (linkClaudeToAgents:24 fs.rm CLAUDE.md raiz e recria).
+    // todos e link refaz o mirror; um CLAUDE.md com texto proprio e juntado antes, nunca apagado.
     mutated: true,
     summary: lines.join('\n'),
   }

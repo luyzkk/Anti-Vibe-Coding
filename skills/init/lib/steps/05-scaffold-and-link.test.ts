@@ -82,6 +82,18 @@ describe('scaffoldAndLinkStep (Step 5 real)', () => {
     expect(report.summary).toMatch(/placeholdersSkipped:\s*[1-9]/)
   })
 
+  test('CLAUDE.md da raiz com instrucoes proprias: conteudo vai para o AGENTS.md e o resumo avisa', async () => {
+    // 2026-10-13 (Luiz/dev): 8.0 fatia 1 — o CA-02 so protegia .claude/CLAUDE.md; o da raiz era apagado.
+    const own = '# Projeto X\n\n- deploy so pela pipeline\n'
+    await fs.writeFile(path.join(tmp, 'CLAUDE.md'), own, 'utf8')
+
+    const report = await scaffoldAndLinkStep.run({ cwd: tmp, args: [], flags: {} })
+
+    const claude = await fs.readFile(path.join(tmp, 'CLAUDE.md'), 'utf8')
+    expect(claude).toContain('- deploy so pela pipeline')
+    expect(report.summary).toMatch(/CLAUDE\.md existente juntado ao AGENTS\.md; copia em \.claude\/backups\//)
+  })
+
   test('D4: zero imports de dry-run no codigo do step', async () => {
     // 2026-05-21 (Luiz/dev): meta-test — garante que D4 (CONTEXT linha 38) eh respeitado
     // pelo arquivo do step. Se algum dev re-introduzir isDryRun/WriteRecorder, este teste quebra.
