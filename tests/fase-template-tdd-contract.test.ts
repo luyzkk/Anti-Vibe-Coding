@@ -5,6 +5,7 @@
 // e consumidores que apontam para ela: fase-template.md (bloco ### TDD), agents/plan-executor.md
 // (secao TDD) e, no Plano 02, o Step 4c do execute-plan. Este arquivo garante que nem a fonte nem um
 // consumidor diminua em silencio — "gate de paridade e teste, nao doc" (PRD §Outcomes).
+// Diminuir com decisao registrada e permitido (ADR-0024): a assercao muda no mesmo commit, citando a decisao.
 //
 // Assere apenas CONTRATO — headings, checkboxes, campos e ponteiros. A prosa dentro das secoes pode ser
 // reescrita a vontade sem tocar aqui.
@@ -80,7 +81,7 @@ describe('tdd-workflow — a fonte unica do ciclo (RF-01)', () => {
   test('a skill tem a secao "## Contrato do Ciclo por Fase"', () => {
     expect(
       /^## Contrato do Ciclo por Fase/m.test(skill),
-      `[parity gate "nunca diminuir" — RF-01] Secao "## Contrato do Ciclo por Fase" ausente de ` +
+      `[contrato — RF-01] Secao "## Contrato do Ciclo por Fase" ausente de ` +
         `skills/tdd-workflow/SKILL.md. E a UNICA definicao do ciclo por fase: fase-template.md, ` +
         `plan-executor.md e o Step 4c do execute-plan apontam para ela em vez de parafrasea-la. ` +
         `Sem ela cada consumidor volta a ter a sua versao do ciclo — a divergencia que o PRD ` +
@@ -96,14 +97,14 @@ describe('fase-template — bloco "### TDD" (RF-02)', () => {
     const texto = tdd()
     expect(
       /^\*\*Tipo de fase:\*\*/m.test(texto),
-      `[parity gate "nunca diminuir" — RF-02] Campo "**Tipo de fase:**" ausente do bloco "### TDD" de ` +
+      `[contrato — RF-02] Campo "**Tipo de fase:**" ausente do bloco "### TDD" de ` +
         `fase-template.md. E o tipo que decide a variante do ciclo (Contrato do Ciclo por Fase): sem ele ` +
         `o orquestrador nao sabe onde parar para o humano nem que forma o RED-check toma.`,
     ).toBe(true)
     for (const tipo of ['comportamento', 'risco', 'sem-comportamento']) {
       expect(
         texto.includes(tipo),
-        `[parity gate "nunca diminuir" — RF-02 / D5] Tipo de fase "${tipo}" sumiu do bloco "### TDD". ` +
+        `[contrato — RF-02 / D5] Tipo de fase "${tipo}" sumiu do bloco "### TDD". ` +
           `Os tres tipos sao o contrato: 189 de 443 fases nao tinham RED porque "doc/config" ficava fora ` +
           `do ciclo — "sem-comportamento" existe para que essas fases tenham gate textual falsificavel.`,
       ).toBe(true)
@@ -118,7 +119,7 @@ describe('fase-template — bloco "### TDD" (RF-02)', () => {
   ])('o bloco mantem o checkbox %s', (checkbox, why) => {
     expect(
       tdd().includes(checkbox),
-      `[parity gate "nunca diminuir" — RF-02 / CA-01] Checkbox ${checkbox} ausente do bloco "### TDD" de ` +
+      `[contrato — RF-02 / CA-01] Checkbox ${checkbox} ausente do bloco "### TDD" de ` +
         `fase-template.md — ${why}. Os quatro sao o ciclo inteiro; o template com dois (RED, GREEN) e ` +
         `exatamente o estado que o PRD tdd-cycle-contract mediu: REFACTOR em 46 de 443 fases, ` +
         `RED-check em 37. Restaure o checkbox, nao remova esta assercao.`,
@@ -131,7 +132,7 @@ describe('fase-template — bloco "### TDD" (RF-02)', () => {
   ])('o RED-check carrega o campo "%s" (D6)', (campo, why) => {
     expect(
       tdd().includes(campo),
-      `[parity gate "nunca diminuir" — RF-02 / D6] Campo "${campo}" ausente do RED-check em ` +
+      `[contrato — RF-02 / D6] Campo "${campo}" ausente do RED-check em ` +
         `fase-template.md — ${why}. Sao os dois campos que o execute-plan (Step 4c, Plano 02) le para ` +
         `mutar; sem eles o RED-check vira "rodar os testes de novo".`,
     ).toBe(true)
@@ -140,7 +141,7 @@ describe('fase-template — bloco "### TDD" (RF-02)', () => {
   test('o planejador e proibido de prever a mensagem de erro (D6)', () => {
     expect(
       /N[AÃ]O escrever a mensagem/i.test(tdd()),
-      `[parity gate "nunca diminuir" — RF-02 / D6] Sumiu do bloco "### TDD" a instrucao de NAO escrever a mensagem de erro ` +
+      `[contrato — RF-02 / D6] Sumiu do bloco "### TDD" a instrucao de NAO escrever a mensagem de erro ` +
         `esperada. Numero e mensagem previstos sao chute do planejador; em tres ocasioes o real divergiu ` +
         `e o incentivo era reportar o previsto (compound 2026-09-06). O que vale e qual assertion quebra.`,
     ).toBe(true)
@@ -149,7 +150,7 @@ describe('fase-template — bloco "### TDD" (RF-02)', () => {
   test('fase de risco comeca pelo teste de abuso (Abuse-It)', () => {
     expect(
       /Abuse-It/.test(tdd()),
-      `[parity gate "nunca diminuir" — RF-02] O bloco "### TDD" deixou de dizer que, em fase de risco, o PRIMEIRO teste e o ` +
+      `[contrato — RF-02] O bloco "### TDD" deixou de dizer que, em fase de risco, o PRIMEIRO teste e o ` +
         `de abuso (Abuse-It, tdd-workflow). Sem isso o RED escreve so o happy path e a defesa nunca chega ao GREEN.`,
     ).toBe(true)
   })
@@ -157,7 +158,7 @@ describe('fase-template — bloco "### TDD" (RF-02)', () => {
   test('fase sem comportamento tem variante com gate textual (D5)', () => {
     expect(
       /gate textual/i.test(tdd()),
-      `[parity gate "nunca diminuir" — RF-02 / D5] A variante "sem-comportamento" (gate textual visto falhando; RED-check = ` +
+      `[contrato — RF-02 / D5] A variante "sem-comportamento" (gate textual visto falhando; RED-check = ` +
         `remover o alvo, gate cai, restaurar) sumiu do bloco "### TDD". Isentar fases de doc/config do ciclo ` +
         `deixa 40% das fases sem verificacao falsificavel — foi a alternativa rejeitada em D5.`,
     ).toBe(true)
@@ -168,7 +169,7 @@ describe('fase-template — bloco "### TDD" (RF-02)', () => {
     const raw = section(template, '### TDD')
     expect(
       /<!--[\s\S]*?skills\/tdd-workflow\/SKILL\.md[\s\S]*?Contrato do Ciclo por Fase[\s\S]*?-->/.test(raw),
-      `[parity gate "nunca diminuir" — RF-02 / CA-03 / D1] O comentario HTML que aponta de fase-template.md para ` +
+      `[contrato — RF-02 / CA-03 / D1] O comentario HTML que aponta de fase-template.md para ` +
         `skills/tdd-workflow/SKILL.md "Contrato do Ciclo por Fase" sumiu. O template e consumidor, nao ` +
         `definicao; sem o ponteiro ele volta a ser a segunda copia do ciclo.`,
     ).toBe(true)
@@ -180,7 +181,7 @@ describe('plan-readme-template — §TDD Strategy aponta para a fonte (D1)', () 
     const secao = section(readme, '## TDD Strategy')
     expect(
       secao.includes('skills/tdd-workflow/SKILL.md') && secao.includes('Contrato do Ciclo por Fase'),
-      `[parity gate "nunca diminuir" — D1] "## TDD Strategy" de plan-readme-template.md nao aponta para ` +
+      `[contrato — D1] "## TDD Strategy" de plan-readme-template.md nao aponta para ` +
         `skills/tdd-workflow/SKILL.md "Contrato do Ciclo por Fase" (ou o bloco sumiu — section() devolve ''). ` +
         `Era a terceira copia do ciclo (PLAN.md §Risks); copia que fica e a divergencia que este PRD existe para acabar.`,
     ).toBe(true)
@@ -194,7 +195,7 @@ describe('plan-executor — §TDD aponta para a fonte e incorpora os compounds (
     const texto = tdd()
     expect(
       texto.includes('skills/tdd-workflow/SKILL.md') && texto.includes('Contrato do Ciclo por Fase'),
-      `[parity gate "nunca diminuir" — RF-06 / CA-03] "## TDD no Ciclo Red-Green-Refactor" de agents/plan-executor.md nao ` +
+      `[contrato — RF-06 / CA-03] "## TDD no Ciclo Red-Green-Refactor" de agents/plan-executor.md nao ` +
         `aponta para skills/tdd-workflow/SKILL.md "Contrato do Ciclo por Fase" (ou a secao sumiu — ` +
         `section() devolve ''). O executor e consumidor do ciclo, nao a segunda definicao dele.`,
     ).toBe(true)
@@ -209,7 +210,7 @@ describe('plan-executor — §TDD aponta para a fonte e incorpora os compounds (
   ])('a secao mantem a regra %s', (label, re, why) => {
     expect(
       re.test(tdd()),
-      `[parity gate "nunca diminuir" — RF-06] Sumiu da secao TDD do plan-executor: ${why}. ` +
+      `[contrato — RF-06] Sumiu da secao TDD do plan-executor: ${why}. ` +
         `Ate esta feature isso vivia so em docs/compound/ — e compound nao e prompt. Restaure o texto.`,
     ).toBe(true)
   })
@@ -218,7 +219,7 @@ describe('plan-executor — §TDD aponta para a fonte e incorpora os compounds (
     const refactor = body(executor, '### REFACTOR')
     expect(
       refactor.length > 0 && /commit/i.test(refactor) && /refactor\(/.test(refactor),
-      `[parity gate "nunca diminuir" — RF-06 / D4 / CA-08] A subsecao "### REFACTOR" do plan-executor nao exige commit ` +
+      `[contrato — RF-06 / D4 / CA-08] A subsecao "### REFACTOR" do plan-executor nao exige commit ` +
         `refactor(...) proprio (ou sumiu). D4: o mesmo subagente GREEN refatora como segundo passo, em ` +
         `commit separado — refactor escondido no feat(...) e o que "Refactor Fica no Ciclo" chama de ` +
         `problema de granularidade de commit.`,
@@ -238,7 +239,7 @@ describe('plan-feature — Step 9 obriga a nomear a defesa e proibe prever a men
   ])('as regras exigem preencher "%s" em fase de comportamento ou risco', (campo, why) => {
     expect(
       regras().includes(campo),
-      `[parity gate "nunca diminuir" — RF-07 / D6] "${campo}" ausente das regras do subagente de planejamento (Step 9 do ` +
+      `[contrato — RF-07 / D6] "${campo}" ausente das regras do subagente de planejamento (Step 9 do ` +
         `plan-feature) — ${why}. O template pede o campo (fase-02), mas quem o preenche e o planejador: ` +
         `sem a regra ele volta a escrever RED/GREEN e parar.`,
     ).toBe(true)
@@ -247,7 +248,7 @@ describe('plan-feature — Step 9 obriga a nomear a defesa e proibe prever a men
   test('as regras proibem prever a mensagem de erro (D6)', () => {
     expect(
       /prever a mensagem/i.test(regras()),
-      `[parity gate "nunca diminuir" — RF-07 / D6] Sumiu do Step 9 a proibicao de prever a mensagem de erro do RED. ` +
+      `[contrato — RF-07 / D6] Sumiu do Step 9 a proibicao de prever a mensagem de erro do RED. ` +
         `Numero e mensagem previstos sao chute; em tres ocasioes o real divergiu e o incentivo era ` +
         `reportar o previsto (compound 2026-09-06). O planejador nomeia a assertion que quebra.`,
     ).toBe(true)
@@ -264,28 +265,28 @@ describe('execute-plan — Step 4c resolve o nivel, confirma o RED e para no gat
   test('4c aponta para a secao-fonte do ciclo', () => {
     expect(
       step4c,
-      `[parity gate "nunca diminuir" — RF-03] O Step 4c nao cita "Contrato do Ciclo por Fase". ` +
+      `[contrato — RF-03] O Step 4c nao cita "Contrato do Ciclo por Fase". ` +
         `O 4c EXECUTA o ciclo; a definicao mora em skills/tdd-workflow/SKILL.md. Sem o ponteiro, ` +
         `o executor volta a ter a segunda definicao que este PRD existe para apagar.`,
     ).toContain('Contrato do Ciclo por Fase')
   })
 
   test('4c resolve o nivel por --tdd-level, user_profile e default Assistido (D2)', () => {
-    expect(step4c, '[parity gate "nunca diminuir" — RF-08] 4c nao le --tdd-level').toContain('--tdd-level')
-    expect(step4c, '[parity gate "nunca diminuir" — RF-03] 4c nao le user_profile (sinal que tdd-workflow ja usa)').toContain('user_profile')
+    expect(step4c, '[contrato — RF-08] 4c nao le --tdd-level').toContain('--tdd-level')
+    expect(step4c, '[contrato — RF-03] 4c nao le user_profile (sinal que tdd-workflow ja usa)').toContain('user_profile')
     expect(
       step4c,
-      `[parity gate "nunca diminuir" — D2] 4c perdeu o default Assistido. Assistido para em [RISCO] e no tracer ` +
+      `[contrato — D2] 4c perdeu o default Assistido. Assistido para em [RISCO] e no tracer ` +
         `bullet — e onde a spec errada morre barato. Restaure a linha do default, nao esta assercao.`,
     ).toMatch(/Assistido[^\n]*default|default[^\n]*Assistido/)
   })
 
   test('4c exige que o orquestrador confirme a falha do RED por assertion e bloqueie module-not-found (CA-04)', () => {
-    expect(step4c, '[parity gate "nunca diminuir" — CA-04] 4c nao registra red_confirmed').toContain('red_confirmed')
-    expect(step4c, '[parity gate "nunca diminuir" — CA-04] 4c nao classifica a falha por assertion').toMatch(/red_confirmed: assertion/)
+    expect(step4c, '[contrato — CA-04] 4c nao registra red_confirmed').toContain('red_confirmed')
+    expect(step4c, '[contrato — CA-04] 4c nao classifica a falha por assertion').toMatch(/red_confirmed: assertion/)
     expect(
       step4c,
-      `[parity gate "nunca diminuir" — CA-04] 4c perdeu a regra que classifica saida com marcador ` +
+      `[contrato — CA-04] 4c perdeu a regra que classifica saida com marcador ` +
         `de modulo/compilacao (Cannot find module, Cannot resolve, error TS, SyntaxError) como ` +
         `red_confirmed: blocked. Falha por import nao e RED — e ausencia de stub (compound ` +
         `2026-05-19-tdd-gate-needs-stub-first). Assercao ancorada no par condicao-desfecho, nao no ` +
@@ -296,7 +297,7 @@ describe('execute-plan — Step 4c resolve o nivel, confirma o RED e para no gat
     ).toMatch(/`Cannot find module`[\s\S]*?red_confirmed: blocked/)
     expect(
       step4c,
-      `[parity gate "nunca diminuir" — CA-04] O bloqueio red_confirmed: blocked perdeu o ponteiro ` +
+      `[contrato — CA-04] O bloqueio red_confirmed: blocked perdeu o ponteiro ` +
         `para tdd-cycle-checklist. Sem ele o executor devolve ao RED sem dizer o que corrigir — ` +
         `stub-first vira um segredo que so quem escreveu o contrato conhece. Assercao ancorada no ` +
         `par red_confirmed: blocked seguido de tdd-cycle-checklist, nao no token solto: um ` +
@@ -308,17 +309,17 @@ describe('execute-plan — Step 4c resolve o nivel, confirma o RED e para no gat
   })
 
   test('4c para no gate humano com AskUserQuestion e registra human_gate (CA-05)', () => {
-    expect(step4c, '[parity gate "nunca diminuir" — CA-05] 4c nao para para o humano').toContain('AskUserQuestion')
+    expect(step4c, '[contrato — CA-05] 4c nao para para o humano').toContain('AskUserQuestion')
     expect(
       step4c,
-      `[parity gate "nunca diminuir" — CA-05] 4c perdeu o ramo "human_gate: stopped". CA-05 e ` +
+      `[contrato — CA-05] 4c perdeu o ramo "human_gate: stopped". CA-05 e ` +
         `bilateral: dado [RISCO] (ou guiado), o orquestrador para; dado fase sem marca, nao para. ` +
         `Uma assercao que aceita so um dos dois ramos nao guarda o criterio — restaure a linha ` +
         `"Registrar: human_gate: stopped", nao remova esta assercao.`,
     ).toContain('human_gate: stopped')
     expect(
       step4c,
-      `[parity gate "nunca diminuir" — CA-05] 4c perdeu o ramo "human_gate: skipped". Mesmo ` +
+      `[contrato — CA-05] 4c perdeu o ramo "human_gate: skipped". Mesmo ` +
         `criterio bilateral do CA-05 pelo lado oposto: sem este ramo o 4c pode parar de anunciar ` +
         `quando NAO para, e a assercao do ramo "stopped" sozinha nao pegaria essa regressao. ` +
         `Restaure a linha "Senao: human_gate: skipped({nivel})", nao remova esta assercao.`,
@@ -329,14 +330,14 @@ describe('execute-plan — Step 4c resolve o nivel, confirma o RED e para no gat
     // G21: frontmatter nao tem heading — section() nao chega la.
     expect(
       executePlan,
-      '[parity gate "nunca diminuir" — RF-08] argument-hint do execute-plan nao anuncia --tdd-level',
+      '[contrato — RF-08] argument-hint do execute-plan nao anuncia --tdd-level',
     ).toMatch(/^argument-hint:.*--tdd-level/m)
   })
 
   test('wave-execution §Ciclo Completo aponta para a fonte', () => {
     expect(
       section(waveExecution, '### Ciclo Completo'),
-      `[parity gate "nunca diminuir" — RF-01] wave-execution.md §Ciclo Completo virou copia solta do ciclo. ` +
+      `[contrato — RF-01] wave-execution.md §Ciclo Completo virou copia solta do ciclo. ` +
         `E resumo; a definicao e a secao-fonte da skill tdd-workflow.`,
     ).toContain('Contrato do Ciclo por Fase')
   })
@@ -345,15 +346,15 @@ describe('execute-plan — Step 4c resolve o nivel, confirma o RED e para no gat
 // 2026-09-08 (Luiz/dev): RED-check por mutacao e REFACTOR no 4c — PRD tdd-cycle-contract §RF-03, D3, D4.
 describe('execute-plan — Step 4c prova a defesa por mutacao e exige REFACTOR (RF-03 parte 2)', () => {
   test('4c le Defesa a mutar e Teste que deve cair da fase (D6)', () => {
-    expect(step4c, '[parity gate "nunca diminuir" — CA-06] 4c nao le "Defesa a mutar"').toContain('Defesa a mutar')
-    expect(step4c, '[parity gate "nunca diminuir" — CA-06] 4c nao le "Teste que deve cair"').toContain('Teste que deve cair')
+    expect(step4c, '[contrato — CA-06] 4c nao le "Defesa a mutar"').toContain('Defesa a mutar')
+    expect(step4c, '[contrato — CA-06] 4c nao le "Teste que deve cair"').toContain('Teste que deve cair')
   })
 
   test('4c restaura com git restore e prova diff vazio (CA-06)', () => {
-    expect(step4c, '[parity gate "nunca diminuir" — CA-06] 4c nao restaura pelo git').toContain('git restore')
+    expect(step4c, '[contrato — CA-06] 4c nao restaura pelo git').toContain('git restore')
     expect(
       step4c,
-      `[parity gate "nunca diminuir" — CA-06] 4c nao exige "git diff --stat" vazio apos restaurar. Sem isso ` +
+      `[contrato — CA-06] 4c nao exige "git diff --stat" vazio apos restaurar. Sem isso ` +
         `a mutacao pode deixar residuo no arquivo de producao e ninguem ve (PRD §Riscos). Assercao ancorada ` +
         `no par "git restore" seguido de "git diff --stat", nao no token solto: apos o GREEN a string ` +
         `"git diff --stat" aparece 2x no bloco — a pre-condicao "vazio ANTES de mutar" e a exigencia apos ` +
@@ -367,14 +368,14 @@ describe('execute-plan — Step 4c prova a defesa por mutacao e exige REFACTOR (
         `esta linha apagada — vacuo distinto do anterior, tambem confirmado por mutacao no mesmo dia. Nao ` +
         `alargue o limite de volta a ilimitado.`,
     ).toMatch(/git restore[\s\S]{0,120}git diff --stat/)
-    expect(step4c, '[parity gate "nunca diminuir" — CA-06] 4c nao registra red_check no STATE').toMatch(/red_check: pass/)
+    expect(step4c, '[contrato — CA-06] 4c nao registra red_check no STATE').toMatch(/red_check: pass/)
   })
 
   test('4c trata teste que nao cai como blocker com DI (CA-07)', () => {
-    expect(step4c, '[parity gate "nunca diminuir" — CA-07] 4c nao bloqueia a fase').toMatch(/red_check: fail/)
+    expect(step4c, '[contrato — CA-07] 4c nao bloqueia a fase').toMatch(/red_check: fail/)
     expect(
       step4c,
-      `[parity gate "nunca diminuir" — CA-07] 4c nao marca a fase como blocked. Assercao ancorada no par ` +
+      `[contrato — CA-07] 4c nao marca a fase como blocked. Assercao ancorada no par ` +
         `"red_check: fail" seguido de "blocked", nao no token solto: "blocked" ja aparece 2x hoje no bloco ` +
         `4c via "red_confirmed: blocked" (passo 2 — module-not-found e nasce-verde) — um toContain('blocked') ` +
         `isolado ficaria verde mesmo com "fase blocked" do passo 5 apagada, porque as duas ocorrencias do ` +
@@ -389,20 +390,20 @@ describe('execute-plan — Step 4c prova a defesa por mutacao e exige REFACTOR (
     ).toMatch(/red_check: fail[\s\S]{0,120}blocked/)
     expect(
       step4c,
-      `[parity gate "nunca diminuir" — CA-07] 4c nao registra a DI "teste nao prova a defesa". Um teste que continua ` +
+      `[contrato — CA-07] 4c nao registra a DI "teste nao prova a defesa". Um teste que continua ` +
         `verde com a defesa removida nao testa a defesa — e o plano nao pode avancar em cima dele.`,
     ).toContain('teste nao prova a defesa')
   })
 
   test('4c exige REFACTOR em commit proprio ou motivo (CA-08, D4)', () => {
-    expect(step4c, '[parity gate "nunca diminuir" — CA-08] 4c nao pede commit refactor(...) separado').toContain('refactor(')
-    expect(step4c, '[parity gate "nunca diminuir" — CA-08] 4c nao aceita "refactor: none (motivo)"').toMatch(/refactor: none/)
+    expect(step4c, '[contrato — CA-08] 4c nao pede commit refactor(...) separado').toContain('refactor(')
+    expect(step4c, '[contrato — CA-08] 4c nao aceita "refactor: none (motivo)"').toMatch(/refactor: none/)
   })
 
   test('Regras Criticas: rodar teste, mutar e restaurar e verificacao do orquestrador, nao implementacao (D3)', () => {
     expect(
       section(executePlan, '## Regras Criticas'),
-      `[parity gate "nunca diminuir" — D3] "O orchestrador nao implementa" precisa dizer que o RED-check e verificacao. ` +
+      `[contrato — D3] "O orchestrador nao implementa" precisa dizer que o RED-check e verificacao. ` +
         `Sem a frase, a regra 1 e o passo 5 do 4c se contradizem e o orquestrador pula a mutacao.`,
     ).toContain('RED-check')
   })
@@ -416,29 +417,29 @@ describe('execute-plan — VERIFY por fase e STATE log (RF-05, observabilidade)'
     const checklist = section(planVerifier, '## Checklist de Verificacao')
     expect(
       checklist,
-      `[parity gate "nunca diminuir" — RF-05] plan-verifier nao tem o check red-check-evidence. Sem ele o verifier ` +
+      `[contrato — RF-05] plan-verifier nao tem o check red-check-evidence. Sem ele o verifier ` +
         `confere tudo menos a unica prova de que o teste testa a defesa.`,
     ).toContain('red-check-evidence')
-    expect(checklist, '[parity gate "nunca diminuir" — RF-05] red-check-evidence sem o estado unable_to_verify — campo ausente viraria pass ou fail por chute').toContain('unable_to_verify')
-    expect(section(planVerifier, '## Formato de Saida'), '[parity gate "nunca diminuir" — CA-10] exemplo de envelope sem red-check-evidence').toContain('red-check-evidence')
+    expect(checklist, '[contrato — RF-05] red-check-evidence sem o estado unable_to_verify — campo ausente viraria pass ou fail por chute').toContain('unable_to_verify')
+    expect(section(planVerifier, '## Formato de Saida'), '[contrato — CA-10] exemplo de envelope sem red-check-evidence').toContain('red-check-evidence')
   })
 
   test('plan-verifier continua read-only (D3)', () => {
-    expect(section(planVerifier, '## Regras'), '[parity gate "nunca diminuir" — D3] Regra Read-only sumiu do plan-verifier').toMatch(/Read-only/)
+    expect(section(planVerifier, '## Regras'), '[contrato — D3] Regra Read-only sumiu do plan-verifier').toMatch(/Read-only/)
   })
 
   test('4c spawna o plan-verifier por fase dizendo o que recebe e nao recebe (RF-05)', () => {
-    expect(step4c, '[parity gate "nunca diminuir" — RF-05] 4c nao spawna plan-verifier').toContain('plan-verifier')
-    expect(step4c, '[parity gate "nunca diminuir" — RF-05] 4c nao pede red-check-evidence ao verifier').toContain('red-check-evidence')
-    expect(step4c, '[parity gate "nunca diminuir" — RF-05] VERIFY sem lista "NAO RECEBE" — o verifier veria o PRD').toMatch(/NAO RECEBE/)
+    expect(step4c, '[contrato — RF-05] 4c nao spawna plan-verifier').toContain('plan-verifier')
+    expect(step4c, '[contrato — RF-05] 4c nao pede red-check-evidence ao verifier').toContain('red-check-evidence')
+    expect(step4c, '[contrato — RF-05] VERIFY sem lista "NAO RECEBE" — o verifier veria o PRD').toMatch(/NAO RECEBE/)
   })
 
   test('Step 5 mostra os quatro campos do ciclo e o custo da fase (Observabilidade)', () => {
     const step5 = section(executePlan, '## Step 5')
     for (const field of ['red_confirmed', 'human_gate', 'red_check', 'refactor']) {
-      expect(step5, `[parity gate "nunca diminuir" — Observabilidade] Step 5 nao mostra ${field} ao dev`).toContain(field)
+      expect(step5, `[contrato — Observabilidade] Step 5 nao mostra ${field} ao dev`).toContain(field)
     }
-    expect(step5, '[parity gate "nunca diminuir" — Performance] Step 5 nao mostra o custo da fase (rodadas de teste, spawns)').toMatch(/[Cc]usto/)
+    expect(step5, '[contrato — Performance] Step 5 nao mostra o custo da fase (rodadas de teste, spawns)').toMatch(/[Cc]usto/)
   })
 })
 
@@ -447,7 +448,7 @@ describe('execute-plan — Step 4c: evidencia no historico e diff escopado (acha
   test('a pre-condicao do passo 5 escopa o diff ao arquivo da defesa (CA-06)', () => {
     expect(
       step4c,
-      `[parity gate "nunca diminuir" — CA-06] A pre-condicao do passo 5 ("Pre-condicao: ... \`git diff ` +
+      `[contrato — CA-06] A pre-condicao do passo 5 ("Pre-condicao: ... \`git diff ` +
         `--stat\` vazio ANTES de mutar") nao esta escopada ao arquivo da defesa com \`--\`. Sem o escopo a ` +
         `pre-condicao e inatingivel: o passo 2 grava a linha do STATE log ANTES do gate, entao a arvore do ` +
         `repo do projeto sempre tem o STATE modificado quando o passo 5 chega. O dogfood da fase-04 ` +
@@ -460,7 +461,7 @@ describe('execute-plan — Step 4c: evidencia no historico e diff escopado (acha
   test('a exigencia pos-restauracao do passo 5 escopa o diff ao arquivo da defesa (CA-06)', () => {
     expect(
       step4c,
-      `[parity gate "nunca diminuir" — CA-06] A exigencia pos-restauracao do passo 5 ("Exigir \`git diff ` +
+      `[contrato — CA-06] A exigencia pos-restauracao do passo 5 ("Exigir \`git diff ` +
         `--stat\` vazio") nao esta escopada ao arquivo da defesa com \`--\`. Mesmo defeito da pre-condicao, ` +
         `pelo lado da prova: sem o escopo, qualquer mudanca alheia na arvore — o STATE log gravado no ` +
         `passo 2, por exemplo — reprova a exigencia mesmo com a mutacao corretamente restaurada. Achado ` +
@@ -472,7 +473,7 @@ describe('execute-plan — Step 4c: evidencia no historico e diff escopado (acha
   test('o passo 2 manda commitar a linha parcial do STATE log (Observabilidade)', () => {
     expect(
       step4c,
-      `[parity gate "nunca diminuir" — Observabilidade] O passo 2 grava a linha da fase no STATE log com ` +
+      `[contrato — Observabilidade] O passo 2 grava a linha da fase no STATE log com ` +
         `\`red_confirmed\` ANTES do gate mas nunca manda commitar (\`docs(state)\`). O plan-verifier do ` +
         `dogfood da fase-04 (2026-09-09) apontou o defeito: a atualizacao do STATE ficava uncommitted, ` +
         `entao a unica prova do RED-check morava na working tree — se a fase parasse no gate humano ou ` +
@@ -484,7 +485,7 @@ describe('execute-plan — Step 4c: evidencia no historico e diff escopado (acha
   test('o passo 6 manda commitar a linha completa do STATE log (Observabilidade)', () => {
     expect(
       step4c,
-      `[parity gate "nunca diminuir" — Observabilidade] O passo 6 completa a linha do STATE log (custo: ` +
+      `[contrato — Observabilidade] O passo 6 completa a linha do STATE log (custo: ` +
         `testes/spawns) mas tambem nunca manda commitar (\`docs(state)\`). Mesmo defeito do passo 2, agora ` +
         `no fechamento da fase — achado do dogfood da fase-04 (2026-09-09): a evidencia completa do ciclo ` +
         `(red_confirmed, human_gate, red_check, refactor, custo) fica so na working tree, fora do ` +
@@ -498,7 +499,7 @@ describe('execute-plan — Step 4c: a evidencia e commitada ANTES de quem a le (
   test('o passo 5 commita a linha do STATE antes de spawnar o passo 6 (Observabilidade)', () => {
     expect(
       step4c,
-      `[parity gate "nunca diminuir" — Observabilidade] O passo 5 completa a linha do STATE log com ` +
+      `[contrato — Observabilidade] O passo 5 completa a linha do STATE log com ` +
         `\`red_check\` e \`refactor\` mas nao manda commita-la antes do passo 6. O passo 6 manda o ` +
         `plan-verifier RECEBER essa linha, e a instrucao de commit dele e o ULTIMO bullet, depois do ` +
         `spawn — entao o verifier le sempre uma linha que existe so na working tree. Nas rodadas r2 e r3 ` +
@@ -512,7 +513,7 @@ describe('execute-plan — Step 4c: a evidencia e commitada ANTES de quem a le (
   test('o passo 6 declara que a linha do STATE ja chega commitada (Observabilidade)', () => {
     expect(
       step4c,
-      `[parity gate "nunca diminuir" — Observabilidade] O item RECEBE do passo 6 nao diz que a linha do ` +
+      `[contrato — Observabilidade] O item RECEBE do passo 6 nao diz que a linha do ` +
         `STATE log ja chega commitada do passo 5. Sem isso o contrato do spawn fica ambiguo e um ` +
         `orquestrador pode passar a versao da working tree, que e exatamente o que o plan-verifier ` +
         `reprovou 3x nas rodadas r2/r3 do dogfood (2026-09-09). O par de assercoes e deliberado: uma ` +
@@ -524,7 +525,7 @@ describe('execute-plan — Step 4c: a evidencia e commitada ANTES de quem a le (
   test('o commit do passo 5 nomeia o caminho pass e o caminho blocked (CA-07)', () => {
     expect(
       step4c,
-      `[parity gate "nunca diminuir" — CA-07] O commit do passo 5 so nomeia a mensagem do caminho ` +
+      `[contrato — CA-07] O commit do passo 5 so nomeia a mensagem do caminho ` +
         `\`red_check: pass\`. O caminho \`fail\` deixa a fase blocked, e uma fase blocked nao esta ` +
         `"concluida" — sem a mensagem propria o orquestrador cai na do caminho feliz e o historico mente ` +
         `sobre o desfecho. Lacuna observada rodando a r2 do dogfood (2026-09-09), onde a fase-01 fechou ` +
@@ -549,7 +550,7 @@ describe('execute-plan — Step 4c arma e desarma a ancora imutavel (ADR-0023)',
   test('o orquestrador arma a ancora antes de spawnar o GREEN', () => {
     expect(
       step4c,
-      `[parity gate "nunca diminuir" — ADR-0023] O passo 4 nao manda ARMAR a ancora antes do spawn ` +
+      `[contrato — ADR-0023] O passo 4 nao manda ARMAR a ancora antes do spawn ` +
         `do GREEN. Sem isso o arquivo nunca existe, o hook sai na primeira linha e o GREEN pode ` +
         `editar o teste que deveria estar congelado — que e exatamente o estado que a 7.8.0 ` +
         `registrou como "sabido, nao corrigido". Restaure o passo, nao remova esta assercao.\n` +
@@ -562,7 +563,7 @@ describe('execute-plan — Step 4c arma e desarma a ancora imutavel (ADR-0023)',
   test('o orquestrador desarma a ancora depois do REFACTOR', () => {
     expect(
       step4c,
-      `[parity gate "nunca diminuir" — ADR-0023] O passo 4 nao manda DESARMAR a ancora. Ela e o ` +
+      `[contrato — ADR-0023] O passo 4 nao manda DESARMAR a ancora. Ela e o ` +
         `UNICO mecanismo do gate que falha FECHANDO: esquecida armada, bloqueia edicao legitima de ` +
         `teste na proxima fase RED. Armar sem desarmar troca um defeito invisivel por um visivel, ` +
         `mas nao e o conserto. Restaure o desarme, nao remova esta assercao.`,
@@ -572,7 +573,7 @@ describe('execute-plan — Step 4c arma e desarma a ancora imutavel (ADR-0023)',
   test('a ancora nomeia os testes da fase, nunca o curinga', () => {
     expect(
       step4c,
-      `[parity gate "nunca diminuir" — ADR-0023] O passo 4 nao manda escrever a lista explicita em ` +
+      `[contrato — ADR-0023] O passo 4 nao manda escrever a lista explicita em ` +
         `\`immutable_tests\`. Sem a lista o hook cai no curinga do config, que congela TODO arquivo ` +
         `de teste do repositorio durante o GREEN de uma fase — e bloqueio falso e o que treina o dev ` +
         `a burlar o gate. Restaure a lista, nao remova esta assercao.`,
@@ -582,7 +583,7 @@ describe('execute-plan — Step 4c arma e desarma a ancora imutavel (ADR-0023)',
   test('a fase comeca varrendo ancora orfa de execucao interrompida', () => {
     expect(
       step4c,
-      `[parity gate "nunca diminuir" — ADR-0023] O passo 1 nao varre ancora orfa antes de comecar. ` +
+      `[contrato — ADR-0023] O passo 1 nao varre ancora orfa antes de comecar. ` +
         `Crash ou interrupcao no meio de uma fase deixa o arquivo armado, e a proxima fase RED nasce ` +
         `impedida de editar o proprio teste. A varredura por dono unico e o que substitui um TTL ` +
         `dentro do hook, que foi rejeitado por desproteger em silencio. Restaure a varredura.`,
@@ -592,7 +593,7 @@ describe('execute-plan — Step 4c arma e desarma a ancora imutavel (ADR-0023)',
   test('o STATE log registra se a ancora sobreviveu ao GREEN', () => {
     expect(
       step4c,
-      `[parity gate "nunca diminuir" — ADR-0023] O 4c nao registra o destino da ancora no STATE log. ` +
+      `[contrato — ADR-0023] O 4c nao registra o destino da ancora no STATE log. ` +
         `A ancora torna o desvio VISIVEL, nao impossivel: quem tem Bash pode apaga-la. O valor esta ` +
         `em o desvio virar ato registrado, e sem o campo no log nao ha registro. Cada campo do STATE ` +
         `log tem um passo que o escreve; este nao pode ser a excecao.`,
@@ -600,7 +601,7 @@ describe('execute-plan — Step 4c arma e desarma a ancora imutavel (ADR-0023)',
 
     expect(
       step4c,
-      `[parity gate "nunca diminuir" — ADR-0023] O 4c registra o caminho feliz da ancora mas nao o ` +
+      `[contrato — ADR-0023] O 4c registra o caminho feliz da ancora mas nao o ` +
         `caminho em que ela sumiu. Criterio bilateral, igual ao par human_gate stopped/skipped: sem ` +
         `o ramo \`removed\` o log so sabe dizer que deu certo.`,
     ).toMatch(/anchor: removed/)
@@ -609,7 +610,7 @@ describe('execute-plan — Step 4c arma e desarma a ancora imutavel (ADR-0023)',
   test('a ancora nunca entra num commit da fase', () => {
     expect(
       step4c,
-      `[parity gate "nunca diminuir" — ADR-0023] O passo 4 arma a ancora dentro do repo do PROJETO e ` +
+      `[contrato — ADR-0023] O passo 4 arma a ancora dentro do repo do PROJETO e ` +
         `o GREEN commita enquanto ela esta armada. Sem a regra de commitar por caminho explicito, um ` +
         `\`git add -A\` leva o arquivo de fase junto no commit da feature — e ai a ancora deixa de ser ` +
         `transitoria e passa a bloquear o repo de quem clonar. O risco nasceu com o armar; a regra ` +
@@ -620,7 +621,7 @@ describe('execute-plan — Step 4c arma e desarma a ancora imutavel (ADR-0023)',
   test('o subagente RED nao e mais o dono da ancora', () => {
     expect(
       step4c,
-      `[parity gate "nunca diminuir" — ADR-0023] O passo 1 ainda manda o SUBAGENTE RED registrar a ` +
+      `[contrato — ADR-0023] O passo 1 ainda manda o SUBAGENTE RED registrar a ` +
         `ancora. Quem esta sob a ancora nunca pode ser quem a controla — e a mesma razao pela qual a ` +
         `mensagem de bloqueio do hook parou de ensinar o proprio bypass. O dono e o orquestrador.`,
     ).not.toMatch(/Registra: \.tdd-phase\.json/)
@@ -629,7 +630,7 @@ describe('execute-plan — Step 4c arma e desarma a ancora imutavel (ADR-0023)',
   test('wave-execution nao manda os subagentes registrarem a ancora', () => {
     expect(
       waveExecution,
-      `[parity gate "nunca diminuir" — ADR-0023] O diagrama de wave-execution ainda mostra RED e GREEN ` +
+      `[contrato — ADR-0023] O diagrama de wave-execution ainda mostra RED e GREEN ` +
         `registrando a ancora. Duas descricoes divergentes do mesmo ciclo e a terceira copia que o PRD ` +
         `tdd-cycle-contract matou uma vez; nao ressuscitar por um diagrama.`,
     ).not.toMatch(/registra `?\.tdd-phase\.json/)
@@ -650,7 +651,7 @@ describe('risco pelo slice que escreve a defesa, e procedimento sem pergunta (ga
   test('tdd-workflow define risco pelo slice que escreve ou muda a defesa', () => {
     expect(
       abuseIt,
-      `[parity gate "nunca diminuir" — gates proporcionais] O §Abuse-It voltou a definir risco por ` +
+      `[contrato — gates proporcionais] O §Abuse-It voltou a definir risco por ` +
         `"tocar" um dos seis gatilhos. Tocar e quase tudo: todo endpoint tem body, toda tela de admin ` +
         `mostra PII. Medido num projeto real: 43 de 63 sub-fases marcadas, e a marca virou carimbo. Risco e o ` +
         `slice que escreve ou muda a defesa. Restaure o criterio, nao remova esta assercao.`,
@@ -660,7 +661,7 @@ describe('risco pelo slice que escreve a defesa, e procedimento sem pergunta (ga
   test('tdd-workflow diz que consumir uma defesa existente e comportamento', () => {
     expect(
       abuseIt,
-      `[parity gate "nunca diminuir" — gates proporcionais] O §Abuse-It nao diz mais o que NAO e ` +
+      `[contrato — gates proporcionais] O §Abuse-It nao diz mais o que NAO e ` +
         `risco. Sem o lado negativo, o planejador marca por precaucao a tela que so chama uma API ja ` +
         `protegida, e o gate humano para nela. Restaure a frase, nao remova esta assercao.`,
     ).toMatch(/defesa que ja existe[\s\S]{0,300}?`comportamento`/)
@@ -669,7 +670,7 @@ describe('risco pelo slice que escreve a defesa, e procedimento sem pergunta (ga
   test('plan-feature aponta para a definicao de risco em vez de repeti-la', () => {
     expect(
       classificacaoDeRisco,
-      `[parity gate "nunca diminuir" — gates proporcionais] A §Classificacao de Risco do Slice nao ` +
+      `[contrato — gates proporcionais] A §Classificacao de Risco do Slice nao ` +
         `aponta para skills/tdd-workflow/SKILL.md. Quem consome nao redefine, aponta — a regra que o ` +
         `PRD tdd-cycle-contract aplicou ao ciclo vale para o criterio de risco.`,
     ).toContain('skills/tdd-workflow/SKILL.md')
@@ -678,7 +679,7 @@ describe('risco pelo slice que escreve a defesa, e procedimento sem pergunta (ga
   test('plan-feature nao carrega uma copia da lista dos seis gatilhos', () => {
     expect(
       classificacaoDeRisco,
-      `[parity gate "nunca diminuir" — gates proporcionais] A lista dos seis gatilhos voltou para a ` +
+      `[contrato — gates proporcionais] A lista dos seis gatilhos voltou para a ` +
         `§Classificacao de Risco do Slice. Foi a copia daqui, lida como "toca um destes = risco", que ` +
         `marcou telas de UI como risco. A lista mora no §Abuse-It do tdd-workflow.`,
     ).not.toMatch(/`auth\/authz` · `PII\/sensivel` · `input externo`/)
@@ -687,7 +688,7 @@ describe('risco pelo slice que escreve a defesa, e procedimento sem pergunta (ga
   test('execute-plan manda ao dev so o que e do dev, e procedimento vira DI', () => {
     expect(
       regrasCriticas,
-      `[parity gate "nunca diminuir" — gates proporcionais] As Regras Criticas perderam a separacao ` +
+      `[contrato — gates proporcionais] As Regras Criticas perderam a separacao ` +
         `entre o que vai ao dev e o que o orquestrador decide e registra como DI. Medido num projeto real: perguntas ` +
         `procedimentais deixaram ~84 h de relogio parado esperando um "sim" que veio em 98% dos casos. ` +
         `Restaure a regra, nao remova esta assercao.`,
@@ -697,7 +698,7 @@ describe('risco pelo slice que escreve a defesa, e procedimento sem pergunta (ga
   test('a regra vale tambem para o needs_human de subagente', () => {
     expect(
       regrasCriticas,
-      `[parity gate "nunca diminuir" — gates proporcionais] A regra de procedimento nao cobre mais o ` +
+      `[contrato — gates proporcionais] A regra de procedimento nao cobre mais o ` +
         `needs_human dos subagentes (Step 4d). Sem isso, a pergunta procedimental volta pela porta do ` +
         `subagente, que a empilha para o dev.`,
     ).toContain('needs_human')

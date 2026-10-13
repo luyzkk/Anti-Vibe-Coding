@@ -45,7 +45,7 @@ function section(matcher: RegExp): string {
   return out.join('\n')
 }
 
-const GATE = '[parity gate "nunca diminuir" — CA-06]'
+const GATE = '[contrato — CA-06]'
 
 describe('dynamic-testing — o documento existe', () => {
   test('a referencia de teste dinamico esta no lugar', () => {
