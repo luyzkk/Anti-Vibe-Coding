@@ -3,7 +3,9 @@ import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { parseProgressTxt } from './progress-txt-parser'
 
-const FIXTURE = path.join(import.meta.dir, '..', '..', '..', 'tests', 'fixtures', 'progress-txt-licitar.txt')
+// 2026-10-13 (Luiz/dev): o fixture do Licitar saiu do historico na limpeza de dados de 2026-10-09
+// (continha dados de cliente). Este e sintetico, com os mesmos formatos de titulo.
+const FIXTURE = path.join(import.meta.dir, '..', '..', '..', 'tests', 'fixtures', 'progress-txt-sample.txt')
 
 describe('parseProgressTxt', () => {
   it('returns empty array for empty input', () => {
@@ -51,7 +53,7 @@ body 2`
     expect(entries[0]?.title).toBe('Title')
   })
 
-  it('parses the Licitar fixture without throwing and returns >=4 entries', async () => {
+  it('parses a realistic progress.txt fixture and returns >=4 entries', async () => {
     const content = await fs.readFile(FIXTURE, 'utf-8')
     const entries = parseProgressTxt(content)
     expect(entries.length).toBeGreaterThanOrEqual(4)
