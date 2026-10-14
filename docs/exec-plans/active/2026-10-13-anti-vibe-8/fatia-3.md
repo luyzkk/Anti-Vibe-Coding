@@ -13,6 +13,7 @@ saíram da entrevista de 2026-10-14, uma pergunta por vez.
 | F3-4 | O plano vem em fatias. A página lista as fatias, uma linha cada; o plan-feature detalha só a que vai começar; ao fechar uma, o Claude oferece detalhar a próxima. |
 | F3-5 | No fim de cada entrega feita pela página, o Claude explica em até 8 linhas simples o que mudou, por quê, como conferir com os próprios olhos e o que pode dar errado. No nível dinheiro, saúde ou dados, o usuário conta com as próprias palavras o que foi feito e o Claude corrige o que ficou torto. |
 | F3-6 | A fatia é feita fase a fase, até 5 arquivos por fase, com aprovação do usuário no fim de cada uma. |
+| F3-7 | A explicação da F3-5 aparece no fim de cada fatia, não só no fim da feature: cada fatia já deixa algo funcionando, e a explicação vem com o trabalho fresco. |
 
 ## O que cada nível muda
 
