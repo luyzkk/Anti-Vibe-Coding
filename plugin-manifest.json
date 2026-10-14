@@ -1,6 +1,6 @@
 {
   "version": "7.9.0",
-  "generatedAt": "2026-10-14T14:03:34.115Z",
+  "generatedAt": "2026-10-14T14:30:02.839Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "api-design": {
@@ -175,7 +175,7 @@
       "path": "skills/write-prd/",
       "version": "7.9.0",
       "introduced": "v7.9.0",
-      "description": "Cria especificacao completa de feature via entrevista interativa. Gera PRD com MoSCoW, criterios de aceite e decisoes tecnicas. Importa contexto do /grill-me se disponivel."
+      "description": "Cria a página de uma folha da feature via entrevista curta: nível de risco, apetite, MoSCoW, cenários e fatias. Quando o sistema pede, cria também o documento de desenho com o mapa de ameaças. Importa contexto do /grill-me se disponível."
     }
   },
   "files": {
@@ -2419,14 +2419,20 @@
     },
     "skills/write-prd/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "eb31ef81c4c7a3c1a5ce4459fbd1e67f1feda27e97060695c7ae6cf997a728ac",
+      "checksum": "979805f8b083645bc240303d38649fc7d7bcc90a4a2a229e00293402fd953d3a",
+      "lastModified": "2026-10-14",
+      "updateStrategy": "replace"
+    },
+    "skills/write-prd/templates/design-template.md": {
+      "version": "7.9.0",
+      "checksum": "4c2b35776e1769ce12ae02101bd7289e7ca9abe61d5b799a7a79649393543136",
       "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "skills/write-prd/templates/prd-template.md": {
       "version": "7.9.0",
-      "checksum": "fd17f0ed05b51bc1f76c5bc6b33954a6e3c7e950991c774a8f29b6ae027a04ba",
-      "lastModified": "2026-09-01",
+      "checksum": "4f3fe3e4763f1013055421d6dd6f0a3e679396b58ec76ab0c3f71045ecb0b400",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "skills/write-prd/lib/structure-snippets.ts": {

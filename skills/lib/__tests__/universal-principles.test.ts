@@ -7,7 +7,7 @@
  * Principles tested:
  *   #1  — Context-First / 10 Questions Test (consultant, grill-me)
  *   #5  — Comment Provenance (prd-template.md, fase-template.md)
- *   #7  — Declarative-first specs (prd-template.md: Outcomes before Mecanismo)
+ *   #7  — Declarative-first specs (prd-template.md: the result; design-template.md: the mechanism)
  *   #9  — Fresh-context Review (verify-work/SKILL.md)
  *   #10 — YAGNI checklist (consultant/SKILL.md)
  */
@@ -29,6 +29,7 @@ const universalPrinciplesDocs = path.join(import.meta.dir, '../../../docs/univer
 const consultant = fs.readFileSync(consultantSkill, 'utf8')
 const grillMe = fs.readFileSync(grillMeSkill, 'utf8')
 const prd = fs.readFileSync(prdTemplate, 'utf8')
+const design = fs.readFileSync(path.join(SKILLS, 'write-prd/templates/design-template.md'), 'utf8')
 const fase = fs.readFileSync(faseTemplate, 'utf8')
 const verifyWork = fs.readFileSync(verifyWorkSkill, 'utf8')
 
@@ -57,17 +58,16 @@ describe('universal principles — #5 (Comment Provenance)', () => {
   })
 })
 
+// 2026-10-14 (Luiz/dev): 8.0 fatia 3 — o "o que" fica na pagina e o "como" vai para o desenho.
 describe('universal principles — #7 (Declarative-first specs)', () => {
-  it('prd-template.md contains section "Outcomes"', () => {
-    expect(prd).toContain('Outcomes')
+  it('prd-template.md states the solution as a result for whoever uses it', () => {
+    const solucao = prd.split(/^## Solu[cç][aã]o/m)[1]?.split(/^## /m)[0] ?? ''
+    expect(solucao).toMatch(/resultado/i)
   })
 
-  it('prd-template.md has "Outcomes" positioned before "Mecanismo"', () => {
-    const outcomesIdx = prd.indexOf('Outcomes')
-    const mecanismoIdx = prd.indexOf('Mecanismo')
-    expect(outcomesIdx).toBeGreaterThan(-1)
-    expect(mecanismoIdx).toBeGreaterThan(-1)
-    expect(outcomesIdx).toBeLessThan(mecanismoIdx)
+  it('prd-template.md leaves the mechanism to design-template.md', () => {
+    expect(prd).not.toMatch(/^## Mecanismo/m)
+    expect(design).toMatch(/^## Mecanismo/m)
   })
 })
 
