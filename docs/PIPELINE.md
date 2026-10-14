@@ -6,20 +6,20 @@ the pipeline is a shortcut, not a requirement.
 ## Skill Pipeline
 
 ```
-grill-me → write-prd → plan-feature → execute-plan → verify-work → iterate
+grill-me → write-prd → plan-feature → execute-plan → verify-work → lessons-learned
 ```
 
 A feature you can describe enters at `write-prd`. When the decisions behind it are still open, start
-with `grill-me` in its deep mode. (The `wayfinder` stage left the install in 8.0 and lives in tag v7.9.0.)
+with `grill-me` in its deep mode. (The `wayfinder` and `iterate` stages left the install in 8.0 and live in tag v7.9.0.)
 
 - **grill-me** — ruthless pre-implementation interview; surfaces assumptions and edge cases
 - **write-prd** — interactive feature specification; output: PRD.md in a dated folder
 - **plan-feature** — hierarchical plan with semantic complexity analysis; output: planoNN/ structure
 - **execute-plan** — plan execution with memory and interactive transitions
 - **verify-work** — post-execution audit (harness:validate, compound:check, tests, lint)
-- **iterate** — post-deploy cycle: incident response + defensive hardening
+- **lessons-learned** — after merge: records what the work taught in `docs/compound/`
 
-Post-deploy cycle (v5.2+): `verify-work → iterate` — regression fixes and hardening in production.
+Something broke after deploy: `/incident-response` diagnoses it and `/defensive-patterns` picks the hardening.
 
 ## Artifact Structure (v6)
 
@@ -140,9 +140,10 @@ stack detectado. Paths validados via `fs.access` (mitiga LLM-hallucination).
 Stacks cobertos: Next.js, Next.js+Supabase, Rails, Node-TS, Laravel, Python. Fallback generico
 para `unknown`/`null`.
 
-### Gate "nunca diminuir"
+### Contract gate
 
-`tests/e2e/populate-plan-parity.test.ts` impede regressao mecanica:
+`tests/e2e/populate-plan-parity.test.ts` impede regressao mecanica. A regra "nunca diminuir" foi revogada pelo
+ADR-0024: reduzir pode, com a decisao registrada, e o teste continua travando o contrato.
 - `plan.phases.length >= 12` (CA-01).
 - `EXCLUDED_FROM_POPULATION_V2` nao contem PRODUCT_SENSE/README (MH-1 + D5).
 - Cada `LLM_INSTRUCTION` satisfaz contrato imperativo (CA-06).

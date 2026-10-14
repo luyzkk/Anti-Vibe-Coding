@@ -1,6 +1,6 @@
 {
   "version": "7.9.0",
-  "generatedAt": "2026-10-14T13:00:07.427Z",
+  "generatedAt": "2026-10-14T14:03:34.115Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "api-design": {
@@ -181,7 +181,7 @@
   "files": {
     "CLAUDE.md": {
       "version": "7.9.0",
-      "checksum": "f2504aa0a8dd5b41d94700b27c959ac703181c47ce29bde4a56bc1b98c1be3f3",
+      "checksum": "6d8c153668de27a64aab1cbba06e1bf5acab6658ec97d45820b64a040542acdd",
       "lastModified": "2026-10-14",
       "updateStrategy": "merge"
     },
@@ -1777,8 +1777,8 @@
     },
     "skills/init/assets/templates/scripts/compound-check.ts.tpl": {
       "version": "7.9.0",
-      "checksum": "bfe6bc49033ece74b0656cc25ea458a3ae0274616ca0ab1cf980f5bfa1a690f0",
-      "lastModified": "2026-05-24",
+      "checksum": "53c5bf98cb3bf95fb6ac61443844ec113ef2fba0ed356c567a2e9008f12a0581",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/scripts/harness-validate.ts.tpl": {
@@ -2389,7 +2389,7 @@
     },
     "skills/verify-work/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "7a6e77b85c870d305ceeeff060f8ccba73bc85b2a378cbcf26a9cca8f6966dd5",
+      "checksum": "803d3330008907f62a9d1599cd094b1131f6db576ad3a7dc5046e125096b6c48",
       "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
