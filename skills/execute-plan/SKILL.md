@@ -315,6 +315,29 @@ Tasks done: {X}/{Y} ({Z}%)
 
 ---
 
+## Step 2.6 — Conferir a aprovação dos cenários
+
+<!-- 2026-10-14 (Luiz/dev): D2 da 8.0 — a aprovação única dos cenários substitui a parada por fase de risco. -->
+
+```
+1. Ler a linha `**Nível de risco:**` de `{PASTA_ATIVA}/PRD.md`
+2. Sem a linha (pagina anterior a 8.0): pular este step. O gate do 4c continua parando nas fases
+   de risco dessa pagina, como antes.
+3. Nivel "experimento" ou "produto": pular este step.
+4. Nivel "dinheiro, saúde ou dados": procurar em `## Cenários` a linha
+   `Aprovados por {nome} em {YYYY-MM-DD}.` preenchida (sem chaves).
+   - Presente → registrar no Log do STATE.md: "cenarios aprovados por {nome} em {data}" e seguir.
+   - Ausente ou ainda com `{nome}` → PARAR antes de qualquer fase:
+     "Esta feature e de dinheiro, saude ou dados e os cenarios ainda nao foram aprovados.
+      Rode /write-prd para aprova-los (ou para mudar o nivel, se a feature nao for de risco).
+      Nenhum codigo antes disso."
+     Nao ha opcao de seguir sem aprovar: esta e a unica aprovacao humana dos testes de risco. Quem
+     decide nao faze-la muda o nivel na pagina, onde a escolha fica visivel e o write-prd diz em uma
+     linha o que deixa de ser conferido.
+```
+
+---
+
 ## Step 3 — Ler Plano Ativo e Consultar Memoria
 
 ### 3a. Carregar plano
@@ -396,7 +419,10 @@ Spawn do agent plan-executor com contexto:
   - Estado atual: relevant-only do `{PASTA_ATIVA}/STATE.md` (progresso, nao logs completos)
   - Padrao de codigo existente (1-2 arquivos de referencia do codebase do projeto — nao do docs/exec-plans/active/)
   - Se a fase tem o bloco `### Seguranca (apenas fase de slice [RISCO])` no `## Verificacao`:
-    - A secao "Ameacas & Dados" do PRD — SO ela, recortada; nao o PRD inteiro
+    - O mapa de ameacas: a secao `## Ameaças & Dados` de `{PASTA_ATIVA}/DESIGN.md` — SO ela,
+      recortada; nao o desenho inteiro. Em pagina anterior a 8.0 (sem DESIGN.md), a secao de
+      mesmo nome do PRD.md
+    - As linhas AB-* dos `## Cenários` da pagina — so elas
     - Os criterios `CA-SEC-*` da fase
     - Instrucao: "Este slice e de risco. Escreva o teste de abuso ANTES da defesa (Abuse-It,
       /anti-vibe-coding:tdd-workflow). Nenhum gatilho de aprovacao humana se auto-aplica —
@@ -407,8 +433,8 @@ Spawn do agent plan-executor com contexto:
     PASTA_ATIVA eh apenas para artefatos de planejamento (MEMORY.md, STATE.md updates)."
 
   NAO RECEBE:
-  - PRD completo (o subagente ve apenas a fase — a unica excecao e a secao "Ameacas & Dados",
-    recortada, e somente quando a fase e de risco)
+  - Pagina e desenho completos (o subagente ve apenas a fase — as unicas excecoes sao o mapa de
+    ameacas e os AB-*, recortados, e somente quando a fase e de risco)
   - Outras fases do plano
   - MEMORY.md completa de planos anteriores (so "Notas para Planos Seguintes")
   - Contexto de conversas anteriores
@@ -437,8 +463,9 @@ Ler do bloco ### TDD da fase: Tipo de fase, comando do RED, `Defesa a mutar`, `T
      teste. Dono unico varrendo no inicio substitui um TTL dentro do hook, que desprotegeria em
      silencio quando o prazo vencesse
    - Recebe: especificacao da fase (arquivos, descricao, verificacao)
-   - Recebe, se a fase e de risco: a secao "Ameacas & Dados" do PRD + os CA-SEC-* da fase
-     — sem isso o RED escreve so o happy path e a defesa nunca chega ao GREEN
+   - Recebe, se a fase e de risco: o mapa de ameacas (`## Ameaças & Dados` do DESIGN.md), os AB-*
+     dos Cenarios da pagina e os CA-SEC-* da fase — sem isso o RED escreve so o happy path e a
+     defesa nunca chega ao GREEN
    - NAO recebe: implementacao existente
    - Produz: teste que FALHA por assertion failure (stub-first — docs/references/tdd-cycle-checklist.md)
    - Produz tambem a lista dos arquivos de teste criados — o orquestrador precisa dela para
@@ -465,10 +492,13 @@ Ler do bloco ### TDD da fase: Tipo de fase, comando do RED, `Defesa a mutar`, `T
 
 3. GATE HUMANO (mapa nivel → parada, da fonte):
    para se: nivel == guiado
-         ou (nivel == assistido e (Tipo de fase: risco
-                                   ou a fase tem o bloco "### Seguranca (apenas fase de slice [RISCO])"
-                                   ou a fase e plano01/fase-01-* — tracer bullet))
+         ou (nivel == assistido e a fase e plano01/fase-01-* — tracer bullet)
+         ou (nivel == assistido e a pagina e anterior a 8.0 (sem `**Nível de risco:**`)
+             e (Tipo de fase: risco ou a fase tem o bloco "### Seguranca (apenas fase de slice [RISCO])"))
    nunca se: nivel == direto
+   Fase de risco em pagina com nivel declarado NAO para aqui: o usuario aprovou os cenarios uma
+   vez, no Step 2.6 (D2 da 8.0), e a prova vem da maquina — o RED confirmado no passo 2 e o
+   RED-check do passo 5, que quebra a defesa e exige que o teste caia.
    Se para:
      AskUserQuestion mostrando caminho + conteudo do(s) arquivo(s) de teste e a saida literal do RED:
        "Este e o contrato desta fase; confirma?"

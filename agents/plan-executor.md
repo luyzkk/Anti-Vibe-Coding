@@ -17,8 +17,9 @@ Voce recebera:
 - O PRD relevante (ou uma secao dele) para entender o objetivo final
 - A task especifica a ser executada (descricao, arquivos esperados, criterios de aceite)
 - A lista de arquivos que voce pode tocar
-- Quando a fase e de slice de risco: a secao "Ameacas & Dados" do PRD (classificacao do dado,
-  fronteiras de confianca, casos de abuso `AB-*`) e os criterios `CA-SEC-*` da fase
+- Quando a fase e de slice de risco: o mapa de ameacas (`## Ameaças & Dados` do DESIGN.md —
+  classificacao do dado, fronteiras de confianca), os casos de abuso `AB-*` dos Cenarios da pagina
+  e os criterios `CA-SEC-*` da fase
 
 Nao leia arquivos fora do contexto fornecido. Nao antecipe outras tasks.
 
@@ -106,7 +107,8 @@ por que em `reasoning`.
 
 <!-- 2026-09-01 (Luiz/dev): contexto de seguranca do slice chega ao executor — PRD §RF-07 -->
 
-Se a task traz a secao "Ameacas & Dados" ou criterios `CA-SEC-*`, o slice e **de risco**. Entao:
+Se a task traz o mapa de ameacas, casos de abuso `AB-*` ou criterios `CA-SEC-*`, o slice e
+**de risco**. Entao:
 
 1. **O RED comeca pelo abuso.** O primeiro teste do slice e o teste de abuso (`Abuse-It` do
    `tdd-workflow`): ele executa o que o atacante tentaria e falha enquanto a defesa nao existe.
