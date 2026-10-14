@@ -367,8 +367,9 @@ A checagem de "pode?" esta em quantos lugares?
       (service_role / superuser) para operacao de usuario final
 ```
 
-Consequencia no fluxo: cada default **aceito** aqui vira linha da secao "Ameacas & Dados" do PRD;
-cada default **recusado** vira linha da tabela `## Decisoes Tecnicas`, com a razao e a alternativa.
+Consequencia no fluxo: cada default **aceito** aqui vira linha do mapa de ameacas (`## Ameaças &
+Dados` do DESIGN.md); cada default **recusado** vira linha das `## Decisões` do mesmo DESIGN.md, com a
+razao e a alternativa.
 Seguranca recusada sem registro nao e trade-off — e esquecimento com aparencia de decisao.
 Para consultoria de profundidade (OWASP, authn/authz, cripto): `/anti-vibe-coding:security`.
 

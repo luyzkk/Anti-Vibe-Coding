@@ -234,7 +234,8 @@ Fase "planned" ou "in-progress":
 
 ```
 Criar a partir do PLAN overview em `{PASTA_ATIVA}/STATE.md`:
-  - Listar todos os planos com status "pending"
+  - Listar as fatias da pagina: as que ja tem `plano{NN}/` com status "pending", as outras
+    como "a detalhar"
   - phase: planned
   - current_plan: 01
   - Salvar
@@ -315,15 +316,43 @@ Tasks done: {X}/{Y} ({Z}%)
 
 ---
 
+## Step 2.6 — Conferir a aprovação dos cenários
+
+<!-- 2026-10-14 (Luiz/dev): D2 da 8.0 — a aprovação única dos cenários substitui a parada por fase de risco. -->
+
+```
+1. Ler a linha `**Nível de risco:**` de `{PASTA_ATIVA}/PRD.md`
+2. Sem a linha (pagina anterior a 8.0): pular este step. O gate do 4c continua parando nas fases
+   de risco dessa pagina, como antes.
+3. Nivel "experimento" ou "produto": pular este step.
+4. Nivel "dinheiro, saúde ou dados": procurar em `## Cenários` a linha
+   `Aprovados por {nome} em {YYYY-MM-DD}.` preenchida (sem chaves).
+   - Presente → registrar no Log do STATE.md: "cenarios aprovados por {nome} em {data}" e seguir.
+   - Ausente ou ainda com `{nome}` → PARAR antes de qualquer fase:
+     "Esta feature e de dinheiro, saude ou dados e os cenarios ainda nao foram aprovados.
+      Rode /write-prd para aprova-los (ou para mudar o nivel, se a feature nao for de risco).
+      Nenhum codigo antes disso."
+     Nao ha opcao de seguir sem aprovar: esta e a unica aprovacao humana dos testes de risco. Quem
+     decide nao faze-la muda o nivel na pagina, onde a escolha fica visivel e o write-prd diz em uma
+     linha o que deixa de ser conferido.
+```
+
+---
+
 ## Step 3 — Ler Plano Ativo e Consultar Memoria
 
 ### 3a. Carregar plano
 
 ```
 1. Identificar plano ativo do STATE.md (Current Plan: NN)
-2. Ler `{PASTA_ATIVA}/plano{NN}/README.md`
-3. Listar fases: Glob `{PASTA_ATIVA}/plano{NN}/fase-*.md`
-4. Identificar proxima fase pendente
+2. Se `{PASTA_ATIVA}/plano{NN}/` nao existe (fatia "a detalhar" no STATE): a fatia ainda nao foi
+   detalhada. AskUserQuestion:
+     - "Detalhar a fatia {N} agora" → rodar `/anti-vibe-coding:plan-feature {PASTA_ATIVA} --fatia {N}`
+       e voltar a este step quando ele terminar
+     - "Pausar aqui"
+3. Ler `{PASTA_ATIVA}/plano{NN}/README.md`
+4. Listar fases: Glob `{PASTA_ATIVA}/plano{NN}/fase-*.md`
+5. Identificar proxima fase pendente
 ```
 
 ### 3b. Consultar memorias anteriores
@@ -396,7 +425,10 @@ Spawn do agent plan-executor com contexto:
   - Estado atual: relevant-only do `{PASTA_ATIVA}/STATE.md` (progresso, nao logs completos)
   - Padrao de codigo existente (1-2 arquivos de referencia do codebase do projeto — nao do docs/exec-plans/active/)
   - Se a fase tem o bloco `### Seguranca (apenas fase de slice [RISCO])` no `## Verificacao`:
-    - A secao "Ameacas & Dados" do PRD — SO ela, recortada; nao o PRD inteiro
+    - O mapa de ameacas: a secao `## Ameaças & Dados` de `{PASTA_ATIVA}/DESIGN.md` — SO ela,
+      recortada; nao o desenho inteiro. Em pagina anterior a 8.0 (sem DESIGN.md), a secao de
+      mesmo nome do PRD.md
+    - As linhas AB-* dos `## Cenários` da pagina — so elas
     - Os criterios `CA-SEC-*` da fase
     - Instrucao: "Este slice e de risco. Escreva o teste de abuso ANTES da defesa (Abuse-It,
       /anti-vibe-coding:tdd-workflow). Nenhum gatilho de aprovacao humana se auto-aplica —
@@ -407,8 +439,8 @@ Spawn do agent plan-executor com contexto:
     PASTA_ATIVA eh apenas para artefatos de planejamento (MEMORY.md, STATE.md updates)."
 
   NAO RECEBE:
-  - PRD completo (o subagente ve apenas a fase — a unica excecao e a secao "Ameacas & Dados",
-    recortada, e somente quando a fase e de risco)
+  - Pagina e desenho completos (o subagente ve apenas a fase — as unicas excecoes sao o mapa de
+    ameacas e os AB-*, recortados, e somente quando a fase e de risco)
   - Outras fases do plano
   - MEMORY.md completa de planos anteriores (so "Notas para Planos Seguintes")
   - Contexto de conversas anteriores
@@ -437,8 +469,9 @@ Ler do bloco ### TDD da fase: Tipo de fase, comando do RED, `Defesa a mutar`, `T
      teste. Dono unico varrendo no inicio substitui um TTL dentro do hook, que desprotegeria em
      silencio quando o prazo vencesse
    - Recebe: especificacao da fase (arquivos, descricao, verificacao)
-   - Recebe, se a fase e de risco: a secao "Ameacas & Dados" do PRD + os CA-SEC-* da fase
-     — sem isso o RED escreve so o happy path e a defesa nunca chega ao GREEN
+   - Recebe, se a fase e de risco: o mapa de ameacas (`## Ameaças & Dados` do DESIGN.md), os AB-*
+     dos Cenarios da pagina e os CA-SEC-* da fase — sem isso o RED escreve so o happy path e a
+     defesa nunca chega ao GREEN
    - NAO recebe: implementacao existente
    - Produz: teste que FALHA por assertion failure (stub-first — docs/references/tdd-cycle-checklist.md)
    - Produz tambem a lista dos arquivos de teste criados — o orquestrador precisa dela para
@@ -465,10 +498,13 @@ Ler do bloco ### TDD da fase: Tipo de fase, comando do RED, `Defesa a mutar`, `T
 
 3. GATE HUMANO (mapa nivel → parada, da fonte):
    para se: nivel == guiado
-         ou (nivel == assistido e (Tipo de fase: risco
-                                   ou a fase tem o bloco "### Seguranca (apenas fase de slice [RISCO])"
-                                   ou a fase e plano01/fase-01-* — tracer bullet))
+         ou (nivel == assistido e a fase e plano01/fase-01-* — tracer bullet)
+         ou (nivel == assistido e a pagina e anterior a 8.0 (sem `**Nível de risco:**`)
+             e (Tipo de fase: risco ou a fase tem o bloco "### Seguranca (apenas fase de slice [RISCO])"))
    nunca se: nivel == direto
+   Fase de risco em pagina com nivel declarado NAO para aqui: o usuario aprovou os cenarios uma
+   vez, no Step 2.6 (D2 da 8.0), e a prova vem da maquina — o RED confirmado no passo 2 e o
+   RED-check do passo 5, que quebra a defesa e exige que o teste caia.
    Se para:
      AskUserQuestion mostrando caminho + conteudo do(s) arquivo(s) de teste e a saida literal do RED:
        "Este e o contrato desta fase; confirma?"
@@ -738,7 +774,21 @@ Se o plano nao tem campo `Scope` parseavel:
    - Plano atual: completed
    - Current Plan: proximo plano pendente
 
-3. Apresentar ao dev:
+3. EXPLICAR A FATIA (sempre, inclusive na ultima — F3-5 da 8.0). Ate 8 linhas, em portugues simples:
+   - O que mudou: o que quem usa passa a conseguir fazer
+   - Por que: a decisao principal desta fatia e a alternativa que ficou de fora
+   - Como conferir com os proprios olhos: o passo a passo para ver funcionando (tela, comando, link)
+   - O que pode dar errado: o risco que sobrou e onde ele apareceria
+   Termo tecnico que nao der para evitar vem explicado na mesma frase.
+
+   No nivel dinheiro, saude ou dados (linha `**Nível de risco:**` da pagina), pedir em seguida:
+   "Conte com suas palavras o que esta fatia faz e o que ela protege."
+   - Comparar com o que foi feito e corrigir o que ficou torto, em 1 a 3 frases, sem sermao
+   - Registrar no Log do STATE.md: "explicacao de volta da fatia {N}: ok | corrigida ({o que})"
+     — e a medida da premissa da 8.0 ("o usuario consegue explicar o que foi feito")
+   - Nao bloqueia a proxima fatia: serve para o usuario entender o que tem nas maos, nao e prova
+
+4. Apresentar ao dev:
    "Plano {NN} concluido ({M}/{M} fases).
 
    Memoria registrada:
@@ -747,11 +797,20 @@ Se o plano nao tem campo `Scope` parseavel:
    - {N} gotchas
    - {N} desvios
 
-   Proximo: Plano {NN+1} — {nome} ({M} fases)
+   Proximo: fatia {N+1} — {linha da pagina}
+   {ja detalhada em plano{NN+1}, com M fases | ainda nao detalhada}
 
    O que deseja?"
 
-4. AskUserQuestion:
+5. AskUserQuestion (proxima fatia ainda nao detalhada — o caso normal desde a 8.0):
+   - "Detalhar a fatia {N+1} agora, com o que esta fatia ensinou" → rodar
+     `/anti-vibe-coding:plan-feature {PASTA_ATIVA} --fatia {N+1}`; ele recebe as "Notas para
+     Planos Seguintes" deste plano e, se elas mudam alguma fatia, propoe a mudanca na pagina
+   - "Encerrar e detalhar a fatia {N+1} em contexto novo"
+   - "Revisar memoria do plano concluido antes de avancar"
+   - "Pausar aqui"
+
+   Proxima fatia ja detalhada (plano anterior a 8.0, ou detalhada antes com --fatia):
    - "Avancar para Plano {NN+1} neste contexto"
    - "Encerrar e iniciar Plano {NN+1} em contexto novo"
    - "Revisar memoria do plano concluido antes de avancar"
@@ -789,6 +848,9 @@ Se o plano nao tem campo `Scope` parseavel:
 ## Step 7 — Conclusao Total (Todos os Planos)
 
 Quando todos os planos estao como "completed":
+
+A ultima fatia ja passou pelo Step 6a (passo 3, EXPLICAR A FATIA). A explicacao vem antes do
+SUMMARY.md: o SUMMARY e o registro para quem vem depois, nao a explicacao para o usuario.
 
 ### 7a. Gerar SUMMARY.md
 

@@ -186,9 +186,10 @@ A unica fonte da verdade para implementacao sao os testes.
 
 **Subagente RED (escreve testes):**
 - Recebe: requisitos da task + codigo existente
-- Recebe tambem, quando o slice e de risco: a secao "Ameacas & Dados" do PRD — classificacao do
-  dado, fronteiras de confianca e os casos de abuso `AB-*`. Sem ela o RED escreve so o happy path:
-  o subagente nao tem como adivinhar um modelo de ameaca que ficou no documento que ele nao recebeu.
+- Recebe tambem, quando o slice e de risco: o mapa de ameacas (`## Ameaças & Dados` do DESIGN.md —
+  classificacao do dado, fronteiras de confianca) e os casos de abuso `AB-*` dos Cenarios da pagina.
+  Sem eles o RED escreve so o happy path: o subagente nao tem como adivinhar um modelo de ameaca que
+  ficou no documento que ele nao recebeu.
   <!-- 2026-09-01 (Luiz/dev): contexto de ameaca chega ao RED — PRD §RF-05 -->
 - Produz: arquivos de teste que FALHAM por assertion
 - NAO produz codigo de producao
@@ -414,13 +415,15 @@ Escrever a defesa e: a checagem de permissao (inclusive por recurso — o IDOR),
 assinatura de webhook, o parser ou validador de entrada nao confiavel, a decisao de quem ve PII, a
 cobranca. Consumir uma defesa que ja existe e `comportamento`: a tela que chama uma API ja protegida,
 a rota nova que reusa a auth montada no router do modulo e valida o corpo com o schema do framework.
-Sao os mesmos gatilhos da secao "Ameacas & Dados" do PRD
-(`skills/write-prd/templates/prd-template.md`), com outro papel: la, no nivel da feature, um SIM
-basta para pensar em ameaca; aqui, o slice so e de risco se for ele que escreve a defesa. Se o PRD
-tem a secao, os casos de abuso `AB-*` ja
-estao escritos — cada `AB-*` vira um teste aqui, e o trabalho e traduzir, nao inventar.
-Se o slice e de risco e o PRD nao tem a secao: o gatilho se perdeu na especificacao. Diga isso ao
-dev antes de escrever o teste; nao monte o modelo de ameaca sozinho no meio do RED.
+Sao os mesmos gatilhos que o /write-prd usa para propor o nivel de risco da feature e o mapa de
+ameacas do desenho (`skills/write-prd/SKILL.md` §Nivel de risco), com outro papel: la, no nivel da
+feature, um SIM basta para pensar em ameaca; aqui, o slice so e de risco se for ele que escreve a
+defesa. Os casos de abuso `AB-*` ja estao escritos nos Cenarios da pagina, aprovados pelo usuario —
+cada `AB-*` vira um teste aqui, e o trabalho e traduzir, nao inventar. O mapa de ameacas do
+`DESIGN.md` diz onde ficam as fronteiras de confianca.
+Se o slice e de risco e a pagina nao tem `AB-*` nem o desenho tem o mapa: o gatilho se perdeu na
+especificacao. Diga isso ao dev antes de escrever o teste; nao monte o modelo de ameaca sozinho no
+meio do RED.
 
 **Exemplos por categoria.** O teste e sempre escrito do ponto de vista do atacante, e a assertion e
 a defesa que se espera:
@@ -449,7 +452,9 @@ defesa — nunca um catalogo de exploracao.
 
 <step id="4" name="TDD Green — Implementacao Minima (Naive First)">
 <instructions>
-- Somente apos aprovacao dos testes pelo desenvolvedor
+- Somente apos aprovacao dos testes pelo desenvolvedor. Em feature com cenarios aprovados na
+  pagina (nivel dinheiro, saude ou dados), essa aprovacao ja aconteceu: os testes traduzem os
+  cenarios aprovados, o RED confirmado libera o GREEN e o RED-check prova a defesa depois
 - Escrever a implementacao mais NAIVE e DIRETA que faz os testes passarem
 - Nada mais, nada menos — codigo minimo
 - NUNCA otimize na fase GREEN — codigo feio que passa nos testes e melhor que codigo elegante nao validado
@@ -547,7 +552,7 @@ O **tipo da fase** decide a variante. O planejador escreve o tipo no bloco `### 
 | Tipo | RED | GREEN | RED-check | REFACTOR | Gate humano |
 |---|---|---|---|---|---|
 | comportamento | stub-first, falha por assertion | isolado, sem PRD | muta a defesa nomeada, teste cai, restaura | commit proprio ou "sem mudanca: motivo" | conforme nivel |
-| risco `[RISCO]` | Abuse-It primeiro, depois o resto | idem | idem, obrigatoriamente sobre a defesa do abuso | idem | sempre em Assistido e Guiado |
+| risco `[RISCO]` | Abuse-It primeiro, depois o resto | idem | idem, obrigatoriamente sobre a defesa do abuso | idem | em Guiado; nos outros niveis vale a dos cenarios aprovados na pagina (D2) |
 | sem comportamento | gate textual (grep/estrutura) visto falhando | aplicar | remover o alvo, gate cai, restaurar | n/a | conforme nivel |
 
 Regras que valem para os tres tipos:
@@ -571,12 +576,18 @@ Onde o orquestrador **para para o humano aprovar o teste RED** antes do GREEN. O
 | Nivel | Para antes do GREEN em |
 |---|---|
 | Guiado | toda fase |
-| Assistido (default) | fase `[RISCO]` e fase 01 do plano 01 (tracer bullet) |
+| Assistido (default) | fase 01 do plano 01 (tracer bullet); fase `[RISCO]` so em pagina anterior a 8.0 |
 | Direto | nunca; so RED-check automatico |
 
 E o gate do passo 4 dos 7 Passos ("Somente apos aprovacao dos testes pelo desenvolvedor"), aplicado
 por fase. E onde a spec errada morre barato: o RED transcreve a spec, o GREEN a implementa, e so um
 humano lendo o teste percebe que ela pedia a coisa errada.
+
+Nas fases de risco de pagina com nivel declarado, essa leitura acontece antes, nos cenarios
+aprovados na pagina (D2 da 8.0): o usuario le em linguagem de negocio, uma vez, o que precisa ser
+garantido, em vez de ler cada teste. O que se perde e o humano ver a traducao cenario → teste. O que
+cobre essa traducao e a maquina: cada `AB-*` vira um `CA-SEC-*` que o plan-verifier confere, e o
+RED-check prova que o teste cai quando a defesa e quebrada.
 
 ## Common Rationalizations
 

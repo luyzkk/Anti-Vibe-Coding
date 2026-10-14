@@ -1,10 +1,10 @@
 ---
 name: plan-feature
-description: "Converts PRD into executable hierarchical plan. Analyzes complexity like a senior engineer, decomposes into multiple plans with detailed phases, generates folder structure with memory per plan. Uses isolated subagents for each plan creation."
+description: "Converte a pagina da feature em plano executavel, uma fatia por vez: cada fatia da pagina vira um plano, e so a que vai comecar ganha fases. Analisa complexidade como um engenheiro senior e gera memoria por plano. Usa subagentes isolados para detalhar cada fatia."
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Read, Grep, Glob, Write, Agent, AskUserQuestion
-argument-hint: "[caminho do PRD ou nome da feature]"
+argument-hint: "[caminho do PRD ou nome da feature] [--fatia N]"
 ---
 
 ```typescript
@@ -32,8 +32,9 @@ const fasePolicyBlock = renderFasePolicyBlock(__fasePolicy)
 
 # Plan Feature — Planejamento Hierarquico de Execucao
 
-Skill de planejamento. Converte PRD em plano executavel com estrutura hierarquica:
-PRD → Planos → Fases (tasks detalhadas por plano).
+Skill de planejamento. Converte a pagina da feature em plano executavel com estrutura hierarquica:
+pagina → fatias → planos → fases. Cada fatia da pagina vira um plano, e so a fatia que vai comecar
+ganha fases detalhadas.
 
 Diferenca das outras skills:
 - **write-prd**: gera DOCUMENTO de especificacao (o que construir)
@@ -179,7 +180,8 @@ dentro de PASTA_ATIVA. Nunca fora da pasta do PRD.
 
    Apos identificar o arquivo PRD.md:
    - Ler com Read
-   - Validar que contem estrutura de PRD (titulo, requisitos, criterios)
+   - Validar que contem estrutura de pagina (titulo, cenarios, fatias — ou, em PRD anterior a
+     8.0, requisitos e criterios)
    - Se nao for PRD valido: "Este arquivo nao parece ser um PRD. Quer criar com /write-prd?"
    - Extrair frontmatter (se presente):
      1. Se conteudo comeca com `---\n`:
@@ -193,7 +195,10 @@ dentro de PASTA_ATIVA. Nunca fora da pasta do PRD.
      2. Armazenar: `prd_requires = [...]`
      3. Prosseguir normalmente para o proximo step
 
-2. Prosseguir para Step 2
+2. Se `--fatia N` veio no argumento e `{PASTA_ATIVA}/PLAN.md` ja existe: pular direto para o
+   Step 9 com a fatia N (a estrutura ja foi aprovada; so falta detalhar esta fatia)
+
+3. Prosseguir para Step 2
 ```
 
 ### Caminho B: Buscar em docs/exec-plans/active/ (estrutura v6)
@@ -364,6 +369,23 @@ Regras:
 
 ## Step 3 — Decompor em Vertical Slices
 
+### Fatias da página
+
+<!-- 2026-10-14 (Luiz/dev): o plano vem em fatias — 8.0 fatia 3, F3-4 (D3). -->
+
+A unidade do plano é a fatia da página (`## Fatias` do PRD.md): cada fatia vira um `plano{NN}`, na
+mesma ordem. Só a fatia que vai começar ganha fases, quando ela for começar. As seguintes ficam como
+uma linha na página até a vez delas, e então são detalhadas já com o que as anteriores ensinaram (as
+"Notas para Planos Seguintes" do MEMORY.md).
+
+Antes de detalhar, conferir cada fatia contra o conceito abaixo: ela deixa algo funcionando de ponta a
+ponta? Fatia horizontal ("criar todas as tabelas") ou grande demais (mais de ~1 semana) → propor
+dividir ou juntar. A proposta muda a página, com aprovação do dev; o PLAN.md nunca guarda uma lista de
+fatias diferente da página.
+
+Página anterior à 8.0, sem `## Fatias`: decompor como descrito abaixo, propor as fatias ao dev e,
+aprovadas, gravá-las em `## Fatias` da página antes de seguir.
+
 ### Conceito Core
 
 ```
@@ -395,8 +417,8 @@ schema / migrations
 ```
 
 **Principio:** a ordem das fases segue o grafo de dependencias de baixo para cima —
-fundacao primeiro. (Isto e o porque de `fundacao → core → UI → polish` no Step 4 e
-de `Plano 1 "Fundacao"` no Step 5.) O grafo de CAMADAS guia a ordem; o grafo de
+fundacao primeiro. (Isto e o porque de `fundacao → core → UI → polish` no Step 4: dentro de
+cada fatia, as fases seguem de baixo para cima.) O grafo de CAMADAS guia a ordem; o grafo de
 FASES (`## Dependency Graph (ASCII)`) registra a ordem ja decidida.
 
 ### Tracer Bullet (Primeiro Slice Obrigatorio)
@@ -411,7 +433,7 @@ Proposito:
 - Identifica problemas de integracao cedo (quando sao baratos de corrigir)
 
 Como identificar:
-1. Pegar o caso de uso mais simples do PRD (normalmente o Must Have principal)
+1. Pegar o caso de uso mais simples da fatia 1 (normalmente o "Precisa ter" principal da pagina)
 2. Reduzir ao MINIMO viavel: 1 endpoint + 1 teste E2E + 1 tela com dados reais
 3. Se ainda parecer grande, reduzir mais
 4. Regra de ouro: se leva mais de 2h, nao e fino o suficiente
@@ -424,11 +446,11 @@ Exemplo: Feature "Sistema de notificacoes push"
 ### Slices Subsequentes
 
 ```
-1. Ler cada requisito Must Have e Should Have do PRD
-2. Para cada requisito: pode ser um slice independente?
+1. Ler cada item "Precisa ter" e "Deveria ter" da pagina que cabe na fatia em detalhamento
+2. Para cada item: pode ser um slice independente?
    - Sim: criar slice com test → service → API → UI
-   - Nao (depende de outro): agrupar no mesmo slice ou wave posterior
-3. Could Have e Won't Have NAO viram slices — sao backlog
+   - Nao (depende de outro): agrupar no mesmo slice ou em fase posterior
+3. "Poderia ter" e "Nao tera" NAO viram slices — sao backlog
 
 Regras:
 - Cada slice tem nome descritivo e descreve o valor entregue
@@ -484,11 +506,13 @@ CA-SEC-2: Dado um CSV com formula `=cmd|...` numa celula, quando o admin importa
           entao o valor e gravado como texto — e NAO e interpretado na exportacao
 ```
 
-**De onde vem o conteudo:** se o PRD tem a secao "Ameacas & Dados", cada caso de abuso `AB-*` de la
-vira um `CA-SEC-*` aqui — traducao direta, um para um. Se o slice e de risco e o PRD **nao** tem a
-secao, o gatilho se perdeu na especificacao: registrar como risco no `README.md` do plano e sinalizar
-ao dev. Nao montar o modelo de ameaca sozinho durante o planejamento — e a mesma regra de "nao
-inventar requisito que o dev nao mencionou".
+**De onde vem o conteudo:** cada caso de abuso `AB-*` dos Cenarios da pagina vira um `CA-SEC-*`
+aqui — traducao direta, um para um — e o mapa de ameacas do `DESIGN.md` (`## Ameaças & Dados`) diz
+onde ficam as fronteiras de confianca. Em pagina anterior a 8.0, os `AB-*` e o mapa estao na secao
+"Ameacas & Dados" do proprio PRD. Se o slice e de risco e **nao** ha `AB-*` nem mapa, o gatilho se
+perdeu na especificacao: registrar como risco no `README.md` do plano e sinalizar ao dev. Nao montar
+o modelo de ameaca sozinho durante o planejamento — e a mesma regra de "nao inventar requisito que o
+dev nao mencionou".
 
 ---
 
@@ -535,7 +559,7 @@ SINAIS DE COMPLEXIDADE ALTA (multiplos planos):
 - Integracoes externas (APIs terceiras, webhooks, sync)
 - Multiplos roles/permissoes afetados
 - Migrations + API + UI + testes E2E na mesma feature
-- Dependencias entre requisitos Must Have (um bloqueia outro)
+- Dependencias entre itens "Precisa ter" (um bloqueia outro)
 - Dominio de negocio complexo (regras condicionais, estados, transicoes)
 - Preocupacoes de seguranca (auth, crypto, rate limiting)
 
@@ -566,12 +590,12 @@ Apos decompor os slices (Step 3), analisar:
 5. A ordem dos grupos segue o grafo de camadas (Step 3): de baixo
    (schema) para cima (UI). Fundacao primeiro, sempre.
 
-A QUANTIDADE DE PLANOS E EMERGENTE desses fatores.
-Nao e pre-determinada. O modelo analisa e decide.
+O NUMERO DE PLANOS E O NUMERO DE FATIAS DA PAGINA. Estes fatores servem para outra coisa: dizer
+se uma fatia esta grande demais (propor dividi-la na pagina) e quantas fases ela tem quando for
+detalhada.
 
-Se a feature se resolve em 1 plano com 3-5 fases: otimo.
-Se precisa de 5 planos com 4-8 fases cada: otimo tambem.
-O numero e consequencia do julgamento, nao meta.
+Fatia que se resolve em 2-5 fases: otimo. Fatia que pede 8 ou mais: provavelmente sao duas fatias.
+O numero de fases e consequencia do julgamento, nao meta.
 ```
 
 ---
@@ -580,19 +604,13 @@ O numero e consequencia do julgamento, nao meta.
 
 ### Criterios de Agrupamento
 
-```
-Cada PLANO agrupa slices que:
-1. Compartilham o mesmo dominio/camada principal
-2. Tem dependencias internas entre si
-3. Formam uma "unidade coerente" de entrega
+Cada PLANO e uma fatia da pagina (secao "Fatias da pagina" do Step 3). Os slices do Step 3 viram as
+fases do plano da fatia a que pertencem.
 
-Exemplos de agrupamento natural:
-- Plano 1 "Fundacao": types, migrations, seed data, configs
-- Plano 2 "API Core": queries, services, endpoints, testes de integracao
-- Plano 3 "Componentes": componentes shared, hooks, utils de UI
-- Plano 4 "Paginas": montagem de paginas, rotas, layouts
-- Plano 5 "Polish": error handling, loading states, a11y, E2E
-```
+Se a pagina nao separa bem os slices em fatias (dois slices que dependem um do outro em fatias
+diferentes, ou uma fatia que nao entrega nada sozinha), propor o ajuste na pagina. Nunca agrupar por
+camada tecnica ("Plano 1: tipos e migrations, Plano 2: API, Plano 3: telas"): isso e corte horizontal,
+e cada plano deixa de entregar algo que funciona.
 
 ### Cada Plano tem Fases
 
@@ -622,14 +640,14 @@ Uma fase DEVE conter:
 ```
 1. Ler template de templates/plan-overview-template.md
 2. Preencher com dados reais:
-   - Header: nome da feature, link ao PRD, totais, data
-   - Lista de planos com descricao e sizing
-   - Grafo ASCII de dependencias entre planos
+   - Header: nome da feature, link para a pagina, data
+   - Tabela de fatias: numero da fatia, plano, estado (detalhada / a detalhar) e dependencias —
+     sem repetir o texto das fatias, que mora na pagina
+   - Tracer bullet (fase 01 do plano 01)
    - Riscos identificados no Step 2 + decomposicao
 3. Validar consistencia:
-   - Todo plano referenciado existe na lista
-   - Dependencias entre planos sao aciclicas
-   - Nenhum plano isolado sem conexao (exceto se genuinamente independente)
+   - Toda fatia da pagina tem uma linha na tabela, na mesma ordem
+   - Dependencias entre fatias sao aciclicas
 4. NÃO gerar os planos detalhados ainda — apenas o overview
 ```
 
@@ -639,26 +657,21 @@ Uma fase DEVE conter:
 
 ```
 1. Resumo PRIMEIRO (antes de qualquer arquivo):
-   "Analisei o PRD e identifiquei {N} planos:
+   "A pagina tem {N} fatias. Vou detalhar so a fatia 1 agora:
 
-   Plano 1: {nome} ({M} fases, ~{X}h)
-     {descricao de 1 linha do que entrega}
+   Fatia 1 → plano01: {linha da pagina} ({M} fases previstas, ~{X}h)
+   Fatias 2..{N}: detalhadas quando chegar a vez de cada uma
 
-   Plano 2: {nome} ({M} fases, ~{X}h)
-     {descricao de 1 linha do que entrega}
+   Tracer Bullet: {descricao do slice mais fino, na fatia 1}
+   Riscos: {quantidade}
+   {Se propus mudar fatias na pagina: o antes e o depois}"
 
-   ...
-
-   Tracer Bullet: {descricao do slice mais fino, no Plano 1}
-   Riscos: {quantidade}"
-
-2. Mostrar grafo de dependencias entre planos:
-   "Plano 1 → Plano 2 → Plano 4
-                    ↘
-   Plano 3 ──────→ Plano 4"
+2. Mostrar dependencias entre fatias, se houver:
+   "Fatia 1 → Fatia 2 → Fatia 4
+    Fatia 3 ──────────↗"
 
 3. AskUserQuestion com opcoes:
-   - "Aprovar estrutura e criar Plano 1"
+   - "Aprovar e detalhar a fatia 1"
    - "Ajustar (diga o que mudar)"
    - "Refazer decomposicao"
    - "Quero plano unico (flat) mesmo"
@@ -697,26 +710,31 @@ e SOMENTE quando o dev pedir.
 ### Geracao sob demanda
 
 ```
-O orchestrador NUNCA gera todos os planos de uma vez.
+O orchestrador NUNCA gera todos os planos de uma vez: so a fatia que vai comecar.
 Fluxo:
 
-1. "Criar tasks do Plano 1?"
+1. "Detalhar a fatia {N} (plano{NN})?"
    [Dev: "sim"]
+   - Primeira vez: fatia 1, logo apos o Step 8
+   - Depois: o /execute-plan oferece ao fechar a fatia anterior, ou o dev roda
+     `/plan-feature {pasta} --fatia {N}`, que pula direto para este step
 
 2. Spawn subagente isolado com:
    RECEBE:
    - Caminho de PASTA_ATIVA: {caminho absoluto}  ← OBRIGATORIO, sempre absoluto
    - Todos os outputs DEVEM ser escritos em "{PASTA_ATIVA}/plano{NN}/..."
    - Se escrever fora de PASTA_ATIVA, a fase eh invalida
-   - PRD completo (lido de "{PASTA_ATIVA}/PRD.md")
+   - A pagina completa ("{PASTA_ATIVA}/PRD.md") e o desenho ("{PASTA_ATIVA}/DESIGN.md"), se existir
    - Contexto de codebase (Step 2)
    - PLAN overview (de "{PASTA_ATIVA}/PLAN.md")
-   - Descricao do plano a detalhar (do overview)
+   - A linha da fatia a detalhar (de `## Fatias` da pagina)
+   - Se N > 1: o README e as "Notas para Planos Seguintes" do MEMORY.md dos planos anteriores —
+     e para isso que a fatia esperou: as fases nascem com o que as anteriores ensinaram
    - Templates: plan-readme-template.md + fase-template.md + memory-template.md
      (caminhos do plugin — inalterados)
 
    NAO RECEBE:
-   - Detalhes de outros planos (isolamento)
+   - Fases detalhadas de outros planos (isolamento)
    - Conversas anteriores
 
    GERA (dentro de PASTA_ATIVA):
@@ -726,21 +744,17 @@ Fluxo:
    - "{PASTA_ATIVA}/plano{NN}/fase-02-{nome}.md"
    - ...
 
-3. Subagente retorna resumo do que gerou
+3. Subagente retorna resumo do que gerou — e, se o que as fatias anteriores ensinaram muda alguma
+   fatia seguinte, a proposta de mudanca na pagina (o dev aprova antes de gravar)
 
 4. Orchestrador mostra ao dev:
-   "Plano 1 criado com {N} fases:
+   "Fatia {N} detalhada em plano{NN}, com {M} fases:
     fase-01: {nome} (~{tempo})
     fase-02: {nome} (~{tempo})
     ...
-    Quer criar o Plano 2?"
+    A fatia {N+1} e detalhada quando esta fechar — o /execute-plan oferece."
 
-5. Se dev aprovar: repete para proximo plano
-   O subagente do Plano 2 RECEBE tambem:
-   - README do Plano 1 ("{PASTA_ATIVA}/plano01/README.md")
-   - NAO recebe as fases detalhadas do Plano 1
-
-6. Repetir ate todos os planos criados ou dev parar
+5. Atualizar a tabela de fatias do PLAN.md e o STATE.md: fatia {N} detalhada, plano{NN} pending
 ```
 
 ### Regras do subagente de planejamento
@@ -788,8 +802,8 @@ Para aprofundar: explicar "vertical slices" e "tracer bullet" em linguagem simpl
 
 | Cenario | Sugestao |
 |---------|----------|
-| Planos criados, /execute-plan existe | "Quer prosseguir para /execute-plan? Ele vai executar plano por plano." |
-| Dev quer criar mais planos | "Criar Plano {N+1}?" |
+| Fatia detalhada, /execute-plan existe | "Quer prosseguir para /execute-plan? Ao fechar cada fatia, ele oferece detalhar a proxima." |
+| Dev quer detalhar a proxima fatia antes | "A fatia {N+1} costuma esperar a {N} fechar, para nascer com o que ela ensinou. Se quiser antes: /plan-feature {pasta} --fatia {N+1}." |
 | Dev quer revisar plano especifico | "Os planos sao editaveis em docs/exec-plans/active/{slug}/plano{NN}/. Regenere com /plan-feature se a feature mudar." |
 | Dev quer voltar ao PRD | "Quer ajustar o PRD antes de executar? Rode /write-prd para editar." |
 
@@ -821,12 +835,12 @@ Se `{PASTA_ATIVA}/CONTEXT.md` existir (do /grill-me, movido pelo /write-prd):
 Ao finalizar o overview (via Step 8):
 1. Salvar overview em `{PASTA_ATIVA}/PLAN.md` (nu, sem prefixo)
 2. Criar `{PASTA_ATIVA}/STATE.md` com tracking por plano (nu, sem prefixo)
-3. Planos detalhados criados sob demanda em `{PASTA_ATIVA}/plano{NN}/` (Step 9)
+3. Cada fatia detalhada em `{PASTA_ATIVA}/plano{NN}/` quando for comecar (Step 9)
 
 ### 3. Sugerir Proximo Passo
 
-> "Overview salvo. Quer criar as tasks do Plano 1?
-> Apos criar, pode executar com `/execute-plan`."
+> "Overview salvo. Quer detalhar a fatia 1?
+> Depois, execute com `/execute-plan`; ao fechar cada fatia ele oferece detalhar a proxima."
 
 ### Escape Hatches
 - Esta skill funciona standalone: o pipeline e opcional
@@ -844,22 +858,21 @@ Os artefatos gerados ficam DENTRO da pasta `docs/exec-plans/active/YYYY-MM-DD-{s
 
 ```
 docs/exec-plans/active/YYYY-MM-DD-{slug}/   ← PASTA_ATIVA (criada pelo /write-prd)
-├── PRD.md                                  ← ja existe
+├── PRD.md                                  ← a pagina, ja existe
+├── DESIGN.md                               ← o desenho, quando o sistema pede
 ├── PLAN.md                                 ← overview gerado no Step 8
 ├── STATE.md                                ← tracking global gerado no Step 8
-├── plano01/                                ← gerado no Step 9 sob demanda
+├── plano01/                                ← fatia 1, detalhada no Step 9
 │   ├── README.md
 │   ├── MEMORY.md
 │   ├── fase-01-{nome}.md
 │   └── fase-02-{nome}.md
-└── plano02/ ...
+└── plano02/ ...                            ← fatia 2, so quando ela for comecar
 ```
 
-PLAN.md usa `lib/exec-plan-template.ts → renderExecPlan({ mode: 'full', ... })` e garante
-10 secoes H2 (Goal, Scope, Assumptions, Risks, Execution Steps, Review Checklist,
-Validation Log, Compound Opportunity, Lessons Captured, Exit Criteria).
-Validation Log / Compound Opportunity / Lessons Captured ficam vazias inicialmente
-(preenchidas durante a execucao via /execute-plan).
+PLAN.md segue `templates/plan-overview-template.md` (Step 6): a tabela de fatias, o tracer bullet,
+os riscos e as decisoes aplicadas. O formato de 10 secoes de `lib/exec-plan-template.ts` (modo full)
+aparece em planos antigos; os gerados desde 2026-09 seguem o overview, e e ele que vale.
 
 ---
 

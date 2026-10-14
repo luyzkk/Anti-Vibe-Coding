@@ -276,8 +276,8 @@ describe('execute-plan — Step 4c resolve o nivel, confirma o RED e para no gat
     expect(step4c, '[contrato — RF-03] 4c nao le user_profile (sinal que tdd-workflow ja usa)').toContain('user_profile')
     expect(
       step4c,
-      `[contrato — D2] 4c perdeu o default Assistido. Assistido para em [RISCO] e no tracer ` +
-        `bullet — e onde a spec errada morre barato. Restaure a linha do default, nao esta assercao.`,
+      `[contrato — D2] 4c perdeu o default Assistido. Assistido para no tracer bullet — e onde a ` +
+        `spec errada morre barato. Restaure a linha do default, nao esta assercao.`,
     ).toMatch(/Assistido[^\n]*default|default[^\n]*Assistido/)
   })
 
@@ -702,5 +702,72 @@ describe('risco pelo slice que escreve a defesa, e procedimento sem pergunta (ga
         `needs_human dos subagentes (Step 4d). Sem isso, a pergunta procedimental volta pela porta do ` +
         `subagente, que a empilha para o dev.`,
     ).toContain('needs_human')
+  })
+})
+
+// 2026-10-14 (Luiz/dev): 8.0 fatia 3, fase 2 — D2: o usuario aprova os cenarios uma vez, na pagina, e a
+// parada por fase de risco sai. A prova continua com a maquina: RED confirmado e RED-check por mutacao.
+// docs/exec-plans/active/2026-10-13-anti-vibe-8/fatia-3.md §O que a D2 troca.
+const step26 = section(executePlan, '## Step 2.6')
+const step4b = section(executePlan, '### 4b.')
+const contratoDoCiclo = section(skill, '## Contrato do Ciclo por Fase')
+
+describe('cenarios aprovados na pagina substituem a parada por fase de risco (D2 da 8.0)', () => {
+  test('execute-plan confere a linha "Aprovados por" antes da primeira fase no nivel de risco', () => {
+    expect(step26.length, '[contrato — D2] Step 2.6 ausente do execute-plan').toBeGreaterThan(0)
+    expect(
+      step26.includes('Aprovados por') && /dinheiro, sa[uú]de ou dados/.test(step26),
+      `[contrato — D2] O Step 2.6 nao confere mais a linha "Aprovados por" das paginas de nivel dinheiro, ` +
+        `saude ou dados. Ela e a unica aprovacao humana dos testes de risco; sem a conferencia, o codigo ` +
+        `comeca sem ninguem ter aprovado o que ele precisa garantir.`,
+    ).toBe(true)
+  })
+
+  test('sem aprovacao, a saida e aprovar ou mudar o nivel na pagina, nunca prosseguir no escuro', () => {
+    expect(step26).toContain('/write-prd')
+    expect(step26).not.toMatch(/Prosseguir \(aceito o risco\)/)
+  })
+
+  test('a fase de risco numa pagina com nivel declarado nao para no gate humano', () => {
+    expect(
+      /NAO para aqui/.test(step4c) && step4c.includes('Step 2.6'),
+      `[contrato — D2] O gate do 4c voltou a parar em toda fase de risco, ou perdeu o motivo de nao parar. ` +
+        `Com a pagina aprovada, a parada por fase repete uma aprovacao que ja aconteceu.`,
+    ).toBe(true)
+  })
+
+  test('a parada por fase de risco continua para pagina anterior a 8.0', () => {
+    // Plano em andamento de antes da 8.0 nao tem cenarios aprovados: sem esta parada ele ficaria sem gate.
+    expect(step4c).toMatch(/anterior a 8\.0[\s\S]{0,200}?Tipo de fase: risco/)
+  })
+
+  test('o tracer bullet continua parando no Assistido', () => {
+    expect(step4c).toMatch(/assistido[^\n]*tracer bullet/)
+  })
+
+  test('tdd-workflow troca a parada por fase de risco pelos cenarios aprovados', () => {
+    expect(
+      contratoDoCiclo.includes('sempre em Assistido e Guiado'),
+      '[contrato — D2] A tabela do contrato voltou a mandar parar em toda fase de risco no Assistido',
+    ).toBe(false)
+    expect(contratoDoCiclo).toMatch(/cen[aá]rios aprovados/i)
+  })
+})
+
+describe('o mapa de ameacas chega ao RED pelo desenho, e os abusos pela pagina (fatia 3)', () => {
+  test.each([
+    ['execute-plan 4b (executor)', () => step4b],
+    ['execute-plan 4c (RED)', () => step4c],
+    ['tdd-workflow, subagente RED', () => section(skill, '## Context Isolation RED/GREEN')],
+    ['tdd-workflow, Abuse-It', () => abuseIt],
+    ['plan-executor', () => executor],
+  ])('%s le o mapa no DESIGN.md e os AB-* na pagina', (label, get) => {
+    const texto = get()
+    expect(
+      texto.includes('DESIGN.md') && /AB-\*/.test(texto),
+      `[contrato — fatia 3, F3-3] ${label} nao aponta para o mapa de ameacas do DESIGN.md e para os AB-* ` +
+        `dos Cenarios da pagina. O mapa saiu da pagina na fase 1; quem ainda o procura la recebe nada, e o ` +
+        `RED volta a escrever so o happy path.`,
+    ).toBe(true)
   })
 })
