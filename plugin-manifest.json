@@ -1,6 +1,6 @@
 {
   "version": "7.9.0",
-  "generatedAt": "2026-10-14T14:51:39.743Z",
+  "generatedAt": "2026-10-14T15:16:54.334Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "api-design": {
@@ -109,7 +109,7 @@
       "path": "skills/plan-feature/",
       "version": "7.9.0",
       "introduced": "v7.9.0",
-      "description": "Converts PRD into executable hierarchical plan. Analyzes complexity like a senior engineer, decomposes into multiple plans with detailed phases, generates folder structure with memory per plan. Uses isolated subagents for each plan creation."
+      "description": "Converte a pagina da feature em plano executavel, uma fatia por vez: cada fatia da pagina vira um plano, e so a que vai comecar ganha fases. Analisa complexidade como um engenheiro senior e gera memoria por plano. Usa subagentes isolados para detalhar cada fatia."
     },
     "qa-visual": {
       "path": "skills/qa-visual/",
@@ -751,7 +751,7 @@
     },
     "skills/execute-plan/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "b6c4270915a8c00b334d8bb97ecea8807853985aad5ae3f99a4025c47d903591",
+      "checksum": "2d36dab6058a1d34188673ecc32cd702d79c46bc55a1af82aaf59cdf878e8df1",
       "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
@@ -2035,7 +2035,7 @@
     },
     "skills/plan-feature/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "e6d7be0d22c2c3191257fe1d9175f1fec0d2fc0779210c8fcc57cb063e2d4b4e",
+      "checksum": "2694d789b31953d1f2db469706836374ffc21aea378587bb0e87d596a0f56ba2",
       "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
@@ -2065,8 +2065,8 @@
     },
     "skills/plan-feature/templates/plan-overview-template.md": {
       "version": "7.9.0",
-      "checksum": "60df4e3601eee413708a33faa9f48f2b56cc2611bc434c2a0f3ca2f51ffa0e8d",
-      "lastModified": "2026-04-20",
+      "checksum": "5035bebccac99fca48e3d8e8f1d0290f2ab889412fa0e7342b2a9e7d0e0e3ad0",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "skills/plan-feature/templates/plan-readme-template.md": {
@@ -2083,8 +2083,8 @@
     },
     "skills/plan-feature/templates/state-template.md": {
       "version": "7.9.0",
-      "checksum": "c908d4a9be0e3b8645972e25ed823f2dcf2de4c09ba82c51cb9bc245635f3306",
-      "lastModified": "2026-04-20",
+      "checksum": "76b081d6dcebd53a9170d8c1ae4be0f9634756ff7a84c6dd9ec0a2fcc29e9d99",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "skills/plan-feature/lib/fase-policy.ts": {

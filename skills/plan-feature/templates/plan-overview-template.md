@@ -1,80 +1,45 @@
-# Plan: {Feature Name}
+# Plano: {Nome da feature}
 
-**PRD:** ./PRD.md
-**Planos:** {N} planos, {M} fases total
-**Created:** {YYYY-MM-DD}
+**Página:** ./PRD.md — as fatias moram em `## Fatias` da página; este arquivo não repete o texto delas
+**Criado:** {YYYY-MM-DD}
 
----
-
-## Planos
-
-| # | Nome | Fases | Sizing | Depende de |
-|---|------|-------|--------|------------|
-| 01 | {nome descritivo} | {N} | {Xh} | — |
-| 02 | {nome descritivo} | {N} | {Xh} | Plano 01 |
-| 03 | {nome descritivo} | {N} | {Xh} | Plano 01 |
-| 04 | {nome descritivo} | {N} | {Xh} | Plano 02, 03 |
+<!-- O plano vem em fatias (D3 da 8.0): cada fatia da página vira um planoNN, detalhado só quando for
+     começar. Fatia ainda não detalhada não tem fases aqui: elas são decididas quando ela começar, já
+     com o que as anteriores ensinaram. -->
 
 ---
 
-## Grafo de Dependencias
+## Fatias
 
-```
-Plano 01 ({nome})
-    |
-    v
-Plano 02 ({nome})     Plano 03 ({nome})
-    |                       |
-    +----------- + ---------+
-                 |
-                 v
-           Plano 04 ({nome})
-```
+| Fatia | Plano | Estado | Depende de |
+|---|---|---|---|
+| 1 | plano01 | detalhada | — |
+| 2 | — | a detalhar | fatia 1 |
+| 3 | — | a detalhar | fatia 1 |
 
-**Paralelismo possivel:** {indicar quais planos podem ser executados em paralelo}
+**Paralelismo possível:** {quais fatias podem andar em paralelo, se alguma}
 
 ---
 
 ## Tracer Bullet
 
-**Plano:** 01
-**Fase:** fase-01-{nome}
-**Descricao:** {o slice mais fino possivel que prova a arquitetura end-to-end}
+**Fase:** plano01/fase-01-{nome}
+**Descrição:** {o slice mais fino possível que prova a arquitetura de ponta a ponta}
 
 ---
 
-## Resumo por Plano
+## Riscos
 
-### Plano 01: {Nome}
-> {Descricao de 1-2 linhas do que este plano entrega}
-
-Fases:
-- fase-01-{nome}: {descricao curta}
-- fase-02-{nome}: {descricao curta}
-- ...
-
-### Plano 02: {Nome}
-> {Descricao de 1-2 linhas}
-
-Fases:
-- fase-01-{nome}: {descricao curta}
-- ...
+- {risco identificado durante o planejamento}
+  - Mitigação: {ação sugerida}
 
 ---
 
-## Risks
+## Decisões aplicadas
 
-- {risco identificado durante planejamento}
-  - Mitigacao: {acao sugerida}
-
----
-
-## Decisoes do PRD Aplicadas
-
-| Decisao | Onde se aplica |
-|---------|---------------|
-| {D1 do CONTEXT.md ou decisao do PRD} | Plano {N}, fase-{NN} |
-| {D2} | Plano {N}, fase-{NN} |
+| Decisão | Onde se aplica |
+|---|---|
+| {decisão da página, do desenho ou do CONTEXT.md} | plano{NN}, fase-{NN} |
 
 ---
 

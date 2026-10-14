@@ -234,7 +234,8 @@ Fase "planned" ou "in-progress":
 
 ```
 Criar a partir do PLAN overview em `{PASTA_ATIVA}/STATE.md`:
-  - Listar todos os planos com status "pending"
+  - Listar as fatias da pagina: as que ja tem `plano{NN}/` com status "pending", as outras
+    como "a detalhar"
   - phase: planned
   - current_plan: 01
   - Salvar
@@ -344,9 +345,14 @@ Tasks done: {X}/{Y} ({Z}%)
 
 ```
 1. Identificar plano ativo do STATE.md (Current Plan: NN)
-2. Ler `{PASTA_ATIVA}/plano{NN}/README.md`
-3. Listar fases: Glob `{PASTA_ATIVA}/plano{NN}/fase-*.md`
-4. Identificar proxima fase pendente
+2. Se `{PASTA_ATIVA}/plano{NN}/` nao existe (fatia "a detalhar" no STATE): a fatia ainda nao foi
+   detalhada. AskUserQuestion:
+     - "Detalhar a fatia {N} agora" → rodar `/anti-vibe-coding:plan-feature {PASTA_ATIVA} --fatia {N}`
+       e voltar a este step quando ele terminar
+     - "Pausar aqui"
+3. Ler `{PASTA_ATIVA}/plano{NN}/README.md`
+4. Listar fases: Glob `{PASTA_ATIVA}/plano{NN}/fase-*.md`
+5. Identificar proxima fase pendente
 ```
 
 ### 3b. Consultar memorias anteriores
@@ -777,11 +783,20 @@ Se o plano nao tem campo `Scope` parseavel:
    - {N} gotchas
    - {N} desvios
 
-   Proximo: Plano {NN+1} — {nome} ({M} fases)
+   Proximo: fatia {N+1} — {linha da pagina}
+   {ja detalhada em plano{NN+1}, com M fases | ainda nao detalhada}
 
    O que deseja?"
 
-4. AskUserQuestion:
+4. AskUserQuestion (proxima fatia ainda nao detalhada — o caso normal desde a 8.0):
+   - "Detalhar a fatia {N+1} agora, com o que esta fatia ensinou" → rodar
+     `/anti-vibe-coding:plan-feature {PASTA_ATIVA} --fatia {N+1}`; ele recebe as "Notas para
+     Planos Seguintes" deste plano e, se elas mudam alguma fatia, propoe a mudanca na pagina
+   - "Encerrar e detalhar a fatia {N+1} em contexto novo"
+   - "Revisar memoria do plano concluido antes de avancar"
+   - "Pausar aqui"
+
+   Proxima fatia ja detalhada (plano anterior a 8.0, ou detalhada antes com --fatia):
    - "Avancar para Plano {NN+1} neste contexto"
    - "Encerrar e iniciar Plano {NN+1} em contexto novo"
    - "Revisar memoria do plano concluido antes de avancar"

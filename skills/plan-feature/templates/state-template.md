@@ -9,11 +9,12 @@
 
 | Plano | Nome | Fases | Done | Status |
 |-------|------|-------|------|--------|
-| 01 | {nome} | {N} | 0/{N} | pending |
+| 01 | {fatia 1} | {N} | 0/{N} | pending |
+| 02 | {fatia 2} | — | — | a detalhar |
 
 ## Progress Global
 
-Fases done: 0/{total} (0%)
+Fases done: 0/{total das fatias ja detalhadas} (0%)
 
 ## Log
 
