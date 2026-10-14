@@ -382,7 +382,7 @@ Baseado na complexidade:
 
 ## Passo 7 — Oferecer Learn Point
 
-> "Quer entender algum dos trade-offs discutidos? Posso explicar via /learn."
+> "Quer entender algum dos trade-offs discutidos? Posso explicar em linguagem simples."
 
 Se o dev disser sim, identificar o topico mais relevante da entrevista e sugerir.
 
@@ -412,7 +412,7 @@ Se o dev disser NAO: encerrar normalmente. O CONTEXT.md continua disponivel para
 
 ### 3. Learn Point (opcional)
 
-> "Quer entender algum trade-off discutido durante a entrevista? Posso aprofundar via `/learn`."
+> "Quer entender algum trade-off discutido durante a entrevista? Posso explicar em linguagem simples."
 
 ### Escape Hatches
 - Esta skill funciona standalone: o pipeline e opcional

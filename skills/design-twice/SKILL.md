@@ -314,7 +314,7 @@ Oferecer aprendizado contextualizado ao trade-off especifico da decisao:
 
 ```
 Quer entender por que a Proposta {escolhida} tem {trade-off especifico}?
-Posso explicar via /learn.
+Posso explicar em linguagem simples.
 ```
 
 Exemplos por dominio:

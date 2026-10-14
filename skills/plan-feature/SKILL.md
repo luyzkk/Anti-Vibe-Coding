@@ -780,7 +780,7 @@ Se sim, explicar brevemente:
 - **Tracer Bullet:** o slice mais fino que prova a arquitetura end-to-end. Do livro "The Pragmatic Programmer".
 - **Planos hierarquicos:** decomposicao natural por dominio, permitindo contextos isolados e execucao incremental.
 
-Para aprofundar: sugerir `/anti-vibe-coding:learn "vertical slices"` ou `/anti-vibe-coding:learn "tracer bullet"`
+Para aprofundar: explicar "vertical slices" e "tracer bullet" em linguagem simples, com um exemplo do proprio projeto
 
 ---
 

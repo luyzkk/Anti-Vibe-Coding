@@ -366,7 +366,7 @@ Apos salvar, oferecer:
 ou como definir criterios de aceite testaveis?"
 ```
 
-Se aceitar, explicar (ou sugerir `/anti-vibe-coding:learn`):
+Se aceitar, explicar em linguagem simples:
 
 **MoSCoW:**
 - Origem: DSDM (Dynamic Systems Development Method)

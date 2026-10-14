@@ -12,7 +12,7 @@ Novo ao repo? Comece aqui. Cada fase do trabalho tem uma skill canonica — invo
 | **Plan** | `/anti-vibe-coding:plan-feature`, `/anti-vibe-coding:quick-plan` | Plano executavel hierarquico (PLAN.md + fases) |
 | **Build** | `/anti-vibe-coding:tdd-workflow`, `/anti-vibe-coding:execute-plan` | Implementacao fase-a-fase em ciclo RED/GREEN |
 | **Verify** | `/anti-vibe-coding:verify-work`, `/anti-vibe-coding:security` | Testes verdes + auditoria multi-agente |
-| **Review** | `/anti-vibe-coding:verify-work` (canonico), `/anti-vibe-review (DEPRECADO → use /verify-work)` | Quality score + checklist de release |
+| **Review** | `/anti-vibe-coding:verify-work` | Quality score + checklist de release |
 | **Ship** | `/anti-vibe-coding:lessons-learned`, `/anti-vibe-coding:iterate` | Compound capturado + ciclo pos-deploy aberto |
 
 Fluxo canonico:

@@ -942,7 +942,7 @@ Step 6-FLAT: SUMMARY ao completar
 
 ### Learn Point (opcional)
 
-> "Quer entender context isolation RED/GREEN, execucao hierarquica ou memoria por plano? Posso aprofundar via `/learn`."
+> "Quer entender context isolation RED/GREEN, execucao hierarquica ou memoria por plano? Posso explicar em linguagem simples."
 
 ### Escape Hatches
 - Dev pode pausar entre planos (estado salvo em `{PASTA_ATIVA}/STATE.md`)

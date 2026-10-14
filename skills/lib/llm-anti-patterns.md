@@ -3,7 +3,7 @@
 Material de referencia com exemplos concretos de erros comuns de LLMs ao codar.
 Derivado das observacoes de Andrej Karpathy e PRs da comunidade karpathy-skills.
 
-Referenciado por: `/learn`, `/consultant`, `/anti-vibe-review`, rules comportamentais.
+Referenciado por: `/consultant`, rules comportamentais.
 
 ---
 

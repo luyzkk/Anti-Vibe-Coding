@@ -169,22 +169,18 @@ Para correções triviais, **não use o pipeline** — vai direto. O TDD Gate ex
 | Security | `/anti-vibe-coding:security` | OWASP Top 10, auth, JWT, crypto, secrets |
 | API Design | `/anti-vibe-coding:api-design` | N+1, idempotência, DTOs, webhooks, REST |
 | System Design | `/anti-vibe-coding:system-design` | CAP, PACELC, cache, scaling, replicação |
-| React Patterns | `/anti-vibe-coding:react-patterns` | useEffect, data fetching, memoization, state |
 | Design Patterns | `/anti-vibe-coding:design-patterns` | Code smells, error handling, refactoring |
 | Infrastructure | `/anti-vibe-coding:infrastructure` | DNS, hosting, deploy, CDN, serverless |
 | Domain Modeling | `/anti-vibe-coding:domain-modeling` | Glossário de linguagem ubíqua — nomes do domínio antes do código |
-| Learn | `/anti-vibe-coding:learn` | Explicações adaptativas pelo nível |
 
 ### Workflow e qualidade
 
 | Skill | Comando | Propósito |
 |-------|---------|-----------|
 | TDD Workflow | `/anti-vibe-coding:tdd-workflow` | Workflow adaptativo IA-TDD (3 níveis) |
-| Anti-Vibe Review | `/anti-vibe-coding:anti-vibe-review` | Auditoria pós-implementação (multi-domínio) |
 | QA Visual | `/anti-vibe-coding:qa-visual` | Verificação no browser via Playwright MCP |
 | Doubt-Driven Development | `/anti-vibe-coding:doubt-driven-development` | Revisão adversarial fresh-context antes de decisão "ficar de pé" |
 | Source-Driven Development | `/anti-vibe-coding:source-driven-development` | Ancora cada decisão em documentação oficial citada |
-| Pair Programming | `/anti-vibe-coding:pair-programming-with-agent` | Sessão estruturada humano-navega-IA-pilota |
 | Prototype | `/anti-vibe-coding:prototype` | Código descartável que responde uma pergunta, sem virar produção |
 
 ### Memória e decisões
@@ -195,7 +191,6 @@ Para correções triviais, **não use o pipeline** — vai direto. O TDD Gate ex
 | Decision Registry | `/anti-vibe-coding:decision-registry` | Registro de decisões arquiteturais (ADRs) |
 | Compound Engineering | `/anti-vibe-coding:compound-engineering` | Scaffold + gate de captura de conhecimento durável |
 | Git Workflow | `/anti-vibe-coding:git-workflow-and-versioning` | Conventional commits, atomicidade, PR como contrato |
-| Enhance Prompt | `/anti-vibe-coding:enhance-prompt` | Otimiza prompts de execução automatizada |
 | Parity Audit | `/anti-vibe-coding:parity-audit` | Audita capabilities (MCPs, tools, subagentes) e produz gaps |
 
 ### Manutenção do plugin
@@ -368,14 +363,6 @@ Para correções triviais, **não use o pipeline** — vai direto:
 /anti-vibe-coding:consultant
 # Apresenta opções, prós/contras, recomendação contextualizada
 # NÃO escreve código — só ensina e ajuda decidir
-```
-
-### Cenário 5: Aprender um conceito antes de aplicar
-
-```
-/anti-vibe-coding:learn JWT vs session cookies
-# Calibra ao seu nível (basic/intermediate/advanced)
-# Conecta a código real do projeto quando relevante
 ```
 
 ---

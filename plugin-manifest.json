@@ -1,14 +1,8 @@
 {
   "version": "7.9.0",
-  "generatedAt": "2026-10-14T12:46:13.124Z",
+  "generatedAt": "2026-10-14T12:47:56.358Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
-    "anti-vibe-review": {
-      "path": "skills/anti-vibe-review/",
-      "version": "7.9.0",
-      "introduced": "v7.9.0",
-      "description": "Auditoria read-only pos-implementacao: TDD, patterns, arquitetura, error handling e seguranca. DEPRECADA — consolidada em /verify-work, que roda o mesmo pipeline e mais. Prefira /verify-work; use esta so para manter workflow existente."
-    },
     "api-design": {
       "path": "skills/api-design/",
       "version": "7.9.0",
@@ -81,12 +75,6 @@
       "introduced": "v7.9.0",
       "description": "Doubt-Driven Development: submete cada decisao nao-trivial a uma revisao adversarial fresh-context antes de ela 'ficar de pe'. Use quando correcao importa mais que velocidade, em codigo desconhecido, ou pre-deploy production."
     },
-    "enhance-prompt": {
-      "path": "skills/enhance-prompt/",
-      "version": "7.9.0",
-      "introduced": "v7.9.0",
-      "description": "Integra o Anti-Vibe Coding numa estrutura de plano/task existente, para execucao automatizada pelo Claude Code. Use ao pedir enhance do prompt de execucao, ou ao preparar tasks para automacao."
-    },
     "execute-plan": {
       "path": "skills/execute-plan/",
       "version": "7.9.0",
@@ -129,23 +117,11 @@
       "introduced": "v7.9.0",
       "description": "Ciclo pos-deploy: incident response com regression test, hardening defensivo e centralizacao de config. Use quando um bug foi relatado em producao, ou quando uma feature estavel esta pronta para hardening."
     },
-    "learn": {
-      "path": "skills/learn/",
-      "version": "7.9.0",
-      "introduced": "v7.9.0",
-      "description": "Ensino adaptativo de conceito tecnico, calibrado ao nivel do dev e ligado ao codigo real do projeto. Use quando o dev quer entender algo antes ou depois de construir — 'me explica', 'quero entender', 'nao entendi', 'what is', 'how does X work'."
-    },
     "lessons-learned": {
       "path": "skills/lessons-learned/",
       "version": "7.9.0",
       "introduced": "v7.9.0",
       "description": "Registro de licoes aprendidas do projeto, com filtro de qualidade senior. Use ao registrar uma licao, revisar as existentes, ou podar as obsoletas."
-    },
-    "pair-programming-with-agent": {
-      "path": "skills/pair-programming-with-agent/",
-      "version": "7.9.0",
-      "introduced": "v7.9.0",
-      "description": "Tutorial da dinâmica 'humano navega, agente pilota': hierarquia de confiança dos arquivos de contexto, tabela Akita de capacidades, quando interromper o agente e como injetar contexto de domínio."
     },
     "parity-audit": {
       "path": "skills/parity-audit/",
@@ -176,12 +152,6 @@
       "version": "7.9.0",
       "introduced": "v7.9.0",
       "description": "Planejamento leve para tasks de complexidade media. Gera mini-plano de 3-7 passos no formato step/verify num arquivo so, sem a estrutura de pastas do /plan-feature e sem subagentes. Alternativa ao pipeline completo (grill-me → plan-feature → execute-plan) para tarefas que nao justificam o overhead."
-    },
-    "react-patterns": {
-      "path": "skills/react-patterns/",
-      "version": "7.9.0",
-      "introduced": "v7.9.0",
-      "description": "React e Next.js patterns. Use when the user asks about useEffect, data fetching (TanStack Query), closure stale, memoization (useMemo, useCallback), state management, or reviewing a component (re-renders, virtualization, code splitting)."
     },
     "security": {
       "path": "skills/security/",
@@ -427,8 +397,8 @@
     },
     "agents/react-auditor.md": {
       "version": "7.9.0",
-      "checksum": "e66f157355b99a8dfbbc74b4cfe6616dff8b2edcdc8e26c0c221b7c479fb0088",
-      "lastModified": "2026-06-05",
+      "checksum": "56957291ca6471c265f1c239275eba997a8952b678fc550b7c9a614d7a875be7",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "agents/security-auditor.md": {
@@ -567,12 +537,6 @@
       "version": "7.9.0",
       "checksum": "2c8c79eb3fa219df5e363f93eded67beed87ed835d0391695f575bd4c3feeba7",
       "lastModified": "2026-08-17",
-      "updateStrategy": "replace"
-    },
-    "skills/anti-vibe-review/SKILL.md": {
-      "version": "7.9.0",
-      "checksum": "90c42fb3d49a30cacd8f02961f1728c2c284d8368d7ad275c8376c38d4d8f834",
-      "lastModified": "2026-09-04",
       "updateStrategy": "replace"
     },
     "skills/api-design/SKILL.md": {
@@ -973,8 +937,8 @@
     },
     "skills/design-twice/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "af534331d582626c9312a0598e4564d5742aa3805b02b0957c98bbfec71e4549",
-      "lastModified": "2026-08-13",
+      "checksum": "441b63b386ffa7dfc1ce043ce06a49cbf7d6db03c56077c7ffe0422b877e3059",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "skills/design-twice/index.ts": {
@@ -1019,16 +983,10 @@
       "lastModified": "2026-06-05",
       "updateStrategy": "replace"
     },
-    "skills/enhance-prompt/SKILL.md": {
-      "version": "7.9.0",
-      "checksum": "8ef82db3ed682eae774188a0034853befa550e23c56246bde38063df6d939d39",
-      "lastModified": "2026-08-12",
-      "updateStrategy": "replace"
-    },
     "skills/execute-plan/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "2a59aefbd100421b1f2bf790af32ce0384c9cc915632b49049f91996fa97ea24",
-      "lastModified": "2026-10-02",
+      "checksum": "b9f1e4326fffeb4a263eebbff585485e46c10d2d9ea1b81cff1608254dce7172",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "skills/execute-plan/index.ts": {
@@ -1051,8 +1009,8 @@
     },
     "skills/grill-me/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "08d5a67ec579e78261e66e184534175c7c1a8b6a60bdc4bcde6e860cfee0c8a4",
-      "lastModified": "2026-09-01",
+      "checksum": "bc9efa1015df30e9ba3295006c47da9e1b9aa538e039f3291c3eba3bb80547d4",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "skills/incident-response/SKILL.md": {
@@ -2039,12 +1997,6 @@
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
-    "skills/learn/SKILL.md": {
-      "version": "7.9.0",
-      "checksum": "88bc933f55ff058535dbfe9e1520843c181b1344ec1f9a398091e8d16e9f6854",
-      "lastModified": "2026-08-12",
-      "updateStrategy": "replace"
-    },
     "skills/lessons-learned/SKILL.md": {
       "version": "7.9.0",
       "checksum": "845ac0206dfa3c73c5ec07c979f55a424f204f354582e905ac944afc31061ea2",
@@ -2167,8 +2119,8 @@
     },
     "skills/lib/llm-anti-patterns.md": {
       "version": "7.9.0",
-      "checksum": "d35c383059a25c9a43bcc21ca04f8b96286f0dbe1f0ff7bcaacda55e58262a12",
-      "lastModified": "2026-04-11",
+      "checksum": "d5895b48aedad21564ccc93695a0dd8e1464875e4f7986dab9f708b35b9cd795",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "skills/lib/manifest-schema.ts": {
@@ -2285,12 +2237,6 @@
       "lastModified": "2026-05-16",
       "updateStrategy": "replace"
     },
-    "skills/pair-programming-with-agent/SKILL.md": {
-      "version": "7.9.0",
-      "checksum": "93d109599b8042c13016efd2c6273c1e1b76fbb16fac6353aa2bfebca15689c9",
-      "lastModified": "2026-08-12",
-      "updateStrategy": "replace"
-    },
     "skills/parity-audit/SKILL.md": {
       "version": "7.9.0",
       "checksum": "490c67935b256147320bc9277a73bd7218ff7dcfdfb60bc07f7a2b4f7b056617",
@@ -2311,8 +2257,8 @@
     },
     "skills/plan-feature/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "b0eeb9d1622295adaad0a12448e162966fa23c255e0fcd43b757a46a1d5a749b",
-      "lastModified": "2026-10-02",
+      "checksum": "d7995bb7251c5268c6f18537098950bbbf5ce8c00ea1060e9eb925eb6e55f477",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "skills/plan-feature/index.ts": {
@@ -2403,24 +2349,6 @@
       "version": "7.9.0",
       "checksum": "a55c6f25ea664fa7ee18453dd9a411a95d744ac96de2595d0e4037db9c643846",
       "lastModified": "2026-05-12",
-      "updateStrategy": "replace"
-    },
-    "skills/react-patterns/SKILL.md": {
-      "version": "7.9.0",
-      "checksum": "d60ce0c19cca072aa9584b1ab3ea440360096de029bbd924e35dc659e601f32e",
-      "lastModified": "2026-08-12",
-      "updateStrategy": "replace"
-    },
-    "skills/react-patterns/references/data-fetching.md": {
-      "version": "7.9.0",
-      "checksum": "cb3e6377f2d178cc8cf8ecba35cb3d0d9278d68a900f0161d117ec205700c266",
-      "lastModified": "2026-03-22",
-      "updateStrategy": "replace"
-    },
-    "skills/react-patterns/references/useeffect-patterns.md": {
-      "version": "7.9.0",
-      "checksum": "f3cf2a397987b92d90f7a12659f1d266235cfb5adbf1fa47c8babe1c57fb13ec",
-      "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
     "skills/security/SKILL.md": {
@@ -2671,8 +2599,8 @@
     },
     "skills/tdd-workflow/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "f36df08ff695943a8496d0ba284b7db3edf41a8e44ad5c4f590a5a17ec32a025",
-      "lastModified": "2026-10-02",
+      "checksum": "7ad2598ec00b33313a27cacd38e76ee5039cea01cf723faef1ba67a8e28fbf9d",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "skills/tdd-workflow/references/deep-modules.md": {

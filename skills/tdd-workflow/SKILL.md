@@ -55,7 +55,7 @@ Fluxo quando dev descreve feature sem mencionar testes:
    - Como se chama o padrao (happy path, edge case, boundary, etc.)
    - Conexao com testes anteriores (se existirem)
 2. Dev valida: "sim" / "nao entendi" / propoe cenario alternativo
-   - Se "nao entendi" → sugerir /anti-vibe-coding:learn para o conceito em questao
+   - Se "nao entendi" → explicar o conceito em linguagem simples, com um exemplo do proprio projeto
 3. IA implementa codigo minimo para o teste passar
 4. IA propoe o proximo teste — Repetir ate cobertura completa
 
@@ -497,9 +497,9 @@ Executar os testes para confirmar que CONTINUAM passando: `bun run test`
 `bun run test && bun run lint` — todos devem passar sem erros.
 </verification>
 <context>
-**Staged/Unstaged Review**: Antes de solicitar `/anti-vibe-coding:anti-vibe-review`, deixar as alteracoes em staged (`git add`). Ao receber sugestoes de melhoria, pedir que sejam aplicadas como unstaged — isso permite comparar o antes/depois com `git diff` sem perder o trabalho original.
+**Staged/Unstaged Review**: Antes de solicitar `/anti-vibe-coding:verify-work`, deixar as alteracoes em staged (`git add`). Ao receber sugestoes de melhoria, pedir que sejam aplicadas como unstaged — isso permite comparar o antes/depois com `git diff` sem perder o trabalho original.
 
-Sugerir ao desenvolvedor executar `/anti-vibe-coding:anti-vibe-review`.
+Sugerir ao desenvolvedor executar `/anti-vibe-coding:verify-work`.
 </context>
 </step>
 
