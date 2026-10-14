@@ -109,10 +109,9 @@ describe('collectCjsTests — os .test.cjs que a suite ignorava', () => {
 
   test('encontra os testes de hooks/', async () => {
     const files = await collectCjsTests()
+    // 2026-10-13 (Luiz/dev): 8.0 fatia 2 — os testes de state-md-hook e user-prompt-gate sairam com os hooks.
     for (const esperado of [
-      'hooks/state-md-hook.test.cjs',
       'hooks/stop-reflector.test.cjs',
-      'hooks/user-prompt-gate.test.cjs',
     ]) {
       expect(files).toContain(esperado)
     }

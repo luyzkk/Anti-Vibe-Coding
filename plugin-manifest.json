@@ -1,6 +1,6 @@
 {
   "version": "7.9.0",
-  "generatedAt": "2026-09-10T14:13:27.840Z",
+  "generatedAt": "2026-10-14T12:43:38.705Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -353,40 +353,16 @@
       "lastModified": "2026-04-11",
       "updateStrategy": "merge"
     },
-    "hooks/context-monitor.cjs": {
-      "version": "7.9.0",
-      "checksum": "ea7798d43a5f221f377d5cdddbdc8dd6fbf8fa31beb1d9ab520f938eb3c4898c",
-      "lastModified": "2026-04-08",
-      "updateStrategy": "replace"
-    },
-    "hooks/file-size-guard.cjs": {
-      "version": "7.9.0",
-      "checksum": "77346d77714daeec93fe042af7aff335d09a903ba4829a0b0fcb2eb1d5f1040f",
-      "lastModified": "2026-05-20",
-      "updateStrategy": "replace"
-    },
-    "hooks/grepping-names.cjs": {
-      "version": "7.9.0",
-      "checksum": "d62e1462d07d37cfa2c111b1e2fef8b262b03bacfae74d1336748868b4a72e96",
-      "lastModified": "2026-04-21",
-      "updateStrategy": "replace"
-    },
     "hooks/hooks.json": {
       "version": "7.9.0",
-      "checksum": "0915069883122890ebd9c236d38eb2a705820a7ed90d01084a6dd35977df04c5",
-      "lastModified": "2026-09-10",
+      "checksum": "1807c9b4f465346c66c84ade42c12d796db96c0bb86ac74132e855ca5cd02269",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "hooks/pre-commit-suite.cjs": {
       "version": "7.9.0",
-      "checksum": "348c10f34b3858c05d181e597e5ebc47ec7a16be57de636930b77eb5b7bb90b0",
-      "lastModified": "2026-09-10",
-      "updateStrategy": "replace"
-    },
-    "hooks/pre-mutation-gate.cjs": {
-      "version": "7.9.0",
-      "checksum": "2835d13656993ffc1bfaa32b89db4de871e805123ddf504cce00a9f10cc19c12",
-      "lastModified": "2026-05-12",
+      "checksum": "5443d8fa01534af2704c3b2877c54f60e6f7d4cb31d43b02e16cbde1e1fcb8ca",
+      "lastModified": "2026-10-02",
       "updateStrategy": "replace"
     },
     "hooks/pre-tool-use-destructive-guard.cjs": {
@@ -395,28 +371,10 @@
       "lastModified": "2026-08-31",
       "updateStrategy": "replace"
     },
-    "hooks/prompt-guard.cjs": {
-      "version": "7.9.0",
-      "checksum": "503ec820b9d60d140662c8db3f04e64b05f494c595c96001524a8151c3d0c7b1",
-      "lastModified": "2026-04-08",
-      "updateStrategy": "replace"
-    },
-    "hooks/state-md-hook.cjs": {
-      "version": "7.9.0",
-      "checksum": "c01cb7da052701aa6f4a208fe79e3a3edd42e6d0ebb9df72ad700c7a9801ea65",
-      "lastModified": "2026-05-12",
-      "updateStrategy": "replace"
-    },
     "hooks/stop-reflector.cjs": {
       "version": "7.9.0",
-      "checksum": "bcd1eb3fec7ee20612b72a3c0e806afe142d92c4cbc5f9f02d0b8694ab614420",
-      "lastModified": "2026-05-20",
-      "updateStrategy": "replace"
-    },
-    "hooks/sync-agents-to-claude.cjs": {
-      "version": "7.9.0",
-      "checksum": "b931ba14ca639dd0508bc1efdb6841aa360ecbdded65a3229b58bbd005edb338",
-      "lastModified": "2026-05-20",
+      "checksum": "1fa4c99fdff5b97f64559c249054b905df881b77efbe4a703c58c1e3fbe287aa",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "hooks/tdd-gate-bash.cjs": {
@@ -429,18 +387,6 @@
       "version": "7.9.0",
       "checksum": "86e3c13c60885c1127f75219b55905604524ffe9f525e45a597b6348d6a1370f",
       "lastModified": "2026-09-10",
-      "updateStrategy": "replace"
-    },
-    "hooks/user-prompt-gate.cjs": {
-      "version": "7.9.0",
-      "checksum": "b78df040bde5104c38753575bfd8f4194ea883a3c63d1950b46f53192cec6604",
-      "lastModified": "2026-06-05",
-      "updateStrategy": "replace"
-    },
-    "hooks/version-check.cjs": {
-      "version": "7.9.0",
-      "checksum": "23c3230c589c751c196fd726dc1510933795e647ca1e0c7f68671a3a59e4fb30",
-      "lastModified": "2026-05-20",
       "updateStrategy": "replace"
     },
     "agents/api-auditor.md": {
@@ -545,12 +491,6 @@
       "lastModified": "2026-05-15",
       "updateStrategy": "replace"
     },
-    "config/context-monitor.json": {
-      "version": "7.9.0",
-      "checksum": "7ce32a1dd049b61f70584099cba42797ead399907e97f044038bf6b4d1d0e186",
-      "lastModified": "2026-04-08",
-      "updateStrategy": "replace"
-    },
     "config/model-profiles.json": {
       "version": "7.9.0",
       "checksum": "021a491e5a88fd1ebb955a0f0dec2ed1d07e59a0e06eaea07c4bd0ec1ec255f0",
@@ -619,8 +559,8 @@
     },
     "scripts/harness-validate.ts": {
       "version": "7.9.0",
-      "checksum": "3e27b0f02dcd398e3b58e5db50324e6a19ad1e4822e816c6711f279738e8ac92",
-      "lastModified": "2026-08-12",
+      "checksum": "ef9a1d868583de66a50c41f6e8bd49da387d318c1a12c7f0fe2cc5d188ff546e",
+      "lastModified": "2026-10-09",
       "updateStrategy": "replace"
     },
     "scripts/init-cli.ts": {
@@ -685,8 +625,8 @@
     },
     "skills/api-design/references/communication-patterns.md": {
       "version": "7.9.0",
-      "checksum": "dba4239ae8b43466e5cb5ea0c2519436e485725f87eb5c764399449c5b39d36a",
-      "lastModified": "2026-03-22",
+      "checksum": "98ecf870869f49673be465f3c48f99c21e3dfcde18c5270972fdc438ce8517b3",
+      "lastModified": "2026-10-13",
       "updateStrategy": "replace"
     },
     "skills/api-design/references/database-selection.md": {
@@ -709,8 +649,8 @@
     },
     "skills/api-design/references/idempotency.md": {
       "version": "7.9.0",
-      "checksum": "68ffcb41adb9c5695745327bc83e5fa882b30d8070e90d4cc24e1d64bb8d590b",
-      "lastModified": "2026-03-22",
+      "checksum": "4c0821c7f613a23c2263b0a53c9bbef6cab704c1dd872181636d3d65090bbaf8",
+      "lastModified": "2026-10-13",
       "updateStrategy": "replace"
     },
     "skills/api-design/references/n-plus-one.md": {
@@ -1123,8 +1063,8 @@
     },
     "skills/execute-plan/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "4b1d67ab15e9cef3e63fc6b389dee5163b9f494459c1d4c0bd17a9aeb1501214",
-      "lastModified": "2026-09-10",
+      "checksum": "2a59aefbd100421b1f2bf790af32ce0384c9cc915632b49049f91996fa97ea24",
+      "lastModified": "2026-10-02",
       "updateStrategy": "replace"
     },
     "skills/execute-plan/index.ts": {
@@ -1207,8 +1147,8 @@
     },
     "skills/init/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "fb1eec565f67b85eda79e8eb554eb83b2c29dfcd75afafeb1e4d2d0831f9ab88",
-      "lastModified": "2026-09-05",
+      "checksum": "9435352492d4e87b5b09809a3d1b40031ba1834962751d8643bc575f05623c47",
+      "lastModified": "2026-10-13",
       "updateStrategy": "replace"
     },
     "skills/init/lib/atoms-frontmatter-validator.ts": {
@@ -1243,8 +1183,8 @@
     },
     "skills/init/lib/compound-imported-constants.ts": {
       "version": "7.9.0",
-      "checksum": "da3a6f00aff6fc89658ac4f34800df5aa6eee8aba9549cf876d05ee7596b9170",
-      "lastModified": "2026-05-19",
+      "checksum": "c72e62a35c118d6c6a422295e98bba181acb8a59fad341a2d46a3fa2dd69daff",
+      "lastModified": "2026-10-13",
       "updateStrategy": "replace"
     },
     "skills/init/lib/compound-imported-writer.ts": {
@@ -1621,8 +1561,8 @@
     },
     "skills/init/lib/secrets-scanner.ts": {
       "version": "7.9.0",
-      "checksum": "c13d8bc8541b6978ad918f21f078841d9ab0d717e7166e0fb16b0f2e023d0cbd",
-      "lastModified": "2026-09-01",
+      "checksum": "037ce9937f55c3eaa6443bb6d0fa66f05b0127e87a53ac613aa87a2f7dfce604",
+      "lastModified": "2026-10-13",
       "updateStrategy": "replace"
     },
     "skills/init/lib/semver-compare.ts": {
@@ -1687,8 +1627,8 @@
     },
     "skills/init/lib/steps/05-scaffold-and-link.ts": {
       "version": "7.9.0",
-      "checksum": "9d05c792cda58e93ee32c9ad5259bb93e315fb2b8f937f627d3c0fb12abe1139",
-      "lastModified": "2026-09-05",
+      "checksum": "633fd7315cbbfc3f001340623f52822e2ccaaddda8cfc43aa6db91e45d0306df",
+      "lastModified": "2026-10-13",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/06-install-gh-files.ts": {
@@ -1753,8 +1693,8 @@
     },
     "skills/init/lib/symlink-fallback.ts": {
       "version": "7.9.0",
-      "checksum": "afcf3701c019d70f2b654662dd79b503aec15a916cc4f34891721ee49a0a0245",
-      "lastModified": "2026-05-12",
+      "checksum": "13f1a6c2c877731708e317dbaef71218e2b7abcd539beb4c5c369643f14a1cf5",
+      "lastModified": "2026-10-13",
       "updateStrategy": "replace"
     },
     "skills/init/lib/template-manifest.ts": {
@@ -2095,8 +2035,8 @@
     },
     "skills/init/assets/templates/exec-plan/PLAN.md.tpl": {
       "version": "7.9.0",
-      "checksum": "98b0591e9034fb165c756b4904786ed35866b6878e862a7c542b0d1884be2e34",
-      "lastModified": "2026-05-24",
+      "checksum": "35bca3ec49189a8ed658891c37b8ac755ad2f517cd71a3c744326e454d837ad1",
+      "lastModified": "2026-10-13",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/package.json.tpl": {
@@ -2425,8 +2365,8 @@
     },
     "skills/plan-feature/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "55a83c76a4263373ad5011bdf27efe8bfde5ef46f5ccce3e16d1926e7e4f3343",
-      "lastModified": "2026-09-09",
+      "checksum": "b0eeb9d1622295adaad0a12448e162966fa23c255e0fcd43b757a46a1d5a749b",
+      "lastModified": "2026-10-02",
       "updateStrategy": "replace"
     },
     "skills/plan-feature/index.ts": {
@@ -2437,8 +2377,8 @@
     },
     "skills/plan-feature/templates/fase-template.md": {
       "version": "7.9.0",
-      "checksum": "e34957d94c2ac60992881a7fd0614664afa36153279de0d4739acdb8920afc0f",
-      "lastModified": "2026-09-09",
+      "checksum": "68a873fc8c0b95bc709be58eb0a750fcb703d7610db8c3c45c9a6fd0ea605f23",
+      "lastModified": "2026-10-02",
       "updateStrategy": "replace"
     },
     "skills/plan-feature/templates/memory-prd-template.md": {
@@ -2545,14 +2485,14 @@
     },
     "skills/security/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "c0c350c619a6eaef331d66f5f3e8683e94b2e52e8faf273a1e327629f5b01b9e",
-      "lastModified": "2026-09-03",
+      "checksum": "1fef1083724f9f4f919c9b5eda610c7f0636d6806b21057df0c1c40a807af7a1",
+      "lastModified": "2026-10-13",
       "updateStrategy": "replace"
     },
     "skills/security/references/application-security.md": {
       "version": "7.9.0",
-      "checksum": "fc79736fa7a87905143e87170913761b213e892ef8f7ef21c6d96119f161a949",
-      "lastModified": "2026-06-05",
+      "checksum": "698e241d761d93a3273be5530fb99b1e3d5d8b910686cdac2a69eb1524c46122",
+      "lastModified": "2026-10-13",
       "updateStrategy": "replace"
     },
     "skills/security/references/auth-methods.md": {
@@ -2791,8 +2731,8 @@
     },
     "skills/tdd-workflow/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "2ee53f3a6ce3abb410e30534db983ea6ab568178e44cc0c06267bbf1eab722ae",
-      "lastModified": "2026-09-10",
+      "checksum": "f36df08ff695943a8496d0ba284b7db3edf41a8e44ad5c4f590a5a17ec32a025",
+      "lastModified": "2026-10-02",
       "updateStrategy": "replace"
     },
     "skills/tdd-workflow/references/deep-modules.md": {

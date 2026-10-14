@@ -46,8 +46,8 @@ checkpoint humano. Leia a caixa [PRIME-DIRECTIVE](#prime-directive) antes de sug
 
 ## Os 5 gatilhos canônicos (mapeados a sinais semânticos)
 
-O detector do plugin (`hooks/user-prompt-gate.cjs`) mapeia estes sinais. A prosa aqui descreve
-**o que aciona** — sem repetir os thresholds numéricos que vivem apenas no hook (INV5).
+Desde a 8.0 o plugin não tem detector automático desses sinais: o hook que fazia isso nunca rodou e
+saiu na fatia 2. A prosa aqui descreve **o que aciona**, para o Claude e o dev reconhecerem o caso.
 
 ### 1. Varredura ou auditoria do codebase inteiro
 
