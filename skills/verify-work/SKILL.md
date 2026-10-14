@@ -544,7 +544,7 @@ Antes de iniciar a verificacao, verificar se `{PASTA_ATIVA}/SUMMARY.md` existe (
 
 ### Learn Point (opcional)
 
-> "Quer entender algum finding da verificacao ou como um dos auditores funciona? Posso aprofundar via `/learn`."
+> "Quer entender algum finding da verificacao ou como um dos auditores funciona? Posso explicar em linguagem simples."
 
 ### Cleanup de Artefatos — Arquivamento do PRD
 
