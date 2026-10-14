@@ -186,7 +186,6 @@ Para correções triviais, **não use o pipeline** — vai direto. O TDD Gate ex
 | Decision Registry | `/anti-vibe-coding:decision-registry` | Registro de decisões arquiteturais (ADRs) |
 | Compound Engineering | `/anti-vibe-coding:compound-engineering` | Scaffold + gate de captura de conhecimento durável |
 | Git Workflow | `/anti-vibe-coding:git-workflow-and-versioning` | Conventional commits, atomicidade, PR como contrato |
-| Parity Audit | `/anti-vibe-coding:parity-audit` | Audita capabilities (MCPs, tools, subagentes) e produz gaps |
 
 ### Manutenção do plugin
 
@@ -514,7 +513,6 @@ bun run typecheck         # tsc --noEmit
 bun run test:e2e          # e2e isolado
 bun run harness:validate  # estrutura docs/
 bun run compound:check    # compound notes
-bun run parity:audit      # capabilities do agente
 ```
 
 GitHub Actions roda esses checks em PR automaticamente.

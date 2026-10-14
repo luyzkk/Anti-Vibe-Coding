@@ -1,6 +1,6 @@
 {
   "version": "7.9.0",
-  "generatedAt": "2026-10-14T12:55:11.895Z",
+  "generatedAt": "2026-10-14T12:57:29.537Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "api-design": {
@@ -110,12 +110,6 @@
       "version": "7.9.0",
       "introduced": "v7.9.0",
       "description": "Registro de licoes aprendidas do projeto, com filtro de qualidade senior. Use ao registrar uma licao, revisar as existentes, ou podar as obsoletas."
-    },
-    "parity-audit": {
-      "path": "skills/parity-audit/",
-      "version": "7.9.0",
-      "introduced": "v7.9.0",
-      "description": "Audita capabilities do agente (MCPs, tools, subagentes) e produz parity-gaps.json com gaps ranqueados por severity. Use quando quiser revisar se o agente tem ferramentas para o task_type que você vai pedir."
     },
     "plan-feature": {
       "path": "skills/plan-feature/",
@@ -485,12 +479,6 @@
       "lastModified": "2026-05-13",
       "updateStrategy": "replace"
     },
-    "scripts/parity-audit.ts": {
-      "version": "7.9.0",
-      "checksum": "41076b34b3210ec86c5e7528628f8229c41f29c870fef781ab5d9fc4a6522fa9",
-      "lastModified": "2026-05-16",
-      "updateStrategy": "replace"
-    },
     "scripts/preface-simulate.ts": {
       "version": "7.9.0",
       "checksum": "1eb95c2614dd80de919f7d5bc31c80dad687c60e2820534fa1dbdb07bff0d8ab",
@@ -835,8 +823,8 @@
     },
     "skills/defensive-patterns/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "4196dfadcdde3048ede052b660cb1ac4720fbaeccd359fb2b5fc335e01e72486",
-      "lastModified": "2026-08-12",
+      "checksum": "a6c5da787fbf87e47548249602beaa4d51f47c263e127601ea7efbcfdb42c27f",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "skills/design-patterns/SKILL.md": {
@@ -2159,24 +2147,6 @@
       "lastModified": "2026-05-16",
       "updateStrategy": "replace"
     },
-    "skills/parity-audit/SKILL.md": {
-      "version": "7.9.0",
-      "checksum": "490c67935b256147320bc9277a73bd7218ff7dcfdfb60bc07f7a2b4f7b056617",
-      "lastModified": "2026-05-16",
-      "updateStrategy": "replace"
-    },
-    "skills/parity-audit/lib/gap-rules.ts": {
-      "version": "7.9.0",
-      "checksum": "50c9763e455522ed765e0c7624835fa28144b62b254d054fc392ae31c4f13343",
-      "lastModified": "2026-09-05",
-      "updateStrategy": "replace"
-    },
-    "skills/parity-audit/lib/parity-gaps-writer.ts": {
-      "version": "7.9.0",
-      "checksum": "32b3f4c75a0f92fe8949ceb79ea2884ee640d8228f6e3c9f17abf28e548c5656",
-      "lastModified": "2026-09-05",
-      "updateStrategy": "replace"
-    },
     "skills/plan-feature/SKILL.md": {
       "version": "7.9.0",
       "checksum": "e6d7be0d22c2c3191257fe1d9175f1fec0d2fc0779210c8fcc57cb063e2d4b4e",
@@ -2533,8 +2503,8 @@
     },
     "skills/verify-work/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "31f37f1152fac34cba3be86ddd0745bb8d75dcf2c62199c8b7b9880731803262",
-      "lastModified": "2026-09-06",
+      "checksum": "7a6e77b85c870d305ceeeff060f8ccba73bc85b2a378cbcf26a9cca8f6966dd5",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "skills/verify-work/lib/adherence-checks.ts": {

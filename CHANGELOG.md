@@ -1192,14 +1192,14 @@ Gate de paridade prova texto. Dogfood prova execução. As duas coisas são nece
 ### Added
 
 - **AST-based capabilities writer** ([skills/lib/capabilities-writer.ts](skills/lib/capabilities-writer.ts)) — `discovery/capabilities.json` agora tem `source: "ast"` honesto via `@typescript-eslint/parser`. Rotas Next.js App Router detectadas determinísticamente (CA-05).
-- **Script executável `bun run parity:audit`** ([scripts/parity-audit.ts](scripts/parity-audit.ts)) — wire-up CLI da skill `/parity-audit` com validação de `task_type` por whitelist (CA-07).
+- **Script executável `bun run parity:audit`** (`scripts/parity-audit.ts`) — wire-up CLI da skill `/parity-audit` com validação de `task_type` por whitelist (CA-07).
 - **`gap-rules.crossCapabilitiesWithUsage`** — `parity-gaps.json` agora cruza capabilities declaradas vs. uso real no codebase, gerando linha `declared-not-used` para handlers órfãos (CA-08).
 - **Stale-warning helper** (`<!-- stale-capabilities-check:start -->`) replicado nas 6 skills profile-aware — quando `capabilities.json:generated_at > 24h`, emite warning stderr non-blocking (CA-09).
 - **2 regressões em `harness-validate-preface.test.ts`** — bloco prosa-only ou bloco com apenas `readArchitectureProfile` agora falham explicitamente.
 
 ### Changed
 
-- **Schema `parity-gaps` v2** ([discovery/_schemas/parity-gaps-v2.schema.json](discovery/_schemas/parity-gaps-v2.schema.json)) — shape rico com `handler` line-suffix (`app/api/foo/route.ts:42`). `parity-gaps-writer.ts:computeParityGaps` é agora `async`. v1 mantido como deprecated até v6.4 (CA-06/CA-13).
+- **Schema `parity-gaps` v2** (`discovery/_schemas/parity-gaps-v2.schema.json`) — shape rico com `handler` line-suffix (`app/api/foo/route.ts:42`). `parity-gaps-writer.ts:computeParityGaps` é agora `async`. v1 mantido como deprecated até v6.4 (CA-06/CA-13).
 - **`computeParityGaps` agora async** — 5 callers atualizados em `scripts/parity-audit.ts`, `tests/parity-gaps-schema-v2.test.ts`, `skills/parity-audit/lib/__tests__/parity-gaps-writer.test.ts`, `skills/init/lib/reuse-discovery.ts`/`.test.ts`.
 - **`/architecture` e `/detect-architecture` migrados ao bloco canônico** (`<!-- profile-aware-preface:start -->`) usando `readPrefaceContext` em vez de `readArchitectureProfile` direto. Espelha padrão de `skills/security/SKILL.md`. Fecha CA-11 da v6.3.0.
 
@@ -1226,7 +1226,7 @@ Gate de paridade prova texto. Dogfood prova execução. As duas coisas são nece
 
 - **`PrefaceContext` + `readPrefaceContext`** ([skills/lib/preface-context.ts](skills/lib/preface-context.ts)) — helper único para skills consumirem profile/language/framework. Shape composto desde já; v6.5/v6.6 preenchem slots reservados sem refactor.
 - **`discovery/capabilities.json`** — `/init` produz inventário de rotas/handlers do projeto. Cobertura inicial: `nextjs-app-router` (AST determinístico) + `mvc-flat` (LLM-fallback marcado). Gitignored por default.
-- **Skill `/anti-vibe-coding:parity-audit`** ([skills/parity-audit/SKILL.md](skills/parity-audit/SKILL.md)) — produz `discovery/parity-gaps.json` ranqueado por severity (`critical | important | nice`). `kind: "audit"` no contrato v6.1.0.
+- **Skill `/anti-vibe-coding:parity-audit`** (`skills/parity-audit/SKILL.md`) — produz `discovery/parity-gaps.json` ranqueado por severity (`critical | important | nice`). `kind: "audit"` no contrato v6.1.0.
 - **Lib `tool-registry-inspector`** ([skills/lib/tool-registry-inspector.ts](skills/lib/tool-registry-inspector.ts)) — enumera MCPs/builtin-tools/subagents em runtime. Consumida por `/parity-audit` e `qa-visual` refatorada.
 - **Schemas JSON versionados** em `discovery/_schemas/` (`capabilities-v1.schema.json`, `parity-gaps-v1.schema.json`).
 - **6 skills com `profile-aware-preface`** (4 Must Have + 2 Should Have): `/security`, `/api-design`, `/system-design`, `/design-patterns`, `/decision-registry`, `/lessons-learned`. Pattern: lookup table per-skill em `skills/{skill}/lib/{skill}-prefaces.ts`; fallback default = comportamento v6.2 quando profile null (CA-02).
