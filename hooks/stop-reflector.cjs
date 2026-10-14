@@ -18,16 +18,8 @@ const CORRECTION_PATTERNS = [
   /\bvoc[eê]\s+(quebrou|estragou)\b/i,
 ]
 
-const COMPLETED_PATTERNS = [
-  /\bship\s+it\b/i,
-  /\bcommit(a|e|amos|ar)?\s+(isso|essa|agora)\b/i,
-  /\bpod(e|emos)\s+commitar\b/i,
-  // Standalone signals: mensagem inteira (trimmed) e apenas o token.
-  // Evita falso positivo em "estiver pronto", "quando ele finalizar", etc.
-  /^\s*pronto\s*[!.]?\s*$/i,
-  /^\s*done\s*[!.]?\s*$/i,
-  /^\s*finalizado\s*[!.]?\s*$/i,
-]
+// 2026-10-13 (Luiz/dev): 8.0 fatia 2 — o ramo de "feature concluida" (que travava o fim da resposta
+// para sugerir uma lista de revisores) saiu. O dono escolheu manter so o capturador de licoes.
 
 function readStdin() {
   return new Promise((resolve) => {
@@ -74,7 +66,6 @@ function extractLastUserMessage(transcriptPath) {
 function classify(userText) {
   if (!userText) return null
   if (CORRECTION_PATTERNS.some((re) => re.test(userText))) return 'CORRECTION'
-  if (COMPLETED_PATTERNS.some((re) => re.test(userText))) return 'FEATURE_COMPLETED'
   return null
 }
 
@@ -84,13 +75,6 @@ function buildBlockOutput(kind) {
       decision: 'block',
       reason:
         '[CORRECTION_DETECTED] Uma correcao foi detectada. Considere registrar como licao aprendida com /anti-vibe-coding:lessons-learned para evitar o mesmo erro no futuro.',
-    }
-  }
-  if (kind === 'FEATURE_COMPLETED') {
-    return {
-      decision: 'block',
-      reason:
-        '[FEATURE_COMPLETED] Implementacao concluida! Apresente ao dev as opcoes abaixo e PERGUNTE quais deseja executar (nao execute automaticamente):\n- RECOMENDADO: Rodar agente security-auditor e code-smell-detector?\n- OPCIONAL: solid-auditor, react-auditor, api-auditor, database-analyzer, infrastructure-auditor?\n- QA VISUAL: Se arquivos .tsx/.jsx/.css/.html foram modificados, sugerir /anti-vibe-coding:qa-visual para verificacao no browser\n- DOCUMENTACAO: Criar subagente documentation-writer?\n- REVISAO: Invocar /anti-vibe-coding:verify-work ou /anti-vibe-coding:anti-vibe-review?',
     }
   }
   return null
@@ -118,14 +102,16 @@ async function run() {
   process.exit(0)
 }
 
+// 2026-10-13 (Luiz/dev): o hooks.json carrega este arquivo por require, e o guard abaixo deixava o hook
+// morto (nada rodava). O comando agora chama run() exportado; o guard fica para `node stop-reflector.cjs`.
 if (require.main === module) {
   run().catch(() => process.exit(0))
 }
 
 module.exports = {
+  run,
   classify,
   extractLastUserMessage,
   buildBlockOutput,
   CORRECTION_PATTERNS,
-  COMPLETED_PATTERNS,
 }

@@ -6,26 +6,20 @@ the pipeline is a shortcut, not a requirement.
 ## Skill Pipeline
 
 ```
-wayfinder ─┐
-           ├→ write-prd → plan-feature → execute-plan → verify-work → iterate
-grill-me  ─┘
+grill-me → write-prd → plan-feature → execute-plan → verify-work → lessons-learned
 ```
 
-Two entry points, converging on `write-prd`. Which one you take depends on whether you can already
-name the feature — see the entry condition on `wayfinder` below.
+A feature you can describe enters at `write-prd`. When the decisions behind it are still open, start
+with `grill-me` in its deep mode. (The `wayfinder` and `iterate` stages left the install in 8.0 and live in tag v7.9.0.)
 
-- **wayfinder** — *conditional front stage*; charts a large effort as a map of decision tickets.
-  **Entry condition: the destination is visible but the way there is not** — the idea exceeds one
-  agent session and you cannot yet name the questions it raises. A feature you can describe skips
-  this and enters at `grill-me` / `write-prd`
 - **grill-me** — ruthless pre-implementation interview; surfaces assumptions and edge cases
 - **write-prd** — interactive feature specification; output: PRD.md in a dated folder
 - **plan-feature** — hierarchical plan with semantic complexity analysis; output: planoNN/ structure
 - **execute-plan** — plan execution with memory and interactive transitions
 - **verify-work** — post-execution audit (harness:validate, compound:check, tests, lint)
-- **iterate** — post-deploy cycle: incident response + defensive hardening
+- **lessons-learned** — after merge: records what the work taught in `docs/compound/`
 
-Post-deploy cycle (v5.2+): `verify-work → iterate` — regression fixes and hardening in production.
+Something broke after deploy: `/incident-response` diagnoses it and `/defensive-patterns` picks the hardening.
 
 ## Artifact Structure (v6)
 
@@ -58,12 +52,10 @@ docs/exec-plans/
 
 ## Alternative Entry Points
 
-- `/wayfinder` → charts an effort too foggy to specify; its closed decisions feed `/write-prd`
 - `/grill-me` → can feed `/write-prd` or be standalone
 - `/design-twice` → can feed `/plan-feature` or be standalone
 - `/consultant` → exists for ad-hoc queries without pipeline
 - `/tdd-workflow` → exists for direct implementation
-- `/learn` → can be invoked at any point
 - `/init` → onboards a project; mode-detected (see below)
 - **`idea-stage checkpoint`** (opcional) → antes de `/write-prd`, verificar validade da ideia: e um painkiller ou vitamina? Nomear a premissa mais arriscada e como testa-la. Vive em `consultant` via `## Auditoria de Premissas`. Pular quando a ideia ja esta validada.
 
@@ -148,9 +140,10 @@ stack detectado. Paths validados via `fs.access` (mitiga LLM-hallucination).
 Stacks cobertos: Next.js, Next.js+Supabase, Rails, Node-TS, Laravel, Python. Fallback generico
 para `unknown`/`null`.
 
-### Gate "nunca diminuir"
+### Contract gate
 
-`tests/e2e/populate-plan-parity.test.ts` impede regressao mecanica:
+`tests/e2e/populate-plan-parity.test.ts` impede regressao mecanica. A regra "nunca diminuir" foi revogada pelo
+ADR-0024: reduzir pode, com a decisao registrada, e o teste continua travando o contrato.
 - `plan.phases.length >= 12` (CA-01).
 - `EXCLUDED_FROM_POPULATION_V2` nao contem PRODUCT_SENSE/README (MH-1 + D5).
 - Cada `LLM_INSTRUCTION` satisfaz contrato imperativo (CA-06).

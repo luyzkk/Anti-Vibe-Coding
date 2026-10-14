@@ -12,8 +12,8 @@ Novo ao repo? Comece aqui. Cada fase do trabalho tem uma skill canonica — invo
 | **Plan** | `/anti-vibe-coding:plan-feature`, `/anti-vibe-coding:quick-plan` | Plano executavel hierarquico (PLAN.md + fases) |
 | **Build** | `/anti-vibe-coding:tdd-workflow`, `/anti-vibe-coding:execute-plan` | Implementacao fase-a-fase em ciclo RED/GREEN |
 | **Verify** | `/anti-vibe-coding:verify-work`, `/anti-vibe-coding:security` | Testes verdes + auditoria multi-agente |
-| **Review** | `/anti-vibe-coding:verify-work` (canonico), `/anti-vibe-review (DEPRECADO → use /verify-work)` | Quality score + checklist de release |
-| **Ship** | `/anti-vibe-coding:lessons-learned`, `/anti-vibe-coding:iterate` | Compound capturado + ciclo pos-deploy aberto |
+| **Review** | `/anti-vibe-coding:verify-work` | Quality score + checklist de release |
+| **Ship** | `/anti-vibe-coding:lessons-learned` | Compound capturado |
 
 Fluxo canonico:
 
@@ -25,8 +25,7 @@ Define ---> Plan ---> Build ---> Verify ---> Review ---> Ship
 ```
 
 Skills auxiliares (chamaveis de qualquer fase): `/anti-vibe-coding:consultant`,
-`/anti-vibe-coding:decision-registry`, `/anti-vibe-coding:design-twice`,
-`/anti-vibe-coding:code-simplification`, `/anti-vibe-coding:learn`.
+`/anti-vibe-coding:decision-registry`, `/anti-vibe-coding:design-twice`.
 
 ---
 
@@ -38,7 +37,7 @@ Plan before code. Test before implement. Capture lessons after merge. Discipline
 
 | Situation | Read |
 |---|---|
-| Understanding the plugin pipeline (wayfinder / grill-me → write-prd → plan-feature → execute-plan → verify-work → iterate) | `docs/PIPELINE.md` |
+| Understanding the plugin pipeline (grill-me → write-prd → plan-feature → execute-plan → verify-work → lessons-learned) | `docs/PIPELINE.md` |
 | Configuring model profiles per agent (quality/balanced/budget) | `docs/MODEL_PROFILES.md` |
 | Listing available subagent auditors | `docs/AGENTS_LIST.md` |
 | When a task is scale (codebase-wide audit, 100s of files, cross-checked research) — workflow vs subagent vs skill | `docs/WORKFLOWS.md` |

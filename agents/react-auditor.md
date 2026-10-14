@@ -114,7 +114,6 @@ Regras ESPECIFICAS do dominio React:
 - Antes de merge de PR que toca: data fetching, Context API, memoizacao (useMemo/useCallback/React.memo), ou listas renderizadas.
 
 **Invoke via:**
-- `/anti-vibe-coding:react-patterns` (skill principal de consultoria de patterns React).
 - `/anti-vibe-coding:verify-work` (etapa de verificacao pos-execucao).
 
 **Do not invoke from:**

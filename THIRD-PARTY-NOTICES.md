@@ -4,6 +4,8 @@
 
 This file lists third-party works that the Anti-Vibe-Coding plugin includes content **derived from** (not copied verbatim). Each entry preserves the upstream copyright notice and license text as required by the upstream license terms.
 
+**Since 8.0:** the derived skills `prototype`, `wayfinder`, `writing-for-agents`, `improve-codebase-architecture` and `resolving-merge-conflicts` left the install. They remain in tag `v7.9.0`, and the notices below still apply to that tag.
+
 ---
 
 ## Anti-Vibe-Coding plugin includes content derived from third-party works:

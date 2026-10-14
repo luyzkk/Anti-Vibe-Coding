@@ -7,7 +7,7 @@ const FIXTURE = path.join(import.meta.dir, '__fixtures__', 'compound-check-fm')
 // 2026-05-24 (Luiz/dev): path atualizado após git mv — Plano 02 fase-01 (D15)
 const SCRIPT_SRC = path.join(
   import.meta.dir, '..',
-  'skills/compound-engineering/assets/scripts/compound-check.ts.tpl',
+  'skills/init/assets/templates/scripts/compound-check.ts.tpl',
 )
 
 async function runScript(cwd: string): Promise<{ code: number; stderr: string; stdout: string }> {

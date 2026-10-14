@@ -9,7 +9,7 @@ argument-hint: "[log ou descrição do incidente]"
 
 # Skill: /anti-vibe-coding:incident-response
 
-<!-- skills/iterate/SKILL.md aponta para esta skill em dois lugares, ambos para os satélites:
+<!-- A skill iterate (na tag v7.9.0) apontava para esta skill em dois lugares, ambos para os satélites:
      references/feedback-loops.md ("Bugs não-determinísticos") e references/instrumentation.md.
      Renomear essas seções, ou mover os arquivos, quebra a referência em silêncio — nenhum
      teste pega path-em-doc. Mexeu? Atualize iterate junto. -->
@@ -244,14 +244,14 @@ Após o commit — nunca antes, porque agora há mais informação do que havia 
 
 Se a resposta da 4 envolver mudança arquitetural — ausência de seam correto, callers emaranhados,
 acoplamento escondido — encaminhar com as especificidades para
-`/anti-vibe-coding:architecture`, ou `/anti-vibe-coding:code-simplification` quando o problema for
+`/anti-vibe-coding:architecture`, ou para o `/simplify` nativo do Claude Code quando o problema for
 excesso de indireção. A recomendação vale mais aqui do que no início: o diagnóstico inteiro é a
 evidência dela.
 
 E quando o atrito for de forma de módulo — seam no lugar errado, um módulo shallow que concentraria
 complexidade se fosse aprofundado — o diagnóstico já é a direção que uma varredura precisa: recomende
-ao dev rodar `/anti-vibe-coding:improve-codebase-architecture` com esse ponto de dor como escopo. Ela
-é user-invoked, e a decisão de varrer é dele.
+ao dev uma revisão de arquitetura com esse ponto de dor como escopo, pelo `/anti-vibe-coding:architecture`.
+A decisão de varrer é dele.
 
 Se a autópsia revelar um padrão recorrente, registrar via `/anti-vibe-coding:lessons-learned add`.
 

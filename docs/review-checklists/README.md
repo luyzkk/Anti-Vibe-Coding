@@ -12,4 +12,4 @@ Per-domain checklists for code review. Use before merging any change.
 | `frontend-ui.md` | N/A — this project has no UI |
 | `production-readiness.md` | Before any release or merge to main |
 
-Run `/anti-vibe-coding:anti-vibe-review` to invoke relevant auditors automatically.
+Run `/anti-vibe-coding:verify-work` to invoke relevant auditors.

@@ -141,7 +141,6 @@ Para correções triviais, **não use o pipeline** — vai direto. O TDD Gate ex
 
 | Skill | Comando | Propósito |
 |-------|---------|-----------|
-| Wayfinder | `/anti-vibe-coding:wayfinder` | Mapa e fronteira do trabalho — o que está pronto, o que está bloqueado, o que vem agora |
 | Grill Me | `/anti-vibe-coding:grill-me` | Entrevista implacável pré-implementação (5–25 perguntas) |
 | Design Twice | `/anti-vibe-coding:design-twice` | 3+ propostas arquiteturais divergentes em paralelo |
 | Write PRD | `/anti-vibe-coding:write-prd` | Especificação completa via entrevista interativa |
@@ -154,11 +153,8 @@ Para correções triviais, **não use o pipeline** — vai direto. O TDD Gate ex
 
 | Skill | Comando | Propósito |
 |-------|---------|-----------|
-| Iterate | `/anti-vibe-coding:iterate` | Ciclo pós-deploy: incident → hardening → centralize |
 | Incident Response | `/anti-vibe-coding:incident-response` | Bug difícil ou regressão de perf: raw logs → loop *tight* → hipótese → regression test → fix |
 | Defensive Patterns | `/anti-vibe-coding:defensive-patterns` | Menu de hardening: rate limit, circuit breaker, retry, timeout |
-| Centralize Config | `/anti-vibe-coding:centralize-config` | Migração de config espalhada para fonte única |
-| TODO Pick | `/anti-vibe-coding:todo-pick` | Puxa 1 item do `TODO.md` por vez para correção |
 
 ### Consultoria e domínio
 
@@ -169,28 +165,18 @@ Para correções triviais, **não use o pipeline** — vai direto. O TDD Gate ex
 | Security | `/anti-vibe-coding:security` | OWASP Top 10, auth, JWT, crypto, secrets |
 | API Design | `/anti-vibe-coding:api-design` | N+1, idempotência, DTOs, webhooks, REST |
 | System Design | `/anti-vibe-coding:system-design` | CAP, PACELC, cache, scaling, replicação |
-| React Patterns | `/anti-vibe-coding:react-patterns` | useEffect, data fetching, memoization, state |
 | Design Patterns | `/anti-vibe-coding:design-patterns` | Code smells, error handling, refactoring |
 | Infrastructure | `/anti-vibe-coding:infrastructure` | DNS, hosting, deploy, CDN, serverless |
 | Domain Modeling | `/anti-vibe-coding:domain-modeling` | Glossário de linguagem ubíqua — nomes do domínio antes do código |
-| Learn | `/anti-vibe-coding:learn` | Explicações adaptativas pelo nível |
 
 ### Workflow e qualidade
 
 | Skill | Comando | Propósito |
 |-------|---------|-----------|
 | TDD Workflow | `/anti-vibe-coding:tdd-workflow` | Workflow adaptativo IA-TDD (3 níveis) |
-| Anti-Vibe Review | `/anti-vibe-coding:anti-vibe-review` | Auditoria pós-implementação (multi-domínio) |
 | QA Visual | `/anti-vibe-coding:qa-visual` | Verificação no browser via Playwright MCP |
 | Doubt-Driven Development | `/anti-vibe-coding:doubt-driven-development` | Revisão adversarial fresh-context antes de decisão "ficar de pé" |
 | Source-Driven Development | `/anti-vibe-coding:source-driven-development` | Ancora cada decisão em documentação oficial citada |
-| Code Simplification | `/anti-vibe-coding:code-simplification` | Identifica over-engineering, duplicação, complexidade |
-| Incremental Implementation | `/anti-vibe-coding:incremental-implementation` | Divide features em incrementos verificáveis |
-| Pair Programming | `/anti-vibe-coding:pair-programming-with-agent` | Sessão estruturada humano-navega-IA-pilota |
-| Prototype | `/anti-vibe-coding:prototype` | Código descartável que responde uma pergunta, sem virar produção |
-| Improve Codebase Architecture | `/anti-vibe-coding:improve-codebase-architecture` | Varredura periódica de arquitetura, com relatório |
-| Resolving Merge Conflicts | `/anti-vibe-coding:resolving-merge-conflicts` | Resolve conflito entendendo as duas intenções, não escolhendo um lado |
-| Writing for Agents | `/anti-vibe-coding:writing-for-agents` | Lente de escrita para agente — instrução que sobrevive ao contexto |
 
 ### Memória e decisões
 
@@ -198,10 +184,7 @@ Para correções triviais, **não use o pipeline** — vai direto. O TDD Gate ex
 |-------|---------|-----------|
 | Lessons Learned | `/anti-vibe-coding:lessons-learned` | Registra lições com filtro de qualidade sênior |
 | Decision Registry | `/anti-vibe-coding:decision-registry` | Registro de decisões arquiteturais (ADRs) |
-| Compound Engineering | `/anti-vibe-coding:compound-engineering` | Scaffold + gate de captura de conhecimento durável |
 | Git Workflow | `/anti-vibe-coding:git-workflow-and-versioning` | Conventional commits, atomicidade, PR como contrato |
-| Enhance Prompt | `/anti-vibe-coding:enhance-prompt` | Otimiza prompts de execução automatizada |
-| Parity Audit | `/anti-vibe-coding:parity-audit` | Audita capabilities (MCPs, tools, subagentes) e produz gaps |
 
 ### Manutenção do plugin
 
@@ -283,8 +266,8 @@ Confiança <80% pede confirmação do dev antes de aplicar.
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │  Pós-deploy                                                     │
-│  /iterate ────► /incident-response ────► /defensive-patterns    │
-│  (ciclo)        (investigação)            (hardening)           │
+│  /incident-response ────► /defensive-patterns                   │
+│  (investigação)            (hardening)                          │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -358,13 +341,9 @@ Para correções triviais, **não use o pipeline** — vai direto:
 ### Cenário 3: Pós-deploy / produção quebrou
 
 ```
-# Ciclo completo embrulhado
-/anti-vibe-coding:iterate
-
-# Ou passo a passo:
+# Passo a passo:
 /anti-vibe-coding:incident-response       # raw logs → loop tight → hipótese → regression test → fix
 /anti-vibe-coding:defensive-patterns      # menu de hardening
-/anti-vibe-coding:centralize-config       # migra config espalhada para fonte única
 ```
 
 ### Cenário 4: Decisão arquitetural irreversível
@@ -373,14 +352,6 @@ Para correções triviais, **não use o pipeline** — vai direto:
 /anti-vibe-coding:consultant
 # Apresenta opções, prós/contras, recomendação contextualizada
 # NÃO escreve código — só ensina e ajuda decidir
-```
-
-### Cenário 5: Aprender um conceito antes de aplicar
-
-```
-/anti-vibe-coding:learn JWT vs session cookies
-# Calibra ao seu nível (basic/intermediate/advanced)
-# Conecta a código real do projeto quando relevante
 ```
 
 ---
@@ -541,7 +512,6 @@ bun run typecheck         # tsc --noEmit
 bun run test:e2e          # e2e isolado
 bun run harness:validate  # estrutura docs/
 bun run compound:check    # compound notes
-bun run parity:audit      # capabilities do agente
 ```
 
 GitHub Actions roda esses checks em PR automaticamente.

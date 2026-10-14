@@ -63,8 +63,8 @@ function renderSection(name: string, input: ExecPlanInput): string {
     'Execution Steps':      (i) => bulletOrEmpty(i.executionSteps),
     'Review Checklist':     (i) => checkboxOrEmpty(i.reviewChecklist),
     'Validation Log':       () => '<!-- preencher durante execucao: comando + resultado -->\n',
-    'Compound Opportunity': () => '<!-- preencher ao /iterate: o que merece virar compound note? -->\n',
-    'Lessons Captured':     () => '<!-- preencher ao /iterate: links para docs/compound/ -->\n',
+    'Compound Opportunity': () => '<!-- preencher ao fechar o plano: o que merece virar compound note? -->\n',
+    'Lessons Captured':     () => '<!-- preencher ao fechar o plano: links para docs/compound/ -->\n',
     'Exit Criteria':        (i) => checkboxOrEmpty(i.exitCriteria),
   }
   const renderer = renderers[name] ?? (() => '\n')

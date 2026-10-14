@@ -81,13 +81,13 @@ describe('renderExecPlan (mode: full)', () => {
   it('Compound Opportunity uses iterate placeholder', () => {
     const output = renderExecPlan({ mode: 'full', title: 'X' })
     const sec = extractSection(output, 'Compound Opportunity')
-    expect(sec).toContain('<!-- preencher ao /iterate')
+    expect(sec).toContain('<!-- preencher ao fechar o plano')
   })
 
   it('Lessons Captured uses iterate placeholder', () => {
     const output = renderExecPlan({ mode: 'full', title: 'X' })
     const sec = extractSection(output, 'Lessons Captured')
-    expect(sec).toContain('<!-- preencher ao /iterate')
+    expect(sec).toContain('<!-- preencher ao fechar o plano')
   })
 
   it('Exit Criteria renders as checkboxes if provided', () => {

@@ -8,7 +8,6 @@ import * as decisionRegistry from '../skills/decision-registry'
 import * as planFeature from '../skills/plan-feature'
 import * as quickPlan from '../skills/quick-plan'
 import * as executePlan from '../skills/execute-plan'
-import * as iterate from '../skills/iterate'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 
@@ -102,28 +101,13 @@ describe('completion signal emission (CA-47)', () => {
     expect(signal).not.toBeNull()
     expect(signal?.skill).toBe('execute-plan')
     expect(signal?.status).toBe('complete')
-    expect(signal?.next_suggested).toBe('/iterate')
-  })
-
-  // === iterate ===
-  it('iterate emits valid completion signal on iterate()', async () => {
-    const mockPrompt = async (_planTitle: string) => ({
-      choice: 'no_capture_needed' as const,
-      noCaptureReason: 'test',
-    })
-    const output = await captureConsoleLog(async () => {
-      await iterate.iterate(mockPrompt, projectRoot)
-    })
-    const signal = extractCompletionSignal(output)
-    expect(signal).not.toBeNull()
-    expect(signal?.skill).toBe('iterate')
-    expect(signal?.status).toBe('complete')
+    expect(signal?.next_suggested).toBe('/lessons-learned')
   })
 
   // === SKILL.md checks ===
-  it('all 6 SKILL.md files contain Completion Signal (D33) section', async () => {
+  it('all 5 SKILL.md files contain Completion Signal (D33) section', async () => {
     const skillsDir = path.resolve(import.meta.dir, '..', 'skills')
-    const skills = ['lessons-learned', 'decision-registry', 'plan-feature', 'quick-plan', 'execute-plan', 'iterate']
+    const skills = ['lessons-learned', 'decision-registry', 'plan-feature', 'quick-plan', 'execute-plan']
     for (const skill of skills) {
       const skillMd = path.join(skillsDir, skill, 'SKILL.md')
       const content = await fs.readFile(skillMd, 'utf-8')

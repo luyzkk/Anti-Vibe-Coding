@@ -29,7 +29,6 @@
     "pipeline",
     "ia-tdd",
     "model-profiles",
-    "context-monitor",
     "vertical-slices",
     "wave-execution",
     "deep-modules",

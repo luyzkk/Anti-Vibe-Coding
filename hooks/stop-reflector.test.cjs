@@ -1,5 +1,6 @@
 // 2026-05-20 (Luiz/dev): testes para stop-reflector.cjs
-// Cobertura: NOTHING, CORRECTION, FEATURE_COMPLETED, stop_hook_active early-exit
+// Cobertura: NOTHING, CORRECTION, stop_hook_active early-exit. A fiacao do comando real fica em
+// tests/hooks/hooks-wiring.test.ts.
 'use strict'
 
 const { test } = require('node:test')
@@ -37,12 +38,19 @@ test('classify returns CORRECTION for explicit user correction (EN)', () => {
   assert.equal(classify("that's wrong, try again"), 'CORRECTION')
 })
 
-test('classify returns FEATURE_COMPLETED for explicit completion signals', () => {
-  assert.equal(classify('ship it'), 'FEATURE_COMPLETED')
-  assert.equal(classify('finalizado'), 'FEATURE_COMPLETED')
-  assert.equal(classify('pronto!'), 'FEATURE_COMPLETED')
-  assert.equal(classify('done.'), 'FEATURE_COMPLETED')
-  assert.equal(classify('pode commitar agora'), 'FEATURE_COMPLETED')
+// 2026-10-13 (Luiz/dev): 8.0 fatia 2 — o dono escolheu reviver so o capturador de licoes. O ramo de
+// "feature concluida" travava o fim da resposta para sugerir revisores e nunca rodou; saiu.
+test('classify ignores completion signals — only the lesson capture remains', () => {
+  assert.equal(classify('ship it'), null)
+  assert.equal(classify('finalizado'), null)
+  assert.equal(classify('pronto!'), null)
+  assert.equal(classify('done.'), null)
+  assert.equal(classify('pode commitar agora'), null)
+})
+
+test('exports run, so the hooks.json command can execute it when loaded by require', () => {
+  const mod = require('./stop-reflector.cjs')
+  assert.equal(typeof mod.run, 'function')
 })
 
 test('classify does NOT false-positive on words inside larger sentences', () => {
@@ -80,11 +88,8 @@ test('buildBlockOutput emits CORRECTION_DETECTED marker', () => {
   assert.match(out.reason, /lessons-learned/)
 })
 
-test('buildBlockOutput emits FEATURE_COMPLETED marker', () => {
-  const out = buildBlockOutput('FEATURE_COMPLETED')
-  assert.equal(out.decision, 'block')
-  assert.match(out.reason, /FEATURE_COMPLETED/)
-  assert.match(out.reason, /security-auditor/)
+test('buildBlockOutput no longer emits a FEATURE_COMPLETED block', () => {
+  assert.equal(buildBlockOutput('FEATURE_COMPLETED'), null)
 })
 
 test('extractLastUserMessage reads JSONL transcript and returns last user content', () => {

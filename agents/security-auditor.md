@@ -245,7 +245,6 @@ Regras ESPECIFICAS do dominio de seguranca:
 **Invoke via (orquestradores conhecidos):**
 - `/anti-vibe-coding:security` (skill principal de consultoria de seguranca).
 - `/anti-vibe-coding:verify-work` (etapa de verificacao pos-execucao).
-- `/anti-vibe-coding:iterate` (incident response — auditoria de causa raiz).
 
 **Do not invoke from:**
 - Dentro de `code-smell-detector` ou `solid-auditor` (escopos distintos — composicao explicita gera ruido e custo redundante).

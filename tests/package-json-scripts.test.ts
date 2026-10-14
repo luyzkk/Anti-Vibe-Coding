@@ -34,14 +34,6 @@ describe('package.json.tpl template', () => {
     expect(parsed.scripts['harness:all']).toBe('bun run harness:validate && bun run compound:check')
   })
 
-  // 2026-08-17 (Luiz/dev): plano10 fase-02 — a skill wayfinder e distribuida e nomeia este comando.
-  // Fica pinado a parte: o contrato aqui e o NOME exato do comando que a skill manda rodar.
-  it('has wayfinder:frontier script named exactly as the distributed skill invokes it', async () => {
-    const body = await fs.readFile(TPL_PATH, 'utf8')
-    const parsed = JSON.parse(body) as PackageJsonTpl
-    expect(parsed.scripts['wayfinder:frontier']).toBe('bun run scripts/wayfinder-frontier.ts')
-  })
-
   // 2026-08-17 (Luiz/dev): generalizado do assert que era so do wayfinder. Antes, cada script novo no
   // package.json.tpl pedia um teste novo aqui — uma das edicoes manuais que somar um script ao
   // scaffold custava. Agora a varredura cobre os futuros sozinha.

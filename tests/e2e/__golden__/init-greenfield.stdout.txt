@@ -3,7 +3,7 @@
 [03-secrets-scan] secrets-scan [init-secrets-scan]: 0 arquivos varridos, 0 arquivos com match
 [migrate-planning-and-manifest] legacy-manifest written (1 entries)
 [migrate-planning-and-manifest] (mutated disk)
-[05-scaffold-and-link] placeholdersCreated: 39 (de 39)
+[05-scaffold-and-link] placeholdersCreated: 38 (de 38)
 placeholdersSkipped: 0
 Linked via tier: symlink
 [05-scaffold-and-link] (mutated disk)

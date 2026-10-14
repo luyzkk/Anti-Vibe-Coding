@@ -70,7 +70,7 @@ Suporta dois formatos:
         — atualiza frontmatter (status: completed, adiciona completedAt: YYYY-MM-DD)
         — move de docs/exec-plans/active/ para docs/exec-plans/completed/
      b. Disparar telemetria: exec_plan.completed { slug, mode, duration_ms }
-     c. Sugerir /iterate (que disparara o Compound Decision Gate — fase-06)
+     c. Sugerir /anti-vibe-coding:lessons-learned se o plano ensinou algo duravel (Compound Decision Gate)
 4. Idempotencia: se crash entre writeFile e unlink, arquivo pode existir em ambos os dirs.
    Proxima invocacao detecta status: completed em active/ e ignora (nao re-executa).
 ```
@@ -942,7 +942,7 @@ Step 6-FLAT: SUMMARY ao completar
 
 ### Learn Point (opcional)
 
-> "Quer entender context isolation RED/GREEN, execucao hierarquica ou memoria por plano? Posso aprofundar via `/learn`."
+> "Quer entender context isolation RED/GREEN, execucao hierarquica ou memoria por plano? Posso explicar em linguagem simples."
 
 ### Escape Hatches
 - Dev pode pausar entre planos (estado salvo em `{PASTA_ATIVA}/STATE.md`)
@@ -962,7 +962,7 @@ console.log('\n\n' + renderCompletionSignal({
   skill: 'execute-plan',
   status: 'complete',
   outputs: [/* path relativo do plano movido para completed/ */],
-  next_suggested: '/iterate',
+  next_suggested: '/lessons-learned',
   blocks_for_user: [],
 }))
 ```

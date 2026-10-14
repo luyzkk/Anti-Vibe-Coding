@@ -243,8 +243,8 @@ dentro de PASTA_ATIVA. Nunca fora da pasta do PRD.
 
 **Quando nem da para escrever o PRD.** Se a descricao do dev revelar que as decisoes de base ainda
 nao foram tomadas — nao e falta de documento, e falta de resposta —, planejar em cima disso e
-planejar sobre premissa. Oferecer [`wayfinder`](../wayfinder/SKILL.md), que carta essas decisoes como
-tickets antes de existir plano.
+planejar sobre premissa. Oferecer o `/anti-vibe-coding:grill-me` em modo profundo, que fecha essas
+decisoes antes de existir plano.
 
 A fronteira e estreita, e vale respeita-la: **a maioria das features cabe direto no `/write-prd`.**
 Este desvio e para a ideia que ainda esta em neblina, nao para toda feature sem PRD.
@@ -780,7 +780,7 @@ Se sim, explicar brevemente:
 - **Tracer Bullet:** o slice mais fino que prova a arquitetura end-to-end. Do livro "The Pragmatic Programmer".
 - **Planos hierarquicos:** decomposicao natural por dominio, permitindo contextos isolados e execucao incremental.
 
-Para aprofundar: sugerir `/anti-vibe-coding:learn "vertical slices"` ou `/anti-vibe-coding:learn "tracer bullet"`
+Para aprofundar: explicar "vertical slices" e "tracer bullet" em linguagem simples, com um exemplo do proprio projeto
 
 ---
 
@@ -859,7 +859,7 @@ PLAN.md usa `lib/exec-plan-template.ts → renderExecPlan({ mode: 'full', ... })
 10 secoes H2 (Goal, Scope, Assumptions, Risks, Execution Steps, Review Checklist,
 Validation Log, Compound Opportunity, Lessons Captured, Exit Criteria).
 Validation Log / Compound Opportunity / Lessons Captured ficam vazias inicialmente
-(preenchidas durante execucao via /execute-plan e /iterate).
+(preenchidas durante a execucao via /execute-plan).
 
 ---
 

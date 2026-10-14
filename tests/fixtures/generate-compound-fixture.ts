@@ -118,10 +118,10 @@ This is the agent index.
   // Copiar harness-validate.ts e compound-check.ts do template do plugin.
   // Fixture deve ser auto-suficiente: scripts devem existir em scripts/ (required-files check).
   // 2026-05-25 (Luiz/dev): compound-check.ts.tpl mudou de owner — PRD 2026-05-22 (D2-B)
-  // moveu para skills/compound-engineering/assets/. harness-validate.ts.tpl ficou no init.
+  // voltou para skills/init/assets/templates/ na 8.0. harness-validate.ts.tpl ficou no init.
   const pluginRoot = path.resolve(import.meta.dir, '../..')
   const initTemplatesDir = path.join(pluginRoot, 'skills/init/assets/templates/scripts')
-  const compoundTemplatesDir = path.join(pluginRoot, 'skills/compound-engineering/assets/scripts')
+  const compoundTemplatesDir = path.join(pluginRoot, 'skills/init/assets/templates/scripts')
 
   await ensureDir(path.join(targetDir, 'scripts'))
   await fs.copyFile(

@@ -156,7 +156,7 @@ Skill: /anti-vibe-coding:api-design
 - Race conditions: Node.js is NOT immune (Cluster, async, horizontal scaling)
 - `grep -c` returns exit 1 when count=0 — treat "0" + exit 1 as valid result, not script error
 
-Skill: /anti-vibe-coding:react-patterns
+Guia React: knowledge/nextjs (a skill react-patterns ficou na tag v7.9.0)
 
 ---
 

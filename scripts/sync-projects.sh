@@ -154,7 +154,6 @@ Após rodar /init, verificar:
 - [ ] .claude/.anti-vibe-manifest.json foi criado
 - [ ] senior-principles.md existe
 - [ ] /anti-vibe-coding:update mostra "atualizado"
-- [ ] /anti-vibe-coding:learn funciona
 EOF
 
   echo "  ✓ Instruções criadas em .UPDATE-INSTRUCTIONS.md" | tee -a "$SYNC_LOG"

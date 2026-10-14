@@ -84,7 +84,6 @@ Regras ESPECIFICAS do dominio de avaliacao de licoes:
 
 **Invoke via (orquestradores conhecidos):**
 - `/anti-vibe-coding:lessons-learned` (skill principal de captura de licoes).
-- `/anti-vibe-coding:iterate` (pos-iteracao — avalia se a iteracao gerou conhecimento novo).
 
 **Do not invoke from:**
 - Outras personas de auditoria (`security-auditor`, `solid-auditor`) — escopos distintos, composicao explicita geraria custo redundante.

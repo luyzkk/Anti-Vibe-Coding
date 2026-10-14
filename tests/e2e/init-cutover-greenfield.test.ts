@@ -121,10 +121,19 @@ describe('E2E cutover — greenfield (CA-01)', () => {
   // Regenerar apos mudanca intencional no scaffold: rodar runInit sobre a fixture, normalizar com
   // os helpers acima e reescrever os dois arquivos de __golden__. Nunca editar golden a mao — ele
   // so vale por ter sido produzido.
+  //
+  // 2026-10-13 (Luiz/dev): 8.0 fatia 2 — a regeneracao agora e o proprio teste: UPDATE_GOLDENS=1 roda o
+  // init de verdade e reescreve os dois arquivos, como pede a convencao de goldens do repo. Revise o diff.
+  const UPDATE = process.env['UPDATE_GOLDENS'] === '1'
+
   test('greenfield init generates expected file tree matching golden', async () => {
     await captureLog(() => runInit([], { cwd: tmpDir }))
 
     const tree = normalizeTree(await readTreeSorted(tmpDir))
+    if (UPDATE) {
+      await fs.writeFile(GOLDEN_TREE, JSON.stringify(tree, null, 2) + '\n')
+      return
+    }
     const expectedTree = normalizeTree(
       JSON.parse(await fs.readFile(GOLDEN_TREE, 'utf8')) as string[],
     )
@@ -136,6 +145,10 @@ describe('E2E cutover — greenfield (CA-01)', () => {
     const { lines } = await captureLog(() => runInit([], { cwd: tmpDir }))
 
     const stdout = lines.join('\n')
+    if (UPDATE) {
+      await fs.writeFile(GOLDEN_STDOUT, normalizeStdout(stdout, tmpDir))
+      return
+    }
     const expectedStdout = await fs.readFile(GOLDEN_STDOUT, 'utf8')
     expect(normalizeStdout(stdout, tmpDir)).toBe(normalizeStdout(expectedStdout, '<TMP>'))
   })

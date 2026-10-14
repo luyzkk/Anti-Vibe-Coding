@@ -12,10 +12,9 @@ argument-hint: "[escopo: commit, branch, ou pr]"
 ## Differs from / Compose with
 
 - **CLAUDE.md global (`~/.claude/CLAUDE.md`)** e a **fonte de verdade** para "use conventional commits". Esta skill **complementa** com tecnicas adicionais: atomicidade, save point pattern, branch hygiene, PR description como contrato historico, change summary structure. Se houver conflito, CLAUDE.md global vence.
-- **`/iterate`** (pos-deploy): depende de commit history limpo para regression tests e hardening. Commits "Fix bug" tornam `/iterate` cego — esta skill veta esse antipadrao na origem.
 - **`/incident-response`**: post-mortem precisa de commit history navegavel (`git log --grep`, `git bisect`). Esta skill garante que cada commit seja recuperavel via mensagem descritiva.
 - **`/lessons-learned`**: extrai aprendizado de bugs reais. Quando o bug foi introduzido por commit "update auth.ts", a lesson e essa: commits opacos cegam debugging futuro.
-- **`code-simplification`**: refactor commits SEPARADOS de feature commits — esta skill obriga; `code-simplification` aplica refactor. Compoem: refactor em commit dedicado seguindo `refactor:` prefix.
+- **Refactor**: commits de refatoracao SEPARADOS de feature commits, com prefixo `refactor:`. Para simplificar o codigo em si, use o `/simplify` nativo do Claude Code.
 
 ## Overview
 
@@ -44,7 +43,9 @@ This is the recommended default. Teams using gitflow or long-lived branches can 
 - **Feature flags > long branches.** Prefer deploying incomplete work behind flags rather than keeping it on a branch for weeks.
 
 Esta skill e sobre **decidir** como commitar, ramificar e integrar. Quando o conflito ja aconteceu e
-o merge ou rebase esta parado no meio, o procedimento e outro: `/anti-vibe-coding:resolving-merge-conflicts`.
+o merge ou rebase esta parado no meio, o procedimento e outro: entenda a intencao de cada lado antes de
+escolher um, e rode a suite depois de resolver. O guia detalhado ficou guardado na tag v7.9.0, em
+`skills/resolving-merge-conflicts/`.
 
 ### 1. Commit Early, Commit Often
 

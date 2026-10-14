@@ -9,7 +9,7 @@ Snapshot of the project for agents and humans. Updated by `/init` and (in future
 
 ## Recent Activity
 
-(Populated by `/iterate` and other skills as they run.)
+(Populated by the plugin skills as they run.)
 
 ## Pending
 

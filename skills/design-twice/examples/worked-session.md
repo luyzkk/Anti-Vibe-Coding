@@ -232,4 +232,4 @@ Salvando em `.claude/decisions.md`:
 
 ## Step 7 — Learn Point
 
-> "Quer entender por que a Proposta B (extensibilidade via Noticed) tem o trade-off de complexidade inicial maior, mesmo sendo a escolha correta para este contexto? Posso explicar o principio Open-Closed em termos praticos — quando a abstracao de canal vale o custo e quando e prematuro — via /learn."
+> "Quer entender por que a Proposta B (extensibilidade via Noticed) tem o trade-off de complexidade inicial maior, mesmo sendo a escolha correta para este contexto? Posso explicar o principio Open-Closed em termos praticos — quando a abstracao de canal vale o custo e quando e prematuro."

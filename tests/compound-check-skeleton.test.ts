@@ -8,7 +8,7 @@ const FIXTURE = path.join(import.meta.dir, '__fixtures__', 'compound-check-skele
 const SCRIPT_SRC = path.join(
   import.meta.dir,
   '..',
-  'skills/compound-engineering/assets/scripts/compound-check.ts.tpl',
+  'skills/init/assets/templates/scripts/compound-check.ts.tpl',
 )
 
 async function runScript(cwd: string): Promise<{ code: number; stderr: string; stdout: string }> {
