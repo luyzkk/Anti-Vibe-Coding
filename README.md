@@ -155,7 +155,6 @@ Para correções triviais, **não use o pipeline** — vai direto. O TDD Gate ex
 |-------|---------|-----------|
 | Incident Response | `/anti-vibe-coding:incident-response` | Bug difícil ou regressão de perf: raw logs → loop *tight* → hipótese → regression test → fix |
 | Defensive Patterns | `/anti-vibe-coding:defensive-patterns` | Menu de hardening: rate limit, circuit breaker, retry, timeout |
-| TODO Pick | `/anti-vibe-coding:todo-pick` | Puxa 1 item do `TODO.md` por vez para correção |
 
 ### Consultoria e domínio
 
@@ -347,7 +346,6 @@ Para correções triviais, **não use o pipeline** — vai direto:
 # Passo a passo:
 /anti-vibe-coding:incident-response       # raw logs → loop tight → hipótese → regression test → fix
 /anti-vibe-coding:defensive-patterns      # menu de hardening
-/anti-vibe-coding:centralize-config       # migra config espalhada para fonte única
 ```
 
 ### Cenário 4: Decisão arquitetural irreversível

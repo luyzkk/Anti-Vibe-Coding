@@ -534,13 +534,13 @@ Antes de iniciar a verificacao, verificar se `{PASTA_ATIVA}/SUMMARY.md` existe (
 > - `/open-pr` para abrir PR no GitHub"
 >
 > Proximo passo opcional: esta feature esta em producao ou prestes a ir?
-> - `/anti-vibe-coding:iterate harden` — checklist defensivo (rate limit, timeouts, fallbacks)
+> - `/anti-vibe-coding:defensive-patterns` — checklist defensivo (rate limit, timeouts, fallbacks)
 
 **Se issues encontrados:**
 > "Encontrei [N] issues. Quer que eu corrija antes de prosseguir com o commit/PR?
 >
 > Se os issues incluem bugs confirmados em producao:
-> - `/anti-vibe-coding:iterate` — regression test + fix guiado"
+> - `/anti-vibe-coding:incident-response` — regression test + fix guiado"
 
 ### Learn Point (opcional)
 

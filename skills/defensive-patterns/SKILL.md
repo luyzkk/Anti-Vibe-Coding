@@ -145,7 +145,7 @@ const pools = new Map<TenantId, ConnectionPool>()
 ### 7. Centralizar Config
 **Quando:** strings de configuração espalhadas em múltiplos arquivos (model name, URLs, timeouts).  
 **Faz:** uma constante/arquivo de config como fonte de verdade. O resto importa dela.  
-**Ver também:** `/anti-vibe-coding:centralize-config` para fluxo completo de migração.
+**Ver também:** o fluxo completo de migração de config ficou guardado na tag v7.9.0, em `skills/centralize-config/`.
 
 ```ts
 // config/llm.ts — uma fonte de verdade
