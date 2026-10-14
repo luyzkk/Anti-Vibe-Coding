@@ -37,11 +37,11 @@ created: {{date}}
 
 ## Compound Opportunity
 
-<!-- preencher ao /iterate: o que merece virar compound note? -->
+<!-- preencher ao fechar o plano: o que merece virar compound note? -->
 
 ## Lessons Captured
 
-<!-- preencher ao /iterate: links para docs/compound/ -->
+<!-- preencher ao fechar o plano: links para docs/compound/ -->
 
 ## Exit Criteria
 

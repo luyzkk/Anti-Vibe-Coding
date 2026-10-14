@@ -21,7 +21,7 @@ export async function onPlanPotentiallyComplete(
     skill: 'execute-plan',
     status: 'complete',
     outputs: [relPath],
-    next_suggested: '/iterate',
+    next_suggested: '/lessons-learned',
     blocks_for_user: [],
   }))
   return { moved: true, newPath }

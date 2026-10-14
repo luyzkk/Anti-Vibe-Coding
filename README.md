@@ -153,10 +153,8 @@ Para correções triviais, **não use o pipeline** — vai direto. O TDD Gate ex
 
 | Skill | Comando | Propósito |
 |-------|---------|-----------|
-| Iterate | `/anti-vibe-coding:iterate` | Ciclo pós-deploy: incident → hardening → centralize |
 | Incident Response | `/anti-vibe-coding:incident-response` | Bug difícil ou regressão de perf: raw logs → loop *tight* → hipótese → regression test → fix |
 | Defensive Patterns | `/anti-vibe-coding:defensive-patterns` | Menu de hardening: rate limit, circuit breaker, retry, timeout |
-| Centralize Config | `/anti-vibe-coding:centralize-config` | Migração de config espalhada para fonte única |
 | TODO Pick | `/anti-vibe-coding:todo-pick` | Puxa 1 item do `TODO.md` por vez para correção |
 
 ### Consultoria e domínio
@@ -271,8 +269,8 @@ Confiança <80% pede confirmação do dev antes de aplicar.
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │  Pós-deploy                                                     │
-│  /iterate ────► /incident-response ────► /defensive-patterns    │
-│  (ciclo)        (investigação)            (hardening)           │
+│  /incident-response ────► /defensive-patterns                   │
+│  (investigação)            (hardening)                          │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -346,10 +344,7 @@ Para correções triviais, **não use o pipeline** — vai direto:
 ### Cenário 3: Pós-deploy / produção quebrou
 
 ```
-# Ciclo completo embrulhado
-/anti-vibe-coding:iterate
-
-# Ou passo a passo:
+# Passo a passo:
 /anti-vibe-coding:incident-response       # raw logs → loop tight → hipótese → regression test → fix
 /anti-vibe-coding:defensive-patterns      # menu de hardening
 /anti-vibe-coding:centralize-config       # migra config espalhada para fonte única

@@ -114,7 +114,6 @@ Regras ESPECIFICAS do dominio de dependencias:
 **Invoke via (orquestradores conhecidos):**
 - `/anti-vibe-coding:verify-work` (auditor fixo, secao 2b, sob `config.auditors.dependencies`).
 - `/anti-vibe-coding:security` (consulta de triagem de CVE).
-- `/anti-vibe-coding:iterate` (incident response — quando a causa raiz e dependencia).
 
 **Do not invoke from:**
 - Dentro do `security-auditor` — escopos separados por design (PRD §Decisões D6). O `security-auditor`

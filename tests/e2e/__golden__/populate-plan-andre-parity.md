@@ -87,7 +87,7 @@ Design patterns that prevent common UI bugs belong in docs/compound/ as reusable
 
 ## Lessons Captured
 
-<!-- preencher ao /iterate: links para docs/compound/ -->
+<!-- preencher ao fechar o plano: links para docs/compound/ -->
 
 ## Exit Criteria
 

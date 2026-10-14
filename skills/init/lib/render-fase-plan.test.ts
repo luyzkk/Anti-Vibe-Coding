@@ -64,7 +64,7 @@ describe('renderFasePlan (FasePlanInput v1)', () => {
   test('Validation Log / Lessons Captured render as placeholders', () => {
     const md = renderFasePlan(SAMPLE)
     expect(md).toContain('<!-- preencher durante execucao: comando + resultado -->')
-    expect(md).toContain('<!-- preencher ao /iterate: links para docs/compound/ -->')
+    expect(md).toContain('<!-- preencher ao fechar o plano: links para docs/compound/ -->')
   })
 
   test('Final Report Contract is hardcoded (NOT a field on FasePlanInput)', () => {

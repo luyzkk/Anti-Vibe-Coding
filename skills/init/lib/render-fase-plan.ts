@@ -153,7 +153,7 @@ export function renderFasePlan(input: FasePlanInput): string {
 
   // ## Lessons Captured (placeholder)
   lines.push(SECTION_TITLES[8]); lines.push('')
-  lines.push('<!-- preencher ao /iterate: links para docs/compound/ -->'); lines.push('')
+  lines.push('<!-- preencher ao fechar o plano: links para docs/compound/ -->'); lines.push('')
 
   // ## Exit Criteria
   lines.push(SECTION_TITLES[9]); lines.push('')

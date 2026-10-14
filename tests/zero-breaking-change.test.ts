@@ -6,7 +6,6 @@ import path from 'node:path'
 
 import * as lessonsLearned from '../skills/lessons-learned'
 import * as decisionRegistry from '../skills/decision-registry'
-import * as iterate from '../skills/iterate'
 import * as planFeature from '../skills/plan-feature'
 import * as quickPlan from '../skills/quick-plan'
 import * as executePlan from '../skills/execute-plan'
@@ -128,36 +127,6 @@ describe('zero breaking change — D10 / CA-17', () => {
     await expect(executePlan.listActive(projectRoot)).resolves.toBeDefined()
   })
 
-  // === iterate ===
-  test('iterate: runs compound gate on complete plans', async () => {
-    const p = await planFeature.create('gate-target', projectRoot)
-    let body = await fs.readFile(p.filePath, 'utf-8')
-    body = body.replace(
-      /(## Exit Criteria\n\n)<!-- preencher -->/,
-      '$1- [x] done'
-    )
-    await fs.writeFile(p.filePath, body, 'utf-8')
-
-    const mockPrompt = async (_planTitle: string) => ({
-      choice: 'no_capture_needed' as const,
-      noCaptureReason: 'test reason',
-    })
-
-    const r = await iterate.iterate(mockPrompt, projectRoot)
-    expect(r.gatesRun).toBe(1)
-  })
-
-  test('iterate: backward-compat no-args invocation', async () => {
-    const r = await iterate.iterate(async (_) => ({ choice: 'postpone' as const }), projectRoot)
-    expect(r).toBeDefined()
-  })
-
-  test('iterate: skips active plans not complete', async () => {
-    await planFeature.create('not-complete', projectRoot)
-    const r = await iterate.iterate(async (_) => ({ choice: 'postpone' as const }), projectRoot)
-    expect(r.gatesRun).toBe(0)
-  })
-
   // === contratos de interface ===
   test('interface contract: lessons-learned exports add()', () => {
     expect(typeof lessonsLearned.add).toBe('function')
@@ -178,9 +147,5 @@ describe('zero breaking change — D10 / CA-17', () => {
   test('interface contract: execute-plan exports listActive + onPlanPotentiallyComplete', () => {
     expect(typeof executePlan.listActive).toBe('function')
     expect(typeof executePlan.onPlanPotentiallyComplete).toBe('function')
-  })
-
-  test('interface contract: iterate exports iterate()', () => {
-    expect(typeof iterate.iterate).toBe('function')
   })
 })

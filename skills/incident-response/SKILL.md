@@ -9,7 +9,7 @@ argument-hint: "[log ou descrição do incidente]"
 
 # Skill: /anti-vibe-coding:incident-response
 
-<!-- skills/iterate/SKILL.md aponta para esta skill em dois lugares, ambos para os satélites:
+<!-- A skill iterate (na tag v7.9.0) apontava para esta skill em dois lugares, ambos para os satélites:
      references/feedback-loops.md ("Bugs não-determinísticos") e references/instrumentation.md.
      Renomear essas seções, ou mover os arquivos, quebra a referência em silêncio — nenhum
      teste pega path-em-doc. Mexeu? Atualize iterate junto. -->

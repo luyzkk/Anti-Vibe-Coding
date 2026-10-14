@@ -115,7 +115,7 @@ não alcança.
 O script itera até a fonte secar: processar itens enquanto houver fila, aplicar transformações
 até convergir, extrair até não restar mais conteúdo relevante.
 
-*Análogo in-context:* `/iterate` — ciclos manuais de refinamento com checkpoint humano.
+*Análogo in-context:* ciclos manuais de refinamento com checkpoint humano, numa sessão só.
 
 ---
 

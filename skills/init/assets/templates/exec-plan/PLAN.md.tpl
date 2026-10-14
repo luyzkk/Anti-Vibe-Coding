@@ -77,7 +77,7 @@ do Andre exige docs vivos, nao templates genericos.
 
 ## Compound Opportunity
 
-<!-- preencher ao /iterate: o que merece virar compound note? Ex: padroes recorrentes entre docs, gotchas de subagente, ajustes de heuristica candidate-docs. -->
+<!-- preencher ao fechar o plano: o que merece virar compound note? Ex: padroes recorrentes entre docs, gotchas de subagente, ajustes de heuristica candidate-docs. -->
 
 ## Lessons Captured
 

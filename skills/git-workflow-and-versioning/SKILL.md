@@ -12,7 +12,6 @@ argument-hint: "[escopo: commit, branch, ou pr]"
 ## Differs from / Compose with
 
 - **CLAUDE.md global (`~/.claude/CLAUDE.md`)** e a **fonte de verdade** para "use conventional commits". Esta skill **complementa** com tecnicas adicionais: atomicidade, save point pattern, branch hygiene, PR description como contrato historico, change summary structure. Se houver conflito, CLAUDE.md global vence.
-- **`/iterate`** (pos-deploy): depende de commit history limpo para regression tests e hardening. Commits "Fix bug" tornam `/iterate` cego — esta skill veta esse antipadrao na origem.
 - **`/incident-response`**: post-mortem precisa de commit history navegavel (`git log --grep`, `git bisect`). Esta skill garante que cada commit seja recuperavel via mensagem descritiva.
 - **`/lessons-learned`**: extrai aprendizado de bugs reais. Quando o bug foi introduzido por commit "update auth.ts", a lesson e essa: commits opacos cegam debugging futuro.
 - **Refactor**: commits de refatoracao SEPARADOS de feature commits, com prefixo `refactor:`. Para simplificar o codigo em si, use o `/simplify` nativo do Claude Code.

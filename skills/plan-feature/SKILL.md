@@ -859,7 +859,7 @@ PLAN.md usa `lib/exec-plan-template.ts → renderExecPlan({ mode: 'full', ... })
 10 secoes H2 (Goal, Scope, Assumptions, Risks, Execution Steps, Review Checklist,
 Validation Log, Compound Opportunity, Lessons Captured, Exit Criteria).
 Validation Log / Compound Opportunity / Lessons Captured ficam vazias inicialmente
-(preenchidas durante execucao via /execute-plan e /iterate).
+(preenchidas durante a execucao via /execute-plan).
 
 ---
 

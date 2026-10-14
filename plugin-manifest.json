@@ -1,6 +1,6 @@
 {
   "version": "7.9.0",
-  "generatedAt": "2026-10-14T12:52:09.956Z",
+  "generatedAt": "2026-10-14T12:55:11.895Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "api-design": {
@@ -14,12 +14,6 @@
       "version": "7.9.0",
       "introduced": "v7.9.0",
       "description": "Consultoria de arquitetura com trade-off explicito. Use ao decidir SOLID, monolito vs microservicos, CQRS e event sourcing, REST vs GraphQL, escolha de stack, principios de design (Lei de Demeter, Tell-Don't-Ask, composicao vs heranca), ou injecao de dependencia."
-    },
-    "centralize-config": {
-      "path": "skills/centralize-config/",
-      "version": "7.9.0",
-      "introduced": "v7.9.0",
-      "description": "Detecta configurações espalhadas (strings hardcoded, valores duplicados) e executa migração disciplinada para uma única fonte de verdade. Fluxo: detectar → mapear → centralizar → substituir usos → verificar."
     },
     "compound-engineering": {
       "path": "skills/compound-engineering/",
@@ -111,12 +105,6 @@
       "introduced": "v7.9.0",
       "description": "Onboarding de um projeto no Anti-Vibe Coding: monta o scaffold do harness, espelha CLAUDE.md/AGENTS.md, migra artefatos legados e gera o plano de populate. Use ao inicializar ou configurar o Anti-Vibe num projeto."
     },
-    "iterate": {
-      "path": "skills/iterate/",
-      "version": "7.9.0",
-      "introduced": "v7.9.0",
-      "description": "Ciclo pos-deploy: incident response com regression test, hardening defensivo e centralizacao de config. Use quando um bug foi relatado em producao, ou quando uma feature estavel esta pronta para hardening."
-    },
     "lessons-learned": {
       "path": "skills/lessons-learned/",
       "version": "7.9.0",
@@ -176,12 +164,6 @@
       "version": "7.9.0",
       "introduced": "v7.9.0",
       "description": "Adaptive 7-step TDD workflow with automatic level detection (guided/assisted/direct). Enforces test-first discipline with RED-GREEN-REFACTOR cycle, naive-first implementation, context isolation, and vertical slices. Use for new features, bug fixes, or refactoring with test-driven development."
-    },
-    "todo-pick": {
-      "path": "skills/todo-pick/",
-      "version": "7.9.0",
-      "introduced": "v7.9.0",
-      "description": "Lista micro-débito do TODO.md e puxa 1 item por vez para correção. Sub-comandos: --skip {n} marca como skipped, --remove {n} deleta linha com confirmação."
     },
     "update": {
       "path": "skills/update/",
@@ -343,8 +325,8 @@
     },
     "agents/dependency-auditor.md": {
       "version": "7.9.0",
-      "checksum": "d3aa4c14705d0bf529fbd03207796f40da2c68025458649edb21dfc22e1bcc83",
-      "lastModified": "2026-09-05",
+      "checksum": "3a8d7e329017f97609cf79f0acf2eb05c7e3a7dba15d92485e20747ede2cc6ae",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "agents/design-explorer.md": {
@@ -367,8 +349,8 @@
     },
     "agents/lesson-evaluator.md": {
       "version": "7.9.0",
-      "checksum": "13ef5a20aea867924f63df7a1d3c3d5be35a9e0a7494c34968308b3540ab4c93",
-      "lastModified": "2026-05-23",
+      "checksum": "8d7327c4c9fe10bd72cd082bc0d14b194b0a4597710b315c9162b68c96e449b8",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "agents/plan-executor.md": {
@@ -391,8 +373,8 @@
     },
     "agents/security-auditor.md": {
       "version": "7.9.0",
-      "checksum": "2f9e9098ed6c33731aae148b491a372ab0afbcf72193276ef705a7c4724736a4",
-      "lastModified": "2026-09-08",
+      "checksum": "ea6fdefd9b8b6720f8b49c599a98ec7367ea2c43104364495b35a8395b12092a",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "agents/solid-auditor.md": {
@@ -639,12 +621,6 @@
       "version": "7.9.0",
       "checksum": "f73a868395f52cf7d4110eb5116abbad0ac6164193626bfeda252d664b0fe21a",
       "lastModified": "2026-05-09",
-      "updateStrategy": "replace"
-    },
-    "skills/centralize-config/SKILL.md": {
-      "version": "7.9.0",
-      "checksum": "a428fc2b2575ad95dd63c049fc4e880fc20e5161380e0c793c30647e0cbfaa6c",
-      "lastModified": "2026-05-13",
       "updateStrategy": "replace"
     },
     "skills/compound-engineering/SKILL.md": {
@@ -967,14 +943,14 @@
     },
     "skills/execute-plan/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "b9f1e4326fffeb4a263eebbff585485e46c10d2d9ea1b81cff1608254dce7172",
+      "checksum": "b38b07ac9cb07f3f1e1e04d5278240ed50bab65dbdaadb0a88209908ef6c747a",
       "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "skills/execute-plan/index.ts": {
       "version": "7.9.0",
-      "checksum": "3111cc9761d441866d88430bd3b057f6a32460aa485b5a51208e1f23b2b5b401",
-      "lastModified": "2026-05-12",
+      "checksum": "91aa6eabf9fdd00bbc18656dc434d0ba93bbc3c716653aee2faf51eeab0339fc",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "skills/execute-plan/references/wave-execution.md": {
@@ -985,7 +961,7 @@
     },
     "skills/git-workflow-and-versioning/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "67f75b0008a9766a35cf133cc72cc0e7e87dc5659ad87573e4fcd88467481d44",
+      "checksum": "1b01945b1adcba2f813a2ae04cb52dade1b4c71ff99cbb32257009d5e5aaee8c",
       "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
@@ -997,7 +973,7 @@
     },
     "skills/incident-response/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "28d1817a0ce5e34e5b13db24c034960c6ca19c2415f52f6ae6a1d74ba9402a19",
+      "checksum": "df5f252253fab8af3ba272095c35833e1f13ee56c5f0799e632321ceed86be7d",
       "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
@@ -1321,8 +1297,8 @@
     },
     "skills/init/lib/populate-harness-plan-overview.ts": {
       "version": "7.9.0",
-      "checksum": "1244bf05db0c1d39433ce85f36dade9e6ed82cc0b1b60cbdaec8cf578b8b7e22",
-      "lastModified": "2026-05-22",
+      "checksum": "85d967b0d85013c8b8d82ad85fe1c84111906def6932a3067278a942707948e2",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "skills/init/lib/populate-harness-prd-template.ts": {
@@ -1399,8 +1375,8 @@
     },
     "skills/init/lib/render-fase-plan.ts": {
       "version": "7.9.0",
-      "checksum": "69a71169e198b57444343673e652c21bf40375330a516ae3ccf193998de2e1d0",
-      "lastModified": "2026-05-21",
+      "checksum": "a5e5ea1d3df6a6c15c08ffa2b62c108fce66c7c1b2d764e7d6dde61d846cb1e0",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "skills/init/lib/reuse-discovery.ts": {
@@ -1437,12 +1413,6 @@
       "version": "7.9.0",
       "checksum": "6b1ad596151b0325cb37c44c9b0148dbed2a5bb8ce6e1007fc7c73246153fd94",
       "lastModified": "2026-05-18",
-      "updateStrategy": "replace"
-    },
-    "skills/init/lib/scaffold-todo-md.ts": {
-      "version": "7.9.0",
-      "checksum": "78be1895b7855e798310ac2b37d788cba960312e9ce1b1d35eca45678469b7c4",
-      "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/init/lib/secrets-scanner.ts": {
@@ -1603,8 +1573,8 @@
     },
     "skills/init/lib/__golden__/fase-plan-sample.md": {
       "version": "7.9.0",
-      "checksum": "8cdba6c889ef6190ebf29e8f030d3427cba339d3180d8d061abcb54d4baf08f2",
-      "lastModified": "2026-05-21",
+      "checksum": "ab5948fef035a934e0af883848ee569a0a730a6b1d2a71c1185b5c0b70d6e3f7",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "skills/init/assets/hooks/sync-agents-to-claude.cjs": {
@@ -1909,8 +1879,8 @@
     },
     "skills/init/assets/templates/docs/STATE.md.tpl": {
       "version": "7.9.0",
-      "checksum": "0967c9e2db1274a986f2a8a72848853dd9564ec499da5a5da6e0b23848116af0",
-      "lastModified": "2026-05-12",
+      "checksum": "19d1b30ab5a92e6eca1d321ce41fcb2f88ccea6e73d8b9185e4e583fab1d44c6",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/exec-plan/fase.md.tpl": {
@@ -1921,8 +1891,8 @@
     },
     "skills/init/assets/templates/exec-plan/PLAN.md.tpl": {
       "version": "7.9.0",
-      "checksum": "35bca3ec49189a8ed658891c37b8ac755ad2f517cd71a3c744326e454d837ad1",
-      "lastModified": "2026-10-13",
+      "checksum": "83c9a0ba67749aa0fb3fd188f6fd07fed4bfc8eb410f53a0d232da306882d1f6",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/package.json.tpl": {
@@ -1957,20 +1927,8 @@
     },
     "skills/init/assets/templates/TODO.md.tpl": {
       "version": "7.9.0",
-      "checksum": "e257f0bb2d0192c6703b3db9952bf05287bc416aa446efa4f1ae5eb8cfbfa9d4",
-      "lastModified": "2026-05-12",
-      "updateStrategy": "replace"
-    },
-    "skills/iterate/SKILL.md": {
-      "version": "7.9.0",
-      "checksum": "3c5ad6ff74413f2133718eba4ac3078c324402f13e4eb18147abf86f241152f8",
-      "lastModified": "2026-08-13",
-      "updateStrategy": "replace"
-    },
-    "skills/iterate/index.ts": {
-      "version": "7.9.0",
-      "checksum": "eaa12f721c8b46f7db569b224c6e4c573e134d2ba5048144f51d13ba1aa2e8fd",
-      "lastModified": "2026-05-12",
+      "checksum": "7de4953ef7ff6c77bda9f9158a556e4712027e424f06d9dc62cf10a4fe42b3d4",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "skills/lessons-learned/SKILL.md": {
@@ -2009,12 +1967,6 @@
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
-    "skills/lib/compound-decision-gate.ts": {
-      "version": "7.9.0",
-      "checksum": "d939c6b286e958f436c11d0e4549bf552ce47eb61b2841fd16adfda3ac6e0d6d",
-      "lastModified": "2026-05-12",
-      "updateStrategy": "replace"
-    },
     "skills/lib/compound-note-writer.ts": {
       "version": "7.9.0",
       "checksum": "b8564ca18f7402461aec802a4789651b996828944b7568cb3b7937cdf36669d1",
@@ -2047,8 +1999,8 @@
     },
     "skills/lib/exec-plan-template.ts": {
       "version": "7.9.0",
-      "checksum": "dfb302e20417cdde1fd8d00ca36c4fc3e4d9b4eddc8eccf0268a72e258d367f4",
-      "lastModified": "2026-05-12",
+      "checksum": "01636a573a1a1103d2d15e0f4c1ffb2d11babeeb31b640f75912c029323ee4c6",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "skills/lib/execute-plan-todo-capture.ts": {
@@ -2201,12 +2153,6 @@
       "lastModified": "2026-06-06",
       "updateStrategy": "replace"
     },
-    "skills/lib/todo-utils.ts": {
-      "version": "7.9.0",
-      "checksum": "e20545a0e2012088f2d00819c831c02851e8096119f04aa17c5037ac90938ff8",
-      "lastModified": "2026-05-12",
-      "updateStrategy": "replace"
-    },
     "skills/lib/tool-registry-inspector.ts": {
       "version": "7.9.0",
       "checksum": "fe31f726f415815e72821572b45cc5d8776d0d39670a116bd42a189094129de5",
@@ -2233,7 +2179,7 @@
     },
     "skills/plan-feature/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "9cd30f1224bfb95ec1a09061ba3a1d80272cbfa98691a630a0e5217ab01d3212",
+      "checksum": "e6d7be0d22c2c3191257fe1d9175f1fec0d2fc0779210c8fcc57cb063e2d4b4e",
       "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
@@ -2577,18 +2523,6 @@
       "version": "7.9.0",
       "checksum": "16b96bca84df49d9524069995bb727fcd07ac64c687ceccdcbfefd09288f067c",
       "lastModified": "2026-04-08",
-      "updateStrategy": "replace"
-    },
-    "skills/todo-pick/SKILL.md": {
-      "version": "7.9.0",
-      "checksum": "9699188425a85516da70693444e4e02d4a30e1b93176907087ec7436343ec5e3",
-      "lastModified": "2026-05-13",
-      "updateStrategy": "replace"
-    },
-    "skills/todo-pick/templates/todo-md-skeleton.md": {
-      "version": "7.9.0",
-      "checksum": "1f7d5df7a83e0b814e1130f4845518278979d9b90e49dc635aafb9e81e4dfa61",
-      "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
     "skills/update/SKILL.md": {

@@ -37,10 +37,6 @@ describe("generate-manifest", () => {
     expect(new Date(manifest.generatedAt).toISOString()).toBe(manifest.generatedAt)
   })
 
-  test("skills/todo-pick/SKILL.md is registered", () => {
-    expect(manifest.files["skills/todo-pick/SKILL.md"]).toBeDefined()
-  })
-
   // 2026-10-13 (Luiz/dev): 8.0 fatia 2 — pre-mutation-gate e state-md-hook sairam (mortos ou mudos).
   test("hooks/stop-reflector.cjs is registered", () => {
     expect(manifest.files["hooks/stop-reflector.cjs"]).toBeDefined()
@@ -75,7 +71,6 @@ describe("generate-manifest", () => {
 
   test("all new v6 files have updateStrategy=replace", () => {
     const newFiles = [
-      "skills/todo-pick/SKILL.md",
       "scripts/harness-validate.ts",
       "scripts/compound-check.ts",
     ]
@@ -115,7 +110,6 @@ describe("generate-manifest", () => {
       "decision-registry",
       "design-twice",
       "execute-plan",
-      "iterate",
       "lessons-learned",
       "plan-feature",
       "quick-plan",

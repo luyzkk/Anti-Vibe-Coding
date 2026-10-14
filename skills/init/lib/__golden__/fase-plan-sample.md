@@ -82,7 +82,7 @@ Auth misconfigurations belong in docs/compound/ as a gotcha note.
 
 ## Lessons Captured
 
-<!-- preencher ao /iterate: links para docs/compound/ -->
+<!-- preencher ao fechar o plano: links para docs/compound/ -->
 
 ## Exit Criteria
 
