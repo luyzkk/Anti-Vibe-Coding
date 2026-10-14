@@ -1,6 +1,6 @@
 {
   "version": "7.9.0",
-  "generatedAt": "2026-10-14T12:43:38.705Z",
+  "generatedAt": "2026-10-14T12:46:13.124Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "anti-vibe-review": {
@@ -26,12 +26,6 @@
       "version": "7.9.0",
       "introduced": "v7.9.0",
       "description": "Detecta configurações espalhadas (strings hardcoded, valores duplicados) e executa migração disciplinada para uma única fonte de verdade. Fluxo: detectar → mapear → centralizar → substituir usos → verificar."
-    },
-    "code-simplification": {
-      "path": "skills/code-simplification/",
-      "version": "7.9.0",
-      "introduced": "v7.9.0",
-      "description": "Simplificação de código: identifica e remove over-engineering, duplicação e complexidade desnecessária, preservando o comportamento. Use quando o código funciona mas está mais difícil de ler, manter ou estender do que deveria."
     },
     "compound-engineering": {
       "path": "skills/compound-engineering/",
@@ -111,23 +105,11 @@
       "introduced": "v7.9.0",
       "description": "Entrevista pre-implementacao que resolve ambiguidade antes de codar. Gera CONTEXT.md com decisoes indexadas. Use antes de planejar feature complexa, ou quando os requisitos estao vagos."
     },
-    "improve-codebase-architecture": {
-      "path": "skills/improve-codebase-architecture/",
-      "version": "7.9.0",
-      "introduced": "v7.9.0",
-      "description": "Periodic architecture sweep. Run it every few days to surface deepening opportunities — shallow modules, leaky seams, code that is hard to test through its current interface — scoped to the repo's git hot spots and ranked by strength."
-    },
     "incident-response": {
       "path": "skills/incident-response/",
       "version": "7.9.0",
       "introduced": "v7.9.0",
       "description": "Diagnostico de bug dificil ou regressao de performance, em producao ou em desenvolvimento. Use quando pedirem para diagnosticar ou debugar, quando algo quebra, lanca excecao ou falha, quando ficou lento, ou num incidente pos-deploy com log."
-    },
-    "incremental-implementation": {
-      "path": "skills/incremental-implementation/",
-      "version": "7.9.0",
-      "introduced": "v7.9.0",
-      "description": "Guia de implementação incremental: divide features em incrementos verificáveis, evitando big-bang delivery e integração tardia. Use ao implementar qualquer mudança que toque mais de um arquivo, ao escrever muito código de uma só vez, ou quando uma tarefa parece grande demais para caber em um único passo."
     },
     "infrastructure": {
       "path": "skills/infrastructure/",
@@ -201,12 +183,6 @@
       "introduced": "v7.9.0",
       "description": "React e Next.js patterns. Use when the user asks about useEffect, data fetching (TanStack Query), closure stale, memoization (useMemo, useCallback), state management, or reviewing a component (re-renders, virtualization, code splitting)."
     },
-    "resolving-merge-conflicts": {
-      "path": "skills/resolving-merge-conflicts/",
-      "version": "7.9.0",
-      "introduced": "v7.9.0",
-      "description": "Use when a git merge or rebase is in progress and conflicted — MERGE_HEAD or REBASE_HEAD exists, git reports unmerged paths, or files carry conflict markers."
-    },
     "security": {
       "path": "skills/security/",
       "version": "7.9.0",
@@ -272,12 +248,6 @@
       "version": "7.9.0",
       "introduced": "v7.9.0",
       "description": "Cria especificacao completa de feature via entrevista interativa. Gera PRD com MoSCoW, criterios de aceite e decisoes tecnicas. Importa contexto do /grill-me se disponivel."
-    },
-    "writing-for-agents": {
-      "path": "skills/writing-for-agents/",
-      "version": "7.9.0",
-      "introduced": "v7.9.0",
-      "description": "Writing documents an agent reads. Use when creating or editing a skill, when modifying AGENTS.md or CLAUDE.md, or when reviewing a doc an agent consumes — a PRD, a ticket, a subagent prompt."
     }
   },
   "files": {
@@ -731,12 +701,6 @@
       "lastModified": "2026-05-13",
       "updateStrategy": "replace"
     },
-    "skills/code-simplification/SKILL.md": {
-      "version": "7.9.0",
-      "checksum": "574249601a27d984c0c52666d89fbf831e79834c56b9d90fb36b16df7325f89d",
-      "lastModified": "2026-08-12",
-      "updateStrategy": "replace"
-    },
     "skills/compound-engineering/SKILL.md": {
       "version": "7.9.0",
       "checksum": "dc3c7bdf977bcf100918b69f3d562e8aa5ee38d3f553e441deceb3d74d8771e3",
@@ -1081,8 +1045,8 @@
     },
     "skills/git-workflow-and-versioning/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "0514d451a44b4cdc60a80028c9c596318b5b61331eccff1918fb90aa70dd8d7c",
-      "lastModified": "2026-08-17",
+      "checksum": "67f75b0008a9766a35cf133cc72cc0e7e87dc5659ad87573e4fcd88467481d44",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "skills/grill-me/SKILL.md": {
@@ -1091,22 +1055,10 @@
       "lastModified": "2026-09-01",
       "updateStrategy": "replace"
     },
-    "skills/improve-codebase-architecture/SKILL.md": {
-      "version": "7.9.0",
-      "checksum": "f451da7b06f8d831b658b309d8f7ff66dac2e06ed90af7025e6303184a026fec",
-      "lastModified": "2026-08-13",
-      "updateStrategy": "replace"
-    },
-    "skills/improve-codebase-architecture/references/HTML-REPORT.md": {
-      "version": "7.9.0",
-      "checksum": "627115af95045b3b17ee8cd77fdb98a76c6834c856ffb6a9fd705652115674d3",
-      "lastModified": "2026-08-13",
-      "updateStrategy": "replace"
-    },
     "skills/incident-response/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "9f64ac7b987e818aa0d1f9414a40247aa2bc666bb6f1f321fb239ca2bf072c09",
-      "lastModified": "2026-08-13",
+      "checksum": "28d1817a0ce5e34e5b13db24c034960c6ca19c2415f52f6ae6a1d74ba9402a19",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "skills/incident-response/references/feedback-loops.md": {
@@ -1119,12 +1071,6 @@
       "version": "7.9.0",
       "checksum": "ad5cb3b2cc4f1550510e1696ac0ef959ed3dd00c0dbecfbfc254574e1eccc3ed",
       "lastModified": "2026-08-13",
-      "updateStrategy": "replace"
-    },
-    "skills/incremental-implementation/SKILL.md": {
-      "version": "7.9.0",
-      "checksum": "e0993189129cd4321b93f13aa202b264016564b105797ef33d040bf213cc4ae8",
-      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/infrastructure/SKILL.md": {
@@ -2477,12 +2423,6 @@
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
-    "skills/resolving-merge-conflicts/SKILL.md": {
-      "version": "7.9.0",
-      "checksum": "5afa1e426984e55e8ce4bc6e7dff36adbb083bb60ab472b6cdca557f9262eafb",
-      "lastModified": "2026-08-14",
-      "updateStrategy": "replace"
-    },
     "skills/security/SKILL.md": {
       "version": "7.9.0",
       "checksum": "1fef1083724f9f4f919c9b5eda610c7f0636d6806b21057df0c1c40a807af7a1",
@@ -2829,18 +2769,6 @@
       "version": "7.9.0",
       "checksum": "bdf29b815b83daadfdda53fcc8e79169e3027e85c8d955c0157a264c6dd1110a",
       "lastModified": "2026-05-09",
-      "updateStrategy": "replace"
-    },
-    "skills/writing-for-agents/SKILL.md": {
-      "version": "7.9.0",
-      "checksum": "4877a753d93ff16e7a408647d5dd88a9faf0977c543264b1c6ecdc255e2f1e7a",
-      "lastModified": "2026-08-12",
-      "updateStrategy": "replace"
-    },
-    "skills/writing-for-agents/references/SKILL-MECHANICS.md": {
-      "version": "7.9.0",
-      "checksum": "248eba48b061d40523ef43153d999bd2f56beef66791fcf398da918eac19a9f5",
-      "lastModified": "2026-08-12",
       "updateStrategy": "replace"
     },
     "skills/_shared/legacy-manifest-schema.ts": {

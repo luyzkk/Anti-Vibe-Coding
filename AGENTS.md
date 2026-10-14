@@ -25,8 +25,7 @@ Define ---> Plan ---> Build ---> Verify ---> Review ---> Ship
 ```
 
 Skills auxiliares (chamaveis de qualquer fase): `/anti-vibe-coding:consultant`,
-`/anti-vibe-coding:decision-registry`, `/anti-vibe-coding:design-twice`,
-`/anti-vibe-coding:code-simplification`, `/anti-vibe-coding:learn`.
+`/anti-vibe-coding:decision-registry`, `/anti-vibe-coding:design-twice`.
 
 ---
 

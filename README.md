@@ -184,13 +184,8 @@ Para correções triviais, **não use o pipeline** — vai direto. O TDD Gate ex
 | QA Visual | `/anti-vibe-coding:qa-visual` | Verificação no browser via Playwright MCP |
 | Doubt-Driven Development | `/anti-vibe-coding:doubt-driven-development` | Revisão adversarial fresh-context antes de decisão "ficar de pé" |
 | Source-Driven Development | `/anti-vibe-coding:source-driven-development` | Ancora cada decisão em documentação oficial citada |
-| Code Simplification | `/anti-vibe-coding:code-simplification` | Identifica over-engineering, duplicação, complexidade |
-| Incremental Implementation | `/anti-vibe-coding:incremental-implementation` | Divide features em incrementos verificáveis |
 | Pair Programming | `/anti-vibe-coding:pair-programming-with-agent` | Sessão estruturada humano-navega-IA-pilota |
 | Prototype | `/anti-vibe-coding:prototype` | Código descartável que responde uma pergunta, sem virar produção |
-| Improve Codebase Architecture | `/anti-vibe-coding:improve-codebase-architecture` | Varredura periódica de arquitetura, com relatório |
-| Resolving Merge Conflicts | `/anti-vibe-coding:resolving-merge-conflicts` | Resolve conflito entendendo as duas intenções, não escolhendo um lado |
-| Writing for Agents | `/anti-vibe-coding:writing-for-agents` | Lente de escrita para agente — instrução que sobrevive ao contexto |
 
 ### Memória e decisões
 
