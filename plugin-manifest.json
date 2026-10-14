@@ -1,6 +1,6 @@
 {
   "version": "7.9.0",
-  "generatedAt": "2026-10-14T15:16:54.334Z",
+  "generatedAt": "2026-10-14T15:35:32.722Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "api-design": {
@@ -559,8 +559,8 @@
     },
     "skills/architecture/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "164eff2bc67a0571603eaf53391ab0b6158c3c43e2e685a76da5e01559aa794d",
-      "lastModified": "2026-09-01",
+      "checksum": "8798008ec7a6d021e734b9cad0257729f5f50c472dc40f6196d7fd6c698b10b5",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "skills/architecture/references/api-architecture.md": {
@@ -751,7 +751,7 @@
     },
     "skills/execute-plan/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "2d36dab6058a1d34188673ecc32cd702d79c46bc55a1af82aaf59cdf878e8df1",
+      "checksum": "a23751d0bd3cf8e5b7ed860699bbcfcb9d1d4094c89c097b0f710a3122d124c5",
       "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
@@ -775,7 +775,7 @@
     },
     "skills/grill-me/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "bc9efa1015df30e9ba3295006c47da9e1b9aa538e039f3291c3eba3bb80547d4",
+      "checksum": "81704ce583fc2d880684494fb874edc31edd2f8cacd56819c67208d6567ff849",
       "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
@@ -2035,7 +2035,7 @@
     },
     "skills/plan-feature/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "2694d789b31953d1f2db469706836374ffc21aea378587bb0e87d596a0f56ba2",
+      "checksum": "e86e9acab3314131ee78ca4452f5677d966e15a3d5ffd6c38c783e347e5102a2",
       "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },

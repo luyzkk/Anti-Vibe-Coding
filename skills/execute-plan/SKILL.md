@@ -774,7 +774,21 @@ Se o plano nao tem campo `Scope` parseavel:
    - Plano atual: completed
    - Current Plan: proximo plano pendente
 
-3. Apresentar ao dev:
+3. EXPLICAR A FATIA (sempre, inclusive na ultima — F3-5 da 8.0). Ate 8 linhas, em portugues simples:
+   - O que mudou: o que quem usa passa a conseguir fazer
+   - Por que: a decisao principal desta fatia e a alternativa que ficou de fora
+   - Como conferir com os proprios olhos: o passo a passo para ver funcionando (tela, comando, link)
+   - O que pode dar errado: o risco que sobrou e onde ele apareceria
+   Termo tecnico que nao der para evitar vem explicado na mesma frase.
+
+   No nivel dinheiro, saude ou dados (linha `**Nível de risco:**` da pagina), pedir em seguida:
+   "Conte com suas palavras o que esta fatia faz e o que ela protege."
+   - Comparar com o que foi feito e corrigir o que ficou torto, em 1 a 3 frases, sem sermao
+   - Registrar no Log do STATE.md: "explicacao de volta da fatia {N}: ok | corrigida ({o que})"
+     — e a medida da premissa da 8.0 ("o usuario consegue explicar o que foi feito")
+   - Nao bloqueia a proxima fatia: serve para o usuario entender o que tem nas maos, nao e prova
+
+4. Apresentar ao dev:
    "Plano {NN} concluido ({M}/{M} fases).
 
    Memoria registrada:
@@ -788,7 +802,7 @@ Se o plano nao tem campo `Scope` parseavel:
 
    O que deseja?"
 
-4. AskUserQuestion (proxima fatia ainda nao detalhada — o caso normal desde a 8.0):
+5. AskUserQuestion (proxima fatia ainda nao detalhada — o caso normal desde a 8.0):
    - "Detalhar a fatia {N+1} agora, com o que esta fatia ensinou" → rodar
      `/anti-vibe-coding:plan-feature {PASTA_ATIVA} --fatia {N+1}`; ele recebe as "Notas para
      Planos Seguintes" deste plano e, se elas mudam alguma fatia, propoe a mudanca na pagina
@@ -834,6 +848,9 @@ Se o plano nao tem campo `Scope` parseavel:
 ## Step 7 — Conclusao Total (Todos os Planos)
 
 Quando todos os planos estao como "completed":
+
+A ultima fatia ja passou pelo Step 6a (passo 3, EXPLICAR A FATIA). A explicacao vem antes do
+SUMMARY.md: o SUMMARY e o registro para quem vem depois, nao a explicacao para o usuario.
 
 ### 7a. Gerar SUMMARY.md
 

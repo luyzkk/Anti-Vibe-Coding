@@ -118,3 +118,48 @@ describe('execute-plan — ao fechar uma fatia, oferece detalhar a proxima (F3-4
     expect(/a detalhar|ainda n[aã]o foi detalhada/i.test(step3a) && step3a.includes('--fatia')).toBe(true)
   })
 })
+
+// 2026-10-14 (Luiz/dev): 8.0 fatia 3, fase 4 — a explicacao no fim de cada fatia (F3-5, F3-7).
+// A premissa mais arriscada da 8.0 mede "se o usuario consegue explicar o que foi feito"; sem este passo
+// o pipeline entrega codigo e nunca pergunta.
+describe('execute-plan — explicacao no fim de cada fatia (F3-5)', () => {
+  const step6a = () => section(executePlan, /^### 6a\./)
+
+  test('toda fatia fechada ganha a explicacao curta, com os quatro pontos', () => {
+    const texto = step6a()
+    expect(
+      /EXPLICAR A FATIA/.test(texto) &&
+        /8 linhas/.test(texto) &&
+        /O que mudou/.test(texto) &&
+        /Por que/.test(texto) &&
+        /Como conferir/.test(texto) &&
+        /O que pode dar errado/.test(texto),
+      `[contrato — F3-5] O Step 6a perdeu a explicacao da fatia ou um dos quatro pontos (o que mudou, por ` +
+        `que, como conferir com os proprios olhos, o que pode dar errado).`,
+    ).toBe(true)
+  })
+
+  test('no nivel dinheiro, saude ou dados, o usuario explica de volta e isso fica no log', () => {
+    const texto = step6a()
+    expect(/dinheiro, sa[uú]de ou dados/.test(texto) && /com suas palavras/i.test(texto)).toBe(true)
+    expect(texto, 'o registro da explicacao de volta e a medida da premissa da 8.0').toMatch(/explicacao de volta/)
+  })
+
+  test('a ultima fatia tambem passa pela explicacao antes do SUMMARY', () => {
+    expect(section(executePlan, /^## Step 7/)).toMatch(/EXPLICAR A FATIA/)
+  })
+})
+
+describe('grill-me e architecture apontam para a pagina e o desenho (F3-3)', () => {
+  test('o grill-me manda o caso de abuso para os Cenarios da pagina', () => {
+    const grill = read('skills/grill-me/SKILL.md')
+    expect(grill).not.toMatch(/`AB-\*` na secao "Ameacas & Dados" do PRD/)
+    expect(grill).toMatch(/`AB-\*` nos Cen[aá]rios da p[aá]gina/)
+  })
+
+  test('o architecture manda o default aceito para o mapa de ameacas do DESIGN.md', () => {
+    const arch = read('skills/architecture/SKILL.md')
+    expect(arch).not.toMatch(/secao "Ameacas & Dados" do PRD/)
+    expect(arch).toContain('DESIGN.md')
+  })
+})

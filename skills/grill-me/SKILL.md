@@ -182,8 +182,9 @@ risco (`auth/authz` · `PII/sensivel` · `input externo` · `upload` · `pagamen
 - "Quem, alem do dono, PRECISA enxergar esse dado?" — a resposta honesta costuma ser "ninguem", e e
   ela que define o default de authz.
 
-Cada resposta aqui vira um caso de abuso `AB-*` na secao "Ameacas & Dados" do PRD, e de la um teste
-de abuso no RED (`/anti-vibe-coding:tdd-workflow`). Ramo que nao se aplica **fecha explicitamente**
+Cada resposta aqui vira um caso de abuso `AB-*` nos Cenarios da pagina (o `/write-prd` o escreve em
+linguagem de negocio, e o mapa de ameacas vai para o DESIGN.md), e de la um teste de abuso no RED
+(`/anti-vibe-coding:tdd-workflow`). Ramo que nao se aplica **fecha explicitamente**
 numa linha, como qualquer outra semente — "sem input externo, ramo fechado".
 
 <!-- 2026-09-01 (Luiz/dev): ramos de abuso na semente SEGURANCA — PRD §RF-07. Heading preservado:

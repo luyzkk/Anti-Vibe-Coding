@@ -559,7 +559,7 @@ SINAIS DE COMPLEXIDADE ALTA (multiplos planos):
 - Integracoes externas (APIs terceiras, webhooks, sync)
 - Multiplos roles/permissoes afetados
 - Migrations + API + UI + testes E2E na mesma feature
-- Dependencias entre requisitos Must Have (um bloqueia outro)
+- Dependencias entre itens "Precisa ter" (um bloqueia outro)
 - Dominio de negocio complexo (regras condicionais, estados, transicoes)
 - Preocupacoes de seguranca (auth, crypto, rate limiting)
 
