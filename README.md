@@ -184,7 +184,6 @@ Para correções triviais, **não use o pipeline** — vai direto. O TDD Gate ex
 |-------|---------|-----------|
 | Lessons Learned | `/anti-vibe-coding:lessons-learned` | Registra lições com filtro de qualidade sênior |
 | Decision Registry | `/anti-vibe-coding:decision-registry` | Registro de decisões arquiteturais (ADRs) |
-| Compound Engineering | `/anti-vibe-coding:compound-engineering` | Scaffold + gate de captura de conhecimento durável |
 | Git Workflow | `/anti-vibe-coding:git-workflow-and-versioning` | Conventional commits, atomicidade, PR como contrato |
 
 ### Manutenção do plugin

@@ -5,7 +5,7 @@ import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { add } from '../skills/lessons-learned/index'
 // 2026-05-24 (Luiz/dev): fix BUG-fase02-grep-escopo-incompleto — callsite cross-skill apos Plano 02 fase-02 (commit c58c767)
-import { parseFrontmatter, findMissingRequiredSections } from '../skills/compound-engineering/lib/compound-frontmatter'
+import { parseFrontmatter, findMissingRequiredSections } from '../skills/lib/compound-frontmatter'
 
 // 2026-05-12 (Luiz/dev): usa fixture estatica v6-empty para evitar tmp dir por teste de integracao
 const V6_FIXTURE = path.join(import.meta.dir, 'fixtures', 'v6-empty')

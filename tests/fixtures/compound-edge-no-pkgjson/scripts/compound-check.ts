@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 // 2026-05-24 (Luiz/dev): port of compound-check.mjs (Andre) to TS+Bun — D8 + Plano 02 fase-01
 // Inlines helpers (parseFrontmatterInline, listCompoundFilesLocal) — RF-10: no lib/ dep in target.
-// Schema mirrored in skills/compound-engineering/lib/compound-frontmatter.ts (manual sync).
+// Schema mirrored in skills/lib/compound-frontmatter.ts (manual sync).
 // compound-check — frontmatter + sections (CA-29) + P3 strict rules (D8).
 
 import { promises as fs } from 'node:fs'

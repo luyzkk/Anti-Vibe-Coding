@@ -7,8 +7,24 @@
 // para skills/init/assets/templates/ até Plano 02 fase-01 (git mv). G2/R11 mitigado por
 // invariante em template-manifest.test.ts. D25: NAO usa Skill tool — import puro.
 
+// 2026-10-13 (Luiz/dev): 8.0 fatia 2 — a skill compound-engineering saiu da instalacao. Os 10 modelos
+// voltaram para skills/init/assets/templates/ (mesmos caminhos relativos) e a lista mora aqui.
+
 import path from 'node:path'
-import { getCompoundManifest } from '../../compound-engineering/lib/manifest'
+
+// Ordem preservada da lista que vinha de getCompoundManifest(): ela define a ordem do scaffold golden.
+const COMPOUND_SOURCES: ReadonlyArray<{ src: string; dst: string }> = [
+  { src: 'docs/COMPOUND_ENGINEERING.md.tpl',                   dst: 'docs/COMPOUND_ENGINEERING.md'                   },
+  { src: 'docs/compound/README.md.tpl',                        dst: 'docs/compound/README.md'                        },
+  { src: 'docs/review-checklists/README.md.tpl',               dst: 'docs/review-checklists/README.md'               },
+  { src: 'docs/review-checklists/security.md.tpl',             dst: 'docs/review-checklists/security.md'             },
+  { src: 'docs/review-checklists/reliability.md.tpl',          dst: 'docs/review-checklists/reliability.md'          },
+  { src: 'docs/review-checklists/agent-api.md.tpl',            dst: 'docs/review-checklists/agent-api.md'            },
+  { src: 'docs/review-checklists/frontend-ui.md.tpl',          dst: 'docs/review-checklists/frontend-ui.md'          },
+  { src: 'docs/review-checklists/production-readiness.md.tpl', dst: 'docs/review-checklists/production-readiness.md' },
+  { src: 'docs/smoke-flows/README.md.tpl',                     dst: 'docs/smoke-flows/README.md'                     },
+  { src: 'scripts/compound-check.ts.tpl',                      dst: 'scripts/compound-check.ts'                      },
+]
 
 // 2026-05-24 (Luiz/dev): classificação compound preservada do hardcode anterior — D7, G2.
 // Hash-map preferido a switch (CLAUDE.md). Plano 02 fase-01 nao altera este mapeamento.
@@ -51,13 +67,13 @@ export const TEMPLATES_ROOT = path.join(import.meta.dir, '..', 'assets', 'templa
 // IMPORTANTE: getCompoundManifest() preserva a ordem original das 10 entradas (G2/R11).
 // Nao reagrupar: posicao no TEMPLATE_MANIFEST determina ordem do scaffold golden.
 function buildCompoundEntries(): TemplateEntry[] {
-  return getCompoundManifest().map(({ src, dst }) => {
+  return COMPOUND_SOURCES.map(({ src, dst }) => {
     const category = COMPOUND_CATEGORY_BY_DST[dst]
     if (category === undefined) {
       throw new Error(`[template-manifest] compound dst sem categoria mapeada: ${dst}`)
     }
     return {
-      src: path.relative(TEMPLATES_ROOT, src),
+      src,
       dst,
       required: true,
       category,

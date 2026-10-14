@@ -5,7 +5,7 @@ import path from 'node:path'
 import os from 'node:os'
 import { writeCompoundNote } from './compound-note-writer'
 // 2026-05-23 (Luiz/dev): cross-skill import — D19 + CA-15 + Plano 02 fase-02
-import { parseFrontmatter, findMissingRequiredSections } from '../compound-engineering/lib/compound-frontmatter'
+import { parseFrontmatter, findMissingRequiredSections } from './compound-frontmatter'
 
 let tmpDir: string
 
