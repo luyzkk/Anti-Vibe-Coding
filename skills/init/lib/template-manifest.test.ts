@@ -34,7 +34,8 @@ describe('TEMPLATE_MANIFEST', () => {
   //   como canonicos no PRD populate-plan-andre-port).
   // - anti-vibe-extension foi 11 -> 13 (harness-validate.ts + package.json, fix scaffold v7)
   //   -> 14 (docs/GLOSSARY.md, plano05 fase-02) -> 15 (scripts/wayfinder-frontier.ts, plano10
-  //   fase-02). O glossario e a fronteira nao entram no contrato do Andre.
+  //   fase-02) -> 14 (a fronteira saiu com a skill wayfinder na 8.0). O glossario nao entra no
+  //   contrato do Andre.
   const EXPECTED_CATEGORY_BY_DST: Record<string, 'canon-andre' | 'anti-vibe-extension'> = {
     'docs/DESIGN.md':                          'canon-andre',
     'docs/FRONTEND.md':                        'canon-andre',
@@ -71,7 +72,6 @@ describe('TEMPLATE_MANIFEST', () => {
     'scripts/compound-check.ts':               'anti-vibe-extension',
     'scripts/new-plan.ts':                     'anti-vibe-extension',
     'scripts/harness-validate.ts':             'anti-vibe-extension',
-    'scripts/wayfinder-frontier.ts':           'anti-vibe-extension',
     'README.md':                               'anti-vibe-extension',
     '.github/pull_request_template.md':        'anti-vibe-extension',
     'package.json':                            'anti-vibe-extension',

@@ -104,6 +104,5 @@
   "scripts/",
   "scripts/compound-check.ts",
   "scripts/harness-validate.ts",
-  "scripts/new-plan.ts",
-  "scripts/wayfinder-frontier.ts"
+  "scripts/new-plan.ts"
 ]

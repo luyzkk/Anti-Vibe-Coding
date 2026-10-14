@@ -1,6 +1,6 @@
 {
   "version": "7.9.0",
-  "generatedAt": "2026-10-14T12:47:56.358Z",
+  "generatedAt": "2026-10-14T12:52:09.956Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "api-design": {
@@ -135,12 +135,6 @@
       "introduced": "v7.9.0",
       "description": "Converts PRD into executable hierarchical plan. Analyzes complexity like a senior engineer, decomposes into multiple plans with detailed phases, generates folder structure with memory per plan. Uses isolated subagents for each plan creation."
     },
-    "prototype": {
-      "path": "skills/prototype/",
-      "version": "7.9.0",
-      "introduced": "v7.9.0",
-      "description": "Build throwaway code that answers one design question. Use when sanity-checking whether a state model or a piece of logic feels right, or when exploring what a screen should look like before committing to it."
-    },
     "qa-visual": {
       "path": "skills/qa-visual/",
       "version": "7.9.0",
@@ -201,12 +195,6 @@
       "introduced": "v7.9.0",
       "description": "Verificacao pos-execucao: testes e lint, auditoria multi-agente paralela, test quality audit (cobertura real, testes fracos, alucinacoes) e debug automatico. Use apos concluir uma fase ou feature."
     },
-    "wayfinder": {
-      "path": "skills/wayfinder/",
-      "version": "7.9.0",
-      "introduced": "v7.9.0",
-      "description": "Chart a large effort as a map of decision tickets, then work them one at a time. Run it when an idea is too big for one agent session and the way to the destination is still fogged — you can see where you want to land, but cannot yet name the questions in between."
-    },
     "wizard": {
       "path": "skills/wizard/",
       "version": "7.9.0",
@@ -223,8 +211,8 @@
   "files": {
     "CLAUDE.md": {
       "version": "7.9.0",
-      "checksum": "cbe64fdbf8a1f2ee78d226b9d7c8cfe9d56c699426910f15d203c86915959486",
-      "lastModified": "2026-09-10",
+      "checksum": "f2504aa0a8dd5b41d94700b27c959ac703181c47ce29bde4a56bc1b98c1be3f3",
+      "lastModified": "2026-10-14",
       "updateStrategy": "merge"
     },
     "rules/api-standards.md": {
@@ -531,12 +519,6 @@
       "version": "7.9.0",
       "checksum": "259ab96f6446817fd9668c2220b606381601c1e15dff505f09f2f05e4cb24306",
       "lastModified": "2026-09-10",
-      "updateStrategy": "replace"
-    },
-    "scripts/wayfinder-frontier.ts": {
-      "version": "7.9.0",
-      "checksum": "2c8c79eb3fa219df5e363f93eded67beed87ed835d0391695f575bd4c3feeba7",
-      "lastModified": "2026-08-17",
       "updateStrategy": "replace"
     },
     "skills/api-design/SKILL.md": {
@@ -937,7 +919,7 @@
     },
     "skills/design-twice/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "441b63b386ffa7dfc1ce043ce06a49cbf7d6db03c56077c7ffe0422b877e3059",
+      "checksum": "996a4e05e55900a88a1d1790ca30ef3aac81cac5e8c1b0085713f76829a3f74b",
       "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
@@ -1603,8 +1585,8 @@
     },
     "skills/init/lib/template-manifest.ts": {
       "version": "7.9.0",
-      "checksum": "99ebd3a3ed5462730d913f7bc2a589f5ebecbcc10a99de27d7655cd8569f2769",
-      "lastModified": "2026-08-17",
+      "checksum": "8527adb27a7f9eee888c0fa5a828f33892ae50b436acdfc9fa986447ac1733ff",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "skills/init/lib/validator-allowlist.ts": {
@@ -1945,8 +1927,8 @@
     },
     "skills/init/assets/templates/package.json.tpl": {
       "version": "7.9.0",
-      "checksum": "d83f306b9d4c3f833d8d9513f6283131f04cfd655afa296538f72e4b4f8fb14b",
-      "lastModified": "2026-08-17",
+      "checksum": "57e5535b60653841f4eb018fcbc2509bc7a8dbc1fb23acaf60eec300d162d7f3",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/README.md": {
@@ -1971,12 +1953,6 @@
       "version": "7.9.0",
       "checksum": "ce7b1c1c5bc6043d0b06adbd18631e4efcc0714494d97ba9c3538897374dacf2",
       "lastModified": "2026-05-13",
-      "updateStrategy": "replace"
-    },
-    "skills/init/assets/templates/scripts/wayfinder-frontier.ts.tpl": {
-      "version": "7.9.0",
-      "checksum": "2c8c79eb3fa219df5e363f93eded67beed87ed835d0391695f575bd4c3feeba7",
-      "lastModified": "2026-08-17",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/TODO.md.tpl": {
@@ -2257,7 +2233,7 @@
     },
     "skills/plan-feature/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "d7995bb7251c5268c6f18537098950bbbf5ce8c00ea1060e9eb925eb6e55f477",
+      "checksum": "9cd30f1224bfb95ec1a09061ba3a1d80272cbfa98691a630a0e5217ab01d3212",
       "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
@@ -2315,28 +2291,10 @@
       "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
-    "skills/prototype/SKILL.md": {
-      "version": "7.9.0",
-      "checksum": "acb46652e589edf498ce48e1b771586e2a9df7bf543fa165e9bc5f0eac8ea831",
-      "lastModified": "2026-08-13",
-      "updateStrategy": "replace"
-    },
-    "skills/prototype/references/LOGIC.md": {
-      "version": "7.9.0",
-      "checksum": "6bf190064429915b66080998c662f320e1f8ee786cb37dd6d2cedfc51d70c99e",
-      "lastModified": "2026-08-13",
-      "updateStrategy": "replace"
-    },
-    "skills/prototype/references/UI.md": {
-      "version": "7.9.0",
-      "checksum": "ea410a574bbb3c318e3af3ef6952fe28f2f02534b2dfe14000082a098bbc66a8",
-      "lastModified": "2026-08-13",
-      "updateStrategy": "replace"
-    },
     "skills/qa-visual/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "ae56fae2b2dd8b40d967e3fd55264ad50565053304c881d0d9ac2e764928b703",
-      "lastModified": "2026-08-13",
+      "checksum": "3487e251550990b4077f3c14f6d8e7d5ba448602abb1088f0e81f2f1e222814a",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "skills/quick-plan/SKILL.md": {
@@ -2657,18 +2615,6 @@
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
-    "skills/wayfinder/SKILL.md": {
-      "version": "7.9.0",
-      "checksum": "5ecde6e08a4f2f40229d26fe7b90b9169a9cfcd2a581026ff7b8bbdc652677b8",
-      "lastModified": "2026-08-17",
-      "updateStrategy": "replace"
-    },
-    "skills/wayfinder/references/FORMATS.md": {
-      "version": "7.9.0",
-      "checksum": "b64f42eacbcc7922f38332bde087d0ecfc19f50715661e97cafebde731a71c30",
-      "lastModified": "2026-08-17",
-      "updateStrategy": "replace"
-    },
     "skills/wizard/SKILL.md": {
       "version": "7.9.0",
       "checksum": "4122d7a3d859e4350ff67b80818fc97f3e3974623da3133f67c267ad3936e13a",
@@ -2683,8 +2629,8 @@
     },
     "skills/write-prd/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "05ba3f7dee422d3c199e33471ba7a0fede5940e27b6a97424956935e6000a978",
-      "lastModified": "2026-09-01",
+      "checksum": "eb31ef81c4c7a3c1a5ce4459fbd1e67f1feda27e97060695c7ae6cf997a728ac",
+      "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
     "skills/write-prd/templates/prd-template.md": {

@@ -6,18 +6,12 @@ the pipeline is a shortcut, not a requirement.
 ## Skill Pipeline
 
 ```
-wayfinder ─┐
-           ├→ write-prd → plan-feature → execute-plan → verify-work → iterate
-grill-me  ─┘
+grill-me → write-prd → plan-feature → execute-plan → verify-work → iterate
 ```
 
-Two entry points, converging on `write-prd`. Which one you take depends on whether you can already
-name the feature — see the entry condition on `wayfinder` below.
+A feature you can describe enters at `write-prd`. When the decisions behind it are still open, start
+with `grill-me` in its deep mode. (The `wayfinder` stage left the install in 8.0 and lives in tag v7.9.0.)
 
-- **wayfinder** — *conditional front stage*; charts a large effort as a map of decision tickets.
-  **Entry condition: the destination is visible but the way there is not** — the idea exceeds one
-  agent session and you cannot yet name the questions it raises. A feature you can describe skips
-  this and enters at `grill-me` / `write-prd`
 - **grill-me** — ruthless pre-implementation interview; surfaces assumptions and edge cases
 - **write-prd** — interactive feature specification; output: PRD.md in a dated folder
 - **plan-feature** — hierarchical plan with semantic complexity analysis; output: planoNN/ structure
@@ -58,7 +52,6 @@ docs/exec-plans/
 
 ## Alternative Entry Points
 
-- `/wayfinder` → charts an effort too foggy to specify; its closed decisions feed `/write-prd`
 - `/grill-me` → can feed `/write-prd` or be standalone
 - `/design-twice` → can feed `/plan-feature` or be standalone
 - `/consultant` → exists for ad-hoc queries without pipeline

@@ -141,7 +141,6 @@ Para correções triviais, **não use o pipeline** — vai direto. O TDD Gate ex
 
 | Skill | Comando | Propósito |
 |-------|---------|-----------|
-| Wayfinder | `/anti-vibe-coding:wayfinder` | Mapa e fronteira do trabalho — o que está pronto, o que está bloqueado, o que vem agora |
 | Grill Me | `/anti-vibe-coding:grill-me` | Entrevista implacável pré-implementação (5–25 perguntas) |
 | Design Twice | `/anti-vibe-coding:design-twice` | 3+ propostas arquiteturais divergentes em paralelo |
 | Write PRD | `/anti-vibe-coding:write-prd` | Especificação completa via entrevista interativa |
@@ -181,7 +180,6 @@ Para correções triviais, **não use o pipeline** — vai direto. O TDD Gate ex
 | QA Visual | `/anti-vibe-coding:qa-visual` | Verificação no browser via Playwright MCP |
 | Doubt-Driven Development | `/anti-vibe-coding:doubt-driven-development` | Revisão adversarial fresh-context antes de decisão "ficar de pé" |
 | Source-Driven Development | `/anti-vibe-coding:source-driven-development` | Ancora cada decisão em documentação oficial citada |
-| Prototype | `/anti-vibe-coding:prototype` | Código descartável que responde uma pergunta, sem virar produção |
 
 ### Memória e decisões
 
