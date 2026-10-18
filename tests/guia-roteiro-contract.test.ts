@@ -22,6 +22,7 @@ type Guia = { skill: string; minDecisoes: number }
 const GUIAS: Guia[] = [
   { skill: 'system-design', minDecisoes: 10 },
   { skill: 'security', minDecisoes: 11 },
+  { skill: 'architecture', minDecisoes: 9 },
 ]
 const MAX_LINHAS = 230
 
@@ -117,5 +118,41 @@ describe('security — o que o roteiro preserva do guia antigo', () => {
 
   test('o guia completo nao duplica o checklist', () => {
     expect(read('skills/security/references/guia-completo.md')).not.toMatch(/^### V8 /m)
+  })
+})
+
+// 2026-10-18 (Luiz/dev): o que so a arquitetura tem — os defaults de seguranca que fecham junto com o design
+// (RF-07 do shift-left de 2026-09-01). Decisoes arquiteturais de seguranca: trocar depois custa migracao.
+describe('architecture — os defaults de seguranca do design continuam', () => {
+  const body = read('skills/architecture/SKILL.md')
+
+  test.each([
+    ['modelo de autorizacao: negar por padrao', /negar por padr[aã]o|deny-by-default/i],
+    ['onde a autorizacao mora (middleware, policy, repositorio ou RLS)', /RLS/],
+    ['segredos fora do repositorio e do banco', /secret manager|fora do reposit[oó]rio/i],
+    ['classificar o dado antes de modelar', /classificar[\s\S]{0,60}antes de modelar/i],
+    ['credencial hasheada, nunca encriptada', /nunca encriptada/i],
+    ['isolamento de tenant na camada mais baixa', /camada mais baixa/i],
+    ['service_role nao serve operacao de usuario final', /service_role/],
+  ])('mantem: %s', (_label, re) => {
+    expect(body).toMatch(re)
+  })
+
+  test('default aceito vira linha do mapa de ameacas e recusado vira linha de Decisoes, no DESIGN.md', () => {
+    expect(body).toMatch(/aceit[\s\S]{0,160}Amea[cç]as & Dados/i)
+    expect(body).toMatch(/recusad[\s\S]{0,160}## Decis[oõ]es/i)
+  })
+
+  test('o link para deep-modules continua valido a partir do roteiro', () => {
+    const m = body.match(/\]\((\.\.\/tdd-workflow\/references\/deep-modules\.md)\)/)
+    expect(m, 'link para deep-modules ausente do roteiro').not.toBeNull()
+    expect(fs.existsSync(path.join(ROOT, 'skills/architecture', m?.[1] ?? '')), 'deep-modules.md nao existe').toBe(true)
+  })
+
+  test('no guia completo o mesmo link aponta para o lugar certo', () => {
+    const guia = read('skills/architecture/references/guia-completo.md')
+    const m = guia.match(/\]\(((?:\.\.\/)+tdd-workflow\/references\/deep-modules\.md)\)/)
+    expect(m, 'link para deep-modules ausente do guia completo').not.toBeNull()
+    expect(fs.existsSync(path.join(ROOT, 'skills/architecture/references', m?.[1] ?? '')), 'deep-modules.md nao existe').toBe(true)
   })
 })

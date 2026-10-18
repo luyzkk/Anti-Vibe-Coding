@@ -1,6 +1,6 @@
 {
   "version": "7.9.0",
-  "generatedAt": "2026-10-18T20:48:39.298Z",
+  "generatedAt": "2026-10-18T20:58:24.896Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "api-design": {
@@ -13,7 +13,7 @@
       "path": "skills/architecture/",
       "version": "7.9.0",
       "introduced": "v7.9.0",
-      "description": "Consultoria de arquitetura com trade-off explicito. Use ao decidir SOLID, monolito vs microservicos, CQRS e event sourcing, REST vs GraphQL, escolha de stack, principios de design (Lei de Demeter, Tell-Don't-Ask, composicao vs heranca), ou injecao de dependencia."
+      "description": "Roteiro de decisão de arquitetura: faz até 3 perguntas que só o usuário sabe, mostra 2 ou 3 opções com prós, contras e custo, recomenda e registra a escolha. Use ao decidir monólito vs microsserviços, CQRS e event sourcing, REST vs GraphQL, escolha de tecnologia (stack), quanto de SOLID aplicar, injeção de dependência, princípios de design (Lei de Demeter, composição vs herança) e os defaults de segurança do design (onde a autorização mora, segredos, dado em repouso, isolamento de cliente)."
     },
     "consultant": {
       "path": "skills/consultant/",
@@ -541,7 +541,7 @@
     },
     "skills/architecture/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "4d51224062f1910971fb97e786bcf9808ae3a5300e1683b0b5581045169304a1",
+      "checksum": "0deeaafab7946e90eae7c1c8067c1775f859a592500af3ee30b0ea0b30d3dd6d",
       "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
@@ -567,6 +567,12 @@
       "version": "7.9.0",
       "checksum": "e597ef142bbd71371e13f67d673e03b544dc120e0cb253246d0588f1d2165257",
       "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "skills/architecture/references/guia-completo.md": {
+      "version": "7.9.0",
+      "checksum": "1cf60758b2a83d12cac2b0149d52d03ccfecf334e81897d0699c8601524803ae",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/architecture/references/monolith-vs-microservices.md": {
