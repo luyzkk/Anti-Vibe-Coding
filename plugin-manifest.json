@@ -1,6 +1,6 @@
 {
   "version": "7.9.0",
-  "generatedAt": "2026-10-18T20:27:51.895Z",
+  "generatedAt": "2026-10-18T20:34:40.836Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "api-design": {
@@ -121,7 +121,7 @@
       "path": "skills/security/",
       "version": "7.9.0",
       "introduced": "v7.9.0",
-      "description": "Expert security consultation covering OWASP Top 10, authentication (OAuth2, PKCE, JWT, session management), authorization (RBAC, ABAC, RLS), cryptography (bcrypt, argon2, HMAC), API security (rate limiting, CORS, CSRF, WAF), Supabase/BaaS hardening, and dependency vulnerability triage. Use when implementing auth flows, handling secrets, validating webhooks, preventing injection attacks, or auditing security posture."
+      "description": "Roteiro de decisão de segurança: faz até 3 perguntas que só o usuário sabe, mostra 2 ou 3 opções com prós, contras e custo, recomenda e registra a escolha; também audita um projeto existente. Use ao decidir ou revisar login e senha, autorização (RBAC, ABAC, RLS), segredos, webhooks, upload, dados pessoais, rate limit e CORS, Supabase/BaaS, dependências com vulnerabilidade e teste dinâmico — por conceito ou por nome (OWASP, JWT, OAuth2, PKCE, bcrypt, HMAC, CSRF, IDOR)."
     },
     "source-driven-development": {
       "path": "skills/source-driven-development/",
@@ -2023,7 +2023,7 @@
     },
     "skills/security/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "28235099d7d4c3a9c85d7281350c21c798808fa2da13ce5b8689d976ae96792e",
+      "checksum": "70e77c93ecfcc702f6be388671edba92c0a87c61abd6d182d27d5f4c5b6277f5",
       "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
@@ -2051,6 +2051,12 @@
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
+    "skills/security/references/checklist-minimo.md": {
+      "version": "7.9.0",
+      "checksum": "c0e0ae94156600bbed10dbc60b9902db8f32a8b01722a4e09b29f7aeb9c0d31b",
+      "lastModified": "2026-10-18",
+      "updateStrategy": "replace"
+    },
     "skills/security/references/ci-security-tooling.md": {
       "version": "7.9.0",
       "checksum": "d82ecb6d36919fd0e97712195f880f68f441c9f0c5b30bd31addf86886e815e1",
@@ -2067,6 +2073,12 @@
       "version": "7.9.0",
       "checksum": "2363b319f34cf847d7bb391b1d20ff041e855c6cb0e38502f8603f061abee4f9",
       "lastModified": "2026-09-01",
+      "updateStrategy": "replace"
+    },
+    "skills/security/references/guia-completo.md": {
+      "version": "7.9.0",
+      "checksum": "b9be790479b7bab8265066a3152de18c05da0a6718f9637d3a42eb4d7368db56",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/security/references/sca-triage.md": {

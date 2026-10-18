@@ -19,7 +19,10 @@ const read = (rel: string) => fs.readFileSync(path.join(ROOT, rel), 'utf-8').rep
 
 type Guia = { skill: string; minDecisoes: number }
 
-const GUIAS: Guia[] = [{ skill: 'system-design', minDecisoes: 10 }]
+const GUIAS: Guia[] = [
+  { skill: 'system-design', minDecisoes: 10 },
+  { skill: 'security', minDecisoes: 11 },
+]
 const MAX_LINHAS = 230
 
 describe.each(GUIAS)('$skill — roteiro de decisao (D4)', ({ skill, minDecisoes }) => {
@@ -88,5 +91,31 @@ describe.each(GUIAS)('$skill — roteiro de decisao (D4)', ({ skill, minDecisoes
     expect(guia).not.toMatch(/^name: /m)
     expect(guia).not.toContain('stack-aware-preface')
     expect(guia).not.toContain('$ARGUMENTS')
+  })
+})
+
+// 2026-10-18 (Luiz/dev): o que so a seguranca tem — a lista de aprovacao humana e o checklist ASVS.
+describe('security — o que o roteiro preserva do guia antigo', () => {
+  const body = read('skills/security/SKILL.md')
+
+  test('a lista de aprovacao humana continua com as 7 mudancas que nunca se auto-aplicam', () => {
+    // write-prd/templates/design-template.md aponta para este titulo exato.
+    const secao = body.split(/^### Aprovacao Humana Necessaria/m)[1]?.split(/^#{1,3} /m)[0] ?? ''
+    expect(secao.length, 'secao "### Aprovacao Humana Necessaria" ausente').toBeGreaterThan(0)
+    const itens = secao.split('\n').filter((l) => /^\d\. /.test(l))
+    expect(itens.length).toBe(7)
+    expect(secao).toMatch(/nunca auto-aplicar/i)
+  })
+
+  test('o checklist ASVS L1 ficou em references/checklist-minimo.md e o roteiro o cita', () => {
+    const checklist = read('skills/security/references/checklist-minimo.md')
+    for (const cap of ['V1', 'V4', 'V5', 'V6', 'V7', 'V8', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16']) {
+      expect(checklist, `capitulo ${cap} sumiu do checklist`).toMatch(new RegExp(`^### ${cap} `, 'm'))
+    }
+    expect(body).toContain('checklist-minimo.md')
+  })
+
+  test('o guia completo nao duplica o checklist', () => {
+    expect(read('skills/security/references/guia-completo.md')).not.toMatch(/^### V8 /m)
   })
 })
