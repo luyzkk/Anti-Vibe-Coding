@@ -1,6 +1,6 @@
 {
   "version": "7.9.0",
-  "generatedAt": "2026-10-14T15:35:32.722Z",
+  "generatedAt": "2026-10-18T16:16:45.455Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "api-design": {
@@ -44,12 +44,6 @@
       "version": "7.9.0",
       "introduced": "v7.9.0",
       "description": "Gera 3+ propostas arquiteturais divergentes via subagentes paralelos. Combate convergencia prematura forcando exploracoes com restricoes diferentes antes de escolher."
-    },
-    "detect-architecture": {
-      "path": "skills/detect-architecture/",
-      "version": "7.9.0",
-      "introduced": "v7.9.0",
-      "description": "Classifica o projeto em 1 de 5 perfis arquiteturais por heuristica de pastas + imports. Use ao detectar arquitetura, classificar o projeto, ou perguntar qual perfil arquitetural ele segue."
     },
     "domain-modeling": {
       "path": "skills/domain-modeling/",
@@ -421,8 +415,8 @@
     },
     "scripts/analyze-metrics.ts": {
       "version": "7.9.0",
-      "checksum": "6d15e667f52077b5e77e8df6ac14f2198d80ac6c0a98fb16f96d29424224f5a8",
-      "lastModified": "2026-05-09",
+      "checksum": "81ed07dd068bf9498f8e5f144de428ae79a8517c98c5a5d2a043322bf08cafb0",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "scripts/audit-skill-docs.ts": {
@@ -719,12 +713,6 @@
       "lastModified": "2026-06-05",
       "updateStrategy": "replace"
     },
-    "skills/detect-architecture/SKILL.md": {
-      "version": "7.9.0",
-      "checksum": "f8dd0c5d730e138bcc638be0f51d3a7e75d0f7ac17194d2877b1f71c00380f89",
-      "lastModified": "2026-08-12",
-      "updateStrategy": "replace"
-    },
     "skills/domain-modeling/SKILL.md": {
       "version": "7.9.0",
       "checksum": "e4cf57c4e379c5b9bcaaf532b97cc47fc55c94630c2b4cae610303a407cbb437",
@@ -817,8 +805,8 @@
     },
     "skills/init/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "9435352492d4e87b5b09809a3d1b40031ba1834962751d8643bc575f05623c47",
-      "lastModified": "2026-10-13",
+      "checksum": "e922d235ccef70e5e1207fbe643c5a34c10b7b144ea775a5dbc5dfbbfbeb476a",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/init/lib/atoms-frontmatter-validator.ts": {
@@ -1201,8 +1189,8 @@
     },
     "skills/init/lib/run-init.ts": {
       "version": "7.9.0",
-      "checksum": "3f301b89f2d718698c96c6d409aa4ede1e9b63c580d8631269cffd86aa6489ee",
-      "lastModified": "2026-06-06",
+      "checksum": "fb455b339299d66cf86a817cb0524ffecff3c950d1fc2c971531e144a8ad36d4",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/init/lib/run-stack-knowledge-init.ts": {
@@ -1303,8 +1291,8 @@
     },
     "skills/init/lib/steps/07-generate-populate-plans.ts": {
       "version": "7.9.0",
-      "checksum": "7312d1e39dbd4114debc68285385b774b84013cde24874c125e66f920652c85d",
-      "lastModified": "2026-06-06",
+      "checksum": "e6efa0dd59250ea132d478124214d25fce9e6084e64d4fdf4bb5d58fa0594eea",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/init/lib/steps/08-delivery-loop.ts": {
@@ -1961,12 +1949,6 @@
       "lastModified": "2026-05-17",
       "updateStrategy": "replace"
     },
-    "skills/lib/profile-md-generator.ts": {
-      "version": "7.9.0",
-      "checksum": "78e0ba80e932a0858b23d261a127f8d72e580ccf8f7027412f1d06ee000f88ee",
-      "lastModified": "2026-05-09",
-      "updateStrategy": "replace"
-    },
     "skills/lib/read-architecture-profile.ts": {
       "version": "7.9.0",
       "checksum": "cf5f2ea077e8e2512307b4f55ebd91cb08fccb5151897896489e0717e0aa9be1",
@@ -2445,90 +2427,6 @@
       "version": "7.9.0",
       "checksum": "e6d6de71c8ece166b808924251f8a23b91d10ace3dbd5fe20b0658a645fffe34",
       "lastModified": "2026-05-25",
-      "updateStrategy": "replace"
-    },
-    "skills/lib/architecture-detector/classify-by-folders.md": {
-      "version": "7.9.0",
-      "checksum": "27a06011a04a338e88dd62e1a178db1e24eb3507afdbd10eb90eacc1098477f7",
-      "lastModified": "2026-05-09",
-      "updateStrategy": "replace"
-    },
-    "skills/lib/architecture-detector/classify-by-folders.ts": {
-      "version": "7.9.0",
-      "checksum": "ada354c3465ac074f90e7dc67217b73353b360fd9870e1592ff42e53069fbeeb",
-      "lastModified": "2026-05-09",
-      "updateStrategy": "replace"
-    },
-    "skills/lib/architecture-detector/compute-confidence.md": {
-      "version": "7.9.0",
-      "checksum": "8dc08250e0371fef4aac611555c3648dfb6e8c2e40573c418a139f79baf13d9e",
-      "lastModified": "2026-05-09",
-      "updateStrategy": "replace"
-    },
-    "skills/lib/architecture-detector/compute-confidence.ts": {
-      "version": "7.9.0",
-      "checksum": "31cc382bcc8891d87e3bd7de3c042327b7b0ae988f9839babfd1d8eb4b246c90",
-      "lastModified": "2026-05-09",
-      "updateStrategy": "replace"
-    },
-    "skills/lib/architecture-detector/detect-architecture.md": {
-      "version": "7.9.0",
-      "checksum": "c70de77efbdc8ca8e91339446cdc76fa0ddca59a94d4a30b7d3a58e1db8b6b61",
-      "lastModified": "2026-05-09",
-      "updateStrategy": "replace"
-    },
-    "skills/lib/architecture-detector/detect-architecture.ts": {
-      "version": "7.9.0",
-      "checksum": "d4982e2de681d53bb8855b0d85f17f562983a24cc0f4ac3e5097ec53ec881529",
-      "lastModified": "2026-05-09",
-      "updateStrategy": "replace"
-    },
-    "skills/lib/architecture-detector/read-src-tree.md": {
-      "version": "7.9.0",
-      "checksum": "17fb55739dd1a50a33d7b20f138f496ed35c4baf17be80407b446e6baf794d9e",
-      "lastModified": "2026-05-09",
-      "updateStrategy": "replace"
-    },
-    "skills/lib/architecture-detector/read-src-tree.ts": {
-      "version": "7.9.0",
-      "checksum": "923a912e1a1a9b081a91c269b30b137db6d8bc08fdb61e1f0649fbc0745aa84b",
-      "lastModified": "2026-05-09",
-      "updateStrategy": "replace"
-    },
-    "skills/lib/architecture-detector/sample-imports.md": {
-      "version": "7.9.0",
-      "checksum": "0b0f425232dfdb5afd9ed4cc42defbf78602c328745017095a8c643d44f76b1e",
-      "lastModified": "2026-05-09",
-      "updateStrategy": "replace"
-    },
-    "skills/lib/architecture-detector/sample-imports.ts": {
-      "version": "7.9.0",
-      "checksum": "dbb26a218a65815c4909c0aef067e9ba11e59e2d899b41d70ad8bea991b65fc6",
-      "lastModified": "2026-05-09",
-      "updateStrategy": "replace"
-    },
-    "skills/lib/architecture-detector/types.md": {
-      "version": "7.9.0",
-      "checksum": "0f156ed774a3715c9a4a7dd07c435bb1a98ad527132f5414161db056a1ec4eb1",
-      "lastModified": "2026-05-09",
-      "updateStrategy": "replace"
-    },
-    "skills/lib/architecture-detector/types.ts": {
-      "version": "7.9.0",
-      "checksum": "2134bcb3a31b148a5db3e8661de197727b07652691d0f4c127e090b1913d4e5f",
-      "lastModified": "2026-05-09",
-      "updateStrategy": "replace"
-    },
-    "skills/lib/architecture-detector/write-architecture-profile.md": {
-      "version": "7.9.0",
-      "checksum": "a3219cd00ab95ac70ee1acb1553be451d032ad4b700b606ace9f9611c1b0b4db",
-      "lastModified": "2026-05-09",
-      "updateStrategy": "replace"
-    },
-    "skills/lib/architecture-detector/write-architecture-profile.ts": {
-      "version": "7.9.0",
-      "checksum": "2dd5726511477d883cc6087f6a4ab5d683e4e5aa4023e1777fea05f90d27e840",
-      "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "templates/STATE.md": {

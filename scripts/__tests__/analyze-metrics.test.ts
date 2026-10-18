@@ -246,21 +246,9 @@ describe("formatReport (CA-08)", () => {
   })
 })
 
-describe("--set override (RF14)", () => {
-  test("rejeita perfil invalido com exit code 1 e stderr contendo 'perfil invalido'", async () => {
-    const scriptPath = path.join(import.meta.dir, "../../scripts/analyze-metrics.ts")
-    const proc = Bun.spawn(["bun", "run", scriptPath, "--set", "foo"], {
-      cwd: os.tmpdir(),
-      stdout: "pipe",
-      stderr: "pipe",
-    })
-    const exitCode = await proc.exited
-    const stderr = await new Response(proc.stderr).text()
-    expect(exitCode).toBe(1)
-    expect(stderr.toLowerCase()).toContain("perfil invalido")
-  })
-
-  test("aceita perfil valido, grava manifest com architectureProfile e sai com exit 0", async () => {
+// 2026-10-18 (Luiz/dev): 8.0 fatia 4 — o perfil de arquitetura (Modo Dual) saiu; o --set que o gravava saiu junto.
+describe("--set nao grava mais perfil de arquitetura", () => {
+  test("rodar com --set nao cria o manifest com architectureProfile", async () => {
     const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), "avc-set-test-"))
     try {
       const scriptPath = path.join(import.meta.dir, "../../scripts/analyze-metrics.ts")
@@ -269,17 +257,8 @@ describe("--set override (RF14)", () => {
         stdout: "pipe",
         stderr: "pipe",
       })
-      const exitCode = await proc.exited
-      expect(exitCode).toBe(0)
-
-      const manifestPath = path.join(tmpdir, ".claude", ".anti-vibe-manifest.json")
-      expect(fs.existsSync(manifestPath)).toBe(true)
-      const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8")) as Record<string, unknown>
-      const archProfile = manifest["architectureProfile"] as Record<string, unknown> | undefined
-      expect(archProfile).toBeDefined()
-      expect(archProfile!["profile"]).toBe("vertical-slice")
-      const signals = archProfile!["signals"] as string[]
-      expect(signals.some((s: string) => s.includes("manual override"))).toBe(true)
+      await proc.exited
+      expect(fs.existsSync(path.join(tmpdir, ".claude", ".anti-vibe-manifest.json"))).toBe(false)
     } finally {
       fs.rmSync(tmpdir, { recursive: true, force: true })
     }

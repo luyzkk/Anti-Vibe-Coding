@@ -30,5 +30,3 @@ Harness scaffold criado. Plano populate em docs/exec-plans/active/<DATE>-populat
 
 Proximo passo: rode /anti-vibe-coding:execute-plan docs/exec-plans/active/<DATE>-populate-harness/PLAN.md
 para a IA popular cada doc canonico lendo o codigo real. Revise via PR antes de fechar cada fase.
-
-Opcional: /anti-vibe-coding:detect-architecture para Modo Dual nas skills estruturantes.

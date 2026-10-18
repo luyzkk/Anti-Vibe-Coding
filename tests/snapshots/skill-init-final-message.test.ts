@@ -33,11 +33,17 @@ describe('SKILL.md final message — CA-11', () => {
     expect(tail).toContain('PR')
   })
 
-  it('does NOT invoke execute-plan or detect-architecture automatically', async () => {
+  it('does NOT invoke execute-plan automatically', async () => {
     const lines: string[] = []
     await runInit([], { cwd: tmp, log: (s: string) => lines.push(s) })
     // Nenhuma linha indica execucao — apenas sugestao textual
     expect(lines.some((l) => l.startsWith('[execute-plan]'))).toBe(false)
-    expect(lines.some((l) => l.startsWith('[detect-architecture]'))).toBe(false)
+  })
+
+  // 2026-10-18 (Luiz/dev): 8.0 fatia 4 — o detect-architecture saiu; o init nao pode sugerir o que nao existe.
+  it('no longer suggests the removed detect-architecture skill', async () => {
+    const lines: string[] = []
+    await runInit([], { cwd: tmp, log: (s: string) => lines.push(s) })
+    expect(lines.join('\n')).not.toContain('detect-architecture')
   })
 })

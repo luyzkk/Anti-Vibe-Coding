@@ -28,7 +28,7 @@ describe('e2e: init v7 generate-populate-plans (greenfield gate — no stack)', 
     expect(result.kind).toBe('aborted')
     if (result.kind === 'aborted') {
       expect(result.code).toBe(20)
-      expect(result.reason).toContain('detect-architecture')
+      expect(result.reason).toContain('package.json')
       expect(result.reason).toContain('Detected primary: null')
     }
   })

@@ -25,9 +25,11 @@ export const ABORT_CODE_NO_STACK = 20 as const
  * Mensagem literal do abort DR-2. Wording-stable — teste de fase-02 valida bytes exatos.
  * Mudar = mudar teste de proposito.
  * 2026-05-21 (Luiz/dev): Plano 02 fase-02 — DR-2 wording refletindo hierarquia.
+ * 2026-10-18 (Luiz/dev): 8.0 fatia 4 — sem detect-architecture; diz o que o init procura.
  */
 export const ABORT_MESSAGE_NO_STACK =
-  'Stack not detected — run /anti-vibe-coding:detect-architecture before /init.\n' +
+  'Stack not detected — init recognizes Next.js, React, Node+TypeScript, Rails, Laravel and Python through\n' +
+  'package.json, Gemfile, composer.json, pyproject.toml or requirements.txt at the project root.\n' +
   'Detected primary: null.\n' +
   'Waves in the 16 populate-harness fases cannot be path-resolved without stack.'
 
