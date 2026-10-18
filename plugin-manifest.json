@@ -1,6 +1,6 @@
 {
   "version": "7.9.0",
-  "generatedAt": "2026-10-18T17:01:13.777Z",
+  "generatedAt": "2026-10-18T20:27:51.895Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "api-design": {
@@ -139,7 +139,7 @@
       "path": "skills/system-design/",
       "version": "7.9.0",
       "introduced": "v7.9.0",
-      "description": "System design consultation. Use when the user asks about CAP/PACELC trade-offs, scaling, caching, database selection, replication and sharding, load balancing, CDN, serverless vs serverfull, message queues, SQL internals, or distributed resilience — by concept or by name (Redis, RabbitMQ, BullMQ, Lambda, EC2, SQLite, EXPLAIN, WAL, DLQ)."
+      "description": "Roteiro de decisão de system design: faz até 3 perguntas que só o usuário sabe, mostra 2 ou 3 opções com prós, contras e custo, recomenda e registra a escolha. Use ao decidir CAP/consistência, escala, cache, banco de dados, replicação e sharding, CDN, serverless vs servidor fixo, filas, consulta SQL lenta ou resiliência — por conceito ou por nome (Redis, RabbitMQ, BullMQ, Lambda, EC2, SQLite, EXPLAIN, WAL, DLQ)."
     },
     "tdd-workflow": {
       "path": "skills/tdd-workflow/",
@@ -613,8 +613,8 @@
     },
     "skills/defensive-patterns/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "a6c5da787fbf87e47548249602beaa4d51f47c263e127601ea7efbcfdb42c27f",
-      "lastModified": "2026-10-14",
+      "checksum": "e2c47184fb800617e7a1012b8ec01133337418c789c8e53862e57c934097739d",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/design-patterns/SKILL.md": {
@@ -2167,7 +2167,7 @@
     },
     "skills/system-design/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "c4d3b994310bee221c0307f9937ec54aaa1f17b2afe70b2be48dd45bac68fde9",
+      "checksum": "1625d1ca087b381140afbf943116a62f718795e7200e5657fedab1eb4d4a9dbe",
       "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
@@ -2193,6 +2193,12 @@
       "version": "7.9.0",
       "checksum": "03345358e68365969350135f240971670c5c304a05c83515bb75d1b4b7568506",
       "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "skills/system-design/references/guia-completo.md": {
+      "version": "7.9.0",
+      "checksum": "f8fc49b9822fc0040cc762b18b18b494262a6776a17594218bb17fe57bf44cb8",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/system-design/references/load-balancing.md": {
