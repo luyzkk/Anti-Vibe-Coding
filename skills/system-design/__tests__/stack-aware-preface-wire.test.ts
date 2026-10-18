@@ -22,12 +22,10 @@ describe('system-design SKILL.md stack-aware-preface wire-up', () => {
     expect(block).toContain('../security/lib/stack-aware-preface')
   })
 
-  it('preserves profile-aware-preface block and is positioned between profile-aware and stale-capabilities (CA-10)', () => {
-    expect(body).toContain('<!-- profile-aware-preface:start -->')
-    expect(body).toContain('<!-- profile-aware-preface:end -->')
-    expect(body.indexOf('<!-- profile-aware-preface:end -->')).toBeLessThan(
-      body.indexOf('<!-- stack-aware-preface:start -->'),
-    )
+  // 2026-10-18 (Luiz/dev): 8.0 fatia 4 — o bloco de perfil (Modo Dual) saiu: ele nunca ligou num projeto real.
+  it('no longer carries the profile-aware block, and the stack preface sits before the first H1', () => {
+    expect(body).not.toContain('profile-aware-preface')
+    expect(body.indexOf('<!-- stack-aware-preface:end -->')).toBeLessThan(body.search(/^# /m))
     expect(body.indexOf('<!-- stack-aware-preface:end -->')).toBeLessThan(
       body.indexOf('<!-- stale-capabilities-check:start -->'),
     )

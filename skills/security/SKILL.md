@@ -7,28 +7,6 @@ allowed-tools: Read, Grep, Glob, WebSearch
 argument-hint: "[security question or module to audit]"
 ---
 
-<!-- profile-aware-preface:start -->
-```typescript
-// 2026-05-15 (Luiz/dev): Plano 04 fase-01 — profile-aware-preface (PRD §RF-MH-05).
-// Lê context UMA vez via readPrefaceContext (Plano 01). Lookup table per-skill (G3).
-// Quando ctx.profile === null: fallback default = comportamento v6.2 intacto (CA-02).
-
-import { readPrefaceContext } from '../lib/preface-context'
-import { SECURITY_PREFACE_BY_PROFILE, DEFAULT_SECURITY_PREFACE } from './lib/security-prefaces'
-
-const ctx = readPrefaceContext(process.cwd())
-const preface = ctx.profile
-  ? (SECURITY_PREFACE_BY_PROFILE[ctx.profile] ?? DEFAULT_SECURITY_PREFACE)
-  : DEFAULT_SECURITY_PREFACE
-
-// Quando ctx.profile é não-nulo, prepend preface ao corpo da skill.
-// Quando null, behavior idêntico a v6.2 (CA-02).
-```
-
-Se `preface` for não-vazio, inicie sua resposta com o conteúdo de `preface` e em seguida proceda com a consulta de segurança normal.
-Se `preface` for vazio (profile null), comportamento v6.2 intacto — sem preface, ir direto ao corpo.
-<!-- profile-aware-preface:end -->
-
 <!-- stack-aware-preface:start -->
 ```typescript
 // 2026-05-16 (Luiz/dev): Plano 01 fase-04 — stack-aware-preface (PRD §Mecanismo Skill wire-up, D11).
@@ -43,7 +21,7 @@ import { getStackKnowledgePreface } from './lib/stack-aware-preface'
 const stackKnowledgePreface = getStackKnowledgePreface(process.cwd())
 ```
 
-Se `stackKnowledgePreface` for não-vazio, **prepende** esta frase ao início da resposta (após o `preface` profile-aware, se ambos existirem). Se vazio, ignore — comportamento da skill segue do bloco `profile-aware-preface` acima sem mudança (CA-09).
+Se `stackKnowledgePreface` for não-vazio, **prepende** esta frase ao início da resposta. Se vazio, ignore — a skill segue sem mudança (CA-09).
 <!-- stack-aware-preface:end -->
 
 <!-- stale-capabilities-check:start -->

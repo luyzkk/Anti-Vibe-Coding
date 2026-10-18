@@ -189,14 +189,6 @@ describe('inferFasePipeline', () => {
 // mattpocock) — prompt nao executa, so gastava contexto. Todos os smoke tests que liam esses
 // blocos foram junto. A lib segue viva e coberta pelos describes abaixo:
 // `emit-stack-knowledge-events.ts` consome `writeTelemetryDomainEvent`.
-describe('architecture SKILL.md (fase-03 smoke)', () => {
-  test('architecture skill preserves Tracer Bullet code from Plano 01 fase-06', () => {
-    const archPath = join('skills', 'architecture', 'SKILL.md')
-    const content = readFileSync(archPath, 'utf-8')
-    // Tracer Bullet do Plano 01 fase-06 declara leitura de architectureProfile
-    expect(content).toContain('architectureProfile')
-  })
-})
 
 describe('D13 cobertura completa (fase-02 + fase-03)', () => {
   const ALL_TEN = [

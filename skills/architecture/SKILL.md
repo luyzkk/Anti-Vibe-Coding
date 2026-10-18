@@ -7,50 +7,6 @@ allowed-tools: Read, Grep, Glob, WebSearch
 argument-hint: "[architecture decision or pattern to analyze]"
 ---
 
-<!-- profile-aware-preface:start -->
-```typescript
-// 2026-05-15 (Luiz/dev): v6.3.1 RF-CH-01 fase-07 — migra readArchitectureProfile → readPrefaceContext.
-// Lê architectureProfile do manifest via readPrefaceContext (Plano 01 v6.3.0) — UMA leitura.
-// Lookup table per-skill mantido.
-// G5 do plano02 / CA-12: NUNCA preencher ctx.language ou ctx.framework — D2 ADR-0020 reserva v6.5/v6.6.
-// Quando ctx.profile === null: fallback Greenfield/default (CA-04 v6.3.0 preserved).
-
-import { readdirSync } from 'node:fs'
-import { join } from 'node:path'
-import { readPrefaceContext } from '../lib/preface-context'
-import { getRecommendationForProfile } from '../../lib/read-architecture-profile'
-import {
-  ARCHITECTURE_RECOMMENDATIONS,
-  DEFAULT_RECOMMENDATION_V52,
-  GREENFIELD_RECOMMENDATION,
-  isGreenfield,
-} from './lib/architecture-recommendations'
-
-const ctx = readPrefaceContext(process.cwd())
-const profileName = ctx.profile ?? null
-
-let srcFileCount = 0
-try {
-  srcFileCount = (readdirSync(join(process.cwd(), 'src'), { recursive: true }) as string[])
-    .filter((f) => /\.(ts|tsx)$/.test(f)).length
-} catch {
-  srcFileCount = 0
-}
-
-const recommendation = isGreenfield(profileName, srcFileCount)
-  ? GREENFIELD_RECOMMENDATION
-  : getRecommendationForProfile(profileName, ARCHITECTURE_RECOMMENDATIONS, DEFAULT_RECOMMENDATION_V52)
-```
-
-Ao produzir recomendações, use `recommendation.headline`, `recommendation.rationale`,
-`recommendation.patterns` e `recommendation.caveats` como insumos textuais adaptativos.
-
-Se `profileName` for não-nulo, inicie sua resposta com:
-  "Recomendações para perfil: <profileName>"
-
-Se `profileName` for nulo (manifest ausente), comportamento v5.2 intacto — sem preface.
-<!-- profile-aware-preface:end -->
-
 <!-- stack-aware-preface:start -->
 ```typescript
 // 2026-05-16 (Luiz/dev): Plano 03 fase-02 — stack-aware-preface (PRD §Mecanismo Skill wire-up, D11).
@@ -62,7 +18,7 @@ import { getStackKnowledgePreface } from '../security/lib/stack-aware-preface'
 const stackKnowledgePreface = getStackKnowledgePreface(process.cwd())
 ```
 
-Se `stackKnowledgePreface` for não-vazio, **prepende** esta frase ao início da resposta (após o `preface` profile-aware, se ambos existirem). Se vazio, ignore — comportamento da skill segue do bloco `profile-aware-preface` acima sem mudança (CA-09).
+Se `stackKnowledgePreface` for não-vazio, **prepende** esta frase ao início da resposta. Se vazio, ignore — a skill segue sem mudança (CA-09).
 <!-- stack-aware-preface:end -->
 
 # Consultor de Arquitetura de Software

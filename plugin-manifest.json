@@ -1,6 +1,6 @@
 {
   "version": "7.9.0",
-  "generatedAt": "2026-10-18T16:16:45.455Z",
+  "generatedAt": "2026-10-18T16:46:17.542Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "api-design": {
@@ -481,8 +481,8 @@
     },
     "skills/api-design/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "4eba370d970777d39414a125b9e463999297c5bcabff0b0572e799b808803f7b",
-      "lastModified": "2026-08-12",
+      "checksum": "1d28d63b822aba92c3b21857ce70253d9818a3fcc80c1da0473dc44dcfd7783b",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/api-design/references/api-concurrency.md": {
@@ -545,16 +545,10 @@
       "lastModified": "2026-06-05",
       "updateStrategy": "replace"
     },
-    "skills/api-design/lib/api-design-prefaces.ts": {
-      "version": "7.9.0",
-      "checksum": "576176c2a818d6e51f945d330b0a044f9dcb68efce8ba991e581487e4a1e59f2",
-      "lastModified": "2026-05-15",
-      "updateStrategy": "replace"
-    },
     "skills/architecture/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "8798008ec7a6d021e734b9cad0257729f5f50c472dc40f6196d7fd6c698b10b5",
-      "lastModified": "2026-10-14",
+      "checksum": "4d51224062f1910971fb97e786bcf9808ae3a5300e1683b0b5581045169304a1",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/architecture/references/api-architecture.md": {
@@ -593,12 +587,6 @@
       "lastModified": "2026-03-22",
       "updateStrategy": "replace"
     },
-    "skills/architecture/lib/architecture-recommendations.ts": {
-      "version": "7.9.0",
-      "checksum": "f73a868395f52cf7d4110eb5116abbad0ac6164193626bfeda252d664b0fe21a",
-      "lastModified": "2026-05-09",
-      "updateStrategy": "replace"
-    },
     "skills/consultant/SKILL.md": {
       "version": "7.9.0",
       "checksum": "168903b8b29aaffb47d41f04648b58b5106fd690876ea8aee6dab9e67cb721fc",
@@ -619,20 +607,14 @@
     },
     "skills/decision-registry/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "8137adac6574da3bcb8e4440326af5bb70f02d36491f76a5f5e17c14d77bdb5b",
-      "lastModified": "2026-08-13",
+      "checksum": "d45e36e55a758e6278d1d61599a35005a503d314a837f501a5ddb754a9edb199",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/decision-registry/index.ts": {
       "version": "7.9.0",
       "checksum": "925469ec3e87d36609292ecf9fb230844208a47ec8de9648da5d41d8b6810b84",
       "lastModified": "2026-05-12",
-      "updateStrategy": "replace"
-    },
-    "skills/decision-registry/lib/decision-registry-prefaces.ts": {
-      "version": "7.9.0",
-      "checksum": "0049271db0cc4e6d6c9d06d8bdf40adbdd6a65511efe6db3859bb3c7baf25986",
-      "lastModified": "2026-05-15",
       "updateStrategy": "replace"
     },
     "skills/defensive-patterns/SKILL.md": {
@@ -643,8 +625,8 @@
     },
     "skills/design-patterns/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "6fcd6502c31f8038e87ebe81ab06838e3e15fc0595340b948ae9e4047632b490",
-      "lastModified": "2026-08-12",
+      "checksum": "7989409e362077e8e09349bdf6ffeea86a131eb713a4d2a640718838bc390fa8",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/design-patterns/references/code-smells.md": {
@@ -687,12 +669,6 @@
       "version": "7.9.0",
       "checksum": "2d93255cf696d7c934bb6825743bdc13a05caf2923444169beed8ffa560f5efd",
       "lastModified": "2026-03-22",
-      "updateStrategy": "replace"
-    },
-    "skills/design-patterns/lib/design-patterns-prefaces.ts": {
-      "version": "7.9.0",
-      "checksum": "e4ffb40ef9af270fd4e9383c0efc4c00ad0b707b4183e3c2eec4dd2b0aafce18",
-      "lastModified": "2026-05-15",
       "updateStrategy": "replace"
     },
     "skills/design-twice/SKILL.md": {
@@ -1789,20 +1765,14 @@
     },
     "skills/lessons-learned/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "845ac0206dfa3c73c5ec07c979f55a424f204f354582e905ac944afc31061ea2",
-      "lastModified": "2026-08-18",
+      "checksum": "3b40ccdfc2f87b6d6c8f04a7605aeec6872cb9ce8bd80d77399d816861fce4a5",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/lessons-learned/index.ts": {
       "version": "7.9.0",
       "checksum": "8ed0abac922dfaa30fbb462769db6c7ac321b12fb9b1f2c523740fe117aa9eb6",
       "lastModified": "2026-05-12",
-      "updateStrategy": "replace"
-    },
-    "skills/lessons-learned/lib/lessons-learned-prefaces.ts": {
-      "version": "7.9.0",
-      "checksum": "54ff0292047ff0a756edbec5b217c5c3a4945e2267028b9053bbfb7a56d64954",
-      "lastModified": "2026-05-15",
       "updateStrategy": "replace"
     },
     "skills/lib/adr-writer.ts": {
@@ -2095,8 +2065,8 @@
     },
     "skills/security/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "1fef1083724f9f4f919c9b5eda610c7f0636d6806b21057df0c1c40a807af7a1",
-      "lastModified": "2026-10-13",
+      "checksum": "28235099d7d4c3a9c85d7281350c21c798808fa2da13ce5b8689d976ae96792e",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/security/references/application-security.md": {
@@ -2219,12 +2189,6 @@
       "lastModified": "2026-09-08",
       "updateStrategy": "replace"
     },
-    "skills/security/lib/security-prefaces.ts": {
-      "version": "7.9.0",
-      "checksum": "4e51d2cae6a6b718a09e703a962513c62490cf48d2172f06a5bb630270c8988e",
-      "lastModified": "2026-05-15",
-      "updateStrategy": "replace"
-    },
     "skills/security/lib/stack-aware-preface.ts": {
       "version": "7.9.0",
       "checksum": "c1229f40b5b611dfc922ce7ca5ffa0d6586c3f1d4ff0b87c295c35096f3fc65f",
@@ -2245,8 +2209,8 @@
     },
     "skills/system-design/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "711cc0c5003caa5e106d3298c5ec5848742c96cc333dd532e1fef94892c502e6",
-      "lastModified": "2026-09-01",
+      "checksum": "c4d3b994310bee221c0307f9937ec54aaa1f17b2afe70b2be48dd45bac68fde9",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/system-design/references/cache-strategies.md": {
@@ -2331,12 +2295,6 @@
       "version": "7.9.0",
       "checksum": "8fcfd87d4205b8ffa485c090a2ad17e231d5769dd721aea3370cf8977df654a9",
       "lastModified": "2026-06-17",
-      "updateStrategy": "replace"
-    },
-    "skills/system-design/lib/system-design-prefaces.ts": {
-      "version": "7.9.0",
-      "checksum": "dea3243254a8eabec27484a17e8e246ff5e1a2293cf787946d112aa864c5430e",
-      "lastModified": "2026-05-15",
       "updateStrategy": "replace"
     },
     "skills/tdd-workflow/SKILL.md": {
