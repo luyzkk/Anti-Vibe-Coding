@@ -1,6 +1,6 @@
 # State
 
-Snapshot of the project for agents and humans. Updated by `/init` and (in future) by hooks.
+Snapshot of the project for agents and humans. Written by `/init`; edit it by hand as the project evolves.
 
 ## Resources
 

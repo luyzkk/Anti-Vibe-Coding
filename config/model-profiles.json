@@ -14,7 +14,6 @@
         "code-smell-detector": "sonnet",
         "tdd-verifier": "sonnet",
         "infrastructure-auditor": "sonnet",
-        "lesson-evaluator": "haiku",
         "documentation-writer": "sonnet",
         "dependency-auditor": "sonnet"
       }
@@ -33,7 +32,6 @@
         "code-smell-detector": "haiku",
         "tdd-verifier": "sonnet",
         "infrastructure-auditor": "sonnet",
-        "lesson-evaluator": "haiku",
         "documentation-writer": "haiku",
         "dependency-auditor": "sonnet"
       }
@@ -52,7 +50,6 @@
         "code-smell-detector": "haiku",
         "tdd-verifier": "haiku",
         "infrastructure-auditor": "haiku",
-        "lesson-evaluator": "haiku",
         "documentation-writer": "haiku",
         "dependency-auditor": "haiku"
       }

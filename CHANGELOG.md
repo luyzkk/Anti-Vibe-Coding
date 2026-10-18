@@ -967,7 +967,7 @@ Gate de paridade prova texto. Dogfood prova execução. As duas coisas são nece
 
 - **CRLF-resilient frontmatter regex** — `/^---\r?\n[\s\S]*?\r?\n---\r?\n*/`
   em [scripts/harness-validate.ts:493](scripts/harness-validate.ts#L493),
-  `.tpl:240`, [skills/init/lib/compound-writer.ts:74](skills/init/lib/compound-writer.ts#L74),
+  `.tpl:240`, `skills/init/lib/compound-writer.ts:74` (removido na 8.0),
   [skills/lib/exec-plan-reader.ts:40](skills/lib/exec-plan-reader.ts#L40).
   Defense-in-depth — normalize step continua presente.
 - **ReDoS guard em `atoms-frontmatter-validator`** — regex lazy `[\s\S]*?`

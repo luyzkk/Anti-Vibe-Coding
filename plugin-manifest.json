@@ -1,6 +1,6 @@
 {
   "version": "7.9.0",
-  "generatedAt": "2026-10-18T21:10:23.775Z",
+  "generatedAt": "2026-10-18T22:22:03.397Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "api-design": {
@@ -329,12 +329,6 @@
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
-    "agents/lesson-evaluator.md": {
-      "version": "7.9.0",
-      "checksum": "8d7327c4c9fe10bd72cd082bc0d14b194b0a4597710b315c9162b68c96e449b8",
-      "lastModified": "2026-10-14",
-      "updateStrategy": "replace"
-    },
     "agents/plan-executor.md": {
       "version": "7.9.0",
       "checksum": "cd03e576a1455f3963b260b2eeaa765b7c1018cfb476519e863564dfd8cec837",
@@ -385,8 +379,8 @@
     },
     "config/model-profiles.json": {
       "version": "7.9.0",
-      "checksum": "021a491e5a88fd1ebb955a0f0dec2ed1d07e59a0e06eaea07c4bd0ec1ec255f0",
-      "lastModified": "2026-09-01",
+      "checksum": "61a222d9f48e0ecd0de630dd39d5b3f1f47eec77d361bfc213ec964dd68f10b8",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "config/qa-visual.json": {
@@ -827,24 +821,6 @@
       "lastModified": "2026-05-12",
       "updateStrategy": "replace"
     },
-    "skills/init/lib/compound-imported-constants.ts": {
-      "version": "7.9.0",
-      "checksum": "c72e62a35c118d6c6a422295e98bba181acb8a59fad341a2d46a3fa2dd69daff",
-      "lastModified": "2026-10-13",
-      "updateStrategy": "replace"
-    },
-    "skills/init/lib/compound-imported-writer.ts": {
-      "version": "7.9.0",
-      "checksum": "a13f4236022a866d82ede2328ec343e4cc4ec8fad9561cac4154d37b9d3d7121",
-      "lastModified": "2026-05-19",
-      "updateStrategy": "replace"
-    },
-    "skills/init/lib/compound-writer.ts": {
-      "version": "7.9.0",
-      "checksum": "e4c13b2711c305ad460b88002a8ee940cb5179f2c522f27f16e4e49767759dc8",
-      "lastModified": "2026-08-18",
-      "updateStrategy": "replace"
-    },
     "skills/init/lib/copy-knowledge.ts": {
       "version": "7.9.0",
       "checksum": "937d23ef65a3e822666a4ccab7472930551420862f56621d4138604c4aedee50",
@@ -1107,18 +1083,6 @@
       "version": "7.9.0",
       "checksum": "6b170debaaf288858314b0f30018fd5fd689526f457f43fe3fe0260cdbe88dcf",
       "lastModified": "2026-05-23",
-      "updateStrategy": "replace"
-    },
-    "skills/init/lib/progress-txt-parser.ts": {
-      "version": "7.9.0",
-      "checksum": "5404e7cfe2ccc174a721b725ff41c9023a963f9a63e25e3cd7790315ec707023",
-      "lastModified": "2026-05-19",
-      "updateStrategy": "replace"
-    },
-    "skills/init/lib/prompts/compound.md": {
-      "version": "7.9.0",
-      "checksum": "305aff3a66feef0028a6408f429a86d97aef539e1035b7d38696498b6097a6a9",
-      "lastModified": "2026-05-14",
       "updateStrategy": "replace"
     },
     "skills/init/lib/prompts/explorer.md": {
@@ -1717,8 +1681,8 @@
     },
     "skills/init/assets/templates/docs/STATE.md.tpl": {
       "version": "7.9.0",
-      "checksum": "19d1b30ab5a92e6eca1d321ce41fcb2f88ccea6e73d8b9185e4e583fab1d44c6",
-      "lastModified": "2026-10-14",
+      "checksum": "ddf6363a7df9e621158314771bfed6731df6f4fb86abe4d4b003628cdcd564c9",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/exec-plan/fase.md.tpl": {
@@ -1911,12 +1875,6 @@
       "version": "7.9.0",
       "checksum": "bbe6b0d17fd1fe09e2a7a73f1221e4a4b00dc30d6f922e874533fb712d6ff8e6",
       "lastModified": "2026-05-15",
-      "updateStrategy": "replace"
-    },
-    "skills/lib/state-md-generator.ts": {
-      "version": "7.9.0",
-      "checksum": "16b9f0e0708be2db7f1bc085111515087dc28d0530c7b735e66c3e4af48adc6f",
-      "lastModified": "2026-08-18",
       "updateStrategy": "replace"
     },
     "skills/lib/state-md-lock.ts": {
