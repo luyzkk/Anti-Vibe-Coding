@@ -41,7 +41,7 @@ type ManifestShape = {
   builtin_tools?: string[]
 }
 
-// 2026-05-15 (Luiz/dev): busca ascendente ate root — espelha read-architecture-profile.ts
+// 2026-05-15 (Luiz/dev): busca ascendente ate root pelo manifest do projeto
 async function findManifestPath(startDir: string): Promise<string | null> {
   let dir = path.resolve(startDir)
   const root = path.parse(dir).root

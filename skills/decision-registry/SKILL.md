@@ -7,24 +7,6 @@ allowed-tools: Read, Grep, Glob, Write, Edit
 argument-hint: "add|list|query [decision or search term]"
 ---
 
-<!-- profile-aware-preface:start -->
-```typescript
-// 2026-05-15 (Luiz/dev): Plano 04 fase-02 — profile-aware-preface (PRD §RF-SH-05).
-// Mesmo pattern de /security (fase-01); per-skill lookup; fallback v6.2 quando profile null.
-
-import { readPrefaceContext } from '../lib/preface-context'
-import { DECISION_REGISTRY_PREFACE_BY_PROFILE, DEFAULT_DECISION_REGISTRY_PREFACE } from './lib/decision-registry-prefaces'
-
-const ctx = readPrefaceContext(process.cwd())
-const preface = ctx.profile
-  ? (DECISION_REGISTRY_PREFACE_BY_PROFILE[ctx.profile] ?? DEFAULT_DECISION_REGISTRY_PREFACE)
-  : DEFAULT_DECISION_REGISTRY_PREFACE
-```
-
-Se `preface` for não-vazio, prepend ao corpo da skill (inicie sua resposta com o preface e prossiga com a operação normal).
-Se vazio (profile null), comportamento v6.2 intacto — sem preface (CA-02).
-<!-- profile-aware-preface:end -->
-
 <!-- stale-capabilities-check:start -->
 ```typescript
 // 2026-05-15 (Luiz/dev): wire-up CA-09 v6.3.0 (closed em v6.3.1 RF-SH-02) — non-blocking warning.

@@ -185,8 +185,6 @@ export async function runInit(
     log('')
     log(`Proximo passo: rode /anti-vibe-coding:execute-plan ${populatePlanPath}`)
     log('para a IA popular cada doc canonico lendo o codigo real. Revise via PR antes de fechar cada fase.')
-    log('')
-    log('Opcional: /anti-vibe-coding:detect-architecture para Modo Dual nas skills estruturantes.')
   }
 
   return { kind: 'ok', report: { mutated: false, summary: 'all steps completed' } }

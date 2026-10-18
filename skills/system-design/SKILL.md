@@ -1,33 +1,11 @@
 ---
 name: system-design
-description: "System design consultation. Use when the user asks about CAP/PACELC trade-offs, scaling, caching, database selection, replication and sharding, load balancing, CDN, serverless vs serverfull, message queues, SQL internals, or distributed resilience — by concept or by name (Redis, RabbitMQ, BullMQ, Lambda, EC2, SQLite, EXPLAIN, WAL, DLQ)."
+description: "Roteiro de decisão de system design: faz até 3 perguntas que só o usuário sabe, mostra 2 ou 3 opções com prós, contras e custo, recomenda e registra a escolha. Use ao decidir CAP/consistência, escala, cache, banco de dados, replicação e sharding, CDN, serverless vs servidor fixo, filas, consulta SQL lenta ou resiliência — por conceito ou por nome (Redis, RabbitMQ, BullMQ, Lambda, EC2, SQLite, EXPLAIN, WAL, DLQ)."
 user-invocable: true
 disable-model-invocation: false
-allowed-tools: Read, Grep, Glob, WebSearch
-argument-hint: "[topic or architecture question]"
+allowed-tools: Read, Grep, Glob, WebSearch, AskUserQuestion
+argument-hint: "[decisão de system design: escala, cache, banco, fila...]"
 ---
-
-<!-- profile-aware-preface:start -->
-```typescript
-// 2026-05-15 (Luiz/dev): Plano 04 fase-01 — profile-aware-preface (PRD §RF-MH-05).
-// Lê context UMA vez via readPrefaceContext (Plano 01). Lookup table per-skill (G3).
-// Quando ctx.profile === null: fallback default = comportamento v6.2 intacto (CA-02).
-
-import { readPrefaceContext } from '../lib/preface-context'
-import { SYSTEM_DESIGN_PREFACE_BY_PROFILE, DEFAULT_SYSTEM_DESIGN_PREFACE } from './lib/system-design-prefaces'
-
-const ctx = readPrefaceContext(process.cwd())
-const preface = ctx.profile
-  ? (SYSTEM_DESIGN_PREFACE_BY_PROFILE[ctx.profile] ?? DEFAULT_SYSTEM_DESIGN_PREFACE)
-  : DEFAULT_SYSTEM_DESIGN_PREFACE
-
-// Quando ctx.profile é não-nulo, prepend preface ao corpo da skill.
-// Quando null, behavior idêntico a v6.2 (CA-02).
-```
-
-Se `preface` for não-vazio, inicie sua resposta com o conteúdo de `preface` e em seguida proceda com a consulta de system design normal.
-Se `preface` for vazio (profile null), comportamento v6.2 intacto — sem preface, ir direto ao corpo.
-<!-- profile-aware-preface:end -->
 
 <!-- stack-aware-preface:start -->
 ```typescript
@@ -40,7 +18,7 @@ import { getStackKnowledgePreface } from '../security/lib/stack-aware-preface'
 const stackKnowledgePreface = getStackKnowledgePreface(process.cwd())
 ```
 
-Se `stackKnowledgePreface` for não-vazio, **prepende** esta frase ao início da resposta (após o `preface` profile-aware, se ambos existirem). Se vazio, ignore — comportamento da skill segue do bloco `profile-aware-preface` acima sem mudança (CA-09).
+Se `stackKnowledgePreface` for não-vazio, **prepende** esta frase ao início da resposta. Se vazio, ignore — a skill segue sem mudança (CA-09).
 <!-- stack-aware-preface:end -->
 
 <!-- stale-capabilities-check:start -->
@@ -76,486 +54,123 @@ if (__caps_generated_at !== null) {
 ```
 <!-- stale-capabilities-check:end -->
 
-# System Design — Modo Consultor
 
-Operar no Modo Consultor de System Design. ENSINAR conceitos de arquitetura de sistemas distribuidos — NAO executar codigo.
+# System Design — Roteiro de Decisão
+
+Decidir como o sistema vai se comportar sob carga, falha e crescimento. A skill **conduz a decisão**: pergunta o que só o usuário sabe, mostra as opções com prós e contras em português simples e registra a escolha. Não escreve código; para implementar depois, direcione para `/anti-vibe-coding:tdd-workflow`.
 
 ## Como Operar
 
-1. Identificar o topico da consulta
-2. Apresentar o conceito com explicacao clara, quando usar, quando NAO usar e trade-offs
-3. Usar a arvore de decisao para guiar escolhas
-4. Alertar sobre anti-patterns relevantes
-5. Nunca gerar codigo — apenas ensinar e recomendar
+1. **Diga a decisão em uma frase**, sem jargão: "Vamos decidir se a lista de planos do quiz fica em cache."
+2. **Pergunte até 3 perguntas numa tela só** (`AskUserQuestion`, uma pergunta por item). Só o que o usuário sabe e o código não mostra: valor de negócio, tamanho do pico, o que acontece se der errado. Nunca pergunte o que dá para descobrir lendo o projeto; leia primeiro (`Read`, `Grep`).
+3. **Mostre 2 ou 3 opções**, cada uma com: o que é (uma linha), prós, contras, custo (dinheiro, tempo de manutenção, complexidade) e quando seria a escolha errada. Não invente uma terceira opção só para fechar número.
+4. **Recomende uma**, ligando a recomendação às respostas dele: "Recomendo B porque você disse que preço velho vira cobrança errada."
+5. **Se o usuário não souber responder**, use o padrão de um sênior para aquela decisão (catálogo abaixo) e diga qual usou e o que mudaria a resposta: "Usei o padrão 'vertical primeiro' porque você não soube o tamanho do pico; se passar de 70% de CPU de forma sustentada, reveja."
+6. **Registre a escolha** (seção Registro) e só então encerre.
+
+Pedido de explicação completa ou de aprofundamento ("me explica de verdade", "quero o texto completo"): leia `references/guia-completo.md`, e o arquivo do tópico quando houver. Esse texto longo só é lido quando o usuário pedir; o roteiro não depende dele.
+
+## Catálogo de decisões
+
+Cada bloco diz o que perguntar, as opções, o padrão de um sênior e quando ele erra. Use o bloco da decisão em discussão; não percorra todos.
+
+### CAP — consistência ou disponibilidade
+- **Perguntas:** (1) Se esse dado aparecer errado por alguns segundos, alguém perde dinheiro, paga errado ou tem problema legal, ou só estranha? (2) Se o sistema ficar fora do ar por alguns minutos numa falha, o que o usuário perde?
+- **Opções:** A) Consistência forte: tudo sempre certo, pode ficar fora do ar numa falha. B) Disponibilidade: sempre responde, pode mostrar dado de segundos atrás. C) Meio-termo: disponível com prazo curto de atualização (TTL curto).
+- **Padrão:** A para dinheiro, estoque e dado legal; B para conteúdo, feed e contador.
+- **Errada quando:** A em conteúdo que pode atrasar (derruba sem necessidade); B em saldo ou cobrança.
+- **Referência:** `references/cap-theorem.md`
+
+### Escala — aguentar mais gente
+- **Perguntas:** (1) Quanta gente usa ao mesmo tempo no pico (ex.: anúncio no ar) e quanto isso cresce em 6 meses? (2) Quanto custa o sistema ficar fora do ar por 1 hora? (3) O servidor passa de 70% de CPU de forma sustentada hoje?
+- **Opções:** A) Máquina maior (vertical). B) Mais máquinas atrás de um balanceador (horizontal). C) Nada agora: medir antes.
+- **Padrão:** vertical primeiro. Horizontal só com limite atingido ou disponibilidade de 99,9%+ (mínimo 2 máquinas em zonas diferentes, aplicação sem estado). Balanceador: Round Robin; Least Connections se os pedidos têm duração muito variada; health check sempre; o balanceador vira ponto único de falha, então duplique.
+- **Errada quando:** horizontal sem necessidade (custo e complexidade sem ganho); vertical quando o requisito é redundância.
+- **Referência:** `references/scalability.md`, `references/load-balancing.md`
+
+### Cache — guardar para responder mais rápido
+- **Perguntas:** (1) Se o dado aparecer desatualizado por alguns minutos, alguém paga errado ou só estranha? (2) A consulta é lenta hoje (passa de ~100 ms) ou é só suspeita? (3) A resposta muda conforme quem pediu (preço por plano, dado pessoal)?
+- **Opções:** A) Sem cache. B) Cache com validade curta (cache-aside + TTL). C) Cache que se apaga quando o dado muda (invalidação explícita).
+- **Padrão:** cache-aside + TTL de 5 a 60 min + invalidar na escrita. Dado financeiro ou de estoque: TTL abaixo de 10 s com invalidação, ou sem cache. Consulta abaixo de 100 ms: sem cache.
+- **Errada quando:** cache num dado que muda a cada minuto com consulta barata; resposta que varia por usuário em cache compartilhado (entrega o dado de A para B; ver Defaults seguros).
+- **Referência:** `references/cache-strategies.md`
+
+### Banco de dados — qual usar
+- **Perguntas:** (1) Que problema concreto você já teve com o banco atual (lento, não cabe, o formato muda toda semana), ou ainda nenhum? (2) Esses dados envolvem dinheiro, saldo ou estoque? (3) Quantas gravações por segundo no pico, em ordem de grandeza?
+- **Opções:** A) PostgreSQL (relacional) e só. B) PostgreSQL mais um complemento para um problema específico (Redis para cache, Elasticsearch para busca). C) Banco NoSQL como principal (Mongo, Dynamo, Cassandra).
+- **Padrão:** PostgreSQL até haver problema comprovado; formato mutável cabe em JSONB antes de pensar em Mongo; mais de 100 mil gravações por segundo é onde Cassandra ou Dynamo começam a fazer sentido.
+- **Errada quando:** NoSQL "porque é moderno"; abrir mão de transação ACID em dinheiro.
+- **Referência:** `references/database-selection.md`
+
+### Banco lento ou crescendo — réplica e sharding
+- **Perguntas:** (1) O banco está lento hoje, e como você sabe (medição, não palpite)? (2) O gargalo é ler (telas, relatórios) ou gravar (pedidos entrando)? (3) Quanto de dado e de gravação, em ordem de grandeza?
+- **Opções:** A) Otimizar consultas e índices. B) Cache mais réplica de leitura. C) Sharding (dividir os dados em bancos separados).
+- **Padrão:** a escada, sem pular degrau: otimizar, cache, réplica de leitura, sharding. Sharding só com mais de 100 mil gravações por segundo ou mais de 10 TB. Banco não está lento: não mude nada.
+- **Errada quando:** pular degraus; réplica de leitura sem as mesmas regras de acesso da primária (vazamento com outro nome).
+- **Referência:** `references/replication-sharding.md`
+
+### CDN — entregar de perto
+- **Perguntas:** (1) De que regiões vêm os usuários? (2) O que é servido: imagem e arquivo estático, ou página personalizada por usuário? (3) Há conteúdo atrás de login?
+- **Opções:** A) Sem CDN. B) CDN para estáticos. C) CDN também para páginas e API, com cache por segmento.
+- **Padrão:** B, com nome de arquivo versionado (`app.abc123.js`, cache longo) e HTML com cache curto. Conteúdo autenticado: `Cache-Control: private` ou `no-store`.
+- **Errada quando:** `public` num endpoint autenticado (vaza para todos, pelo tempo do TTL); CDN com um usuário só numa região.
+- **Referência:** `references/cdn-mechanics.md`
+
+### Serverless ou servidor fixo
+- **Perguntas:** (1) A carga é constante ou em picos e esporádica? (2) Algum processo passa de 15 minutos, ou usa conexão aberta (chat, WebSocket)? (3) Latência estável importa mais que custo zero quando ninguém usa?
+- **Opções:** A) Serverless (paga por uso, tem cold start). B) Servidor fixo (24/7, latência estável). C) Misto: web em servidor fixo, webhooks e tarefas em serverless.
+- **Padrão:** MVP, carga esporádica e webhooks: serverless. Carga alta e constante, WebSocket e execução longa: servidor fixo.
+- **Errada quando:** serverless abrindo conexão direta ao banco sem pooler (esgota conexões); servidor fixo ocioso pago o mês inteiro.
+- **Referência:** `references/serverless-vs-serverfull.md`
+
+### Filas e tarefas em segundo plano
+- **Perguntas:** (1) O usuário precisa do resultado na hora ou pode receber depois? (2) Se a mesma tarefa rodar duas vezes (cobrar duas vezes, mandar duas mensagens), qual o estrago? (3) Quantas tarefas por minuto, e perder uma é aceitável?
+- **Opções:** A) Fazer na hora, sem fila. B) Fila no próprio banco (Postgres, Solid Queue). C) Broker dedicado (SQS, RabbitMQ, Kafka).
+- **Padrão:** entrega "pelo menos uma vez" com consumidor idempotente (reprocessar não tem efeito extra); fila no banco quando o volume é baixo ou médio; DLQ (fila de mensagens que falham) obrigatória; retry com espera crescente e jitter, em uma camada só. Efeito fora do banco (API de terceiro, cobrança): chave de idempotência ou outbox.
+- **Errada quando:** fila para algo que o usuário espera na hora (só soma latência); confiar em "exactly-once" prometido pelo broker.
+- **Referência:** `references/messaging-models.md`, `references/messaging-reliability.md`, `references/messaging-operations.md`
+
+### Consulta lenta (SQL)
+- **Perguntas:** (1) Qual tela ou relatório está lento, e quanto demora hoje? (2) Quantas linhas tem a tabela, em ordem de grandeza? (3) A consulta roda o tempo todo ou de vez em quando?
+- **Opções:** A) Ler o plano (EXPLAIN) e criar o índice que falta. B) Reescrever a consulta ou criar índice composto (filtro e ordenação juntos). C) Particionar a tabela.
+- **Padrão:** EXPLAIN antes de mexer. B+tree como índice padrão. Cada índice custa escrita, então índice sem uso é custo puro. Particionar só tabela muito grande. Dinheiro: transação ACID.
+- **Errada quando:** criar índice no escuro; particionar tabela pequena.
+- **Referência:** `references/sql-indexing-and-storage.md`, `references/sql-acid-and-durability.md`, `references/sql-query-planning.md`
+
+### Falhas e sobrecarga (resiliência)
+- **Perguntas:** (1) Se um serviço de fora (pagamento, WhatsApp) não responder, o que o usuário deve ver? (2) Se chegar 10 vezes mais gente do que o sistema aguenta, tudo fica lento ou parte dos pedidos é recusada? (3) Uma chamada que deu timeout pode ter feito efeito (cobrança, envio)?
+- **Opções:** A) Falhar rápido e avisar o usuário. B) Tentar de novo com espera (retry) e idempotência. C) Recusar o excesso cedo (load shedding) e isolar clientes problemáticos.
+- **Padrão:** timeout em toda chamada para fora. Timeout não é falha: o resultado é desconhecido, então exija idempotência antes de tentar de novo. Em cadeia de chamadas, propague o prazo restante em vez de um timeout fixo por serviço. Nunca descarte o health check do balanceador. Antes de distribuir, pergunte se precisa mesmo.
+- **Errada quando:** retry cego em cobrança (duplica); load shedding sem instrumentação.
+- **Referência:** `references/guia-completo.md` §11; padrões do serviço em `/anti-vibe-coding:defensive-patterns`
+
+## Defaults seguros (passe por eles antes de fechar qualquer decisão)
+
+| Decisão | Default seguro |
+|---|---|
+| Cache de resposta | Se o conteúdo varia por ator, a chave inclui o ator. Conteúdo por ator nunca em cache compartilhado |
+| Fila ou worker | O payload leva o `id` do ator e o consumidor reautoriza. Nunca "já autorizado" congelado na mensagem |
+| Réplica de leitura | Herda a mesma fronteira de tenant da primária (RLS ou filtro), não só o schema |
+| CDN | Conteúdo autenticado fora de cache compartilhado (`private` ou `no-store`) |
+| Secrets em serverless | Injetados pelo ambiente do provedor; nunca no bundle, nunca em log |
+
+Resposta que muda conforme quem pediu, e é dado sensível: não cacheie em camada compartilhada; se a latência exigir, cache no cliente com `no-store` no proxy.
+
+## Registro
+
+Depois que o usuário escolher, registre numa destas duas:
+
+- **Há uma feature em andamento** (`docs/exec-plans/active/<pasta>/DESIGN.md`; se houver mais de uma, pergunte qual): acrescente uma linha na tabela `## Decisões` do desenho — `| N | decisão | opções | escolha | por quê |`. Escreva o "por quê" com as respostas do usuário, não com a teoria.
+- **A decisão vale para o projeto inteiro** (banco, hospedagem, padrão de fila) **ou não há feature em andamento:** crie um ADR com `/anti-vibe-coding:decision-registry`, que guarda as alternativas e a justificativa.
 
-Para implementacao apos entender o conceito, direcionar para `/anti-vibe-coding:tdd-workflow`.
+Sem registro, a escolha vira esquecimento com aparência de decisão. Se o usuário recusar um default seguro, registre a recusa e o motivo.
 
-> Cada topico tem um arquivo de referencia detalhado em `references/`. Consultar quando precisar de profundidade.
+## Armadilhas que atravessam todas as decisões
 
----
-
-## 1. Teorema CAP e PACELC
-
-O Teorema CAP afirma que um sistema distribuido so garante **2 de 3**: Consistencia, Disponibilidade, Tolerancia a Particao. Como particoes de rede ACONTECEM, a escolha real e **C vs A durante uma particao**.
-
-PACELC estende o CAP para o dia-a-dia: sem particao, a escolha e **Latencia vs Consistencia**.
-
-### Arvore de Decisao
-
-```
-O dado incorreto causa PREJUIZO FINANCEIRO ou LEGAL?
-  SIM → CP (consistencia forte)
-  NAO → O usuario percebe dado desatualizado por 1-5 segundos?
-    NAO → AP (disponibilidade + eventual consistency)
-    SIM → Depende da tolerancia do negocio
-      Toleravel → AP com TTL curto
-      Intoleravel → CP
-```
-
-> **Detalhes completos:** `references/cap-theorem.md` — posicionamento de bancos no PACELC, split-brain, quorum, eleicao de lider, implementacao CP vs AP.
-
----
-
-## 2. Escalabilidade
-
-**REGRA:** Vertical primeiro. Mais simples, mais barato, sem mudanca arquitetural. Horizontal so ao atingir limite ou precisar de redundancia.
-
-| Tipo | O Que Faz | Quando Usar |
-|------|-----------|-------------|
-| **Vertical (Scale Up)** | Mais CPU, RAM, disco na mesma maquina | Primeiro passo. Simples, sem mudanca de codigo |
-| **Horizontal (Scale Out)** | Mais maquinas rodando a mesma aplicacao | Limite do vertical atingido ou alta disponibilidade necessaria |
-
-### Arvore de Decisao
-
-```
-Precisa de alta disponibilidade (99.9%+)?
-  SIM → Horizontal (minimo 2 nos em AZs diferentes)
-  NAO → Servidor atual com CPU > 70% sustentado?
-    NAO → Ficar no vertical. Otimizar codigo e queries primeiro
-    SIM → Resolver com maquina maior (custo aceitavel)?
-      SIM → Scale up. Mais simples
-      NAO → Scale out. Preparar stateless + load balancer
-```
-
-> **Detalhes completos:** `references/scalability.md` — arquitetura stateless, load balancer L4/L7, algoritmos de balanceamento, auto-scaling, CDN, arquitetura em tres camadas.
-
----
-
-## 3. Estrategias de Cache
-
-**REGRA:** Comecar com Cache-Aside. So mudar se houver problema comprovado com essa estrategia.
-
-| Estrategia | Quando Usar |
-|------------|-------------|
-| **Cache-Aside** | **PADRAO.** App verifica cache → miss → busca banco → grava cache |
-| **Write-Through** | Dados SEMPRE lidos logo apos escrita |
-| **Write-Behind** | Write-heavy com tolerancia a perda (analytics, logs) |
-| **Read-Through** | Quando cache provider suporta auto-fetch |
-
-### Arvore de Decisao
-
-```
-O dado muda frequentemente (< 1 min)?
-  SIM → Cache pode nao valer. Avaliar se a query e realmente cara
-    Query > 100ms? → Cache com TTL curto (10-30s) + invalidacao
-    Query < 100ms? → Nao usar cache. Complexidade nao justifica
-  NAO → O dado e critico (financeiro, estoque)?
-    SIM → TTL muito curto (< 10s) + invalidacao explicita. Ou sem cache
-    NAO → Cache-Aside + TTL (5-60min) + invalidacao no write
-```
-
-> **Detalhes completos:** `references/cache-strategies.md` — invalidacao (TTL/explicita), eviction (LRU/LFU), cache stampede, cold start, local vs distribuido, Redis vs Memcached, metricas de hit rate.
-
----
-
-## 4. Selecao de Banco de Dados
-
-**REGRA FUNDAMENTAL:** Comecar relacional (PostgreSQL). So adicionar NoSQL quando houver um PROBLEMA COMPROVADO que relacional nao resolve.
-
-### Arvore de Decisao
-
-```
-Tem um problema COMPROVADO com banco relacional?
-  NAO → Usar PostgreSQL. Parar aqui
-  SIM → Qual e o problema?
-    Performance de escrita (>100k writes/s) → Cassandra / DynamoDB
-    Schema muda constantemente → MongoDB (considerar JSONB no PostgreSQL antes)
-    Busca full-text complexa → Elasticsearch (complemento, nao substituto)
-    Relacionamentos profundos (6+ niveis) → Neo4j (complemento)
-    Cache de alta velocidade → Redis
-    Nenhum dos acima → Provavelmente resolver com PostgreSQL otimizado
-```
-
-> **Detalhes completos:** `references/database-selection.md` — SQL vs NoSQL (documento, chave-valor, colunar, grafo), ACID vs BASE, polyglot persistence, PostgreSQL JSONB, quando usar cada tipo.
-
----
-
-## 5. Replicacao e Sharding
-
-**REGRA:** Cada etapa resolve 10x mais carga que a anterior. Nunca pular etapas.
-
-```
-Progressao correta:
-1. Otimizar queries e indices ← COMECAR AQUI
-2. Adicionar cache (Redis)
-3. Replicacao de leitura
-4. Sharding ← ULTIMO RECURSO
-```
-
-### Arvore de Decisao
-
-```
-Banco esta lento?
-  SIM → Queries e indices otimizados?
-    NAO → Otimizar primeiro (EXPLAIN ANALYZE). Parar aqui
-    SIM → Cache implementado?
-      NAO → Implementar cache (Redis). Parar aqui
-      SIM → Gargalo e LEITURA ou ESCRITA?
-        LEITURA → Replicacao (adicionar replicas)
-        ESCRITA → Volume > 100k writes/s ou dados > 10TB?
-          NAO → Otimizar mais. Batch writes, compressao, particionamento
-          SIM → Sharding (ultimo recurso)
-  NAO → NAO MUDAR NADA. Over-engineering e desperdicio
-```
-
-> **Detalhes completos:** `references/replication-sharding.md` — replicacao sincrona/assincrona/semi, replication lag, read-your-own-writes, estrategias de sharding (hash/range/directory), selecao de shard key, servicos gerenciados, caminho progressivo de escalabilidade.
-
----
-
-## 6. Load Balancer Decision Guide
-
-> Referencia completa: `references/load-balancing.md`
-
-### Progressive Scaling
-
-```
-Single Server → Separar Web + DB → DNS Round Robin → Load Balancer → Health Checks → SPOF Mitigation
-```
-
-**NUNCA pular etapas.** Cada passo so quando o anterior nao basta.
-
-### 7 Algoritmos — Decision Tree
-
-```
-Servidores com capacidade diferente?
-├─ SIM → Weighted Round Robin / Weighted Least Connections
-├─ NAO
-│   ├─ Requests com duracao variavel? → Least Connections
-│   ├─ Latencia critica? → Least Response Time
-│   ├─ Session affinity? → IP Hash ou Consistent Hashing
-│   ├─ Usuarios em multiplas regioes? → Geographical
-│   ├─ Caso simples? → Round Robin ✓ (padrao)
-```
-
-### L4 vs L7
-
-- **L4 (Transport):** TCP/UDP. Mais rapido, menos inteligente. HAProxy modo TCP
-- **L7 (Application):** HTTP. Content-based routing, SSL termination. Nginx, ALB
-
-### Health Checks e SPOF
-
-- LB DEVE fazer health checks continuos (`GET /health`)
-- Servidor doente → remover do pool → re-adicionar quando recuperar (self-healing)
-- LB e NOVO SPOF → redundancia: Active-Passive ou Active-Active
-
----
-
-## 7. CDN Architecture
-
-> Referencia completa: `references/cdn-mechanics.md`
-
-### Quando usar CDN
-
-```
-Conteudo estatico (HTML, CSS, JS, imagens)? → CDN ✓
-Usuarios em multiplas regioes? → CDN ESSENCIAL
-Conteudo dinamico personalizavel? → NAO cachear (ou cache por segmento)
-```
-
-### Componentes
-
-- **Origin Server:** Servidor com arquivos originais
-- **Edge Server:** Cache proximo ao usuario (POP)
-- **POP (Point of Presence):** Data center regional com edge servers
-- **Anycast:** Um IP → varios servidores. DNS roteia para o mais proximo
-
-### Cache Hit vs Miss
-
-| Cenario | Latencia | Acao |
-|---------|----------|------|
-| Cache HIT | ~10-50ms | Edge serve diretamente |
-| Cache MISS | ~200-500ms | Edge busca no origin, cacheia, responde |
-
-### TTL Strategy
-
-| Tipo | TTL |
-|------|-----|
-| Assets imutaveis (hashed) | 1 ano |
-| CSS/JS com versioning | 1 semana - 1 mes |
-| HTML pages | 1 hora - 1 dia |
-| API responses | Segundos - minutos |
-
-**Cache busting:** Versioned filenames (`app.abc123.js`) — deploy novo = filename novo = cache automaticamente invalidado.
-
----
-
-## 8. Serverless vs Serverfull
-
-> Referencia completa: `references/serverless-vs-serverfull.md`
-
-### Decision Tree
-
-```
-Latencia consistente necessaria? → Serverfull
-Carga variavel/esporadica? → Serverless ✓
-Execucao longa (>15min)? → Serverfull
-Event-driven (webhook, S3, cron)? → Serverless ✓
-Carga constante alta? → Serverfull (mais economico)
-WebSockets / conexoes persistentes? → Serverfull
-Prototipo / MVP? → Serverless ✓ (custo zero quando nao usa)
-```
-
-### Comparativo Rapido
-
-| Aspecto | Serverfull | Serverless |
-|---------|-----------|------------|
-| Disponibilidade | 24/7 | Sob demanda |
-| Cold start | Zero | Sim (~100ms-5s) |
-| Connection pool | Persistente | Problematico |
-| Cobranca | Por uptime | Por invocacao |
-| Escala | Manual | Automatica |
-
-### Cold Start — Mitigacao
-
-- **Provisioned Concurrency:** Manter instancias quentes (custo fixo)
-- **Runtime leve:** Node.js/Python > Java
-- **Minimizar dependencias:** Menos codigo = start mais rapido
-- **Connection pooler externo:** RDS Proxy, PgBouncer (evitar 1000 conexoes ao DB)
-
-### Casos de Uso Ideais
-
-- **Serverless:** Webhooks, processamento de eventos, cron jobs leves, APIs esporadicas
-- **Serverfull:** APIs de alta carga, WebSockets, processamento longo, state em memoria
-
----
-
-## 9. Filas e Mensageria
-
-**REGRA:** Projetar para **at-least-once + consumidor idempotente**. "Exactly-once delivery" nativo prometido por um broker e red flag — desconfiar. A fila desacopla producao de consumo; nao e garantia de entrega magica.
-
-### Quando Usar Fila
-
-```
-O trabalho pode ser assincrono (usuario nao precisa do resultado na request)?
-  NAO → sincrono. Fila so adiciona latencia e complexidade
-  SIM → precisa de fan-out (N consumidores recebem o mesmo fato)?
-    SIM → Pub/Sub (broadcast de eventos)
-    NAO → trabalho processado por UM worker → Message Queue / Background Job (Bull, SQS, RabbitMQ)
-```
-
-### Garantias de Entrega — a Regra que Nao Muda
-
-- **at-most-once** e **at-least-once** sao as unicas semanticas factiveis. **exactly-once delivery e impossivel** em sistema distribuido (Two Generals + FLP)
-- O que E alcancavel e exactly-once *processing*: at-least-once + dedup/idempotencia no consumidor
-- Duplicatas sao esperadas (retry do publisher, ack falho do consumidor). Tratar como dadas
-
-### Arvore de Decisao — Correcao sob Duplicata
-
-```
-Reprocessar a mensagem tem efeito colateral observavel?
-  NAO (logica naturalmente idempotente) → consumir a vontade. Sem dedup
-  SIM → o efeito todo cabe numa transacao de banco?
-    SIM → idempotent consumer: logica + marcador de dedup no MESMO commit
-    NAO (efeito cross-system) → API externa suporta idempotency key?
-      SIM → passar o message ID como key; a API deduplica
-      NAO → outbox: gravar a intencao na transacao; processador publica depois
-```
-
-### Arvore de Decisao — DB-backed vs Broker Dedicado
-
-```
-Volume baixo/medio E atomicidade fila-estado importa?
-  SIM → fila no banco (Solid Queue, Postgres) — menos moving parts, durabilidade ACID herdada
-  NAO → throughput/SLA e o gargalo ou precisa fan-out real?
-    SIM → broker dedicado (RabbitMQ Quorum, Kafka, SQS)
-```
-
-### Sempre
-
-- **DLQ obrigatoria** — mensagem que falha repetidamente (poison message) vai para dead-letter queue, nao trava a fila
-- **Backpressure / load leveling** — a fila absorve picos; o consumidor processa no seu ritmo. Nao confundir com load shedding (descarte)
-- **Retry com backoff + jitter**, em UMA camada so, e so para erros transitorios (4xx nao-retry)
-
-> **Detalhes completos:**
-> - `references/messaging-models.md` — pub/sub vs fila, semantica de entrega, exactly-once delivery vs processing (Treat-Kreps), ordenacao, processamento assincrono de arquivos
-> - `references/messaging-reliability.md` — consumidor idempotente, chaves de idempotencia, outbox, retry/backoff/jitter, DLQ/poison
-> - `references/messaging-operations.md` — landscape de brokers, tipos de fila RabbitMQ, background jobs (Bull), durabilidade (fsync/WAL), backlog, backpressure
-
----
-
-## 10. SQL Internals
-
-**REGRA:** Antes de otimizar, **leia o plano (EXPLAIN)** — nao adivinhe. B+tree e o default de indice (range scans); **cada indice e custo de escrita** (write amplification). Para dinheiro, **transacao ACID**, salvo escala extrema com mecanismo de compensacao. Particione so quando a tabela e grande o bastante.
-
-### Arvore de Decisao — Query Lenta
-
-```
-A query esta lenta?
-  → rode EXPLAIN / EXPLAIN ANALYZE primeiro — leia o plano antes de mexer
-    Seq Scan onde devia haver index? → falta indice (ou o filtro nao e SARGable)
-    Index existe mas nao e usado?    → estatisticas velhas (rode ANALYZE) ou seletividade baixa
-    Tabela grande demais p/ varrer?  → particionamento (range/list/hash) + partition pruning
-    Custo concentrado num JOIN/SORT? → indice composto cobrindo filtro + ordenacao
-```
-
-### Indices — a Regra que Nao Muda
-
-- **B+tree e o default** em RDBMS: nos internos so-chave (mais fanout, arvore rasa, fit em RAM) + folhas ligadas (range scans / ORDER BY eficientes)
-- **Cada indice e write amplification** — toda escrita atualiza a tabela E todos os indices afetados. Indice nao usado e custo puro
-- **Caveat (C9):** "B+tree e sempre melhor" e absolutismo — MongoDB usa B-tree; o recorte muda com RAM-fit. Detalhe em `sql-indexing-and-storage.md`
-
-### Arvore de Decisao — ACID para Dinheiro (C7)
-
-```
-O dado e dinheiro / saldo / estoque (perda = prejuizo direto)?
-  SIM → transacao ACID (SQL relacional). Atomicidade + isolamento nao sao opcionais
-        ... salvo escala extrema (volume que o relacional nao aguenta) E voce tem
-            mecanismo de compensacao (reconciliacao, saga) → NoSQL pragmatico e defensavel
-  NAO → BASE / eventual consistency pode bastar (ver CAP em `cap-theorem.md`)
-```
-> C-de-ACID (consistencia transacional) != C-de-CAP (consistencia distribuida). Nao confundir.
-
-### Sempre
-
-- **Particione so quando a tabela e grande o bastante** — particoes demais = overhead de planning. Particionar cedo numa tabela pequena e custo sem ganho
-- **Working set deve caber em RAM** — quando nao cabe, IOPS de disco (random IO) vira o gargalo. NVMe local x storage de rede (EBS) e trade-off latencia x elasticidade
-- **WAL da durabilidade + recuperacao** — mas durabilidade local (fsync) != replicacao (sobreviver a perda do no)
-
-> **Detalhes completos:**
-> - `references/sql-indexing-and-storage.md` — por que indexar, B-tree vs B+tree (C9), tipos e custo de indice, storage/IOPS, storage desagregado (C6)
-> - `references/sql-acid-and-durability.md` — ACID e BASE (C7), WAL/journal modes, SQLite em producao, nugget Pixeltable
-> - `references/sql-query-planning.md` — ler EXPLAIN e particionamento (⚠️ doc oficial PostgreSQL, pendente de revisao), deteccao de gap via recursive CTE
-
----
-
-## 11. Resiliência Distribuída
-
-**REGRA:** Toda chamada que cruza uma fronteira de rede pode produzir **5 resultados**, não 2 — e o pior deles é **UNKNOWN** (timeout): não assuma sucesso nem falha. Sob sobrecarga, **descarte cedo e barato** para preservar goodput, propague o **deadline** por hop em vez de timeout fixo, e isole o blast radius com **shuffle sharding**. Distribuir custa caro (uma expressão local vira ~15 etapas) — antes de tratar os 5 resultados, pergunte se precisa mesmo distribuir.
-
-### Os 5 resultados de toda chamada remota (framing)
-
-Onde o código local tem 2 resultados (sucesso/exceção), toda operação de rede tem **cinco**: **POST_FAILED** (servidor não recebeu → retry seguro), **RETRYABLE** (falha transitória → backoff+jitter), **FATAL** (rejeição definitiva → não retry), **SUCCESS**, e **UNKNOWN** (timeout: pode ter executado ou não). Para UNKNOWN com efeito colateral (cobrança, saque), retry às cegas **duplica** e desistir às cegas **perde** — exija idempotência antes de retentar. Projete para os **8 modos de falha** (cada uma das 8 etapas request/response falha independentemente).
-> fonte: Jacob Gabrielson | Challenges with distributed systems | seção: Tratamento da falha
-
-### Regra de overload — descarte para preservar goodput (load shedding)
-
-Sob sobrecarga, aceitar tudo leva a disponibilidade zero para todos: a latência explode, os clientes batem timeout, nada vira resposta útil. A métrica que importa é **goodput** (respostas dentro do prazo), não throughput. Load shedding **rejeita proativamente o excesso** (fast-reject barato) para manter latência baixa no tráfego aceito. Distinga: **shedding DESCARTA** × **backpressure DESACELERA o produtor** (ver `messaging-operations.md`, Onda 1) × **throttling LIMITA por quota**. A requisição mais crítica sob carga é o **health check do LB** — nunca descartar (senão o LB encolhe a frota num death spiral).
-> fonte: David Yanacek | Using load shedding to avoid overload | seção: Impedindo que o trabalho seja desperdiçado
-
-### Regra de cadeia — propague o deadline (deadline propagation)
-
-Em chamadas encadeadas (cliente → A → B → C), o recurso escasso não é "quantos segundos cada serviço pode levar" — é **quanto tempo o cliente original ainda espera**. Propague o **tempo restante (deadline)** por hop, não um timeout fixo por serviço, para que serviços fundo na cadeia descartem trabalho já condenado antes de executá-lo. Meça duração com **clock monotônico** (`CLOCK_MONOTONIC` / `nanoTime` / `hrtime`) — nunca wall-clock, que salta no NTP. Não comece trabalho fadado a estourar o deadline.
-> fonte: David Yanacek | Using load shedding to avoid overload | seção: Como ficar de olho no relógio
-
-### Regra de isolamento — contenha o blast radius (shuffle sharding)
-
-Num modelo fan-out-para-todos, um **poison request** (que derruba qualquer instância) cascateia até derrubar tudo. Sharding regular reduz o impacto **linearmente** (1/N); **shuffle sharding** reduz **exponencialmente** (1/C(n,k)) sem adicionar hardware — cada cliente recebe uma **combinação** única de operadores, de modo que dois clientes raramente compartilham o conjunto inteiro. Detalhe em `references/replication-sharding.md`.
-> fonte: Colm MacCárthaigh | Workload isolation using shuffle sharding | seção: O que é fragmentação aleatória?
-
-### Arvore de Decisão — Sobrecarga / Falha Distribuída
-
-```
-A operação cruza uma fronteira de rede (domínio de falha distinto)?
-  NÃO (in-process) → trate como chamada local. NÃO aplique a maquinaria distribuída
-  SIM → preciso mesmo distribuir? (distribuir = ~15 etapas + matriz de teste ×~20)
-    Simplicidade local resolve → não distribua
-    Necessário → para CADA chamada, trate os 5 resultados (UNKNOWN+efeito → idempotência antes do retry)
-
-O serviço pode receber mais carga do que processa dentro do SLO de latência?
-  NÃO → não precisa de shedding ativo
-  SIM → o excedente pode ser DESCARTADO?
-    NÃO (toda requisição crítica) → backpressure (desacelera produtor) ou fila durável
-    SIM → LOAD SHEDDING (fast-reject barato; priorize health check do LB; descarte por idade)
-
-A requisição atravessa múltiplos serviços e o cliente tem timeout?
-  NÃO (salto único) → timeout local por chamada basta
-  SIM → propague o DEADLINE (tempo restante) por hop; clock monotônico; aborte trabalho órfão
-
-Falha induzida por carga (cliente abusivo / poison request) pode propagar?
-  NÃO → capacidade bruta resolve falha orgânica
-  SIM → clientes servíveis por QUALQUER operador do subconjunto + toleram retry?
-    NÃO → SHARDING REGULAR (bulkhead disjunto, impacto 1/N)
-    SIM → SHUFFLE SHARDING (impacto ~1/C(n,k); retry sequencial no cliente EM ORDEM)
-```
-
-> **Padrões no nível do serviço** (timeout, retry, circuit breaker, fallback, health check, bulkhead): ver `/anti-vibe-coding:defensive-patterns`.
-> **Backpressure / load leveling** (o produtor desacelera em vez de descartar): ver `references/messaging-operations.md` (Onda 1).
-> **Shuffle sharding** (isolamento combinatório de blast radius): ver subseção em `references/replication-sharding.md`.
-
----
-
-## 12. Defaults Seguros de Plataforma
-
-<!-- 2026-09-01 (Luiz/dev): defaults seguros escolhidos no design da plataforma — PRD §RF-07 -->
-
-Decisoes de plataforma carregam seguranca junto, e quase sempre de um jeito que nao aparece em code
-review — o codigo esta certo, a plataforma e que entrega o dado para a pessoa errada.
-
-| Decisao | Default seguro | Por que no design |
-|---------|----------------|-------------------|
-| **Cache de resposta** | Se o conteudo varia por ator, a chave inclui o ator. Conteudo por-ator nunca em cache compartilhado | Cache compartilhado entrega o dado de A para B — e o bug parece "intermitente", que e o pior tipo de bug para diagnosticar |
-| **Fila / worker** | O payload leva o `id` do ator; o consumidor **reautoriza**. Nunca carregar "ja autorizado" | Mensagem e replayavel e frequentemente persistida: autorizacao congelada vira bypass com data de validade infinita |
-| **Replica de leitura** | A replica herda a mesma fronteira de tenant da primaria (RLS / filtro), nao so o mesmo schema | "Replica so pra relatorio" sem RLS e um vazamento com outro nome |
-| **CDN** | Conteudo autenticado nao passa por cache compartilhado (`Cache-Control: private` / `no-store`) | Um `public` num endpoint autenticado vaza para todo mundo, e o TTL decide por quanto tempo |
-| **Secrets em serverless** | Injetados por env do provider; nunca no bundle, nunca em log de cold start | Bundle e artefato distribuido — quem tem o artefato tem o secret |
-
-### Arvore de Decisao — posso cachear esta resposta?
-
-```
-A resposta muda conforme QUEM pediu?
-  NAO → cache compartilhado ok (TTL normal)
-  SIM → e dado sensivel / PII?
-    NAO → cache com chave que INCLUI o ator; nunca em CDN publica
-    SIM → nao cachear em camada compartilhada.
-          Se a latencia exigir, cache no cliente + `no-store` no proxy
-```
-
----
-
-## Cheat Sheet — Referencia Rapida
-
-| Decisao | Padrao Seguro | Mude Quando |
-|---------|---------------|-------------|
-| CAP | CP para financeiro, AP para social | Analisar PACELC para o caso especifico |
-| Escala | Vertical primeiro | CPU > 70% sustentado ou precisa de HA |
-| Cache | Cache-aside + TTL + invalidacao | Write-through se leitura imediata pos-escrita |
-| Banco | PostgreSQL | Problema COMPROVADO que SQL nao resolve |
-| Dados | Otimize → Cache → Replicacao → Sharding | Cada passo so se o anterior nao basta |
-| Filas | at-least-once + consumidor idempotente | exactly-once nativo prometido = desconfie |
-| Indice SQL | B+tree; composto p/ filtrar + ordenar | cada indice e custo de escrita (write amplification) |
-| ACID p/ dinheiro | transacao ACID / SQL relacional | escala extrema + compensacao → NoSQL pragmatico |
-| Particionar | so quando a tabela e grande o bastante | particoes demais = overhead de planning |
-| Sobrecarga | load shedding (fast-reject) p/ preservar goodput | shedding caro/sem instrumentação = pior |
-| Cadeia de chamadas | propague deadline (tempo restante) | timeout fixo por hop; clock wall em vez de monotônico |
-| Isolar tenant/falha | shuffle sharding (blast radius exponencialmente menor) | poison-request que derruba qualquer worker |
-| Cache de resposta por-ator | chave inclui o ator; CDN publica so p/ conteudo anonimo | nunca — `public` em endpoint autenticado e vazamento |
-| Autorizacao em fila/worker | payload leva o ator; consumidor reautoriza | nunca congelar "ja autorizado" no payload |
-| Replica de leitura | mesma fronteira de tenant da primaria | nunca "replica so pra relatorio" sem RLS |
-
----
-
-## Anti-Patterns Universais
-
-- **Otimizar prematuramente** — adicionar complexidade (cache, replicas, sharding) sem problema comprovado
-- **Escolher tecnologia por hype** — "MongoDB porque e moderno" sem necessidade real
-- **Pular etapas na progressao de escala** — sharding antes de otimizar queries e jogar dinheiro fora
-- **Ignorar metricas** — tomar decisoes de arquitetura sem dados (latencia, hit rate, replication lag)
-- **Over-engineering desde o dia 1** — polyglot persistence, microservicos e sharding para um MVP
-- **Cachear resposta autenticada em camada compartilhada** — o dado de um usuario aparece para outro, e o sintoma parece intermitencia de rede
-- **Confiar em autorizacao congelada no payload da fila** — a mensagem e replayavel; quem consome reautoriza
-
----
-
-## Contexto da consulta
+- Otimizar antes de ter problema comprovado: cache, réplica e sharding sem medição.
+- Escolher tecnologia por moda.
+- Pular degraus da escada de escala.
+- Decidir sem dado: latência, taxa de acerto do cache, atraso da réplica.
+- Over-engineering desde o dia 1: microsserviços, sharding e vários bancos para um MVP.
 
 $ARGUMENTS

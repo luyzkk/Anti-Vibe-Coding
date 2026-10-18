@@ -69,7 +69,7 @@ No diretório do projeto:
 
 O comando funciona mesmo em repositório **completamente vazio** (sem `package.json`, `Gemfile`, etc.). Se a stack não puder ser detectada, ele pergunta interativamente:
 
-> `Stack not detected — run /anti-vibe-coding:detect-architecture before /init.`
+> `Stack not detected — init recognizes Next.js, React, Node+TypeScript, Rails, Laravel and Python (...)`
 > `(s)kip populate-plan and continue, or (a)bort?`
 
 Resposta `s` → pula a geração do plano de população dos docs e prossegue com o restante do scaffold. Resposta `a` → aborta com código 20 (comportamento histórico).
@@ -194,23 +194,6 @@ Para correções triviais, **não use o pipeline** — vai direto. O TDD Gate ex
 | Init | `/anti-vibe-coding:init` | Setup inicial + atualização incremental (greenfield-aware) |
 | Update | `/anti-vibe-coding:update` | Verifica status de atualizações |
 | Sync | `/anti-vibe-coding:sync` | Invalida cache e mostra versões |
-| Detect Architecture | `/anti-vibe-coding:detect-architecture` | Classifica projeto em 1 dos 5 perfis arquiteturais |
-
----
-
-## Cinco perfis arquiteturais (Modo Dual)
-
-`/anti-vibe-coding:detect-architecture` classifica o projeto em 1 destes 5 perfis usando heurística de pasta + imports. Ativa "Modo Dual" nas skills estruturantes (cada skill ajusta sugestões ao perfil):
-
-| Perfil | Quando |
-|--------|--------|
-| `clean-architecture-ritual` | Camadas estritas, DDD, ports & adapters |
-| `mvc-flat` | Rails, Laravel clássico, MVC sem layers extras |
-| `vertical-slice` | Features auto-contidas (slice por feature) |
-| `nextjs-app-router` | Next.js App Router com Server Components |
-| `unknown-mixed` | Projeto sem padrão claro — exige confirmação |
-
-Confiança <80% pede confirmação do dev antes de aplicar.
 
 ---
 

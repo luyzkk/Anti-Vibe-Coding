@@ -130,8 +130,11 @@ describe('generatePopulatePlansStep (Step 7)', () => {
       await expect(generatePopulatePlansStep.run(ctxAbort)).rejects.toBeInstanceOf(AbortError)
     })
 
-    test('abort reason still matches DR-2 wording byte-identical', () => {
-      expect(ABORT_MESSAGE_NO_STACK).toContain('detect-architecture')
+    // 2026-10-18 (Luiz/dev): 8.0 fatia 4 — a mensagem mandava rodar /detect-architecture, que classifica
+    // arquitetura e nao descobre stack; a skill saiu. Agora diz o que o init procura.
+    test('abort reason names the files init looks for, not a removed skill', () => {
+      expect(ABORT_MESSAGE_NO_STACK).not.toContain('detect-architecture')
+      expect(ABORT_MESSAGE_NO_STACK).toContain('package.json')
       expect(ABORT_MESSAGE_NO_STACK).toContain('Detected primary: null')
       expect(ABORT_MESSAGE_NO_STACK).toContain('populate-harness fases')
     })

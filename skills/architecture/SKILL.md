@@ -1,55 +1,11 @@
 ---
 name: architecture
-description: "Consultoria de arquitetura com trade-off explicito. Use ao decidir SOLID, monolito vs microservicos, CQRS e event sourcing, REST vs GraphQL, escolha de stack, principios de design (Lei de Demeter, Tell-Don't-Ask, composicao vs heranca), ou injecao de dependencia."
+description: "Roteiro de decisão de arquitetura: faz até 3 perguntas que só o usuário sabe, mostra 2 ou 3 opções com prós, contras e custo, recomenda e registra a escolha. Use ao decidir monólito vs microsserviços, CQRS e event sourcing, REST vs GraphQL, escolha de tecnologia (stack), quanto de SOLID aplicar, injeção de dependência, princípios de design (Lei de Demeter, composição vs herança) e os defaults de segurança do design (onde a autorização mora, segredos, dado em repouso, isolamento de cliente)."
 user-invocable: true
 disable-model-invocation: false
-allowed-tools: Read, Grep, Glob, WebSearch
-argument-hint: "[architecture decision or pattern to analyze]"
+allowed-tools: Read, Grep, Glob, WebSearch, AskUserQuestion
+argument-hint: "[decisão de arquitetura: monólito, API, stack, DI...]"
 ---
-
-<!-- profile-aware-preface:start -->
-```typescript
-// 2026-05-15 (Luiz/dev): v6.3.1 RF-CH-01 fase-07 — migra readArchitectureProfile → readPrefaceContext.
-// Lê architectureProfile do manifest via readPrefaceContext (Plano 01 v6.3.0) — UMA leitura.
-// Lookup table per-skill mantido.
-// G5 do plano02 / CA-12: NUNCA preencher ctx.language ou ctx.framework — D2 ADR-0020 reserva v6.5/v6.6.
-// Quando ctx.profile === null: fallback Greenfield/default (CA-04 v6.3.0 preserved).
-
-import { readdirSync } from 'node:fs'
-import { join } from 'node:path'
-import { readPrefaceContext } from '../lib/preface-context'
-import { getRecommendationForProfile } from '../../lib/read-architecture-profile'
-import {
-  ARCHITECTURE_RECOMMENDATIONS,
-  DEFAULT_RECOMMENDATION_V52,
-  GREENFIELD_RECOMMENDATION,
-  isGreenfield,
-} from './lib/architecture-recommendations'
-
-const ctx = readPrefaceContext(process.cwd())
-const profileName = ctx.profile ?? null
-
-let srcFileCount = 0
-try {
-  srcFileCount = (readdirSync(join(process.cwd(), 'src'), { recursive: true }) as string[])
-    .filter((f) => /\.(ts|tsx)$/.test(f)).length
-} catch {
-  srcFileCount = 0
-}
-
-const recommendation = isGreenfield(profileName, srcFileCount)
-  ? GREENFIELD_RECOMMENDATION
-  : getRecommendationForProfile(profileName, ARCHITECTURE_RECOMMENDATIONS, DEFAULT_RECOMMENDATION_V52)
-```
-
-Ao produzir recomendações, use `recommendation.headline`, `recommendation.rationale`,
-`recommendation.patterns` e `recommendation.caveats` como insumos textuais adaptativos.
-
-Se `profileName` for não-nulo, inicie sua resposta com:
-  "Recomendações para perfil: <profileName>"
-
-Se `profileName` for nulo (manifest ausente), comportamento v5.2 intacto — sem preface.
-<!-- profile-aware-preface:end -->
 
 <!-- stack-aware-preface:start -->
 ```typescript
@@ -62,366 +18,109 @@ import { getStackKnowledgePreface } from '../security/lib/stack-aware-preface'
 const stackKnowledgePreface = getStackKnowledgePreface(process.cwd())
 ```
 
-Se `stackKnowledgePreface` for não-vazio, **prepende** esta frase ao início da resposta (após o `preface` profile-aware, se ambos existirem). Se vazio, ignore — comportamento da skill segue do bloco `profile-aware-preface` acima sem mudança (CA-09).
+Se `stackKnowledgePreface` for não-vazio, **prepende** esta frase ao início da resposta. Se vazio, ignore — a skill segue sem mudança (CA-09).
 <!-- stack-aware-preface:end -->
 
-# Consultor de Arquitetura de Software
+# Arquitetura — Roteiro de Decisão
 
-Operar como consultor senior de arquitetura. O papel e **ensinar e orientar decisoes**, nao gerar codigo. Analisar trade-offs, questionar premissas e ajudar o desenvolvedor a tomar decisoes informadas.
+Decidir como o sistema é organizado por dentro. A skill **conduz a decisão**: pergunta o que só o usuário sabe (tamanho do time, prazo, o que o negócio exige), mostra as opções com prós e contras em português simples e registra a escolha. O papel é orientar a decisão, não gerar código; para implementar depois, direcione para `/anti-vibe-coding:tdd-workflow`.
 
 ## Como Operar
 
-1. **Entender o contexto** — Perguntar sobre escopo, time, prazo, dominio
-2. **Analisar trade-offs** — Pros, contras e alternativas
-3. **Recomendar com justificativa** — Baseado no contexto especifico, nao em dogma
-4. **Documentar a decisao** — Sugerir formato ADR quando apropriado
-
-Para implementacao apos entender o conceito, direcionar para `/anti-vibe-coding:tdd-workflow`.
-
-> Cada topico tem um arquivo de referencia detalhado em `references/`. Consultar quando precisar de profundidade.
-
----
-
-## 1. SOLID Principles
-
-SOLID sao ALVOS de design, nao regras absolutas. Em projetos pequenos, aplicar tudo pode criar boilerplate desnecessario. A nota pragmatica ao lado de cada principio indica a forca com que deve ser seguido.
-
-> **Referencia completa:** `references/solid-principles.md`
-
-### Resumo Pragmatico
-
-| Principio | Nota | Regra de Ouro |
-|-----------|------|---------------|
-| **S** — Single Responsibility | 7/10 | Definir "responsabilidade" no nivel do dominio, nao granularidade tecnica |
-| **O** — Open/Closed | 8/10 | Aplicar quando `if/else` cresce a cada feature. NAO aplicar em MVPs |
-| **L** — Liskov Substitution | 10/10 | INVIOLAVEL. Unico principio SOLID que e lei matematica |
-| **I** — Interface Segregation | 5/10 | Aplicar em bibliotecas/SDKs publicos. Cuidado com fragmentacao |
-| **D** — Dependency Inversion | 6.5/10 | Aplicar em boundaries arquiteturais. Pular em scripts simples |
-
-### Arvore de Decisao
-
-```
-Devo aplicar SOLID aqui?
-  Projeto pequeno / MVP / prototipo?
-    SIM → Focar em SRP e LSP. Resto e prematura otimizacao
-    NAO → Projeto em crescimento / producao?
-      SIM → Aplicar todos com pragmatismo
-            L (LSP) → SEMPRE, sem excecao
-            O (OCP) → Quando switch/if cresce
-            S (SRP) → Quando classe faz "coisas demais"
-            D (DIP) → Em boundaries (infra vs dominio)
-            I (ISP) → Em APIs publicas / bibliotecas
-```
-
----
-
-## 2. Monolito vs Microservicos
-
-> **Referencia completa:** `references/monolith-vs-microservices.md`
-
-### Pergunta Central
-
-> "Por que fazer network requests em vez de chamadas de funcao?"
-
-Se nao existe resposta CONCRETA, ficar no monolito.
-
-### Arvore de Decisao
-
-```
-Precisa escalar?
-  Monolito com load balancer resolve?
-    SIM → Ficar no monolito
-    NAO → Qual parte precisa escalar independentemente?
-      Parte especifica → Extrair SO esse servico
-      "Tudo" → Provavelmente nao mediu direito
-```
-
-### Quando Monolito
-
-- Time pequeno (< 10 devs)
-- Dominio ainda sendo descoberto
-- Startup/MVP em validacao
-- Um servidor Hetzner de 40/mes resolve mais que dezenas de servicos cloud
-
-### Quando Microservicos
-
-- Multiplos times tropecando no mesmo codigo
-- Necessidade COMPROVADA de escala independente
-- Observabilidade distribuida JA esta pronta
-- Deploys independentes sao criticos para velocidade do time
-
-### Alternativas ANTES de Migrar
-
-1. Load balancers — escala horizontal do monolito
-2. Bibliotecas compartilhadas — reuso sem rede
-3. Modulos internos bem definidos — boundaries sem latencia
-4. Modular monolith — boundaries de microservicos, deploy de monolito
-
----
-
-## 3. CQRS & Event Sourcing
-
-> **Referencia completa:** `references/cqrs-event-sourcing.md`
-
-### Decisao de DOMINIO, nao tecnica
-
-A pergunta nao e "CQRS e melhor tecnicamente?" mas sim "Meu dominio PRECISA de auditabilidade completa?"
-
-### Arvore de Decisao
-
-```
-O dominio exige historico completo de mudancas?
-  NAO → CRUD simples resolve. NAO usar CQRS/ES
-  SIM → Regulacao exige audit trail?
-    SIM → Event Sourcing (financeiro, saude, compliance)
-    NAO → Valor de negocio em "como chegamos nesse estado?"
-      SIM → Event Sourcing
-      NAO → CQRS sem Event Sourcing pode bastar
-            (read/write models separados, sem event store)
-```
-
-### Principios-Chave
-
-1. **Eventos sao IMUTAVEIS** — nunca deletar ou alterar um evento
-2. **Reversoes = novos eventos compensatorios** — `OrderCancelled` compensa `OrderPlaced`
-3. **Projecoes** — read models construidos a partir dos eventos para consultas rapidas
-4. **Eventual consistency** — read model pode estar alguns ms atras do write model
-
----
-
-## 4. REST vs GraphQL
-
-> **Referencia completa:** `references/api-architecture.md`
-
-### Arvore de Decisao
-
-```
-Quantos front-ends consomem a API?
-  1-2 → REST (com endpoints especializados se necessario)
-  3+  → GraphQL PODE fazer sentido
-        Time tem experiencia com GraphQL?
-          NAO → REST + BFF (Backend for Frontend)
-          SIM → Avaliar custo/beneficio
-```
-
-### Comparacao Rapida
-
-| Aspecto | REST | GraphQL |
-|---------|------|---------|
-| Cache | HTTP nativo (CDN, ETags) | Requer solucao custom |
-| Curva de aprendizado | Baixa | Media-alta |
-| Overfetching | Endpoints especializados | Resolvido nativamente |
-| Monitoramento | Maduro | Requer tooling especifico |
-| Upload de arquivos | Nativo | Workaround necessario |
-| Real-time | WebSockets/SSE | Subscriptions |
-
-### Abordagem Hibrida
-
-REST para a maioria dos endpoints + GraphQL para telas complexas que agregam muitos dados. Nao e tudo ou nada.
-
----
-
-## 5. Escolha de Stack
-
-> **Referencia completa:** `references/api-architecture.md` (secao Stack Selection)
-
-### Processo de Decisao
-
-```
-1. ESCOPO     → Definir o problema com clareza
-2. CORE       → Identificar as partes essenciais
-3. PESQUISA   → Avaliar opcoes maduras para cada componente
-4. PoC        → Prototipos para validar riscos tecnicos
-5. ADR        → Documentar a decisao e justificativa
-```
-
-### Principios
-
-- **Hype e irrelevante** — "Todo mundo esta usando X" nao e argumento
-- **Dimensionar o problema ANTES** — "Precisamos de Kafka?" → "Qual o volume de mensagens?"
-- **Maturidade > Modernidade** — ecossistema maduro = mais libs, mais respostas, mais candidatos
-- **Boring technology** — tecnologia chata e comprovada reduz risco. Tokens de inovacao sao limitados
-
-### Red Flags
-
-- "Vamos usar porque e o que eu conheco" (sem avaliar alternativas)
-- "Vamos usar porque e novo e moderno" (hype-driven)
-- "E o padrao do mercado" (sem validar se resolve SEU problema)
-- Nenhuma PoC antes de adotar tecnologia critica
-- Ausencia de ADR para decisoes significativas
-
----
-
-## 6. Design Principles
-
-> **Referencia completa:** `references/design-principles.md`
-
-### Resumo Rapido
-
-| Principio | Regra | Exemplo |
-|-----------|-------|---------|
-| Lei de Demeter | Nao falar com estranhos | `order.shippingZip()` em vez de `order.customer.address.zip` |
-| Tell-Don't-Ask | Dizer ao objeto O QUE fazer | `account.withdraw(amount)` em vez de checar balance antes |
-| Composicao > Heranca | Preferir protocolos/interfaces | Compor comportamentos em vez de hierarquias profundas |
-| Acoplamento Temporal | Gerenciar sequencia internamente | `processor.run()` em vez de `init()` → `validate()` → `execute()` |
-| Pipe Operator | Modelar como transformacoes | `dados |> validar |> transformar |> persistir` |
-
----
-
-## 7. Dependency Injection
-
-> **Referencia completa:** `references/dependency-injection.md`
-
-### DIP vs DI — Conceitos Distintos
-
-| Conceito | Tipo | Pergunta que responde |
-|----------|------|-----------------------|
-| **DIP** (Dependency Inversion Principle) | Principio SOLID | "De QUEM meu codigo deve depender?" → abstracoes, nao detalhes |
-| **DI** (Dependency Injection) | Tecnica / Pattern | "COMO fornecer essas dependencias?" → injecao externa |
-
-DIP e o principio: modulos de alto nivel (core) dependem de abstracoes (interfaces), NAO de modulos de baixo nivel (SDKs, APIs externas). DI e a tecnica que fornece as implementacoes concretas externamente.
-
-### Constructor Injection como Padrao
-
-Dependencias recebidas como parametros do constructor. Usar SEMPRE como escolha padrao.
-
-```
-class OrderService {
-  constructor(
-    private readonly paymentProvider: IPaymentProvider,  // interface, nao concreto
-    private readonly emailService: IEmailService
-  ) {}
-}
-```
-
-**Vantagens:** dependencias visiveis na assinatura, objeto sempre valido apos construcao, facil de testar (passar mocks), imutavel.
-
-**Method injection:** quando a dependencia varia por CHAMADA, nao por instancia.
-**Property injection:** EVITAR. Objeto pode existir em estado invalido.
-
-### Arvore de Decisao
-
-```
-A classe depende de servico externo (API, banco, email, pagamento)?
-  SIM → USAR DI + DIP (interface + injecao)
-  NAO → Precisa ser testada com mocks?
-    SIM → USAR DI (injetar concreta para substituir em testes)
-    NAO → A dependencia pode mudar no futuro?
-      SIM → USAR DI + DIP
-      NAO → Instanciacao direta (new) esta OK
-```
-
-**Regra pragmatica:** Aplicar DI/DIP em **boundaries arquiteturais** (pagamento, email, storage, cache, auth). NAO em utils internas, helpers puros, value objects.
-
-### IoC Container — Quando Vale
-
-```
-Quantas classes com dependencias?
-  < 10 → DI manual (constructor injection)
-  10-50 → DI manual funciona, container e opcional
-  50+ → Container comecar a fazer sentido
-    Framework com container nativo (NestJS, Spring, Angular)?
-      SIM → Usar o container do framework
-      NAO → Avaliar se a complexidade se justifica
-```
-
-### Anti-Patterns
-
-| Anti-Pattern | Problema | Correcao |
-|-------------|---------|----------|
-| **Service Locator** | Dependencias OCULTAS — classe busca em registro global | Constructor injection — dependencias visiveis na assinatura |
-| **DI para tudo** | Interface + implementacao para funcoes puras que NUNCA vao mudar | Se so existe UMA implementacao possivel, funcao direta. YAGNI |
-| **Injecao circular** | A depende de B, B depende de A | SRP violado — extrair logica compartilhada para terceira classe |
-| **Salvar detalhes externos no banco** | `productId` do Stripe no banco — banco acoplado ao Stripe | Salvar IDs do DOMINIO, mapeamento para IDs externos na camada de integracao |
-
-**Seam** — decidir *onde* a fronteira de um modulo fica e decisao propria, anterior a decidir o que vai atras dela; e da a "DI para tudo" acima um teste contavel: 1 adapter = seam hipotetico, 2 = seam real ([deep-modules](../tdd-workflow/references/deep-modules.md)).
-
----
-
-## 8. Defaults Seguros no Design
-
-<!-- 2026-09-01 (Luiz/dev): seguranca e decisao arquitetural, cai no design e nao na auditoria — PRD §RF-07 -->
-
-Quatro decisoes de seguranca sao **arquiteturais**: trocar depois custa migracao, nao patch. Fechar
-junto com as outras decisoes de design — nao no fim, quando o codigo ja assumiu uma delas em silencio.
-
-| Decisao | Default seguro | Custo de adiar |
-|---------|----------------|-----------------|
-| **Modelo de authz** | Deny-by-default; checagem no servidor, por recurso (dono + role) — nunca "todo logado ve tudo" | Cada endpoint novo herda o buraco; o retrofit toca toda rota existente |
-| **Gestao de secrets** | Fora do repo e fora do banco: env / secret manager, injetado no runtime | Secret em codigo vaza no historico do git — e historico nao se apaga, so se rotaciona a chave |
-| **Dado em repouso** | Classificar antes de modelar (`publico` / `interno` / `PII` / `credencial` / `financeiro`). Credencial e **hasheada** (bcrypt/Argon2), nunca encriptada | Migracao de coluna com dado ja em producao |
-| **Isolamento de tenant** | A fronteira do tenant fica na camada mais BAIXA possivel (RLS ou filtro no repositorio), nao repetida em cada handler | Um handler que esqueceu o `where tenant_id` vaza tudo — e a auditoria de codigo nao encontra o que nao esta escrito |
-
-### Arvore de Decisao — onde a autorizacao mora
-
-```
-A checagem de "pode?" esta em quantos lugares?
-  Repetida em cada handler/rota
-    → um handler novo vai esquecer; e questao de tempo. Puxe a checagem para baixo.
-  Numa camada unica (middleware / policy / repositorio)
-    → o default e NEGAR quando nenhuma regra casa?
-        SIM  → ok
-        NAO  → allow-by-default disfarcado; e o mesmo buraco com menos linhas
-  No banco (RLS)
-    → mais forte. Confirme que os servicos internos NAO usam a conexao que ignora RLS
-      (service_role / superuser) para operacao de usuario final
-```
-
-Consequencia no fluxo: cada default **aceito** aqui vira linha do mapa de ameacas (`## Ameaças &
-Dados` do DESIGN.md); cada default **recusado** vira linha das `## Decisões` do mesmo DESIGN.md, com a
-razao e a alternativa.
-Seguranca recusada sem registro nao e trade-off — e esquecimento com aparencia de decisao.
-Para consultoria de profundidade (OWASP, authn/authz, cripto): `/anti-vibe-coding:security`.
-
----
-
-## Template de Analise Arquitetural
-
-Ao analisar uma decisao arquitetural, seguir este template:
-
-### 1. Contexto
-
-- Qual o problema sendo resolvido?
-- Qual o tamanho do time?
-- Qual o prazo?
-- Qual a maturidade do dominio?
-
-### 2. Opcoes
-
-Para cada opcao, avaliar:
-- **Complexidade de implementacao** (1-5)
-- **Complexidade operacional** (1-5)
-- **Escalabilidade** (1-5)
-- **Familiaridade do time** (1-5)
-- **Maturidade do ecossistema** (1-5)
-
-### 3. Recomendacao
-
-- Opcao recomendada com justificativa
-- Riscos e mitigacoes
-- Proximos passos concretos
-
-### 4. ADR
-
-Documentar a decisao no formato:
-
-```
-# ADR-001: [Titulo da Decisao]
-## Status: [Proposta | Aceita | Deprecada | Substituida]
-## Contexto: [Qual problema estamos resolvendo?]
-## Decisao: [O que decidimos fazer?]
-## Alternativas Consideradas: [O que mais avaliamos e por que descartamos?]
-## Consequencias: [Positivas e negativas da decisao]
-## Data: YYYY-MM-DD
-```
-
----
-
-## Regras do Consultor
-
-1. **Nunca recomendar sem contexto** — sempre perguntar sobre escopo, time e dominio antes
-2. **Questionar premissas** — "Realmente PRECISA disso?" antes de "Como implementar isso?"
-3. **Trade-offs explicitos** — toda decisao tem custos, deixar claros
-4. **Boring technology primeiro** — provar que a solucao simples nao funciona antes de adotar complexidade
-5. **Ensinar o raciocinio** — mais importante que a resposta e o processo de chegar nela
-6. **Seguranca e decisao de design, nao revisao** — authz, secrets, dado em repouso e isolamento de tenant fecham junto com as outras decisoes (secao 8), nao na auditoria do fim
+1. **Diga a decisão em uma frase**, sem jargão: "Vamos decidir se o app fica numa aplicação só ou se divide em serviços."
+2. **Leia o projeto antes de perguntar** (`Read`, `Grep`): estrutura de pastas, quantos módulos, o que já existe. Depois **faça até 3 perguntas numa tela só** (`AskUserQuestion`, uma pergunta por item), só do que o usuário sabe: tamanho do time, prazo, o que o negócio exige, o que já deu problema.
+3. **Mostre 2 ou 3 opções**, cada uma com: o que é (uma linha), prós, contras, custo (de construir e de manter) e quando seria a escolha errada. Não invente uma terceira só para fechar número.
+4. **Recomende uma**, ligando a recomendação às respostas dele: "Recomendo o monólito modular porque o time tem 3 pessoas e o domínio ainda está mudando."
+5. **Se o usuário não souber responder**, use o padrão de um sênior para aquela decisão (catálogo abaixo) e diga qual usou e o que mudaria a resposta.
+6. **Registre a escolha** (seção Registro) e só então encerre.
+
+Antes de qualquer recomendação, **questione a premissa**: "isso realmente precisa existir?" vem antes de "como implementar". Pedido de explicação completa ou de aprofundamento ("me explica de verdade", "quero o texto completo"): leia `references/guia-completo.md`, e o arquivo do tópico quando houver. Esse texto longo só é lido quando o usuário pedir; o roteiro não depende dele.
+
+## Catálogo de decisões
+
+Cada bloco diz o que perguntar, as opções, o padrão de um sênior e quando ele erra. Use o bloco da decisão em discussão; não percorra todos.
+
+### Monólito ou microsserviços
+- **Perguntas:** (1) Quantas pessoas mexem no código, e elas se atrapalham? (2) Alguma parte precisa crescer ou ser publicada sozinha, e você mediu isso? (3) Já existe monitoramento que acompanha várias partes ao mesmo tempo?
+- **Opções:** A) Monólito: uma aplicação só. B) Monólito modular: módulos com fronteiras claras, um deploy só. C) Microsserviços: extrair só a parte que precisa.
+- **Padrão:** monólito (modular) até existir resposta concreta para "por que fazer chamada de rede em vez de chamada de função?". Time pequeno (menos de 10), domínio ainda sendo descoberto ou MVP: monólito. Antes de migrar, tente balanceador, bibliotecas compartilhadas e módulos internos. Quando precisar mesmo, extraia só o serviço que precisa escalar sozinho.
+- **Errada quando:** microsserviços sem monitoramento distribuído pronto; "tudo precisa escalar" sem medição.
+- **Referência:** `references/monolith-vs-microservices.md`
+
+### Histórico completo de mudanças (CQRS e Event Sourcing)
+- **Perguntas:** (1) A lei ou o negócio exige saber como se chegou a cada estado (financeiro, saúde, auditoria)? (2) Alguém precisa reconstruir o que aconteceu no passado? (3) Ler e gravar têm necessidades muito diferentes?
+- **Opções:** A) CRUD simples. B) CQRS sem event sourcing: modelos separados de leitura e de gravação. C) Event sourcing: guardar cada evento como fonte da verdade.
+- **Padrão:** A, salvo exigência de auditoria. É decisão de domínio, não técnica: "meu negócio precisa do histórico?". Se sim, eventos são imutáveis, e reversão é um novo evento que compensa o anterior.
+- **Errada quando:** event sourcing sem exigência de histórico (complexidade sem retorno); tela que precisa mostrar o dado na hora sobre leitura que atrasa alguns milissegundos.
+- **Referência:** `references/cqrs-event-sourcing.md`
+
+### API — REST ou GraphQL
+- **Perguntas:** (1) Quantos front-ends consomem a API (site, app, parceiros)? (2) O time já usou GraphQL em produção? (3) Alguma tela junta muitos dados de uma vez?
+- **Opções:** A) REST, com endpoints especializados quando preciso. B) REST mais um BFF (um backend sob medida por front-end). C) GraphQL, ou híbrido: REST na maioria e GraphQL só nas telas complexas.
+- **Padrão:** REST para 1 ou 2 front-ends. GraphQL só com 3 ou mais e com time que já conhece. O híbrido é válido: não é tudo ou nada.
+- **Errada quando:** GraphQL sem experiência no time (cache, monitoramento e upload de arquivo viram problema); GraphQL "porque é moderno".
+- **Referência:** `references/api-architecture.md` (e `/anti-vibe-coding:api-design` para o desenho dos endpoints)
+
+### Escolha de tecnologia (stack)
+- **Perguntas:** (1) Que problema exato isso resolve, e em que volume (ex.: quantas mensagens por segundo)? (2) Quem do time já sabe usar? (3) Há prazo para validar a ideia?
+- **Opções:** A) A tecnologia madura e "chata" que o time já domina. B) A nova, depois de um protótipo curto que valide o risco técnico. C) Adiar a escolha até o problema ficar claro.
+- **Padrão:** o processo: definir o escopo, achar o núcleo, pesquisar opções maduras, fazer um protótipo (PoC) do que for arriscado, registrar a decisão (ADR). Maturidade vale mais que modernidade: ecossistema maduro tem mais bibliotecas, respostas e candidatos.
+- **Errada quando:** "todo mundo usa", "é novo" ou "é o que eu conheço" sem avaliar alternativas; tecnologia crítica adotada sem protótipo; decisão grande sem registro.
+- **Referência:** `references/api-architecture.md` (seção Stack Selection)
+
+### Quanto de SOLID aplicar
+- **Perguntas:** (1) É protótipo ou MVP, ou está crescendo em produção? (2) Cada feature nova obriga a mexer em `if/else` antigo? (3) Mais de uma pessoa mexe no mesmo módulo?
+- **Opções:** A) Só SRP e LSP (MVP). B) Os cinco, com pragmatismo (produção). C) Nenhum rigor (script de uso único).
+- **Padrão:** SOLID são alvos, não regras absolutas. Liskov sempre (é a única que é lei). Aberto/Fechado quando o `switch` cresce a cada feature. Responsabilidade única quando a classe faz coisas demais no sentido do domínio. Inversão de dependência nas fronteiras (infraestrutura contra domínio). Segregação de interface em bibliotecas e APIs públicas.
+- **Errada quando:** aplicar os cinco num MVP (boilerplate sem retorno); fragmentar interface a ponto de ninguém achar nada.
+- **Referência:** `references/solid-principles.md`
+
+### Injeção de dependência
+- **Perguntas:** (1) A classe depende de algo de fora (pagamento, e-mail, armazenamento, banco)? (2) Ela precisa ser testada sem chamar o serviço real? (3) O fornecedor pode mudar (trocar de gateway)?
+- **Opções:** A) Criar direto (`new`). B) Injeção pelo construtor, com interface na fronteira. C) Container de injeção.
+- **Padrão:** B nas fronteiras arquiteturais (pagamento, e-mail, armazenamento, cache, autenticação); não em utilitários nem em funções puras. Container só com 50 ou mais classes com dependências, ou quando o framework já traz (NestJS, Spring, Angular). Teste da fronteira: um adaptador é fronteira hipotética, dois é real ([deep-modules](../tdd-workflow/references/deep-modules.md)). No banco, guarde o id do domínio, não o do fornecedor (o id do produto da Stripe).
+- **Errada quando:** Service Locator (dependência escondida); interface para função pura com uma implementação só; injeção circular (sinal de responsabilidade mal dividida).
+- **Referência:** `references/dependency-injection.md`
+
+### Princípios de design — acoplamento e herança
+- **Perguntas:** (1) O código está difícil de mudar porque uma coisa conhece demais da outra? (2) Há hierarquia de classes com mais de 2 níveis? (3) Há passos que precisam ser chamados numa ordem exata (iniciar, validar, executar)?
+- **Opções:** A) Deixar como está. B) Aplicar Lei de Demeter e Tell-Don't-Ask onde dói. C) Trocar herança por composição.
+- **Padrão:** `order.shippingZip()` em vez de `order.customer.address.zip` (Demeter); `account.withdraw(amount)` em vez de conferir o saldo por fora (Tell-Don't-Ask); composição sobre herança; esconder a sequência dentro de um método (`processor.run()`).
+- **Errada quando:** refatorar o que não dói; encadear getters; esquecer que a ordem das chamadas é regra do domínio e não de quem chama.
+- **Referência:** `references/design-principles.md`
+
+### Defaults de segurança — onde a autorização mora
+- **Perguntas:** (1) Cada usuário (ou empresa) enxerga só o que é seu, ou todo mundo logado vê tudo? (2) Existe mais de um cliente, empresa ou turma usando o mesmo banco? (3) Quem pode chamar o banco diretamente, além do seu servidor?
+- **Opções:** A) A checagem de "pode?" repetida em cada rota. B) Uma camada única (middleware, policy ou repositório) que nega quando nenhuma regra casa. C) No próprio banco (RLS).
+- **Padrão:** negar por padrão, checagem no servidor, por recurso (dono e papel), nunca "todo logado vê tudo". A fronteira do cliente fica na camada mais baixa possível (RLS ou filtro no repositório), em vez de repetida em cada handler. B ou C.
+- **Errada quando:** A (um handler novo vai esquecer, é questão de tempo); camada única que permite quando nenhuma regra casa (é o mesmo buraco com menos linhas); RLS desligado na prática porque os serviços internos usam a conexão `service_role` ou de superusuário em operação de usuário final.
+- **Custo de adiar:** cada endpoint novo herda o buraco, e o conserto depois toca toda rota existente.
+- **Referência:** `/anti-vibe-coding:security`
+
+### Defaults de segurança — segredos e dado em repouso
+- **Perguntas:** (1) Que chaves e senhas o sistema usa, e onde elas ficam hoje (repositório, banco, ambiente)? (2) Que dados pessoais ou financeiros ele guarda? (3) Algum desses dados é credencial de outra pessoa (senha, token)?
+- **Opções:** A) Segredo no código ou no banco "por enquanto". B) Segredo no ambiente (variável de ambiente injetada na execução). C) Gerenciador de segredos (secret manager) com rotação.
+- **Padrão:** B ou C, sempre fora do repositório e fora do banco. Classificar o dado antes de modelar (público, interno, PII, credencial, financeiro). Credencial é hasheada (bcrypt ou Argon2), nunca encriptada.
+- **Errada quando:** segredo no código (vaza no histórico do git, e histórico não se apaga: só se rotaciona a chave); credencial encriptada em vez de hasheada; classificar o dado depois de modelar (migração de coluna com dado já em produção).
+- **Custo de adiar:** migração de coluna com dado em produção, e chave que já vazou.
+- **Referência:** `/anti-vibe-coding:security`
+
+## Registro
+
+Depois que o usuário escolher, registre numa destas duas:
+
+- **Há uma feature em andamento** (`docs/exec-plans/active/<pasta>/DESIGN.md`; se houver mais de uma, pergunte qual): escolha entre opções vira linha da tabela `## Decisões` — `| N | decisão | opções | escolha | por quê |`. Nos defaults de segurança, default **aceito** vira linha de `## Ameaças & Dados`; default **recusado** vira linha de `## Decisões`, com a razão e a alternativa. Escreva o "por quê" com as respostas do usuário.
+- **A decisão vale para o projeto inteiro** (monólito ou serviços, stack, estilo de API) **ou não há feature em andamento:** crie um ADR com `/anti-vibe-coding:decision-registry`, que guarda o contexto, a decisão, as alternativas e as consequências.
+
+Segurança recusada sem registro não é trade-off, é esquecimento com aparência de decisão. Para profundidade em OWASP, autenticação, autorização e criptografia: `/anti-vibe-coding:security`.
+
+## Regras do consultor
+
+1. Nunca recomende sem contexto: pergunte escopo, time e domínio antes.
+2. Questione a premissa antes de resolver: "isso realmente precisa existir?".
+3. Todo trade-off é explícito: toda decisão tem custo, e o custo aparece na resposta.
+4. Tecnologia chata primeiro: prove que a solução simples não funciona antes de adotar complexidade.
+5. Ensine o raciocínio: o processo de chegar na resposta vale mais que a resposta.
+6. Segurança é decisão de design, não revisão: autorização, segredos, dado em repouso e isolamento de cliente fecham junto com as outras decisões, e não na auditoria do fim.
+
+$ARGUMENTS

@@ -176,7 +176,7 @@ app.get('/ready', async (_, res) => {
 - Em consumidor de fila não há LB pingando: cheque recursos locais ANTES de sondar — puxar mensagem ≠ processar (worker com disco cheio puxa sem processar). Sob carga, o health check é a requisição MAIS prioritária; nunca o deixe expirar (reserve workers para evitar death spiral).
   > fonte: David Yanacek | Implementing health checks | seção: Processadores assíncronos
   > fonte: David Yanacek | Implementing health checks | seção: Priorizar a integridade
-- **Cross-link:** o fail-open do Route 53 / failover DNS está em `infrastructure/references/dns-hosting.md §9`; health check antes do switch em deploy (validar na porta privada) em `infrastructure/references/deployment-patterns.md`. **Resiliência de frota:** load shedding, deadline propagation e shuffle sharding estão em `system-design` §11.
+- **Cross-link:** o fail-open do Route 53 / failover DNS está em `infrastructure/references/dns-hosting.md §9`; health check antes do switch em deploy (validar na porta privada) em `infrastructure/references/deployment-patterns.md`. **Resiliência de frota:** load shedding, deadline propagation e shuffle sharding estão em `system-design/references/guia-completo.md` §11 (o roteiro de decisão está em `/anti-vibe-coding:system-design`).
 
 ### 9. Graceful Degradation
 **Quando:** feature não-crítica depende de serviço externo.  

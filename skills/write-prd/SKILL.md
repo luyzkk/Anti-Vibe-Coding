@@ -7,31 +7,6 @@ allowed-tools: Read, Grep, Glob, Write, AskUserQuestion
 argument-hint: "[descricao da feature ou problema a especificar]"
 ---
 
-```typescript
-// === Perfil arquitetural (Plano 04 fase-04) ===
-// G1: UMA leitura + UMA resolucao via lookup. Sem branching profundo.
-// G2 / CA-04: profile null (flag off ou manifest ausente) → snippet vazio → template preserva v5.2
-
-import { readArchitectureProfile, getRecommendationForProfile } from '../lib/read-architecture-profile'
-import { STRUCTURE_SNIPPETS, STRUCTURE_SNIPPET_V52 } from './lib/structure-snippets'
-
-// 1. UMA leitura
-const __prd_profile = readArchitectureProfile()
-
-// 2. UMA resolucao via lookup
-const __prd_structureSnippet = getRecommendationForProfile(
-  __prd_profile?.profile ?? null,
-  STRUCTURE_SNIPPETS,
-  STRUCTURE_SNIPPET_V52,
-)
-
-// 3. Injecao no DESIGN.md durante o Step 3 (o marcador mora no design-template.md)
-// Ao gerar o desenho: substituir '{- structure-snippet -}' por __prd_structureSnippet
-// Se __prd_structureSnippet === '', remover o marcador sem deixar linha em branco extra
-// Sem desenho, o trecho nao entra em lugar nenhum
-// === Fim do bloco de perfil ===
-```
-
 # Write PRD — A página da feature
 
 Gera a página de uma folha da feature (`PRD.md`) e, quando o sistema pede, o documento de desenho
@@ -163,7 +138,7 @@ O nível decide quanto de prova a feature exige. O Claude propõe o nível; o us
 | Nível | Quando | O que muda |
 |---|---|---|
 | experimento | protótipo ou teste de ideia: ninguém real depende, sem dinheiro de verdade nem dado pessoal real | página só com Problema, Solução e Como saber que ficou pronto; cenários do essencial; sem desenho |
-| produto | pessoas reais usam, mas um erro não custa dinheiro, saúde nem expõe dado pessoal | página inteira; desenho quando o sistema pede |
+| produto | pessoas reais usam, mas um erro não custa dinheiro, saúde nem expõe dado pessoal | página inteira; desenho quando o sistema pede, e sempre com o mapa de ameaças e os casos de abuso se algum dos seis gatilhos disparou |
 | dinheiro, saúde ou dados | um erro cobra errado, libera acesso indevido, expõe dado pessoal ou orienta errado sobre saúde | cenários com casos de abuso, aprovados antes do código; desenho obrigatório com o mapa de ameaças; no fim, o usuário explica de volta o que foi feito |
 
 Para propor, responder SIM/NÃO aos seis gatilhos:
@@ -178,7 +153,8 @@ Para propor, responder SIM/NÃO aos seis gatilhos:
 | 6 | Integração com terceiro | OAuth provider, SDK externo, API de parceiro, webhook recebido |
 
 - **Gatilho 1, 2 ou 5** → propor **dinheiro, saúde ou dados**.
-- **Só gatilhos 3, 4 ou 6** → propor **produto**, com o mapa de ameaças no desenho.
+- **Só gatilhos 3, 4 ou 6** → propor **produto**, com o mapa de ameaças e ao menos um caso de abuso por gatilho **obrigatórios (não recusáveis)**: entrada externa, upload e integração com terceiro são onde nasce a vulnerabilidade, e o mapa existe para pensá-la antes do código.
+- **Qualquer gatilho disparado** → nunca experimento: o nível mínimo é produto.
 - **Nenhum gatilho** → propor **produto**, ou **experimento** se o dev disse que é protótipo ou teste.
 - **Na dúvida entre dois níveis: o mais alto.** Nível alto demais custa alguns cenários a mais; nível
   baixo demais deixa um erro de dinheiro ou de acesso sem teste.
@@ -197,9 +173,10 @@ Propor o desenho quando a feature:
 - muda dinheiro de estado (cobrança, saldo, reembolso);
 - dispara qualquer um dos seis gatilhos (o mapa de ameaças precisa de onde morar).
 
-No nível **dinheiro, saúde ou dados** o desenho é obrigatório, com a seção `## Ameaças & Dados`
-PREENCHIDA (não com os placeholders do template). Nos outros níveis o usuário pode recusar a proposta;
-os casos de abuso continuam nos Cenários da página.
+O desenho é **obrigatório**, com a seção `## Ameaças & Dados` PREENCHIDA (não com os placeholders do
+template), no nível **dinheiro, saúde ou dados** e em qualquer feature que dispare um dos seis gatilhos.
+Sem gatilho e fora do nível mais alto, o usuário pode recusar a proposta; os casos de abuso, se houver,
+continuam nos Cenários da página.
 
 Sem desenho, a página grava UMA linha: `**Desenho:** não precisa — {motivo}`. O motivo é obrigatório:
 sem ele, "não tem desenho" fica indistinguível de "ninguém pensou no assunto", e o dev perde a chance
@@ -215,9 +192,10 @@ em português simples.
 - `CA-NN` para comportamento, `AB-N` para caso de abuso. Mínimo 3, ao menos 1 de erro.
 - Cada cenário se confere com sim ou não. Reframe vago → mensurável:
   "deixe o dashboard mais rápido" → "a lista carrega em menos de 2 segundos com 1000 registros".
-- No nível **dinheiro, saúde ou dados**: ao menos um AB-* por gatilho disparado. Cada AB-* vira teste
-  de abuso no RED do `/anti-vibe-coding:tdd-workflow`, escrito antes da defesa.
-- No nível **experimento**: só os cenários do essencial; AB-* não é exigido.
+- Em qualquer feature que dispare um gatilho (nível produto ou acima): ao menos um AB-* por gatilho
+  disparado. Cada AB-* vira teste de abuso no RED do `/anti-vibe-coding:tdd-workflow`, escrito antes da
+  defesa. A **aprovação dos cenários antes do código** é só do nível dinheiro, saúde ou dados.
+- No nível **experimento** (nenhum gatilho): só os cenários do essencial; AB-* não é exigido.
 
 ---
 
@@ -390,8 +368,9 @@ Antes de sugerir `/plan-feature`, confirmar:
 - [ ] Os cenários são testáveis (Dado/quando/então): mínimo 3, ao menos 1 de erro.
 - [ ] Precisa ter ≤ 40% dos itens.
 - [ ] Há desenho, ou a linha `**Desenho:**` registra o motivo de não haver.
-- [ ] No nível dinheiro, saúde ou dados: AB-* nos cenários, linha `Aprovados por` preenchida e
-      `DESIGN.md` com `## Ameaças & Dados` preenchida.
+- [ ] Gatilho disparado, em qualquer nível: `DESIGN.md` com `## Ameaças & Dados` preenchida e ao menos
+      um AB-* nos cenários por gatilho.
+- [ ] No nível dinheiro, saúde ou dados, além disso: linha `Aprovados por` preenchida.
 - [ ] `status: approved` e salvo em `docs/exec-plans/active/{date}-{slug}/PRD.md`.
 
 ---

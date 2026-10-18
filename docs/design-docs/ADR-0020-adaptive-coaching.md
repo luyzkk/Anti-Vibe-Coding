@@ -8,6 +8,13 @@ tags: [adaptive-coaching, profile-aware, capabilities, parity-audit, v6.3.0]
 
 # ADR-0020: Adaptive Coaching Framework (v6.3.0)
 
+> **2026-10-18 — parte superada pela 8.0.** O perfil de arquitetura (o detector, o bloco
+> `profile-aware-preface` e o `readPrefaceContext`) saiu na fatia 4 (F4-3): ele nunca ligou num
+> projeto real, porque o leitor procurava o manifest num caminho diferente do que o detector gravava e
+> exigia uma chave de ativação que nada ligava. O guia `adaptive-coaching-framework.md` saiu junto, e o
+> `/parity-audit` já tinha saído na fatia 2. Tudo fica na tag v7.9.0. O inventário de capacidades
+> (`discovery/capabilities.json`) e o aviso de capacidades desatualizadas continuam.
+
 ## Context
 
 The Anti-Vibe Coding plugin treats all projects generically. Skills ignore the architecture

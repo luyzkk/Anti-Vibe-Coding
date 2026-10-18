@@ -16,7 +16,6 @@
 Reference documents that capture the contract or usage pattern for a subsystem. These are
 stable, linked from ADRs, and intended as the single source of truth for their topic.
 
-- [adaptive-coaching-framework.md](./adaptive-coaching-framework.md) — Migration guide for skill authors adopting the Adaptive Coaching Framework (v6.3.0). Covers PrefaceContext shape, readPrefaceContext usage, schema field reference, and 4-step migration checklist.
 - [subagent-contract-v1.md](./subagent-contract-v1.md) — Canonical reference for the v1 JSON contract used by all subagent auditors. Covers lifecycle, domain_status, reasoning, and migration from legacy markdown format.
 
 ## Core Beliefs

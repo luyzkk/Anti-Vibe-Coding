@@ -1,7 +1,7 @@
 // skills/architecture/__tests__/stack-aware-preface-wire.test.ts
 // 2026-05-16 (Luiz/dev): RED phase — Plano 03 fase-02, CA-05 + CA-09 wire architecture.
 // G1 do plano: bloco verbatim (delega ao helper getStackKnowledgePreface). G4: insertion-only diff.
-// Architecture tem profile-aware-preface mas NAO tem stale-capabilities-check — anchor batch 1 style sem stale.
+// Architecture NAO tem stale-capabilities-check — anchor batch 1 style sem stale.
 import { describe, it, expect } from 'bun:test'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -23,12 +23,9 @@ describe('architecture SKILL.md stack-aware-preface wire-up', () => {
     expect(block).toContain('../security/lib/stack-aware-preface')
   })
 
-  it('positioned after profile-aware-preface:end and before first H1 (CA-10)', () => {
-    expect(body).toContain('<!-- profile-aware-preface:end -->')
-    const profileEnd = body.indexOf('<!-- profile-aware-preface:end -->')
-    const stackStart = body.indexOf('<!-- stack-aware-preface:start -->')
-    const firstH1 = body.search(/^# /m)
-    expect(profileEnd).toBeLessThan(stackStart)
-    expect(stackStart).toBeLessThan(firstH1)
+  // 2026-10-18 (Luiz/dev): 8.0 fatia 4 — o bloco de perfil (Modo Dual) saiu: ele nunca ligou num projeto real.
+  it('no longer carries the profile-aware block, and the stack preface sits before the first H1', () => {
+    expect(body).not.toContain('profile-aware-preface')
+    expect(body.indexOf('<!-- stack-aware-preface:end -->')).toBeLessThan(body.search(/^# /m))
   })
 })

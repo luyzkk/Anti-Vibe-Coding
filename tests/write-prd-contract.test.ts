@@ -211,3 +211,44 @@ describe('write-prd — nivel de risco na skill (F3-1)', () => {
     expect(/antes do c[oó]digo/i.test(body) && /Aprovados por/.test(body)).toBe(true)
   })
 })
+
+// 2026-10-18 (Luiz/dev): 8.0 fatia 4 — restaura a regra da RF-04 (shift-left de seguranca, 2026-09-01).
+// Na fatia 3 o mapa de ameacas ficou obrigatorio so no nivel "dinheiro, saude ou dados"; os gatilhos de
+// entrada externa, upload e integracao com terceiro (3, 4 e 6) cairam em "produto", com o desenho opcional
+// e sem AB-* exigido. A regra antiga era: QUALQUER um dos seis gatilhos obriga o mapa. O nivel de risco
+// decide so o resto (aprovacao dos cenarios antes do codigo e a explicacao de volta). Aperta, nunca afrouxa.
+describe('write-prd — qualquer gatilho obriga o mapa de ameacas e os casos de abuso (RF-04)', () => {
+  const nivel = () => section(skill, /^### N[ií]vel de risco/)
+  const desenho = () => section(skill, /^### Documento de desenho/)
+  const cenarios = () => section(skill, /^### Cen[aá]rios/)
+
+  test('gatilho 3, 4 ou 6 nao cai num nivel em que o mapa e opcional', () => {
+    expect(
+      nivel(),
+      '[contrato — RF-04] Os gatilhos 3, 4 e 6 (entrada externa, upload, terceiro) voltaram a deixar o mapa de ameacas opcional',
+    ).toMatch(/gatilhos? 3, 4 ou 6[\s\S]{0,260}obrigat[\s\S]{0,60}n[aã]o recus/i)
+  })
+
+  test('gatilho disparado nunca e experimento', () => {
+    expect(nivel()).toMatch(/gatilho[\s\S]{0,80}nunca[\s\S]{0,40}experimento|n[ií]vel m[ií]nimo[\s\S]{0,40}produto/i)
+  })
+
+  test('o desenho com o mapa e obrigatorio em qualquer feature que dispare um gatilho', () => {
+    expect(
+      desenho(),
+      '[contrato — RF-04] O desenho com "Ameacas & Dados" deixou de ser obrigatorio fora do nivel mais alto',
+    ).toMatch(/obrigat[\s\S]{0,300}qualquer feature que dispare|qualquer feature que dispare[\s\S]{0,200}obrigat/i)
+  })
+
+  test('ao menos um AB-* por gatilho disparado vale em qualquer nivel com gatilho', () => {
+    expect(
+      cenarios(),
+      '[contrato — RF-04] Os casos de abuso por gatilho sairam do nivel produto',
+    ).toMatch(/qualquer feature que dispare[\s\S]{0,160}AB-\*/i)
+  })
+
+  test('a lista de conferencia cobra o mapa em qualquer nivel quando ha gatilho', () => {
+    const verificacao = skill.split(/^## Verification/m)[1]?.split(/^## /m)[0] ?? ''
+    expect(verificacao).toMatch(/gatilho[\s\S]{0,120}Amea[cç]as & Dados/i)
+  })
+})
