@@ -1,10 +1,10 @@
 ---
 name: api-design
-description: "API design consultation. Use when the user asks about interface stability and versioning, the N+1 problem, idempotency, DTOs, webhooks vs WebSockets vs SSE, SQL vs NoSQL, API concurrency, protocol choice (REST, gRPC, AMQP), GraphQL, or REST URL design (pagination, status codes)."
+description: "Roteiro de decisão de API: faz até 3 perguntas que só o usuário sabe, mostra 2 ou 3 opções com prós, contras e custo, recomenda e registra a escolha. Use ao decidir estabilidade e versionamento de contrato, problema N+1, idempotência, DTOs, webhooks vs WebSockets vs SSE, SQL vs NoSQL, concorrência na API, protocolo (REST, gRPC, AMQP), GraphQL, ou URLs, paginação e status codes."
 user-invocable: true
 disable-model-invocation: false
-allowed-tools: Read, Grep, Glob, WebSearch
-argument-hint: "[API design question or endpoint to analyze]"
+allowed-tools: Read, Grep, Glob, WebSearch, AskUserQuestion
+argument-hint: "[decisão de API ou endpoint a analisar]"
 ---
 
 <!-- stack-aware-preface:start -->
@@ -54,362 +54,108 @@ if (__caps_generated_at !== null) {
 ```
 <!-- stale-capabilities-check:end -->
 
-# API Design — Anti-Vibe Coding
-
-Modo **Consultor de API Design**. Neste modo, ENSINAR e ANALISAR — nunca gerar codigo.
-
-Usar este conhecimento para responder perguntas, auditar endpoints existentes e guiar decisoes de design de APIs.
-
----
-
-## 0. Principios de Estabilidade de Interface
-
-Estes dois principios devem informar TODA decisao de design de API. Nao sao regras de transporte — sao restricoes de contratos.
-
-### Lei de Hyrum
-
-> "Com usuarios suficientes de uma API, todos os comportamentos observaveis do sistema serao dependidos por alguem, independente do que voce promete no contrato."
-
-Na pratica: **o contrato real e o comportamento observado, nao o contrato documentado.** Consumidores dependem de latencia acidental, de campos extras nao documentados, de erros retornados fora de spec — e quebram quando esses "detalhes" mudam.
-
-**Implicacoes de design:**
-
-- **Exponha apenas o necessario** — cada campo publico e uma promessa permanente.
-- **Nao vaze detalhes de implementacao** — nomes de tabela, IDs internos, stacks tecnologicas no response.
-- **Planeje deprecacao em tempo de design** — documentar a intencao de remocao desde o lancamento. Registrar em `/anti-vibe-coding:decision-registry add` decisoes de contrato que afetam consumers.
-- **Testes nao sao suficientes** — um teste verde nao garante que nenhum consumer depende de comportamento colateral.
-
-### Regra de Uma Versao
-
-Evite forcar consumers a escolher entre multiplas versoes da mesma API simultaneamente. Problemas de diamond dependency ocorrem quando dependencias transitivas requerem versoes incompativeis.
-
-Design para um mundo onde apenas uma versao existe por vez: **estenda, nao bifurque**. Adicione campos opcionais com defaults retro-compatíveis antes de criar `/api/v2`. Quando a quebra e inevitavel, a migracao deve ser sequencial (todos movem juntos), nao paralela.
-
-> **Conexao:** versioning de path (`/api/v1/`) em `references/rest-advanced.md` e o mecanismo de transporte. Esta regra e o principio de design que determina QUANDO criar uma nova versao.
-
----
-
-## 1. Problema N+1
-
-O problema N+1 ocorre quando uma query inicial busca N itens e, para cada item, dispara uma query adicional para dados relacionados. Resultado: 1 + N queries ao banco.
-
-**Quando acontece:**
-- Lazy loading em loops (ORM carrega relacao sob demanda)
-- Iteracao manual sobre resultados sem pre-carregar relacoes
-- APIs REST que retornam IDs e forcam o client a buscar cada recurso
-
-**Regra de ouro:** query dentro de loop = N+1.
-
-### Decision Tree: Resolver N+1
-
-```
-Relacao e conhecida no momento da query?
-  SIM → Eager Loading (select_related, include, with)
-  NAO →
-    Multiplos itens precisam da mesma relacao?
-      SIM → Batch Loading (DataLoader, WHERE IN)
-      NAO → JOIN explicito ou Subquery
-```
-
-> **Referencia completa:** `references/n-plus-one.md` — tabela de estrategias, exemplos de codigo, deteccao, checklist de verificacao.
-
----
-
-## 2. Idempotencia
-
-Uma operacao idempotente produz o mesmo resultado independente de quantas vezes for executada. Critico para sistemas distribuidos onde retries sao inevitaveis.
-
-**Principio fundamental:** NAO confiar apenas na spec REST. Verificar a implementacao real. Um PUT que faz `counter = counter + 1` NAO e idempotente, apesar de PUT ser "idempotente por spec".
-
-### Decision Tree: Preciso de Idempotencia?
-
-```
-Operacao envolve dinheiro?
-  SIM → Idempotencia OBRIGATORIA (chave UUID ou composta)
-  NAO →
-    Operacao tem side-effects irreversiveis? (email, SMS)
-      SIM → Idempotencia RECOMENDADA
-      NAO →
-        Operacao e naturalmente idempotente? (GET, PUT, DELETE)
-          SIM → Apenas validar a implementacao
-          NAO → Avaliar caso a caso (POST com unique constraint pode bastar)
-```
-
-> **Referencia completa:** `references/idempotency.md` — tabela de verbos HTTP, estrategias de implementacao, anti-patterns, checklist.
-
----
-
-## 3. DTOs (Data Transfer Objects)
-
-DTOs definem EXATAMENTE quais dados entram e saem da API. Criam barreira de seguranca entre o mundo externo e o modelo de dominio.
-
-**Regras fundamentais:**
-1. Instanciar DTO ANTES de persistir — nunca passar body cru para o banco
-2. Rejeitar campos extras — Mass Assignment e vulnerabilidade real
-3. Validacao SEMPRE no back-end — front-end e UX, nao seguranca
-4. DTO != Modelo de Dominio — DTO e contrato da API; modelo e regra de negocio
-
-### Decision Tree: Preciso de DTOs Separados?
-
-```
-API e publica ou consumida por terceiros?
-  SIM → DTOs separados OBRIGATORIOS (input + output + versionamento)
-  NAO →
-    Modelo tem campos sensiveis? (password, tokens, internal IDs)
-      SIM → Output DTO OBRIGATORIO (no minimo)
-      NAO →
-        Modelo aceita campos que o usuario NAO deveria controlar? (role, isAdmin)
-          SIM → Input DTO OBRIGATORIO (no minimo)
-          NAO → Avaliar se a complexidade justifica
-```
-
-> **Referencia completa:** `references/dtos.md` — tabela input vs output, regras, anti-patterns, checklist.
-> Modelagem de contrato em tempo de compilacao (unions + branded IDs): `references/typescript-contracts.md`
-
----
-
-## 4. Webhooks vs WebSockets vs SSE
-
-### Decision Tree: Qual Padrao de Comunicacao?
-
-```
-Quem inicia a comunicacao?
-  SERVIDOR EXTERNO (Stripe, GitHub) → Webhook
-  SEU SISTEMA →
-    Comunicacao precisa ser bidirecional?
-      SIM → WebSocket
-      NAO →
-        Frequencia de eventos?
-          ALTA (multiplas/segundo) → WebSocket
-          MEDIA (a cada poucos segundos) → SSE
-          BAIXA (esporadica) → Polling ou Webhook interno
-```
-
-**Resumo rapido:**
-
-| Padrao | Direcao | Caso de uso tipico |
-|--------|---------|--------------------|
-| **Webhook** | Externo → Voce | Pagamento aprovado, deploy concluido |
-| **WebSocket** | Bidirecional | Chat, jogos, dashboards tempo real |
-| **SSE** | Servidor → Cliente | Notificacoes, feeds, progresso |
-
-**Seguranca critica em Webhooks:** SEMPRE validar HMAC signature. Endpoint de webhook e PUBLICO — sem validacao, qualquer atacante simula eventos.
-
-> **Referencia completa:** `references/communication-patterns.md` — seguranca detalhada, boas praticas, escalabilidade, checklists.
-
----
-
-## 5. SQL vs NoSQL
-
-### REGRA DE OURO
-
-**Comecar com SQL (PostgreSQL).** Migrar para NoSQL apenas com problema comprovado que SQL nao resolve eficientemente.
-
-Justificativa: SQL resolve 90%+ dos casos; PostgreSQL suporta JSON, full-text search, extensoes; migrar SQL→NoSQL e mais facil que o contrario; ACID e crucial.
-
-### Decision Tree: Qual Banco Usar?
-
-```
-Dados sao relacionais com integridade referencial?
-  SIM → SQL (PostgreSQL)
-  NAO →
-    Precisa de ACID / transacoes?
-      SIM → SQL (PostgreSQL)
-      NAO →
-        Padrao de acesso principal?
-          KEY-VALUE simples (cache, sessao) → Redis
-          DOCUMENTOS com schema variavel → MongoDB/Firestore
-          GRAFOS com traversal profundo → Neo4j
-          ESCRITA MASSIVA + analise temporal → Cassandra/ClickHouse
-          NAO TEM CERTEZA → SQL (PostgreSQL)
-```
-
-> **Referencia completa:** `references/database-selection.md` — comparativo detalhado, ACID vs BASE, polyglot persistence, anti-patterns, checklist.
-
----
-
-## 6. Concorrencia em APIs
-
-### Pergunta-Chave
-
-> "O usuario PRECISA esperar por esta operacao para continuar?"
-
-Se a resposta e NAO, mover para background.
-
-### Decision Tree: Sincrono ou Background?
-
-```
-Usuario precisa do resultado para continuar?
-  SIM →
-    Operacoes sao independentes entre si?
-      SIM → Promise.all (paralelo)
-      NAO → Sequencial (await em serie)
-  NAO →
-    Multiplos consumers precisam reagir?
-      SIM → PubSub / Event Queue
-      NAO → Background Job simples
-```
-
-**Resumo de estrategias:**
-
-| Estrategia | Quando usar |
-|------------|-------------|
-| **Background Job** | Operacao unica demorada (email, imagem) |
-| **PubSub / Event Queue** | Multiplos consumers independentes |
-| **Promise.all** | Operacoes independentes no mesmo request |
-| **Streaming (SSE)** | Resultado progressivo ao cliente |
-
-> **Referencia completa:** `references/api-concurrency.md` — exemplos praticos, identificacao de oportunidades, anti-patterns, checklist.
-
----
-
-## 7. Protocolos de API
-
-> Referencia completa: `references/api-protocols.md`
-
-### Decision Tree
-
-```
-Request-response CRUD? → HTTP/REST ✓ (padrao)
-Bidirecional real-time? → WebSockets
-Garantia de entrega assincrona? → AMQP (RabbitMQ, SQS)
-Server-to-server alta performance? → gRPC
-Browser como cliente? → HTTP/REST ou WebSocket (NAO gRPC)
-```
-
-**Resumo:**
-
-| Protocolo | Caso de uso | Formato |
-|-----------|-------------|---------|
-| HTTP/REST | CRUD, APIs publicas | JSON |
-| WebSocket | Chat, jogos, dashboards | JSON/binario |
-| AMQP | Filas, processamento assincrono | Qualquer |
-| gRPC | Microservicos server-to-server | Protocol Buffers |
-
-**Regra:** HTTP/REST + WebSocket cobre 90% dos casos. gRPC e AMQP para cenarios especificos com necessidade comprovada.
-
----
-
-## 8. GraphQL Best Practices
-
-> Referencia completa: `references/graphql-patterns.md`
-
-**Quando usar GraphQL (e quando NAO):**
-
-```
-Multiplos clientes com necessidades diferentes? → GraphQL
-Overfetching/underfetching comprovado? → GraphQL
-CRUD simples sem relacoes complexas? → REST ✓
-API publica para terceiros? → REST ✓
-```
-
-**Regras essenciais:**
-
-- **Depth limits OBRIGATORIOS** — max 6-7 niveis. Sem limite, queries aninhadas derrubam o servidor
-- **DataLoader para N+1** — resolvers GraphQL sao ESPECIALMENTE vulneraveis. Batch loading e obrigatorio
-- **Input types para mutations** — agrupar parametros em input types, nao passar individuais
-- **Error handling: campo `errors`, nao status code** — GraphQL sempre retorna 200. Monitorar campo `errors`
-- **Schema modular** — dividir por dominio, nao monolito gigante
-- **Query complexity analysis** — atribuir custo por field, rejeitar queries acima do limite
-
----
-
-## 9. REST URL Design & Pagination
-
-> Referencia completa: `references/rest-advanced.md`
-
-### URL Design — Regras
-
-1. **Nouns, nao verbs:** `GET /products` (nao `/getProducts`)
-2. **Plural sempre:** `/products` (nao `/product`)
-3. **Nested max 3 niveis:** `/users/:id/orders/:orderId/items`
-4. **Versionamento no path:** `/api/v1/products`
-5. **kebab-case:** `/order-items` (nao `/orderItems`)
-
-### Pagination — Decision Tree
-
-```
-Dataset grande (>10K registros)? → Cursor pagination ✓
-Precisa de "ir para pagina X"? → Offset/Page pagination
-Dados mudam frequentemente? → Cursor pagination ✓
-Caso simples? → Page pagination (intuitivo)
-```
-
-| Tipo | Exemplo | Pro | Contra |
-|------|---------|-----|--------|
-| Page | `?page=3&limit=10` | Intuitivo, "pagina X de Y" | Inconsistente com dados mutaveis |
-| Offset | `?offset=20&limit=10` | Flexivel | Performance degrada em datasets grandes |
-| Cursor | `?cursor=abc&limit=10` | Consistente, performante | Sem "ir para pagina X" |
-
-**REGRA CRITICA:** SEMPRE paginar endpoints de colecao. NUNCA retornar todos os registros.
-
-### Status Codes — Resumo
-
-| Operacao | Status Code |
-|----------|-------------|
-| GET com dados | 200 OK |
-| POST criou recurso | 201 Created |
-| DELETE sem body | 204 No Content |
-| Validacao falhou | 400 Bad Request |
-| Nao autenticado | 401 Unauthorized |
-| Sem permissao | 403 Forbidden |
-| Nao encontrado | 404 Not Found |
-| Rate limit | 429 Too Many Requests |
-
-**NUNCA retornar 200 para tudo.** Status codes semanticos sao obrigatorios.
-
----
-
-## Common Rationalizations
-
-Justificativas comuns que encobrem decisoes de design ruins. Cada "Realidade" aponta para onde o conteudo ja existe nesta skill.
-
-| Racionalizacao | Realidade |
-|----------------|-----------|
-| "Vou documentar os contratos depois" | DTOs e schemas Zod **sao** a documentacao. Sem eles, o contrato e ambiguo desde o dia 1. → `references/dtos.md` |
-| "Sem paginacao por agora, os dados sao poucos" | A **REGRA CRITICA** e paginar sempre — colecoes crescem. Adicionar paginacao depois quebra consumers existentes (Lei de Hyrum). → secao 9 / `references/rest-advanced.md` |
-| "Vou versionar quando precisar" | Versionar depois e quebrar. Contratos publicos precisam de versionamento desde o lancamento; campos extras sao dependencias implicitas (Regra de Uma Versao). → secao 0 / `references/dtos.md` |
-| "Ninguem usa esse comportamento nao documentado" | Lei de Hyrum: com usuarios suficientes, alguem ja depende. Remover quebra producao silenciosamente. → secao 0 |
-| "Mantemos duas versoes em paralelo para nao quebrar ninguem" | Versoes paralelas criam diamond dependency e dobram custo de manutencao. A solucao e extensao retro-compativel + migracao sequencial. → Regra de Uma Versao (secao 0) |
-| "Validacao so no front-end, confio no meu cliente" | Front-end e UX, nao seguranca. Qualquer cURL ignora o front. Validacao e Mass Assignment sao vulnerabilidades reais. → `references/dtos.md` "Validacao SEMPRE no back-end" |
-| "API interna nao precisa de contrato formal" | APIs internas acumulam consumers silenciosamente. Sem contrato, qualquer mudanca e uma surpresa. DTOs e protocols se aplicam igualmente. → secoes 3 e 7 |
-
----
-
-## Red Flags
-
-Lista de auditoría rapida. Cada item aponta para a referencia com o diagnostico completo.
-
-- **Endpoint retorna shapes diferentes dependendo de condicao** (ex: `{ data: [...] }` em sucesso, `{ error: "..." }` em falha sem envelope consistente) → `references/rest-advanced.md` (status codes / error formats)
-- **Formatos de erro inconsistentes entre endpoints** (uns retornam `{ message }`, outros `{ error }`, outros `{ errors: [] }`) → `references/rest-advanced.md`
-- **Validacao espalhada em funcoes utilitarias internas** em vez de concentrada na fronteira da API → `references/dtos.md`
-- **Campos existentes alterados ou removidos sem versionamento** — quebra silenciosa de consumers → Lei de Hyrum (secao 0) / `references/dtos.md` versioning
-- **Endpoint de colecao sem paginacao** — retorna todos os registros direto → secao 9 / `references/rest-advanced.md` REGRA CRITICA
-- **Verbos em URLs REST** (`/getUser`, `/createOrder`, `/deleteItem`) → secao 9 / `references/rest-advanced.md`
-- **Respostas de terceiros usadas diretamente sem validacao** (payload externo passado sem parse/DTO) → `references/communication-patterns.md` (HMAC + validacao) / `references/dtos.md`
-
----
-
-## Modo de Operacao
-
-Ao receber uma pergunta ou pedido de analise:
-
-1. **Identificar** qual(is) secao(oes) se aplica(m)
-2. **Explicar** o conceito relevante usando linguagem acessivel
-3. **Apresentar** o decision tree se houver escolha a fazer
-4. **Consultar** a referencia detalhada quando necessario (`references/`)
-5. **Apontar** anti-patterns especificos ao caso do desenvolvedor
-6. **Fornecer** o checklist de verificacao aplicavel
-7. **Sugerir** registrar decisoes com `/anti-vibe-coding:decision-registry add` se for decisao arquitetural
-
-**NUNCA gerar codigo neste modo.** Apenas ensinar, analisar e recomendar.
-
-Direcionar para implementacao:
-- `/anti-vibe-coding:tdd-workflow` para iniciar implementacao
-- `/anti-vibe-coding:consultant` para decisoes mais amplas
-
----
-
-## Contexto da Consulta
+# API Design — Roteiro de Decisão
+
+Decidir como a API conversa com quem a usa: o contrato, o formato e o comportamento quando algo se repete ou atrasa. A skill **conduz a decisão**: pergunta o que só o usuário sabe (quem consome, o que custa um erro, quanto volume), mostra as opções com prós e contras em português simples e registra a escolha. Também analisa endpoints existentes. Não gera código; para implementar depois, direcione para `/anti-vibe-coding:tdd-workflow`.
+
+## Como Operar
+
+1. **Diga a decisão em uma frase**, sem jargão: "Vamos decidir o que acontece se o mesmo pagamento chegar duas vezes."
+2. **Leia o projeto antes de perguntar** (`Read`, `Grep`): rotas, ORM, como os erros são devolvidos hoje. Depois **faça até 3 perguntas numa tela só** (`AskUserQuestion`, uma pergunta por item), só do que o usuário sabe: quem consome a API, o que acontece se der errado, quanto volume.
+3. **Mostre 2 ou 3 opções**, cada uma com: o que é (uma linha), prós, contras, custo (de construir e de manter) e quando seria a escolha errada.
+4. **Recomende uma**, ligando a recomendação às respostas dele: "Recomendo a chave de idempotência porque você disse que o botão de pagar pode ser clicado duas vezes."
+5. **Se o usuário não souber responder**, use o padrão de um sênior para aquela decisão (catálogo abaixo) e diga qual usou e o que mudaria a resposta.
+6. **Registre a escolha** (seção Registro) e só então encerre.
+
+Pedido de explicação completa ou de aprofundamento ("me explica de verdade", "quero o texto completo"): leia `references/guia-completo.md`, e o arquivo do tópico quando houver. Esse texto longo só é lido quando o usuário pedir; o roteiro não depende dele.
+
+## Catálogo de decisões
+
+Cada bloco diz o que perguntar, as opções, o padrão de um sênior e quando ele erra. Use o bloco da decisão em discussão; não percorra todos.
+
+### Mudar um contrato que já tem consumidores
+- **Perguntas:** (1) Quem consome essa API hoje: só o seu site, um app publicado na loja, parceiros? (2) Dá para atualizar todos os consumidores ao mesmo tempo? (3) O que acontece se um consumidor antigo quebrar?
+- **Opções:** A) Estender sem quebrar: campo novo opcional, com valor padrão. B) Deprecar com prazo e migrar todos em sequência. C) Nova versão (`/api/v2`) em paralelo.
+- **Padrão:** estender, não bifurcar. Lei de Hyrum: com usuários suficientes, todo comportamento observável vira dependência de alguém, documentado ou não. Então exponha só o necessário (cada campo público é promessa permanente), não vaze detalhe de implementação (nome de tabela, id interno) e planeje a deprecação já no design. Versão nova só quando a quebra é inevitável, com migração sequencial.
+- **Errada quando:** mudar ou remover campo sem versionar (quebra em silêncio); manter duas versões em paralelo sem prazo (custo dobrado e consumidores presos no meio).
+- **Referência:** `references/rest-advanced.md` (versionamento), `references/dtos.md`
+
+### Lista lenta porque busca um por um (N+1)
+- **Perguntas:** (1) Que tela ou endpoint lista itens com dados relacionados (pedido com cliente, aluno com turma)? (2) Quantos itens a lista mostra, em ordem de grandeza? (3) A tela usa sempre os mesmos dados relacionados?
+- **Opções:** A) Carregar junto na mesma consulta (eager loading: `include`, `with`). B) Buscar em lote (DataLoader, `WHERE IN`). C) JOIN explícito ou subconsulta.
+- **Padrão:** consulta dentro de loop é N+1. Relação conhecida na hora da consulta: A. Vários itens precisam da mesma relação: B. Em GraphQL, DataLoader é obrigatório.
+- **Errada quando:** lazy loading dentro de loop; carregar junto relação que a tela não usa (traz dado demais).
+- **Referência:** `references/n-plus-one.md`
+
+### A mesma requisição chegar duas vezes (idempotência)
+- **Perguntas:** (1) A operação envolve dinheiro? (2) Tem efeito que não se desfaz (e-mail, SMS, mensagem de WhatsApp)? (3) Quem pode repetir a chamada: o usuário clicando duas vezes, um retry automático, o webhook reenviado?
+- **Opções:** A) Chave de idempotência enviada pelo cliente, reservada antes de executar. B) Restrição de unicidade no banco sobre uma chave natural (ex.: o id do evento do provedor). C) Nada: a operação já é idempotente por natureza.
+- **Padrão:** dinheiro: obrigatória. Efeito irreversível: recomendada. Reserve a chave primeiro, com `UNIQUE`, e responda 409 para chave ainda em andamento. Webhook usa o id do evento do provedor. Confira a implementação, não o verbo: um `PUT` que soma ao valor atual não é idempotente.
+- **Errada quando:** confiar no verbo HTTP; conferir e depois gravar sem restrição única (duas requisições passam juntas).
+- **Referência:** `references/idempotency.md`
+
+### O que entra e o que sai da API (DTOs)
+- **Perguntas:** (1) A API é pública ou usada por terceiros? (2) O modelo tem campo sensível (senha, token, id interno)? (3) O usuário consegue mandar campo que não deveria controlar (papel, `isAdmin`, preço)?
+- **Opções:** A) DTO de entrada e de saída separados, com versionamento. B) Só DTO de saída. C) Só DTO de entrada.
+- **Padrão:** API pública: A. Campo sensível: DTO de saída no mínimo. Campo que o usuário não deve controlar: DTO de entrada no mínimo (Mass Assignment é vulnerabilidade real). Instancie o DTO antes de persistir, rejeite campos extras, valide sempre no back-end. DTO é o contrato; o modelo de domínio é a regra de negócio.
+- **Errada quando:** passar o body cru para o banco; validar só no front-end (qualquer `curl` ignora o front).
+- **Referência:** `references/dtos.md`, `references/typescript-contracts.md` (contrato em tempo de compilação, com unions e ids marcados)
+
+### Avisos e tempo real: webhook, WebSocket ou SSE
+- **Perguntas:** (1) Quem inicia a conversa: um sistema de fora (Stripe, GitHub) ou o seu? (2) O cliente também precisa mandar mensagens (mão dupla)? (3) Com que frequência chegam os eventos?
+- **Opções:** A) Webhook: o sistema de fora avisa você. B) SSE: o servidor empurra para o cliente (notificação, progresso). C) WebSocket: mão dupla (chat, painel em tempo real).
+- **Padrão:** sistema externo: webhook, com assinatura validada sobre o corpo cru, id do evento único, resposta 200 rápida e processamento depois. Mão dupla ou muitos eventos por segundo: WebSocket. Só servidor para cliente, a cada poucos segundos: SSE. Esporádico: consulta periódica.
+- **Errada quando:** webhook sem validar a assinatura (o endpoint é público, e qualquer um simula um pagamento); WebSocket para notificação de mão única.
+- **Referência:** `references/communication-patterns.md` (e `/anti-vibe-coding:security` para a assinatura)
+
+### Banco de dados para a API (SQL ou NoSQL)
+- **Perguntas:** (1) Os dados se relacionam entre si (cliente, pedido, item)? (2) Precisa de transação (dinheiro, estoque)? (3) Qual o acesso principal: chave e valor, documento, grafo ou escrita massiva com análise no tempo?
+- **Opções:** A) PostgreSQL. B) PostgreSQL mais um complemento (Redis para cache e sessão). C) NoSQL específico (MongoDB, Neo4j, Cassandra ou ClickHouse).
+- **Padrão:** PostgreSQL; sem certeza, PostgreSQL. Ele cobre JSON, busca textual e extensões, e migrar de SQL para NoSQL é mais fácil que o contrário.
+- **Errada quando:** NoSQL sem problema comprovado; abrir mão de ACID em dinheiro.
+- **Referência:** `references/database-selection.md` (e `/anti-vibe-coding:system-design` quando o banco precisa escalar)
+
+### O usuário precisa esperar? (concorrência)
+- **Perguntas:** (1) O usuário precisa do resultado para continuar? (2) As tarefas da mesma requisição dependem umas das outras? (3) Mais de um sistema precisa reagir ao mesmo evento?
+- **Opções:** A) Na hora: em paralelo (`Promise.all`) ou em série. B) Tarefa em segundo plano (job). C) Evento publicado para vários consumidores (PubSub ou fila de eventos).
+- **Padrão:** não precisa esperar: segundo plano. Tarefas independentes: em paralelo. Vários sistemas reagem: PubSub. Resultado aos poucos: streaming (SSE).
+- **Errada quando:** e-mail ou processamento de imagem dentro da requisição; `await` em série de coisas independentes.
+- **Referência:** `references/api-concurrency.md`
+
+### Protocolo: REST, gRPC ou fila
+- **Perguntas:** (1) Quem é o cliente: navegador, app ou outro servidor? (2) A mensagem precisa chegar mesmo se o consumidor estiver fora do ar? (3) É servidor a servidor, com volume alto?
+- **Opções:** A) HTTP/REST. B) gRPC (servidor a servidor, alta performance). C) Fila com AMQP (RabbitMQ, SQS) para entrega garantida e assíncrona.
+- **Padrão:** REST mais WebSocket cobrem 90% dos casos. Navegador como cliente: REST ou WebSocket, nunca gRPC. gRPC e AMQP só com necessidade comprovada.
+- **Errada quando:** gRPC para cliente de navegador; fila onde uma chamada direta resolve.
+- **Referência:** `references/api-protocols.md`
+
+### GraphQL: quando adotar e como proteger
+- **Perguntas:** (1) Há vários clientes com necessidades diferentes? (2) Os endpoints atuais trazem dado de mais ou de menos, comprovadamente? (3) A API é pública para terceiros?
+- **Opções:** A) REST. B) GraphQL com limites de profundidade e de complexidade, e DataLoader. C) Híbrido: REST na maioria, GraphQL nas telas complexas.
+- **Padrão:** CRUD simples e API pública: REST. Se for GraphQL: limite de profundidade (6 a 7 níveis), análise de complexidade por campo, DataLoader, input types nas mutations, erros monitorados no campo `errors` (GraphQL sempre responde 200) e schema dividido por domínio.
+- **Errada quando:** GraphQL sem limite de profundidade (uma consulta aninhada derruba o servidor); monitorar só o status code.
+- **Referência:** `references/graphql-patterns.md` (a escolha REST ou GraphQL também está em `/anti-vibe-coding:architecture`)
+
+### URLs, paginação e status
+- **Perguntas:** (1) A coleção pode passar de 10 mil registros? (2) O usuário precisa pular direto para "a página 7"? (3) Os dados mudam enquanto alguém navega?
+- **Opções:** A) Paginação por página (`?page=3`). B) Por offset (`?offset=20`). C) Por cursor (`?cursor=abc`).
+- **Padrão:** toda coleção é paginada, nunca devolve tudo. Grande ou mutável: cursor. Precisa de "ir para a página X": página. URLs com substantivo no plural, `kebab-case`, até 3 níveis aninhados, versão no path. Status com significado: 201 criou, 204 sem corpo, 400 inválido, 401 sem login, 403 sem permissão, 404 não existe, 429 limite; nunca 200 para tudo.
+- **Errada quando:** coleção sem paginação (adicionar depois quebra consumidor); verbo na URL (`/getUser`); formato de erro diferente em cada endpoint.
+- **Referência:** `references/rest-advanced.md`
+
+## Registro
+
+Depois que o usuário escolher, registre numa destas duas:
+
+- **Há uma feature em andamento** (`docs/exec-plans/active/<pasta>/DESIGN.md`; se houver mais de uma, pergunte qual): acrescente uma linha na tabela `## Decisões` — `| N | decisão | opções | escolha | por quê |`. Escreva o "por quê" com as respostas do usuário.
+- **A decisão muda um contrato que já tem consumidores, ou vale para o projeto inteiro** (estilo de API, formato de erro, estratégia de versão), **ou não há feature em andamento:** crie um ADR com `/anti-vibe-coding:decision-registry`. Pela Lei de Hyrum, mudança de contrato sem registro vira surpresa para quem consome.
+
+## Sinais de alerta
+
+- O mesmo endpoint devolve formatos diferentes conforme o caso (`{ data }` no sucesso, `{ error }` solto na falha).
+- Cada endpoint tem um formato de erro diferente.
+- Validação espalhada em funções internas, em vez de concentrada na entrada da API.
+- Resposta de terceiro usada direto, sem validar.
+- "Documento os contratos depois", "API interna não precisa de contrato", "mantemos as duas versões para não quebrar ninguém".
 
 $ARGUMENTS

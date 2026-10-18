@@ -23,6 +23,8 @@ const GUIAS: Guia[] = [
   { skill: 'system-design', minDecisoes: 10 },
   { skill: 'security', minDecisoes: 11 },
   { skill: 'architecture', minDecisoes: 9 },
+  { skill: 'api-design', minDecisoes: 10 },
+  { skill: 'infrastructure', minDecisoes: 9 },
 ]
 const MAX_LINHAS = 230
 
@@ -154,5 +156,31 @@ describe('architecture — os defaults de seguranca do design continuam', () => 
     const m = guia.match(/\]\(((?:\.\.\/)+tdd-workflow\/references\/deep-modules\.md)\)/)
     expect(m, 'link para deep-modules ausente do guia completo').not.toBeNull()
     expect(fs.existsSync(path.join(ROOT, 'skills/architecture/references', m?.[1] ?? '')), 'deep-modules.md nao existe').toBe(true)
+  })
+})
+
+// 2026-10-18 (Luiz/dev): o que so a infraestrutura tem — a conferencia antes de declarar pronto e o /wizard
+// para o passo que so o humano faz (painel do registrador, chave num console).
+describe('infrastructure — o que o roteiro preserva do guia antigo', () => {
+  const body = read('skills/infrastructure/SKILL.md')
+
+  test('a conferencia antes de declarar pronto continua com os seis itens', () => {
+    const secao = body.split(/^## Antes de declarar pronto/m)[1]?.split(/^## /m)[0] ?? ''
+    expect(secao.length, 'secao "## Antes de declarar pronto" ausente').toBeGreaterThan(0)
+    expect(secao.split('\n').filter((l) => l.startsWith('- [ ] ')).length).toBe(6)
+  })
+
+  test('oferece o /wizard quando a acao so pode ser feita pelo humano', () => {
+    expect(body).toContain('/anti-vibe-coding:wizard')
+  })
+})
+
+// 2026-10-18 (Luiz/dev): o que so a API tem — mudanca de contrato com consumidores vira ADR (Lei de Hyrum).
+describe('api-design — o que o roteiro preserva do guia antigo', () => {
+  const body = read('skills/api-design/SKILL.md')
+
+  test('mudanca de contrato que afeta consumidores e registrada como ADR', () => {
+    expect(body).toMatch(/Hyrum/)
+    expect(body).toMatch(/contrato[\s\S]{0,200}decision-registry|decision-registry[\s\S]{0,200}contrato/i)
   })
 })

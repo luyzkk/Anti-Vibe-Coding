@@ -1,10 +1,10 @@
 ---
 name: infrastructure
-description: "Infrastructure and deployment consultation. Use when the user asks about DNS and domain setup, SSL/TLS certificates, hosting choice, AWS essentials, or deployment patterns — by concept or by name (Route 53, CloudFront, S3, Docker, Kubernetes, PM2, Let's Encrypt, blue-green, CI/CD)."
+description: "Roteiro de decisão de infraestrutura e deploy: faz até 3 perguntas que só o usuário sabe, mostra 2 ou 3 opções com prós, contras e custo, recomenda e registra a escolha. Use ao decidir hospedagem, domínio e DNS, certificado SSL/TLS, compute na AWS, como fazer o deploy, deploy sem derrubar o app, health check ou segredos de produção — por conceito ou por nome (Route 53, CloudFront, S3, Docker, Kubernetes, PM2, Let's Encrypt, blue-green, CI/CD)."
 user-invocable: true
 disable-model-invocation: false
-allowed-tools: Read, Grep, Glob, WebSearch
-argument-hint: "[infrastructure question or deployment scenario]"
+allowed-tools: Read, Grep, Glob, WebSearch, AskUserQuestion
+argument-hint: "[decisão de infraestrutura ou cenário de deploy]"
 ---
 
 <!-- stack-aware-preface:start -->
@@ -21,408 +21,114 @@ const stackKnowledgePreface = getStackKnowledgePreface(process.cwd())
 Se `stackKnowledgePreface` for não-vazio, **prepende** esta frase ao início da resposta. Se vazio, ignore — comportamento da skill = v6.3.1 intacto (CA-09).
 <!-- stack-aware-preface:end -->
 
-# Consultor de Infraestrutura & Deploy
+# Infraestrutura — Roteiro de Decisão
 
-Operar como consultor senior de infraestrutura. O papel e **ensinar e orientar decisoes**, nao configurar tudo. Analisar trade-offs, questionar premissas e ajudar o desenvolvedor a escolher a infra certa para o problema certo.
+Decidir onde o sistema roda, como chega ao usuário e como é atualizado sem cair. A skill **conduz a decisão**: pergunta o que só o usuário sabe (orçamento, quem cuida do servidor, quanta queda é aceitável), mostra as opções com prós e contras em português simples e registra a escolha. O papel é orientar, não configurar tudo; para implementar depois, direcione para `/anti-vibe-coding:tdd-workflow`.
 
 ## Como Operar
 
-1. **Entender o contexto** — Qual aplicacao? Qual trafego esperado? Qual orcamento?
-2. **Analisar trade-offs** — Custo, complexidade, escala, controle
-3. **Recomendar com justificativa** — Baseado no contexto especifico, nao em hype
-4. **Documentar a decisao** — Sugerir formato ADR quando apropriado
-
-> Cada topico tem um arquivo de referencia detalhado em `references/`. Consultar quando precisar de profundidade.
-
----
-
-## 1. DNS & Domain Management
-
-> **Referencia completa:** `references/dns-hosting.md`
-
-### Como DNS Funciona (Resumo)
-
-```
-Usuario digita "meusite.com" no navegador
-  → Navegador pergunta ao SO
-  → SO pergunta ao servidor DNS do provedor (ex: Claro, Vivo)
-  → DNS do provedor consulta servidores raiz → TLD → Nameserver autoritativo
-  → Retorna o IP (ex: 203.0.113.42)
-  → Navegador conecta no IP e faz a requisicao HTTP
-```
-
-### Tipos de Registro DNS
-
-| Registro | Aponta para | Uso |
-|----------|-------------|-----|
-| **A** | IPv4 (ex: 203.0.113.42) | Dominio → IP do servidor |
-| **AAAA** | IPv6 | Dominio → IP do servidor (IPv6) |
-| **CNAME** | Outro dominio (ex: app.vercel.app) | Alias para outro nome |
-| **MX** | Servidor de email | Configurar email do dominio |
-| **TXT** | Texto arbitrario | Verificacao de propriedade, SPF, DKIM |
-| **NS** | Nameservers | Delegar DNS para outro provedor |
-
-### Registrador vs Provedor DNS
-
-- **Registrador** (GoDaddy, Namecheap, Hostinger): onde voce COMPRA o dominio
-- **Provedor DNS** (Cloudflare, Route 53): onde voce GERENCIA os registros DNS
-
-Podem ser o mesmo servico ou diferentes. E comum comprar no registrador e apontar nameservers para Cloudflare ou Route 53 para gerenciamento.
-
-**Wizard** — quando a recomendacao terminar numa acao que o agente **nao pode** executar (apontar nameserver no registrador, revelar chave num painel, aprovar certificado, criar zona hospedada num console), ofereca `/anti-vibe-coding:wizard`: ele gera um script que abre cada URL, diz o que clicar e grava o que for capturado. Gerar e decisao do humano.
-
-### Arvore de Decisao — Provedor DNS
-
-```
-Precisa de DNS gerenciado?
-  Projeto pessoal / simples?
-    SIM → Cloudflare Free (DNS + CDN + SSL gratis)
-    NAO → Projeto profissional / empresa?
-      Ja usa AWS?
-        SIM → Route 53 (integracao nativa com outros servicos AWS)
-        NAO → Cloudflare Pro ou Route 53
-              Precisa de DNS programatico (API)?
-                SIM → Route 53 ou Cloudflare API
-                NAO → Qualquer provedor DNS funciona
-```
-
-### Arvore de Decisao — Route 53 Routing Policy
-
-Quando o DNS precisa fazer mais do que mapear nome → IP (HA, distribuicao geografica, canary):
-
-```
-Qual o requisito dominante da resposta DNS?
-  Um recurso so, sem logica         → Simple
-  Alta disponibilidade (primary/backup) → Failover (exige health check)
-  Dividir trafego por proporcao (canary, A/B) → Weighted
-  Menor latencia para o usuario     → Latency-based
-  Conformidade / conteudo por regiao (GDPR, idioma) → Geolocation
-  Localizacao + ajuste de viés (bias) → Geoproximity (requer Traffic Flow)
-  Varios IPs saudaveis, retorno aleatorio → Multivalue Answer (NAO substitui load balancer)
-```
-> Confusao classica: **geolocation** (de onde vem a query) != **latency-based** (qual regiao responde mais rapido) != **geoproximity** (distancia + bias). Detalhe + desambiguacao em `references/dns-hosting.md` §8. Health checks, TTL e hosted zones publicas/privadas em §9.
-
----
-
-## 2. SSL/TLS Certificates
-
-> **Referencia completa:** `references/dns-hosting.md` (secao SSL/TLS)
-
-### Por que HTTPS e Obrigatorio
-
-- **Criptografia:** dados trafegam cifrados (protege contra Man-in-the-Middle)
-- **Autenticidade:** certificado comprova que o servidor e o dono do dominio
-- **SEO:** Google penaliza sites HTTP desde 2014
-- **Browsers:** Chrome marca HTTP como "Not Secure"
-
-### Opcoes de Certificado
-
-| Opcao | Custo | Renovacao | Quando usar |
-|-------|-------|-----------|-------------|
-| **Let's Encrypt** | Gratis | Auto (90 dias) | Maioria dos projetos |
-| **Cloudflare SSL** | Gratis (com Cloudflare) | Automatica | Se ja usa Cloudflare como DNS/CDN |
-| **AWS ACM** | Gratis (dentro da AWS) | Automatica | Se ja usa AWS (CloudFront, ALB, API Gateway) |
-| **Certificado pago** | $10-300/ano | Manual ou auto | Compliance empresarial, EV certificates |
-
-### Fluxo de Certificado Let's Encrypt
-
-```
-1. Instalar certbot no servidor
-2. Certbot solicita certificado a Let's Encrypt
-3. Let's Encrypt verifica propriedade do dominio (HTTP challenge ou DNS challenge)
-4. Certificado emitido (validade: 90 dias)
-5. Certbot configura renovacao automatica (cron job)
-```
-
-### Fluxo de Certificado AWS ACM
-
-```
-1. Solicitar certificado no ACM (informar dominio)
-2. ACM gera CNAME para validacao
-3. Criar registro CNAME no Route 53
-4. ACM verifica e emite certificado
-5. Associar certificado ao CloudFront ou ALB
-6. Renovacao automatica gerenciada pela AWS
-```
-
----
-
-## 3. Hosting Decision Tree
-
-> **Referencia completa:** `references/dns-hosting.md` (secao Hosting)
-
-### Comparacao de Tipos de Hosting
-
-| Tipo | Controle | Custo | Escala | Complexidade | Para quem |
-|------|----------|-------|--------|-------------|-----------|
-| **Shared** | Nenhum | $3-15/mes | Limitada | Zero | Sites estaticos, WordPress |
-| **VPS** | Total | $5-80/mes | Manual | Medio | Apps, APIs, projetos indie |
-| **Managed (PaaS)** | Parcial | $0-50+/mes | Auto | Baixo | Startups, MVPs, times pequenos |
-| **Cloud (IaaS)** | Total | Variavel | Auto/Manual | Alto | Empresas, escala comprovada |
-| **Serverless** | Nenhum | Pay-per-use | Auto | Medio | Funcoes pontuais, webhooks |
-
-### Arvore de Decisao
-
-```
-Qual tipo de aplicacao?
-  Site estatico (HTML, React build, Next.js static)?
-    SIM → Vercel / Netlify / Cloudflare Pages (gratis tier)
-    NAO → API / Backend / Full-stack?
-      Orcamento limitado (< $20/mes)?
-        SIM → VPS (Hetzner, Hostinger, Oracle Free Tier)
-        NAO → Quer gerenciar servidor?
-          NAO → PaaS (Railway, Render, Fly.io, Vercel)
-          SIM → Precisa de escala automatica?
-            NAO → VPS com load balancer
-            SIM → Cloud (AWS, GCP, Azure)
-                  Funcoes pontuais / webhooks?
-                    SIM → Serverless (Lambda, Cloud Functions)
-                    NAO → Containers (ECS, Cloud Run, K8s)
-```
-
-### Recomendacao Pragmatica
-
-**Comecar com o mais simples que resolve o problema.**
-
-- **Solo dev / MVP:** VPS de $5-10/mes resolve 90% dos casos. Um servidor Hetzner de EUR 4/mes roda mais do que muita infra cloud
-- **Time pequeno (2-5 devs):** PaaS (Railway, Render) evita gerenciar infra
-- **Escala comprovada:** Cloud com containers quando a demanda JUSTIFICA a complexidade
-- **Serverless:** APENAS para funcoes pontuais (webhooks, processamento de eventos). NAO para APIs completas com banco de dados
-
----
-
-## 4. AWS Essentials
-
-> **Referencia completa:** `references/dns-hosting.md` (secao AWS)
-
-### Servicos Mais Usados
-
-| Servico | O que faz | Quando usar |
-|---------|-----------|-------------|
-| **Route 53** | DNS gerenciado | Dominio + DNS na AWS |
-| **CloudFront** | CDN + HTTPS | Site estatico com SSL, cache global |
-| **S3** | Armazenamento de objetos | Arquivos, assets, site estatico |
-| **EC2** | Maquinas virtuais | Servidor dedicado, controle total |
-| **Lambda** | Funcoes serverless | Webhooks, processamento de eventos |
-| **RDS** | Banco de dados gerenciado | PostgreSQL, MySQL sem gerenciar servidor |
-| **ACM** | Certificados SSL | SSL gratis para servicos AWS |
-
-### Arvore de Decisao — Compute
-
-```
-Precisa de compute na AWS?
-  Funcao pontual (webhook, evento)?
-    SIM → Lambda (serverless, pay-per-use)
-    NAO → API / aplicacao completa?
-      Quer gerenciar servidor?
-        SIM → EC2 (controle total)
-        NAO → ECS Fargate (container gerenciado)
-              Ou App Runner (PaaS da AWS)
-```
-
-### Serverfull vs Serverless
-
-| Aspecto | Serverfull (EC2/VPS) | Serverless (Lambda) |
-|---------|---------------------|---------------------|
-| Custo | Fixo (24/7 ligado) | Por invocacao (zero se idle) |
-| Latencia | Consistente (app em memoria) | Cold start na primeira invocacao |
-| Connection pool | Persistente em memoria | Nova conexao por invocacao |
-| Controle | Total (OS, CPU, memoria) | Apenas runtime (Node, Python, Java) |
-| Escala | Manual ou auto-scaling | Automatica |
-| Ideal para | APIs com banco, apps full-time | Webhooks, eventos, funcoes pontuais |
-
-**Regra:** Se a aplicacao interage intensamente com banco de dados, **serverfull**. Se e funcao pontual acionada por eventos, **serverless**.
-
----
-
-## 5. Deployment Patterns
-
-> **Referencia completa:** `references/deployment-patterns.md`
-
-### PM2 (Process Manager para Node.js)
-
-```bash
-# Iniciar aplicacao com PM2
-pm2 start dist/server.js --name "minha-api"
-
-# Cluster mode (usar todos os cores)
-pm2 start dist/server.js --name "minha-api" -i max
-
-# Restart automatico em crash
-pm2 startup    # configura auto-start no boot
-pm2 save       # salva lista de processos
-
-# Zero-downtime reload
-pm2 reload "minha-api"
-```
-
-### Docker Basics
-
-```dockerfile
-# Dockerfile para Node.js
-FROM node:20-alpine
-WORKDIR /app
-COPY package.json bun.lockb ./
-RUN npm install --production
-COPY dist/ ./dist/
-EXPOSE 3000
-HEALTHCHECK CMD curl -f http://localhost:3000/health || exit 1
-CMD ["node", "dist/server.js"]
-```
-
-### Health Check Endpoints
-
-**Todo servico de producao DEVE ter um health check.**
-
-```typescript
-// Endpoint basico
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', timestamp: Date.now() })
-})
-
-// Health check com dependencias
-app.get('/health/ready', async (req, res) => {
-  const checks = {
-    database: await checkDatabase(),
-    cache: await checkRedis(),
-    external: await checkExternalAPI(),
-  }
-
-  const allHealthy = Object.values(checks).every(c => c.status === 'ok')
-  res.status(allHealthy ? 200 : 503).json({
-    status: allHealthy ? 'ok' : 'degraded',
-    checks,
-    timestamp: Date.now()
-  })
-})
-```
-
-| Tipo | Caminho | Proposito |
-|------|---------|-----------|
-| **Liveness** | `/health` | "O processo esta vivo?" (restart se falhar) |
-| **Readiness** | `/health/ready` | "O servico pode receber trafego?" (inclui dependencias) |
-
-### Zero-Downtime Deploy
-
-```
-Estrategia: Blue-Green ou Rolling Update
-
-Blue-Green:
-  1. Deploy versao nova em ambiente separado (Green)
-  2. Testar Green
-  3. Trocar trafego de Blue → Green
-  4. Manter Blue como rollback por N minutos
-  5. Desligar Blue
-
-Rolling Update (PM2/Docker/K8s):
-  1. Subir nova instancia com versao nova
-  2. Health check passa? Enviar trafego
-  3. Desligar instancia antiga
-  4. Repetir para cada instancia
-  Resultado: sempre ha instancias respondendo
-```
-
-> **Blue-Green:** valide o novo slot com health check na porta privada ANTES do cutover; rollback = inverter o switch. Detalhe em `references/deployment-patterns.md` (Blue-Green Deploy).
-> fonte: Augusto Galego | Como fazer deploy sem derrubar seu app (Blue-Green) | seção: O fluxo Blue-Green na prática
-
-### Arvore de Decisao — Deploy
-
-```
-Qual o stack?
-  Node.js simples em VPS?
-    SIM → PM2 (cluster mode + reload)
-  Precisa de ambiente reproduzivel?
-    SIM → Docker (Dockerfile + docker-compose)
-  Precisa de orquestracao (multiplos containers)?
-    SIM → Docker Compose (simples) ou Kubernetes (escala)
-  Precisa de CI/CD?
-    SIM → GitHub Actions (build + test + deploy)
-```
-
----
-
-## Template de Analise de Infraestrutura
-
-Ao analisar uma decisao de infraestrutura, seguir este template:
-
-### 1. Contexto
-
-- Qual o tipo de aplicacao? (API, site estatico, full-stack, SPA)
-- Qual o trafego esperado? (requests/segundo, usuarios concorrentes)
-- Qual o orcamento? (mensal, anual)
-- Qual a equipe? (solo dev, time pequeno, empresa)
-
-### 2. Requisitos
-
-- Disponibilidade (99.9%? 99.99%?)
-- Latencia maxima aceitavel
-- Regioes geograficas
-- Compliance (LGPD, HIPAA, SOC2)
-- Observabilidade (logs, metricas, alertas)
-
-### 3. Opcoes
-
-Para cada opcao, avaliar:
-- **Custo mensal estimado** ($)
-- **Complexidade operacional** (1-5)
-- **Escala** (manual / auto)
-- **Controle** (total / parcial / nenhum)
-- **Vendor lock-in** (alto / medio / baixo)
-
-### 4. Recomendacao
-
-- Opcao recomendada com justificativa
-- Plano de migracao se necessario
-- Proximos passos concretos
-
----
-
-## Regras do Consultor
-
-1. **Boring technology primeiro** — provar que a solucao simples nao funciona antes de adotar complexidade
-2. **Custo importa** — um VPS de $5/mes resolve 90% dos problemas de devs solo e startups early-stage
-3. **Questionar escala prematura** — "Precisa de Kubernetes?" → "Quantos requests por segundo tem HOJE?"
-4. **Cloud nao e obrigatorio** — VPS com PM2/Docker resolve problemas reais por uma fracao do custo
-5. **Serverless tem limite** — NAO usar para APIs completas com banco de dados. Cold start + connection pool = problemas
-
----
-
-## Common Rationalizations
-
-Atalhos que parecem razoaveis mas geram incidentes. Reconhecer e rebater antes de aceitar.
-
-| Racionalizacao | Realidade |
-|---|---|
-| "Adiciono health check depois" | Sem health check, o load balancer manda trafego pra instancia morta e o deploy zero-downtime nao funciona. Custa 5 linhas — faca agora. |
-| "Pulo staging, e so um hotfix" | Hotfixes quebram producao com a mesma frequencia. Staging existe justamente pros "rapidos". |
-| "Rodo o container como root, e mais facil" | Container como root = escape de container vira root no host. Usuario nao-root e padrao, nao opcional. |
-| "Boto o secret no compose/codigo por enquanto" | "Por enquanto" vira permanente e vaza no git. Secret manager / `.env` fora do repo desde o primeiro commit. |
-| "Configuro rollback quando precisar" | Voce vai precisar durante um incidente, quando nao ha tempo de configurar. Todo deploy nasce reversivel. |
-| "Serverless pra tudo, escala sozinho" | Serverless + banco relacional = cold start + connection pool estourado. Ver Secao 3/4 (so funcoes pontuais). |
-
----
-
-## Red Flags
-
-Sinais de alerta para identificar em audit rapido. Cada item aponta para a cobertura aprofundada existente.
-
-- Servico de producao sem health check (ver Secao 5 / `deployment-patterns.md` §3).
-- Secrets em codigo ou `docker-compose.yml` (ver `deployment-patterns.md` §5).
-- Serverless na frente de banco relacional (ver Secao 3/4 e `dns-hosting.md` §5 — cold start + connection pool).
-- Kubernetes sem justificativa de escala ("quantos req/s HOJE?" — Regra 3 do Consultor).
-- Deploy sem plano de rollback.
-- Container rodando como root (ver `deployment-patterns.md` §2, regra "Usuario nao-root").
-- Sem `.env.example` commitado (ver `deployment-patterns.md` §5).
-
----
-
-## Verification
-
-Self-check de conclusao. **Para a analise PRE-decisao use `## Template de Analise de Infraestrutura`; este self-check e PRE-conclusao** — executar antes de declarar uma tarefa de infra concluida.
-
-- [ ] Health check em TODOS os servicos (liveness + readiness onde aplicavel).
-- [ ] SSL com renovacao automatica configurada (certbot timer / ACM / Cloudflare).
-- [ ] Secrets num manager ou `.env` fora do repo — nada hardcoded.
-- [ ] Caminho de rollback definido e testado.
-- [ ] Deploy zero-downtime (rolling/blue-green/`pm2 reload`), nao restart com janela de queda.
-- [ ] Variaveis de ambiente validadas no startup (falha rapido se faltarem).
+1. **Diga a decisão em uma frase**, sem jargão: "Vamos decidir onde a API do quiz vai rodar."
+2. **Leia o projeto antes de perguntar** (`Read`, `Grep`): `Dockerfile`, arquivos de deploy, `.env.example`, configuração do provedor. Depois **faça até 3 perguntas numa tela só** (`AskUserQuestion`, uma pergunta por item), só do que o usuário sabe: quanto pode gastar, quem vai cuidar do servidor, quanta queda é aceitável.
+3. **Mostre 2 ou 3 opções**, cada uma com: o que é (uma linha), prós, contras, custo (por mês e de manutenção) e quando seria a escolha errada.
+4. **Recomende uma**, ligando a recomendação às respostas dele: "Recomendo a PaaS porque você disse que ninguém vai cuidar de servidor."
+5. **Se o usuário não souber responder**, use o padrão de um sênior para aquela decisão (catálogo abaixo) e diga qual usou e o que mudaria a resposta.
+6. **Registre a escolha** (seção Registro) e só então encerre.
+
+Quando a recomendação terminar numa ação que o agente **não pode** executar (apontar o nameserver no registrador, revelar uma chave num painel, aprovar um certificado, criar a zona num console), ofereça `/anti-vibe-coding:wizard`: ele gera um script que abre cada URL, diz o que clicar e grava o que for capturado. Gerar o script é decisão do humano.
+
+Pedido de explicação completa ou de aprofundamento ("me explica de verdade", "quero o texto completo"): leia `references/guia-completo.md`, e o arquivo do tópico quando houver. Esse texto longo só é lido quando o usuário pedir; o roteiro não depende dele.
+
+## Catálogo de decisões
+
+Cada bloco diz o que perguntar, as opções, o padrão de um sênior e quando ele erra. Use o bloco da decisão em discussão; não percorra todos.
+
+### Onde hospedar
+- **Perguntas:** (1) O que vai ao ar: site estático, API ou aplicação completa? (2) Quanto pode gastar por mês, e quem vai cuidar do servidor (ninguém, você, um dev)? (3) Quanta gente usa ao mesmo tempo no pico, hoje?
+- **Opções:** A) PaaS (Vercel, Railway, Render, Fly.io): ninguém cuida de servidor. B) VPS (Hetzner, Hostinger): barato, mas alguém cuida. C) Nuvem com containers (AWS ECS, Cloud Run, Kubernetes).
+- **Padrão:** o mais simples que resolve. Site estático: Vercel, Netlify ou Cloudflare Pages. Solo ou MVP: VPS de 5 a 10 por mês, ou PaaS. Time pequeno: PaaS. Containers em nuvem só com escala comprovada. Serverless só para funções pontuais, nunca para API completa com banco.
+- **Errada quando:** Kubernetes sem saber quantas requisições por segundo existem hoje; serverless na frente de banco relacional (cold start mais conexões estouradas).
+- **Referência:** `references/dns-hosting.md` (seção Hosting)
+
+### Domínio e DNS
+- **Perguntas:** (1) Onde o domínio foi comprado? (2) O projeto já usa AWS? (3) Vai precisar criar registros automaticamente, por API (um subdomínio por cliente)?
+- **Opções:** A) Cloudflare Free: DNS, CDN e SSL grátis. B) Route 53: nativo da AWS, com API. C) Ficar no DNS do registrador.
+- **Padrão:** projeto pessoal ou simples: Cloudflare Free. Já usa AWS: Route 53. Registrador (onde se compra) e provedor de DNS (onde se gerencia) podem ser diferentes: comprar num e apontar os nameservers para outro é comum.
+- **Errada quando:** DNS do registrador sem API quando a automação é requisito.
+- **Referência:** `references/dns-hosting.md`
+
+### Alta disponibilidade e roteamento por DNS
+- **Perguntas:** (1) Se o servidor principal cair, quanto tempo o sistema pode ficar fora? (2) Os usuários estão em mais de um país ou região? (3) Quer liberar a versão nova para uma parte dos usuários primeiro?
+- **Opções:** A) Simple: um recurso, sem lógica. B) Failover: primário e reserva, com health check. C) Weighted (dividir tráfego para teste) ou latency-based (várias regiões).
+- **Padrão:** Simple até precisar de mais. Failover sempre com health check. Geolocation (de onde vem a consulta), latency-based (que região responde mais rápido) e geoproximity (distância com ajuste) são coisas diferentes. Multivalue não substitui balanceador.
+- **Errada quando:** failover sem health check (não troca quando precisa); confundir geolocation com latência.
+- **Referência:** `references/dns-hosting.md` §8 e §9
+
+### Certificado SSL/TLS
+- **Perguntas:** (1) Onde fica o site ou a API: Vercel, VPS, AWS, atrás da Cloudflare? (2) Há exigência de compliance que peça certificado pago (EV)? (3) Quem renova quando expirar?
+- **Opções:** A) Let's Encrypt: grátis, vale 90 dias, renova sozinho pelo certbot. B) O do provedor: Cloudflare SSL ou AWS ACM. C) Certificado pago.
+- **Padrão:** HTTPS sempre. B se já usa Cloudflare ou AWS; A em VPS, com a renovação automática configurada; C só por compliance.
+- **Errada quando:** renovação manual (expira num feriado); certificado pago "por segurança", sem exigência.
+- **Referência:** `references/dns-hosting.md` (seção SSL/TLS)
+
+### Compute na AWS
+- **Perguntas:** (1) É uma função pontual (webhook, evento) ou uma aplicação que roda o tempo todo? (2) Alguém vai administrar o servidor (atualizar o sistema operacional)? (3) A aplicação conversa muito com o banco?
+- **Opções:** A) Lambda: serverless, paga por uso. B) EC2: máquina virtual, controle total. C) ECS Fargate ou App Runner: container gerenciado.
+- **Padrão:** função pontual: Lambda. Aplicação com uso intenso de banco: servidor (EC2) ou container gerenciado. Quem não quer cuidar de sistema operacional: C.
+- **Errada quando:** Lambda para API com banco em uso intenso; EC2 sem ninguém para manter.
+- **Referência:** `references/dns-hosting.md` (seção AWS)
+
+### Como fazer o deploy
+- **Perguntas:** (1) Em que vai rodar: VPS com Node, containers ou PaaS? (2) O ambiente na sua máquina precisa ser igual ao de produção? (3) Sobe mais de uma peça junto (app, banco, fila)?
+- **Opções:** A) PM2 numa VPS (modo cluster e reload sem queda). B) Docker, com `docker-compose` para várias peças. C) Orquestração (Kubernetes), ou deixar a PaaS cuidar.
+- **Padrão:** Node simples em VPS: PM2. Ambiente reproduzível: Docker. Vários containers: Compose; Kubernetes só com escala. CI/CD com GitHub Actions (build, teste, deploy). Container nunca roda como root.
+- **Errada quando:** Kubernetes sem justificativa; container como root (escapar do container vira root no servidor); deploy manual por SSH sem script.
+- **Referência:** `references/deployment-patterns.md`
+
+### Deploy sem derrubar o app
+- **Perguntas:** (1) Quanto tempo fora do ar é aceitável num deploy: zero, segundos, minutos? (2) Se a versão nova quebrar, em quanto tempo precisa voltar à anterior? (3) Quantas instâncias rodam hoje?
+- **Opções:** A) Reiniciar, aceitando uma queda curta. B) Rolling update: sobe a nova, confere o health check, desliga a antiga. C) Blue-green: ambiente paralelo, troca o tráfego, e voltar é inverter a troca.
+- **Padrão:** todo deploy nasce reversível. B com 2 ou mais instâncias, ou `pm2 reload`. C quando voltar precisa ser instantâneo: valide o ambiente novo com health check na porta privada antes de trocar.
+- **Errada quando:** deploy sem plano de volta ("configuro o rollback quando precisar" acontece no meio do incidente); blue-green sem health check antes da troca.
+- **Referência:** `references/deployment-patterns.md` (Blue-Green Deploy)
+
+### Health check e prontidão
+- **Perguntas:** (1) Do que o serviço depende para funcionar (banco, cache, API externa)? (2) Se uma dependência cair, o serviço deve sair do ar ou seguir parcial? (3) Quem consulta o health check: balanceador, orquestrador, monitor?
+- **Opções:** A) Só liveness (`/health`: o processo está vivo?). B) Liveness mais readiness (`/health/ready`, que confere as dependências e responde 503 quando não está pronto). C) B mais degradação graciosa: o serviço segue com capacidade reduzida.
+- **Padrão:** todo serviço de produção tem health check. B quando há balanceador ou orquestrador: dependências entram no readiness, não no liveness. Sob carga, o health check é a requisição mais prioritária; nunca o descarte.
+- **Errada quando:** sem health check (o balanceador manda tráfego para instância morta, e o deploy sem queda não funciona).
+- **Referência:** `references/deployment-patterns.md`; padrões de serviço em `/anti-vibe-coding:defensive-patterns`
+
+### Segredos e variáveis de ambiente em produção
+- **Perguntas:** (1) Onde ficam hoje as chaves de produção (código, `docker-compose.yml`, painel do provedor)? (2) Quem tem acesso a elas? (3) Se faltar uma variável, o app falha na hora com mensagem clara ou só depois?
+- **Opções:** A) `.env` fora do repositório, com `.env.example` commitado. B) Variáveis no painel do provedor (Vercel, Railway). C) Gerenciador de segredos (AWS Secrets Manager, Vault).
+- **Padrão:** nada no código, nada no `docker-compose.yml`. `.env.example` commitado. Variáveis validadas na subida (falha rápido se faltar). B ou C em produção.
+- **Errada quando:** segredo no compose "por enquanto" (vira permanente e vaza no git); app que sobe sem a variável e quebra depois, no meio de uma requisição.
+- **Referência:** `references/deployment-patterns.md` §5
+
+## Antes de declarar pronto
+
+Antes de dar uma tarefa de infraestrutura como concluída:
+
+- [ ] Health check em todos os serviços (liveness, e readiness onde houver balanceador ou orquestrador).
+- [ ] SSL com renovação automática configurada (timer do certbot, ACM ou Cloudflare).
+- [ ] Segredos num gerenciador ou em `.env` fora do repositório; nada escrito no código.
+- [ ] Caminho de volta (rollback) definido e testado.
+- [ ] Deploy sem queda (rolling, blue-green ou `pm2 reload`), não reinício com janela fora do ar.
+- [ ] Variáveis de ambiente validadas na subida (falha rápido se faltarem).
+
+## Registro
+
+Depois que o usuário escolher, registre numa destas duas:
+
+- **Há uma feature em andamento** (`docs/exec-plans/active/<pasta>/DESIGN.md`; se houver mais de uma, pergunte qual): acrescente uma linha na tabela `## Decisões` — `| N | decisão | opções | escolha | por quê |`. Escreva o "por quê" com as respostas do usuário.
+- **A decisão vale para o projeto inteiro** (onde hospedar, provedor de DNS, estratégia de deploy) **ou não há feature em andamento:** crie um ADR com `/anti-vibe-coding:decision-registry`.
+
+## Regras do consultor
+
+1. Tecnologia chata primeiro: prove que a solução simples não funciona antes de adotar complexidade.
+2. Custo importa: uma VPS barata resolve a maioria dos casos de quem está começando.
+3. Questione a escala antecipada: "precisa de Kubernetes?" vem depois de "quantas requisições por segundo existem hoje?".
+4. Nuvem não é obrigatória: VPS com PM2 ou Docker resolve problemas reais por uma fração do custo.
+5. Serverless tem limite: não serve para API completa com banco de dados.
+
+$ARGUMENTS

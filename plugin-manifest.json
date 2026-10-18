@@ -1,13 +1,13 @@
 {
   "version": "7.9.0",
-  "generatedAt": "2026-10-18T20:58:24.896Z",
+  "generatedAt": "2026-10-18T21:10:23.775Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "api-design": {
       "path": "skills/api-design/",
       "version": "7.9.0",
       "introduced": "v7.9.0",
-      "description": "API design consultation. Use when the user asks about interface stability and versioning, the N+1 problem, idempotency, DTOs, webhooks vs WebSockets vs SSE, SQL vs NoSQL, API concurrency, protocol choice (REST, gRPC, AMQP), GraphQL, or REST URL design (pagination, status codes)."
+      "description": "Roteiro de decisão de API: faz até 3 perguntas que só o usuário sabe, mostra 2 ou 3 opções com prós, contras e custo, recomenda e registra a escolha. Use ao decidir estabilidade e versionamento de contrato, problema N+1, idempotência, DTOs, webhooks vs WebSockets vs SSE, SQL vs NoSQL, concorrência na API, protocolo (REST, gRPC, AMQP), GraphQL, ou URLs, paginação e status codes."
     },
     "architecture": {
       "path": "skills/architecture/",
@@ -85,7 +85,7 @@
       "path": "skills/infrastructure/",
       "version": "7.9.0",
       "introduced": "v7.9.0",
-      "description": "Infrastructure and deployment consultation. Use when the user asks about DNS and domain setup, SSL/TLS certificates, hosting choice, AWS essentials, or deployment patterns — by concept or by name (Route 53, CloudFront, S3, Docker, Kubernetes, PM2, Let's Encrypt, blue-green, CI/CD)."
+      "description": "Roteiro de decisão de infraestrutura e deploy: faz até 3 perguntas que só o usuário sabe, mostra 2 ou 3 opções com prós, contras e custo, recomenda e registra a escolha. Use ao decidir hospedagem, domínio e DNS, certificado SSL/TLS, compute na AWS, como fazer o deploy, deploy sem derrubar o app, health check ou segredos de produção — por conceito ou por nome (Route 53, CloudFront, S3, Docker, Kubernetes, PM2, Let's Encrypt, blue-green, CI/CD)."
     },
     "init": {
       "path": "skills/init/",
@@ -475,7 +475,7 @@
     },
     "skills/api-design/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "1d28d63b822aba92c3b21857ce70253d9818a3fcc80c1da0473dc44dcfd7783b",
+      "checksum": "16ad9dc2dfcc803de48d22f7de27c29c5ed457ed864913d53cb36bb324ccc2da",
       "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
@@ -513,6 +513,12 @@
       "version": "7.9.0",
       "checksum": "413e26e5958f6f7b60a5817d345513ee07de4e2ee3c6f501d0ca34cefbdf30b6",
       "lastModified": "2026-03-22",
+      "updateStrategy": "replace"
+    },
+    "skills/api-design/references/guia-completo.md": {
+      "version": "7.9.0",
+      "checksum": "ba1056a2bb3941452fd730d3dd721119b2c8b7d83ea8f160c783a27ed010160f",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/api-design/references/idempotency.md": {
@@ -763,8 +769,8 @@
     },
     "skills/infrastructure/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "7b3817dc916f4f212dbe7ac9b522a25ec39e2df34f549d6584068eeca45e7398",
-      "lastModified": "2026-08-13",
+      "checksum": "27ed8534d3dff9a5e5b30de635cc2065c0e9c9604da5be56b6af31b7e321a78a",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/infrastructure/references/deployment-patterns.md": {
@@ -777,6 +783,12 @@
       "version": "7.9.0",
       "checksum": "6871586d7d42fe203bf2c3605cdc6e8511a31785bd10e92dc21bf35d57e65419",
       "lastModified": "2026-06-17",
+      "updateStrategy": "replace"
+    },
+    "skills/infrastructure/references/guia-completo.md": {
+      "version": "7.9.0",
+      "checksum": "cbd743b7fff10bbcc5ee6b10f61b6e790726db2c7565fc6e7db6abb8c0e22fe3",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/init/SKILL.md": {

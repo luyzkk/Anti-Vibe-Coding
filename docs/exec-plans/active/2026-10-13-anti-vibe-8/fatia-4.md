@@ -13,6 +13,7 @@ saíram da entrevista de 2026-10-18 e aplicam a D4.
 | F4-4 | Entram nesta fatia os guias de system design, segurança e arquitetura. API e infraestrutura seguem o mesmo molde depois, se couber no apetite. |
 | F4-5 | As 4 fases da limpeza rodam em sequência, um commit por fase com a suíte verde, e param no fim para o usuário ver tudo. Cada guia para para aprovação. |
 | F4-6 | Correção de uma perda da fatia 3: qualquer um dos seis gatilhos de risco obriga o desenho com o mapa de ameaças e ao menos um caso de abuso por gatilho, sem poder recusar, como na RF-04 de 2026-09-01. Na fatia 3 isso valia só no nível dinheiro, saúde ou dados, e os gatilhos de entrada externa, upload e terceiro ficavam com o mapa opcional. O nível de risco decide só a aprovação dos cenários antes do código e a explicação de volta. Aprovada pelo usuário em 2026-10-18. |
+| F4-7 | Os guias de API e de infraestrutura entram nesta fatia, no mesmo molde dos outros três (escolha do usuário em 2026-10-18). Infraestrutura mantém a conferência antes de declarar pronto e a oferta do `/wizard` para o passo que só o humano faz; API registra como ADR toda mudança de contrato que afeta consumidores (Lei de Hyrum). |
 
 ## Fases
 
