@@ -1,6 +1,6 @@
 {
   "version": "7.9.0",
-  "generatedAt": "2026-10-18T16:53:17.176Z",
+  "generatedAt": "2026-10-18T17:01:13.777Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "api-design": {
@@ -451,8 +451,8 @@
     },
     "scripts/harness-validate.ts": {
       "version": "7.9.0",
-      "checksum": "ef9a1d868583de66a50c41f6e8bd49da387d318c1a12c7f0fe2cc5d188ff546e",
-      "lastModified": "2026-10-09",
+      "checksum": "48261b0302607f7680a7ea1abeee13c859d9a95429af0f2a7d8b07d7ab6751a0",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "scripts/init-cli.ts": {
@@ -465,12 +465,6 @@
       "version": "7.9.0",
       "checksum": "317a2d8171796ff8439c094c822e8d478d9d1830ceac3cc268785d11ab80930e",
       "lastModified": "2026-05-13",
-      "updateStrategy": "replace"
-    },
-    "scripts/preface-simulate.ts": {
-      "version": "7.9.0",
-      "checksum": "1eb95c2614dd80de919f7d5bc31c80dad687c60e2820534fa1dbdb07bff0d8ab",
-      "lastModified": "2026-05-15",
       "updateStrategy": "replace"
     },
     "scripts/run-tests.ts": {
@@ -1841,12 +1835,6 @@
       "lastModified": "2026-06-06",
       "updateStrategy": "replace"
     },
-    "skills/lib/feature-flags.ts": {
-      "version": "7.9.0",
-      "checksum": "80f7d09238a25c2eb59a9abcd2803036bdb9ee0b93ee80279515081345770a33",
-      "lastModified": "2026-05-09",
-      "updateStrategy": "replace"
-    },
     "skills/lib/hooks-merge-utils.md": {
       "version": "7.9.0",
       "checksum": "f36a4074ffadc6c2c952d71d66aff140d51fa04d59e7cc7e81d5f270978ea48c",
@@ -1883,18 +1871,6 @@
       "lastModified": "2026-10-14",
       "updateStrategy": "replace"
     },
-    "skills/lib/manifest-schema.ts": {
-      "version": "7.9.0",
-      "checksum": "b709fe9d6610fa83ee8bb4194a6c0ba6998354f7cde679e06810cf4187da58cc",
-      "lastModified": "2026-05-09",
-      "updateStrategy": "replace"
-    },
-    "skills/lib/manifest-types.ts": {
-      "version": "7.9.0",
-      "checksum": "31b6e5e14393c1cabccbef29873141c6939647e39ded609d32f43bb82c8e175d",
-      "lastModified": "2026-05-09",
-      "updateStrategy": "replace"
-    },
     "skills/lib/manifest-utils.md": {
       "version": "7.9.0",
       "checksum": "2d0007f9f0fef9c09404ca79098c93d0dbdc3be649e7e3631feebc3896226dde",
@@ -1911,18 +1887,6 @@
       "version": "7.9.0",
       "checksum": "a57c0d73d45f40082bc27d4b308f32127f7f519311bd192b0b2633e44b03c4a3",
       "lastModified": "2026-05-12",
-      "updateStrategy": "replace"
-    },
-    "skills/lib/preface-context.ts": {
-      "version": "7.9.0",
-      "checksum": "4df37024dadc32bd67deafef964f32499e45b60f0cb6007617e3c20a7c724e36",
-      "lastModified": "2026-05-17",
-      "updateStrategy": "replace"
-    },
-    "skills/lib/read-architecture-profile.ts": {
-      "version": "7.9.0",
-      "checksum": "cf5f2ea077e8e2512307b4f55ebd91cb08fccb5151897896489e0717e0aa9be1",
-      "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/lib/stale-detector.ts": {
@@ -1981,8 +1945,8 @@
     },
     "skills/lib/tool-registry-inspector.ts": {
       "version": "7.9.0",
-      "checksum": "fe31f726f415815e72821572b45cc5d8776d0d39670a116bd42a189094129de5",
-      "lastModified": "2026-05-16",
+      "checksum": "febb9433758dd4de5f0785da08b2750eaa7a7ec5f449fe31be64655203c6ee78",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/plan-feature/SKILL.md": {

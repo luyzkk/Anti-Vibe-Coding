@@ -1,7 +1,7 @@
 // skills/architecture/__tests__/stack-aware-preface-wire.test.ts
 // 2026-05-16 (Luiz/dev): RED phase — Plano 03 fase-02, CA-05 + CA-09 wire architecture.
 // G1 do plano: bloco verbatim (delega ao helper getStackKnowledgePreface). G4: insertion-only diff.
-// Architecture tem profile-aware-preface mas NAO tem stale-capabilities-check — anchor batch 1 style sem stale.
+// Architecture NAO tem stale-capabilities-check — anchor batch 1 style sem stale.
 import { describe, it, expect } from 'bun:test'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'

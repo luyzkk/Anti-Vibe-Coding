@@ -24,3 +24,24 @@ describe('o pipeline nao le mais o perfil de arquitetura (F4-3)', () => {
     expect(read('skills/plan-feature/templates/plan-readme-template.md')).not.toContain('fase-policy-block')
   })
 })
+
+describe('o leitor do perfil saiu junto (F4-3)', () => {
+  test.each([
+    'skills/lib/read-architecture-profile.ts',
+    'skills/lib/preface-context.ts',
+    'skills/lib/feature-flags.ts',
+    'skills/lib/manifest-types.ts',
+    'skills/lib/manifest-schema.ts',
+    'scripts/preface-simulate.ts',
+  ])('%s nao existe mais', (rel) => {
+    expect(fs.existsSync(path.join(ROOT, rel))).toBe(false)
+  })
+
+  test('o harness nao checa mais o bloco de perfil', () => {
+    expect(read('scripts/harness-validate.ts')).not.toContain('profile-aware-preface')
+  })
+
+  test('o package.json nao tem mais o simulador de perfil', () => {
+    expect(read('package.json')).not.toContain('preface:simulate')
+  })
+})

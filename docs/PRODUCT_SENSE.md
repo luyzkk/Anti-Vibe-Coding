@@ -17,4 +17,4 @@ A Claude Code plugin that enforces:
 
 - Replace human judgment
 - Block experimentation (hooks are suggestive by default)
-- Force one architecture (`/detect-architecture` adapts)
+- Force one architecture (the decision guides ask about the project before recommending)
