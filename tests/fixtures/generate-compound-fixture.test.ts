@@ -75,8 +75,10 @@ describe('generate-compound-fixture', () => {
   it('creates exactly 100 compound notes in docs/compound/', async () => {
     const compoundDir = path.join(FIXTURE_DIR, 'docs/compound')
     const entries = await fs.readdir(compoundDir)
-    const notes = entries.filter((e) => e.endsWith('.md') && e !== 'README.md')
+    // 2026-10-18 (Luiz/dev): 8.0 fatia 5 — o INDEX.md e o indice das licoes, nao uma licao.
+    const notes = entries.filter((e) => e.endsWith('.md') && e !== 'README.md' && e !== 'INDEX.md')
     expect(notes.length).toBe(100)
+    expect(entries).toContain('INDEX.md')
   }, 5_000)
 
   it('creates exactly 20 active plans with pending tasks (not orphans)', async () => {
@@ -97,7 +99,9 @@ describe('generate-compound-fixture', () => {
     expect(result2.code).toBe(0)
     const compoundDir = path.join(FIXTURE_DIR, 'docs/compound')
     const entries = await fs.readdir(compoundDir)
-    const notes = entries.filter((e) => e.endsWith('.md') && e !== 'README.md')
+    // 2026-10-18 (Luiz/dev): 8.0 fatia 5 — o INDEX.md e o indice das licoes, nao uma licao.
+    const notes = entries.filter((e) => e.endsWith('.md') && e !== 'README.md' && e !== 'INDEX.md')
     expect(notes.length).toBe(100)
+    expect(entries).toContain('INDEX.md')
   }, 30_000)
 })

@@ -4,6 +4,13 @@ Use this directory for durable lessons that should influence future work. Prefer
 
 Compound notes use Markdown with YAML frontmatter so humans and agents can search by title, category, tag, and creation date.
 
+## Index
+
+`INDEX.md` lists one line per lesson (title, tags and path), newest first. Claude reads the index to find
+the lesson that applies to the work, and only then opens the file. It is generated from the notes with
+`bun run compound:index`; do not edit it by hand, because `compound:check` fails when the index diverges
+from the notes.
+
 ## Note Template
 
 ```md

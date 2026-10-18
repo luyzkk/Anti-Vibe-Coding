@@ -10,9 +10,10 @@ const SCRIPT_SRC = path.join(
   'skills/init/assets/templates/scripts/compound-check.ts.tpl',
 )
 
-async function runScript(cwd: string): Promise<{ code: number; stderr: string; stdout: string }> {
+// 2026-10-18 (Luiz/dev): 8.0 fatia 5 — com licoes, o check exige o indice; os testes de sucesso geram antes.
+async function runScript(cwd: string, args: string[] = []): Promise<{ code: number; stderr: string; stdout: string }> {
   return new Promise((resolve) => {
-    const proc = spawn('bun', ['run', path.join(cwd, 'scripts/compound-check.ts')], { cwd })
+    const proc = spawn('bun', ['run', path.join(cwd, 'scripts/compound-check.ts'), ...args], { cwd })
     let stdout = ''; let stderr = ''
     proc.stdout.on('data', (d) => { stdout += d.toString() })
     proc.stderr.on('data', (d) => { stderr += d.toString() })
@@ -52,6 +53,7 @@ describe('compound-check (fase-02 with frontmatter + sections)', () => {
 
   it('exits 0 for valid compound note', async () => {
     await fs.writeFile(path.join(FIXTURE, 'docs/compound/2026-05-12-x.md'), VALID_NOTE, 'utf8')
+    await runScript(FIXTURE, ['--write-index'])
     const r = await runScript(FIXTURE)
     expect(r.code).toBe(0)
     expect(r.stdout).toContain('1 compound notes validated')

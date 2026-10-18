@@ -5,7 +5,7 @@
 
 ## Resources
 
-- **Compound notes:** 51 (in `docs/compound/`)
+- **Compound notes:** ver `docs/compound/INDEX.md` (gerado por `bun run compound:index`)
 - **ADRs:** 5 (in `docs/design-docs/`)
 - **Active plans:** 6 (in `docs/exec-plans/active/`)
 - **Completed plans:** 32 (in `docs/exec-plans/completed/`)

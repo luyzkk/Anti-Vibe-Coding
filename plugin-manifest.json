@@ -1,6 +1,6 @@
 {
   "version": "7.9.0",
-  "generatedAt": "2026-10-18T22:22:03.397Z",
+  "generatedAt": "2026-10-18T22:32:29.695Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "api-design": {
@@ -427,8 +427,8 @@
     },
     "scripts/compound-check.ts": {
       "version": "7.9.0",
-      "checksum": "7dc8d78e715a1d8ea8fef3b9d0e304bafc425f4938200852b7931d5a226ffd54",
-      "lastModified": "2026-05-13",
+      "checksum": "14947a1c534a80328c9ed01ebcbffd04f7b8d90fc9d135b02a120e338b453740",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "scripts/generate-manifest.js": {
@@ -1525,8 +1525,8 @@
     },
     "skills/init/assets/templates/docs/compound/README.md.tpl": {
       "version": "7.9.0",
-      "checksum": "2039c05b31a40d44d17140fb05f2be73a613f93e6e976c1d25ae22cb26e728be",
-      "lastModified": "2026-05-24",
+      "checksum": "486a1da84fa5f291123b86e1d16cf15bea7bc5c7dc14672e00a5c16fa4304534",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/docs/COMPOUND_ENGINEERING.md.tpl": {
@@ -1699,8 +1699,8 @@
     },
     "skills/init/assets/templates/package.json.tpl": {
       "version": "7.9.0",
-      "checksum": "57e5535b60653841f4eb018fcbc2509bc7a8dbc1fb23acaf60eec300d162d7f3",
-      "lastModified": "2026-10-14",
+      "checksum": "b949f346d37046e17ada1a2cdd2974b6ac7c7b5a73c102a69b1b5853b9b30653",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/README.md": {
@@ -1717,8 +1717,8 @@
     },
     "skills/init/assets/templates/scripts/compound-check.ts.tpl": {
       "version": "7.9.0",
-      "checksum": "53c5bf98cb3bf95fb6ac61443844ec113ef2fba0ed356c567a2e9008f12a0581",
-      "lastModified": "2026-10-14",
+      "checksum": "6d6f0f234ed881b61dae06702acc0a3617384c7638887d4e8344e83ccc9fe506",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/scripts/harness-validate.ts.tpl": {
@@ -1741,7 +1741,7 @@
     },
     "skills/lessons-learned/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "3b40ccdfc2f87b6d6c8f04a7605aeec6872cb9ce8bd80d77399d816861fce4a5",
+      "checksum": "62aa8a5aa4028264c31b5f7efabfe064ab7ca3531e9de37d4a712d3c86d65b79",
       "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },

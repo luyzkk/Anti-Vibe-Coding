@@ -36,3 +36,27 @@ describe('as pecas de memoria que nunca rodavam sairam (F5-6)', () => {
     expect(read('skills/init/assets/templates/docs/STATE.md.tpl')).not.toMatch(/in future|by hooks/i)
   })
 })
+
+describe('o indice das licoes existe e e mantido por script (F5-1, F5-2)', () => {
+  test.each(['package.json', 'skills/init/assets/templates/package.json.tpl'])('%s tem o comando compound:index', (rel) => {
+    expect(read(rel)).toMatch(/"compound:index":\s*"[^"]*--write-index"/)
+  })
+
+  test('o /lessons-learned roda o indice depois de gravar a licao', () => {
+    const captura = read('skills/lessons-learned/SKILL.md').split('## Fluxo de Captura (v6)')[1] ?? ''
+    expect(captura).toContain('compound:index')
+  })
+
+  test.each(['docs/compound/README.md', 'skills/init/assets/templates/docs/compound/README.md.tpl'])(
+    '%s explica o indice e o comando que o gera',
+    (rel) => {
+      const body = read(rel)
+      expect(body).toContain('INDEX.md')
+      expect(body).toContain('compound:index')
+    },
+  )
+
+  test('este repositorio tem o indice gerado', () => {
+    expect(exists('docs/compound/INDEX.md')).toBe(true)
+  })
+})

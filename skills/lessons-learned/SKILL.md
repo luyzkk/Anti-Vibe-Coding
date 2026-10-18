@@ -191,6 +191,9 @@ Se falhar em qualquer um, a licao fica apenas nas lessons do projeto.
      - Escreve em docs/compound/YYYY-MM-DD-{slug}.md
      - Frontmatter: title, category (default 'general'), tags (>=1), created (today)
      - Secoes: ## Problem, ## Solution, ## Prevention
+     - Depois de gravar, rodar `bun run compound:index`: o indice (docs/compound/INDEX.md) e gerado
+       a partir das licoes, e o `compound:check` falha se ele ficar desatualizado. Projeto sem o comando
+       (script anterior a 8.0): avisar o usuario que o `/anti-vibe-coding:update` traz o script novo.
 3. Se layout === 'v5' ou 'cru':
      - Appenda em lessons-learned.md (formato legado)
      - Injeta tip de migracao uma vez (idempotente)

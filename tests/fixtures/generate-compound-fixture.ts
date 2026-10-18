@@ -47,9 +47,23 @@ async function main(): Promise<void> {
     await writeAdr(i)
   }
 
+  // 2026-10-18 (Luiz/dev): 8.0 fatia 5 — com licoes, o compound-check exige o indice. O fixture o gera
+  // com o proprio script copiado, como um projeto real faria (`bun run compound:index`).
+  await writeCompoundIndex()
+
   console.log(
     `Fixture generated at ${targetDir}: ${COUNT_COMPOUND} compound notes, ${COUNT_ACTIVE_PLANS} active plans, ${COUNT_ADRS} ADRs.`,
   )
+}
+
+async function writeCompoundIndex(): Promise<void> {
+  const proc = Bun.spawn(['bun', 'run', path.join(targetDir, 'scripts/compound-check.ts'), '--write-index'], {
+    cwd: targetDir,
+    stdout: 'ignore',
+    stderr: 'inherit',
+  })
+  const code = await proc.exited
+  if (code !== 0) throw new Error(`compound-check --write-index exited ${code}`)
 }
 
 async function ensureDir(p: string): Promise<void> {
