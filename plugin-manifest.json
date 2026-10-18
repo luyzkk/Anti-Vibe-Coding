@@ -1,6 +1,6 @@
 {
   "version": "7.9.0",
-  "generatedAt": "2026-10-18T16:46:17.542Z",
+  "generatedAt": "2026-10-18T16:53:17.176Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "api-design": {
@@ -715,8 +715,8 @@
     },
     "skills/execute-plan/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "a23751d0bd3cf8e5b7ed860699bbcfcb9d1d4094c89c097b0f710a3122d124c5",
-      "lastModified": "2026-10-14",
+      "checksum": "7ac188c760caf24421005c798d2262073385ece4b17ce817d77a07ca42cc6098",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/execute-plan/index.ts": {
@@ -1987,8 +1987,8 @@
     },
     "skills/plan-feature/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "e86e9acab3314131ee78ca4452f5677d966e15a3d5ffd6c38c783e347e5102a2",
-      "lastModified": "2026-10-14",
+      "checksum": "14befc118852015d916772d797bfdc558dbddbba776134caa3a0f96115e8b744",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/plan-feature/index.ts": {
@@ -2023,8 +2023,8 @@
     },
     "skills/plan-feature/templates/plan-readme-template.md": {
       "version": "7.9.0",
-      "checksum": "1154b7e616841aa56dfc133085a9a727ab5c6facd4f79605ef026b56f8d04e63",
-      "lastModified": "2026-09-09",
+      "checksum": "511e963bd167b01b955f34186d0663b1ba3afa70be09fe3d470a89bfc5e9de26",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/plan-feature/templates/plan-template.md": {
@@ -2037,12 +2037,6 @@
       "version": "7.9.0",
       "checksum": "76b081d6dcebd53a9170d8c1ae4be0f9634756ff7a84c6dd9ec0a2fcc29e9d99",
       "lastModified": "2026-10-14",
-      "updateStrategy": "replace"
-    },
-    "skills/plan-feature/lib/fase-policy.ts": {
-      "version": "7.9.0",
-      "checksum": "97591357b9a706a713073e883be25ba6f35e0724ec81597b14381b8e3086b14a",
-      "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/qa-visual/SKILL.md": {
@@ -2329,14 +2323,8 @@
     },
     "skills/verify-work/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "803d3330008907f62a9d1599cd094b1131f6db576ad3a7dc5046e125096b6c48",
-      "lastModified": "2026-10-14",
-      "updateStrategy": "replace"
-    },
-    "skills/verify-work/lib/adherence-checks.ts": {
-      "version": "7.9.0",
-      "checksum": "0a8a34b20ad75a5ab9b2514ebb4587faef9d26ca7c3f2abb44dd700aca650211",
-      "lastModified": "2026-05-09",
+      "checksum": "f4e3cba27dcf3200ec5189b696e9d2eaf6116b76675639cbd82defc57d497e1f",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/verify-work/lib/audit-consolidator.ts": {
@@ -2359,26 +2347,20 @@
     },
     "skills/write-prd/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "979805f8b083645bc240303d38649fc7d7bcc90a4a2a229e00293402fd953d3a",
-      "lastModified": "2026-10-14",
+      "checksum": "f90258e48508de6f34f0252fac630fae1f4a22403b1ba133cb97b805f61ba8bc",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/write-prd/templates/design-template.md": {
       "version": "7.9.0",
-      "checksum": "4c2b35776e1769ce12ae02101bd7289e7ca9abe61d5b799a7a79649393543136",
-      "lastModified": "2026-10-14",
+      "checksum": "177bcac92d5e95c821bfe36ed08cdd9ab89dabbd0180e6cd140f7988b133a468",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/write-prd/templates/prd-template.md": {
       "version": "7.9.0",
       "checksum": "4f3fe3e4763f1013055421d6dd6f0a3e679396b58ec76ab0c3f71045ecb0b400",
       "lastModified": "2026-10-14",
-      "updateStrategy": "replace"
-    },
-    "skills/write-prd/lib/structure-snippets.ts": {
-      "version": "7.9.0",
-      "checksum": "bdf29b815b83daadfdda53fcc8e79169e3027e85c8d955c0157a264c6dd1110a",
-      "lastModified": "2026-05-09",
       "updateStrategy": "replace"
     },
     "skills/_shared/legacy-manifest-schema.ts": {

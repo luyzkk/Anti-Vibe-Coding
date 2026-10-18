@@ -22,8 +22,6 @@ que falta configurar.}
 {O fluxo passo a passo, alinhado à stack e aos padrões do projeto. Se veio do /design-twice:
 "Baseado na Proposta {letra} — {filosofia}".}
 
-{- structure-snippet -}
-
 ## Decisões
 
 <!-- Só decisões com alternativa real. O usuário vê as opções com prós e contras em português simples. -->

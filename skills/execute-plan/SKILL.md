@@ -7,28 +7,6 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Agent, AskUserQuestion
 argument-hint: "[caminho do PLAN.md ou nome da feature] [--plano N] [--fase N] [--tdd-level guiado|assistido|direto]"
 ---
 
-```typescript
-// === Perfil arquitetural (Plano 04 fase-05) — leitura UMA vez ===
-// Reutiliza FASE_POLICY_BY_PROFILE da fase-03 via cross-skill import (sem duplicar lookup).
-// G1: UMA leitura, UMA resolucao, zero branching profundo.
-// G2: readArchitectureProfile() retorna null se flag=false → policy = FASE_POLICY_V52 (CA-04).
-
-import { readArchitectureProfile, getRecommendationForProfile } from '../lib/read-architecture-profile'
-import { FASE_POLICY_BY_PROFILE, FASE_POLICY_V52, renderFasePolicyBlock } from '../plan-feature/lib/fase-policy'
-
-const __profile = readArchitectureProfile()
-
-const __fasePolicy = getRecommendationForProfile(
-  __profile?.profile ?? null,
-  FASE_POLICY_BY_PROFILE,
-  FASE_POLICY_V52,
-)
-
-const __fasePolicyBlock = renderFasePolicyBlock(__fasePolicy)
-// Inject ${__fasePolicyBlock} into the orchestrator prompt as guideline for mid-flight phase subdivision.
-// === Fim do bloco de perfil ===
-```
-
 # Execute Plan — Execucao Hierarquica com Memoria
 
 Skill de execucao. Navega planos hierarquicos (gerados por /plan-feature), executa fase por fase com subagentes isolados, aplica TDD obrigatorio, e mantém memoria viva por plano.

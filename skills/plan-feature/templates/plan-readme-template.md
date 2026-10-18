@@ -60,8 +60,6 @@ fase-02 ({nome})     fase-03 ({nome})
 
 ---
 
-{- fase-policy-block: se modo dual ativo (architectureDetectorEnabled=true e profile detectado), injetar aqui o resultado de renderFasePolicyBlock(policy). Se profile null, omitir esta secao inteira. -}
-
 ## TDD Strategy
 
 Ciclo por fase: `skills/tdd-workflow/SKILL.md`, secao **Contrato do Ciclo por Fase** (tipo da fase ×

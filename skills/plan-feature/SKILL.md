@@ -7,29 +7,6 @@ allowed-tools: Read, Grep, Glob, Write, Agent, AskUserQuestion
 argument-hint: "[caminho do PRD ou nome da feature] [--fatia N]"
 ---
 
-```typescript
-// === Modo dual: leitura de perfil arquitetural (Plano 04 fase-03) ===
-// G1: leitura UMA vez, resolucao via lookup — sem branching profundo
-// G2: profile null → FASE_POLICY_V52 → comportamento v5.2 preservado (CA-04)
-
-import { readArchitectureProfile, getRecommendationForProfile } from '../lib/read-architecture-profile'
-import { FASE_POLICY_BY_PROFILE, FASE_POLICY_V52, renderFasePolicyBlock } from './lib/fase-policy'
-
-// 1. UMA leitura
-const __profile = readArchitectureProfile()
-
-// 2. UMA resolucao via lookup
-const __fasePolicy = getRecommendationForProfile(
-  __profile?.profile ?? null,
-  FASE_POLICY_BY_PROFILE,
-  FASE_POLICY_V52,
-)
-
-// 3. Bloco markdown pronto para injecao no prompt do orchestrador
-const fasePolicyBlock = renderFasePolicyBlock(__fasePolicy)
-// === Fim do bloco de modo dual ===
-```
-
 # Plan Feature — Planejamento Hierarquico de Execucao
 
 Skill de planejamento. Converte a pagina da feature em plano executavel com estrutura hierarquica:
@@ -57,20 +34,6 @@ docs/exec-plans/active/
     │   └── fase-02-{nome}.md
     │
     └── plano02/ ...
-```
-
-```typescript
-// === Injecao do bloco de politica de fases (perfil-aware) ===
-// fasePolicyBlock foi resolvido no bloco de modo dual acima.
-// Incluir no contexto de cada subagente do Step 9 (spawn de planejamento de plano):
-//
-//   RECEBE (adicionar ao prompt do subagente):
-//   - Bloco de politica de fases:
-//     ${fasePolicyBlock}
-//
-// Se profile for null (flag desligada ou manifest ausente), fasePolicyBlock contera
-// a politica v5.2 (FASE_POLICY_V52) — comportamento identico ao anterior (CA-04).
-// === Fim da injecao ===
 ```
 
 ---

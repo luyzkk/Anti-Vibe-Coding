@@ -7,31 +7,6 @@ allowed-tools: Read, Grep, Glob, Write, AskUserQuestion
 argument-hint: "[descricao da feature ou problema a especificar]"
 ---
 
-```typescript
-// === Perfil arquitetural (Plano 04 fase-04) ===
-// G1: UMA leitura + UMA resolucao via lookup. Sem branching profundo.
-// G2 / CA-04: profile null (flag off ou manifest ausente) → snippet vazio → template preserva v5.2
-
-import { readArchitectureProfile, getRecommendationForProfile } from '../lib/read-architecture-profile'
-import { STRUCTURE_SNIPPETS, STRUCTURE_SNIPPET_V52 } from './lib/structure-snippets'
-
-// 1. UMA leitura
-const __prd_profile = readArchitectureProfile()
-
-// 2. UMA resolucao via lookup
-const __prd_structureSnippet = getRecommendationForProfile(
-  __prd_profile?.profile ?? null,
-  STRUCTURE_SNIPPETS,
-  STRUCTURE_SNIPPET_V52,
-)
-
-// 3. Injecao no DESIGN.md durante o Step 3 (o marcador mora no design-template.md)
-// Ao gerar o desenho: substituir '{- structure-snippet -}' por __prd_structureSnippet
-// Se __prd_structureSnippet === '', remover o marcador sem deixar linha em branco extra
-// Sem desenho, o trecho nao entra em lugar nenhum
-// === Fim do bloco de perfil ===
-```
-
 # Write PRD — A página da feature
 
 Gera a página de uma folha da feature (`PRD.md`) e, quando o sistema pede, o documento de desenho
