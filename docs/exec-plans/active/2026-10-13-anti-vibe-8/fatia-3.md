@@ -21,8 +21,8 @@ saíram da entrevista de 2026-10-14, uma pergunta por vez.
 |---|---|---|---|
 | Quando | protótipo, teste de ideia, ninguém real depende | pessoas reais usam, mas um erro não custa dinheiro, saúde nem expõe dado pessoal | um erro cobra errado, libera acesso indevido, expõe dado pessoal ou orienta errado sobre saúde |
 | Página | problema, solução e como saber que ficou pronto | inteira | inteira |
-| Cenários | os do essencial | escritos pelo Claude, revistos junto com a página | aprovados pelo usuário antes do código, com os casos de abuso |
-| Desenho | não | quando o sistema pede | obrigatório, com o mapa de ameaças |
+| Cenários | os do essencial | escritos pelo Claude, revistos junto com a página; com ao menos um caso de abuso por gatilho disparado | aprovados pelo usuário antes do código, com os casos de abuso |
+| Desenho | não | quando o sistema pede; com o mapa de ameaças sempre que algum dos seis gatilhos disparou (corrigido na fatia 4, F4-6) | obrigatório, com o mapa de ameaças |
 | Prova | o teste de cada cenário | o teste de cada cenário | o teste de cada cenário, e a máquina quebra a defesa de propósito para ver o teste cair |
 | Explicação no fim | curta | curta | curta, e o usuário explica de volta |
 
