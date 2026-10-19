@@ -693,10 +693,15 @@ Fluxo:
    - A linha da fatia a detalhar (de `## Fatias` da pagina)
    - Se N > 1: o README e as "Notas para Planos Seguintes" do MEMORY.md dos planos anteriores —
      e para isso que a fatia esperou: as fases nascem com o que as anteriores ensinaram
+   - As lições do projeto que batem com a fatia: antes do spawn, o orchestrador lê
+     `docs/compound/INDEX.md` (uma linha por lição: título, etiquetas e caminho) e abre a lição
+     inteira só quando a linha bate com a fatia (no máximo 5). Sem o índice, segue sem lições; se a
+     pasta tiver lições sem índice, sugere `bun run compound:index`
    - Templates: plan-readme-template.md + fase-template.md + memory-template.md
      (caminhos do plugin — inalterados)
 
    NAO RECEBE:
+   - O índice inteiro nem as lições que não batem com a fatia
    - Fases detalhadas de outros planos (isolamento)
    - Conversas anteriores
 
@@ -729,7 +734,8 @@ Fluxo:
    - SQL de migrations com comentarios
    - Imports e exports esperados
    - Exemplos de chamadas de API
-3. Incluir gotchas do PRD/CONTEXT inline na fase relevante
+3. Incluir gotchas do PRD/CONTEXT inline na fase relevante, e cada lição recebida vira gotcha da fase
+   que ela afeta, com o caminho da lição (ex.: "ver docs/compound/2026-09-10-...md")
 4. Checklist de verificacao com itens especificos (nao genericos)
 5. Numerar fases sequencialmente: fase-01, fase-02, etc.
 6. Nome da fase deve ser descritivo: fase-01-tipos-migration.md, fase-02-queries-filtros.md

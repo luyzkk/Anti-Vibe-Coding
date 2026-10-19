@@ -1,6 +1,6 @@
 {
   "version": "7.9.0",
-  "generatedAt": "2026-10-18T22:32:29.695Z",
+  "generatedAt": "2026-10-19T00:12:59.603Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "api-design": {
@@ -745,8 +745,8 @@
     },
     "skills/incident-response/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "df5f252253fab8af3ba272095c35833e1f13ee56c5f0799e632321ceed86be7d",
-      "lastModified": "2026-10-14",
+      "checksum": "8238d39431455ba50db0ed2052082efcb92cce213e8553a90cdf61873a43d154",
+      "lastModified": "2026-10-19",
       "updateStrategy": "replace"
     },
     "skills/incident-response/references/feedback-loops.md": {
@@ -1927,8 +1927,8 @@
     },
     "skills/plan-feature/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "14befc118852015d916772d797bfdc558dbddbba776134caa3a0f96115e8b744",
-      "lastModified": "2026-10-18",
+      "checksum": "30fa2662b791b622fbca66ca8cea68f90d74460c231210a602f5bea9a26dbded",
+      "lastModified": "2026-10-19",
       "updateStrategy": "replace"
     },
     "skills/plan-feature/index.ts": {
@@ -2281,8 +2281,8 @@
     },
     "skills/verify-work/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "f4e3cba27dcf3200ec5189b696e9d2eaf6116b76675639cbd82defc57d497e1f",
-      "lastModified": "2026-10-18",
+      "checksum": "7845061848865fab7e89f7f3dd532338b2dcc078e8334b015b74d97ade682071",
+      "lastModified": "2026-10-19",
       "updateStrategy": "replace"
     },
     "skills/verify-work/lib/audit-consolidator.ts": {
@@ -2305,8 +2305,8 @@
     },
     "skills/write-prd/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "2064edd9aba5ae776e358f23535c220e3abf8e3e88f3e26dfc5d56ffee80ff9d",
-      "lastModified": "2026-10-18",
+      "checksum": "bfd50d707dae153df468deb557071ed77ae7f9a0a2e56c2a2d2874e6c560cc85",
+      "lastModified": "2026-10-19",
       "updateStrategy": "replace"
     },
     "skills/write-prd/templates/design-template.md": {

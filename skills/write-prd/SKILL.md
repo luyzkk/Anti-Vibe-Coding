@@ -78,6 +78,10 @@ Coletar contexto técnico automaticamente (máximo 10 chamadas de ferramentas):
    de exemplo.
 3. **Pontos de integração:** rotas, APIs, middleware, layout, navegação.
 4. **Modelos de dados relacionados:** schema do ORM e tipos com nomes ligados à feature.
+5. **Lições do projeto:** ler `docs/compound/INDEX.md` (uma linha por lição: título, etiquetas e
+   caminho) e abrir a lição inteira só quando a linha bate com a feature. Erro que já aconteceu vira
+   Cenário de teste (CA ou AB) e, se ameaça a ideia, entra na Premissa mais arriscada. Sem o índice,
+   pular este item; se a pasta tiver lições sem índice, sugerir `bun run compound:index`.
 
 Regras:
 1. Se não detectar algo, registrar como "não detectado" — NÃO chutar

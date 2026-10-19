@@ -60,3 +60,49 @@ describe('o indice das licoes existe e e mantido por script (F5-1, F5-2)', () =>
     expect(exists('docs/compound/INDEX.md')).toBe(true)
   })
 })
+
+// Corpo de uma secao ate o proximo heading de nivel igual ou acima; '' se o heading nao existe.
+function section(rel: string, heading: RegExp): string {
+  const lines = read(rel).split('\n')
+  const start = lines.findIndex((l) => heading.test(l))
+  if (start === -1) return ''
+  const level = (lines[start] ?? '').match(/^#+/)?.[0].length ?? 0
+  const out: string[] = []
+  let inFence = false
+  for (const line of lines.slice(start + 1)) {
+    if (line.startsWith('```')) inFence = !inFence
+    const m = line.match(/^(#+) /)
+    if (!inFence && m && (m[1] ?? '').length <= level) break
+    out.push(line)
+  }
+  return out.join('\n')
+}
+
+describe('o Claude consulta o indice nos quatro momentos (F5-3)', () => {
+  test.each([
+    ['write-prd, ao escrever a pagina', 'skills/write-prd/SKILL.md', /^## Step 2/],
+    ['plan-feature, ao detalhar uma fatia', 'skills/plan-feature/SKILL.md', /^## Step 9/],
+    ['incident-response, ao diagnosticar', 'skills/incident-response/SKILL.md', /^### Etapa 4/],
+    ['verify-work, na revisao final', 'skills/verify-work/SKILL.md', /^### 2g\./],
+  ])('%s le o indice e abre so a licao que bate', (_label, rel, heading) => {
+    const body = section(rel, heading)
+    expect(body.length, `secao ${heading} ausente em ${rel}`).toBeGreaterThan(0)
+    expect(body).toContain('docs/compound/INDEX.md')
+    expect(body).toMatch(/abr\w+\s+(a\s+li[cç][aã]o\s+inteira|o\s+arquivo\s+da\s+li[cç][aã]o)\s+s[oó]\s+quando/i)
+    expect(body, 'projeto sem indice nao pode travar o fluxo').toMatch(/sem (o )?[ií]ndice/i)
+  })
+
+  test('na pagina, a licao que bate vira premissa ou cenario', () => {
+    expect(section('skills/write-prd/SKILL.md', /^## Step 2/)).toMatch(/Cen[aá]rio/)
+  })
+
+  test('na revisao final, as listas de revisao do projeto entram junto', () => {
+    const body = section('skills/verify-work/SKILL.md', /^### 2g\./)
+    expect(body).toContain('docs/review-checklists/')
+    expect(read('skills/verify-work/SKILL.md')).toMatch(/^### Li[cç][oõ]es e listas de revis[aã]o/m)
+  })
+
+  test('a revisao final nao cita mais a aderencia ao perfil, que saiu na fatia 4', () => {
+    expect(read('skills/verify-work/SKILL.md')).not.toContain('perfil)')
+  })
+})

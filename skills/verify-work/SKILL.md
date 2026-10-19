@@ -243,8 +243,26 @@ IMPORTANTE: mutacoes sao SEMPRE revertidas. Nunca persistir.
   * Captura de incomplete[] (blocked / needs_human / parse error / kind mismatch)
   * Reasoning preservado por agent (alimenta secao "Reasoning dos auditores")
 - Output tipado: { findings, reasoningByAgent, incomplete, domainStatuses }
-- Prosseguir para Step 3 (Compilar Relatorio)
+- Prosseguir para 2g (Licoes do projeto e listas de revisao)
 ```
+
+### 2g. Lições do projeto e listas de revisão
+
+<!-- 2026-10-18 (Luiz/dev): 8.0 fatia 5, F5-3 — o projeto aprende, e a revisão final confere se a entrega repetiu o que ele já aprendeu. -->
+
+Feito pelo orquestrador, sem subagente:
+
+1. Ler `docs/compound/INDEX.md` (uma linha por lição: título, etiquetas e caminho) e abrir a lição
+   inteira só quando a linha bate com os arquivos ou a feature verificada. Para cada lição aberta,
+   conferir no diff se a entrega repete o erro de `## Problem` ou deixou de aplicar a `## Prevention`.
+   Repetiu: finding de severidade `high`, citando o caminho da lição.
+2. Ler as listas de revisão do projeto em `docs/review-checklists/` que se aplicam à mudança
+   (`security.md` quando há login, dado pessoal ou entrada externa; `frontend-ui.md` quando há tela;
+   `reliability.md` e `production-readiness.md` quando há deploy, fila ou integração; `agent-api.md`
+   quando há agente ou API de IA) e conferir os itens que a mudança toca. Item que falha vira finding.
+3. Sem o índice, pular o passo 1 (se a pasta tiver lições sem índice, sugerir `bun run compound:index`).
+   Sem a pasta `docs/review-checklists/`, pular o passo 2.
+4. O resultado vai para a seção "Lições e listas de revisão" do relatório. Prosseguir para o Step 3.
 
 ---
 
@@ -412,6 +430,11 @@ e a linha `base:`. Nunca fundir com Issues Found.}
 - Passe A (passive-scan-lite): {N} findings | not run ({motivo})
 - Passe B (teste dirigido): {N} de {M} suspeitas confirmadas | not run ({motivo})
 - Parada por falha de defesa: nao | sim — {metodo} {rota}, parametro {p} (nao aprofundado por design)
+
+### Lições e listas de revisão
+- Lições consultadas: {N} de {total no índice} | sem índice
+- Lição repetida: nenhuma | {caminho da lição} — {onde a entrega repetiu}
+- Listas de revisão lidas: {listas} | sem docs/review-checklists/
 
 ### Reasoning dos auditores
 
@@ -661,7 +684,7 @@ Para comparar codigo antes e depois da verificacao sem perder o trabalho origina
 
 ## Fase Final — Fresh-context Review (princípio universal #9)
 
-Após todas as outras fases (anti-vibe-review, test quality audit, aderência ao perfil),
+Após todas as outras fases (auditores, test quality audit, lições e listas de revisão),
 spawn um subagente NOVO com contexto limpo. O subagente recebe APENAS:
 
 - O PRD (PRD.md)
