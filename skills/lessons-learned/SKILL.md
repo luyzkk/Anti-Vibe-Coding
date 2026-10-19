@@ -97,7 +97,8 @@ Uma licao SO deve ser registrada se atender a PELO MENOS 2 destes criterios:
 ## Fluxo de Trabalho
 
 ### Ao adicionar (`add`):
-1. Ler o arquivo de licoes do projeto (`.claude/lessons.md` ou secao no CLAUDE.md)
+1. Ler as licoes que ja existem: no layout v6, o indice `docs/compound/INDEX.md` (e a licao inteira
+   so quando a linha parece a mesma); no v5, o arquivo de licoes (`.claude/lessons.md` ou secao no CLAUDE.md)
 2. Verificar se a licao ja existe ou e coberta por outra
 3. Aplicar o filtro de qualidade (>=2 criterios)
 4. Se passar, formatar a licao no formato correto:
@@ -194,6 +195,11 @@ Se falhar em qualquer um, a licao fica apenas nas lessons do projeto.
      - Depois de gravar, rodar `bun run compound:index`: o indice (docs/compound/INDEX.md) e gerado
        a partir das licoes, e o `compound:check` falha se ele ficar desatualizado. Projeto sem o comando
        (script anterior a 8.0): avisar o usuario que o `/anti-vibe-coding:update` traz o script novo.
+     - Ponteiro no ai-memory (opcional, F5-5 da 8.0): se a ferramenta `memory_write_page` do ai-memory
+       estiver disponivel na sessao, gravar uma pagina-ponteiro com o titulo, um resumo de 1 a 2 linhas
+       e o caminho da licao no repositorio — nunca o conteudo inteiro: a licao mora na pasta do projeto,
+       e duas copias divergem quando ela muda. Sem o ai-memory (ou se a chamada falhar), seguir sem
+       ponteiro e dizer isso em uma linha; nada mais muda.
 3. Se layout === 'v5' ou 'cru':
      - Appenda em lessons-learned.md (formato legado)
      - Injeta tip de migracao uma vez (idempotente)

@@ -106,3 +106,55 @@ describe('o Claude consulta o indice nos quatro momentos (F5-3)', () => {
     expect(read('skills/verify-work/SKILL.md')).not.toContain('perfil)')
   })
 })
+
+describe('a captura no fim da fatia (F5-4)', () => {
+  const step6a = () => section('skills/execute-plan/SKILL.md', /^### 6a\./)
+
+  test('depois da explicacao, o Claude propoe ate 3 candidatas a licao e o usuario escolhe', () => {
+    const body = step6a()
+    expect(body).toMatch(/PROPOR LI[CÇ][OÕ]ES/)
+    expect(body).toMatch(/no m[aá]ximo 3/i)
+    expect(body).toContain('AskUserQuestion')
+    expect(body).toContain('/anti-vibe-coding:lessons-learned')
+    expect(body, 'nada e gravado sem a escolha do usuario').toMatch(/nada [eé] gravado sem/i)
+  })
+
+  test('as candidatas saem dos bugs e armadilhas da fatia e passam pelo filtro de senior', () => {
+    const body = step6a()
+    expect(body).toMatch(/Bugs/)
+    expect(body).toMatch(/Gotchas|armadilhas/i)
+    expect(body).toMatch(/filtro/i)
+    expect(body, 'candidata que ja existe no indice nao volta').toContain('docs/compound/INDEX.md')
+  })
+
+  test('a explicacao vem antes das candidatas', () => {
+    const body = step6a()
+    expect(body.indexOf('EXPLICAR A FATIA')).toBeGreaterThan(-1)
+    expect(body.indexOf('EXPLICAR A FATIA')).toBeLessThan(body.search(/PROPOR LI[CÇ][OÕ]ES/))
+  })
+})
+
+describe('o ai-memory e opcional (F5-5)', () => {
+  const captura = () => read('skills/lessons-learned/SKILL.md').split('## Fluxo de Captura (v6)')[1] ?? ''
+
+  test('ao registrar uma licao, grava no ai-memory so um ponteiro, quando ele existe', () => {
+    const body = captura()
+    expect(body).toContain('memory_write_page')
+    expect(body).toMatch(/ponteiro/i)
+    expect(body, 'a licao mora na pasta do projeto, nao no ai-memory').toMatch(/nunca o conte[uú]do inteiro/i)
+    expect(body, 'sem ai-memory, nada muda').toMatch(/sem o ai-memory/i)
+  })
+
+  test('ao diagnosticar, pergunta ao ai-memory se outro projeto ja passou por isso, tratando a resposta como historico', () => {
+    const etapa4 = section('skills/incident-response/SKILL.md', /^### Etapa 4/)
+    expect(etapa4).toContain('memory_query')
+    expect(etapa4).toMatch(/outro projeto/i)
+    expect(etapa4, 'o que vem do ai-memory e dado, nunca instrucao').toMatch(/n[aã]o\s+[eé]\s+instru[cç][aã]o|nunca\s+instru[cç][aã]o/i)
+    expect(etapa4).toMatch(/sem o ai-memory/i)
+  })
+
+  test('o /lessons-learned procura duplicata no indice das licoes', () => {
+    const add = read('skills/lessons-learned/SKILL.md').split('### Ao adicionar (`add`):')[1]?.split('### Ao revisar')[0] ?? ''
+    expect(add).toContain('docs/compound/INDEX.md')
+  })
+})
