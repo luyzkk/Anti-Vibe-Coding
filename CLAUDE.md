@@ -16,7 +16,7 @@ Plan before code. Test before implement. Capture lessons after merge. Discipline
 | Versioning, manifest checksums, update strategies | `docs/UPGRADE.md` |
 | Senior principles (security, quality, architecture defaults) | `docs/design-docs/core-beliefs.md` |
 | Past architectural decisions with rationale | `docs/design-docs/ADR-*.md` |
-| Lessons captured from real bugs | `docs/compound/*.md` |
+| Lessons captured from real bugs | `docs/compound/INDEX.md` (one line per lesson), then the lesson file it points to |
 | Active execution plans | `docs/exec-plans/active/` |
 | Completed plans (historical reference) | `docs/exec-plans/completed/` |
 | Plugin architecture (skills/hooks/scripts/lib layout) | [ARCHITECTURE.md](./ARCHITECTURE.md) |
