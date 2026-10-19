@@ -10,7 +10,6 @@ All agents are read-only unless noted. Default profile is `balanced` unless over
 | code-reviewer | Generalist correctness + readability review (read-only) | balanced |
 | tdd-verifier | Verifies TDD compliance (read-only) | balanced |
 | documentation-writer | Creates/updates docs | balanced |
-| lesson-evaluator | Evaluates lesson quality | balanced |
 | security-auditor | Security audit (cryptography, secrets, ReDoS) | balanced |
 | dependency-auditor | Dependency audit (CVE + EPSS/KEV + reachability; Bash read-only) | balanced |
 | database-analyzer | Query analysis (N+1, indexes, cache) | balanced |

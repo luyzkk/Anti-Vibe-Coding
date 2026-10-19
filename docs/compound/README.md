@@ -2,6 +2,13 @@
 
 One lesson per file. Frontmatter required.
 
+## Índice
+
+`INDEX.md` lista uma linha por lição (título, etiquetas e caminho), a mais nova primeiro. O Claude lê o
+índice para achar a lição que se aplica ao trabalho e só então abre o arquivo. Ele é gerado a partir das
+lições com `bun run compound:index`; não edite à mão, porque o `compound:check` falha quando o índice
+diverge das lições.
+
 ## Naming Convention
 
 `YYYY-MM-DD-slug.md` — date is when the lesson was captured, slug is kebab-case title.

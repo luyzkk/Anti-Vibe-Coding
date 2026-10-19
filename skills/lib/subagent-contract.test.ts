@@ -177,7 +177,6 @@ const FIXTURE_NAMES = [
   'api-auditor',
   'database-analyzer',
   'infrastructure-auditor',
-  'lesson-evaluator',
   'plan-executor',
   'documentation-writer',
   'code-reviewer',

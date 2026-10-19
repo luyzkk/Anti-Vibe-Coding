@@ -11,9 +11,10 @@ const SCRIPT_SRC = path.join(
   'skills/init/assets/templates/scripts/compound-check.ts.tpl',
 )
 
-async function runScript(cwd: string): Promise<{ code: number; stderr: string; stdout: string }> {
+// 2026-10-18 (Luiz/dev): 8.0 fatia 5 — com licoes, o check exige o indice; os testes de sucesso geram antes.
+async function runScript(cwd: string, args: string[] = []): Promise<{ code: number; stderr: string; stdout: string }> {
   return new Promise((resolve) => {
-    const proc = spawn('bun', ['run', path.join(cwd, 'scripts/compound-check.ts')], { cwd })
+    const proc = spawn('bun', ['run', path.join(cwd, 'scripts/compound-check.ts'), ...args], { cwd })
     let stdout = ''
     let stderr = ''
     proc.stdout.on('data', (d) => { stdout += d.toString() })
@@ -51,6 +52,7 @@ describe('compound-check (skeleton)', () => {
     const note = (title: string) => `---\ntitle: ${title}\ncategory: bug\ntags: [x]\ncreated: 2026-05-12\n---\n\n# ${title}\n\n## Problem\np\n## Solution\ns\n## Prevention\nv\n`
     await fs.writeFile(path.join(FIXTURE, 'docs/compound/2026-05-12-a.md'), note('A'), 'utf8')
     await fs.writeFile(path.join(FIXTURE, 'docs/compound/2026-05-12-b.md'), note('B'), 'utf8')
+    await runScript(FIXTURE, ['--write-index'])
     const result = await runScript(FIXTURE)
     expect(result.code).toBe(0)
     expect(result.stdout).toContain('2 compound notes')
@@ -61,6 +63,7 @@ describe('compound-check (skeleton)', () => {
     await fs.mkdir(path.join(FIXTURE, 'docs/compound/_archived'), { recursive: true })
     await fs.writeFile(path.join(FIXTURE, 'docs/compound/_archived/old.md'), note('Old'), 'utf8')
     await fs.writeFile(path.join(FIXTURE, 'docs/compound/2026-05-12-active.md'), note('Active'), 'utf8')
+    await runScript(FIXTURE, ['--write-index'])
     const result = await runScript(FIXTURE)
     expect(result.code).toBe(0)
     expect(result.stdout).toContain('1 compound notes')

@@ -25,7 +25,6 @@ The plugin supports model profiles that optimize cost vs. quality per agent.
 | code-smell-detector | sonnet | haiku | haiku |
 | tdd-verifier | sonnet | sonnet | haiku |
 | infrastructure-auditor | sonnet | sonnet | haiku |
-| lesson-evaluator | haiku | haiku | haiku |
 | documentation-writer | sonnet | haiku | haiku |
 
 ## How to Configure

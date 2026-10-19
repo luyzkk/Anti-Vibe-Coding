@@ -1,6 +1,6 @@
 {
   "version": "7.9.0",
-  "generatedAt": "2026-10-18T21:10:23.775Z",
+  "generatedAt": "2026-10-19T00:35:33.128Z",
   "description": "Manifest de arquivos gerenciados pelo plugin Anti-Vibe Coding",
   "skills": {
     "api-design": {
@@ -329,12 +329,6 @@
       "lastModified": "2026-05-23",
       "updateStrategy": "replace"
     },
-    "agents/lesson-evaluator.md": {
-      "version": "7.9.0",
-      "checksum": "8d7327c4c9fe10bd72cd082bc0d14b194b0a4597710b315c9162b68c96e449b8",
-      "lastModified": "2026-10-14",
-      "updateStrategy": "replace"
-    },
     "agents/plan-executor.md": {
       "version": "7.9.0",
       "checksum": "cd03e576a1455f3963b260b2eeaa765b7c1018cfb476519e863564dfd8cec837",
@@ -385,8 +379,8 @@
     },
     "config/model-profiles.json": {
       "version": "7.9.0",
-      "checksum": "021a491e5a88fd1ebb955a0f0dec2ed1d07e59a0e06eaea07c4bd0ec1ec255f0",
-      "lastModified": "2026-09-01",
+      "checksum": "61a222d9f48e0ecd0de630dd39d5b3f1f47eec77d361bfc213ec964dd68f10b8",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "config/qa-visual.json": {
@@ -433,8 +427,8 @@
     },
     "scripts/compound-check.ts": {
       "version": "7.9.0",
-      "checksum": "7dc8d78e715a1d8ea8fef3b9d0e304bafc425f4938200852b7931d5a226ffd54",
-      "lastModified": "2026-05-13",
+      "checksum": "14947a1c534a80328c9ed01ebcbffd04f7b8d90fc9d135b02a120e338b453740",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "scripts/generate-manifest.js": {
@@ -721,8 +715,8 @@
     },
     "skills/execute-plan/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "7ac188c760caf24421005c798d2262073385ece4b17ce817d77a07ca42cc6098",
-      "lastModified": "2026-10-18",
+      "checksum": "d10af3f9eb0e31746426f5fe1550ee2a04ae3001973b3a9bbe49d986c5ed160a",
+      "lastModified": "2026-10-19",
       "updateStrategy": "replace"
     },
     "skills/execute-plan/index.ts": {
@@ -751,8 +745,8 @@
     },
     "skills/incident-response/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "df5f252253fab8af3ba272095c35833e1f13ee56c5f0799e632321ceed86be7d",
-      "lastModified": "2026-10-14",
+      "checksum": "706916bd7d08f5aad4375359d10f2e58774bc63d7e77466c6e498512c54237b3",
+      "lastModified": "2026-10-19",
       "updateStrategy": "replace"
     },
     "skills/incident-response/references/feedback-loops.md": {
@@ -825,24 +819,6 @@
       "version": "7.9.0",
       "checksum": "ae378f1c86e9d3a32c9d196ffe9072e7478e0e479d106ef2a261175ed3128a72",
       "lastModified": "2026-05-12",
-      "updateStrategy": "replace"
-    },
-    "skills/init/lib/compound-imported-constants.ts": {
-      "version": "7.9.0",
-      "checksum": "c72e62a35c118d6c6a422295e98bba181acb8a59fad341a2d46a3fa2dd69daff",
-      "lastModified": "2026-10-13",
-      "updateStrategy": "replace"
-    },
-    "skills/init/lib/compound-imported-writer.ts": {
-      "version": "7.9.0",
-      "checksum": "a13f4236022a866d82ede2328ec343e4cc4ec8fad9561cac4154d37b9d3d7121",
-      "lastModified": "2026-05-19",
-      "updateStrategy": "replace"
-    },
-    "skills/init/lib/compound-writer.ts": {
-      "version": "7.9.0",
-      "checksum": "e4c13b2711c305ad460b88002a8ee940cb5179f2c522f27f16e4e49767759dc8",
-      "lastModified": "2026-08-18",
       "updateStrategy": "replace"
     },
     "skills/init/lib/copy-knowledge.ts": {
@@ -1107,18 +1083,6 @@
       "version": "7.9.0",
       "checksum": "6b170debaaf288858314b0f30018fd5fd689526f457f43fe3fe0260cdbe88dcf",
       "lastModified": "2026-05-23",
-      "updateStrategy": "replace"
-    },
-    "skills/init/lib/progress-txt-parser.ts": {
-      "version": "7.9.0",
-      "checksum": "5404e7cfe2ccc174a721b725ff41c9023a963f9a63e25e3cd7790315ec707023",
-      "lastModified": "2026-05-19",
-      "updateStrategy": "replace"
-    },
-    "skills/init/lib/prompts/compound.md": {
-      "version": "7.9.0",
-      "checksum": "305aff3a66feef0028a6408f429a86d97aef539e1035b7d38696498b6097a6a9",
-      "lastModified": "2026-05-14",
       "updateStrategy": "replace"
     },
     "skills/init/lib/prompts/explorer.md": {
@@ -1561,8 +1525,8 @@
     },
     "skills/init/assets/templates/docs/compound/README.md.tpl": {
       "version": "7.9.0",
-      "checksum": "2039c05b31a40d44d17140fb05f2be73a613f93e6e976c1d25ae22cb26e728be",
-      "lastModified": "2026-05-24",
+      "checksum": "486a1da84fa5f291123b86e1d16cf15bea7bc5c7dc14672e00a5c16fa4304534",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/docs/COMPOUND_ENGINEERING.md.tpl": {
@@ -1717,8 +1681,8 @@
     },
     "skills/init/assets/templates/docs/STATE.md.tpl": {
       "version": "7.9.0",
-      "checksum": "19d1b30ab5a92e6eca1d321ce41fcb2f88ccea6e73d8b9185e4e583fab1d44c6",
-      "lastModified": "2026-10-14",
+      "checksum": "ddf6363a7df9e621158314771bfed6731df6f4fb86abe4d4b003628cdcd564c9",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/exec-plan/fase.md.tpl": {
@@ -1735,8 +1699,8 @@
     },
     "skills/init/assets/templates/package.json.tpl": {
       "version": "7.9.0",
-      "checksum": "57e5535b60653841f4eb018fcbc2509bc7a8dbc1fb23acaf60eec300d162d7f3",
-      "lastModified": "2026-10-14",
+      "checksum": "b949f346d37046e17ada1a2cdd2974b6ac7c7b5a73c102a69b1b5853b9b30653",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/README.md": {
@@ -1753,8 +1717,8 @@
     },
     "skills/init/assets/templates/scripts/compound-check.ts.tpl": {
       "version": "7.9.0",
-      "checksum": "53c5bf98cb3bf95fb6ac61443844ec113ef2fba0ed356c567a2e9008f12a0581",
-      "lastModified": "2026-10-14",
+      "checksum": "6d6f0f234ed881b61dae06702acc0a3617384c7638887d4e8344e83ccc9fe506",
+      "lastModified": "2026-10-18",
       "updateStrategy": "replace"
     },
     "skills/init/assets/templates/scripts/harness-validate.ts.tpl": {
@@ -1777,8 +1741,8 @@
     },
     "skills/lessons-learned/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "3b40ccdfc2f87b6d6c8f04a7605aeec6872cb9ce8bd80d77399d816861fce4a5",
-      "lastModified": "2026-10-18",
+      "checksum": "dc1057449e25de11512b4c2e7ccf30374bf185f3134de8893fc05b4ea4b903c5",
+      "lastModified": "2026-10-19",
       "updateStrategy": "replace"
     },
     "skills/lessons-learned/index.ts": {
@@ -1913,12 +1877,6 @@
       "lastModified": "2026-05-15",
       "updateStrategy": "replace"
     },
-    "skills/lib/state-md-generator.ts": {
-      "version": "7.9.0",
-      "checksum": "16b9f0e0708be2db7f1bc085111515087dc28d0530c7b735e66c3e4af48adc6f",
-      "lastModified": "2026-08-18",
-      "updateStrategy": "replace"
-    },
     "skills/lib/state-md-lock.ts": {
       "version": "7.9.0",
       "checksum": "26232637c3f104adfc0a17c7ed8faac466b10ce441fd4f4623e28f906356ae23",
@@ -1969,8 +1927,8 @@
     },
     "skills/plan-feature/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "14befc118852015d916772d797bfdc558dbddbba776134caa3a0f96115e8b744",
-      "lastModified": "2026-10-18",
+      "checksum": "30fa2662b791b622fbca66ca8cea68f90d74460c231210a602f5bea9a26dbded",
+      "lastModified": "2026-10-19",
       "updateStrategy": "replace"
     },
     "skills/plan-feature/index.ts": {
@@ -2323,8 +2281,8 @@
     },
     "skills/verify-work/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "f4e3cba27dcf3200ec5189b696e9d2eaf6116b76675639cbd82defc57d497e1f",
-      "lastModified": "2026-10-18",
+      "checksum": "7845061848865fab7e89f7f3dd532338b2dcc078e8334b015b74d97ade682071",
+      "lastModified": "2026-10-19",
       "updateStrategy": "replace"
     },
     "skills/verify-work/lib/audit-consolidator.ts": {
@@ -2347,8 +2305,8 @@
     },
     "skills/write-prd/SKILL.md": {
       "version": "7.9.0",
-      "checksum": "2064edd9aba5ae776e358f23535c220e3abf8e3e88f3e26dfc5d56ffee80ff9d",
-      "lastModified": "2026-10-18",
+      "checksum": "bfd50d707dae153df468deb557071ed77ae7f9a0a2e56c2a2d2874e6c560cc85",
+      "lastModified": "2026-10-19",
       "updateStrategy": "replace"
     },
     "skills/write-prd/templates/design-template.md": {

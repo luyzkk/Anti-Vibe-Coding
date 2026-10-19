@@ -219,7 +219,6 @@ Para correções triviais, **não use o pipeline** — vai direto. O TDD Gate ex
 | design-explorer | Gera proposta arquitetural sob restrição específica |
 | tdd-verifier | Verifica compliance TDD (read-only) |
 | documentation-writer | Cria/atualiza documentação |
-| lesson-evaluator | Avalia qualidade de lições (4 critérios sênior) |
 | security-auditor | Audita criptografia, secrets, ReDoS, OWASP |
 | database-analyzer | Detecta N+1, falta de índices, cache mal configurado |
 | api-auditor | Verifica idempotência, DTOs, REST design, rate limit |

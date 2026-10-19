@@ -766,7 +766,19 @@ Se o plano nao tem campo `Scope` parseavel:
      — e a medida da premissa da 8.0 ("o usuario consegue explicar o que foi feito")
    - Nao bloqueia a proxima fatia: serve para o usuario entender o que tem nas maos, nao e prova
 
-4. Apresentar ao dev:
+4. PROPOR LIÇÕES (F5-4 da 8.0), depois da explicacao:
+   - Ler as secoes Bugs e Gotchas do MEMORY.md deste plano
+   - Passar cada item pelo filtro de senior do /anti-vibe-coding:lessons-learned (>= 2 de 4: nao
+     dedutivel, especifico do projeto, alto custo do erro, contraintuitivo). Bug que um teste ja
+     cobre, erro de digitacao e o que a documentacao oficial ja diz nao viram licao
+   - Descartar o que ja esta em `docs/compound/INDEX.md` (a licao ja existe)
+   - Sobrou alguma: AskUserQuestion multiSelect com no maximo 3 candidatas, uma linha cada (o que
+     aconteceu e por que vale guardar), mais a opcao "nenhuma". Sem candidata, pular este passo
+   - Para cada escolhida, rodar /anti-vibe-coding:lessons-learned add, que grava a licao e atualiza o
+     indice. Nada e gravado sem a escolha do usuario
+   - Registrar no Log do STATE.md: "licoes da fatia {N}: {k} de {m} candidatas registradas"
+
+5. Apresentar ao dev:
    "Plano {NN} concluido ({M}/{M} fases).
 
    Memoria registrada:
@@ -780,7 +792,7 @@ Se o plano nao tem campo `Scope` parseavel:
 
    O que deseja?"
 
-5. AskUserQuestion (proxima fatia ainda nao detalhada — o caso normal desde a 8.0):
+6. AskUserQuestion (proxima fatia ainda nao detalhada — o caso normal desde a 8.0):
    - "Detalhar a fatia {N+1} agora, com o que esta fatia ensinou" → rodar
      `/anti-vibe-coding:plan-feature {PASTA_ATIVA} --fatia {N+1}`; ele recebe as "Notas para
      Planos Seguintes" deste plano e, se elas mudam alguma fatia, propoe a mudanca na pagina
@@ -868,6 +880,9 @@ Gerar `{PASTA_ATIVA}/SUMMARY.md` (nu, sem prefixo):
 
 ```
 CRITICO: Oferecer destilacao ao dev.
+
+As candidatas de cada fatia ja passaram pelo Step 6a (passo 4, PROPOR LIÇÕES). Aqui entra so o que
+atravessa as fatias: o padrao que so aparece olhando o conjunto das memorias.
 
 "Todos os planos foram concluidos. As memorias dos planos contem:
 - {N} decisoes de implementacao
